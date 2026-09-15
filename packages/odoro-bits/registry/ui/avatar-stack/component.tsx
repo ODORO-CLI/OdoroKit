@@ -1,25 +1,25 @@
 /**
- * Pile d'avatars : des initiales chevauchees qui s'etalent au survol.
+ * Avatar stack: overlapping initials that spread out on hover.
  *
- * ## L'etalement est une marge, pas une transformation
+ * ## The spreading is a margin, not a transform
  *
- * Au repos, chaque pastille mord sur la precedente par une marge negative ;
- * au survol ou au focus, la marge revient a zero et la rangee s'etale. Une
- * transformation serait composee plus vite, mais elle ne pousserait pas les
- * voisines : la rangee garderait sa largeur et les pastilles se
- * recouvriraient autrement. Ici c'est bien la geometrie qui change, et la
- * marge est la propriete honnete pour le dire.
+ * At rest, each badge bites into the previous one through a negative margin;
+ * on hover or focus, the margin returns to zero and the row spreads. A
+ * transform would be composited faster, but it would not push the neighbours:
+ * the row would keep its width and the badges would overlap differently.
+ * Here the geometry really does change, and the margin is the honest property
+ * for saying so.
  *
- * ## Le clavier a le meme droit que la souris
+ * ## The keyboard has the same rights as the mouse
  *
- * Le groupe est focusable, et `:focus-visible` declenche le meme etalement
- * que `:hover` : un utilisateur au clavier peut lire chaque nom, pas
- * seulement le premier de la pile.
+ * The group is focusable, and `:focus-visible` triggers the same spreading as
+ * `:hover`: a keyboard user can read every name, not only the first one in
+ * the stack.
  *
- * ## Les initiales ne sont pas le nom
+ * ## The initials are not the name
  *
- * Chaque pastille porte le nom complet en `title` et hors ecran ; les
- * initiales, redondantes, sont retirees de l'arbre d'accessibilite.
+ * Each badge carries the full name in `title` and off-screen; the initials,
+ * being redundant, are removed from the accessibility tree.
  *
  * @module
  */
@@ -27,30 +27,30 @@
 import { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'
 import { type CSSProperties, type ReactElement } from 'react'
 
-/** Une personne de la pile. */
+/** One person in the stack. */
 export interface AvatarStackItem {
-  /** Nom complet, affiche en infobulle et lu par les lecteurs d'ecran. */
+  /** Full name, shown as a tooltip and read by screen readers. */
   readonly name: string
-  /** Token de palette pour le fond, sinon le cycle par defaut. */
+  /** Palette token for the background, otherwise the default cycle. */
   readonly tone?: string
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface AvatarStackOwnProps {
-  /** Les personnes, dans l'ordre d'affichage. */
+  /** The people, in display order. */
   items: readonly AvatarStackItem[]
-  /** Nombre de pastilles montrees avant le compteur de surplus. @defaultValue 5 */
+  /** Number of badges shown before the overflow counter. @defaultValue 5 */
   max?: number
-  /** Chevauchement des pastilles au repos, en pixels. @defaultValue 12 */
+  /** Overlap of the badges at rest, in pixels. @defaultValue 12 */
   offset?: number
-  /** Nom du groupe pour les lecteurs d'ecran. @defaultValue 'Equipe' */
+  /** Name of the group for screen readers. @defaultValue 'Team' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type AvatarStackProps = Customisable<AvatarStackOwnProps>
 
-/** Cycle de teintes par defaut, une par position. */
+/** Default hue cycle, one per position. */
 const TONES = [
   '--o-palette-brand-500',
   '--o-palette-emerald-500',
@@ -59,10 +59,10 @@ const TONES = [
   '--o-palette-sky-500',
 ] as const
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-avatar-stack'
 
-/** Pose la pile et son etalement, une fois par document. */
+/** Applies the stack and its spreading, once per document. */
 function ensureStackRules(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -82,7 +82,7 @@ function ensureStackRules(): void {
     '}',
     '[data-o-avatars] [data-o-avatar]:first-child{margin-inline-start:0}',
     '[data-o-avatars]:is(:hover,:focus-visible) [data-o-avatar]{margin-inline-start:0}',
-    // Mouvement reduit : l etalement reste, seul le trajet disparait.
+    // Reduced motion: the spreading stays, only the travel disappears.
     '@media (prefers-reduced-motion:reduce){',
     '[data-o-avatars] [data-o-avatar]{transition:none}',
     '}',
@@ -90,7 +90,7 @@ function ensureStackRules(): void {
   document.head.append(style)
 }
 
-/** Les initiales d'un nom : premiere lettre des deux premiers mots. */
+/** The initials of a name: first letter of the first two words. */
 function initialsOf(name: string): string {
   return name
     .split(/\s+/)
@@ -101,7 +101,7 @@ function initialsOf(name: string): string {
 }
 
 /**
- * Pile d'initiales chevauchees qui s'etale au survol ou au focus.
+ * Stack of overlapping initials that spreads out on hover or focus.
  *
  * @example
  * <AvatarStack
@@ -113,14 +113,14 @@ function initialsOf(name: string): string {
  * />
  *
  * @example
- * // Une teinte imposee, et plus de recouvrement.
+ * // A forced tone, and more overlap.
  * <AvatarStack items={[{ name: 'Ada', tone: '--o-palette-sky-500' }]} offset={18} />
  */
 export function AvatarStack({
   items,
   max = 5,
   offset = 12,
-  label = 'Equipe',
+  label = 'Team',
   ...rest
 }: AvatarStackProps): ReactElement {
   const { reduced } = useMotionState()
@@ -173,7 +173,7 @@ export function AvatarStack({
           }
         >
           <span aria-hidden="true">+{surplus}</span>
-          <span className="o-sr-only">{`${String(surplus)} personnes de plus`}</span>
+          <span className="o-sr-only">{`${String(surplus)} more people`}</span>
         </span>
       ) : null}
     </div>

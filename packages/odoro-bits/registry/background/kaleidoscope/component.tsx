@@ -1,23 +1,23 @@
 /**
- * Kaleidoscope : un bruit anime replie en secteurs symetriques.
+ * Kaleidoscope: an animated noise folded into symmetrical sectors.
  *
- * ## Le principe
+ * ## The principle
  *
- * L'angle du pixel est ramene modulo 2pi/n puis reflechi par rapport au milieu
- * du secteur : tous les secteurs lisent le meme domaine, et un simple bruit
- * fractal devient symetrique sans qu'aucune symetrie ne soit dessinee. Une
- * rotation lente fait tourner l'ensemble.
+ * The pixel's angle is brought back modulo 2pi/n then mirrored about the
+ * middle of the sector: every sector reads the same domain, and a plain
+ * fractal noise becomes symmetrical without any symmetry being drawn. A slow
+ * rotation turns the whole thing.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur — les recopier ici en ferait autant
- * de versions a maintenir qu'il y a de fonds.
+ * It carries only what sets it apart: its shader, its settings and its fallback.
+ * Reading the tokens, converting them to floats and re-reading them when the
+ * theme changes all come from the engine — copying them here would leave as
+ * many versions to maintain as there are backgrounds.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en
- * accorde qu'une par backend — et sous mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface — it grants only one
+ * per backend — and under reduced motion.
  *
  * @module
  */
@@ -34,41 +34,41 @@ import { type ReactElement } from 'react'
 
 import { KALEIDOSCOPE_FRAGMENT } from './kaleidoscope.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface KaleidoscopeControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to this component. */
 export interface KaleidoscopeOwnProps {
-  /** Vitesse de rotation et de derive du bruit. @defaultValue 0.15 */
+  /** Rotation and noise drift speed. @defaultValue 0.15 */
   speed?: number
-  /** Nombre de secteurs du repliement. @defaultValue 6 */
+  /** Number of sectors in the fold. @defaultValue 6 */
   segments?: number
-  /** Echelle du bruit. Plus haut, plus fin. @defaultValue 2.5 */
+  /** Noise scale. Higher is finer. @defaultValue 2.5 */
   scale?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<KaleidoscopeControls>
 }
 
-/** Toutes les proprietes. */
+/** Every property. */
 export type KaleidoscopeProps = Customisable<KaleidoscopeOwnProps>
 
-/** Tokens employes par defaut : le fond, les nappes, les rehauts. */
+/** Tokens used by default: the background, the sheets, the highlights. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-purple-500',
   '--o-palette-pink-300',
 ] as const
 
-/** Repli par defaut : un degrade fige, dans les memes tons. */
+/** Default fallback: a frozen gradient, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-br o-from-zinc-50 dark:o-from-zinc-950 o-to-purple-950'
 
@@ -95,8 +95,8 @@ export function Kaleidoscope({
     colors,
     uniforms: { uSpeed: speed, uSegments: segments, uScale: scale, uDetail: 4 },
     name: 'kaleidoscope',
-    // Le repliement est gratuit, les secteurs aussi : ce sont les octaves des
-    // deux lectures de bruit qui pesent, donc c'est elles qui sont bornees.
+    // The fold costs nothing, and neither do the sectors: the weight sits in
+    // the octaves of the two noise reads, so those are what gets capped.
     degrade: (quality) => ({
       uDetail: quality === 'low' ? 2 : 4,
     }),

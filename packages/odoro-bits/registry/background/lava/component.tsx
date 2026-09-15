@@ -1,23 +1,23 @@
 /**
- * Lave : des gouttes chaudes qui derivent et fusionnent.
+ * Lava: hot blobs that drift and merge.
  *
- * ## Le principe
+ * ## The principle
  *
- * Des metaballs : chaque centre emet un champ en 1/d2, la somme des champs est
- * seuillee en deux paliers doux — bord sombre, coeur clair — et deux gouttes
- * qui s'approchent fusionnent d'elles-memes, sans qu'aucun code ne les
- * recolle.
+ * Metaballs: every centre emits a 1/d2 field, the sum of the fields is
+ * thresholded in two soft steps — dark edge, bright core — and two blobs
+ * drawing near merge of their own accord, without any code gluing them back
+ * together.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur — les recopier ici en ferait autant
- * de versions a maintenir qu'il y a de fonds.
+ * It carries only what sets it apart: its shader, its settings and its fallback.
+ * Reading the tokens, converting them to floats and re-reading them when the
+ * theme changes all come from the engine — copying them here would leave as
+ * many versions to maintain as there are backgrounds.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en
- * accorde qu'une par backend — et sous mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface — it grants only one
+ * per backend — and under reduced motion.
  *
  * @module
  */
@@ -34,46 +34,46 @@ import { type ReactElement } from 'react'
 
 import { LAVA_FRAGMENT } from './lava.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface LavaControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to this component. */
 export interface LavaOwnProps {
-  /** Vitesse de derive des centres. @defaultValue 0.3 */
+  /** Drift speed of the centres. @defaultValue 0.3 */
   speed?: number
-  /** Nombre de gouttes. @defaultValue 5 */
+  /** Number of blobs. @defaultValue 5 */
   blobs?: number
-  /** Seuil du champ. Plus bas, plus de matiere. @defaultValue 1.2 */
+  /** Field threshold. Lower means more matter. @defaultValue 1.2 */
   threshold?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<LavaControls>
 }
 
-/** Toutes les proprietes. */
+/** Every property. */
 export type LavaProps = Customisable<LavaOwnProps>
 
-/** Tokens employes par defaut : la roche froide, le bord, le coeur en fusion. */
+/** Tokens used by default: the cold rock, the edge, the molten core. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-red-600',
   '--o-palette-amber-400',
 ] as const
 
-/** Repli par defaut : un degrade fige, dans les memes tons. */
+/** Default fallback: a frozen gradient, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-t o-from-red-950 o-to-zinc-50 dark:o-to-zinc-950'
 
 /**
- * Lave.
+ * Lava.
  *
  * @example
  * <div className="o-relative o-min-h-screen">
@@ -95,8 +95,8 @@ export function Lava({
     colors,
     uniforms: { uSpeed: speed, uBlobs: blobs, uThreshold: threshold },
     name: 'lava',
-    // Chaque goutte est un champ de plus a sommer par pixel : c'est le
-    // reglage qui pese, donc celui qui est borne.
+    // Every blob is one more field to sum per pixel: that is the setting
+    // which weighs, so that is the one which gets capped.
     degrade: (quality) => ({
       uBlobs: quality === 'low' ? Math.min(blobs, 3) : blobs,
     }),

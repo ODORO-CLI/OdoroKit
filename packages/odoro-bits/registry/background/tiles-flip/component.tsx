@@ -1,22 +1,22 @@
 /**
- * Tuiles qui se retournent : des ondes de retournement autour du pointeur.
+ * Flipping tiles: waves of flipping around the pointer.
  *
- * ## A quoi ce fond reagit
+ * ## What this background reacts to
  *
- * Au deplacement du pointeur, avec amortissement : les tuiles proches se
- * retournent en ondes concentriques et decouvrent leur face arriere ; celles
- * qu'il quitte retombent a plat. A la sortie du cadre, le hook ramene la
- * cible au centre, et les ondes y continuent doucement.
+ * To the movement of the pointer, with damping: the nearby tiles flip in
+ * concentric waves and reveal their back face; the ones it leaves fall back
+ * flat. On leaving the frame, the hook brings the target back to the centre,
+ * and the waves carry on gently there.
  *
- * ## Le pont pointeur -> shader
+ * ## The pointer -> shader bridge
  *
- * Aucun rendu React par image : un tableau stable de deux flottants est mute
- * en place dans la boucle du moteur, en priorite d'entree, et la surface le
- * relit a chaque image.
+ * No React render per frame: a stable array of two floats is mutated in place
+ * inside the engine loop, at input priority, and the surface re-reads it every
+ * frame.
  *
- * ## Sous mouvement reduit
+ * ## Under reduced motion
  *
- * La surface est refusee par le moteur et le repli statique s'affiche.
+ * The surface is refused by the engine and the static fallback is shown.
  *
  * @module
  */
@@ -37,45 +37,45 @@ import { usePointerDamped } from '@registre/hooks/usePointerDamped'
 
 import { TILES_FLIP_FRAGMENT } from './tiles-flip.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface TilesFlipControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to this component. */
 export interface TilesFlipOwnProps {
-  /** Vitesse de propagation des ondes. @defaultValue 1 */
+  /** Speed at which the waves travel. @defaultValue 1 */
   speed?: number
-  /** Nombre de tuiles sur la hauteur. @defaultValue 12 */
+  /** Number of tiles over the height. @defaultValue 12 */
   density?: number
-  /** Portee des ondes autour du pointeur, en hauteurs de cadre. @defaultValue 0.4 */
+  /** Reach of the waves around the pointer, in frame heights. @defaultValue 0.4 */
   radius?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<TilesFlipControls>
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type TilesFlipProps = Customisable<TilesFlipOwnProps>
 
-/** Tokens employes par defaut : le fond, la face avant, la face arriere. */
+/** Tokens used by default: the background, the front face, the back face. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-brand-500',
   '--o-palette-teal-400',
 ] as const
 
-/** Repli par defaut : une teinte figee, dans les memes tons. */
+/** Default fallback: a frozen tint, in the same tones. */
 const DEFAULT_FALLBACK = 'o-bg-zinc-50 dark:o-bg-zinc-950'
 
 /**
- * Tuiles qui se retournent.
+ * Flipping tiles.
  *
  * @example
  * <div className="o-relative o-min-h-screen">
@@ -94,21 +94,21 @@ export function TilesFlip({
 }: TilesFlipProps): ReactElement {
   const [host, setHost] = useState<HTMLDivElement | null>(null)
 
-  // Tableau stable, mute en place : la surface relit les uniforms a chaque
-  // image, l'identite ne change pas, la mutation suffit — aucun setState.
+  // Stable array, mutated in place: the surface re-reads the uniforms every
+  // frame, the identity never changes, mutating is enough — no setState.
   const uPointer = useRef<number[]>([0.5, 0.5]).current
 
-  const pointer = usePointerDamped({ host, speed: 3, name: 'tuiles : pointeur' })
+  const pointer = usePointerDamped({ host, speed: 3, name: 'tiles : pointer' })
 
   useEffect(() => {
     const subscription = clock.subscribe(
       () => {
-        // Du repere du hook (centre, y vers le bas) vers celui de la texture
-        // (coin bas-gauche, y vers le haut).
+        // From the hook's frame (centred, y downwards) to the texture's frame
+        // (bottom-left corner, y upwards).
         uPointer[0] = (pointer.current.x + 1) / 2
         uPointer[1] = 1 - (pointer.current.y + 1) / 2
       },
-      { priority: CLOCK_PRIORITY.input, name: 'tuiles : pont' },
+      { priority: CLOCK_PRIORITY.input, name: 'tiles : bridge' },
     )
     return () => subscription.unsubscribe()
   }, [pointer, uPointer])

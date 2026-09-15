@@ -38,7 +38,7 @@
       "description": "Marge autour de la zone d observation, syntaxe de rootMargin."
     },
     {
-      "name": "immediat",
+      "name": "immediate",
       "type": "boolean",
       "default": false,
       "description": "Ne pas observer : vrai des le montage."

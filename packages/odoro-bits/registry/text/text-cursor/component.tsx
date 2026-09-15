@@ -1,42 +1,41 @@
 /**
- * Texte qui suit : les lettres courent apres le pointeur, en chaine.
+ * Trailing text: the letters chase the pointer, in a chain.
  *
- * ## Une chaine, pas un bloc qui se deplace
+ * ## A chain, not a block that moves
  *
- * `echo-text` fabrique des copies du texte et les fait trainer derriere le
- * pointeur ; l'original, lui, ne bouge pas. Ici il n'y a pas de copie : c'est
- * le texte lui-meme qui part. La premiere lettre vise le pointeur, la
- * deuxieme vise la premiere, la troisieme la deuxieme — chaque lettre ne
- * connait que celle qui la precede.
+ * `echo-text` makes copies of the text and has them trail behind the pointer;
+ * the original does not move. Here there is no copy: it is the text itself
+ * that leaves. The first letter aims at the pointer, the second aims at the
+ * first, the third at the second — each letter knows only the one before it.
  *
- * De cette regle tres simple sort un comportement que personne n'a ecrit : le
- * mot se courbe en fouet dans les virages, s'etire quand le pointeur file, et
- * se remet en ligne tout seul des qu'il s'arrete. Aucune trajectoire n'est
- * calculee, aucune courbe n'est posee.
+ * Out of that very simple rule comes a behaviour that nobody wrote: the word
+ * curves like a whip in the corners, stretches when the pointer flies, and
+ * lines itself up again as soon as it stops. No trajectory is computed, no
+ * curve is laid down.
  *
- * ## La chaine se remonte par la queue
+ * ## The chain is walked from the tail
  *
- * Les lettres sont parcourues de la derniere a la premiere. Chacune lit donc
- * la position que sa voisine avait a l'image d'avant, et non celle qu'elle
- * vient de prendre : c'est ce retard d'une image par maillon qui fait la
- * traine. Dans l'autre sens, l'information remonterait la chaine entiere dans
- * la meme image et le mot se deplacerait d'un bloc.
+ * The letters are traversed from the last to the first. Each therefore reads
+ * the position its neighbour had on the previous frame, and not the one it has
+ * just taken: it is that one-frame lag per link that makes the trail. The
+ * other way round, the information would travel up the whole chain within the
+ * same frame and the word would move as one block.
  *
- * ## Rien n'est ecrit quand rien ne bouge
+ * ## Nothing is written when nothing moves
  *
- * Tant que le deplacement total d'une image reste sous un seuil, la boucle ne
- * touche a aucun style. Un titre laisse tranquille ne coute donc que la
- * comparaison, pas les ecritures.
+ * As long as the total displacement of a frame stays under a threshold, the
+ * loop touches no style. A heading left alone therefore costs nothing but the
+ * comparison, not the writes.
  *
- * ## Le decoupage est un artifice d'affichage
+ * ## The split is a display device
  *
- * Le texte complet figure une fois, d'un seul tenant ; les lettres sont
- * retirees de l'arbre d'accessibilite.
+ * The complete text appears once, in one piece; the letters are removed from
+ * the accessibility tree.
  *
- * ## Mouvement reduit
+ * ## Reduced motion
  *
- * Le suivi du pointeur est un agrement, pas un contenu : le texte est rendu
- * tel quel, en ligne, sans decoupage.
+ * Following the pointer is an embellishment, not a content: the text is
+ * rendered as it is, in line, with no split.
  *
  * @module
  */
@@ -52,47 +51,47 @@ import { useRef, useEffect, type ElementType, type ReactElement } from 'react'
 
 import { usePointerDamped } from '@registre/hooks/usePointerDamped'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface TextCursorOwnProps {
-  /** Texte a faire suivre. */
+  /** Text to trail. */
   children: string
-  /** Balise rendue. @defaultValue 'span' */
+  /** Rendered tag. @defaultValue 'span' */
   as?: ElementType
-  /** Course maximale d'une lettre, en pixels. @defaultValue 26 */
+  /** Maximum run of a letter, in pixels. @defaultValue 26 */
   amplitude?: number
-  /** Raideur de la chaine. Plus haut, plus le mot reste groupe. @defaultValue 9 */
-  raideur?: number
-  /** Inclinaison prise dans les virages, en degres par pixel d'ecart. @defaultValue 0.4 */
-  inclinaison?: number
-  /** Vitesse de rattrapage du pointeur. Plus haut, plus sec. @defaultValue 4 */
+  /** Stiffness of the chain. The higher, the more the word stays grouped. @defaultValue 9 */
+  stiffness?: number
+  /** Tilt taken in the corners, in degrees per pixel of gap. @defaultValue 0.4 */
+  tilt?: number
+  /** Catch-up speed of the pointer. The higher, the snappier. @defaultValue 4 */
   speed?: number
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type TextCursorProps = Customisable<TextCursorOwnProps, 'span'>
 
-/** Espace insecable : une espace ordinaire s'ecrase dans un bloc en ligne. */
-const NBSP = ' '
+/** No-break space: an ordinary space collapses inside an inline block. */
+const NBSP = '\u00A0'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-text-cursor'
 
 /**
- * Deplacement total d'une image en deca duquel plus rien n'est ecrit.
+ * Total displacement of a frame below which nothing is written any more.
  *
- * Un dixieme de pixel cumule sur le mot entier ne se voit pas ; le mesurer
- * coute une soustraction, l'ecrire coute une chaine de caracteres et une
- * invalidation par lettre.
+ * A tenth of a pixel accumulated over the whole word does not show; measuring
+ * it costs a subtraction, writing it costs a string and an invalidation per
+ * letter.
  */
-const SEUIL = 0.1
+const THRESHOLD = 0.1
 
-/** Une position dans le plan. */
+/** A position in the plane. */
 interface Point {
   x: number
   y: number
 }
 
-/** Pose les regles de la chaine, une fois par document. */
+/** Sets the chain rules, once per document. */
 function ensureCursorRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -107,101 +106,101 @@ function ensureCursorRule(): void {
 }
 
 /**
- * Fait courir les lettres d'un texte derriere le pointeur.
+ * Runs the letters of a text after the pointer.
  *
  * @example
  * <TextCursor as="h1" className="o-text-5xl o-font-bold">
- *   Attrape-moi
+ *   Catch me
  * </TextCursor>
  *
  * @example
- * // Chaine molle et longue traine, sans inclinaison.
- * <TextCursor amplitude={48} raideur={3} inclinaison={0}>Elastique</TextCursor>
+ * // Soft chain and long trail, with no tilt.
+ * <TextCursor amplitude={48} stiffness={3} tilt={0}>Elastic</TextCursor>
  */
 export function TextCursor({
   children,
   as: Tag = 'span',
   amplitude = 26,
-  raideur = 9,
-  inclinaison = 0.4,
+  stiffness = 9,
+  tilt = 0.4,
   speed = 4,
   ...rest
 }: TextCursorProps): ReactElement {
   const { reduced } = useMotionState()
-  const hote = useRef<HTMLElement | null>(null)
+  const host = useRef<HTMLElement | null>(null)
 
-  // La fenetre entiere, pas le titre : un mot qui ne repondrait qu'au-dessus
-  // de lui-meme ne serait jamais vu bouger.
-  const pointeur = usePointerDamped({ speed, name: 'texte qui suit' })
+  // The whole window, not the heading: a word that only answered above itself
+  // would never be seen to move.
+  const pointer = usePointerDamped({ speed, name: 'trailing text' })
 
   ensureCursorRule()
 
   useEffect(() => {
-    const element = hote.current
+    const element = host.current
     if (element === null || reduced) return
 
-    const lettres = [
+    const letters = [
       ...element.querySelectorAll<HTMLElement>('[data-o-text-cursor-letter]'),
     ]
-    if (lettres.length === 0) return
+    if (letters.length === 0) return
 
-    // Les positions vivent ici, jamais dans un etat React : elles changent a
-    // chaque image et React ne dessine rien de tout cela.
-    const places: Point[] = lettres.map(() => ({ x: 0, y: 0 }))
+    // The positions live here, never in React state: they change on every
+    // frame and React draws none of it.
+    const places: Point[] = letters.map(() => ({ x: 0, y: 0 }))
 
-    const abonnement = clock.subscribe(
+    const subscription = clock.subscribe(
       ({ delta }) => {
-        const cibleX = pointeur.current.x * amplitude
-        const cibleY = pointeur.current.y * amplitude
+        const targetX = pointer.current.x * amplitude
+        const targetY = pointer.current.y * amplitude
 
-        // Amortissement independant de la cadence : voir usePointerDamped.
-        const facteur = 1 - Math.exp(-raideur * delta)
-        let course = 0
+        // Frame-rate independent damping: see usePointerDamped.
+        const factor = 1 - Math.exp(-stiffness * delta)
+        let travel = 0
 
-        // De la queue vers la tete : chaque maillon lit la position que son
-        // voisin avait a l'image d'avant. Voir l'en-tete du module.
+        // From the tail to the head: each link reads the position its
+        // neighbour had on the previous frame. See the module header.
         for (let index = places.length - 1; index >= 0; index -= 1) {
           const place = places[index]
-          const devant = index === 0 ? null : (places[index - 1] ?? null)
+          const ahead = index === 0 ? null : (places[index - 1] ?? null)
           if (place === undefined) continue
 
-          const viseX = devant === null ? cibleX : devant.x
-          const viseY = devant === null ? cibleY : devant.y
+          const aimX = ahead === null ? targetX : ahead.x
+          const aimY = ahead === null ? targetY : ahead.y
 
-          const pasX = (viseX - place.x) * facteur
-          const pasY = (viseY - place.y) * facteur
-          place.x += pasX
-          place.y += pasY
-          course += Math.abs(pasX) + Math.abs(pasY)
+          const stepX = (aimX - place.x) * factor
+          const stepY = (aimY - place.y) * factor
+          place.x += stepX
+          place.y += stepY
+          travel += Math.abs(stepX) + Math.abs(stepY)
         }
 
-        if (course < SEUIL) return
+        if (travel < THRESHOLD) return
 
         for (let index = 0; index < places.length; index += 1) {
           const place = places[index]
-          const lettre = lettres[index]
-          if (place === undefined || lettre === undefined) continue
+          const letter = letters[index]
+          if (place === undefined || letter === undefined) continue
 
-          const devant = index === 0 ? null : (places[index - 1] ?? null)
-          // L'ecart avec le maillon de devant dit dans quel sens la chaine
-          // tire : la lettre se couche dans le virage.
-          const ecart = (devant === null ? cibleX : devant.x) - place.x
+          const ahead = index === 0 ? null : (places[index - 1] ?? null)
+          // The gap with the link ahead says which way the chain is pulling:
+          // the letter lies down into the corner.
+          const gap = (ahead === null ? targetX : ahead.x) - place.x
 
-          lettre.style.transform = `translate(${place.x.toFixed(2)}px, ${place.y.toFixed(2)}px) rotate(${(ecart * inclinaison).toFixed(2)}deg)`
+          letter.style.transform = `translate(${place.x.toFixed(2)}px, ${place.y.toFixed(2)}px) rotate(${(gap * tilt).toFixed(2)}deg)`
         }
       },
-      { name: 'texte qui suit', priority: CLOCK_PRIORITY.default },
+      { name: 'trailing text', priority: CLOCK_PRIORITY.default },
     )
 
     return () => {
-      abonnement.unsubscribe()
-      for (const lettre of lettres) lettre.style.removeProperty('transform')
+      subscription.unsubscribe()
+      for (const letter of letters) letter.style.removeProperty('transform')
     }
-  }, [reduced, pointeur, children, amplitude, raideur, inclinaison])
+  }, [reduced, pointer, children, amplitude, stiffness, tilt])
 
   const { className, style } = mergePresentation({}, rest)
 
-  // Mouvement reduit : le texte est la, en ligne, sans decoupage.
+  // Reduced motion: the text is there, in line, with no split.
   if (reduced) {
     return (
       <Tag {...rest} className={className} style={style}>
@@ -210,18 +209,18 @@ export function TextCursor({
     )
   }
 
-  const lettres = [...children]
+  const letters = [...children]
 
   return (
-    <Tag {...rest} ref={hote} className={className} style={style} data-o-text-cursor="">
-      {/* Le texte complet, d'un seul tenant, pour les lecteurs d'ecran. */}
+    <Tag {...rest} ref={host} className={className} style={style} data-o-text-cursor="">
+      {/* The complete text, in one piece, for screen readers. */}
       <span className="o-sr-only">{children}</span>
       <span aria-hidden>
-        {lettres.map((lettre, index) => (
-          <span key={`${lettre}-${String(index)}`} data-o-text-cursor-letter="">
-            {/* Une espace ordinaire s'ecrase dans un bloc en ligne :
-                l'insecable garde sa largeur. */}
-            {lettre === ' ' ? NBSP : lettre}
+        {letters.map((letter, index) => (
+          <span key={`${letter}-${String(index)}`} data-o-text-cursor-letter="">
+            {/* An ordinary space collapses inside an inline block: the
+                no-break one keeps its width. */}
+            {letter === ' ' ? NBSP : letter}
           </span>
         ))}
       </span>

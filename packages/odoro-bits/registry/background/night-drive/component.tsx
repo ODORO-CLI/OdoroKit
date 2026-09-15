@@ -1,28 +1,29 @@
 /**
- * Route de nuit : deux lignes qui convergent vers l'horizon, un axe en
- * tirets qui defile, et des lampadaires qui approchent et passent.
+ * Night drive: two lines converging towards the horizon, a dashed centre line
+ * scrolling past, and street lamps approaching and going by.
  *
- * ## Le principe
+ * ## The principle
  *
- * Le sol est projete sans camera : la profondeur vaut l'inverse de la
- * distance a l'horizon. Les lampadaires sont une file bornee dont chaque
- * membre avance le long de la route ; leur halo, leur mat et leur flaque au
- * sol sont projetes de la meme maniere. Les lampes sont melangees vers leur
- * couleur, jamais additionnees : elles restent visibles sur un fond clair.
+ * The ground is projected with no camera: the depth is the inverse of the
+ * distance to the horizon. The street lamps are a bounded queue, each member of
+ * which advances along the road; their halo, their pole and their pool on the
+ * ground are projected the same way. The lamps are mixed towards their colour,
+ * never added: they stay visible on a light background.
  *
- * Ce qui distingue cette entree de `tunnel` et de `hyperspace` : on ne fuit
- * pas vers un point, on roule sur un sol, avec un horizon et un ciel.
+ * What sets this entry apart from `tunnel` and from `hyperspace`: you are not
+ * flying towards a point, you are driving on a ground, with a horizon and a
+ * sky.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur — les recopier ici en ferait autant
- * de versions a maintenir qu'il y a de fonds.
+ * It carries only what sets it apart: its shader, its settings and its
+ * fallback. Reading the tokens, converting them to floats and re-reading them
+ * when the theme changes all come from the engine — copying that here would
+ * leave as many versions to maintain as there are backgrounds.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en
- * accorde qu'une par backend — et sous mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface — it grants only one
+ * per backend — and under reduced motion.
  *
  * @module
  */
@@ -39,51 +40,51 @@ import { type ReactElement } from 'react'
 
 import { NIGHT_DRIVE_FRAGMENT } from './night-drive.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface NightDriveControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to this component. */
 export interface NightDriveOwnProps {
-  /** Vitesse de la route. @defaultValue 1 */
+  /** Speed of the road. @defaultValue 1 */
   speed?: number
-  /** Demi-largeur de la route, en unites du monde. @defaultValue 1 */
+  /** Half-width of the road, in world units. @defaultValue 1 */
   width?: number
-  /** Nombre de lampadaires par cote. Borne a douze par le shader. @defaultValue 8 */
+  /** Number of street lamps per side. Clamped to twelve by the shader. @defaultValue 8 */
   lamps?: number
-  /** Hauteur des lampadaires, en unites du monde. @defaultValue 0.8 */
+  /** Height of the street lamps, in world units. @defaultValue 0.8 */
   height?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<NightDriveControls>
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type NightDriveProps = Customisable<NightDriveOwnProps>
 
-/** Tokens employes par defaut : le fond, les lignes et les mats, les lampes. */
+/** Tokens used by default: the background, the lines and the poles, the lamps. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-theme-muted',
   '--o-palette-amber-400',
 ] as const
 
-/** Repli par defaut : un degrade fige, dans les memes tons. */
+/** Default fallback: a frozen gradient, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-t o-from-zinc-50 dark:o-from-zinc-950 o-to-amber-100 dark:o-to-amber-950'
 
-/** Lampadaires par cote en qualite basse : la file est le seul cout qui compte. */
+/** Street lamps per side at low quality: the queue is the only cost that counts. */
 const LOW_LAMPS = 5
 
 /**
- * Route de nuit.
+ * Night drive.
  *
  * @example
  * <div className="o-relative o-min-h-screen">
@@ -106,8 +107,8 @@ export function NightDrive({
     colors,
     uniforms: { uSpeed: speed, uWidth: width, uLamps: lamps, uHeight: height },
     name: 'night-drive',
-    // Chaque lampadaire coute deux halos et une flaque par fragment : la
-    // file est le seul levier, et elle se raccourcit en qualite basse.
+    // Every street lamp costs two halos and one pool per fragment: the queue is
+    // the only lever, and it is shortened at low quality.
     degrade: (quality) => ({
       uLamps: quality === 'low' ? Math.min(lamps, LOW_LAMPS) : lamps,
     }),

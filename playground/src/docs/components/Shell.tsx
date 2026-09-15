@@ -37,8 +37,8 @@ import {
   Wand,
   Waves,
   Zap,
-} from '@odoro-cli/icons/filaire'
-import { Github, Npm } from '@odoro-cli/icons/marques'
+} from '@odoro-cli/icons/outline'
+import { Github, Npm } from '@odoro-cli/icons/brands'
 import { Link, useLocation } from '@odoro-cli/libs/router'
 import { useScrollProgress } from '@odoro-cli/libs/motion'
 

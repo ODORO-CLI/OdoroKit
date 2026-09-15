@@ -1,23 +1,23 @@
 /**
- * Neige : trois couches de flocons qui tombent en parallaxe.
+ * Snow: three layers of flakes falling in parallax.
  *
- * ## Le principe
+ * ## The principle
  *
- * Un flocon par cellule hachee, en halo exponentiel de la distance. La chute
- * est une translation verticale de la grille — les couches proches tombent
- * plus vite et plus gros — et chaque flocon se balance sur un sinus a phase
- * hachee : deux voisins ne derivent jamais a l'unisson.
+ * One flake per hashed cell, as a halo exponential in the distance. The fall is
+ * a vertical translation of the grid — the near layers fall faster and bigger —
+ * and every flake sways on a sine with a hashed phase: two neighbours never
+ * drift in unison.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur — les recopier ici en ferait autant
- * de versions a maintenir qu'il y a de fonds.
+ * It carries only what sets it apart: its shader, its settings and its
+ * fallback. Reading the tokens, converting them to floats and re-reading them
+ * when the theme changes all come from the engine — copying that here would
+ * leave as many versions to maintain as there are backgrounds.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en
- * accorde qu'une par backend — et sous mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface — it grants only one
+ * per backend — and under reduced motion.
  *
  * @module
  */
@@ -34,41 +34,41 @@ import { type ReactElement } from 'react'
 
 import { SNOW_FRAGMENT } from './snow.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface SnowControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to this component. */
 export interface SnowOwnProps {
-  /** Vitesse de chute. @defaultValue 0.5 */
+  /** Speed of the fall. @defaultValue 0.5 */
   speed?: number
-  /** Nombre de cellules sur le plus petit cote. @defaultValue 12 */
+  /** Number of cells across the shorter side. @defaultValue 12 */
   density?: number
-  /** Amplitude du balancement lateral. @defaultValue 0.3 */
+  /** Amplitude of the sideways sway. @defaultValue 0.3 */
   drift?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<SnowControls>
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type SnowProps = Customisable<SnowOwnProps>
 
-/** Tokens employes par defaut : la nuit d'hiver, les flocons lointains, les proches. */
+/** Tokens used by default: the winter night, the distant flakes, the near ones. */
 const DEFAULT_TOKENS = ['--o-theme-bg', '--o-palette-sky-300', '--o-theme-fg'] as const
 
-/** Repli par defaut : une teinte figee, dans les memes tons. */
+/** Default fallback: a frozen tint, in the same tones. */
 const DEFAULT_FALLBACK = 'o-bg-zinc-50 dark:o-bg-slate-950'
 
 /**
- * Neige.
+ * Snow.
  *
  * @example
  * <div className="o-relative o-min-h-screen">
@@ -90,9 +90,8 @@ export function Snow({
     colors,
     uniforms: { uSpeed: speed, uDensity: density, uDrift: drift },
     name: 'snow',
-    // Trois couches de neuf cellules chacune : une maille plus large fait
-    // moins de halos qui se recouvrent, c'est le reglage qui pese, donc celui
-    // qui est borne.
+    // Three layers of nine cells each: a wider cell makes fewer overlapping
+    // halos, it is the setting that weighs, hence the one that is bounded.
     degrade: (quality) => ({
       uDensity: quality === 'low' ? Math.min(density, 8) : density,
     }),

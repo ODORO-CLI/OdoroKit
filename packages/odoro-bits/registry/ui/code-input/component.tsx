@@ -1,26 +1,25 @@
 /**
- * Champ de code : une case par caractere, la saisie avance toute seule.
+ * Code field: one box per character, typing moves on by itself.
  *
- * ## Un input par case, pas un champ decoupe en apparence
+ * ## One input per box, not a field cut up for appearances
  *
- * Chaque case est un vrai `input` : le focus, la selection, le clavier
- * virtuel et les gestionnaires de mots de passe fonctionnent sans
- * simulation. Le composant orchestre seulement le passage de l'une a
- * l'autre — avancer a la saisie, reculer sur Backspace vide.
+ * Each box is a real `input`: focus, selection, the virtual keyboard and
+ * password managers all work without simulation. The component only
+ * orchestrates the move from one to the next — forward on typing, backward on
+ * Backspace in an empty box.
  *
- * ## Le collage remplit tout
+ * ## A paste fills everything
  *
- * Un code recu par message se colle en entier : l'evenement de collage est
- * intercepte sur n'importe quelle case, reparti caractere par caractere, et
- * le focus se pose sur la case qui suit le dernier caractere ecrit. Sans
- * cela, coller ne remplirait que la case courante — le cas d'usage le plus
- * frequent serait le plus penible.
+ * A code received by message is pasted whole: the paste event is intercepted
+ * on whichever box, spread out character by character, and focus lands on the
+ * box following the last character written. Without that, pasting would only
+ * fill the current box — the most frequent case would be the most tiresome.
  *
- * ## L'anneau de la case active respire
+ * ## The ring of the active box breathes
  *
- * Une animation d'ombre portee, sur la seule case qui a le focus. Sous
- * mouvement reduit l'anneau reste, fixe : l'information — c'est ici qu'on
- * ecrit — est dans l'anneau, pas dans sa respiration.
+ * A box-shadow animation, on the one box that holds focus. Under reduced
+ * motion the ring stays, still: the information — this is where one types —
+ * is in the ring, not in its breathing.
  *
  * @module
  */
@@ -35,27 +34,27 @@ import {
   type ReactElement,
 } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface CodeInputOwnProps {
-  /** Nombre de cases. @defaultValue 6 */
+  /** Number of boxes. @defaultValue 6 */
   length?: number
-  /** Masque les caracteres saisis. @defaultValue false */
+  /** Masks the typed characters. @defaultValue false */
   masked?: boolean
-  /** Appele quand toutes les cases sont remplies. */
+  /** Called when every box is filled. */
   onComplete?: (code: string) => void
-  /** Appele a chaque changement, avec le code partiel. */
+  /** Called on every change, with the partial code. */
   onValueChange?: (code: string) => void
-  /** Nom du groupe pour les lecteurs d'ecran. @defaultValue 'Code de verification' */
+  /** Name of the group for screen readers. @defaultValue 'Verification code' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type CodeInputProps = Customisable<CodeInputOwnProps>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-code-input'
 
-/** Pose les cases et l'anneau, une fois par document. */
+/** Applies the boxes and the ring, once per document. */
 function ensureCodeRules(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -79,7 +78,7 @@ function ensureCodeRules(): void {
     '0%,100%{box-shadow:0 0 0 3px color-mix(in oklch,var(--o-code-ring) 35%,transparent)}',
     '50%{box-shadow:0 0 0 6px color-mix(in oklch,var(--o-code-ring) 15%,transparent)}',
     '}',
-    // Mouvement reduit : l anneau reste, sa respiration s arrete.
+    // Reduced motion: the ring stays, its breathing stops.
     '@media (prefers-reduced-motion:reduce){',
     '[data-o-code] input:focus-visible{animation:none;',
     'box-shadow:0 0 0 3px color-mix(in oklch,var(--o-code-ring) 35%,transparent)}',
@@ -89,21 +88,21 @@ function ensureCodeRules(): void {
 }
 
 /**
- * Champ de code a cases, avec avancee automatique et collage reparti.
+ * Boxed code field, with automatic advance and spread-out pasting.
  *
  * @example
- * <CodeInput onComplete={verifier} />
+ * <CodeInput onComplete={check} />
  *
  * @example
- * // Quatre cases masquees, comme un code de carte.
- * <CodeInput length={4} masked onComplete={valider} />
+ * // Four masked boxes, like a card code.
+ * <CodeInput length={4} masked onComplete={confirm} />
  */
 export function CodeInput({
   length = 6,
   masked = false,
   onComplete,
   onValueChange,
-  label = 'Code de verification',
+  label = 'Verification code',
   ...rest
 }: CodeInputProps): ReactElement {
   const { reduced } = useMotionState()
@@ -111,7 +110,7 @@ export function CodeInput({
   const inputsRef = useRef<(HTMLInputElement | null)[]>([])
   ensureCodeRules()
 
-  // Un changement de longueur remet le champ a neuf.
+  // A change of length wipes the field clean.
   const cells = values.length === length ? values : Array<string>(length).fill('')
 
   const commit = (next: readonly string[]): void => {
@@ -128,7 +127,7 @@ export function CodeInput({
   }
 
   const onCellChange = (index: number, raw: string): void => {
-    // Seul le dernier caractere compte : ecraser une case pleine la remplace.
+    // Only the last character counts: typing over a full box replaces it.
     const char = raw.slice(-1)
     const next = cells.map((cell, at) => (at === index ? char : cell))
     commit(next)
@@ -137,7 +136,7 @@ export function CodeInput({
 
   const onCellKeyDown = (index: number, event: KeyboardEvent<HTMLInputElement>): void => {
     if (event.key === 'Backspace' && cells[index] === '' && index > 0) {
-      // La case est deja vide : c est la precedente que l on efface.
+      // The box is already empty: the previous one is what gets erased.
       event.preventDefault()
       const next = cells.map((cell, at) => (at === index - 1 ? '' : cell))
       commit(next)
@@ -194,7 +193,7 @@ export function CodeInput({
           autoComplete={index === 0 ? 'one-time-code' : 'off'}
           maxLength={2}
           value={cell}
-          aria-label={`Caractere ${String(index + 1)} sur ${String(length)}`}
+          aria-label={`Character ${String(index + 1)} of ${String(length)}`}
           onChange={(event) => {
             onCellChange(index, event.target.value)
           }}

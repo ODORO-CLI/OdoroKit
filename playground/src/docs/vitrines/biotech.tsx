@@ -52,7 +52,7 @@ import {
   ArrowUpRight,
   ExternalLink,
   Microscope,
-} from '@odoro-cli/icons/filaire'
+} from '@odoro-cli/icons/outline'
 import { useMotionState } from '@odoro-cli/engine'
 import { Reveal } from '@odoro-cli/libs/motion'
 import { loadGoogleFonts } from '@odoro-cli/libs/styles'

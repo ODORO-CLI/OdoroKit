@@ -1,49 +1,49 @@
 /**
- * Fusion : un mot se coule dans le suivant au lieu de se substituer a lui.
+ * Morph: a word pours into the next instead of substituting for it.
  *
- * ## Ce que le filtre fait, et pourquoi un fondu ne suffit pas
+ * ## What the filter does, and why a fade is not enough
  *
- * Deux mots superposes dont l'un s'efface pendant que l'autre apparait, c'est
- * un fondu croise : au milieu du chemin on voit deux textes a moitie
- * transparents l'un sur l'autre, et l'oeil lit deux mots.
+ * Two superimposed words, one fading out while the other fades in, is a
+ * cross-fade: halfway along the path one sees two half-transparent texts over
+ * each other, and the eye reads two words.
  *
- * Le filtre change la nature du passage. Chaque mot est d'abord noye dans un
- * flou, puis une matrice de couleur multiplie fortement l'alpha et le decale
- * vers le bas : tout ce qui etait a demi transparent redevient franchement
- * opaque ou franchement vide. Le seuil retaille un contour net autour des
- * deux halos melanges. La ou les lettres des deux mots se recouvrent, la
- * matiere se soude ; la ou elles s'ecartent, un cou s'amincit et casse.
+ * The filter changes the nature of the passage. Each word is first drowned in
+ * a blur, then a colour matrix heavily multiplies the alpha and shifts it
+ * down: everything that was half transparent becomes either plainly opaque or
+ * plainly empty. The threshold cuts a crisp outline back around the two mixed
+ * halos. Where the letters of the two words overlap, the material welds; where
+ * they draw apart, a neck thins and breaks.
  *
- * Au milieu du chemin on ne voit donc plus deux mots, mais une seule forme en
- * train de se defaire — ce qui est exactement le propos.
+ * Halfway along the path one therefore no longer sees two words, but a single
+ * shape coming undone — which is exactly the point.
  *
- * ## Le repli est l'etat de base, pas une branche
+ * ## The fallback is the base state, not a branch
  *
- * Le fondu croise est ecrit en premier : les deux couches changent d'opacite
- * quoi qu'il arrive. Le filtre est **ajoute** par-dessus quand le navigateur
- * sait le rendre, et le flou de chaque couche est ramene a zero quand il ne
- * le sait pas — sans quoi le repli serait un fondu entre deux taches floues.
+ * The cross-fade is written first: both layers change opacity whatever
+ * happens. The filter is **added** on top when the browser can render it, and
+ * the blur of each layer is brought back to zero when it cannot — otherwise
+ * the fallback would be a fade between two blurred smudges.
  *
- * Le filtre est aussi retire en couleurs forcees, ou il effacerait le
- * contraste que ce mode vient justement d'imposer.
+ * The filter is also removed under forced colours, where it would erase the
+ * contrast that this mode has just imposed.
  *
- * ## L'etat est porte par le rendu, l'animation ne fait que le rejoindre
+ * ## The state is carried by the render, the animation only joins it
  *
- * L'opacite de repos de chaque couche se deduit de l'indice courant. Les
- * animations tiennent leur valeur finale, puis sont annulees une fois le
- * rendu suivant pose : a aucun moment la valeur affichee ne differe de la
- * valeur calculee, et rien ne s'accumule au fil des tours.
+ * The resting opacity of each layer is derived from the current index. The
+ * animations hold their final value, then are cancelled once the next render
+ * is in place: at no moment does the displayed value differ from the computed
+ * one, and nothing accumulates over the turns.
  *
- * ## L'espace reserve
+ * ## The reserved space
  *
- * Les mots sont empiles dans la meme cellule de grille : la boite prend la
- * taille du plus long et ne bouge plus. Une boite qui se redimensionnerait
- * pendant la fusion ferait respirer toute la ligne.
+ * The words are stacked in the same grid cell: the box takes the size of the
+ * longest and no longer moves. A box that resized during the morph would make
+ * the whole line breathe.
  *
- * ## Mouvement reduit
+ * ## Reduced motion
  *
- * Le premier mot, sans filtre et sans fusion. Une boucle n'a pas d'etat
- * d'arrivee : son repos, c'est son point de depart.
+ * The first word, with no filter and no morph. A loop has no arrival state:
+ * its rest is its starting point.
  *
  * @module
  */
@@ -58,45 +58,45 @@ import {
   type ReactElement,
 } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface MorphTextOwnProps {
-  /** Mots fondus l'un dans l'autre, en boucle. Au moins deux. */
-  mots: readonly string[]
-  /** Temps pendant lequel un mot reste lisible, en millisecondes. @defaultValue 1400 */
+  /** Words morphed into one another, on a loop. At least two. */
+  words: readonly string[]
+  /** Time a word stays readable, in milliseconds. @defaultValue 1400 */
   hold?: number
-  /** Duree d'une fusion, en millisecondes. @defaultValue 900 */
+  /** Duration of one morph, in milliseconds. @defaultValue 900 */
   morph?: number
-  /** Flou traverse par chaque mot pendant la fusion, en pixels. @defaultValue 12 */
-  flou?: number
-  /** Force du soudage, en pixels d'etalement. @defaultValue 4 */
-  fusion?: number
+  /** Blur each word crosses during the morph, in pixels. @defaultValue 12 */
+  blur?: number
+  /** Strength of the welding, in pixels of spread. @defaultValue 4 */
+  weld?: number
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type MorphTextProps = Customisable<MorphTextOwnProps, 'span'>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-morph-text'
 
 /**
- * Matrice de seuil : les couleurs passent telles quelles, l'alpha est
- * multiplie puis abaisse. Le produit vaut un au-dela d'environ un demi et
- * zero en deca : le degrade du flou redevient un bord.
+ * Threshold matrix: the colours pass through as they are, the alpha is
+ * multiplied then lowered. The product is one beyond roughly a half and zero
+ * below it: the gradient of the blur becomes an edge again.
  */
-const SEUIL = '1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 20 -10'
+const THRESHOLD = '1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 20 -10'
 
 /**
- * Corps minimal, en pixels, sous lequel la soudure est abandonnee.
+ * Minimum type size, in pixels, below which the welding is abandoned.
  *
- * Le seuil ne garde que ce qui reste au-dessus d'un alpha de 0,5 apres le
- * flou. Un jambage de texte courant — deux pixels a vingt de corps — n'y
- * survit pas, et le mot disparait **entierement**, sans erreur et sans trace.
- * Quarante-quatre pixels est le seuil mesure a partir duquel un jambage de
- * grotesque ordinaire tient.
+ * The threshold keeps only what stays above an alpha of 0.5 after the blur. A
+ * stem of body text — two pixels at twenty of size — does not survive it, and
+ * the word disappears **entirely**, with no error and no trace. Forty-four
+ * pixels is the measured threshold from which the stem of an ordinary grotesk
+ * holds.
  */
-const CORPS_MINIMAL = 44
+const MIN_FONT_SIZE = 44
 
-/** Pose l'empilement des mots, une fois par document. */
+/** Sets the stacking of the words, once per document. */
 function ensureMorphRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -111,122 +111,122 @@ function ensureMorphRule(): void {
 }
 
 /**
- * Dit si le navigateur sait souder deux formes par un filtre.
+ * Says whether the browser can weld two shapes with a filter.
  *
- * Deux conditions, et elles ne se recouvrent pas : la matrice de couleur doit
- * exister, et le mode a couleurs forcees doit etre absent — il neutralise les
- * filtres, et le seuil rendrait alors le texte illisible plutot que soude.
+ * Two conditions, and they do not overlap: the colour matrix must exist, and
+ * forced-colours mode must be absent — it neutralises filters, and the
+ * threshold would then make the text unreadable rather than welded.
  */
-function saitSouder(): boolean {
+function canWeld(): boolean {
   if (typeof window === 'undefined') return false
   if (typeof SVGFEColorMatrixElement === 'undefined') return false
   return !window.matchMedia('(forced-colors: active)').matches
 }
 
 /**
- * Fait fondre une suite de mots les uns dans les autres.
+ * Morphs a series of words into one another.
  *
  * @example
- * <MorphText mots={['penser', 'faire']} className="o-text-5xl o-font-bold" />
+ * <MorphText words={['think', 'make']} className="o-text-5xl o-font-bold" />
  *
  * @example
- * // Fusion lente et tres coulante.
- * <MorphText mots={['eau', 'air', 'feu']} morph={1600} flou={22} fusion={7} />
+ * // Slow and very fluid morph.
+ * <MorphText words={['water', 'air', 'fire']} morph={1600} blur={22} weld={7} />
  */
 export function MorphText({
-  mots,
+  words,
   hold = 1400,
   morph = 900,
-  flou = 12,
-  fusion,
+  blur = 12,
+  weld,
   ...rest
 }: MorphTextProps): ReactElement {
   const { reduced } = useMotionState()
-  const hote = useRef<HTMLElement | null>(null)
+  const host = useRef<HTMLElement | null>(null)
   const [index, setIndex] = useState(0)
-  const [soude, setSoude] = useState(false)
-  // Le corps rendu, lu une fois : c'est lui qui decide si la soudure est
-  // possible, et de combien on floute.
-  const [corps, setCorps] = useState(0)
+  const [welded, setWelded] = useState(false)
+  // The rendered type size, read once: it decides whether the welding is
+  // possible, and how much is blurred.
+  const [fontSize, setFontSize] = useState(0)
 
   ensureMorphRule()
 
-  // Un identifiant par instance : deux fusions sur la meme page ne doivent
-  // pas se partager un filtre.
-  const filtre = `o-morph-text-${useId().replace(/[^a-zA-Z0-9_-]/g, '')}`
+  // One identifier per instance: two morphs on the same page must not share a
+  // filter.
+  const filterId = `o-morph-text-${useId().replace(/[^a-zA-Z0-9_-]/g, '')}`
 
-  const total = mots.length
+  const total = words.length
 
   useEffect(() => {
-    const element = hote.current
-    const taille =
+    const element = host.current
+    const size =
       element === null ? 0 : Number.parseFloat(getComputedStyle(element).fontSize)
-    setCorps(Number.isFinite(taille) ? taille : 0)
-    // CORPS_MINIMAL : en deca, le seuil mangerait les jambages et le mot
-    // disparaitrait. Le fondu croise prend alors le relais — il est ecrit en
-    // premier, justement pour cela.
-    setSoude(!reduced && saitSouder() && taille >= CORPS_MINIMAL)
+    setFontSize(Number.isFinite(size) ? size : 0)
+    // MIN_FONT_SIZE: below it, the threshold would eat the stems and the word
+    // would disappear. The cross-fade then takes over — it is written first,
+    // precisely for that.
+    setWelded(!reduced && canWeld() && size >= MIN_FONT_SIZE)
   }, [reduced])
 
-  // Le flou du filtre suit le corps : fixe, il efface un texte courant et ne
-  // se voit pas sur un titre de deux cents pixels.
-  const fusionUtile = fusion ?? Math.max(1.5, corps * 0.05)
+  // The blur of the filter follows the type size: fixed, it erases body text
+  // and does not show on a two-hundred-pixel heading.
+  const spread = weld ?? Math.max(1.5, fontSize * 0.05)
 
   useEffect(() => {
-    const element = hote.current
+    const element = host.current
     if (element === null || reduced || total < 2) return
 
-    const couches = [...element.querySelectorAll<HTMLElement>('[data-o-morph-layer]')]
-    const sortante = couches[index]
-    const entrante = couches[(index + 1) % total]
-    if (sortante === undefined || entrante === undefined) return
+    const layers = [...element.querySelectorAll<HTMLElement>('[data-o-morph-layer]')]
+    const leaving = layers[index]
+    const entering = layers[(index + 1) % total]
+    if (leaving === undefined || entering === undefined) return
 
-    // Sans filtre, le flou n'aide plus : il ne resterait qu'un fondu entre
-    // deux taches. Voir l'en-tete du module.
-    const traverse = soude ? flou : 0
+    // Without the filter, the blur no longer helps: all that would be left is
+    // a fade between two smudges. See the module header.
+    const crossed = welded ? blur : 0
 
-    const sortie = sortante.animate(
+    const exit = leaving.animate(
       [
         { opacity: 1, filter: 'blur(0px)' },
-        { opacity: 0, filter: `blur(${String(traverse)}px)` },
+        { opacity: 0, filter: `blur(${String(crossed)}px)` },
       ],
       { duration: morph, delay: hold, easing: 'ease-in', fill: 'forwards' },
     )
-    const entree = entrante.animate(
+    const enter = entering.animate(
       [
-        { opacity: 0, filter: `blur(${String(traverse)}px)` },
+        { opacity: 0, filter: `blur(${String(crossed)}px)` },
         { opacity: 1, filter: 'blur(0px)' },
       ],
       { duration: morph, delay: hold, easing: 'ease-out', fill: 'forwards' },
     )
 
-    entree.onfinish = (): void => {
-      setIndex((precedent) => (precedent + 1) % total)
+    enter.onfinish = (): void => {
+      setIndex((previous) => (previous + 1) % total)
     }
 
-    // Annulees seulement au rendu suivant, une fois que l'opacite calculee a
-    // pris la meme valeur : rien ne clignote entre les deux.
+    // Cancelled only on the next render, once the computed opacity has taken
+    // the same value: nothing flickers in between.
     return () => {
-      sortie.cancel()
-      entree.cancel()
+      exit.cancel()
+      enter.cancel()
     }
-  }, [reduced, soude, index, total, hold, morph, flou])
+  }, [reduced, welded, index, total, hold, morph, blur])
 
   const { className, style } = mergePresentation({}, rest)
 
-  const courant = total === 0 ? 0 : index % total
+  const current = total === 0 ? 0 : index % total
 
-  const styleRacine = {
+  const rootStyle = {
     ...style,
-    // Le filtre ne s'applique qu'a la pile : l'appliquer a l'element entier
-    // engloberait ce que l'appelant met autour.
-    ...(soude ? { filter: `url(#${filtre})` } : {}),
+    // The filter only applies to the stack: applying it to the whole element
+    // would swallow whatever the caller puts around it.
+    ...(welded ? { filter: `url(#${filterId})` } : {}),
   } as CSSProperties
 
   return (
-    <span {...rest} ref={hote} className={className} style={styleRacine} data-o-morph="">
-      {/* Zone du filtre elargie d'un cinquieme : par defaut elle serre la
-          boite englobante de trop pres, et le flou serait coupe net. */}
+    <span {...rest} ref={host} className={className} style={rootStyle} data-o-morph="">
+      {/* Filter region widened by a fifth: by default it hugs the bounding box
+          too closely, and the blur would be cut off. */}
       <svg
         aria-hidden
         width="0"
@@ -234,21 +234,21 @@ export function MorphText({
         style={{ position: 'absolute', width: 0, height: 0 }}
       >
         <defs>
-          <filter id={filtre} x="-20%" y="-20%" width="140%" height="140%">
-            <feGaussianBlur in="SourceGraphic" stdDeviation={fusionUtile} result="halo" />
-            <feColorMatrix in="halo" type="matrix" values={SEUIL} />
+          <filter id={filterId} x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur in="SourceGraphic" stdDeviation={spread} result="halo" />
+            <feColorMatrix in="halo" type="matrix" values={THRESHOLD} />
           </filter>
         </defs>
       </svg>
 
-      {mots.map((mot, position) => (
+      {words.map((word, position) => (
         <span
-          key={`${mot}-${String(position)}`}
+          key={`${word}-${String(position)}`}
           data-o-morph-layer=""
-          aria-hidden={position !== courant}
-          style={{ opacity: position === courant ? 1 : 0 }}
+          aria-hidden={position !== current}
+          style={{ opacity: position === current ? 1 : 0 }}
         >
-          {mot}
+          {word}
         </span>
       ))}
     </span>

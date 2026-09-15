@@ -1,46 +1,46 @@
 /**
- * Rideau d'ouverture a compteur honnete.
+ * An opening curtain with an honest counter.
  *
- * ## Un pourcentage doit mesurer quelque chose
+ * ## A percentage has to measure something
  *
- * Le defaut de presque tous les prechargeurs : un `setTimeout` deguise en
- * progression. Le compteur monte de zero a cent en deux secondes, quelle que
- * soit la realite, et se trouve a 100 % alors que rien n'est pret — ou a 40 %
- * alors que tout l'est depuis longtemps.
+ * The flaw of almost every preloader: a `setTimeout` dressed up as progress.
+ * The counter climbs from zero to a hundred in two seconds, whatever the
+ * reality, and sits at 100 % while nothing is ready — or at 40 % while
+ * everything has been ready for a long time.
  *
- * Ici le compteur suit `ready`. Tant que ce n'est pas vrai, il **se gare** sous
- * un plafond et y reste. Si la ressource ne vient jamais, la barre s'arrete a
- * 92 % et ne ment pas. C'est laid, et c'est exact : mieux vaut un chiffre bloque
- * qu'un chiffre faux.
+ * Here the counter follows `ready`. As long as that is not true, it **parks**
+ * below a ceiling and stays there. If the resource never comes, the bar stops
+ * at 92 % and does not lie. It is ugly, and it is exact: better a stuck
+ * figure than a false one.
  *
- * Deux vitesses, donc : une reptation lente vers le plafond pendant l'attente,
- * une course rapide vers cent une fois pret.
+ * Two speeds, then: a slow crawl towards the ceiling during the wait, a quick
+ * run to a hundred once ready.
  *
- * ## Un plancher, et un plafond
+ * ## A floor, and a ceiling
  *
- * **Le plancher** empeche le clignotement. Sur un cache chaud, tout est pret
- * en quarante millisecondes ; sans plancher, le visiteur voit un rideau
- * apparaitre et disparaitre — une secousse, pas une entree.
+ * **The floor** prevents flicker. On a warm cache, everything is ready in
+ * forty milliseconds; without a floor, the visitor sees a curtain appear and
+ * disappear — a jolt, not an entrance.
  *
- * **Le plafond de duree** empeche la prison. Une ressource qui ne repond jamais
- * garderait le visiteur derriere le rideau indefiniment. Passe ce delai, on
- * ouvre : une page sans sa scene vaut mieux qu'une page qu'on ne voit pas.
+ * **The duration ceiling** prevents the prison. A resource that never answers
+ * would keep the visitor behind the curtain indefinitely. Past that delay, we
+ * open: a page without its scene is better than a page one never sees.
  *
- * ## `onDone` part au **debut** de la sortie, pas a sa fin
+ * ## `onDone` fires at the **start** of the exit, not at its end
  *
- * C'est le detail qui separe une ouverture reussie d'une succession de deux
- * animations. Le contenu doit entrer **a travers** le rideau qui s'en va : si
- * l'on attend que le rideau soit parti, la page reste vide un quart de seconde,
- * puis s'anime — deux gestes, la ou l'on en voulait un.
+ * This is the detail that separates a successful opening from a succession of
+ * two animations. The content must enter **through** the curtain as it
+ * leaves: if one waits for the curtain to be gone, the page stays empty for a
+ * quarter of a second, then animates — two gestures, where one was wanted.
  *
- * ## Il ne retient pas le contenu, il le couvre
+ * ## It does not hold the content back, it covers it
  *
- * Le rideau est une surcouche. La page est montee dessous des le premier rendu,
- * masquee par ses propres etats initiaux. Ne pas monter le contenu serait plus
- * simple, et couterait trois choses : les moteurs d'indexation ne le voient
- * pas, les lecteurs d'ecran non plus, et le decoupage des textes se ferait au
- * moment du reveal — donc pendant l'image ou l'on peut le moins se le
- * permettre.
+ * The curtain is an overlay. The page is mounted underneath from the first
+ * render, hidden by its own initial states. Not mounting the content would be
+ * simpler, and would cost three things: indexing engines do not see it,
+ * screen readers do not either, and the splitting of the texts would happen
+ * at reveal time — that is, during the very frame where one can least afford
+ * it.
  *
  * @module
  */
@@ -55,64 +55,64 @@ import {
   type ReactNode,
 } from 'react'
 
-/** Proprietes propres au composant. */
+/** Props specific to the component. */
 export interface CounterGateOwnProps {
   /**
-   * Le fond du rideau.
+   * The curtain background.
    *
-   * Une valeur, pas un jeton de role : le systeme n'en a pas. Il ship des
-   * echelles brutes, et c'est au composant de dire laquelle il prend.
+   * A value, not a role token: the system has none. It ships raw scales, and
+   * it is up to the component to say which one it takes.
    *
-   * @defaultValue le plus sombre de l'echelle neutre
+   * @defaultValue the darkest of the neutral scale
    */
   background?: string
-  /** L'encre du rideau. @defaultValue le plus clair de l'echelle neutre */
+  /** The curtain ink. @defaultValue the lightest of the neutral scale */
   ink?: string
   /**
-   * Ce qu'on attend vraiment.
+   * What is really being waited on.
    *
-   * Passer `true` d'emblee donne un rideau de courtoisie qui tient le plancher
-   * puis s'ouvre. Le brancher sur la premiere image dessinee d'une scene donne
-   * un compteur qui dit la verite.
+   * Passing `true` straight away gives a courtesy curtain that holds the
+   * floor then opens. Wiring it to the first drawn frame of a scene gives a
+   * counter that tells the truth.
    *
    * @defaultValue true
    */
   ready?: boolean
-  /** Ce qui s'affiche au centre : un nom, une marque. */
+  /** What shows in the centre: a name, a brand. */
   label?: ReactNode
   /**
-   * Duree minimale d'affichage, en millisecondes.
+   * Minimum display time, in milliseconds.
    *
    * @defaultValue 900
    */
   minVisibleMs?: number
   /**
-   * Au-dela, on ouvre quoi qu'il arrive.
+   * Beyond that, we open whatever happens.
    *
    * @defaultValue 6000
    */
   maxMs?: number
   /**
-   * Ou le compteur se gare tant que rien n'est pret, en pourcentage.
+   * Where the counter parks as long as nothing is ready, as a percentage.
    *
    * @defaultValue 92
    */
   ceiling?: number
-  /** Cache le pourcentage, et ne garde que la barre. */
+  /** Hides the percentage, and keeps only the bar. */
   hideCount?: boolean
   /**
-   * Appele au **debut** de la sortie. Voir l'en-tete du module.
+   * Called at the **start** of the exit. See the module header.
    */
   onDone?: () => void
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type CounterGateProps = Customisable<CounterGateOwnProps, 'div'>
 
-/** Identifiant de la feuille injectee. */
+/** Id of the injected stylesheet. */
 const STYLE_ID = 'o-counter-gate'
 
-/** Pose les regles du rideau, une fois par document. */
+/** Sets the curtain rules, once per document. */
 function ensureCounterGateRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -126,9 +126,9 @@ function ensureCounterGateRule(): void {
     'background:var(--o-gate-bg);color:var(--o-gate-ink);',
     'transition:transform var(--o-gate-exit) cubic-bezier(0.76,0,0.24,1);',
     '}',
-    // La sortie translate le rideau plutot que de le faire disparaitre : une
-    // opacite qui tombe laisse voir la page a travers, ce qui trahit le
-    // montage. Un plan qui s'en va est un objet, pas un voile.
+    // The exit translates the curtain rather than making it disappear: an
+    // opacity that falls lets the page show through, which gives the trick
+    // away. A plane that leaves is an object, not a veil.
     '[data-o-gate-out]{transform:translateY(-100%)}',
     '[data-o-gate-bar]{',
     'position:relative;width:min(18rem,60vw);height:1px;',
@@ -145,15 +145,15 @@ function ensureCounterGateRule(): void {
 }
 
 /**
- * Couvre la page jusqu'a ce qu'elle soit prete, puis s'en va.
+ * Covers the page until it is ready, then leaves.
  *
  * @example
- * // Un rideau de courtoisie : rien a attendre, mais une vraie entree.
- * <CounterGate label="Odoro" onDone={() => { setPret(true) }} />
+ * // A courtesy curtain: nothing to wait for, but a real entrance.
+ * <CounterGate label="Odoro" onDone={() => { setReady(true) }} />
  *
  * @example
- * // Branche sur la premiere image d'une scene : le compteur dit la verite.
- * <CounterGate ready={sceneDessinee} onDone={ouvrir} />
+ * // Wired to the first frame of a scene: the counter tells the truth.
+ * <CounterGate ready={sceneDrawn} onDone={reveal} />
  */
 export function CounterGate({
   background = 'var(--o-theme-bg)',
@@ -168,107 +168,111 @@ export function CounterGate({
   ...rest
 }: CounterGateProps): ReactElement | null {
   const { reduced } = useMotionState()
-  const [pourcent, setPourcent] = useState(0)
-  const [sortant, setSortant] = useState(false)
-  const [parti, setParti] = useState(false)
+  const [percent, setPercent] = useState(0)
+  const [exiting, setExiting] = useState(false)
+  const [gone, setGone] = useState(false)
 
-  // Dans une ref : la sortie ne doit partir qu'une fois, et un rendu
-  // supplementaire ne doit pas la rejouer.
-  const annonce = useRef(false)
-  const rappel = useRef(onDone)
-  rappel.current = onDone
+  // In a ref: the exit must fire only once, and an extra render must not
+  // replay it.
+  const announced = useRef(false)
+  const callback = useRef(onDone)
+  callback.current = onDone
 
   ensureCounterGateRule()
 
   useEffect(() => {
-    // Mouvement reduit : pas de rideau du tout. Ce qu'il apportait etait le
-    // geste ; ce qu'il coutait serait une attente sans contrepartie.
+    // Reduced motion: no curtain at all. What it brought was the gesture;
+    // what it would cost would be a wait with nothing in return.
     if (reduced) {
-      if (!annonce.current) {
-        annonce.current = true
-        rappel.current?.()
+      if (!announced.current) {
+        announced.current = true
+        callback.current?.()
       }
-      setParti(true)
+      setGone(true)
       return
     }
 
-    const depart = performance.now()
-    let image = 0
-    let dernier = depart
+    const start = performance.now()
+    let frame = 0
+    let last = start
 
-    // La valeur vit dans une variable, pas dans l'etat : sans cela la boucle
-    // provoquerait soixante rendus par seconde pour un chiffre qui n'en change
-    // que cent fois. On ne remonte a React que lorsque l'entier affiche bouge.
-    let valeur = 0
-    let affiche = -1
+    // The value lives in a variable, not in state: without that the loop
+    // would cause sixty renders per second for a figure that only changes a
+    // hundred times. We only go back to React when the displayed integer
+    // moves.
+    let value = 0
+    let shown = -1
 
-    const pas = (maintenant: number) => {
-      // Le pas est borne : un onglet revenu au premier plan apres une minute
-      // rendrait un delta enorme et ferait sauter le compteur a cent.
-      const dt = Math.min((maintenant - dernier) / 1000, 0.05)
-      dernier = maintenant
+    const step = (now: number) => {
+      // The step is bounded: a tab brought back to the foreground after a
+      // minute would give a huge delta and make the counter jump to a
+      // hundred.
+      const dt = Math.min((now - last) / 1000, 0.05)
+      last = now
 
-      const ecoule = maintenant - depart
-      const pret = ready || ecoule >= maxMs
+      const elapsed = now - start
+      const isReady = ready || elapsed >= maxMs
 
-      // Trois regimes, et le plancher est ce qui separe les deux derniers.
-      // Sans lui, un cache chaud amene le compteur a cent en moins de temps que
-      // la duree minimale, et la sortie partirait avant : le rideau
-      // clignoterait, ce que le plancher etait cense empecher.
-      const acheve = pret && ecoule >= minVisibleMs
-      const cible = acheve ? 100 : pret ? 99 : ceiling
-      const vitesse = pret ? 6 : 1.7
+      // Three regimes, and the floor is what separates the last two. Without
+      // it, a warm cache brings the counter to a hundred in less time than
+      // the minimum duration, and the exit would fire before it: the curtain
+      // would flicker, which the floor was meant to prevent.
+      const complete = isReady && elapsed >= minVisibleMs
+      const target = complete ? 100 : isReady ? 99 : ceiling
+      const speed = isReady ? 6 : 1.7
 
-      valeur = acheve && valeur >= 99.4 ? 100 : valeur + (cible - valeur) * vitesse * dt
+      value = complete && value >= 99.4 ? 100 : value + (target - value) * speed * dt
 
-      const entier = Math.round(valeur)
-      if (entier !== affiche) {
-        affiche = entier
-        setPourcent(valeur)
+      const rounded = Math.round(value)
+      if (rounded !== shown) {
+        shown = rounded
+        setPercent(value)
       }
 
-      // La derniere valeur est poussee SANS passer par le test de l'entier.
-      // Sans cela, une valeur de 99,6 s'arrondit deja a cent et fige `affiche` ;
-      // le saut final a cent ne change alors plus l'entier, `setPourcent(100)`
-      // n'est jamais appele, et la sortie — qui n'attend que cela — ne part
-      // jamais. Le rideau reste sur un compteur a cent, indefiniment.
-      if (valeur >= 100) {
-        setPourcent(100)
+      // The last value is pushed WITHOUT going through the integer test.
+      // Without that, a value of 99.6 already rounds to a hundred and freezes
+      // `shown`; the final jump to a hundred then no longer changes the
+      // integer, `setPercent(100)` is never called, and the exit — which
+      // waits for nothing else — never fires. The curtain stays on a counter
+      // at a hundred, indefinitely.
+      if (value >= 100) {
+        setPercent(100)
         return
       }
 
-      image = requestAnimationFrame(pas)
+      frame = requestAnimationFrame(step)
     }
 
-    image = requestAnimationFrame(pas)
+    frame = requestAnimationFrame(step)
 
     return () => {
-      cancelAnimationFrame(image)
+      cancelAnimationFrame(frame)
     }
   }, [ready, reduced, minVisibleMs, maxMs, ceiling])
 
-  // La bascule vers la sortie, separee de la boucle : elle ne depend que de
-  // l'etat atteint, et la melanger a la boucle la ferait dependre d'une image.
+  // The switch to the exit, kept apart from the loop: it depends only on the
+  // state reached, and mixing it into the loop would make it depend on a
+  // frame.
   useEffect(() => {
-    if (reduced || sortant || pourcent < 100) return
+    if (reduced || exiting || percent < 100) return
 
-    setSortant(true)
+    setExiting(true)
 
-    // Ici, et pas a la fin de la transition : le contenu doit entrer a travers
-    // le rideau qui s'en va.
-    if (!annonce.current) {
-      annonce.current = true
-      rappel.current?.()
+    // Here, and not at the end of the transition: the content must enter
+    // through the curtain as it leaves.
+    if (!announced.current) {
+      announced.current = true
+      callback.current?.()
     }
-  }, [pourcent, sortant, reduced])
+  }, [percent, exiting, reduced])
 
-  if (parti) return null
+  if (gone) return null
 
   const { className, style } = mergePresentation({}, rest)
 
-  const styleRideau = {
+  const curtainStyle = {
     ...style,
-    '--o-gate-p': String(Math.min(1, pourcent / 100)),
+    '--o-gate-p': String(Math.min(1, percent / 100)),
     '--o-gate-exit': '900ms',
     '--o-gate-bg': background,
     '--o-gate-ink': ink,
@@ -278,20 +282,20 @@ export function CounterGate({
     <div
       {...rest}
       className={className}
-      style={styleRideau}
+      style={curtainStyle}
       data-o-gate=""
-      {...(sortant ? { 'data-o-gate-out': '' } : {})}
-      // Le rideau n'est pas du contenu : il ne doit pas etre lu, et la page
-      // qu'il couvre l'est deja.
+      {...(exiting ? { 'data-o-gate-out': '' } : {})}
+      // The curtain is not content: it must not be read, and the page it
+      // covers already is.
       aria-hidden="true"
       onTransitionEnd={() => {
-        if (sortant) setParti(true)
+        if (exiting) setGone(true)
       }}
     >
       {label !== undefined && <div>{label}</div>}
       <div data-o-gate-bar="" />
       {!hideCount && (
-        <div data-o-gate-count="">{String(Math.round(pourcent)).padStart(3, '0')}</div>
+        <div data-o-gate-count="">{String(Math.round(percent)).padStart(3, '0')}</div>
       )}
     </div>
   )

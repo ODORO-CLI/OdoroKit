@@ -1,33 +1,33 @@
 /**
- * Bandeau d'appel a l'action.
+ * Call to action band.
  *
- * ## Un appel, pas deux
+ * ## One call, not two
  *
- * Le bandeau accepte une action principale et, au plus, une secondaire — et
- * elles ne se ressemblent pas. Deux boutons de meme poids ne posent pas une
- * question, ils la reportent : la personne choisit de ne rien faire, ce qui
- * est le seul choix qui ne demande pas de trancher.
+ * The band accepts one primary action and, at most, one secondary — and they
+ * do not look alike. Two buttons of the same weight do not ask a question,
+ * they defer it : the person chooses to do nothing, which is the only choice
+ * that asks for no decision.
  *
- * ## Un lien reste un lien, un bouton reste un bouton
+ * ## A link stays a link, a button stays a button
  *
- * L'action porte une adresse ou une fonction, jamais les deux au hasard. Ce
- * n'est pas une coquetterie de balisage : un lien s'ouvre dans un nouvel
- * onglet, se copie, s'annonce comme « lien » ; un bouton fait quelque chose ici
- * et maintenant. Un `<div onClick>` ne fait ni l'un ni l'autre, et se voit tout
- * de suite au clavier.
+ * The action carries an address or a function, never both at random. This
+ * is not a markup nicety : a link opens in a new tab, gets copied,
+ * announces itself as "link" ; a button does something here and now. A
+ * `<div onClick>` does neither of the two, and shows itself straight away
+ * to the keyboard.
  *
- * ## Le reflet passe une fois
+ * ## The sheen passes once
  *
- * Il balaie le bandeau a l'entree dans le champ, puis s'arrete. Une brillance
- * en boucle sur un appel a l'action attire l'oeil en permanence sur un objet
- * qui n'a plus rien a dire une fois lu : c'est ce qui fait qu'on cesse de le
- * voir. Sous mouvement reduit, il ne passe pas du tout.
+ * It sweeps the band on entry into the view, then stops. A looping shine on a
+ * call to action draws the eye permanently to an object that has nothing left
+ * to say once read : that is what makes one stop seeing it. Under reduced
+ * motion, it does not pass at all.
  *
- * ## Le titre est un vrai titre
+ * ## The title is a real heading
  *
- * Le bandeau ouvre un niveau de titre, parce qu'il en est un dans le plan de la
- * page. Ecrit en gros texte, il serait invisible dans le sommaire qu'un lecteur
- * d'ecran fabrique — et c'est ainsi que l'on navigue quand on n'y voit pas.
+ * The band opens a heading level, because it is one in the outline of the
+ * page. Written as large text, it would be invisible in the summary a screen
+ * reader builds — and that is how one navigates when one cannot see.
  *
  * @module
  */
@@ -37,39 +37,39 @@ import { type CSSProperties, type ReactElement, type ReactNode } from 'react'
 
 import { useInView } from '@registre/hooks/useInView'
 
-/** Une action du bandeau. */
+/** An action of the band. */
 export interface CtaAction {
-  /** Ce qui est ecrit dessus. */
+  /** What is written on it. */
   readonly label: string
-  /** Adresse : l'action est alors un lien. */
+  /** Address : the action is then a link. */
   readonly href?: string
-  /** Fonction : l'action est alors un bouton. */
+  /** Function : the action is then a button. */
   readonly onClick?: () => void
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface CtaBandOwnProps {
-  /** Ce qu'on propose, en une phrase. */
+  /** What is on offer, in one sentence. */
   title: ReactNode
-  /** L'action principale. */
+  /** The primary action. */
   primary: CtaAction
-  /** Une precision sous le titre. */
+  /** A detail under the title. */
   body?: ReactNode
-  /** Une seconde action, discrete. */
+  /** A second action, quiet. */
   secondary?: CtaAction
-  /** Niveau de titre rendu. @defaultValue 'h2' */
+  /** Heading level rendered. @defaultValue 'h2' */
   headingLevel?: 'h2' | 'h3'
-  /** Nom de la section, annonce aux technologies d'assistance. */
+  /** Name of the section, announced to assistive technologies. */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All the properties. */
 export type CtaBandProps = Customisable<CtaBandOwnProps, 'section'>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-cta-band'
 
-/** Pose les regles du bandeau, une fois par document. */
+/** Sets the rules of the band, once per document. */
 function ensureCtaRules(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -78,12 +78,12 @@ function ensureCtaRules(): void {
   style.id = STYLE_ID
   style.textContent = [
     '[data-o-cta]{position:relative;overflow:hidden;isolation:isolate}',
-    '[data-o-cta-reflet]{',
+    '[data-o-cta-sheen]{',
     'position:absolute;inset:0;pointer-events:none;z-index:-1;',
     'transform:translateX(-100%);opacity:0}',
-    // `forwards` retient l'etat de fin : sans lui, le reflet reviendrait a sa
-    // position de depart et clignoterait a la derniere image.
-    '[data-o-cta-vu] [data-o-cta-reflet]{',
+    // `forwards` holds the end state : without it, the sheen would come back to
+    // its starting position and flicker on the last frame.
+    '[data-o-cta-seen] [data-o-cta-sheen]{',
     'animation:o-cta-balayage 1.4s var(--o-ease-standard) 0.15s forwards}',
     '@keyframes o-cta-balayage{',
     '0%{transform:translateX(-100%);opacity:0}',
@@ -94,29 +94,29 @@ function ensureCtaRules(): void {
     'opacity:0;transform:translateY(12px);',
     'transition:opacity var(--o-duration-slower) var(--o-ease-entrance),',
     'transform var(--o-duration-slower) var(--o-ease-entrance)}',
-    '[data-o-cta-vu] [data-o-cta-corps]{opacity:1;transform:none}',
+    '[data-o-cta-seen] [data-o-cta-corps]{opacity:1;transform:none}',
 
     '@media (prefers-reduced-motion:reduce){',
-    '[data-o-cta-reflet]{display:none}',
+    '[data-o-cta-sheen]{display:none}',
     '[data-o-cta-corps]{opacity:1;transform:none;transition:none}}',
   ].join('')
   document.head.append(style)
 }
 
-/** Rend une action, en lien ou en bouton selon ce qu'elle porte. */
+/** Renders an action, as a link or as a button according to what it carries. */
 function Action({
   action,
-  principale,
+  primary,
 }: {
   action: CtaAction
-  principale: boolean
+  primary: boolean
 }): ReactElement {
   const classes = [
     'o-inline-flex o-items-center o-justify-center o-rounded-lg o-px-5 o-py-2.5',
     'o-text-sm o-font-medium focus:o-ring',
   ].join(' ')
 
-  const habillage: CSSProperties = principale
+  const appearance: CSSProperties = primary
     ? {
         backgroundColor: 'var(--o-palette-brand-600)',
         color: 'var(--o-palette-white)',
@@ -134,28 +134,28 @@ function Action({
 
   if (action.href !== undefined) {
     return (
-      <a href={action.href} className={classes} style={habillage}>
+      <a href={action.href} className={classes} style={appearance}>
         {action.label}
       </a>
     )
   }
 
   return (
-    <button type="button" onClick={action.onClick} className={classes} style={habillage}>
+    <button type="button" onClick={action.onClick} className={classes} style={appearance}>
       {action.label}
     </button>
   )
 }
 
 /**
- * Un bandeau d'appel a l'action.
+ * A call to action band.
  *
  * @example
  * <CtaBand
- *   title="Installez la premiere entree en une commande"
- *   body="Le code est copie chez vous : il vous appartient des la premiere seconde."
- *   primary={{ label: 'Commencer', href: '/installation' }}
- *   secondary={{ label: 'Lire le contrat', href: '/contrat' }}
+ *   title="Install the first entry with one command"
+ *   body="The code is copied to your side : it is yours from the first second."
+ *   primary={{ label: 'Get started', href: '/install' }}
+ *   secondary={{ label: 'Read the contract', href: '/contract' }}
  * />
  */
 export function CtaBand({
@@ -167,8 +167,8 @@ export function CtaBand({
   label,
   ...rest
 }: CtaBandProps): ReactElement {
-  const { ref, vu } = useInView<HTMLElement>({ amount: 0.25 })
-  const Titre = headingLevel
+  const { ref, inView } = useInView<HTMLElement>({ amount: 0.25 })
+  const Heading = headingLevel
 
   ensureCtaRules()
 
@@ -183,7 +183,7 @@ export function CtaBand({
       ref={ref}
       aria-label={label}
       data-o-cta=""
-      data-o-cta-vu={vu ? '' : undefined}
+      data-o-cta-seen={inView ? '' : undefined}
       className={className}
       style={
         {
@@ -197,7 +197,7 @@ export function CtaBand({
     >
       <span
         aria-hidden
-        data-o-cta-reflet=""
+        data-o-cta-sheen=""
         style={{
           backgroundImage:
             'linear-gradient(100deg, transparent 30%, color-mix(in oklab, var(--o-palette-brand-400) 45%, transparent) 50%, transparent 70%)',
@@ -209,12 +209,12 @@ export function CtaBand({
         className="o-flex o-flex-col o-items-center o-gap-6 o-text-center"
       >
         <div className="o-flex o-max-w-2xl o-flex-col o-gap-3">
-          <Titre
+          <Heading
             className="o-text-2xl o-font-bold o-tracking-tight o-text-balance"
             style={{ color: 'var(--o-theme-fg)' }}
           >
             {title}
-          </Titre>
+          </Heading>
           {body !== undefined && (
             <p
               className="o-text-sm o-leading-relaxed"
@@ -226,8 +226,8 @@ export function CtaBand({
         </div>
 
         <div className="o-flex o-flex-wrap o-items-center o-justify-center o-gap-3">
-          <Action action={primary} principale />
-          {secondary !== undefined && <Action action={secondary} principale={false} />}
+          <Action action={primary} primary />
+          {secondary !== undefined && <Action action={secondary} primary={false} />}
         </div>
       </div>
     </section>

@@ -1,34 +1,34 @@
 /**
- * Shader du vortex torsade.
+ * Twisted vortex shader.
  *
- * ## L'idee mathematique
+ * ## The mathematical idea
  *
- * La meme perspective que le tunnel — la profondeur vaut l'inverse du rayon
- * — mais rien d'autre en commun. L'angle est tordu avec la profondeur :
- * plus un point est loin, plus il est tourne, si bien que les aretes du
- * couloir s'enroulent en helice au lieu de fuir droit vers le centre. Le
- * tout pivote en plus avec le temps, et le point de fuite se promene en
- * lente ellipse : le couloir est courbe, pas rectiligne.
+ * The same perspective as the tunnel — depth is the inverse of the radius —
+ * but nothing else in common. The angle is twisted with depth: the further a
+ * point is, the more it is turned, so that the ribs of the corridor wind into
+ * a helix instead of running straight towards the centre. The whole thing
+ * also pivots with time, and the vanishing point wanders along a slow
+ * ellipse: the corridor is curved, not straight.
  *
- * Les parois portent six aretes, lues en cosinus de l'angle tordu, et des
- * bandes de profondeur qui avancent. La teinte n'est pas fixe : elle tourne
- * autour de la paroi avec l'angle tordu et la profondeur, d'une couleur a
- * l'autre. L'eclat suit les aretes, la ou une bande les croise.
+ * The walls carry six ribs, read as a cosine of the twisted angle, and depth
+ * bands that advance. The hue is not fixed: it turns around the wall with the
+ * twisted angle and the depth, from one colour to the other. The glint
+ * follows the ribs, where a band crosses them.
  *
- * Le point de fuite est eteint avant qu'il ne batte avec la grille de
- * pixels : ce n'est pas decoratif.
+ * The vanishing point is put out before it can beat against the pixel grid:
+ * that is not decorative.
  *
  * ## Uniforms
  *
- * - `uTime` — temps en secondes, fourni par le moteur.
- * - `uResolution` — taille du canevas en pixels, fournie par le moteur.
- * - `uColorA` — le fond.
- * - `uColorB` — la premiere teinte des parois.
- * - `uColorC` — la seconde teinte, et l'eclat des aretes.
- * - `uSpeed` — vitesse d'avancee.
- * - `uTwist` — torsion des aretes avec la profondeur.
- * - `uSpin` — vitesse de rotation de l'ensemble.
- * - `uRings` — densite des bandes de profondeur.
+ * - `uTime` — time in seconds, supplied by the engine.
+ * - `uResolution` — canvas size in pixels, supplied by the engine.
+ * - `uColorA` — the background.
+ * - `uColorB` — the first hue of the walls.
+ * - `uColorC` — the second hue, and the glint of the ribs.
+ * - `uSpeed` — speed of travel.
+ * - `uTwist` — twist of the ribs with depth.
+ * - `uSpin` — rotation speed of the whole.
+ * - `uRings` — density of the depth bands.
  */
 export const WORMHOLE_FRAGMENT = /* glsl */ `
 precision highp float;
@@ -49,7 +49,7 @@ void main() {
   float aspect = uResolution.x / max(uResolution.y, 1.0);
   vec2 p = (vUv - 0.5) * vec2(aspect, 1.0) * 2.0;
 
-  // Le point de fuite se promene : le couloir est courbe, pas rectiligne.
+  // The vanishing point wanders: the corridor is curved, not straight.
   p -= 0.22 * vec2(sin(uTime * 0.6), cos(uTime * 0.45));
 
   float r = length(p);
@@ -57,21 +57,21 @@ void main() {
   float z = 1.0 / max(r, 0.01);
   float t = uTime * uSpeed;
 
-  // La torsion : l'angle tourne avec la profondeur ; le tout pivote.
+  // The twist: the angle turns with depth; the whole thing pivots.
   float twisted = angle + z * uTwist * 0.25 + uTime * uSpin;
 
-  // La profondeur avance ; les bandes y sont lues en sinus.
+  // The depth advances; the bands are read from it as a sine.
   float depth = z * max(uRings, 1.0) * 0.25 - t * 3.0;
 
-  // Les parois : six aretes torsadees, et des bandes qui avancent.
+  // The walls: six twisted ribs, and bands that advance.
   float ribs = 0.5 + 0.5 * cos(twisted * 6.0);
   float band = smoothstep(0.25, 0.75, 0.5 + 0.5 * sin(depth));
 
-  // La teinte tourne autour de la paroi ; l'eclat suit les aretes.
+  // The hue turns around the wall; the glint follows the ribs.
   float hue = 0.5 + 0.5 * sin(twisted * 3.0 + depth * 0.5);
   float glint = pow(ribs, 6.0) * band;
 
-  // Le point de fuite est eteint avant qu'il ne batte avec les pixels.
+  // The vanishing point is put out before it can beat against the pixels.
   float far = smoothstep(0.03, 0.35, r);
 
   vec3 wall = mix(uColorB, uColorC, hue);

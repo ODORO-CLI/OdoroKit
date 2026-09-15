@@ -1,33 +1,32 @@
 /**
- * Inclinaison et reflet : une carte-image qui pivote vers le pointeur, avec
- * un reflet qui se deplace a l'oppose.
+ * Tilt and glare: an image card that pivots towards the pointer, with a glare
+ * that moves the opposite way.
  *
- * ## La perspective est sur le parent, la rotation sur l'enfant
+ * ## The perspective is on the parent, the rotation on the child
  *
- * Les deux sur le meme element donnerait une inclinaison plate — la
- * transformation s'appliquerait sans point de fuite, et l'image aurait l'air
- * cisaillee plutot que tournee. Le parent pose la profondeur, l'enfant tourne
- * dedans.
+ * Both on the same element would give a flat tilt — the transform would apply
+ * with no vanishing point, and the image would look sheared rather than
+ * turned. The parent sets the depth, the child turns inside it.
  *
- * ## Le reflet va a l'oppose du pointeur
+ * ## The glare goes opposite the pointer
  *
- * C'est ce qui le fait lire comme une lumiere et non comme un curseur : quand
- * le bord droit s'enfonce, la lumiere glisse vers la gauche, comme sur une
- * surface vernie qu'on incline. Il est peint en fond de pseudo-element —
- * jamais un calque qui intercepterait le pointeur — et sa couleur vient d'un
- * token, pas d'un blanc en dur qui ignorerait le theme.
+ * That is what makes it read as a light and not as a cursor: when the right
+ * edge sinks, the light slides to the left, as on a varnished surface being
+ * tilted. It is painted as the background of a pseudo-element — never a layer
+ * that would intercept the pointer — and its colour comes from a token, not
+ * from a hard-coded white that would ignore the theme.
  *
- * ## L'amortissement, pas le suivi direct
+ * ## Damping, not direct tracking
  *
- * Une image collee au pointeur n'a pas de masse. Le retard vient d'un
- * amortissement exponentiel independant de la cadence d'affichage :
- * `k = 1 - exp(-vitesse x dt)`. Angles et position du reflet sont ecrits dans
- * le style depuis la boucle, sans aucun rendu React.
+ * An image stuck to the pointer has no mass. The lag comes from an exponential
+ * damping independent of the refresh rate: `k = 1 - exp(-speed x dt)`. Angles
+ * and position of the glare are written into the style from the loop, with no
+ * React render at all.
  *
- * ## Ce qui reste sans mouvement, et au doigt
+ * ## What remains without motion, and under a finger
  *
- * Une image plate. L'inclinaison ne portait aucune information. Sur un ecran
- * tactile il n'y a pas de survol : le composant ne s'abonne meme pas.
+ * A flat image. The tilt carried no information. On a touch screen there is no
+ * hover: the component does not even subscribe.
  *
  * @module
  */
@@ -35,10 +34,10 @@
 import { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'
 import { useEffect, useRef, type CSSProperties, type ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-tilt-glare'
 
-/** Pose les regles de la carte, une fois par document. */
+/** Sets the card rules, once per document. */
 function ensureTiltGlareRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -50,13 +49,13 @@ function ensureTiltGlareRule(): void {
     '[data-o-tg-inner]{',
     'position:relative;height:100%;overflow:hidden;border-radius:inherit;',
     'transform-style:preserve-3d;will-change:transform;',
-    // La transition ne sert qu'au retour au repos : pendant le survol, c'est
-    // la boucle qui ecrit a chaque image.
+    // The transition only serves the return to rest: during the hover, it is
+    // the loop that writes on every frame.
     'transition:transform 420ms cubic-bezier(0.22,1,0.36,1);',
     '}',
-    '[data-o-tilt-glare-actif] [data-o-tg-inner]{transition:none}',
-    // Le reflet : un fond, donc au-dessus de l'image mais hors d'atteinte du
-    // pointeur et des technologies d'assistance.
+    '[data-o-tilt-glare-active] [data-o-tg-inner]{transition:none}',
+    // The glare: a background, hence above the image but out of reach of the
+    // pointer and of assistive technologies.
     '[data-o-tg-inner]::after{',
     'content:"";position:absolute;inset:0;pointer-events:none;',
     'background:radial-gradient(circle at var(--o-tg-gx) var(--o-tg-gy),',
@@ -64,43 +63,42 @@ function ensureTiltGlareRule(): void {
     'transparent 60%);',
     'opacity:0;transition:opacity 260ms ease;',
     '}',
-    '[data-o-tilt-glare-actif] [data-o-tg-inner]::after{opacity:1}',
+    '[data-o-tilt-glare-active] [data-o-tg-inner]::after{opacity:1}',
   ].join('')
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface TiltGlareOwnProps {
-  /** Source de l'image. */
+  /** Source of the image. */
   src: string
-  /** Texte de remplacement. Chaine vide si l'image est purement decorative. */
+  /** Alternative text. Empty string if the image is purely decorative. */
   alt: string
-  /** Rapport largeur sur hauteur. @defaultValue 1.777 */
+  /** Width to height ratio. @defaultValue 1.777 */
   ratio?: number
   /**
-   * Inclinaison maximale, en degres.
+   * Maximum tilt, in degrees.
    *
-   * Au-dela d'une quinzaine, l'image cesse d'avoir l'air posee et se met a
-   * tanguer.
+   * Beyond fifteen or so, the image stops looking settled and starts to pitch.
    *
    * @defaultValue 10
    */
   tilt?: number
-  /** Intensite du reflet, de 0 a 1. Zero le supprime. @defaultValue 0.25 */
+  /** Intensity of the glare, from 0 to 1. Zero removes it. @defaultValue 0.25 */
   glare?: number
 }
 
-/** Toutes les proprietes : les siennes, plus celles d'une image. */
+/** All properties: its own, plus those of an image. */
 export type TiltGlareProps = Customisable<TiltGlareOwnProps, 'img'>
 
 /**
- * Incline une image vers le pointeur, reflet a l'oppose.
+ * Tilts an image towards the pointer, glare on the opposite side.
  *
  * @example
- * <TiltGlare src="/photo.jpg" alt="Vue de l atelier" className="o-rounded-xl" />
+ * <TiltGlare src="/photo.jpg" alt="View of the workshop" className="o-rounded-xl" />
  *
  * @example
- * // Plus marquee, sans reflet.
+ * // More pronounced, with no glare.
  * <TiltGlare src="/photo.jpg" alt="" tilt={14} glare={0} />
  */
 export function TiltGlare({
@@ -125,7 +123,7 @@ export function TiltGlare({
     const card = inner.current
     if (frame === null || card === null) return
 
-    // Vise et courant : l'ecart entre les deux est tout l'effet.
+    // Aimed and current: the gap between the two is the whole effect.
     let aimX = 0
     let aimY = 0
     let x = 0
@@ -137,8 +135,8 @@ export function TiltGlare({
     const onMove = (event: PointerEvent): void => {
       const box = frame.getBoundingClientRect()
 
-      // Ramene a [-1, 1] depuis le centre : l'inclinaison ne depend pas de la
-      // taille de la carte.
+      // Brought back to [-1, 1] from the centre: the tilt does not depend on
+      // the size of the card.
       const nx = ((event.clientX - box.left) / Math.max(box.width, 1)) * 2 - 1
       const ny = ((event.clientY - box.top) / Math.max(box.height, 1)) * 2 - 1
 
@@ -147,7 +145,7 @@ export function TiltGlare({
 
       if (!inside) {
         inside = true
-        frame.setAttribute('data-o-tilt-glare-actif', '')
+        frame.setAttribute('data-o-tilt-glare-active', '')
       }
     }
 
@@ -155,7 +153,7 @@ export function TiltGlare({
       inside = false
       aimX = 0
       aimY = 0
-      frame.removeAttribute('data-o-tilt-glare-actif')
+      frame.removeAttribute('data-o-tilt-glare-active')
       card.style.transform = ''
     }
 
@@ -164,17 +162,17 @@ export function TiltGlare({
       last = now
 
       if (inside) {
-        // Amortissement independant de la cadence : voir l'en-tete du module.
+        // Damping independent of the refresh rate: see the module header.
         const k = 1 - Math.exp(-10 * dt)
         x += (aimX - x) * k
         y += (aimY - y) * k
 
-        // Le signe de X est inverse : pointer vers la droite doit faire
-        // pivoter le bord droit vers l'arriere, pas vers l'avant.
+        // The sign of X is flipped: pointing to the right must pivot the right
+        // edge backwards, not forwards.
         card.style.transform = `rotateX(${String(-y * tilt)}deg) rotateY(${String(x * tilt)}deg)`
 
-        // Le reflet est place a l'oppose de la position amortie : la lumiere
-        // glisse vers le bord qui se leve.
+        // The glare is placed opposite the damped position: the light slides
+        // towards the edge that rises.
         card.style.setProperty('--o-tg-gx', `${String((0.5 - x / 2) * 100)}%`)
         card.style.setProperty('--o-tg-gy', `${String((0.5 - y / 2) * 100)}%`)
       }

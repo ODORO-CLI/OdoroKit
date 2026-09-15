@@ -31,7 +31,7 @@
  */
 
 import { Icon } from '@odoro-cli/icons'
-import { ArrowRight, Check, Play } from '@odoro-cli/icons/filaire'
+import { ArrowRight, Check, Play } from '@odoro-cli/icons/outline'
 import { useMotionState } from '@odoro-cli/engine'
 import { Reveal } from '@odoro-cli/libs/motion'
 import {

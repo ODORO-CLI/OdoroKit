@@ -1,55 +1,55 @@
 /**
- * Inventaire des ressources vivantes.
+ * Inventory of live resources.
  *
- * Chaque timeline, chaque declencheur de defilement et chaque surface WebGL
- * s'y enregistre a sa creation et s'en retire a sa liberation. L'interet n'est
- * pas comptable : c'est ce qui rend une fuite **visible**.
+ * Every timeline, every scroll trigger and every WebGL surface registers here
+ * on creation and removes itself on release. The point is not bookkeeping: it
+ * is what makes a leak **visible**.
  *
- * Une scene 3D ne libere rien automatiquement — ni ses geometries, ni ses
- * materiaux, ni ses textures, ni ses cibles de rendu. Le symptome d'un oubli
- * n'est pas une erreur mais une lente degradation, invisible en developpement
- * et fatale apres dix navigations. Un inventaire qui ne revient pas a zero
- * apres demontage transforme cette degradation en assertion de test.
+ * A 3D scene releases nothing automatically — neither its geometries, nor its
+ * materials, nor its textures, nor its render targets. The symptom of an
+ * oversight is not an error but a slow degradation, invisible in development
+ * and fatal after ten navigations. An inventory that does not come back to
+ * zero after unmounting turns that degradation into a test assertion.
  *
  * @module
  */
 
-/** Nature d'une ressource suivie. */
+/** Nature of a tracked resource. */
 export type ResourceKind = 'timeline' | 'scroll-trigger' | 'surface' | 'subscription'
 
-/** Une ressource enregistree. */
+/** A registered resource. */
 export interface Resource {
-  /** Identifiant attribue a l'enregistrement. */
+  /** Identifier assigned on registration. */
   readonly id: string
-  /** Nature de la ressource. */
+  /** Nature of the resource. */
   readonly kind: ResourceKind
-  /** Nom lisible, affiche dans le panneau de diagnostic. */
+  /** Readable name, shown in the diagnostics panel. */
   readonly name: string
-  /** Horodatage de l'enregistrement. */
+  /** Timestamp of the registration. */
   readonly since: number
-  /** Informations libres, affichees telles quelles au diagnostic. */
+  /** Free-form information, shown as is in the diagnostics. */
   readonly detail?: Readonly<Record<string, string | number | boolean>>
 }
 
-/** Ce qu'il faut pour enregistrer une ressource. */
+/** What is needed to register a resource. */
 export interface ResourceInput {
-  /** Nature de la ressource. */
+  /** Nature of the resource. */
   kind: ResourceKind
-  /** Nom lisible. */
+  /** Readable name. */
   name: string
-  /** Liberation de la ressource. Appelee par `disposeAll`. */
+  /** Release of the resource. Called by `disposeAll`. */
   dispose: () => void
-  /** Informations libres. */
+  /** Free-form information. */
   detail?: Record<string, string | number | boolean>
 }
 
-/** Poignee rendue a l'enregistrement. */
+/** Handle returned on registration. */
 export interface ResourceHandle {
-  /** Identifiant attribue. */
+  /** Assigned identifier. */
   readonly id: string
-  /** Retire la ressource de l'inventaire, **sans** la liberer. */
+  /** Removes the resource from the inventory, **without** releasing it. */
   release(): void
-  /** Met a jour les informations affichees au diagnostic. */
+  /** Updates the information shown in the diagnostics. */
   update(detail: Record<string, string | number | boolean>): void
 }
 
@@ -63,7 +63,7 @@ let counter = 0
 class ResourceRegistry {
   private readonly entries = new Map<string, Entry>()
 
-  /** Nombre de ressources vivantes, toutes natures confondues ou par nature. */
+  /** Number of live resources, all natures together or by nature. */
   public count(kind?: ResourceKind): number {
     if (kind === undefined) return this.entries.size
     let total = 0
@@ -73,7 +73,7 @@ class ResourceRegistry {
     return total
   }
 
-  /** Ressources vivantes, de la plus ancienne a la plus recente. */
+  /** Live resources, from the oldest to the most recent. */
   public list(kind?: ResourceKind): readonly Resource[] {
     const all = [...this.entries.values()]
     const filtered = kind === undefined ? all : all.filter((entry) => entry.kind === kind)
@@ -89,7 +89,7 @@ class ResourceRegistry {
   }
 
   /**
-   * Enregistre une ressource.
+   * Registers a resource.
    *
    * @example
    * const handle = registry.register({
@@ -126,11 +126,11 @@ class ResourceRegistry {
   }
 
   /**
-   * Libere toutes les ressources d'une nature, ou toutes.
+   * Releases every resource of a nature, or all of them.
    *
-   * Utilise au changement de page et a la fermeture. Une liberation qui echoue
-   * n'interrompt pas les suivantes : le but est de tout relacher, pas de
-   * s'arreter au premier probleme.
+   * Used on page change and on close. A release that fails does not interrupt
+   * the following ones: the goal is to let everything go, not to stop at the
+   * first problem.
    */
   public disposeAll(kind?: ResourceKind): number {
     let released = 0
@@ -140,7 +140,7 @@ class ResourceRegistry {
       try {
         entry.dispose()
       } catch (cause) {
-        console.error(`[odoro] echec de liberation de "${entry.name}"`, cause)
+        console.error(`[odoro] failed to release "${entry.name}"`, cause)
       }
       this.entries.delete(entry.id)
       released += 1
@@ -151,15 +151,15 @@ class ResourceRegistry {
 }
 
 /**
- * Inventaire de la page.
+ * Inventory of the page.
  *
  * @example
  * import { registry } from '@odoro-cli/engine'
  *
- * // Dans un test de fuite :
+ * // In a leak test:
  * expect(registry.count('surface')).toBe(0)
  */
 export const registry = new ResourceRegistry()
 
-/** Type de l'inventaire, pour les signatures qui le recoivent. */
+/** Type of the inventory, for the signatures that receive it. */
 export type ResourceRegistryInstance = ResourceRegistry

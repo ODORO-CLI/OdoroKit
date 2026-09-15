@@ -47,7 +47,7 @@ import {
   ArrowRight,
   ArrowUpRight,
   TriangleAlert,
-} from '@odoro-cli/icons/filaire'
+} from '@odoro-cli/icons/outline'
 import { Reveal } from '@odoro-cli/libs/motion'
 import {
   useEffect,

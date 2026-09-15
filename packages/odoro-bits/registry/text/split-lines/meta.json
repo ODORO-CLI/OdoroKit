@@ -54,7 +54,7 @@
       "step": 50
     },
     {
-      "name": "declenchement",
+      "name": "trigger",
       "type": "'vue' | 'montage'",
       "default": "vue",
       "description": "A l entree dans le champ, ou des le montage."

@@ -1,22 +1,22 @@
 /**
- * Fumee : des volutes advectees par un rotationnel approche, qui montent.
+ * Smoke: swirls advected by an approximate curl, rising.
  *
- * ## Le principe
+ * ## The principle
  *
- * Le gradient du bruit, obtenu par lectures decalees, est tourne d un quart de tour : le champ qui en resulte tourbillonne sans jamais se compresser.
+ * The gradient of the noise, obtained from offset reads, is turned by a quarter turn: the resulting field swirls without ever compressing.
  *
- * Le temps n entre que dans le deplacement, jamais dans la couleur : la fumee se deforme au lieu de clignoter.
+ * Time enters only the displacement, never the colour: the smoke deforms instead of flickering.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur — les recopier ici en ferait autant
- * de versions a maintenir qu'il y a de fonds.
+ * It carries only what sets it apart: its shader, its settings and its
+ * fallback. Reading the tokens, converting them to floats and re-reading them
+ * when the theme changes all come from the engine — copying that here would
+ * leave as many versions to maintain as there are backgrounds.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en
- * accorde qu'une par backend — et sous mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface — it grants only one
+ * per backend — and under reduced motion.
  *
  * @module
  */
@@ -33,53 +33,53 @@ import { type ReactElement } from 'react'
 
 import { SMOKE_FRAGMENT } from './smoke.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface SmokeControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to this component. */
 export interface SmokeOwnProps {
-  /** Vitesse du tourbillon. @defaultValue 0.15 */
+  /** Speed of the swirl. @defaultValue 0.15 */
   speed?: number
-  /** Echelle du motif. Plus haut, plus fin. @defaultValue 2 */
+  /** Scale of the pattern. Higher is finer. @defaultValue 2 */
   scale?: number
-  /** Vitesse de la montee. @defaultValue 0.35 */
+  /** Speed of the rise. @defaultValue 0.35 */
   lift?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<SmokeControls>
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type SmokeProps = Customisable<SmokeOwnProps>
 
-/** Tokens employes par defaut : le fond, le corps de la fumee, ses cretes. */
+/** Tokens used by default: the background, the body of the smoke, its crests. */
 const DEFAULT_TOKENS = ['--o-theme-bg', '--o-theme-muted', '--o-theme-fg'] as const
 
-/** Repli par defaut : une teinte figee, dans les memes tons. */
+/** Default fallback: a frozen tint, in the same tones. */
 const DEFAULT_FALLBACK = 'o-bg-zinc-50 dark:o-bg-zinc-950'
 
 /**
- * Detail du bruit hors qualite basse.
+ * Noise detail outside low quality.
  *
- * Le rotationnel demande quatre lectures du bruit, plus une pour la matiere :
- * chaque octave se paie donc cinq fois. C'est le seul levier de cout du
- * shader, et il n'a pas besoin d'etre une prop pour etre retrograde.
+ * The curl asks for four reads of the noise, plus one for the matter: every
+ * octave is therefore paid five times over. It is the only cost lever of the
+ * shader, and it does not need to be a prop to be degraded.
  */
 const OCTAVES = 4
 
-/** Detail du bruit en qualite basse. */
+/** Noise detail at low quality. */
 const LOW_OCTAVES = 2
 
 /**
- * Fumee.
+ * Smoke.
  *
  * @example
  * <div className="o-relative o-min-h-screen">
@@ -101,8 +101,8 @@ export function Smoke({
     colors,
     uniforms: { uSpeed: speed, uScale: scale, uLift: lift, uOctaves: OCTAVES },
     name: 'smoke',
-    // Les octaves sont le reglage qui pese — chaque octave se paie cinq fois,
-    // quatre pour le rotationnel et une pour la matiere — donc le seul borne.
+    // The octaves are the setting that weighs — every octave is paid five times
+    // over, four for the curl and one for the matter — hence the only bound one.
     degrade: (quality) => ({
       uOctaves: quality === 'low' ? LOW_OCTAVES : OCTAVES,
     }),

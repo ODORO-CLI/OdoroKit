@@ -1,34 +1,34 @@
 /**
- * Shader de l'oscilloscope.
+ * Shader of the oscilloscope.
  *
- * ## L'idee mathematique
+ * ## The mathematical idea
  *
- * Un oscilloscope ne dessine pas une courbe : un spot balaie l'ecran de
- * gauche a droite, et le phosphore garde la trace de son passage en
- * s'eteignant. Le fragment reconstruit donc l'age de son propre pixel : le
- * spot est a l'abscisse `fract(t)` du balayage courant, et un fragment a
- * gauche de lui a ete eclaire dans ce balayage, un fragment a droite dans le
- * precedent. L'age est la difference des deux instants, et l'intensite son
- * exponentielle decroissante — c'est la remanence.
+ * An oscilloscope does not draw a curve: a spot sweeps the screen from left
+ * to right, and the phosphor keeps the trail of its passage as it dies away.
+ * Each fragment therefore reconstructs the age of its own pixel: the spot
+ * sits at abscissa `fract(t)` of the current sweep, and a fragment to its
+ * left was lit in that sweep, a fragment to its right in the previous one.
+ * The age is the difference of the two moments, and the intensity its
+ * decreasing exponential — that is the persistence.
  *
- * Le signal est fige par balayage : ses phases dependent du numero de
- * balayage, pas du temps continu. Sans cela la trace ondulerait derriere le
- * spot, ce qu'aucun phosphore ne fait.
+ * The signal is frozen per sweep: its phases depend on the sweep number, not
+ * on continuous time. Without that the trail would ripple behind the spot,
+ * which no phosphor does.
  *
- * La distance a la trace est divisee par la norme de sa pente, comme pour
- * tout y = f(x). Une graticule fixe, en dessous, donne l'echelle.
+ * The distance to the trail is divided by the norm of its slope, as for any
+ * y = f(x). A fixed graticule, underneath, gives the scale.
  *
  * ## Uniforms
  *
- * - `uTime` — temps en secondes, fourni par le moteur.
- * - `uResolution` — taille du canevas en pixels, fournie par le moteur.
- * - `uColorA` — le fond.
- * - `uColorB` — la graticule.
- * - `uColorC` — le phosphore.
- * - `uSpeed` — balayages par seconde.
- * - `uDecay` — vitesse d'extinction du phosphore.
- * - `uFrequency` — periodes du signal dans le cadre.
- * - `uAmplitude` — hauteur du signal, en fraction du cadre.
+ * - `uTime` — time in seconds, supplied by the engine.
+ * - `uResolution` — canvas size in pixels, supplied by the engine.
+ * - `uColorA` — the background.
+ * - `uColorB` — the graticule.
+ * - `uColorC` — the phosphor.
+ * - `uSpeed` — sweeps per second.
+ * - `uDecay` — decay speed of the phosphor.
+ * - `uFrequency` — periods of the signal in the frame.
+ * - `uAmplitude` — height of the signal, as a fraction of the frame.
  */
 export const OSCILLOSCOPE_FRAGMENT = /* glsl */ `
 precision highp float;
@@ -45,7 +45,7 @@ uniform float uDecay;
 uniform float uFrequency;
 uniform float uAmplitude;
 
-// Le signal du balayage n : trois sinus dont les phases dependent de n.
+// The signal of sweep n: three sines whose phases depend on n.
 float signal(float x, float n) {
   float w = uFrequency * 6.2831853;
   return sin(x * w + n * 0.4) * 0.6
@@ -53,8 +53,10 @@ float signal(float x, float n) {
     + sin(x * w * 0.5 + n * 1.7) * 0.15;
 }
 
-// Derivee du signal par rapport a x, pour normaliser l'epaisseur.
-float pente(float x, float n) {
+// Derivative of the signal with respect to x, to normalise the thickness. The
+// name keeps "signal" in front because a bare "slope" would collide with the
+// local that holds its value in main().
+float signalSlope(float x, float n) {
   float w = uFrequency * 6.2831853;
   return cos(x * w + n * 0.4) * 0.6 * w
     + cos(x * w * 2.3 + n * 0.9) * 0.25 * w * 2.3
@@ -66,21 +68,21 @@ void main() {
   float px = 1.0 / max(uResolution.y, 1.0);
   float x = vUv.x;
 
-  // Le balayage courant et la position du spot.
+  // The current sweep and the position of the spot.
   float speed = max(uSpeed, 0.01);
   float sweeps = uTime * speed;
   float current = floor(sweeps);
   float spot = fract(sweeps);
 
-  // Ce fragment a ete eclaire dans ce balayage s'il est derriere le spot,
-  // dans le precedent sinon. L'age en decoule.
+  // This fragment was lit in this sweep if it sits behind the spot, in the
+  // previous one otherwise. The age follows from that.
   float behind = step(x, spot);
   float n = current - (1.0 - behind);
   float lit = (n + x) / speed;
   float age = uTime - lit;
 
   float y = 0.5 + signal(x, n) * uAmplitude;
-  float slope = pente(x, n) * uAmplitude / aspect;
+  float slope = signalSlope(x, n) * uAmplitude / aspect;
   float d = abs(vUv.y - y) / sqrt(1.0 + slope * slope);
 
   float persistence = exp(-age * uDecay);
@@ -88,10 +90,10 @@ void main() {
   float glow = exp(-d * 90.0);
   float trace = (core + glow * 0.6) * persistence;
 
-  // Le spot lui-meme : un point plus vif la ou le balayage en est.
+  // The spot itself: a brighter point where the sweep has got to.
   float head = exp(-length(vec2((x - spot) * aspect, vUv.y - y)) * 60.0);
 
-  // La graticule : dix divisions en largeur, huit en hauteur.
+  // The graticule: ten divisions across, eight down.
   vec2 cell = abs(fract(vUv * vec2(10.0, 8.0) + 0.5) - 0.5);
   vec2 cellPx = cell / vec2(10.0, 8.0) * uResolution;
   float rule = 1.0 - smoothstep(0.5, 1.5, min(cellPx.x, cellPx.y));

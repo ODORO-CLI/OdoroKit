@@ -1,58 +1,59 @@
 /**
- * Le pont vers `@odoro-cli/libs`, quand il est present.
+ * The bridge to `@odoro-cli/libs`, when it is present.
  *
- * ## Pourquoi un pont plutot qu'une dependance
+ * ## Why a bridge rather than a dependency
  *
- * Le moteur ne depend d'aucun paquet Odoro. C'est voulu : il s'emploie seul,
- * dans un projet qui n'a pas la librairie, et l'obliger a la tirer pour lire
- * une preference systeme serait une dependance imposee par une commodite.
+ * The engine depends on no Odoro package. This is deliberate: it is used on
+ * its own, in a project that does not have the library, and forcing it to pull
+ * the library in just to read a system preference would be a dependency
+ * imposed by a convenience.
  *
- * Mais quand les deux sont la, deux choses doivent cesser d'exister en double.
+ * But when both are there, two things must stop existing twice.
  *
- * ## La boucle
+ * ## The loop
  *
- * `@odoro-cli/libs/motion` ouvre une boucle a un seul endroit : la mesure de
- * progression du defilement, qui se lit a l'image et non a l'evenement. Le
- * moteur en a une aussi — celle de GSAP, qui pilote tout le reste.
+ * `@odoro-cli/libs/motion` opens a loop in a single place: the measurement of
+ * scroll progress, which is read per frame and not per event. The engine has
+ * one too — GSAP's, which drives everything else.
  *
- * Deux boucles concurrentes lisent et ecrivent la mise en page dans un ordre
- * que l'autre ignore. Le resultat est un tremblement qui ne se reproduit pas a
- * la demande, et qu'on attribue au moteur alors qu'il vient de leur
- * coexistence. Le pont installe donc le ticker de GSAP comme ordonnanceur de
- * la librairie, et le rend au demontage.
+ * Two competing loops read and write the layout in an order the other ignores.
+ * The result is a jitter that does not reproduce on demand, and that gets
+ * blamed on the engine when it comes from their coexistence. The bridge
+ * therefore installs the GSAP ticker as the scheduler of the library, and
+ * gives it back on unmount.
  *
- * ## La decision d'animer
+ * ## The decision to animate
  *
- * `prefers-reduced-motion` etait lu des deux cotes. Tant que personne ne force
- * le reglage, les deux lectures s'accordent ; elles divergent des qu'un projet
- * decide de l'ignorer sur une page. Le pont fait suivre le reglage du moteur a
- * la librairie, pour que la reponse soit la meme partout.
+ * `prefers-reduced-motion` was read on both sides. As long as nobody forces
+ * the setting, the two readings agree; they diverge as soon as a project
+ * decides to ignore it on a page. The bridge makes the library follow the
+ * engine's setting, so that the answer is the same everywhere.
  *
- * ## L'import est dynamique, et son echec est normal
+ * ## The import is dynamic, and its failure is normal
  *
- * `@odoro-cli/libs` est une dependance optionnelle. Son absence n'est pas une
- * erreur : c'est le cas d'un projet qui n'emploie que le moteur. Le pont se
- * contente alors de ne rien faire.
+ * `@odoro-cli/libs` is an optional dependency. Its absence is not an error: it
+ * is the case of a project that only uses the engine. The bridge then simply
+ * does nothing.
  *
  * @module
  */
 
 import gsap from 'gsap'
 
-/** Ce que le pont installe, et sait defaire. */
+/** What the bridge installs, and knows how to undo. */
 export type BridgeTeardown = () => void
 
-/** Forme minimale de ce que le pont consomme dans la librairie. */
+/** Minimal shape of what the bridge consumes from the library. */
 interface LibsMotionPolicy {
   setFrameScheduler: (next: (task: () => void) => () => void) => () => void
   setReducedMotion: (setting: 'respect' | 'force' | 'ignore') => void
 }
 
 /**
- * Branche le moteur sur la librairie, si elle est la.
+ * Hooks the engine up to the library, if it is there.
  *
- * @returns De quoi defaire le branchement. Rend une fonction inerte quand la
- *   librairie est absente.
+ * @returns What is needed to undo the hook-up. Returns an inert function when
+ *   the library is absent.
  *
  * @example
  * useEffect(() => {
@@ -68,13 +69,13 @@ export async function bridgeToLibs(
   try {
     libs = (await import('@odoro-cli/libs/motion-policy')) as unknown as LibsMotionPolicy
   } catch {
-    // La librairie n'est pas installee : c'est un cas ordinaire, pas un echec.
+    // The library is not installed: this is an ordinary case, not a failure.
     return () => undefined
   }
 
-  // Le ticker de GSAP, avec `once` : la tache est retiree apres son
-  // execution, ce qui reproduit exactement la semantique d'un
-  // `requestAnimationFrame` — une image, pas un abonnement.
+  // The GSAP ticker, with `once`: the task is removed after it runs, which
+  // reproduces exactly the semantics of a `requestAnimationFrame` — one frame,
+  // not a subscription.
   const restoreScheduler = libs.setFrameScheduler((task) => {
     const run = (): void => {
       gsap.ticker.remove(run)
@@ -88,8 +89,8 @@ export async function bridgeToLibs(
 
   return () => {
     restoreScheduler()
-    // La librairie retrouve la preference systeme : le moteur parti, plus rien
-    // ne justifie qu'elle suive un reglage qu'il avait impose.
+    // The library goes back to the system preference: with the engine gone,
+    // nothing justifies it following a setting the engine had forced.
     libs.setReducedMotion('respect')
   }
 }

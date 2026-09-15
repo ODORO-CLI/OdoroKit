@@ -1,23 +1,23 @@
 /**
- * Acces au registre, par HTTP ou depuis un dossier local.
+ * Access to the registry, over HTTP or from a local directory.
  *
- * ## Les deux sources
+ * ## The two sources
  *
- * Le cas courant est une URL : le registre est publie, la CLI telecharge.
- * Le cas local — `--registry ../odoro-bits/dist/registry` — sert a developper
- * le registre lui-meme, et a l'usage interne d'un studio qui garde ses
- * composants pour lui.
+ * The common case is a URL: the registry is published, the CLI downloads. The
+ * local case — `--registry ../odoro-bits/dist/registry` — serves the
+ * development of the registry itself, and the internal use of a studio keeping
+ * its components to itself.
  *
- * Ce n'est pas un mode degrade : les deux passent par la meme validation. Un
- * composant qui s'installe depuis un dossier local et pas depuis une URL
- * serait un piege, puisque c'est en local qu'on l'essaie.
+ * It is not a degraded mode: both go through the same validation. A component
+ * that installs from a local directory and not from a URL would be a trap,
+ * since it is locally that one tries it.
  *
- * ## Ce qui est verifie a l'arrivee
+ * ## What is checked on arrival
  *
- * Tout. Le meta est repasse dans le schema, et les sources annoncees par
- * `files` doivent etre presentes. La raison est simple : ce qui arrive ici
- * sera ecrit dans le projet de quelqu'un, et le serveur qui l'envoie n'est pas
- * forcement celui qu'on croit.
+ * Everything. The meta goes back through the schema, and the sources announced
+ * by `files` must be present. The reason is simple: what arrives here will be
+ * written into someone's project, and the server that sends it is not
+ * necessarily the one you think.
  *
  * @module
  */
@@ -32,27 +32,27 @@ import {
   type RegistryIndex,
 } from '../registry/index.js'
 
-/** Ce que rend une lecture de registre. */
+/** What reading the registry returns. */
 export type FetchResult<T> =
   | { readonly ok: true; readonly value: T }
   | { readonly ok: false; readonly problems: readonly string[] }
 
-/** Un registre ouvert, quelle que soit sa nature. */
+/** An open registry, whatever its nature. */
 export interface RegistrySource {
-  /** Description affichable de l'emplacement. */
+  /** Printable description of the location. */
   readonly location: string
-  /** Lit l'index. */
+  /** Reads the index. */
   index(): Promise<FetchResult<RegistryIndex>>
-  /** Lit une entree complete, code source compris. */
+  /** Reads a complete entry, source code included. */
   entry(id: string): Promise<FetchResult<PublishedEntry>>
 }
 
-/** Indique si une adresse designe un registre distant. */
+/** Tells whether an address designates a remote registry. */
 export function isRemote(location: string): boolean {
   return /^https?:\/\//.test(location)
 }
 
-/** Lit un document JSON, d'ou qu'il vienne. */
+/** Reads a JSON document, wherever it comes from. */
 async function readDocument(
   location: string,
   relativePath: string,
@@ -65,16 +65,16 @@ async function readDocument(
     } catch (error) {
       return {
         ok: false,
-        problems: [`${url} : injoignable — ${(error as Error).message}`],
+        problems: [`${url} : unreachable — ${(error as Error).message}`],
       }
     }
     if (!response.ok) {
-      return { ok: false, problems: [`${url} : reponse ${String(response.status)}.`] }
+      return { ok: false, problems: [`${url} : response ${String(response.status)}.`] }
     }
     try {
       return { ok: true, value: await response.json() }
     } catch {
-      return { ok: false, problems: [`${url} : la reponse n'est pas du JSON.`] }
+      return { ok: false, problems: [`${url} : the response is not JSON.`] }
     }
   }
 
@@ -83,53 +83,55 @@ async function readDocument(
   try {
     raw = await readFile(file, 'utf8')
   } catch {
-    return { ok: false, problems: [`${file} : introuvable.`] }
+    return { ok: false, problems: [`${file} : not found.`] }
   }
   try {
     return { ok: true, value: JSON.parse(raw) }
   } catch (error) {
     return {
       ok: false,
-      problems: [`${file} : JSON illisible — ${(error as Error).message}`],
+      problems: [`${file} : unreadable JSON — ${(error as Error).message}`],
     }
   }
 }
 
-/** Verifie qu'un document a bien la forme d'un index. */
+/** Checks that a document really has the shape of an index. */
 function asIndex(value: unknown, origin: string): FetchResult<RegistryIndex> {
   const candidate = value as Partial<RegistryIndex>
   if (candidate.version !== 1) {
     return {
       ok: false,
       problems: [
-        `${origin} : version de format ${String(candidate.version)} non reconnue. Mettez la CLI a jour.`,
+        `${origin} : format version ${String(candidate.version)} not recognised. Update the CLI.`,
       ],
     }
   }
   if (!Array.isArray(candidate.entries)) {
     return {
       ok: false,
-      problems: [`${origin} : l'index ne contient aucune liste d'entrees.`],
+      problems: [`${origin} : the index holds no list of entries.`],
     }
   }
   return { ok: true, value: candidate as RegistryIndex }
 }
 
-/** Verifie qu'un document a bien la forme d'une entree publiee. */
+/** Checks that a document really has the shape of a published entry. */
 function asEntry(value: unknown, id: string): FetchResult<PublishedEntry> {
   const parsed = parseMeta(value, id)
   if (!parsed.ok) return { ok: false, problems: parsed.problems }
 
   const sources = (value as { sources?: unknown }).sources
   if (typeof sources !== 'object' || sources === null) {
-    return { ok: false, problems: [`${id} : l'entree ne porte aucun code source.`] }
+    return { ok: false, problems: [`${id} : the entry carries no source code.`] }
   }
 
   const record = sources as Record<string, unknown>
   const problems: string[] = []
   for (const file of parsed.meta.files) {
     if (typeof record[file.path] !== 'string') {
-      problems.push(`${id} : le fichier annonce "${file.path}" est absent de la reponse.`)
+      problems.push(
+        `${id} : the announced file "${file.path}" is missing from the response.`,
+      )
     }
   }
   if (problems.length > 0) return { ok: false, problems }
@@ -141,11 +143,11 @@ function asEntry(value: unknown, id: string): FetchResult<PublishedEntry> {
 }
 
 /**
- * Ouvre un registre.
+ * Opens a registry.
  *
- * @param location URL ou chemin local. Les chemins relatifs sont resolus
- * depuis `root`, pas depuis le dossier courant : la valeur est notee dans
- * `odoro.json` et doit rester juste quand la commande est lancee ailleurs.
+ * @param location URL or local path. Relative paths are resolved from `root`,
+ * not from the current directory: the value is recorded in `odoro.json` and
+ * must stay right when the command is run somewhere else.
  *
  * @example
  * const registry = openRegistry('https://register.odoro.dev', process.cwd())
@@ -174,7 +176,7 @@ export function openRegistry(location: string, root: string): RegistrySource {
   }
 }
 
-/** Rend l'index sous forme de catalogue indexe par identifiant. */
+/** Returns the index as a catalogue indexed by identifier. */
 export function indexById(index: RegistryIndex): Map<string, IndexEntry> {
   return new Map(index.entries.map((entry) => [entry.id, entry]))
 }

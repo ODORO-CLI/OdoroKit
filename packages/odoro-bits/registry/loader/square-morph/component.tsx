@@ -1,33 +1,35 @@
 /**
- * Carre qui s'arrondit : un carre plein fait un demi-tour en devenant rond,
- * puis retrouve ses angles en finissant le tour.
+ * Square that rounds off: a solid square makes a half turn while becoming
+ * round, then finds its corners again as it completes the turn.
  *
- * ## Le rond cache le milieu du tour
+ * ## The round hides the middle of the turn
  *
- * Un carre qui tourne sur lui-meme se ressemble tous les quarts de tour :
- * une rotation seule se lirait comme un tremblement. Ici la rotation est
- * couplee au rayon des angles. Au depart, un carre ; a mi-course, un rond ;
- * a l'arrivee, le carre de nouveau. Le moment ou l'on ne saurait pas dire
- * si le carre a tourne est justement celui ou il n'y a plus d'angles a
- * suivre. Ce que l'oeil retient, c'est une forme qui se ramasse en cercle
- * et se redeploie en carre, un tour sur deux dans chaque sens de lecture.
+ * A square spinning on itself looks like itself every quarter turn: a
+ * rotation alone would read as a tremble. Here the rotation is coupled to
+ * the radius of the corners. At the start, a square; halfway, a round; at
+ * the end, the square again. The moment when one could not say whether the
+ * square has turned is exactly the moment when there are no corners left to
+ * follow. What the eye keeps is a shape that gathers into a circle and
+ * unfolds back into a square, one turn out of two in each direction of
+ * reading.
  *
- * La forme se contracte un peu au passage en rond : un rond de meme cote
- * qu'un carre parait plus petit, la contraction accentue le mouvement au
- * lieu de le compenser. C'est une pulsation, pas une correction optique.
+ * The shape contracts a little as it passes through round: a round of the
+ * same size as a square looks smaller, and the contraction emphasizes the
+ * movement instead of compensating for it. It is a pulse, not an optical
+ * correction.
  *
- * Un seul element, une seule animation, aucun JavaScript apres le premier
- * rendu. Le rayon de bordure n'est pas tenu par le compositeur, mais sur un
- * element de cette taille le repeint est negligeable.
+ * A single element, a single animation, no JavaScript after the first
+ * render. The border radius is not held by the compositor, but on an element
+ * of this size the repaint is negligible.
  *
- * ## Un statut, pas un dessin
+ * ## A status, not a drawing
  *
- * L'element porte `role="status"` et un libelle pour les lecteurs d'ecran :
- * l'attente est une information, pas une decoration. La forme, elle, est
- * retiree de l'arbre d'accessibilite.
+ * The element carries `role="status"` and a label for screen readers: the
+ * wait is information, not decoration. The shape itself is removed from the
+ * accessibility tree.
  *
- * Sous mouvement reduit, le carre reste droit et plein : la figure se lit
- * encore comme un chargeur, seul le mouvement s'arrete.
+ * Under reduced motion, the square stays upright and solid: the figure
+ * still reads as a loader, only the movement stops.
  *
  * @module
  */
@@ -35,10 +37,10 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Id of the injected stylesheet. */
 const STYLE_ID = 'o-square-morph'
 
-/** Pose la forme et son tour, une fois par document. */
+/** Sets the shape and its turn, once per document. */
 function ensureSquareMorphRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -53,8 +55,8 @@ function ensureSquareMorphRule(): void {
     'background:var(--o-square-color);border-radius:12%;',
     'animation:o-square-morph-turn var(--o-square-speed) ease-in-out infinite;',
     '}',
-    // Un demi-tour pour devenir rond, un demi-tour pour redevenir carre :
-    // la rotation ne s'arrete jamais, seuls les angles vont et viennent.
+    // Half a turn to become round, half a turn to become square again: the
+    // rotation never stops, only the corners come and go.
     '@keyframes o-square-morph-turn{',
     '0%{transform:rotate(0deg) scale(1);border-radius:12%}',
     '50%{transform:rotate(180deg) scale(0.78);border-radius:50%}',
@@ -67,36 +69,36 @@ function ensureSquareMorphRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** The component's own props. */
 export interface SquareMorphOwnProps {
-  /** Cote du carre, en pixels. @defaultValue 32 */
+  /** Side of the square, in pixels. @defaultValue 32 */
   size?: number
-  /** Duree d'un tour complet, en millisecondes. @defaultValue 1800 */
+  /** Duration of one complete turn, in milliseconds. @defaultValue 1800 */
   speed?: number
-  /** Couleur de la forme. @defaultValue la couleur du texte */
+  /** Color of the shape. @defaultValue the text color */
   color?: string
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */
+  /** Label announced to screen readers. @defaultValue 'Loading' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type SquareMorphProps = Customisable<SquareMorphOwnProps, 'span'>
 
 /**
- * Signale une attente par un carre qui tourne en s'arrondissant.
+ * Signals a wait with a square that turns as it rounds off.
  *
  * @example
  * <SquareMorph />
  *
  * @example
- * // Plus petit, plus vif, dans la teinte de marque.
+ * // Smaller, brisker, in the brand hue.
  * <SquareMorph size={20} speed={1200} color="var(--o-palette-brand-500)" />
  */
 export function SquareMorph({
   size = 32,
   speed = 1800,
   color = 'currentColor',
-  label = 'Chargement',
+  label = 'Loading',
   ...rest
 }: SquareMorphProps): ReactElement {
   ensureSquareMorphRule()

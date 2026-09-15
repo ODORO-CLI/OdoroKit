@@ -1,27 +1,27 @@
 /**
- * Carte a retournement : deux faces, une bascule au clic ou au clavier.
+ * Flip card: two faces, a toggle on click or from the keyboard.
  *
- * ## Un bouton qui a l'air d'une carte
+ * ## A button that looks like a card
  *
- * La bascule est un etat que l'utilisateur controle, donc l'element est un
- * bouton pour l'arbre d'accessibilite : `role="button"`, focusable, active a
- * l'Entree et a l'Espace, et `aria-pressed` dit quelle face est montree.
- * Sans cela, la carte serait un piege : cliquable a la souris, invisible au
- * clavier et muette au lecteur d'ecran.
+ * The toggle is a state the user controls, so the element is a button as far
+ * as the accessibility tree is concerned: `role="button"`, focusable,
+ * activated by Enter and Space, and `aria-pressed` says which face is shown.
+ * Without that, the card would be a trap: clickable with the mouse, invisible
+ * to the keyboard and mute to the screen reader.
  *
- * La face cachee est aussi retiree de l'arbre : un lecteur d'ecran n'a pas
- * a lire le dos d'une carte qui montre sa face.
+ * The hidden face is removed from the tree too: a screen reader has no
+ * business reading the back of a card that is showing its front.
  *
- * ## La rotation est une transition, pas une animation
+ * ## The rotation is a transition, not an animation
  *
- * L'etat vise — a l'endroit ou retourne — est un angle, et la transition
- * fait le chemin. Interrompre la bascule au milieu repart donc de l'angle
- * courant, sans saut : c'est exactement ce que les transitions savent faire
- * et que les animations ne savent pas.
+ * The target state — face up or turned over — is an angle, and the transition
+ * makes the journey. Interrupting the toggle halfway therefore restarts from
+ * the current angle, without a jump: exactly what transitions know how to do
+ * and animations do not.
  *
- * Sous mouvement reduit, la bascule devient un fondu croise : l'information
- * — l'autre face — arrive quand meme, seul le geste en trois dimensions est
- * omis.
+ * Under reduced motion, the toggle becomes a cross-fade: the information —
+ * the other face — still arrives, only the three-dimensional gesture is left
+ * out.
  *
  * @module
  */
@@ -35,25 +35,25 @@ import {
   type ReactNode,
 } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface FlipCardOwnProps {
-  /** Face montree au repos. */
+  /** Face shown at rest. */
   front: ReactNode
-  /** Face revelee par la bascule. */
+  /** Face revealed by the toggle. */
   back: ReactNode
-  /** Axe de la rotation. @defaultValue 'horizontal' */
+  /** Axis of the rotation. @defaultValue 'horizontal' */
   direction?: 'horizontal' | 'vertical'
-  /** Duree de la bascule, en millisecondes. @defaultValue 600 */
+  /** Duration of the toggle, in milliseconds. @defaultValue 600 */
   duration?: number
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type FlipCardProps = Customisable<FlipCardOwnProps>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-flip-card'
 
-/** Pose la scene en trois dimensions, une fois par document. */
+/** Applies the three-dimensional scene, once per document. */
 function ensureFlipRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -73,9 +73,9 @@ function ensureFlipRule(): void {
     'backface-visibility:hidden;-webkit-backface-visibility:hidden;',
     '}',
     '[data-o-flip-face="back"]{transform:var(--o-flip-turn)}',
-    // La face avant donne sa taille a la carte : elle seule est dans le flux.
+    // The front face gives the card its size: it alone is in the flow.
     '[data-o-flip-face="front"]{position:relative}',
-    // Mouvement reduit : plus de scene, un fondu croise entre les faces.
+    // Reduced motion: no more scene, a cross-fade between the faces.
     '@media (prefers-reduced-motion:reduce){',
     '[data-o-flip-inner]{transform-style:flat;transition:none}',
     '[data-o-flip][aria-pressed="true"] [data-o-flip-inner]{transform:none}',
@@ -89,21 +89,21 @@ function ensureFlipRule(): void {
 }
 
 /**
- * Retourne une carte entre deux faces, au clic comme au clavier.
+ * Turns a card between two faces, on click as much as from the keyboard.
  *
- * Les deux faces recouvrent la meme surface : c'est la face avant qui donne
- * sa taille a la carte.
+ * Both faces cover the same surface: it is the front face that gives the card
+ * its size.
  *
  * @example
  * <FlipCard
  *   className="o-h-48 o-w-72"
- *   front={<div className="o-rounded-xl o-border-w-1 o-p-6">Recto</div>}
- *   back={<div className="o-rounded-xl o-border-w-1 o-p-6">Verso</div>}
+ *   front={<div className="o-rounded-xl o-border-w-1 o-p-6">Front</div>}
+ *   back={<div className="o-rounded-xl o-border-w-1 o-p-6">Back</div>}
  * />
  *
  * @example
- * // Bascule de haut en bas, plus lente.
- * <FlipCard direction="vertical" duration={900} front={recto} back={verso} />
+ * // Toggle from top to bottom, slower.
+ * <FlipCard direction="vertical" duration={900} front={front} back={back} />
  */
 export function FlipCard({
   front,
@@ -120,7 +120,7 @@ export function FlipCard({
 
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>): void => {
     if (event.key !== 'Enter' && event.key !== ' ') return
-    // L'Espace ferait defiler la page : c'est la carte qui prend le geste.
+    // Space would scroll the page: the card is what takes the gesture.
     event.preventDefault()
     toggle()
   }

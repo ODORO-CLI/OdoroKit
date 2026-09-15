@@ -1,36 +1,35 @@
 /**
- * Shader de l'explosion de pixels.
+ * Shader of the pixel blast.
  *
- * ## L'idee mathematique
+ * ## The mathematical idea
  *
- * Le cadre est une trame de pixels carres, et tout ce qui s'y dessine est
- * aligne dessus : le fragment ne connait que la cellule de trame qu'il
- * occupe. Une gerbe est un point de depart, un age et une graine ; chacun de
- * ses pixels part dans une direction hachee, ralentit d'une trainee et
- * retombe sous la gravite — position analytique, rien n'est integre d'image
- * en image. Le pixel est allume si sa cellule de trame est celle du
- * fragment : pas de halo, pas de disque, un carre franc qui saute de case en
- * case.
+ * The frame is a grid of square pixels, and everything drawn in it is aligned
+ * on that grid: the fragment knows nothing but the grid cell it occupies. A
+ * burst is a start point, an age and a seed; each of its pixels leaves in a
+ * hashed direction, is slowed by a drag and falls back under gravity —
+ * analytic position, nothing is integrated from frame to frame. The pixel is
+ * lit if its grid cell is the fragment's: no halo, no disc, a crisp square
+ * that hops from cell to cell.
  *
- * L'explosion elle-meme est un carre plein qui s'elargit d'une case par
- * instant et s'eteint aussitot. Un pixel qui touche le bas du cadre s'y
- * arrete un instant avant de disparaitre : c'est ce qui fait la retombee.
+ * The blast itself is a solid square that widens by one cell per instant and
+ * dies out at once. A pixel that reaches the bottom of the frame stops there
+ * for a moment before vanishing: that is what makes the fall read.
  *
- * Les gerbes vivent dans un tampon de cinq emplacements dates par l'horloge
- * du moteur — un depart a -1000 donne un age enorme, donc une gerbe inerte —
- * et une gerbe automatique part toute seule a un point hache.
+ * The bursts live in a buffer of five slots stamped by the engine clock — a
+ * start at -1000 gives an enormous age, hence an inert burst — and an
+ * automatic burst goes off on its own at a hashed point.
  *
  * ## Uniforms
  *
- * - `uTime` — temps en secondes, fourni par le moteur.
- * - `uResolution` — taille du canevas en pixels, fournie par le moteur.
- * - `uColorA` — le fond.
- * - `uColorB`, `uColorC` — les deux teintes de pixels, melangees par gerbe.
- * - `uClicks` — cinq gerbes (x, y, temps de depart), tampon circulaire.
- * - `uPixels` — pixels de la trame sur la hauteur.
- * - `uCount` — pixels par gerbe, et donc le cout.
- * - `uGravity` — force de la retombee.
- * - `uAuto` — periode des gerbes automatiques, en secondes ; zero les coupe.
+ * - `uTime` — time in seconds, supplied by the engine.
+ * - `uResolution` — canvas size in pixels, supplied by the engine.
+ * - `uColorA` — the background.
+ * - `uColorB`, `uColorC` — the two pixel hues, blended per burst.
+ * - `uClicks` — five bursts (x, y, start time), ring buffer.
+ * - `uPixels` — pixels of the grid over the height.
+ * - `uCount` — pixels per burst, and therefore the cost.
+ * - `uGravity` — strength of the fall.
+ * - `uAuto` — period of the automatic bursts, in seconds; zero switches them off.
  */
 export const PIXEL_BLAST_FRAGMENT = /* glsl */ `
 precision highp float;
@@ -48,87 +47,87 @@ uniform float uCount;
 uniform float uGravity;
 uniform float uAuto;
 
-// Nombre pseudo-aleatoire : projection sur une direction arbitraire, sinus
-// amplifie, partie fractionnaire.
+// Pseudo-random number: projection onto an arbitrary direction, amplified
+// sine, fractional part.
 float blastHash(vec2 p) {
   return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
 }
 
-// Deux nombres decorreles pour une meme graine.
+// Two decorrelated numbers for one and the same seed.
 vec2 blastHash2(vec2 p) {
   return vec2(blastHash(p), blastHash(p + vec2(37.3, 17.7)));
 }
 
-// Lumiere qu'une gerbe depose dans la cellule de trame donnee, a l'age donne.
-vec3 gerbe(vec2 cell, vec2 origine, float age, float graine, int pixels, float trame) {
+// Light a burst lays into the given grid cell, at the given age.
+vec3 burst(vec2 cell, vec2 origin, float age, float seed, int pixels, float grid) {
   if (age < 0.0 || age > 4.0) return vec3(0.0);
 
-  vec3 lumiere = vec3(0.0);
-  float teinte = blastHash(vec2(graine, 3.1));
+  vec3 light = vec3(0.0);
+  float hue = blastHash(vec2(seed, 3.1));
   float k = 1.4;
-  float portee = (1.0 - exp(-k * age)) / k;
-  float chute = uGravity * age * age * 0.5;
-  float sol = 0.5 / trame;
+  float reach = (1.0 - exp(-k * age)) / k;
+  float fall = uGravity * age * age * 0.5;
+  float ground = 0.5 / grid;
 
-  // Bornes constantes : la specification du langage l'exige ; la qualite
-  // sort plus tot.
+  // Constant bounds: the language specification demands them; the quality
+  // leaves earlier.
   for (int j = 0; j < 32; j += 1) {
     if (j >= pixels) break;
     float fj = float(j);
-    vec2 h = blastHash2(vec2(fj, graine));
+    vec2 h = blastHash2(vec2(fj, seed));
 
     float angle = (fj + h.x * 0.9) / float(pixels) * 6.2831853;
     float v0 = 0.25 + 0.3 * h.y;
 
-    vec2 pos = origine + vec2(cos(angle), sin(angle)) * v0 * portee;
-    pos.y -= chute;
+    vec2 pos = origin + vec2(cos(angle), sin(angle)) * v0 * reach;
+    pos.y -= fall;
 
-    // Le pixel s'arrete au sol, puis s'eteint : la retombee se voit.
-    float posed = step(pos.y, sol);
-    pos.y = max(pos.y, sol);
+    // The pixel stops at the ground, then dies out: the fall reads.
+    float posed = step(pos.y, ground);
+    pos.y = max(pos.y, ground);
 
-    vec2 pc = floor(pos * trame);
+    vec2 pc = floor(pos * grid);
     float hit = step(abs(pc.x - cell.x), 0.5) * step(abs(pc.y - cell.y), 0.5);
 
-    float vie = exp(-age * (0.9 + 0.6 * h.x)) * (1.0 - posed * min(age, 1.0) * 0.6);
-    vec3 couleur = mix(uColorB, uColorC, fract(teinte + h.y * 0.4));
-    lumiere += couleur * hit * vie;
+    float life = exp(-age * (0.9 + 0.6 * h.x)) * (1.0 - posed * min(age, 1.0) * 0.6);
+    vec3 colour = mix(uColorB, uColorC, fract(hue + h.y * 0.4));
+    light += colour * hit * life;
   }
 
-  // L'explosion : un carre plein qui s'elargit d'une case par instant.
-  vec2 oc = floor(origine * trame);
-  float rayon = floor(age * 18.0);
-  float carre = step(max(abs(cell.x - oc.x), abs(cell.y - oc.y)), rayon) * exp(-age * 9.0);
-  lumiere += uColorC * carre;
+  // The blast: a solid square that widens by one cell per instant.
+  vec2 oc = floor(origin * grid);
+  float radius = floor(age * 18.0);
+  float square = step(max(abs(cell.x - oc.x), abs(cell.y - oc.y)), radius) * exp(-age * 9.0);
+  light += uColorC * square;
 
-  return lumiere;
+  return light;
 }
 
 void main() {
   float aspect = uResolution.x / max(uResolution.y, 1.0);
-  float trame = max(uPixels, 4.0);
+  float grid = max(uPixels, 4.0);
   vec2 p = vec2(vUv.x * aspect, vUv.y);
-  vec2 cell = floor(p * trame);
+  vec2 cell = floor(p * grid);
   int pixels = int(clamp(uCount, 4.0, 32.0));
 
-  // La trame au repos : un damier a peine visible, pour que les pixels aient
-  // une grille sur laquelle tomber.
-  float damier = mod(cell.x + cell.y, 2.0);
-  vec3 colour = mix(uColorA, uColorB, 0.025 + 0.02 * damier);
+  // The grid at rest: a barely visible checker, so that the pixels have a
+  // lattice to land on.
+  float checker = mod(cell.x + cell.y, 2.0);
+  vec3 colour = mix(uColorA, uColorB, 0.025 + 0.02 * checker);
 
   for (int i = 0; i < 5; i += 1) {
-    vec3 clic = uClicks[i];
-    vec2 origine = clic.xy * vec2(aspect, 1.0);
-    colour += gerbe(cell, origine, uTime - clic.z, clic.z * 7.3 + float(i), pixels, trame);
+    vec3 click = uClicks[i];
+    vec2 origin = click.xy * vec2(aspect, 1.0);
+    colour += burst(cell, origin, uTime - click.z, click.z * 7.3 + float(i), pixels, grid);
   }
 
-  // La gerbe automatique : une par periode, a un point hache du cadre.
+  // The automatic burst: one per period, at a hashed point of the frame.
   if (uAuto > 0.0) {
-    float periode = max(uAuto, 0.5);
-    float index = floor(uTime / periode);
-    float ageAuto = uTime - index * periode;
-    vec2 origineAuto = vec2(0.15 + 0.7 * blastHash(vec2(index, 1.3)), 0.35 + 0.5 * blastHash(vec2(index, 9.1)));
-    colour += gerbe(cell, origineAuto * vec2(aspect, 1.0), ageAuto, index * 3.7, pixels, trame);
+    float period = max(uAuto, 0.5);
+    float index = floor(uTime / period);
+    float autoAge = uTime - index * period;
+    vec2 autoOrigin = vec2(0.15 + 0.7 * blastHash(vec2(index, 1.3)), 0.35 + 0.5 * blastHash(vec2(index, 9.1)));
+    colour += burst(cell, autoOrigin * vec2(aspect, 1.0), autoAge, index * 3.7, pixels, grid);
   }
 
   gl_FragColor = vec4(min(colour, vec3(1.0)), 1.0);

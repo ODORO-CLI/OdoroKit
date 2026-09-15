@@ -1,138 +1,137 @@
 /**
- * Declenche quand l'element entre dans le champ, une fois.
+ * Fires when the element enters the viewport, once.
  *
- * ## Pourquoi ce crochet plutot que ScrollTrigger
+ * ## Why this hook rather than ScrollTrigger
  *
- * Le moteur sait deja observer le defilement, mais par GSAP — et GSAP arrive
- * alors dans le projet de celui qui installe une simple animation de titre.
- * `IntersectionObserver` est dans le navigateur depuis des annees, ne coute
- * rien, et repond exactement a la question posee : « est-ce visible ? ».
+ * The engine already knows how to watch scrolling, but through GSAP — and GSAP
+ * then lands in the project of whoever installs a simple heading animation.
+ * `IntersectionObserver` has been in the browser for years, costs nothing, and
+ * answers exactly the question being asked: "is it visible?".
  *
- * Ce qui demande GSAP, c'est le *scrub* — une animation dont l'avancement suit
- * la position de defilement au pixel pres. Ce crochet ne pretend pas le faire.
+ * What does require GSAP is the *scrub* — an animation whose progress follows
+ * the scroll position to the pixel. This hook makes no claim to do that.
  *
- * ## Il s'ouvre en cas de doute, jamais il ne se ferme
+ * ## It opens when in doubt, it never closes
  *
- * Sans `IntersectionObserver` — un navigateur ancien, un environnement de test,
- * un rendu serveur hydrate bizarrement — le crochet rend `vu: true`
- * **immediatement**.
+ * Without `IntersectionObserver` — an old browser, a test environment, a
+ * server render hydrated oddly — the hook returns `inView: true` **immediately**.
  *
- * Le defaut inverse serait le pire possible : une animation qui ne part jamais
- * laisse le texte dans son etat initial, c'est-a-dire souvent invisible. Un
- * effet qui ne joue pas se remarque a peine ; un titre absent se remarque tout
- * de suite, et trop tard.
+ * The opposite default would be the worst possible one: an animation that
+ * never starts leaves the text in its initial state, which is to say often
+ * invisible. An effect that does not play is barely noticed; a missing heading
+ * is noticed straight away, and too late.
  *
- * ## Une fois, par defaut
+ * ## Once, by default
  *
- * Un titre qui rejoue son animation chaque fois qu'on remonte la page attire
- * l'attention sur lui a un moment ou l'on cherchait autre chose. L'observateur
- * se detache donc apres le premier passage, ce qui libere aussi son cout.
+ * A heading that replays its animation every time one scrolls back up draws
+ * attention to itself at a moment when one was looking for something else. The
+ * observer therefore detaches after the first pass, which also frees its cost.
  *
  * @module
  */
 
 import { useEffect, useRef, useState, type RefObject } from 'react'
 
-/** Reglages de l'observation. */
+/** Settings of the observation. */
 export interface UseInViewOptions {
   /**
-   * Se detacher apres le premier passage.
+   * Detach after the first pass.
    *
    * @defaultValue true
    */
   once?: boolean
   /**
-   * Part visible qui declenche, de 0 a 1.
+   * Visible share that fires, from 0 to 1.
    *
    * @defaultValue 0.3
    */
   amount?: number
   /**
-   * Marge autour de la zone d'observation, syntaxe de `rootMargin`.
+   * Margin around the observation area, `rootMargin` syntax.
    *
-   * Une marge negative en bas retarde le declenchement jusqu'a ce que
-   * l'element soit franchement entre.
+   * A negative bottom margin delays the trigger until the element has entered
+   * decisively.
    */
   margin?: string
   /**
-   * Ne pas observer du tout : le crochet rend `vu: true` des le montage.
+   * Do not observe at all: the hook returns `inView: true` from mount onwards.
    *
-   * C'est ainsi qu'un composant expose un declenchement « au montage » sans
-   * ecrire deux chemins de code.
+   * This is how a component exposes a trigger "on mount" without writing two
+   * code paths.
    *
    * @defaultValue false
    */
-  immediat?: boolean
+  immediate?: boolean
 }
 
-/** Ce que le crochet rend. */
+/** What the hook returns. */
 export interface UseInViewResult<T extends Element> {
-  /** A poser sur l'element a observer. */
+  /** To apply on the element to observe. */
   readonly ref: RefObject<T | null>
-  /** Vrai des que l'element a ete vu. */
-  readonly vu: boolean
+  /** True as soon as the element has been seen. */
+  readonly inView: boolean
 }
 
 /**
- * Observe un element et dit quand il a ete vu.
+ * Observes an element and says when it has been seen.
  *
  * @example
- * const { ref, vu } = useInView<HTMLDivElement>()
- * return <div ref={ref} data-anime={vu ? '' : undefined} />
+ * const { ref, inView } = useInView<HTMLDivElement>()
+ * return <div ref={ref} data-anime={inView ? '' : undefined} />
  *
  * @example
- * // Declenchement au montage : aucun observateur n'est cree.
- * const { ref, vu } = useInView<HTMLSpanElement>({ immediat: true })
+ * // Trigger on mount: no observer is created.
+ * const { ref, inView } = useInView<HTMLSpanElement>({ immediate: true })
  */
 export function useInView<T extends Element>(
   options: UseInViewOptions = {},
 ): UseInViewResult<T> {
-  const { once = true, amount = 0.3, margin, immediat = false } = options
+  const { once = true, amount = 0.3, margin, immediate = false } = options
 
   const ref = useRef<T | null>(null)
-  const [vu, setVu] = useState(immediat)
+  const [inView, setVu] = useState(immediate)
 
   useEffect(() => {
-    if (immediat) {
+    if (immediate) {
       setVu(true)
       return
     }
 
-    const cible = ref.current
-    if (cible === null) return
+    const target = ref.current
+    if (target === null) return
 
-    // Voir l'en-tete : en cas de doute, on montre. Un effet qui ne joue pas se
-    // remarque a peine, un titre absent se remarque tout de suite.
+    // See the header: when in doubt, we show. An effect that does not play is
+    // barely noticed, a missing heading is noticed straight away.
     if (typeof IntersectionObserver === 'undefined') {
       setVu(true)
       return
     }
 
-    const observateur = new IntersectionObserver(
-      (entrees) => {
-        for (const entree of entrees) {
-          if (entree.isIntersecting) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
             setVu(true)
-            if (once) observateur.disconnect()
+            if (once) observer.disconnect()
           } else if (!once) {
             setVu(false)
           }
         }
       },
       {
-        // `threshold` refuse une valeur hors de [0, 1] en levant : on la borne
-        // plutot que de laisser une faute de frappe casser la page.
+        // `threshold` rejects a value outside [0, 1] by throwing: we clamp it
+        // rather than let a typo break the page.
         threshold: Math.min(1, Math.max(0, amount)),
         ...(margin === undefined ? {} : { rootMargin: margin }),
       },
     )
 
-    observateur.observe(cible)
+    observer.observe(target)
 
     return () => {
-      observateur.disconnect()
+      observer.disconnect()
     }
-  }, [once, amount, margin, immediat])
+  }, [once, amount, margin, immediate])
 
-  return { ref, vu }
+  return { ref, inView }
 }

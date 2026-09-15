@@ -1,33 +1,34 @@
 /**
- * Carte pixel : au survol, le bord se couvre de carres qui gagnent vers
- * l'interieur, puis se retirent quand le pointeur s'en va.
+ * Pixel card: on hover, the edge fills with squares that gain ground towards
+ * the inside, then pull back when the pointer leaves.
  *
- * ## Un canevas, pas une grille d'elements
+ * ## A canvas, not a grid of elements
  *
- * Une carte de taille ordinaire compte plusieurs centaines de cellules dans
- * sa bande de bord. Autant d'elements du document, chacun avec sa transition,
- * feraient de la carte la piece la plus lourde de la page. Un canevas les
- * dessine toutes en un seul passage, et ne coute rien tant que rien ne bouge.
+ * A card of ordinary size counts several hundred cells in its edge band. That
+ * many document elements, each with its own transition, would make the card
+ * the heaviest piece of the page. A canvas draws them all in a single pass,
+ * and costs nothing as long as nothing moves.
  *
- * ## Chaque cellule a son seuil
+ * ## Every cell has its threshold
  *
- * L'avancement va de zero a un a la vitesse reglee. Une cellule s'allume
- * quand l'avancement depasse son seuil, qui vient de sa distance au bord —
- * les plus proches d'abord — plus une part de hasard tiree une fois. Sans le
- * hasard, le bord avancerait comme un front rectiligne ; sans la distance, il
- * scintillerait sans direction. Le melange donne une pixelisation qui ronge.
+ * The progress goes from zero to one at the configured speed. A cell lights up
+ * when the progress passes its threshold, which comes from its distance to the
+ * edge — the closest ones first — plus a share of randomness drawn once.
+ * Without the randomness, the edge would advance as a straight front; without
+ * the distance, it would flicker with no direction. The mix gives a
+ * pixelation that gnaws.
  *
- * ## La couleur vient du document
+ * ## The color comes from the document
  *
- * Un canevas ne lit pas les variables CSS. La couleur est donc posee sur
- * l'element canevas lui-meme, comme couleur de texte, puis relue calculee :
- * un token de palette devient une valeur que le canevas comprend, et suit le
- * theme si le token en depend.
+ * A canvas does not read CSS variables. The color is therefore applied on the
+ * canvas element itself, as a text color, then read back computed: a palette
+ * token becomes a value the canvas understands, and follows the theme if the
+ * token depends on it.
  *
- * ## Ce qui reste au doigt et sous mouvement reduit
+ * ## What is left on touch and under reduced motion
  *
- * Rien : le bord est un ornement du survol, sans etat final a preserver. La
- * carte garde sa surface et son filet, le canevas reste vide.
+ * Nothing: the edge is an ornament of hover, with no final state to preserve.
+ * The card keeps its surface and its hairline, the canvas stays empty.
  *
  * @module
  */
@@ -48,34 +49,34 @@ import {
   type ReactNode,
 } from 'react'
 
-/** Proprietes propres au composant. */
+/** Props specific to the component. */
 export interface PixelCardOwnProps {
-  /** Contenu de la carte. */
+  /** Content of the card. */
   children: ReactNode
-  /** Cote d'une cellule, en pixels. @defaultValue 8 */
+  /** Side of a cell, in pixels. @defaultValue 8 */
   size?: number
-  /** Profondeur de la bande pixelisee depuis le bord, en pixels. @defaultValue 56 */
+  /** Depth of the pixelated band from the edge, in pixels. @defaultValue 56 */
   depth?: number
-  /** Duree pour couvrir toute la bande, en millisecondes. @defaultValue 600 */
+  /** Duration to cover the whole band, in milliseconds. @defaultValue 600 */
   duration?: number
-  /** Couleur des cellules. @defaultValue teinte de marque */
+  /** Color of the cells. @defaultValue brand hue */
   color?: string
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type PixelCardProps = Customisable<PixelCardOwnProps>
 
-/** Identifiant de la feuille injectee. */
+/** Id of the injected stylesheet. */
 const STYLE_ID = 'o-pixel-card'
 
-/** Une cellule de la bande : position et seuil d'apparition. */
+/** A cell of the band: position and appearance threshold. */
 interface Cell {
   readonly x: number
   readonly y: number
   readonly threshold: number
 }
 
-/** Pose la surface et le canevas, une fois par document. */
+/** Applies the surface and the canvas, once per document. */
 function ensurePixelRules(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -88,8 +89,8 @@ function ensurePixelRules(): void {
     'background:var(--o-theme-surface);',
     'border:1px solid var(--o-theme-line);',
     '}',
-    // Le canevas prend l'arrondi de la carte : le navigateur decoupe ce qui
-    // deborde, les coins restent nets.
+    // The canvas takes the rounding of the card: the browser clips what
+    // overflows, the corners stay clean.
     '[data-o-pixel-canvas]{',
     'position:absolute;inset:0;z-index:-1;pointer-events:none;',
     'width:100%;height:100%;border-radius:inherit;',
@@ -99,10 +100,10 @@ function ensurePixelRules(): void {
 }
 
 /**
- * Calcule les cellules de la bande de bord pour une taille donnee.
+ * Computes the cells of the edge band for a given size.
  *
- * Seules les cellules a moins de `depth` du bord existent : le centre de la
- * carte n'est jamais parcouru.
+ * Only the cells less than `depth` away from the edge exist: the center of the
+ * card is never walked.
  */
 function buildCells(width: number, height: number, size: number, depth: number): Cell[] {
   const cells: Cell[] = []
@@ -113,12 +114,12 @@ function buildCells(width: number, height: number, size: number, depth: number):
     for (let column = 0; column < columns; column += 1) {
       const x = column * size
       const y = row * size
-      const centreX = x + size / 2
-      const centreY = y + size / 2
-      const edge = Math.min(centreX, centreY, width - centreX, height - centreY)
+      const centerX = x + size / 2
+      const centerY = y + size / 2
+      const edge = Math.min(centerX, centerY, width - centerX, height - centerY)
       if (edge > depth) continue
 
-      // Les cellules du bord partent en premier ; le hasard casse le front.
+      // The cells of the edge start first; the randomness breaks the front.
       const threshold = (edge / depth) * 0.7 + Math.random() * 0.3
       cells.push({ x, y, threshold })
     }
@@ -128,17 +129,17 @@ function buildCells(width: number, height: number, size: number, depth: number):
 }
 
 /**
- * Pixelise le bord d'une carte au survol.
+ * Pixelates the edge of a card on hover.
  *
  * @example
  * <PixelCard className="o-rounded-xl o-p-6">
- *   <h3>Une carte</h3>
+ *   <h3>A card</h3>
  * </PixelCard>
  *
  * @example
- * // Gros pixels, bande etroite, d'une autre teinte.
+ * // Large pixels, a narrow band, in another hue.
  * <PixelCard size={14} depth={36} color="var(--o-palette-emerald-500)">
- *   Contenu
+ *   Content
  * </PixelCard>
  */
 export function PixelCard({
@@ -157,7 +158,7 @@ export function PixelCard({
   useEffect(() => {
     const surface = canvas.current
     if (host === null || surface === null || reduced) return
-    if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return
+    if (!window.matchMedia('(hover) and (pointer: fine)').matches) return
 
     const context = surface.getContext('2d')
     if (context === null) return
@@ -201,16 +202,16 @@ export function PixelCard({
             ? Math.min(target, progress + step)
             : Math.max(target, progress - step)
         draw()
-        // Arrive au repos, la boucle n'a plus rien a dessiner : elle se
-        // suspend, et reprend au prochain survol.
+        // Once at rest, the loop has nothing left to draw: it suspends itself,
+        // and resumes on the next hover.
         if (progress === target) subscription.setActive(false)
       },
-      { priority: CLOCK_PRIORITY.render, name: 'carte pixel' },
+      { priority: CLOCK_PRIORITY.render, name: 'pixel card' },
     )
     subscription.setActive(false)
 
     const onEnter = (): void => {
-      // La couleur est relue a chaque entree : le theme a pu changer.
+      // The color is read again on every entry: the theme may have changed.
       fill = window.getComputedStyle(surface).color
       target = 1
       subscription.setActive(true)

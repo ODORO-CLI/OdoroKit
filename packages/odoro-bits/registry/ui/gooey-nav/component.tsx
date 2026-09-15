@@ -1,34 +1,33 @@
 /**
- * Navigation gluante : la pastille se detache en gouttes quand elle change
- * de lien, et un filtre SVG soude pastille et gouttes en une seule matiere.
+ * Gooey navigation: the pill breaks off into droplets when it changes link,
+ * and an SVG filter welds pill and droplets into a single matter.
  *
- * ## Le gluant est un seuil sur un flou
+ * ## The gooeyness is a threshold on a blur
  *
- * Deux formes floues qui se rapprochent voient leurs bords se fondre ; un
- * seuil pose sur l'alpha rend a ce melange un contour net. C'est tout le
- * filtre : `feGaussianBlur` puis `feColorMatrix` qui multiplie l'alpha et le
- * decale, si bien que tout ce qui est en dessous d'un certain flou disparait
- * et tout ce qui est au-dessus devient plein. Deux gouttes qui se separent
- * tirent un pont entre elles avant de rompre — c'est ce pont qui fait la
- * matiere.
+ * Two blurred shapes that come close see their edges melt together; a
+ * threshold set on the alpha gives that mixture a sharp outline back. That is
+ * the whole filter: `feGaussianBlur` then `feColorMatrix`, which multiplies
+ * the alpha and offsets it, so that everything below a certain blur disappears
+ * and everything above it becomes solid. Two droplets that separate stretch a
+ * bridge between them before breaking — it is that bridge which makes the
+ * matter.
  *
- * ## Le filtre ne touche que le calque de la pastille
+ * ## The filter only touches the layer of the pill
  *
- * Passer le texte par le meme filtre l'epaissirait et le rendrait illisible.
- * La pastille et ses gouttes vivent donc sur un calque a part, sous les
- * liens ; le calque est filtre, les liens ne le sont pas.
+ * Putting the text through the same filter would thicken it and make it
+ * illegible. The pill and its droplets therefore live on a separate layer,
+ * under the links; the layer is filtered, the links are not.
  *
- * ## Les gouttes sont posees dans le DOM et retirees a leur fin
+ * ## The droplets are placed in the DOM and removed at their end
  *
- * Elles ne passent pas par l'etat React : une douzaine d'elements qui
- * naissent et meurent en une seconde n'ont pas a faire rendre la barre.
- * Chacune recoit une animation d'images cles, et se retire elle-meme quand
- * celle-ci se termine.
+ * They do not go through React state: a dozen elements that are born and die
+ * within a second have no business making the bar render. Each one receives a
+ * keyframe animation, and removes itself when that animation ends.
  *
- * ## Sous mouvement reduit
+ * ## Under reduced motion
  *
- * La pastille saute a sa place, sans goutte. L'etat final est le meme : un
- * lien marque, les autres non.
+ * The pill jumps into place, without droplets. The final state is the same:
+ * one link marked, the others not.
  *
  * @module
  */
@@ -45,55 +44,55 @@ import {
   type ReactNode,
 } from 'react'
 
-/** Un element de navigation. */
+/** One navigation element. */
 export interface NavItem {
-  /** Libelle affiche. */
+  /** Displayed label. */
   readonly label: string
-  /** Cible du lien. Sans cible, l'element est un bouton. */
+  /** Target of the link. Without a target, the element is a button. */
   readonly href?: string
-  /** Icone placee avant le libelle. */
+  /** Icon placed before the label. */
   readonly icon?: ReactNode
 }
 
-/** Proprietes propres au composant. */
+/** Properties owned by the component. */
 export interface GooeyNavOwnProps {
-  /** Les liens, dans l'ordre d'affichage. */
+  /** The links, in display order. */
   items: readonly NavItem[]
-  /** Index de la page courante, en mode controle. */
+  /** Index of the current page, in controlled mode. */
   active?: number
-  /** Page courante au montage, en mode non controle. @defaultValue 0 */
+  /** Current page on mount, in uncontrolled mode. @defaultValue 0 */
   defaultActive?: number
-  /** Appele quand l'utilisateur choisit un lien. */
+  /** Called when the user chooses a link. */
   onActiveChange?: (index: number) => void
   /**
-   * Tokens de couleur. Le premier remplit la pastille, tous colorent les
-   * gouttes.
+   * Color tokens. The first one fills the pill, all of them color the
+   * droplets.
    *
-   * @defaultValue marque, fuchsia, ciel
+   * @defaultValue brand, fuchsia, sky
    */
   colors?: readonly string[]
-  /** Nombre de gouttes projetees a chaque changement. @defaultValue 10 */
+  /** Number of droplets thrown at each change. @defaultValue 10 */
   drops?: number
-  /** Portee des gouttes, en pixels. @defaultValue 48 */
+  /** Reach of the droplets, in pixels. @defaultValue 48 */
   distance?: number
-  /** Nom du bloc pour les lecteurs d'ecran. @defaultValue 'Navigation' */
+  /** Name of the block for screen readers. @defaultValue 'Navigation' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All the properties. */
 export type GooeyNavProps = Customisable<GooeyNavOwnProps, 'nav'>
 
-/** Couleurs par defaut : la marque pour la pastille, deux teintes en plus pour les gouttes. */
+/** Default colors: the brand for the pill, two more hues for the droplets. */
 const DEFAULT_COLORS: readonly string[] = [
   '--o-palette-brand-500',
   '--o-palette-fuchsia-500',
   '--o-palette-sky-500',
 ]
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-gooey-nav'
 
-/** Pose la barre, le calque filtre et la pastille, une fois par document. */
+/** Sets the bar, the filtered layer and the pill, once per document. */
 function ensureGooeyRules(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -116,7 +115,7 @@ function ensureGooeyRules(): void {
     '[data-o-goo] [data-o-goo-link]:hover,[data-o-goo] [data-o-goo-link]:focus-visible{opacity:1}',
     '[data-o-goo] [data-o-goo-link]:focus-visible{outline:2px solid currentColor;outline-offset:-2px}',
     '[data-o-goo] [data-o-goo-link][aria-current]{opacity:1;color:var(--o-goo-ink)}',
-    // Le calque filtre : la pastille et ses gouttes, rien d'autre.
+    // The filtered layer: the pill and its droplets, nothing else.
     '[data-o-goo-layer]{',
     'position:absolute;inset:0;z-index:0;pointer-events:none;overflow:visible;',
     'filter:var(--o-goo-filter);',
@@ -134,20 +133,20 @@ function ensureGooeyRules(): void {
 }
 
 /**
- * Barre de navigation dont la pastille se detache en gouttes.
+ * Navigation bar whose pill breaks off into droplets.
  *
  * @example
  * <GooeyNav
  *   items={[
  *     { label: 'Studio', href: '/studio' },
- *     { label: 'Projets', href: '/projets' },
+ *     { label: 'Projects', href: '/projects' },
  *     { label: 'Journal', href: '/journal' },
  *   ]}
  * />
  *
  * @example
- * // Plus de gouttes, plus loin, d'autres teintes.
- * <GooeyNav items={liens} drops={16} distance={80} colors={['--o-palette-emerald-500', '--o-palette-sky-500']} />
+ * // More droplets, further out, other hues.
+ * <GooeyNav items={navItems} drops={16} distance={80} colors={['--o-palette-emerald-500', '--o-palette-sky-500']} />
  */
 export function GooeyNav({
   items,
@@ -180,12 +179,12 @@ export function GooeyNav({
   const links = (): HTMLElement[] =>
     Array.from(hostRef.current?.querySelectorAll<HTMLElement>('[data-o-goo-link]') ?? [])
 
-  /** Projette des gouttes depuis le centre d'un lien. */
+  /** Throws droplets from the center of a link. */
   const splash = (target: HTMLElement): void => {
     const layer = layerRef.current
     if (layer === null || drops <= 0) return
 
-    const centreX = target.offsetLeft + target.offsetWidth / 2
+    const centerX = target.offsetLeft + target.offsetWidth / 2
     const count = Math.min(drops, 24)
 
     for (let index = 0; index < count; index += 1) {
@@ -199,7 +198,7 @@ export function GooeyNav({
       drop.style.height = `${size.toFixed(1)}px`
       drop.style.background = `var(${token})`
       drop.style.marginTop = `${(-size / 2).toFixed(1)}px`
-      drop.style.marginLeft = `${(centreX - size / 2).toFixed(1)}px`
+      drop.style.marginLeft = `${(centerX - size / 2).toFixed(1)}px`
       layer.append(drop)
 
       const dx = Math.cos(angle) * reach
@@ -222,7 +221,7 @@ export function GooeyNav({
     }
   }
 
-  /** Pose la pastille sous le lien courant, et projette les gouttes au changement. */
+  /** Places the pill under the current link, and throws the droplets on change. */
   const place = (burst: boolean): void => {
     const pill = pillRef.current
     const target = links()[current]
@@ -232,9 +231,9 @@ export function GooeyNav({
     if (burst && !reduced) splash(target)
   }
 
-  // Au montage la pastille se pose sans eclat : il n'y a pas eu de geste. Aux
-  // changements suivants, elle eclabousse. Une barre qui change de taille
-  // remesure sans eclabousser non plus.
+  // On mount the pill settles without a burst: there was no gesture. On the
+  // following changes, it splashes. A bar that changes size remeasures without
+  // splashing either.
   useLayoutEffect(() => {
     place(settled.current)
     settled.current = true
@@ -285,9 +284,9 @@ export function GooeyNav({
       <svg aria-hidden="true" width="0" height="0" style={{ position: 'absolute' }}>
         <defs>
           <filter id={filterId} x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur in="SourceGraphic" stdDeviation="5" result="flou" />
+            <feGaussianBlur in="SourceGraphic" stdDeviation="5" result="blur" />
             <feColorMatrix
-              in="flou"
+              in="blur"
               type="matrix"
               values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 20 -9"
               result="goo"

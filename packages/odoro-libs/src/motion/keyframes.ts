@@ -1,20 +1,20 @@
 /**
- * Manipulation des etats visuels utilises par le moteur d'animation.
+ * Manipulation of the visual states used by the animation engine.
  *
  * @module
  */
 
-/** Un jeu de proprietes CSS, en notation JavaScript (`transform`, `opacity`). */
+/** A set of CSS properties, in JavaScript notation (`transform`, `opacity`). */
 export type MotionKeyframe = Readonly<Record<string, string | number>>
 
-/** Etat de depart par defaut d'une revelation. */
+/** Default starting state of a reveal. */
 export const REVEAL_FROM: MotionKeyframe = { opacity: 0, transform: 'translateY(1rem)' }
 
-/** Etat visible de reference : l'etat naturel d'un element. */
+/** Reference visible state: the natural state of an element. */
 export const VISIBLE: MotionKeyframe = { opacity: 1, transform: 'none' }
 
 /**
- * Applique un jeu de proprietes en style inline.
+ * Applies a set of properties as inline styles.
  *
  * @example
  * applyStyles(element, { opacity: 0 })
@@ -24,8 +24,8 @@ export function applyStyles(element: HTMLElement, styles: MotionKeyframe): void 
 }
 
 /**
- * Retire les proprietes inline posees par {@link applyStyles}, en convertissant
- * la notation JavaScript en notation CSS (`backgroundColor` -> `background-color`).
+ * Removes the inline properties set by {@link applyStyles}, converting
+ * the JavaScript notation into CSS notation (`backgroundColor` -> `background-color`).
  *
  * @example
  * clearStyles(element, { opacity: 0 })

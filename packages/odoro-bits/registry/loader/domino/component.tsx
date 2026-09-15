@@ -1,33 +1,33 @@
 /**
- * Dominos : cinq dominos debout tombent l'un sur l'autre, de gauche a
- * droite, puis se relevent ensemble.
+ * Dominoes: five standing dominoes fall onto one another, from left to right,
+ * then rise again together.
  *
- * ## La chute pivote sur le coin, pas sur le centre
+ * ## The fall pivots on the corner, not on the centre
  *
- * Un domino qui tombe ne tourne pas autour de son milieu : il bascule sur
- * son arete au sol. L'origine de rotation est donc le coin inferieur droit,
- * et la rotation est en `ease-in` — rien ne le retient, il accelere. Il
- * s'arrete a soixante-cinq degres, incline sur le suivant, et non a plat :
- * un domino tombe s'appuie sur son voisin, c'est ce qui fait lire une
- * chaine plutot qu'une rangee qui se couche.
+ * A falling domino does not turn around its middle: it tips over its edge on
+ * the ground. The rotation origin is therefore the bottom right corner, and
+ * the rotation is `ease-in` — nothing holds it back, it accelerates. It stops
+ * at sixty-five degrees, leaning on the next one, and not flat: a fallen
+ * domino rests against its neighbour, and that is what makes one read a chain
+ * rather than a row lying down.
  *
- * L'ecart entre deux dominos est calcule pour que le sommet d'un domino
- * incline atteigne juste le suivant : plus serre, ils se chevaucheraient ;
- * plus large, la chaine se casserait.
+ * The gap between two dominoes is computed so that the top of a leaning domino
+ * just reaches the next one: any tighter and they would overlap; any wider and
+ * the chain would break.
  *
- * Chaque domino connait sa fenetre dans le cycle, par une animation propre
- * ecrite une fois dans la feuille : la chaine a un ordre, et le relevement
- * est commun — la rangee se redresse d'un bloc, en `ease-out`, comme remise
- * en place par une main.
+ * Each domino knows its window in the cycle, through an animation of its own
+ * written once in the stylesheet: the chain has an order, and the rising is
+ * shared — the row straightens as one block, `ease-out`, as if put back in
+ * place by a hand.
  *
- * ## Un statut, pas un dessin
+ * ## A status, not a drawing
  *
- * L'element porte `role="status"` et un libelle pour les lecteurs d'ecran :
- * l'attente est une information, pas une decoration. Les dominos sont
- * retires de l'arbre d'accessibilite.
+ * The element carries `role="status"` and a label for screen readers: waiting
+ * is information, not decoration. The dominoes are removed from the
+ * accessibility tree.
  *
- * Sous mouvement reduit, la rangee reste debout : la figure se lit encore
- * comme des dominos, seule la chute s'arrete.
+ * Under reduced motion, the row stays standing: the figure still reads as
+ * dominoes, only the fall stops.
  *
  * @module
  */
@@ -35,36 +35,36 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-domino'
 
-/** Nombre de dominos. */
+/** Number of dominoes. */
 const TILES = 5
 
-/** Hauteur d'un domino, en epaisseurs. */
+/** Height of a domino, in thicknesses. */
 const HEIGHT = 4
 
-/** Angle de chute, en degres : incline sur le suivant, pas a plat. */
+/** Fall angle, in degrees: leaning on the next one, not flat. */
 const ANGLE = 65
 
 /**
- * Ecart entre deux dominos, en epaisseurs.
+ * Gap between two dominoes, in thicknesses.
  *
- * Le sommet d'un domino incline avance de `HEIGHT * sin(ANGLE)` ; moins une
- * epaisseur, c'est l'ecart qui l'amene juste contre le suivant.
+ * The top of a leaning domino moves forward by `HEIGHT * sin(ANGLE)`; minus
+ * one thickness, that is the gap which brings it just against the next one.
  */
 const GAP = Number((HEIGHT * Math.sin((ANGLE * Math.PI) / 180) - 1).toFixed(2))
 
-/** Part du cycle entre deux departs de chute, en pour cent. */
+/** Share of the cycle between two fall starts, in per cent. */
 const STEP = 11
 
-/** Duree d'une chute, en pour cent du cycle. */
+/** Duration of a fall, in per cent of the cycle. */
 const FALL = 12
 
-/** Instant ou la rangee tombee commence a se relever, en pour cent. */
+/** Moment when the fallen row starts to rise again, in per cent. */
 const RAISE_AT = 76
 
-/** Pose les dominos et leurs chutes, une fois par document. */
+/** Sets up the dominoes and their falls, once per document. */
 function ensureDominoRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -72,7 +72,7 @@ function ensureDominoRule(): void {
   const style = document.createElement('style')
   style.id = STYLE_ID
   style.textContent = [
-    // Une marge a droite : le dernier domino incline y deborde.
+    // A margin on the right: the last leaning domino overflows into it.
     '[data-o-domino]{',
     'display:inline-flex;align-items:flex-end;',
     `gap:calc(var(--o-domino-size) * ${String(GAP)});`,
@@ -97,7 +97,7 @@ function ensureDominoRule(): void {
         '}',
       ].join('')
     }),
-    // Une rangee debout : la figure est dite, sans chute.
+    // A standing row: the figure is stated, without the fall.
     '@media (prefers-reduced-motion:reduce){',
     '[data-o-domino-tile]{animation:none;transform:none}',
     '}',
@@ -105,36 +105,36 @@ function ensureDominoRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** Props of the component itself. */
 export interface DominoOwnProps {
-  /** Epaisseur d'un domino, en pixels. @defaultValue 5 */
+  /** Thickness of a domino, in pixels. @defaultValue 5 */
   size?: number
-  /** Duree d'un cycle complet, en millisecondes. @defaultValue 2000 */
+  /** Duration of a complete cycle, in milliseconds. @defaultValue 2000 */
   speed?: number
-  /** Couleur des dominos. @defaultValue la couleur du texte */
+  /** Colour of the dominoes. @defaultValue the text colour */
   color?: string
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */
+  /** Label announced to screen readers. @defaultValue 'Loading' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All the props. */
 export type DominoProps = Customisable<DominoOwnProps, 'span'>
 
 /**
- * Signale une attente par une chaine de dominos qui tombent.
+ * Signals a wait through a chain of falling dominoes.
  *
  * @example
  * <Domino />
  *
  * @example
- * // Plus epais, plus lent, dans la teinte de marque.
+ * // Thicker, slower, in the brand hue.
  * <Domino size={8} speed={3000} color="var(--o-palette-brand-500)" />
  */
 export function Domino({
   size = 5,
   speed = 2000,
   color = 'currentColor',
-  label = 'Chargement',
+  label = 'Loading',
   ...rest
 }: DominoProps): ReactElement {
   ensureDominoRule()

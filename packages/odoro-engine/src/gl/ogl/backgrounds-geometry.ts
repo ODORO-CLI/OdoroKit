@@ -1,12 +1,12 @@
 /**
- * Shaders de fond : la famille des constructions.
+ * Background shaders: the construction family.
  *
- * Quatre motifs ou la figure vient d'un changement de coordonnees plutot que
- * d'un bruit : polaires pour le tunnel et le spectre, iso-valeurs pour les
- * courbes de niveau, distance signee pour la grille ondulante. Ils ont en
- * commun d'etre parfaitement deterministes — aucun hasard n'y entre.
+ * Four patterns where the figure comes from a change of coordinates rather
+ * than from a noise: polar for the tunnel and the spectrum, iso-values for the
+ * contour lines, signed distance for the rippling grid. They have in common
+ * being perfectly deterministic — no randomness enters them.
  *
- * Aucun de ces shaders n'est repris d'ailleurs.
+ * None of these shaders is taken from elsewhere.
  *
  * @module
  */
@@ -14,29 +14,27 @@
 import { NOISE_FUNCTIONS } from './shaders.js'
 
 /**
- * Tunnel : une perspective obtenue sans matrice.
+ * Tunnel: a perspective obtained without a matrix.
  *
- * ## Pourquoi 1/r donne de la profondeur
+ * ## Why 1/r gives depth
  *
- * Dans un couloir cylindrique regarde de face, la distance parcourue le long
- * de l'axe est inversement proportionnelle au rayon apparent : ce qui est
- * loin est petit, ce qui est proche remplit l'ecran. Poser `z = 1/r` reproduit
- * exactement cette relation — c'est la meme division que celle d'une
- * projection perspective, appliquee directement en deux dimensions.
+ * In a cylindrical corridor viewed head on, the distance travelled along the
+ * axis is inversely proportional to the apparent radius: what is far is small,
+ * what is near fills the screen. Setting `z = 1/r` reproduces exactly that
+ * relation — it is the same division as that of a perspective projection,
+ * applied directly in two dimensions.
  *
- * L'angle sert de seconde coordonnee de texture. On obtient donc un depliage
- * complet du cylindre en deux lignes, sans camera, sans matrice et sans
- * geometrie.
+ * The angle serves as the second texture coordinate. A complete unwrapping of
+ * the cylinder is therefore obtained in two lines, without a camera, without a
+ * matrix and without geometry.
  *
- * ## L'assombrissement au loin
+ * ## The darkening in the distance
  *
- * Il n'est pas decoratif. Sans lui, le motif se resserre indefiniment vers le
- * centre et finit par battre avec la grille de pixels : le point de fuite se
- * met a grouiller. L'attenuation eteint la zone avant que le battement
- * n'apparaisse.
+ * It is not decorative. Without it, the pattern tightens indefinitely towards
+ * the centre and ends up beating against the pixel grid: the vanishing point
+ * starts to swarm. The attenuation puts out the area before the beat appears.
  *
- * Uniformes : `uColorA`, `uColorB`, `uSpeed`, `uScale` (anneaux),
- * `uSegments`.
+ * Uniforms: `uColorA`, `uColorB`, `uSpeed`, `uScale` (rings), `uSegments`.
  */
 export const TUNNEL_FRAGMENT = /* glsl */ `
 precision highp float;
@@ -55,56 +53,56 @@ void main() {
   float aspect = uResolution.x / max(uResolution.y, 1.0);
   vec2 p = (vUv - 0.5) * vec2(aspect, 1.0);
 
-  float rayon = max(length(p), 0.0001);
+  float radius = max(length(p), 0.0001);
   float angle = atan(p.y, p.x);
   float t = uTime * uSpeed;
 
-  // z = 1/r : la relation exacte entre distance et rayon apparent dans un
-  // couloir cylindrique. C'est toute la perspective.
-  float profondeur = 1.0 / rayon;
+  // z = 1/r: the exact relation between distance and apparent radius in a
+  // cylindrical corridor. That is the whole perspective.
+  float depth = 1.0 / radius;
 
-  float anneaux = fract(profondeur * max(uScale, 0.1) + t);
-  float secteurs = fract(angle / 6.28318 * max(uSegments, 1.0) + t * 0.15);
+  float rings = fract(depth * max(uScale, 0.1) + t);
+  float sectors = fract(angle / 6.28318 * max(uSegments, 1.0) + t * 0.15);
 
-  // Deux liseres croises : le damier apparait sans qu'aucun carreau ne soit
-  // decrit, seulement par le produit de deux repliements. Le lisere est la ou
-  // le repliement approche ses bords — la bande fine, pas son complement :
-  // bornes inversees, tout l'ecran se remplissait sauf les lignes.
-  float grille = max(
-    smoothstep(0.0, 0.06, abs(anneaux - 0.5) - 0.44),
-    smoothstep(0.0, 0.06, abs(secteurs - 0.5) - 0.44)
+  // Two crossed thin borders: the chequerboard appears without any tile being
+  // described, only through the product of two foldings. The border is where
+  // the folding approaches its edges — the thin band, not its complement: with
+  // the bounds reversed, the whole screen filled up except the lines.
+  float grid = max(
+    smoothstep(0.0, 0.06, abs(rings - 0.5) - 0.44),
+    smoothstep(0.0, 0.06, abs(sectors - 0.5) - 0.44)
   );
 
-  // Sans cette attenuation, le motif se resserre jusqu'a battre avec la
-  // grille de pixels et le point de fuite se met a grouiller.
-  float lointain = smoothstep(0.0, 0.42, rayon);
+  // Without this attenuation, the pattern tightens until it beats against the
+  // pixel grid and the vanishing point starts to swarm.
+  float distant = smoothstep(0.0, 0.42, radius);
 
-  gl_FragColor = vec4(mix(uColorA, uColorB, grille * lointain), 1.0);
+  gl_FragColor = vec4(mix(uColorA, uColorB, grid * distant), 1.0);
 }
 `
 
 /**
- * Spectre : un balayage angulaire de teintes.
+ * Spectrum: an angular sweep of hues.
  *
- * ## Pourquoi trois cosinus decales
+ * ## Why three offset cosines
  *
- * Passer d'une teinte a l'autre en interpolant lineairement entre deux
- * couleurs traverse du gris : les composantes se rejoignent au milieu. Trois
- * cosinus decales d'un tiers de tour ne se croisent jamais toutes les trois au
- * meme endroit, et la saturation reste constante sur tout le tour.
+ * Going from one hue to another by interpolating linearly between two colours
+ * passes through grey: the components meet in the middle. Three cosines offset
+ * by a third of a revolution never cross all three at the same place, and the
+ * saturation stays constant all the way round.
  *
- * C'est la meme raison qui fait qu'une roue chromatique est ronde et non
- * segmentee. La formule tient en une ligne, et remplace une conversion
- * teinte-saturation-luminosite complete.
+ * It is the same reason that makes a colour wheel round and not segmented. The
+ * formula fits on one line, and replaces a complete
+ * hue-saturation-lightness conversion.
  *
- * ## Le melange avec la palette
+ * ## The blend with the palette
  *
- * Un spectre pur ignorerait les tokens, ce que ce systeme n'admet pas. La
- * teinte calculee est donc **teintee** par les deux couleurs recues plutot que
- * de les remplacer : le fond reste dans les tons du theme, et le balayage
- * n'en est qu'une modulation.
+ * A pure spectrum would ignore the tokens, which this system does not allow.
+ * The computed hue therefore **tints** the two colours received rather than
+ * replacing them: the background stays in the tones of the theme, and the
+ * sweep is only a modulation of it.
  *
- * Uniformes : `uColorA`, `uColorB`, `uSpeed`, `uScale` (tours),
+ * Uniforms: `uColorA`, `uColorB`, `uSpeed`, `uScale` (revolutions),
  * `uSaturation`.
  */
 export const SPECTRUM_FRAGMENT = /* glsl */ `
@@ -125,52 +123,50 @@ void main() {
   vec2 p = (vUv - 0.5) * vec2(aspect, 1.0);
 
   float angle = atan(p.y, p.x) / 6.28318 + 0.5;
-  float rayon = length(p);
+  float radius = length(p);
   float t = uTime * uSpeed;
 
-  float tour = fract(angle * max(uScale, 1.0) + t);
+  float turn = fract(angle * max(uScale, 1.0) + t);
 
-  // Trois cosinus decales d'un tiers de tour : ils ne se rejoignent jamais
-  // tous au meme endroit, donc le tour ne traverse pas de gris.
-  vec3 roue = 0.5 + 0.5 * cos(6.28318 * (tour + vec3(0.0, 0.3333, 0.6667)));
+  // Three cosines offset by a third of a revolution: they never meet all at
+  // the same place, so the sweep does not pass through grey.
+  vec3 wheel = 0.5 + 0.5 * cos(6.28318 * (turn + vec3(0.0, 0.3333, 0.6667)));
 
-  // La teinte module la palette au lieu de la remplacer : le fond reste dans
-  // les tons du theme.
-  vec3 base = mix(uColorA, uColorB, smoothstep(0.0, 0.8, rayon));
-  vec3 colour = mix(base, base * roue * 2.0, clamp(uSaturation, 0.0, 1.0));
+  // The hue modulates the palette instead of replacing it: the background
+  // stays in the tones of the theme.
+  vec3 base = mix(uColorA, uColorB, smoothstep(0.0, 0.8, radius));
+  vec3 colour = mix(base, base * wheel * 2.0, clamp(uSaturation, 0.0, 1.0));
 
   gl_FragColor = vec4(clamp(colour, 0.0, 1.0), 1.0);
 }
 `
 
 /**
- * Courbes de niveau : une carte topographique animee.
+ * Contour lines: an animated topographic map.
  *
- * ## Comment on obtient une ligne a partir d'une surface
+ * ## How a line is obtained from a surface
  *
- * Une courbe de niveau est le lieu ou une fonction vaut un multiple d'un pas
- * donne. Replier la valeur du champ sur ce pas, puis marquer les alentours de
- * zero, donne exactement ces lieux — une ligne par palier, sans qu'aucune ne
- * soit tracee.
+ * A contour line is the place where a function equals a multiple of a given
+ * step. Folding the value of the field onto that step, then marking the
+ * surroundings of zero, gives exactly those places — one line per level,
+ * without any of them being traced.
  *
- * ## La correction par la pente
+ * ## The correction by the slope
  *
- * Le meme probleme que pour les fils, en deux dimensions : la ou le terrain
- * est plat, les paliers sont eloignes et les lignes s'epaississent jusqu'a
- * remplir la zone ; la ou il est raide, elles se resserrent jusqu'a
- * disparaitre.
+ * The same problem as for the threads, in two dimensions: where the terrain is
+ * flat, the levels are far apart and the lines thicken until they fill the
+ * area; where it is steep, they tighten until they disappear.
  *
- * La pente est donc mesuree, puis divisee. `fwidth` la donnerait en une
- * instruction, mais il demande une extension en WebGL 1 et le shader tombe
- * silencieusement quand elle manque — ce qui s'est produit ici avant que ce
- * calcul ne soit ecrit a la main.
+ * The slope is therefore measured, then divided by. `fwidth` would give it in
+ * one instruction, but it requires an extension in WebGL 1 and the shader
+ * fails silently when it is missing — which is what happened here before this
+ * computation was written by hand.
  *
- * Le champ est donc echantillonne deux fois de plus, a un pixel de distance
- * en x puis en y. C'est une difference finie : trois evaluations au lieu
- * d'une, contre une portabilite qui ne depend de rien.
+ * The field is therefore sampled twice more, one pixel away in x then in y.
+ * This is a finite difference: three evaluations instead of one, in exchange
+ * for a portability that depends on nothing.
  *
- * Uniformes : `uColorA`, `uColorB`, `uColorC`, `uSpeed`, `uScale`,
- * `uLevels`.
+ * Uniforms: `uColorA`, `uColorB`, `uColorC`, `uSpeed`, `uScale`, `uLevels`.
  */
 export const CONTOUR_FRAGMENT = /* glsl */ `
 precision highp float;
@@ -193,55 +189,55 @@ void main() {
   vec2 p = vUv * vec2(aspect, 1.0) * max(uScale, 0.1);
   float t = uTime * uSpeed;
 
-  vec2 derive = vec2(t, t * 0.35);
-  float altitude = odoroFbm(p + derive, 4);
-  float paliers = max(uLevels, 1.0);
+  vec2 drift = vec2(t, t * 0.35);
+  float altitude = odoroFbm(p + drift, 4);
+  float levels = max(uLevels, 1.0);
 
-  // Le champ replie sur le pas : chaque passage par zero est une courbe de
-  // niveau, sans qu'aucune n'ait ete tracee.
-  float niveau = fract(altitude * paliers);
-  float distance = abs(niveau - 0.5);
+  // The field folded onto the step: every zero crossing is a contour line,
+  // without any of them having been traced.
+  float level = fract(altitude * levels);
+  float distance = abs(level - 0.5);
 
-  // Un pixel, exprime dans les unites du champ. C'est le pas de la difference
-  // finie qui remplace fwidth, lequel demande une extension en WebGL 1.
-  vec2 pas = vec2(aspect, 1.0) * max(uScale, 0.1) / max(uResolution, vec2(1.0));
+  // One pixel, expressed in the units of the field. This is the step of the
+  // finite difference that replaces fwidth, which requires an extension in
+  // WebGL 1.
+  vec2 texel = vec2(aspect, 1.0) * max(uScale, 0.1) / max(uResolution, vec2(1.0));
 
-  float dx = odoroFbm(p + derive + vec2(pas.x, 0.0), 4) - altitude;
-  float dy = odoroFbm(p + derive + vec2(0.0, pas.y), 4) - altitude;
+  float dx = odoroFbm(p + drift + vec2(texel.x, 0.0), 4) - altitude;
+  float dy = odoroFbm(p + drift + vec2(0.0, texel.y), 4) - altitude;
 
-  // La pente en paliers par pixel : diviser par elle exprime l'ecart en
-  // pixels, donc une epaisseur constante quelle que soit l'inclinaison.
-  float pente = length(vec2(dx, dy)) * paliers;
-  float ligne = smoothstep(0.0, 1.5, distance / max(pente, 0.0001));
+  // The slope in levels per pixel: dividing by it expresses the gap in pixels,
+  // therefore a constant thickness whatever the steepness.
+  float slope = length(vec2(dx, dy)) * levels;
+  float line = smoothstep(0.0, 1.5, distance / max(slope, 0.0001));
 
   vec3 terrain = mix(uColorA, uColorB, altitude);
 
-  gl_FragColor = vec4(mix(uColorC, terrain, ligne), 1.0);
+  gl_FragColor = vec4(mix(uColorC, terrain, line), 1.0);
 }
 `
 
 /**
- * Grille ondulante : un quadrillage souleve par une onde.
+ * Rippling grid: a lattice lifted by a wave.
  *
- * ## Ce qui distingue ce fond du quadrillage statique
+ * ## What distinguishes this background from the static lattice
  *
- * `background/grid-lines` dessine une grille avec deux degrades repetes, sans
- * contexte graphique — c'est le bon choix quand la grille ne fait que derive.
- * Ici la grille est **deformee** : chaque intersection est deplacee par une
- * onde radiale, ce qu'aucune repetition de degrade ne peut faire.
+ * `background/grid-lines` draws a grid with two repeated gradients, without a
+ * graphics context — that is the right choice when the grid only drifts. Here
+ * the grid is **deformed**: every intersection is displaced by a radial wave,
+ * which no repetition of a gradient can do.
  *
- * C'est la seule raison d'employer une surface graphique pour une grille. Si
- * l'amplitude est nulle, le composant sans WebGL fait exactement le meme
- * travail pour treize kilo-octets de moins.
+ * That is the only reason to use a graphics surface for a grid. If the
+ * amplitude is zero, the component without WebGL does exactly the same work
+ * for thirteen kilobytes less.
  *
- * ## L'onde
+ * ## The wave
  *
- * Elle est fonction de la distance au centre, pas des coordonnees : les
- * cretes sont donc des cercles concentriques, et la deformation reste
- * coherente quel que soit le rapport de forme du cadre.
+ * It is a function of the distance to the centre, not of the coordinates: the
+ * crests are therefore concentric circles, and the deformation stays coherent
+ * whatever the aspect ratio of the frame.
  *
- * Uniformes : `uColorA`, `uColorB`, `uSpeed`, `uScale` (mailles),
- * `uAmplitude`.
+ * Uniforms: `uColorA`, `uColorB`, `uSpeed`, `uScale` (cells), `uAmplitude`.
  */
 export const RIPPLE_GRID_FRAGMENT = /* glsl */ `
 precision highp float;
@@ -261,27 +257,27 @@ void main() {
   vec2 p = (vUv - 0.5) * vec2(aspect, 1.0);
   float t = uTime * uSpeed;
 
-  float rayon = length(p);
+  float radius = length(p);
 
-  // L'onde depend de la distance au centre : les cretes sont des cercles, et
-  // la deformation reste coherente quel que soit le rapport de forme.
-  float onde = sin(rayon * 14.0 - t * 3.0) * uAmplitude;
+  // The wave depends on the distance to the centre: the crests are circles,
+  // and the deformation stays coherent whatever the aspect ratio.
+  float wave = sin(radius * 14.0 - t * 3.0) * uAmplitude;
 
-  // Le deplacement est radial : chaque point s'ecarte du centre le long de sa
-  // propre direction, ce qui evite le cisaillement d'un decalage constant.
-  vec2 direction = rayon > 0.0001 ? p / rayon : vec2(0.0);
-  vec2 deplace = (p + direction * onde) * max(uScale, 1.0);
+  // The displacement is radial: every point moves away from the centre along
+  // its own direction, which avoids the shearing of a constant offset.
+  vec2 direction = radius > 0.0001 ? p / radius : vec2(0.0);
+  vec2 displaced = (p + direction * wave) * max(uScale, 1.0);
 
-  vec2 local = abs(fract(deplace) - 0.5);
-  float trait = max(
+  vec2 local = abs(fract(displaced) - 0.5);
+  float stroke = max(
     smoothstep(0.5, 0.46, local.x),
     smoothstep(0.5, 0.46, local.y)
   );
 
-  // Attenuation vers les bords : sans elle, la grille s'arrete net et se lit
-  // comme une texture posee sur le cadre.
-  float voile = smoothstep(0.85, 0.15, rayon);
+  // Attenuation towards the edges: without it, the grid stops dead and reads
+  // as a texture laid on the frame.
+  float fade = smoothstep(0.85, 0.15, radius);
 
-  gl_FragColor = vec4(mix(uColorA, uColorB, trait * voile), 1.0);
+  gl_FragColor = vec4(mix(uColorA, uColorB, stroke * fade), 1.0);
 }
 `

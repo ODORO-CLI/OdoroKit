@@ -1,5 +1,5 @@
 /**
- * Barre de progression.
+ * Progress bar.
  *
  * @module
  */
@@ -8,7 +8,7 @@ import { type HTMLAttributes, type ReactElement } from 'react'
 
 import { cx } from '../styles/cx.js'
 
-/** Couleur du remplissage par registre. */
+/** Fill color per tone. */
 const TONE_CLASSES: Readonly<
   Record<'primary' | 'success' | 'warning' | 'danger', string>
 > = {
@@ -18,51 +18,51 @@ const TONE_CLASSES: Readonly<
   danger: 'o-bg-red-600 dark:o-bg-red-400',
 }
 
-/** Hauteur de la piste par taille. */
+/** Track height per size. */
 const SIZE_CLASSES: Readonly<Record<'sm' | 'md' | 'lg', string>> = {
   sm: 'o-h-1',
   md: 'o-h-2',
   lg: 'o-h-3',
 }
 
-/** Proprietes de {@link Progress}. */
+/** Properties of {@link Progress}. */
 export interface ProgressProps extends Omit<HTMLAttributes<HTMLDivElement>, 'className'> {
-  /** Valeur courante, bornee entre 0 et `max`. @defaultValue 0 */
+  /** Current value, clamped between 0 and `max`. @defaultValue 0 */
   value?: number
-  /** Valeur maximale. @defaultValue 100 */
+  /** Maximum value. @defaultValue 100 */
   max?: number
   /**
-   * Progression inconnue : une barre partielle defile en boucle et
-   * `aria-valuenow` est omis, comme le veut ARIA pour un etat indetermine.
+   * Unknown progress: a partial bar loops across and `aria-valuenow` is
+   * omitted, as ARIA requires for an indeterminate state.
    *
    * @defaultValue false
    */
   indeterminate?: boolean
-  /** Registre de couleur du remplissage. @defaultValue 'primary' */
+  /** Color tone of the fill. @defaultValue 'primary' */
   tone?: 'primary' | 'success' | 'warning' | 'danger'
-  /** Taille (hauteur de la piste). @defaultValue 'md' */
+  /** Size (track height). @defaultValue 'md' */
   size?: 'sm' | 'md' | 'lg'
-  /** Libelle accessible de la barre. */
+  /** Accessible label of the bar. */
   label?: string
   /**
-   * Affiche le pourcentage a droite de la piste. Sans effet en mode
-   * indetermine : il n'y a rien a chiffrer.
+   * Displays the percentage to the right of the track. No effect in
+   * indeterminate mode: there is nothing to put a number on.
    *
    * @defaultValue false
    */
   showValue?: boolean
-  /** Classes additionnelles. */
+  /** Additional classes. */
   className?: string
 }
 
 /**
- * Barre de progression.
+ * Progress bar.
  *
- * Le remplissage est dimensionne par un `width` en pourcentage : la feuille
- * utilitaire ne peut pas couvrir un continuum de largeurs.
+ * The fill is sized by a percentage `width`: the utility stylesheet cannot
+ * cover a continuum of widths.
  *
  * @example
- * <Progress value={done} max={total} label="Import des fichiers" showValue />
+ * <Progress value={done} max={total} label="File import" showValue />
  */
 export function Progress({
   value = 0,

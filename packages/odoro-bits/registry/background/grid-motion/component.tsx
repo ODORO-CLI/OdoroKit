@@ -1,28 +1,28 @@
 /**
- * Rangees glissantes : des tuiles arrondies qui defilent par rangees, en
- * sens alternes, chacune a sa vitesse.
+ * Sliding rows: rounded tiles that scroll by rows, in alternating
+ * directions, each at its own speed.
  *
- * ## Le principe
+ * ## The principle
  *
- * Rien ne se deplace : chaque rangee lit son abscisse decalee du temps,
- * avec un sens et une vitesse qui lui sont propres. Deux rangees voisines
- * ne restent jamais alignees, et le motif se lit comme un convoyeur plutot
- * que comme un damier. Quelques tuiles portent l'accent et respirent.
+ * Nothing moves: every row reads its abscissa offset by time, with a
+ * direction and a speed of its own. Two neighbouring rows never stay
+ * aligned, and the pattern reads as a conveyor rather than as a
+ * chequerboard. A few tiles carry the accent and breathe.
  *
- * Ce qui distingue cette entree de `mosaic` et de `checker` : ici les
- * cellules ne sont pas fixes, elles defilent ; et de `stripes` : ce sont
- * des tuiles separees, pas des bandes continues.
+ * What sets this entry apart from `mosaic` and from `checker`: here the
+ * cells are not fixed, they scroll; and from `stripes`: these are separate
+ * tiles, not continuous bands.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur — les recopier ici en ferait autant
- * de versions a maintenir qu'il y a de fonds.
+ * It carries only what sets it apart: its shader, its settings and its fallback.
+ * Reading the tokens, converting them to floats and re-reading them when the
+ * theme changes all come from the engine — copying them here would leave as
+ * many versions to maintain as there are backgrounds.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en
- * accorde qu'une par backend — et sous mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface — it grants only one
+ * per backend — and under reduced motion.
  *
  * @module
  */
@@ -39,47 +39,47 @@ import { type ReactElement } from 'react'
 
 import { GRID_MOTION_FRAGMENT } from './grid-motion.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface GridMotionControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to this component. */
 export interface GridMotionOwnProps {
-  /** Nombre de rangees sur la hauteur. Borne a quarante par le shader. @defaultValue 8 */
+  /** Number of rows across the height. Capped at forty by the shader. @defaultValue 8 */
   rows?: number
-  /** Vitesse du glissement. @defaultValue 0.6 */
+  /** Sliding speed. @defaultValue 0.6 */
   speed?: number
-  /** Espace entre les tuiles, en fraction de rangee. @defaultValue 0.12 */
+  /** Space between tiles, as a fraction of a row. @defaultValue 0.12 */
   gap?: number
-  /** Part des tuiles accentuees, entre zero et un. @defaultValue 0.12 */
+  /** Share of accented tiles, between zero and one. @defaultValue 0.12 */
   accent?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<GridMotionControls>
 }
 
-/** Toutes les proprietes. */
+/** Every property. */
 export type GridMotionProps = Customisable<GridMotionOwnProps>
 
-/** Tokens employes par defaut : le fond, les tuiles, les tuiles accentuees. */
+/** Tokens used by default: the background, the tiles, the accented tiles. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-theme-line',
   '--o-palette-brand-500',
 ] as const
 
-/** Repli par defaut : une teinte figee, dans les memes tons. */
+/** Default fallback: a frozen hue, in the same tones. */
 const DEFAULT_FALLBACK = 'o-bg-zinc-50 dark:o-bg-zinc-950'
 
 /**
- * Rangees glissantes.
+ * Sliding rows.
  *
  * @example
  * <div className="o-relative o-min-h-screen">
@@ -102,8 +102,8 @@ export function GridMotion({
     colors,
     uniforms: { uRows: rows, uSpeed: speed, uGap: gap, uAccent: accent },
     name: 'grid-motion',
-    // Des tuiles petites qui defilent scintillent sur leurs coins a densite
-    // de pixels reduite : en qualite basse, les rangees s'elargissent.
+    // Small scrolling tiles shimmer on their corners at reduced pixel
+    // density: at low quality, the rows widen.
     degrade: (quality) => ({
       uRows: quality === 'low' ? Math.min(rows, 6) : rows,
     }),

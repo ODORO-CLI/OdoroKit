@@ -80,7 +80,7 @@
       "description": "Texte colle apres le nombre."
     },
     {
-      "name": "declenchement",
+      "name": "trigger",
       "type": "'vue' | 'montage'",
       "default": "vue",
       "description": "A l entree dans le champ, ou des le montage."

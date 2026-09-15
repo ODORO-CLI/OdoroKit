@@ -1,23 +1,22 @@
 /**
- * Backend de scene 3D.
+ * 3D scene backend.
  *
- * ## Un point de rupture, pas un simple sous-module
+ * ## A split point, not a mere sub-module
  *
- * Cette entree est separee de l'entree principale pour une raison mesurable :
- * le moteur de rendu 3D pese entre 120 et 140 kilo-octets compresses, un ordre
- * de grandeur au-dessus du backend leger. Un site qui n'affiche qu'une
- * animation de texte ne doit pas en telecharger une ligne.
+ * This entry is separate from the main entry for a measurable reason: the 3D
+ * renderer weighs between 120 and 140 kilobytes compressed, an order of
+ * magnitude above the light backend. A site that only shows a text animation
+ * must not download a single line of it.
  *
- * La separation est doublee d'un import dynamique a l'interieur meme du hook :
- * importer ce module ne suffit pas a faire entrer le moteur de rendu dans le
- * fragment initial. Un test verifie les deux garanties sur le bundle produit.
+ * The separation is doubled by a dynamic import inside the hook itself:
+ * importing this module is not enough to pull the renderer into the initial
+ * chunk. A test checks both guarantees on the produced bundle.
  *
- * ## Quand l'employer
+ * ## When to use it
  *
- * La question a se poser : **une camera et un eclairage sont-ils reellement
- * necessaires ?** Si la reponse est non — un degrade anime, un champ de bruit,
- * une distorsion plein ecran — le backend leger suffit, pour douze
- * kilo-octets.
+ * The question to ask: **are a camera and lighting really necessary?** If the
+ * answer is no — an animated gradient, a noise field, a fullscreen distortion
+ * — the light backend is enough, for twelve kilobytes.
  *
  * @example
  * import { useScene, useCameraRig } from '@odoro-cli/engine/three'

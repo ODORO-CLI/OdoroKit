@@ -1,37 +1,37 @@
 /**
- * Shader des feux d'artifice.
+ * Fireworks shader.
  *
- * ## L'idee mathematique
+ * ## The mathematical idea
  *
- * Un bouquet est un point de depart, un age et une graine. Chaque etincelle
- * en part dans une direction repartie autour du cercle, a une vitesse hachee,
- * et sa position a l'instant t est analytique : la distance parcourue sous
- * une trainee proportionnelle a la vitesse est `v0 (1 - e^{-kt}) / k` — les
- * etincelles ralentissent d'elles-memes — et la gravite retire `g t^2 / 2` a
- * la hauteur. Rien n'est integre d'image en image : chaque fragment resout
- * l'etincelle la ou elle est.
+ * A burst is a start point, an age and a seed. Each spark leaves it in a
+ * direction spread around the circle, at a hashed speed, and its position
+ * at instant t is analytic: the distance travelled under a drag
+ * proportional to the speed is `v0 (1 - e^{-kt}) / k` — the sparks slow
+ * down of their own accord — and gravity takes `g t^2 / 2` off the height.
+ * Nothing is integrated from frame to frame: each fragment solves the spark
+ * where it is.
  *
- * L'extinction est une exponentielle de l'age, modulee d'un scintillement
- * rapide de phase propre ; un eclair bref au point de depart marque
- * l'explosion elle-meme.
+ * The fading out is an exponential of the age, modulated by a fast flicker
+ * of its own phase; a brief flash at the start point marks the explosion
+ * itself.
  *
- * Les bouquets vivent dans un tampon de six emplacements dates par l'horloge
- * du moteur — un depart a -1000 donne un age enorme, donc un bouquet inerte —
- * et un bouquet automatique, tire d'un compteur de periode, part tout seul a
- * un point hache : un ciel qui ne s'anime qu'au clic resterait vide dans la
- * plupart des pages.
+ * The bursts live in a buffer of six slots timestamped by the engine clock
+ * — a start at -1000 gives an enormous age, hence an inert burst — and an
+ * automatic burst, drawn from a period counter, goes off on its own at a
+ * hashed point: a sky that comes alive only on a click would stay empty on
+ * most pages.
  *
  * ## Uniforms
  *
- * - `uTime` — temps en secondes, fourni par le moteur.
- * - `uResolution` — taille du canevas en pixels, fournie par le moteur.
- * - `uColorA` — le ciel.
- * - `uColorB`, `uColorC` — les deux teintes d'etincelles, melangees par bouquet.
- * - `uClicks` — six bouquets (x, y, temps de depart), tampon circulaire.
- * - `uSparks` — etincelles par bouquet, et donc le cout.
- * - `uGravity` — force de la retombee.
- * - `uDecay` — vitesse d'extinction des etincelles.
- * - `uAuto` — periode des bouquets automatiques, en secondes ; zero les coupe.
+ * - `uTime` — time in seconds, supplied by the engine.
+ * - `uResolution` — canvas size in pixels, supplied by the engine.
+ * - `uColorA` — the sky.
+ * - `uColorB`, `uColorC` — the two spark hues, mixed per burst.
+ * - `uClicks` — six bursts (x, y, start time), circular buffer.
+ * - `uSparks` — sparks per burst, and so the cost.
+ * - `uGravity` — strength of the fall-back.
+ * - `uDecay` — rate at which the sparks fade out.
+ * - `uAuto` — period of the automatic bursts, in seconds; zero cuts them.
  */
 export const FIREWORKS_FRAGMENT = /* glsl */ `
 precision highp float;
@@ -49,82 +49,82 @@ uniform float uGravity;
 uniform float uDecay;
 uniform float uAuto;
 
-// Nombre pseudo-aleatoire : projection sur une direction arbitraire, sinus
-// amplifie, partie fractionnaire.
-float feuHash(vec2 p) {
+// Pseudo-random number: projection onto an arbitrary direction, amplified
+// sine, fractional part.
+float burstHash(vec2 p) {
   return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
 }
 
-// Deux nombres decorreles pour une meme graine.
-vec2 feuHash2(vec2 p) {
-  return vec2(feuHash(p), feuHash(p + vec2(37.3, 17.7)));
+// Two decorrelated numbers for the same seed.
+vec2 burstHash2(vec2 p) {
+  return vec2(burstHash(p), burstHash(p + vec2(37.3, 17.7)));
 }
 
-// Lumiere qu'un bouquet depose au point p, a l'age donne.
-vec3 bouquet(vec2 p, vec2 origine, float age, float graine, int etincelles) {
-  // Trop tot ou trop vieux : rien a calculer, et c'est le cas de tous les
-  // emplacements vides du tampon.
+// Light a burst lays down at point p, at the given age.
+vec3 burst(vec2 p, vec2 origin, float age, float seed, int sparks) {
+  // Too early or too old: nothing to compute, and that is the case for every
+  // empty slot of the buffer.
   if (age < 0.0 || age > 6.0) return vec3(0.0);
 
-  vec3 lumiere = vec3(0.0);
-  float teinteBouquet = feuHash(vec2(graine, 3.1));
+  vec3 light = vec3(0.0);
+  float burstTint = burstHash(vec2(seed, 3.1));
   float k = 1.6;
 
-  // Bornes constantes : la specification du langage l'exige ; la qualite
-  // sort plus tot.
+  // Constant bounds: the language specification demands it; quality exits
+  // earlier.
   for (int j = 0; j < 48; j += 1) {
-    if (j >= etincelles) break;
+    if (j >= sparks) break;
     float fj = float(j);
-    vec2 h = feuHash2(vec2(fj, graine));
+    vec2 h = burstHash2(vec2(fj, seed));
 
-    // Directions reparties sur le cercle, chacune un peu decalee : un bouquet
-    // regulier a l'air mecanique, un bouquet aleatoire a des trous.
-    float angle = (fj + h.x * 0.8) / float(etincelles) * 6.28318;
+    // Directions spread around the circle, each nudged a little: a regular
+    // burst looks mechanical, a random burst has holes.
+    float angle = (fj + h.x * 0.8) / float(sparks) * 6.28318;
     float v0 = 0.22 + 0.25 * h.y;
 
-    float portee = v0 * (1.0 - exp(-k * age)) / k;
-    vec2 pos = origine + vec2(cos(angle), sin(angle)) * portee;
+    float reach = v0 * (1.0 - exp(-k * age)) / k;
+    vec2 pos = origin + vec2(cos(angle), sin(angle)) * reach;
     pos.y -= uGravity * age * age * 0.5;
 
     float d = length(p - pos);
     float size = 0.006 + 0.004 * h.y;
-    float noyau = exp(-d * d / (size * size));
+    float core = exp(-d * d / (size * size));
     float halo = 0.15 * exp(-d * d / (size * size * 12.0));
 
-    float extinction = exp(-uDecay * age) * (0.75 + 0.25 * sin(age * 25.0 + h.x * 6.28318));
-    extinction *= smoothstep(0.0, 0.05, age);
+    float decay = exp(-uDecay * age) * (0.75 + 0.25 * sin(age * 25.0 + h.x * 6.28318));
+    decay *= smoothstep(0.0, 0.05, age);
 
-    vec3 teinte = mix(uColorB, uColorC, fract(teinteBouquet + h.y * 0.35));
-    lumiere += teinte * (noyau + halo) * extinction;
+    vec3 tint = mix(uColorB, uColorC, fract(burstTint + h.y * 0.35));
+    light += tint * (core + halo) * decay;
   }
 
-  // L'eclair de l'explosion : large, bref, au point de depart.
-  float d0 = length(p - origine);
-  lumiere += uColorC * exp(-d0 * d0 / 0.002) * exp(-age * 12.0) * 2.0;
+  // The flash of the explosion: broad, brief, at the start point.
+  float d0 = length(p - origin);
+  light += uColorC * exp(-d0 * d0 / 0.002) * exp(-age * 12.0) * 2.0;
 
-  return lumiere;
+  return light;
 }
 
 void main() {
   float aspect = uResolution.x / max(uResolution.y, 1.0);
   vec2 p = vUv * vec2(aspect, 1.0);
-  int etincelles = int(clamp(uSparks, 4.0, 48.0));
+  int sparks = int(clamp(uSparks, 4.0, 48.0));
 
   vec3 colour = uColorA;
 
   for (int i = 0; i < 6; i += 1) {
-    vec3 clic = uClicks[i];
-    vec2 origine = clic.xy * vec2(aspect, 1.0);
-    colour += bouquet(p, origine, uTime - clic.z, clic.z * 7.3 + float(i), etincelles);
+    vec3 click = uClicks[i];
+    vec2 origin = click.xy * vec2(aspect, 1.0);
+    colour += burst(p, origin, uTime - click.z, click.z * 7.3 + float(i), sparks);
   }
 
-  // Le bouquet automatique : un par periode, a un point hache du haut du cadre.
+  // The automatic burst: one per period, at a hashed point of the frame's top.
   if (uAuto > 0.0) {
-    float periode = max(uAuto, 0.5);
-    float index = floor(uTime / periode);
-    float ageAuto = uTime - index * periode;
-    vec2 origineAuto = vec2(0.2 + 0.6 * feuHash(vec2(index, 1.3)), 0.45 + 0.4 * feuHash(vec2(index, 9.1)));
-    colour += bouquet(p, origineAuto * vec2(aspect, 1.0), ageAuto, index * 3.7, etincelles);
+    float period = max(uAuto, 0.5);
+    float index = floor(uTime / period);
+    float autoAge = uTime - index * period;
+    vec2 autoOrigin = vec2(0.2 + 0.6 * burstHash(vec2(index, 1.3)), 0.45 + 0.4 * burstHash(vec2(index, 9.1)));
+    colour += burst(p, autoOrigin * vec2(aspect, 1.0), autoAge, index * 3.7, sparks);
   }
 
   gl_FragColor = vec4(colour, 1.0);

@@ -28,13 +28,13 @@
       "step": 100
     },
     {
-      "name": "actif",
+      "name": "active",
       "type": "boolean",
       "default": true,
       "description": "Battre ou non. C est par la que passe le mouvement reduit."
     },
     {
-      "name": "immediat",
+      "name": "immediate",
       "type": "boolean",
       "default": false,
       "description": "Battre une premiere fois sans attendre l intervalle."

@@ -1,30 +1,30 @@
 /**
- * Shader du reflet d'objectif.
+ * Lens flare shader.
  *
- * ## L'idee mathematique
+ * ## The mathematical idea
  *
- * Une source ponctuelle au pointeur : un coeur gaussien net, un halo
- * exponentiel, et une strie anamorphique — etiree en largeur, mince en
- * hauteur — comme en laisse une lentille cylindrique. Les fantomes sont la
- * signature du reflet : des disques et des anneaux alignes sur la droite qui
- * joint la source au centre du cadre, chacun a une position et une taille
- * tirees de son indice, en teintes alternees. Un grand anneau d'iris ferme
- * la chaine du cote oppose a la source.
+ * A point source at the pointer: a sharp gaussian core, an exponential
+ * halo, and an anamorphic streak — stretched in width, thin in height — of
+ * the kind a cylindrical lens leaves behind. The ghosts are the signature of
+ * the flare: discs and rings aligned on the line joining the source to the
+ * centre of the frame, each with a position and a size drawn from its index,
+ * in alternating hues. A large iris ring closes the chain on the side
+ * opposite the source.
  *
- * Tout se pose par melange borne vers les teintes : sur un fond clair, le
- * reflet colore au lieu de blanchir.
+ * Everything is laid down by a bounded mix towards the hues: on a light
+ * background, the flare colours instead of washing out to white.
  *
  * ## Uniforms
  *
- * - `uTime` — temps en secondes, fourni par le moteur.
- * - `uResolution` — taille du canevas en pixels, fournie par le moteur.
- * - `uColorA` — le fond.
- * - `uColorB` — la teinte chaude : source, strie, fantomes pairs.
- * - `uColorC` — la teinte froide : fantomes impairs, anneau d'iris.
- * - `uPointer` — position amortie du pointeur, en coordonnees de texture.
- * - `uIntensity` — intensite globale du reflet.
- * - `uGhosts` — nombre de fantomes le long de l'axe.
- * - `uStreak` — longueur de la strie anamorphique, en hauteurs de cadre.
+ * - `uTime` — time in seconds, supplied by the engine.
+ * - `uResolution` — canvas size in pixels, supplied by the engine.
+ * - `uColorA` — the background.
+ * - `uColorB` — the warm hue: source, streak, even ghosts.
+ * - `uColorC` — the cool hue: odd ghosts, iris ring.
+ * - `uPointer` — damped pointer position, in texture coordinates.
+ * - `uIntensity` — overall intensity of the flare.
+ * - `uGhosts` — number of ghosts along the axis.
+ * - `uStreak` — length of the anamorphic streak, in frame heights.
  */
 export const LENS_FLARE_FRAGMENT = /* glsl */ `
 precision highp float;
@@ -41,13 +41,13 @@ uniform float uIntensity;
 uniform float uGhosts;
 uniform float uStreak;
 
-// Un fantome : un disque doux et un anneau plus vif a son bord.
-float fantome(vec2 p, vec2 centre, float rayon) {
+// A ghost: a soft disc and a sharper ring at its edge.
+float ghost(vec2 p, vec2 centre, float radius) {
   float d = length(p - centre);
-  float disque = 1.0 - smoothstep(rayon * 0.6, rayon, d);
-  float e = (d - rayon) / (rayon * 0.18);
-  float anneau = exp(-e * e);
-  return disque * 0.3 + anneau * 0.55;
+  float disc = 1.0 - smoothstep(radius * 0.6, radius, d);
+  float e = (d - radius) / (radius * 0.18);
+  float ring = exp(-e * e);
+  return disc * 0.3 + ring * 0.55;
 }
 
 void main() {
@@ -57,53 +57,53 @@ void main() {
   vec2 centre = vec2(aspect * 0.5, 0.5);
   int n = int(clamp(uGhosts, 0.0, 6.0));
 
-  // Une respiration lente : un reflet parfaitement fixe a l'air peint.
-  float souffle = 0.92 + 0.08 * sin(uTime * 1.3);
-  float force = max(uIntensity, 0.0) * souffle;
+  // A slow breathing: a perfectly still flare looks painted.
+  float breath = 0.92 + 0.08 * sin(uTime * 1.3);
+  float strength = max(uIntensity, 0.0) * breath;
 
   vec2 d = p - source;
   float r = length(d);
 
-  // La source : coeur net, halo sans fin.
-  float coeur = exp(-r * r * 140.0);
+  // The source: sharp core, endless halo.
+  float core = exp(-r * r * 140.0);
   float halo = exp(-r * 3.5) * 0.5;
 
-  // La strie anamorphique : mince en hauteur, longue en largeur.
-  float longueur = max(uStreak, 0.02);
-  float strie = exp(-d.y * d.y * 4000.0) * exp(-abs(d.x) / longueur * 1.5) * 0.7;
+  // The anamorphic streak: thin in height, long in width.
+  float streakLength = max(uStreak, 0.02);
+  float streak = exp(-d.y * d.y * 4000.0) * exp(-abs(d.x) / streakLength * 1.5) * 0.7;
 
-  // Les fantomes : le long de l'axe source -> centre, de part et d'autre du
-  // centre, en teintes alternees. Plus la source est proche du centre, plus
-  // la chaine se resserre — comme dans une vraie lentille.
-  vec2 axe = centre - source;
-  float chauds = 0.0;
-  float froids = 0.0;
+  // The ghosts: along the source -> centre axis, on either side of the
+  // centre, in alternating hues. The closer the source is to the centre, the
+  // tighter the chain draws — as in a real lens.
+  vec2 axis = centre - source;
+  float warm = 0.0;
+  float cool = 0.0;
   for (int i = 0; i < 6; i += 1) {
     if (i >= n) break;
     float k = -0.5 + float(i) * 0.45;
     float h = fract(float(i) * 0.618 + 0.13);
-    vec2 g = centre + axe * k;
-    float rayon = 0.025 + 0.045 * h;
-    float valeur = fantome(p, g, rayon) * (0.5 + 0.5 * h);
+    vec2 g = centre + axis * k;
+    float radius = 0.025 + 0.045 * h;
+    float value = ghost(p, g, radius) * (0.5 + 0.5 * h);
     if (fract(float(i) * 0.5) < 0.25) {
-      chauds += valeur;
+      warm += value;
     } else {
-      froids += valeur;
+      cool += value;
     }
   }
 
-  // L'anneau d'iris : grand, fin, a l'oppose de la source.
-  vec2 iris = centre + axe * 1.1;
+  // The iris ring: large, thin, opposite the source.
+  vec2 iris = centre + axis * 1.1;
   float ei = (length(p - iris) - 0.32) / 0.018;
-  float anneau = exp(-ei * ei) * 0.35;
+  float ring = exp(-ei * ei) * 0.35;
 
-  vec3 colour = mix(uColorA, uColorB, clamp((halo + strie + chauds * 0.6) * force, 0.0, 1.0));
-  colour = mix(colour, uColorC, clamp((froids * 0.6 + anneau) * force, 0.0, 1.0));
+  vec3 colour = mix(uColorA, uColorB, clamp((halo + streak + warm * 0.6) * strength, 0.0, 1.0));
+  colour = mix(colour, uColorC, clamp((cool * 0.6 + ring) * strength, 0.0, 1.0));
 
-  // Le coeur : la teinte chaude pleine, puis un lavage vers la froide qui
-  // fait le point blanc sans ecrire de blanc.
-  colour = mix(colour, uColorB, clamp(coeur * force, 0.0, 1.0));
-  colour = mix(colour, uColorC, clamp(coeur * force * 0.45, 0.0, 1.0));
+  // The core: the warm hue at full, then a wash towards the cool one which
+  // makes the white point without ever writing white.
+  colour = mix(colour, uColorB, clamp(core * strength, 0.0, 1.0));
+  colour = mix(colour, uColorC, clamp(core * strength * 0.45, 0.0, 1.0));
 
   gl_FragColor = vec4(colour, 1.0);
 }

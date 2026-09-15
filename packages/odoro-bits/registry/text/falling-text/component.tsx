@@ -1,26 +1,26 @@
 /**
- * Chute : chaque lettre tombe en place depuis le haut, avec un leger rebond.
+ * Fall: each letter drops into place from above, with a slight bounce.
  *
- * ## Un depassement, pas un rebond complet
+ * ## An overshoot, not a full bounce
  *
- * Une lettre qui tombe et s'arrete net a l'air posee ; une lettre qui rebondit
- * plusieurs fois a l'air de faire un numero. Entre les deux, une courbe qui
- * depasse une seule fois la ligne de base avant de s'y ranger — c'est le
- * profil « emphase » des systemes de mouvement, obtenu ici par un
- * `cubic-bezier` dont la sortie franchit 1.
+ * A letter that falls and stops dead looks placed; a letter that bounces
+ * several times looks like it is putting on a show. Between the two, a curve
+ * that crosses the baseline once before settling onto it — the "emphasised"
+ * profile of motion systems, obtained here by a `cubic-bezier` whose output
+ * goes past 1.
  *
- * ## `element.animate`, arme par l'observateur
+ * ## `element.animate`, armed by the observer
  *
- * L'effet ne se joue qu'a l'entree dans le champ. L'etat cache — les lettres
- * en opacite nulle — est pose par le meme code qui programme la chute : si ce
- * code ne tourne jamais, le texte est simplement la. Voir blur-reveal, qui a
- * essuye les platres de ce piege.
+ * The effect plays only on entering the viewport. The hidden state — the
+ * letters at zero opacity — is applied by the very code that schedules the
+ * fall: if that code never runs, the text is simply there. See blur-reveal,
+ * which took the brunt of this trap.
  *
- * ## Le decoupage est un artifice d'affichage
+ * ## The split is a display device
  *
- * Le texte est eclate en lettres pour que chacune recoive son delai. Le
- * conteneur porte donc le texte complet pour les lecteurs d'ecran, et les
- * lettres sont retirees de l'arbre d'accessibilite.
+ * The text is broken into letters so that each receives its own delay. The
+ * container therefore carries the complete text for screen readers, and the
+ * letters are removed from the accessibility tree.
  *
  * @module
  */
@@ -28,53 +28,53 @@
 import { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'
 import { useEffect, useRef, type ElementType, type ReactElement } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface FallingTextOwnProps {
-  /** Texte a faire tomber. */
+  /** Text to drop. */
   children: string
-  /** Balise rendue. @defaultValue 'span' */
+  /** Rendered tag. @defaultValue 'span' */
   as?: ElementType
-  /** Delai entre deux lettres, en millisecondes. @defaultValue 45 */
+  /** Delay between two letters, in milliseconds. @defaultValue 45 */
   step?: number
-  /** Hauteur de la chute, en em. @defaultValue 1.2 */
+  /** Height of the fall, in em. @defaultValue 1.2 */
   drop?: number
   /**
-   * Ne jouer qu'une fois.
+   * Play only once.
    *
-   * A `false`, la chute se rejoue a chaque retour dans le champ — a reserver
-   * aux textes qu'on ne recroise pas par hasard.
+   * At `false`, the fall replays on every return into the viewport — to be
+   * reserved for texts one does not come across by chance.
    *
    * @defaultValue true
    */
   once?: boolean
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type FallingTextProps = Customisable<FallingTextOwnProps, 'span'>
 
-/** Espace insecable : une espace ordinaire s'ecrase dans un bloc en ligne. */
+/** No-break space: an ordinary space collapses inside an inline block. */
 const NBSP = '\u00A0'
 
-/** Duree de la chute d'une lettre, en millisecondes. */
+/** Duration of the fall of one letter, in milliseconds. */
 const FALL_MS = 550
 
 /**
- * Sortie avec depassement : la lettre franchit sa ligne d'arrivee d'un cheveu,
- * puis s'y range. C'est le depassement qui donne le poids.
+ * Ease out with overshoot: the letter crosses its finishing line by a hair,
+ * then settles onto it. It is the overshoot that gives the weight.
  */
 const OVERSHOOT = 'cubic-bezier(0.34, 1.56, 0.64, 1)'
 
 /**
- * Fait tomber un texte en place, lettre a lettre, a l'entree dans le champ.
+ * Drops a text into place, letter by letter, on entering the viewport.
  *
  * @example
  * <FallingText as="h1" className="o-text-5xl o-font-extrabold">
- *   Ca tombe bien
+ *   Right on cue
  * </FallingText>
  *
  * @example
- * // Une chute plus haute, rejouee a chaque passage.
- * <FallingText drop={2.5} once={false}>Encore</FallingText>
+ * // A higher fall, replayed on every pass.
+ * <FallingText drop={2.5} once={false}>Again</FallingText>
  */
 export function FallingText({
   children,
@@ -94,8 +94,8 @@ export function FallingText({
     const letters = element.querySelectorAll<HTMLElement>('[data-o-fall-letter]')
     if (letters.length === 0) return
 
-    // L'etat cache est pose ici, pas dans le rendu : sans ce code, le texte
-    // reste visible. Voir l'en-tete du module.
+    // The hidden state is applied here, not in the render: without this code,
+    // the text stays visible. See the module header.
     for (const letter of letters) {
       letter.style.opacity = '0'
     }
@@ -146,7 +146,7 @@ export function FallingText({
 
   const { className, style } = mergePresentation({}, rest)
 
-  // Mouvement reduit : le texte est la, entier, sans decoupage.
+  // Reduced motion: the text is there, whole, with no split.
   if (reduced) {
     return (
       <Tag {...rest} className={className} style={style}>
@@ -159,7 +159,7 @@ export function FallingText({
 
   return (
     <Tag {...rest} ref={host} className={className} style={style}>
-      {/* Le texte complet, d'un seul tenant, pour les lecteurs d'ecran. */}
+      {/* The complete text, in one piece, for screen readers. */}
       <span className="o-sr-only">{children}</span>
       <span aria-hidden>
         {letters.map((letter, index) => (
@@ -168,8 +168,8 @@ export function FallingText({
             data-o-fall-letter=""
             style={{ display: 'inline-block' }}
           >
-            {/* Une espace ordinaire s'ecrase dans un bloc en ligne :
-                l'insecable garde sa largeur. */}
+            {/* An ordinary space collapses inside an inline block: the
+                no-break one keeps its width. */}
             {letter === ' ' ? NBSP : letter}
           </span>
         ))}

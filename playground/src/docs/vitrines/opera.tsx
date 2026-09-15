@@ -38,7 +38,7 @@
 
 import { useMotionState } from '@odoro-cli/engine'
 import { Icon } from '@odoro-cli/icons'
-import { ArrowDown, Ticket } from '@odoro-cli/icons/filaire'
+import { ArrowDown, Ticket } from '@odoro-cli/icons/outline'
 import { useMemo, useState, type CSSProperties, type ReactElement } from 'react'
 
 import { SpotlightText } from '@/odoro/text/SpotlightText.jsx'

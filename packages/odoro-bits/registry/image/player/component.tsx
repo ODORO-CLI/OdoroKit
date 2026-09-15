@@ -1,82 +1,80 @@
 /**
- * Lecteur video.
+ * Video player.
  *
- * ## Pourquoi refaire ce que le navigateur donne
+ * ## Why redo what the browser gives
  *
- * Les commandes natives fonctionnent parfaitement — et n'ont aucune raison
- * d'etre remplacees si l'apparence par defaut convient. Ce lecteur existe pour
- * une seule raison : elles ne sont pas habillables. Ni couleur, ni forme, ni
- * rayon, ni position ; chaque navigateur impose la sienne.
+ * The native controls work perfectly — and there is no reason to replace them
+ * if the default appearance suits. This player exists for a single reason:
+ * they cannot be styled. Neither colour, nor shape, nor radius, nor position;
+ * each browser imposes its own.
  *
- * Ce qui reste au natif reste au natif : le decodage, la mise en tampon, les
- * pistes de sous-titres, le plein ecran, l'image dans l'image. Le lecteur
- * n'ajoute que des boutons et un abonnement aux evenements du media.
+ * What belongs to the native stays native: the decoding, the buffering, the
+ * subtitle tracks, full screen, picture in picture. The player adds nothing
+ * but buttons and a subscription to the events of the media.
  *
- * ## L'etat vient du media, jamais l'inverse
+ * ## The state comes from the media, never the other way round
  *
- * Un lecteur qui tiendrait son propre etat de lecture se desynchroniserait au
- * premier evenement exterieur — une touche media du clavier, une mise en
- * pause par le systeme, une coupure reseau. L'element est donc la seule source
- * de verite : les commandes lui demandent, et l'affichage suit ce qu'il
- * annonce.
+ * A player holding its own playback state would fall out of sync on the first
+ * outside event — a media key on the keyboard, a pause forced by the system, a
+ * network cut. The element is therefore the only source of truth: the controls
+ * ask it, and the display follows what it announces.
  *
- * ## Les commandes sont des icones, pas des caracteres
+ * ## The controls are icons, not characters
  *
- * Les triangles et les barres du repertoire Unicode donnent un lecteur qui
- * fonctionne sans rien installer. Ils donnent aussi un lecteur different sur
- * chaque plateforme — l'emoji de volume est en couleurs sur l'un, un trait sur
- * l'autre —, qui ne suit ni la couleur du texte ni sa taille, et qu'aucune
- * classe ne rattrape.
+ * The triangles and bars of the Unicode repertoire give a player that works
+ * with nothing installed. They also give a different player on every platform
+ * — the volume emoji is in colour on one, a stroke on another — which follows
+ * neither the colour of the text nor its size, and which no class can rescue.
  *
- * Le lecteur emploie donc six icones du jeu filaire. L'elagage ne retient
- * qu'elles : le cout est de quelques centaines d'octets, pour des commandes
- * qui se colorent et se dimensionnent comme le reste.
+ * The player therefore uses six icons from the outline pack. Pruning keeps
+ * only those: the cost is a few hundred bytes, for controls that take colour
+ * and size like the rest.
  *
- * ## La barre de progression est un curseur
+ * ## The progress bar is a slider
  *
- * Pas une barre cliquable. Elle porte son role, ses bornes et sa valeur en
- * secondes, les fleches la deplacent de cinq secondes, `Origine` et `Fin`
- * sautent aux extremites. C'est ce qui separe un lecteur d'une decoration.
+ * Not a clickable bar. It carries its role, its bounds and its value in
+ * seconds, the arrows move it by five seconds, `Home` and `End` jump to the
+ * ends. That is what separates a player from a decoration.
  *
  * @module
  */
 
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import { Icon, type IconData } from '@odoro-cli/icons'
-import { Maximize, Pause, Play, Volume_2, VolumeX } from '@odoro-cli/icons/filaire'
+import { Maximize, Pause, Play, Volume_2, VolumeX } from '@odoro-cli/icons/outline'
 import { useCallback, useEffect, useRef, useState, type ReactElement } from 'react'
 
-/** Une piste de sous-titres. */
+/** One subtitle track. */
 export interface PlayerTrack {
-  /** Fichier WebVTT. */
+  /** WebVTT file. */
   readonly src: string
-  /** Code de langue. */
+  /** Language code. */
   readonly srcLang: string
-  /** Intitule affiche dans le menu du navigateur. */
+  /** Wording shown in the browser menu. */
   readonly label: string
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface PlayerOwnProps {
-  /** Source de la video. */
+  /** Source of the video. */
   src: string
-  /** Image affichee avant la lecture. */
+  /** Image displayed before playback. */
   poster?: string
-  /** Titre de la video, annonce aux technologies d'assistance. */
+  /** Title of the video, announced to assistive technologies. */
   label: string
-  /** Pistes de sous-titres. */
+  /** Subtitle tracks. */
   tracks?: readonly PlayerTrack[]
-  /** Rapport largeur sur hauteur. @defaultValue 1.777 */
+  /** Width to height ratio. @defaultValue 1.777 */
   ratio?: number
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type PlayerProps = Customisable<PlayerOwnProps>
 
-/** Pas de deplacement au clavier, en secondes. */
+/** Keyboard movement step, in seconds. */
 const STEP = 5
 
-/** Met une duree en minutes et secondes. */
+/** Formats a duration as minutes and seconds. */
 function clock(seconds: number): string {
   if (!Number.isFinite(seconds)) return '--:--'
   const minutes = Math.floor(seconds / 60)
@@ -84,7 +82,7 @@ function clock(seconds: number): string {
   return `${String(minutes)}:${String(rest).padStart(2, '0')}`
 }
 
-/** Un bouton de commande. */
+/** A control button. */
 function Control({
   label,
   icon,
@@ -107,14 +105,14 @@ function Control({
 }
 
 /**
- * Lecteur video habillable.
+ * Styleable video player.
  *
  * @example
  * <Player
  *   src="/presentation.mp4"
  *   poster="/presentation.jpg"
- *   label="Presentation du produit"
- *   tracks={[{ src: '/fr.vtt', srcLang: 'fr', label: 'Francais' }]}
+ *   label="Product presentation"
+ *   tracks={[{ src: '/en.vtt', srcLang: 'en', label: 'English' }]}
  * />
  */
 export function Player({
@@ -133,8 +131,8 @@ export function Player({
   const [time, setTime] = useState(0)
   const [duration, setDuration] = useState(Number.NaN)
 
-  // L'etat suit le media : une source de verite ailleurs se
-  // desynchroniserait au premier evenement exterieur.
+  // The state follows the media: a source of truth elsewhere would fall out of
+  // sync on the first outside event.
   useEffect(() => {
     const node = video.current
     if (node === null) return
@@ -211,11 +209,11 @@ export function Player({
       <div className="o-absolute o-inset-x-0 o-bottom-0 o-flex o-flex-col o-gap-1 o-bg-black-60 o-px-3 o-py-2">
         <div
           role="slider"
-          aria-label={`Position dans ${label}`}
+          aria-label={`Position in ${label}`}
           aria-valuemin={0}
           aria-valuemax={Number.isFinite(duration) ? Math.round(duration) : 0}
           aria-valuenow={Math.round(time)}
-          aria-valuetext={`${clock(time)} sur ${clock(duration)}`}
+          aria-valuetext={`${clock(time)} of ${clock(duration)}`}
           tabIndex={0}
           onKeyDown={(event) => {
             const delta =
@@ -246,7 +244,7 @@ export function Player({
 
         <div className="o-flex o-items-center o-gap-1">
           <Control
-            label={playing ? 'Mettre en pause' : 'Lire'}
+            label={playing ? 'Pause' : 'Play'}
             icon={playing ? Pause : Play}
             onClick={() =>
               playing ? video.current?.pause() : void video.current?.play()
@@ -254,7 +252,7 @@ export function Player({
           />
 
           <Control
-            label={muted ? 'Retablir le son' : 'Couper le son'}
+            label={muted ? 'Unmute' : 'Mute'}
             icon={muted ? VolumeX : Volume_2}
             onClick={() => {
               const node = video.current
@@ -269,11 +267,11 @@ export function Player({
           <span className="o-flex-1" />
 
           {/*
-            Le plein ecran est demande au conteneur, pas a la video : demander
-            la video afficherait les commandes natives par-dessus les notres.
+            Full screen is requested on the container, not on the video:
+            requesting the video would show the native controls over ours.
           */}
           <Control
-            label="Plein ecran"
+            label="Full screen"
             icon={Maximize}
             onClick={() => void shell.current?.requestFullscreen().catch(() => undefined)}
           />

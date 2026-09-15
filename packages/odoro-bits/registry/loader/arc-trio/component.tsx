@@ -1,31 +1,29 @@
 /**
- * Trio d'arcs : trois arcs de longueurs differentes sur un meme cercle.
+ * Arc trio: three arcs of different lengths on one and the same circle.
  *
- * ## Un seul cercle, trois vitesses
+ * ## A single circle, three speeds
  *
- * Les trois arcs partagent le meme rayon — ce n'est pas un chargeur
- * concentrique. Ils n'ont ni la meme longueur ni la meme vitesse : le long
- * est lent, le court est vif. A vitesses inegales, ils se rattrapent, se
- * recouvrent un instant — l'opacite s'additionne, l'arc semble s'epaissir —
- * puis se separent. C'est cette respiration irreguliere qui fait le
- * chargeur : trois arcs a la meme vitesse ne seraient qu'un anneau
- * tournant a trous.
+ * The three arcs share the same radius — this is not a concentric loader. They
+ * have neither the same length nor the same speed: the long one is slow, the
+ * short one is brisk. At unequal speeds, they catch up with one another,
+ * overlap for a moment — the opacity adds up, the arc seems to thicken — then
+ * part again. It is that irregular breathing which makes the loader: three
+ * arcs at the same speed would be nothing but a spinning ring with gaps.
  *
- * Chaque arc est un cercle SVG dont le tirete ne peint qu'une portion. Le
- * point de depart de chacun est fixe par un attribut SVG sur un groupe
- * exterieur, et la rotation par une animation CSS sur un groupe interieur :
- * les deux transformations ne se disputent pas la meme propriete, sinon
- * l'animation effacerait le decalage.
+ * Each arc is an SVG circle whose dash pattern paints only a portion. The
+ * starting point of each is fixed by an SVG attribute on an outer group, and
+ * the rotation by a CSS animation on an inner group: the two transforms do not
+ * fight over the same property, otherwise the animation would wipe out the
+ * offset.
  *
- * ## Un statut, pas un dessin
+ * ## A status, not a drawing
  *
- * L'element porte `role="status"` et un libelle pour les lecteurs d'ecran :
- * l'attente est une information, pas une decoration. Le dessin, lui, est
- * retire de l'arbre d'accessibilite.
+ * The element carries `role="status"` and a label for screen readers: waiting
+ * is information, not decoration. The drawing itself is removed from the
+ * accessibility tree.
  *
- * Sous mouvement reduit, les arcs restent a un tiers de tour les uns des
- * autres : la figure se lit encore comme un chargeur, seul le mouvement
- * s'arrete.
+ * Under reduced motion, the arcs stay a third of a turn apart from one
+ * another: the figure still reads as a loader, only the movement stops.
  *
  * @module
  */
@@ -33,10 +31,10 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-arc-trio'
 
-/** Pose la rotation des arcs, une fois par document. */
+/** Sets up the rotation of the arcs, once per document. */
 function ensureTrioRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -46,8 +44,8 @@ function ensureTrioRule(): void {
   style.textContent = [
     '[data-o-arc-trio]{display:inline-block;line-height:0}',
     '[data-o-arc-trio] svg{display:block}',
-    // La boite de reference est la vue SVG : l'origine de la rotation est le
-    // centre du dessin, pas celui du seul arc peint.
+    // The reference box is the SVG view box: the origin of the rotation is the
+    // centre of the drawing, not that of the painted arc alone.
     '[data-o-trio-arc]{',
     'transform-box:view-box;transform-origin:50% 50%;',
     'animation:o-arc-trio-spin var(--o-trio-speed) linear infinite;',
@@ -60,29 +58,29 @@ function ensureTrioRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** Props of the component itself. */
 export interface ArcTrioOwnProps {
-  /** Diametre du cercle, en pixels. @defaultValue 48 */
+  /** Diameter of the circle, in pixels. @defaultValue 48 */
   size?: number
-  /** Epaisseur des arcs, en pixels. @defaultValue 4 */
+  /** Thickness of the arcs, in pixels. @defaultValue 4 */
   thickness?: number
-  /** Duree d'un tour de l'arc le plus long, en millisecondes. @defaultValue 1400 */
+  /** Duration of one turn of the longest arc, in milliseconds. @defaultValue 1400 */
   speed?: number
-  /** Couleur des arcs. @defaultValue la couleur du texte */
+  /** Colour of the arcs. @defaultValue the text colour */
   color?: string
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */
+  /** Label announced to screen readers. @defaultValue 'Loading' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All the props. */
 export type ArcTrioProps = Customisable<ArcTrioOwnProps, 'span'>
 
 /**
- * Les trois arcs : part du cercle, multiplicateur de duree, opacite.
+ * The three arcs: share of the circle, duration multiplier, opacity.
  *
- * Le long est lent et plein ; le court est vif et leger. L'ordre des
- * vitesses est inverse a celui des longueurs pour que l'oeil suive toujours
- * un arc net et rapide devant une masse plus lente.
+ * The long one is slow and solid; the short one is brisk and light. The order
+ * of the speeds is the reverse of the order of the lengths, so that the eye
+ * always follows a crisp, fast arc in front of a slower mass.
  */
 const ARCS = [
   { share: 0.3, tempo: 1, opacity: 1 },
@@ -91,13 +89,14 @@ const ARCS = [
 ] as const
 
 /**
- * Signale une attente par trois arcs qui se rattrapent sur un meme cercle.
+ * Signals a wait through three arcs catching up with one another on a single
+ * circle.
  *
  * @example
  * <ArcTrio />
  *
  * @example
- * // Plus grand, plus lent, dans la teinte de marque.
+ * // Bigger, slower, in the brand hue.
  * <ArcTrio size={80} thickness={6} speed={2200} color="var(--o-palette-brand-500)" />
  */
 export function ArcTrio({
@@ -105,15 +104,15 @@ export function ArcTrio({
   thickness = 4,
   speed = 1400,
   color = 'currentColor',
-  label = 'Chargement',
+  label = 'Loading',
   ...rest
 }: ArcTrioProps): ReactElement {
   ensureTrioRule()
 
   const { className, style } = mergePresentation({}, rest)
 
-  // Le dessin vit dans une vue de 100 unites : l'epaisseur demandee en
-  // pixels est convertie pour que le trait garde sa mesure a toute taille.
+  // The drawing lives in a view of 100 units: the thickness asked for in
+  // pixels is converted so that the stroke keeps its measure at any size.
   const stroke = Math.min((thickness / size) * 100, 25)
   const radius = 50 - stroke / 2
   const circumference = 2 * Math.PI * radius

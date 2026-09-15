@@ -1,10 +1,10 @@
 /**
- * Le contrat des jeux d'icones.
+ * The contract of the icon packs.
  *
- * Onze mille icones ne se relisent pas. Ce qui peut casser sans qu'on le voie
- * est mecanique : un trace vide, un mode incoherent, une boite absente, un
- * attribut de couleur qui aurait survecu a l'importation et figerait l'icone
- * en noir quel que soit le texte autour.
+ * Eleven thousand icons cannot be proofread. What can break without being
+ * noticed is mechanical: an empty drawing, an inconsistent mode, a missing
+ * box, a color attribute that survived the import and would freeze the icon in
+ * black whatever the text around it.
  *
  * @module
  */
@@ -12,61 +12,63 @@
 import { describe, expect, it } from 'vitest'
 
 import catalogue from '../src/catalogue.json' with { type: 'json' }
-import * as classique from '../src/jeux/classique.js'
-import * as compact from '../src/jeux/compact.js'
-import * as etendu from '../src/jeux/etendu.js'
-import * as filaire from '../src/jeux/filaire.js'
-import * as marques from '../src/jeux/marques.js'
+import * as brands from '../src/packs/brands.js'
+import * as classic from '../src/packs/classic.js'
+import * as compact from '../src/packs/compact.js'
+import * as extended from '../src/packs/extended.js'
+import * as outline from '../src/packs/outline.js'
 import type { IconData } from '../src/types.js'
 
-const JEUX = { filaire, compact, classique, etendu, marques }
+const PACKS = { outline, compact, classic, extended, brands }
 
-/** Attributs qui figeraient l'apparence : aucun ne doit survivre a l'import. */
-const INTERDITS = ['fill', 'stroke', 'stroke-width', 'class', 'style', 'color']
+/** Attributes that would freeze the look: none may survive the import. */
+const FORBIDDEN = ['fill', 'stroke', 'stroke-width', 'class', 'style', 'color']
 
-for (const [nom, jeu] of Object.entries(JEUX)) {
-  describe(nom, () => {
-    const icones = Object.entries(jeu).filter(
-      ([cle]) => cle !== 'INFO' && cle !== 'NAMES',
+for (const [name, pack] of Object.entries(PACKS)) {
+  describe(name, () => {
+    const icons = Object.entries(pack).filter(
+      ([key]) => key !== 'INFO' && key !== 'NAMES',
     ) as readonly (readonly [string, IconData])[]
 
-    it('annonce le nombre d icones qu il contient', () => {
-      expect(icones.length).toBe(jeu.INFO.count)
-      expect(icones.length).toBe(
-        (catalogue as Record<string, { names: string[] }>)[nom]?.names.length,
+    it('announces the number of icons it holds', () => {
+      expect(icons.length).toBe(pack.INFO.count)
+      expect(icons.length).toBe(
+        (catalogue as Record<string, { names: string[] }>)[name]?.names.length,
       )
     })
 
-    it('nomme chaque icone une fois et une seule', () => {
-      const noms = Object.values(jeu.NAMES)
-      expect(Object.keys(jeu.NAMES).sort()).toEqual(icones.map(([cle]) => cle).sort())
-      // Deux icones qui porteraient le meme nom rendraient la recherche
-      // ambigue : on croirait avoir trouve la bonne.
-      expect(new Set(noms).size).toBe(noms.length)
+    it('names each icon once and only once', () => {
+      const names = Object.values(pack.NAMES)
+      expect(Object.keys(pack.NAMES).sort()).toEqual(icons.map(([key]) => key).sort())
+      // Two icons carrying the same name would make search ambiguous: one
+      // would believe the right one had been found.
+      expect(new Set(names).size).toBe(names.length)
     })
 
-    it('donne a chaque icone une boite et au moins un noeud', () => {
-      for (const [cle, icone] of icones) {
-        expect(icone.box, cle).toMatch(/^-?[\d.]+ -?[\d.]+ [\d.]+ [\d.]+$/)
-        expect(icone.nodes.length, cle).toBeGreaterThan(0)
+    it('gives each icon a box and at least one node', () => {
+      for (const [key, icon] of icons) {
+        expect(icon.box, key).toMatch(/^-?[\d.]+ -?[\d.]+ [\d.]+ [\d.]+$/)
+        expect(icon.nodes.length, key).toBeGreaterThan(0)
       }
     })
 
-    it('emploie le mode declare par le jeu', () => {
-      for (const [cle, icone] of icones) {
-        expect(icone.mode, cle).toBe(jeu.INFO.mode)
-        // Une epaisseur sur un glyphe plein n'aurait aucun effet : sa presence
-        // signalerait que le mode a ete mal deduit.
-        if (icone.mode === 'plein') expect(icone.stroke, cle).toBeUndefined()
-        else expect(icone.stroke, cle).toBeGreaterThan(0)
+    it('uses the mode declared by the pack', () => {
+      for (const [key, icon] of icons) {
+        expect(icon.mode, key).toBe(pack.INFO.mode)
+        // A weight on a solid glyph would have no effect: its presence would
+        // signal that the mode had been wrongly deduced.
+        if (icon.mode === 'solid') expect(icon.stroke, key).toBeUndefined()
+        else expect(icon.stroke, key).toBeGreaterThan(0)
       }
     })
 
-    it('ne conserve aucun attribut qui figerait l apparence', () => {
-      for (const [cle, icone] of icones) {
-        for (const [, attributs] of icone.nodes) {
-          for (const interdit of INTERDITS) {
-            expect(Object.keys(attributs), `${cle} / ${interdit}`).not.toContain(interdit)
+    it('keeps no attribute that would freeze the look', () => {
+      for (const [key, icon] of icons) {
+        for (const [, attributes] of icon.nodes) {
+          for (const forbidden of FORBIDDEN) {
+            expect(Object.keys(attributes), `${key} / ${forbidden}`).not.toContain(
+              forbidden,
+            )
           }
         }
       }

@@ -1,32 +1,30 @@
 /**
- * Silhouette geometrique floue qui suit le pointeur sous le contenu.
+ * Blurred geometric silhouette that follows the pointer under the content.
  *
- * ## Ce qui la distingue d'un halo
+ * ## What sets it apart from a halo
  *
- * Un halo est un degrade radial : il n'a pas de forme, seulement un centre.
- * Ici, la tache garde une **silhouette** — un hexagone, un triangle — que le
- * flou adoucit sans la faire disparaitre. C'est ce qui la rend utilisable
- * comme decor de section plutot que comme curseur : on reconnait une forme,
- * pas une lampe.
+ * A halo is a radial gradient: it has no shape, only a centre. Here, the blob
+ * keeps a **silhouette** — a hexagon, a triangle — that the blur softens
+ * without making it disappear. That is what makes it usable as section decor
+ * rather than as a cursor: one recognises a shape, not a lamp.
  *
- * ## Un decoupage puis un flou, pas une image
+ * ## A clip then a blur, not an image
  *
- * La silhouette est un simple bloc de couleur, decoupe par un trace et floute
- * par le compositeur. Une image ou un trace vectoriel donneraient le meme
- * dessin pour bien plus cher : le decoupage est une propriete que le
- * navigateur applique au moment de peindre, et le flou une operation qu'il
- * confie deja au processeur graphique.
+ * The silhouette is a plain block of colour, clipped by a path and blurred by
+ * the compositor. An image or a vector path would give the same drawing for
+ * far more: clipping is a property that the browser applies at paint time, and
+ * the blur an operation it already hands to the graphics processor.
  *
- * ## Le retard fait partie de l'effet
+ * ## The lag is part of the effect
  *
- * La forme est amortie par le crochet de pointeur : elle traine derriere la
- * main, ce qui lui donne du poids. Sans amortissement, une masse de deux cents
- * pixels collee au curseur donnerait un mouvement nerveux et desagreable.
+ * The shape is damped by the pointer hook: it trails behind the hand, which
+ * gives it weight. Without damping, a mass of two hundred pixels stuck to the
+ * cursor would give a nervous and unpleasant movement.
  *
- * ## Sous mouvement reduit
+ * ## Under reduced motion
  *
- * Le crochet reste au repos, donc la forme se pose au centre de la zone et n'en
- * bouge plus : c'est bien l'etat final, et le decor demeure.
+ * The hook stays at rest, so the shape settles at the centre of the area and
+ * no longer moves: this really is the final state, and the decor remains.
  *
  * @module
  */
@@ -42,29 +40,29 @@ import { useEffect, useRef, useState, type ReactElement, type ReactNode } from '
 
 import { usePointerDamped } from '@registre/hooks/usePointerDamped'
 
-/** Silhouettes disponibles. */
+/** Available silhouettes. */
 export type BlurShape = 'circle' | 'square' | 'triangle' | 'hexagon'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface ShapeBlurOwnProps {
-  /** Contenu pose sur la forme. */
+  /** Content laid over the shape. */
   children: ReactNode
-  /** Silhouette employee. @defaultValue 'hexagon' */
+  /** Silhouette used. @defaultValue 'hexagon' */
   shape?: BlurShape
-  /** Cote de la silhouette, en pixels. @defaultValue 240 */
+  /** Side of the silhouette, in pixels. @defaultValue 240 */
   size?: number
-  /** Flou applique a la silhouette, en pixels. @defaultValue 44 */
+  /** Blur applied to the silhouette, in pixels. @defaultValue 44 */
   blur?: number
-  /** Vitesse de rattrapage du pointeur. @defaultValue 2 */
+  /** Catch-up speed of the pointer. @defaultValue 2 */
   speed?: number
-  /** Couleur de la silhouette. @defaultValue la teinte de marque */
+  /** Colour of the silhouette. @defaultValue the brand hue */
   color?: string
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type ShapeBlurProps = Customisable<ShapeBlurOwnProps>
 
-/** Traces de decoupe, un par silhouette. */
+/** Clip paths, one per silhouette. */
 const CLIPS: Readonly<Record<BlurShape, string | undefined>> = {
   circle: 'circle(50% at 50% 50%)',
   square: undefined,
@@ -73,15 +71,15 @@ const CLIPS: Readonly<Record<BlurShape, string | undefined>> = {
 }
 
 /**
- * Fait deriver une forme floue sous son contenu.
+ * Drifts a blurred shape under its content.
  *
  * @example
  * <ShapeBlur className="o-rounded-2xl o-p-12">
- *   <h2>Une section</h2>
+ *   <h2>A section</h2>
  * </ShapeBlur>
  *
  * @example
- * // Un triangle net et lourd, dans une autre teinte.
+ * // A crisp and heavy triangle, in another hue.
  * <ShapeBlur shape="triangle" blur={12} speed={1} color="var(--o-palette-sky-400)">
  *   <p>…</p>
  * </ShapeBlur>
@@ -99,7 +97,7 @@ export function ShapeBlur({
   const [host, setHost] = useState<HTMLDivElement | null>(null)
   const mark = useRef<HTMLSpanElement | null>(null)
 
-  const pointer = usePointerDamped({ host, speed, name: 'forme floue' })
+  const pointer = usePointerDamped({ host, speed, name: 'blurred shape' })
 
   useEffect(() => {
     if (host === null) return
@@ -108,9 +106,9 @@ export function ShapeBlur({
       const target = mark.current
       if (target === null) return
 
-      // La position rendue par le crochet est centree sur zero et bornee a
-      // un ; la zone la ramene en pixels, et la moitie du cote recentre la
-      // forme sur le point suivi.
+      // The position returned by the hook is centred on zero and clamped to
+      // one; the area brings it back to pixels, and half the side recentres
+      // the shape on the tracked point.
       const box = host.getBoundingClientRect()
       const x = ((pointer.current.x + 1) / 2) * box.width - size / 2
       const y = ((pointer.current.y + 1) / 2) * box.height - size / 2
@@ -118,9 +116,8 @@ export function ShapeBlur({
       target.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0)`
     }
 
-    // Sans mouvement, le crochet reste au repos : la forme est posee une fois
-    // au centre, et aucune boucle ne recopie la meme valeur soixante fois par
-    // seconde.
+    // With no motion, the hook stays at rest: the shape is placed once at the
+    // centre, and no loop copies the same value sixty times a second.
     if (reduced) {
       place()
       return
@@ -128,7 +125,7 @@ export function ShapeBlur({
 
     const subscription = clock.subscribe(place, {
       priority: CLOCK_PRIORITY.render,
-      name: 'forme floue',
+      name: 'blurred shape',
     })
 
     return () => subscription.unsubscribe()
@@ -153,8 +150,8 @@ export function ShapeBlur({
           backgroundColor: color,
           clipPath: CLIPS[shape],
           filter: `blur(${String(blur)}px)`,
-          // Sous le contenu, jamais devant : la forme est un decor, et le
-          // texte doit rester net par-dessus.
+          // Under the content, never in front: the shape is decor, and the
+          // text must stay crisp over it.
           zIndex: -1,
         }}
       />

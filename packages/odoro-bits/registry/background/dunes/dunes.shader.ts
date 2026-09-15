@@ -1,25 +1,24 @@
 /**
- * Shader des dunes.
+ * Shader for the dunes.
  *
- * ## L'idee mathematique
+ * ## The mathematical idea
  *
- * Des cretes superposees : n courbes horizon — un sinus charpente plus un
- * bruit de valeur qui casse sa regularite — empilees du haut vers le bas.
- * Chaque couche recouvre la precedente par un simple seuillage vertical, et
- * derive a sa propre vitesse : c'est la parallaxe qui donne la profondeur,
- * pas un degrade. Les couches basses sont plus claires, comme un sable qui
- * recoit la lumiere rasante.
+ * Stacked crests: n horizon curves — a load-bearing sine plus a value noise
+ * that breaks its regularity — stacked from top to bottom. Each layer covers
+ * the previous one through a plain vertical threshold, and drifts at its own
+ * speed: it is the parallax that gives the depth, not a gradient. The lower
+ * layers are lighter, like sand catching the grazing light.
  *
  * ## Uniforms
  *
- * - `uTime` — temps en secondes, fourni par le moteur.
- * - `uResolution` — taille du canevas en pixels, fournie par le moteur.
- * - `uColorA` — le ciel.
- * - `uColorB` — la crete la plus lointaine.
- * - `uColorC` — la crete la plus proche, la plus claire.
- * - `uSpeed` — vitesse de derive des couches.
- * - `uLayers` — nombre de cretes empilees.
- * - `uAmplitude` — hauteur des ondulations.
+ * - `uTime` — time in seconds, supplied by the engine.
+ * - `uResolution` — canvas size in pixels, supplied by the engine.
+ * - `uColorA` — the sky.
+ * - `uColorB` — the farthest crest.
+ * - `uColorC` — the nearest crest, the lightest one.
+ * - `uSpeed` — drift speed of the layers.
+ * - `uLayers` — number of stacked crests.
+ * - `uAmplitude` — height of the undulations.
  */
 export const DUNES_FRAGMENT = /* glsl */ `
 precision highp float;
@@ -35,13 +34,13 @@ uniform float uSpeed;
 uniform float uLayers;
 uniform float uAmplitude;
 
-// Nombre pseudo-aleatoire : projection sur une direction arbitraire, sinus
-// amplifie, partie fractionnaire.
+// Pseudo-random number: projection onto an arbitrary direction, amplified
+// sine, fractional part.
 float duneHash(float p) {
   return fract(sin(p * 127.1) * 43758.5453123);
 }
 
-// Bruit de valeur 1D : interpolation lissee entre deux tirages entiers.
+// 1D value noise: smoothed interpolation between two integer draws.
 float duneNoise(float p) {
   float cell = floor(p);
   float local = fract(p);
@@ -53,34 +52,34 @@ void main() {
   float aspect = uResolution.x / max(uResolution.y, 1.0);
   float x = vUv.x * aspect;
   float t = uTime * uSpeed;
-  int couches = int(clamp(uLayers, 2.0, 6.0));
+  int layers = int(clamp(uLayers, 2.0, 6.0));
 
   vec3 colour = uColorA;
 
   for (int i = 0; i < 6; i += 1) {
-    if (i >= couches) break;
+    if (i >= layers) break;
 
-    float k = float(i) / max(float(couches) - 1.0, 1.0);
+    float k = float(i) / max(float(layers) - 1.0, 1.0);
 
-    // Chaque couche descend d'un cran et ralentit : les cretes proches
-    // avancent moins que les lointaines, et ce desaccord est la parallaxe.
+    // Every layer steps down one notch and slows: the near crests advance less
+    // than the far ones, and that mismatch is the parallax.
     float base = 0.78 - k * 0.55;
     float phase = t * (1.2 - 0.9 * k) + float(i) * 4.7;
 
-    // Un sinus pour la charpente, un bruit pour casser sa regularite : le
-    // sinus seul ferait une vague mecanique, le bruit seul un trait nerveux.
-    float crete = base + uAmplitude * (
+    // A sine for the framing, a noise to break its regularity: the sine alone
+    // would make a mechanical wave, the noise alone a jittery line.
+    float crest = base + uAmplitude * (
       sin(x * 2.1 + phase) * 0.5 +
       (duneNoise(x * 3.7 + phase * 0.6 + float(i) * 13.0) - 0.5) * 1.0
     );
 
-    // Remplissage sous la courbe : la couche recouvre tout ce qui est
-    // au-dessous d'elle, avec un bord adouci d'un demi-pour-cent d'ecran.
-    float dessous = smoothstep(crete + 0.004, crete - 0.004, vUv.y);
+    // Fill under the curve: the layer covers everything below it, with an edge
+    // softened over half a percent of the screen.
+    float below = smoothstep(crest + 0.004, crest - 0.004, vUv.y);
 
-    // Plus proche, plus clair : la teinte de couche va du lointain au rasant.
-    vec3 teinte = mix(uColorB, uColorC, k);
-    colour = mix(colour, teinte, dessous);
+    // Nearer, lighter: the layer tint runs from the far to the grazing one.
+    vec3 tint = mix(uColorB, uColorC, k);
+    colour = mix(colour, tint, below);
   }
 
   gl_FragColor = vec4(colour, 1.0);

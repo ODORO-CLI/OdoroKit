@@ -1,31 +1,31 @@
 /**
- * Shader du degrade granuleux.
+ * Grainient shader.
  *
- * ## L'idee mathematique
+ * ## The mathematical idea
  *
- * Un degrade de taches, comme la nappe de couleurs, mais dont la matiere
- * est du grain. Chaque tache est une gaussienne de la distance a un centre
- * qui decrit une courbe de Lissajous lente ; les taches paires portent une
- * teinte, les impaires l'autre.
+ * A gradient of blobs, like the sheet of colours, but whose substance is
+ * grain. Each blob is a gaussian of the distance to a centre tracing a slow
+ * Lissajous curve; the even blobs carry one hue, the odd ones the
+ * other.
  *
- * Le grain n'est pas pose sur l'image apres coup : il est dans le degrade.
- * Un nombre pseudo-aleatoire par pixel, renouvele a douze images par
- * seconde, decale le poids de chaque teinte avant le melange. Les
- * transitions se dissolvent en points au lieu de s'etaler, ce qui donne
- * l'aspect imprime. Le fond, lui, reste intact : le grain ne vit que la ou
- * il y a de la couleur.
+ * The grain is not laid over the image afterwards: it is in the gradient. A
+ * pseudo-random number per pixel, renewed twelve times a second, shifts the
+ * weight of each hue before the mix. The transitions dissolve into dots
+ * instead of spreading, which gives the printed look. The background itself
+ * stays intact: the grain lives only where there is
+ * colour.
  *
  * ## Uniforms
  *
- * - `uTime` — temps en secondes, fourni par le moteur.
- * - `uResolution` — taille du canevas en pixels, fournie par le moteur.
- * - `uColorA` — le fond.
- * - `uColorB` — la teinte des taches paires.
- * - `uColorC` — la teinte des taches impaires.
- * - `uSpeed` — vitesse de derive des taches.
- * - `uGrain` — force du grain.
- * - `uScale` — taille des taches.
- * - `uBlobs` — nombre de taches, et donc leur cout.
+ * - `uTime` — time in seconds, supplied by the engine.
+ * - `uResolution` — canvas size in pixels, supplied by the engine.
+ * - `uColorA` — the background.
+ * - `uColorB` — the hue of the even blobs.
+ * - `uColorC` — the hue of the odd blobs.
+ * - `uSpeed` — drift speed of the blobs.
+ * - `uGrain` — strength of the grain.
+ * - `uScale` — size of the blobs.
+ * - `uBlobs` — number of blobs, and so their cost.
  */
 export const GRAINIENT_FRAGMENT = /* glsl */ `
 precision highp float;
@@ -42,12 +42,12 @@ uniform float uGrain;
 uniform float uScale;
 uniform float uBlobs;
 
-// Nombre pseudo-aleatoire d'un indice : sinus amplifie, partie fractionnaire.
+// Pseudo-random number from an index: amplified sine, fractional part.
 float grainHash(float p) {
   return fract(sin(p * 127.1) * 43758.5453123);
 }
 
-// Nombre pseudo-aleatoire d'un point : projection, sinus amplifie.
+// Pseudo-random number from a point: projection, amplified sine.
 float grainHash2(vec2 p) {
   return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453123);
 }
@@ -56,17 +56,17 @@ void main() {
   float aspect = uResolution.x / max(uResolution.y, 1.0);
   vec2 p = vec2(vUv.x * aspect, vUv.y);
   float t = uTime * uSpeed;
-  int taches = int(clamp(uBlobs, 1.0, 6.0));
-  float rayon = max(uScale, 0.2) * 0.45;
+  int blobs = int(clamp(uBlobs, 1.0, 6.0));
+  float radius = max(uScale, 0.2) * 0.45;
 
-  // Les poids des deux teintes : une gaussienne par tache, sommee par parite.
-  float poidsB = 0.0;
-  float poidsC = 0.0;
+  // The weights of the two hues: one gaussian per blob, summed by parity.
+  float weightB = 0.0;
+  float weightC = 0.0;
 
-  // Borne constante : la specification du langage l'exige. Six taches
-  // suffisent ; au-dela, elles se recouvrent et le degrade devient uniforme.
+  // Constant bound: the language specification demands it. Six blobs are
+  // enough; beyond that they overlap and the gradient becomes uniform.
   for (int i = 0; i < 6; i += 1) {
-    if (i >= taches) break;
+    if (i >= blobs) break;
     float fi = float(i);
     float h1 = grainHash(fi + 1.0);
     float h2 = grainHash(fi + 11.0);
@@ -76,26 +76,26 @@ void main() {
       0.5 + 0.38 * cos(t * (0.25 + h3 * 0.5) + h1 * 6.2831)
     ) * vec2(aspect, 1.0);
     vec2 d = p - centre;
-    float poids = exp(-dot(d, d) / (rayon * rayon));
-    if (mod(fi, 2.0) < 0.5) poidsB += poids; else poidsC += poids;
+    float weight = exp(-dot(d, d) / (radius * radius));
+    if (mod(fi, 2.0) < 0.5) weightB += weight; else weightC += weight;
   }
 
-  // Le grain : un tirage par pixel, renouvele a douze images par seconde —
-  // plus vite, il bourdonne ; moins vite, il scintille.
+  // The grain: one draw per pixel, renewed twelve times a second — faster,
+  // it buzzes; slower, it flickers.
   float image = floor(uTime * 12.0);
   float grain = grainHash2(gl_FragCoord.xy + image * 7.13) - 0.5;
-  float force = clamp(uGrain, 0.0, 1.0) * 0.45;
+  float strength = clamp(uGrain, 0.0, 1.0) * 0.45;
 
-  // Le grain decale les poids avant le melange : il ne vit que la ou il y a
-  // de la couleur, et n'atteint jamais le fond nu.
-  float kB = clamp(poidsB + grain * force * smoothstep(0.0, 0.5, poidsB), 0.0, 1.0);
-  float kC = clamp(poidsC + grain * force * smoothstep(0.0, 0.5, poidsC), 0.0, 1.0);
+  // The grain shifts the weights before the mix: it lives only where there
+  // is colour, and never reaches the bare background.
+  float kB = clamp(weightB + grain * strength * smoothstep(0.0, 0.5, weightB), 0.0, 1.0);
+  float kC = clamp(weightC + grain * strength * smoothstep(0.0, 0.5, weightC), 0.0, 1.0);
 
   vec3 colour = mix(uColorA, uColorB, kB);
   colour = mix(colour, uColorC, kC);
 
-  // Un leger grain de luminance sur la couleur, pour l'aspect imprime.
-  colour += mix(uColorB, uColorC, 0.5) * grain * force * 0.25 * max(kB, kC);
+  // A slight luminance grain over the colour, for the printed look.
+  colour += mix(uColorB, uColorC, 0.5) * grain * strength * 0.25 * max(kB, kC);
 
   gl_FragColor = vec4(clamp(colour, 0.0, 1.0), 1.0);
 }

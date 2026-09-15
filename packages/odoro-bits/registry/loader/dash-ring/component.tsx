@@ -1,31 +1,30 @@
 /**
- * Anneau en tirets : le motif glisse le long du cercle, rien ne tourne.
+ * Dashed ring: the pattern slides along the circle, nothing rotates.
  *
- * ## Un decalage, pas une rotation
+ * ## An offset, not a rotation
  *
- * Le cercle est complet et immobile. Ce qui bouge est le decalage de son
- * tirete : chaque image, le motif est repris un peu plus loin sur le trace,
- * et les tirets semblent couler le long de l'anneau. La difference avec une
- * rotation se voit a l'oeil nu : aucun tiret n'a de tete ni de queue, le
- * mouvement est celui d'une chaine, pas d'une aiguille.
+ * The circle is complete and still. What moves is the offset of its dash
+ * pattern: on every frame, the pattern is picked up a little further along the
+ * path, and the dashes seem to flow around the ring. The difference from a
+ * rotation is plain to the eye: no dash has a head or a tail, the movement is
+ * that of a chain, not of a needle.
  *
- * Le pas du motif est une fraction exacte de la circonference — c'est le
- * seul moyen d'obtenir une boucle sans couture : un decalage d'une
- * circonference complete remet le motif exactement sur lui-meme.
+ * The pitch of the pattern is an exact fraction of the circumference — that is
+ * the only way to get a seamless loop: an offset of one full circumference
+ * puts the pattern exactly back onto itself.
  *
- * Le decalage du tirete n'est pas une propriete tenue par le compositeur :
- * l'anneau est repeint a chaque image. A la taille d'un chargeur, c'est un
- * cout invisible ; c'est le prix d'un mouvement qu'une rotation ne peut
- * pas produire.
+ * The dash offset is not a property the compositor holds: the ring is
+ * repainted on every frame. At the size of a loader, that is an invisible
+ * cost; it is the price of a movement a rotation cannot produce.
  *
- * ## Un statut, pas un dessin
+ * ## A status, not a drawing
  *
- * L'element porte `role="status"` et un libelle pour les lecteurs d'ecran :
- * l'attente est une information, pas une decoration. Le dessin, lui, est
- * retire de l'arbre d'accessibilite.
+ * The element carries `role="status"` and a label for screen readers: waiting
+ * is information, not decoration. The drawing itself is removed from the
+ * accessibility tree.
  *
- * Sous mouvement reduit, le tirete reste en place : un anneau en tirets se
- * lit encore comme un chargeur, seul le mouvement s'arrete.
+ * Under reduced motion, the dash pattern stays put: a dashed ring still reads
+ * as a loader, only the movement stops.
  *
  * @module
  */
@@ -33,10 +32,10 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-dash-ring'
 
-/** Pose le glissement du tirete, une fois par document. */
+/** Sets up the gliding of the dash pattern, once per document. */
 function ensureDashRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -49,8 +48,8 @@ function ensureDashRule(): void {
     '[data-o-dash-path]{',
     'animation:o-dash-ring-glide var(--o-dash-speed) linear infinite;',
     '}',
-    // La fin de course est une circonference entiere, en negatif : le motif
-    // avance dans le sens horaire et retombe sur lui-meme.
+    // The end of the run is a whole circumference, negative: the pattern moves
+    // clockwise and falls back onto itself.
     '@keyframes o-dash-ring-glide{',
     'from{stroke-dashoffset:0}',
     'to{stroke-dashoffset:var(--o-dash-loop)}',
@@ -62,33 +61,33 @@ function ensureDashRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** Props of the component itself. */
 export interface DashRingOwnProps {
-  /** Diametre de l'anneau, en pixels. @defaultValue 48 */
+  /** Diameter of the ring, in pixels. @defaultValue 48 */
   size?: number
-  /** Epaisseur des tirets, en pixels. @defaultValue 4 */
+  /** Thickness of the dashes, in pixels. @defaultValue 4 */
   thickness?: number
-  /** Nombre de tirets sur le tour. @defaultValue 12 */
+  /** Number of dashes around the turn. @defaultValue 12 */
   dashes?: number
-  /** Duree pour qu'un tiret fasse le tour complet, en millisecondes. @defaultValue 2400 */
+  /** Time for one dash to go all the way round, in milliseconds. @defaultValue 2400 */
   speed?: number
-  /** Couleur des tirets. @defaultValue la couleur du texte */
+  /** Colour of the dashes. @defaultValue the text colour */
   color?: string
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */
+  /** Label announced to screen readers. @defaultValue 'Loading' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All the props. */
 export type DashRingProps = Customisable<DashRingOwnProps, 'span'>
 
 /**
- * Signale une attente par un tirete qui coule le long d'un anneau.
+ * Signals a wait through a dash pattern flowing around a ring.
  *
  * @example
  * <DashRing />
  *
  * @example
- * // Plus de tirets, plus fins, dans la teinte de marque.
+ * // More dashes, thinner, in the brand hue.
  * <DashRing dashes={24} thickness={2} color="var(--o-palette-brand-500)" />
  */
 export function DashRing({
@@ -97,20 +96,20 @@ export function DashRing({
   dashes = 12,
   speed = 2400,
   color = 'currentColor',
-  label = 'Chargement',
+  label = 'Loading',
   ...rest
 }: DashRingProps): ReactElement {
   ensureDashRule()
 
   const { className, style } = mergePresentation({}, rest)
 
-  // Le dessin vit dans une vue de 100 unites : l'epaisseur demandee en
-  // pixels est convertie pour que le trait garde sa mesure a toute taille.
+  // The drawing lives in a view of 100 units: the thickness asked for in
+  // pixels is converted so that the stroke keeps its measure at any size.
   const stroke = Math.min((thickness / size) * 100, 25)
   const radius = 50 - stroke / 2
   const circumference = 2 * Math.PI * radius
 
-  // Le pas divise exactement la circonference : la boucle est sans couture.
+  // The pitch divides the circumference exactly: the loop is seamless.
   const count = Math.max(1, Math.round(dashes))
   const period = circumference / count
   const dash = period * 0.55

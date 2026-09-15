@@ -5,7 +5,7 @@
  */
 
 import { Icon, type IconData } from '@odoro-cli/icons'
-import { ArrowRight, Bell, Check, Heart, Search, Star } from '@odoro-cli/icons/filaire'
+import { ArrowRight, Bell, Check, Heart, Search, Star } from '@odoro-cli/icons/outline'
 import { type ReactElement } from 'react'
 
 import { CodeBlock } from '../components/CodeBlock.jsx'
@@ -14,7 +14,7 @@ import { Callout, PageHeader, Section } from '../components/DocBlocks.jsx'
 /** Ce que chaque jeu apporte, et ce qu'il coute. */
 const JEUX = [
   {
-    module: 'filaire',
+    module: 'outline',
     titre: 'Filaire',
     nombre: 2048,
     grille: '24 · trait de 2',
@@ -30,7 +30,7 @@ const JEUX = [
       'Dessine pour de petites tailles. A seize pixels, il reste lisible là où un trace au trait se brouille.',
   },
   {
-    module: 'classique',
+    module: 'classic',
     titre: 'Classique',
     nombre: 2001,
     grille: '512 · plein',
@@ -38,7 +38,7 @@ const JEUX = [
       'Le vocabulaire graphique du web depuis quinze ans. Dense, immediatement reconnaissable, peu neutre.',
   },
   {
-    module: 'etendu',
+    module: 'extended',
     titre: 'Étendu',
     nombre: 3903,
     grille: '960 · contour',
@@ -46,7 +46,7 @@ const JEUX = [
       'De loin le plus vaste. Il couvre des domaines que les autres ignorent, au prix d’une qualité inegale.',
   },
   {
-    module: 'marques',
+    module: 'brands',
     titre: 'Marques',
     nombre: 609,
     grille: '512 · plein',
@@ -95,7 +95,7 @@ export function IconesOverview(): ReactElement {
         <CodeBlock
           lang="tsx"
           code={`import { Icon } from '@odoro-cli/icons'
-import { Download, Search } from '@odoro-cli/icons/filaire'
+import { Download, Search } from '@odoro-cli/icons/outline'
 
 // Decorative, a cote d'un mot : elle grandit avec lui.
 <button className="o-inline-flex o-items-center o-gap-2 o-text-brand-600">

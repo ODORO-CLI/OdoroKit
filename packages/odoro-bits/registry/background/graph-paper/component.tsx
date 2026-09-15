@@ -1,20 +1,20 @@
 /**
- * Papier millimetre : deux quadrillages emboites, en degrades repetes.
+ * Graph paper: two nested grids, as repeated gradients.
  *
- * ## Pourquoi deux mailles plutot qu'une
+ * ## Why two meshes rather than one
  *
- * Un quadrillage simple donne une texture ; le papier millimetre donne une
- * echelle. C'est la maille epaisse, posee toutes les cinq mailles fines, qui
- * produit cette lecture : l'oeil groupe les petites cellules par paquets et la
- * surface devient mesurable au lieu d'etre seulement reguliere.
+ * A plain grid gives a texture; graph paper gives a scale. It is the thick
+ * mesh, laid down every five fine meshes, that produces that reading: the eye
+ * groups the small cells into packs and the surface becomes measurable
+ * instead of merely regular.
  *
- * ## Pourquoi aucun script
+ * ## Why no script
  *
- * Quatre degrades lineaires repetes decrivent exactement le motif, et le
- * compositeur du navigateur les dessine seul. Une surface graphique ou un
- * canvas coutera toujours plus pour un resultat identique — et l'arbitre
- * n'accorde qu'une surface par backend, alors que celui-ci se pose autant de
- * fois qu'on veut.
+ * Four repeated linear gradients describe the pattern exactly, and the
+ * browser compositor draws them on its own. A graphics surface or a canvas
+ * will always cost more for an identical result — and the arbiter grants
+ * only one surface per backend, whereas this one can be placed as many
+ * times as one likes.
  *
  * @module
  */
@@ -22,23 +22,23 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import { type CSSProperties, type ReactElement } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to this component. */
 export interface GraphPaperOwnProps {
-  /** Pas de la maille fine, en pixels. La maille epaisse en vaut cinq. @defaultValue 8 */
+  /** Fine mesh pitch, in pixels. The thick mesh is worth five of them. @defaultValue 8 */
   size?: number
-  /** Opacite des traits, entre 0 et 1. @defaultValue 0.4 */
+  /** Stroke opacity, between 0 and 1. @defaultValue 0.4 */
   strength?: number
-  /** Couleur des traits. */
+  /** Stroke colour. */
   color?: string
-  /** Couleur du fond. */
+  /** Background colour. */
   background?: string
 }
 
-/** Toutes les proprietes. */
+/** Every property. */
 export type GraphPaperProps = Customisable<GraphPaperOwnProps>
 
 /**
- * Papier millimetre de fond.
+ * Background graph paper.
  *
  * @example
  * <div className="o-relative o-min-h-screen">
@@ -53,8 +53,8 @@ export function GraphPaper({
   background = 'var(--o-theme-bg, oklch(98.5% 0 0))',
   ...rest
 }: GraphPaperProps): ReactElement {
-  // La maille fine est volontairement plus palie que l'epaisse : c'est cet
-  // ecart, pas la couleur, qui fait lire les paquets de cinq.
+  // The fine mesh is deliberately paler than the thick one: it is that gap,
+  // not the colour, that makes the packs of five readable.
   const fine = `color-mix(in oklab, ${color} ${String(Math.round(strength * 45))}%, transparent)`
   const bold = `color-mix(in oklab, ${color} ${String(Math.round(strength * 100))}%, transparent)`
   const step = `${String(size)}px`

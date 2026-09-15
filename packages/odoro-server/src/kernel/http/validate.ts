@@ -1,32 +1,32 @@
 /**
- * Validation des entrées.
+ * Validation of the inputs.
  *
- * ## Une seule entrée, trois provenances
+ * ## One single input, three origins
  *
- * Le corps, les paramètres d'URL et la chaîne de requête arrivent par trois
- * canaux et sont fusionnés en un seul objet avant validation. Le handler reçoit
- * `input`, sans avoir à savoir d'où chaque champ vient.
+ * The body, the URL parameters and the query string arrive through three
+ * channels and are merged into a single object before validation. The handler receives
+ * `input`, without having to know where each field comes from.
  *
- * Ce n'est pas qu'une commodité. Une route qui déplacerait un champ du corps
- * vers la chaîne de requête ne changerait alors ni son schéma, ni son handler,
- * ni le client — seulement son chemin.
+ * It is not only a convenience. A route that moved a field from the body
+ * to the query string would then change neither its schema, nor its handler,
+ * nor the client — only its path.
  *
- * ## L'ordre de fusion, et pourquoi il est celui-là
+ * ## The merge order, and why it is that one
  *
- * Les paramètres d'URL l'emportent sur la chaîne de requête, qui l'emporte sur
- * le corps. Le paramètre d'URL fait partie de l'adresse : `/users/:id` désigne
- * un utilisateur, et un `id` glissé dans le corps ne doit pas pouvoir en
- * désigner un autre.
+ * The URL parameters win over the query string, which wins over
+ * the body. The URL parameter is part of the address: `/users/:id` designates
+ * a user, and an `id` slipped into the body must not be able to
+ * designate another one.
  *
- * L'inverse est une élévation de privilège classique — on lit l'identité dans
- * le chemin pour autoriser, puis on agit sur celle du corps.
+ * The reverse is a classic privilege escalation — the identity is read in
+ * the path to authorize, then one acts on the one of the body.
  *
- * ## Les erreurs par champ
+ * ## The errors by field
  *
- * Une entrée refusée produit un document `problem+json` portant `errors`, une
- * ligne par champ fautif, avec le chemin en notation pointée. C'est ce que le
- * client de la phase 4 redistribue sur les champs du formulaire, et c'est ce
- * qui évite d'écrire trois fois la même logique de messages.
+ * A refused input produces a `problem+json` document carrying `errors`, one
+ * line per faulty field, with the path in dotted notation. That is what the
+ * client of phase 4 spreads over the fields of the form, and that is what
+ * avoids writing the same message logic three times.
  *
  * @module
  */
@@ -37,10 +37,10 @@ import type { z } from 'zod'
 import { ValidationError, type FieldError } from './errors.js'
 
 /**
- * Fusionne les trois provenances.
+ * Merges the three origins.
  *
- * Exportée pour être testée seule : l'ordre de précédence est une décision de
- * sécurité, pas un détail d'implémentation.
+ * Exported to be tested on its own: the order of precedence is a decision of
+ * security, not an implementation detail.
  */
 export function mergeSources(request: Request): Record<string, unknown> {
   const body =
@@ -48,31 +48,31 @@ export function mergeSources(request: Request): Record<string, unknown> {
       ? (request.body as Record<string, unknown>)
       : {}
 
-  // Du moins prioritaire au plus prioritaire. Le parametre d'URL gagne parce
-  // qu'il fait partie de l'adresse : un `id` glisse dans le corps ne doit pas
-  // pouvoir designer une autre ressource que celle que le chemin nomme.
+  // From the least prioritary to the most prioritary. The URL parameter wins because
+  // it is part of the address: an `id` slipped into the body must not
+  // be able to designate another resource than the one the path names.
   return { ...body, ...request.query, ...request.params }
 }
 
 /**
- * Traduit les problèmes d'un schéma en erreurs par champ.
+ * Translates the problems of a schema into errors by field.
  *
- * Le chemin est rendu en notation pointée — `adresse.ville`, `lignes.0.prix` —
- * parce que c'est ainsi que les bibliothèques de formulaires désignent leurs
- * champs, et que le client doit pouvoir faire la correspondance sans
- * traduction.
+ * The path is given in dotted notation — `address.city`, `lines.0.price` —
+ * because that is how the form libraries designate their
+ * fields, and because the client must be able to make the match without
+ * translation.
  */
 export function toFieldErrors(error: z.ZodError): readonly FieldError[] {
   return error.issues.map((issue) => ({
-    field: issue.path.map(String).join('.') || '(racine)',
+    field: issue.path.map(String).join('.') || '(root)',
     message: issue.message,
   }))
 }
 
 /**
- * Valide une entrée contre un schéma.
+ * Validates an input against a schema.
  *
- * @throws {ValidationError} Avec le détail par champ.
+ * @throws {ValidationError} With the detail by field.
  */
 export function validateInput<Schema extends z.ZodType>(
   schema: Schema,
@@ -85,22 +85,22 @@ export function validateInput<Schema extends z.ZodType>(
 }
 
 /**
- * Valide une sortie contre son schéma.
+ * Validates an output against its schema.
  *
- * ## Pourquoi valider ce qu'on émet
+ * ## Why validate what one emits
  *
- * Un schéma de sortie sert d'abord à typer le client. Le faire **appliquer** au
- * moment de la réponse en fait autre chose : la garantie qu'aucun champ non
- * déclaré ne sort.
+ * An output schema serves first to type the client. Having it **enforced** at
+ * the moment of the response makes it something else: the guarantee that no
+ * undeclared field comes out.
  *
- * C'est ce qui rend la règle « aucune entité de base n'est renvoyée
- * directement » vérifiable plutôt que seulement écrite. Un service qui rendrait
- * la ligne complète — hachage de mot de passe et jeton de réinitialisation
- * compris — voit ces champs retirés ici, parce qu'un objet Zod ne conserve que
- * ce qu'il déclare.
+ * That is what makes the rule "no database entity is returned
+ * directly" checkable rather than only written. A service that gave back
+ * the complete row — password hash and reset token
+ * included — sees these fields removed here, because a Zod object only keeps
+ * what it declares.
  *
- * En développement, un champ inattendu fait en plus **échouer** la requête :
- * la fuite est alors trouvée en écrivant la route, pas en auditant la
+ * In development, an unexpected field also makes the request **fail**:
+ * the leak is then found while writing the route, not while auditing
  * production.
  */
 export function validateOutput<Schema extends z.ZodType>(
@@ -113,15 +113,15 @@ export function validateOutput<Schema extends z.ZodType>(
   if (!result.success) {
     if (strict) {
       throw new Error(
-        `La reponse ne respecte pas son schema de sortie : ` +
+        `The response does not comply with its output schema: ` +
           toFieldErrors(result.error)
             .map(({ field, message }) => `${field} — ${message}`)
             .join(' ; '),
       )
     }
-    // En production, une sortie non conforme ne doit pas transformer une
-    // reponse correcte en erreur 500 : l'erreur remonte au journal, et
-    // l'appelant recoit ce que le schema a pu retenir.
+    // In production, a non-compliant output must not turn a
+    // correct response into a 500 error: the error goes up to the log, and
+    // the caller receives what the schema was able to keep.
     return value as z.infer<Schema>
   }
 

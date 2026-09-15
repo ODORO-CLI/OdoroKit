@@ -1,21 +1,21 @@
 /**
- * Truchet : des tuiles a deux arcs qui pivotent en cascade.
+ * Truchet: two-arc tiles that pivot in a cascade.
  *
- * ## Pourquoi un quart de tour, et pas un demi
+ * ## Why a quarter turn, and not a half
  *
- * Un demi-tour ramene une tuile de Truchet sur elle-meme : rien ne
- * changerait. Le quart de tour est la plus petite rotation qui recompose le
- * pavage, et l'animer suffit a montrer d'ou vient le nouveau dessin.
+ * A half turn brings a Truchet tile back onto itself: nothing would change.
+ * The quarter turn is the smallest rotation that recomposes the tiling, and
+ * animating it is enough to show where the new drawing comes from.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur.
+ * It carries only what sets it apart: its shader, its settings and its
+ * fallback. Reading the tokens, converting them to floats and re-reading them
+ * when the theme changes all come from the engine.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface et sous
- * mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface and under reduced
+ * motion.
  *
  * @module
  */
@@ -32,43 +32,43 @@ import { type ReactElement } from 'react'
 
 import { TRUCHET_FRAGMENT } from './truchet.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface TruchetControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to this component. */
 export interface TruchetOwnProps {
-  /** Cadence des pivots, en periodes par seconde. @defaultValue 0.35 */
+  /** Rate of the pivots, in periods per second. @defaultValue 0.35 */
   speed?: number
-  /** Nombre de tuiles sur la hauteur. @defaultValue 8 */
+  /** Number of tiles over the height. @defaultValue 8 */
   density?: number
-  /** Epaisseur des arcs, en fraction de la tuile. @defaultValue 0.09 */
+  /** Thickness of the arcs, as a fraction of the tile. @defaultValue 0.09 */
   thickness?: number
-  /** Retard diagonal entre deux tuiles voisines, en periodes. @defaultValue 0.12 */
+  /** Diagonal delay between two neighbouring tiles, in periods. @defaultValue 0.12 */
   stagger?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<TruchetControls>
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type TruchetProps = Customisable<TruchetOwnProps>
 
-/** Tokens employes par defaut : le fond, le premier arc, le second arc. */
+/** Tokens used by default: the background, the first arc, the second arc. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-brand-500',
   '--o-palette-teal-400',
 ] as const
 
-/** Repli par defaut : une teinte figee, dans les memes tons. */
+/** Default fallback: a frozen tint, in the same tones. */
 const DEFAULT_FALLBACK = 'o-bg-zinc-50 dark:o-bg-zinc-950'
 
 /**

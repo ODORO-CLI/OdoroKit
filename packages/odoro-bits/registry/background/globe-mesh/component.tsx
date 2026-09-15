@@ -1,43 +1,43 @@
 /**
- * Globe : une boule de points dans une cage filaire qui scintille.
+ * Globe: a ball of points inside a wireframe cage that shimmers.
  *
- * Trois dessins partagent une rotation :
+ * Three draws share one rotation:
  *
- * - **les points**, une sphère de Fibonacci où chaque point ne porte qu'une
- *   direction et une graine. Son rayon, sa taille et sa couleur sont dérivés
- *   dans le shader ; plusieurs milliers coûtent donc un appel de dessin, et
- *   rien n'est écrit par image ;
- * - **la cage**, les arêtes d'un icosaèdre subdivisé, parcourues par un éclat
- *   qui court le long de chaque fil ou traverse la boule d'une bande ;
- * - **les panneaux**, les faces du même icosaèdre, invisibles jusqu'à ce que le
- *   pointeur arrive.
+ * - **the points**, a Fibonacci sphere where each point carries nothing but a
+ *   direction and a seed. Its radius, its size and its colour are derived in
+ *   the shader; several thousand of them therefore cost one draw call, and
+ *   nothing is written per frame;
+ * - **the cage**, the edges of a subdivided icosahedron, travelled by a glint
+ *   that runs along each strand or crosses the ball as a band;
+ * - **the panels**, the faces of the same icosahedron, invisible until the
+ *   pointer arrives.
  *
- * ## Ce que le portage a changé, et pourquoi
+ * ## What the port changed, and why
  *
- * **Le shader ne compilait pas.** Le fragment de la cage écrivait
- * `float head = fract(vSeed + uTime * uShimmer)` sans point-virgule. WebGL ne
- * lève rien qu'on voie : la cage était simplement absente.
+ * **The shader did not compile.** The cage fragment wrote
+ * `float head = fract(vSeed + uTime * uShimmer)` with no semicolon. WebGL
+ * raises nothing one can see: the cage was simply missing.
  *
- * **Les réglages étaient recalculés à chaque image.** `settingsFor` était
- * appelée depuis la boucle *et* depuis le calcul du pointeur, allouant deux
- * objets par image pour des valeurs qui ne changent qu'à l'édition d'une prop.
- * Elles sont désormais mémorisées.
+ * **The settings were recomputed on every frame.** `settingsFor` was called
+ * from the loop *and* from the pointer computation, allocating two objects per
+ * frame for values that only change when a prop is edited. They are memoised
+ * from now on.
  *
- * **La boucle, l'observateur de taille et la caméra étaient tenus à la main.**
- * Le moteur les porte déjà : `useScene` arbitre la surface, suit le
- * redimensionnement, suspend hors du champ et s'abonne à la boucle unique. Un
- * `requestAnimationFrame` de plus, c'est deux boucles concurrentes sur la page.
+ * **The loop, the size observer and the camera were held by hand.** The engine
+ * already carries them: `useScene` arbitrates the surface, follows the
+ * resizing, suspends out of view and subscribes to the single loop. One more
+ * `requestAnimationFrame` means two competing loops on the page.
  *
- * **Les couleurs étaient écrites en dur** — un blanc, un vert, un lilas, deux
- * teintes de vague. Elles viennent de la palette.
+ * **The colours were hard-coded** — a white, a green, a lilac, two wave hues.
+ * They come from the palette.
  *
- * ## Le pointeur est une direction, pas une position
+ * ## The pointer is a direction, not a position
  *
- * Son rayon est intersecté avec la boule, et le point touché est repoussé à
- * travers la rotation du groupe, dans l'espace objet. C'est ce qui permet à un
- * panneau allumé de rester sur la même face pendant que le globe tourne.
- * Comparer des positions d'écran laisse au contraire la tache immobile pendant
- * que la géométrie glisse dessous.
+ * Its ray is intersected with the ball, and the point it touches is pushed back
+ * through the rotation of the group, into object space. That is what lets a lit
+ * panel stay on the same face while the globe turns. Comparing screen
+ * positions, on the contrary, leaves the spot motionless while the geometry
+ * slides underneath.
  *
  * @module
  */
@@ -63,35 +63,35 @@ import {
   GLOBE_SOURCES,
 } from './globe-mesh.shader.js'
 
-/** Style de l'eclat qui parcourt la cage. */
+/** Style of the glint that travels the cage. */
 export type GlobeShimmer = 'edge' | 'sweep'
 
-/** Proprietes propres au composant. */
+/** Properties specific to this component. */
 export interface GlobeMeshOwnProps {
-  /** Densite du nuage, de 1 a 20. @defaultValue 14 */
+  /** Density of the cloud, from 1 to 20. @defaultValue 14 */
   density?: number
-  /** Vitesse de rotation, de 0 a 20. Zero n'arrete que la derive propre. @defaultValue 8 */
+  /** Rotation speed, from 0 to 20. Zero stops only the drift of its own. @defaultValue 8 */
   spin?: number
-  /** Sens de rotation. @defaultValue 'right' */
+  /** Direction of rotation. @defaultValue 'right' */
   spinDir?: 'left' | 'right'
-  /** Subdivision de la cage, de 0 a 3. @defaultValue 1 */
+  /** Subdivision of the cage, from 0 to 3. @defaultValue 1 */
   detail?: number
-  /** Style de l'eclat. @defaultValue 'sweep' */
+  /** Style of the glint. @defaultValue 'sweep' */
   shimmer?: GlobeShimmer
-  /** Angle du balayage, en degres. @defaultValue 90 */
+  /** Angle of the sweep, in degrees. @defaultValue 90 */
   sweepAngle?: number
-  /** Reagit au pointeur. @defaultValue true */
+  /** Reacts to the pointer. @defaultValue true */
   interactive?: boolean
-  /** Tokens des points, de la cage, de l'eclat et des deux vagues. */
+  /** Tokens of the points, the cage, the glint and the two waves. */
   colors?: readonly [string, string, string, string, string]
-  /** Classes du repli. */
+  /** Fallback classes. */
   poster?: string
 }
 
-/** Toutes les proprietes. */
+/** Every property. */
 export type GlobeMeshProps = Customisable<GlobeMeshOwnProps>
 
-/** Tokens employes par defaut. */
+/** Tokens used by default. */
 const DEFAULT_TOKENS = [
   '--o-theme-fg',
   '--o-palette-emerald-400',
@@ -100,23 +100,23 @@ const DEFAULT_TOKENS = [
   '--o-palette-rose-400',
 ] as const
 
-/** Repli par defaut. */
+/** Default fallback. */
 const DEFAULT_POSTER =
   'o-bg-gradient-to-br o-from-zinc-100 dark:o-from-zinc-900 o-to-zinc-50 dark:o-to-zinc-950'
 
-/** Distance de la cage au nuage de points. */
+/** Distance from the cage to the point cloud. */
 const CAGE = 1.18
 
-/** Sensibilite du glissement, en radians par pixel. */
+/** Sensitivity of the drag, in radians per pixel. */
 const DRAG = 0.021
 
-/** Borne une valeur. */
+/** Bounds a value. */
 function clamp(value: number, low: number, high: number): number {
   return Math.max(low, Math.min(high, Number.isFinite(value) ? value : low))
 }
 
 /**
- * Globe de points dans une cage filaire.
+ * Globe of points inside a wireframe cage.
  *
  * @example
  * <div className="o-relative o-h-96">
@@ -124,7 +124,7 @@ function clamp(value: number, low: number, high: number): number {
  * </div>
  *
  * @example
- * // L'eclat court le long des aretes plutot que de balayer la boule.
+ * // The glint runs along the edges rather than sweeping the ball.
  * <GlobeMesh shimmer="edge" detail={2} />
  */
 export function GlobeMesh({
@@ -150,8 +150,8 @@ export function GlobeMesh({
     setShades(tokenList.split(' ').map((token) => readTokenColour(token, element)))
   }, [element, tokenList, reduced, quality])
 
-  // Les reglages ne dependent que des props : les recalculer par image, comme
-  // le faisait l'original, alloue deux objets pour des valeurs immobiles.
+  // The settings depend on the props alone: recomputing them per frame, as the
+  // original did, allocates two objects for values that never move.
   const settings = useMemo(() => {
     const level = clamp(density, 1, 20)
     return {
@@ -169,9 +169,9 @@ export function GlobeMesh({
   const settingsRef = useRef(settings)
   settingsRef.current = settings
 
-  /** Ce que le pointeur vise, et la confiance qu'on lui accorde. */
+  /** What the pointer aims at, and the trust it is granted. */
   const aim = useRef({ x: 0, y: 0, grip: 0, target: 0 })
-  /** Rotation accumulee : la derive propre, puis le glissement. */
+  /** Accumulated rotation: the drift of its own, then the drag. */
   const turn = useRef({ angle: 0, dragX: 0, dragY: 0, velX: 0, velY: 0 })
   const dragging = useRef(false)
   const last = useRef({ x: 0, y: 0 })
@@ -195,9 +195,9 @@ export function GlobeMesh({
       group.name = 'globe'
       scene.add(group)
 
-      // Trois directions ni coplanaires ni voisines, chacune tournant autour
-      // de son propre axe. Des departs au hasard donnaient un bon resultat une
-      // fois sur trois et des amas les autres fois.
+      // Three directions neither coplanar nor adjacent, each turning about an
+      // axis of its own. Random starts gave a good result one time in three,
+      // and clumps the other times.
       const sources = [
         new three.Vector3(-0.6, -0.45, 0.65).normalize(),
         new three.Vector3(0.72, 0.35, 0.6).normalize(),
@@ -212,8 +212,8 @@ export function GlobeMesh({
       const waveA = colour(3)
       const waveB = colour(4)
 
-      // Un seul jeu d'uniformes partage : les points, la cage et les panneaux
-      // ne peuvent alors pas se desynchroniser d'une image.
+      // A single shared set of uniforms: the points, the cage and the panels
+      // then cannot fall a frame out of step with one another.
       const shared = {
         uTime: { value: 0 },
         uSpread: { value: 0.525 },
@@ -252,8 +252,8 @@ export function GlobeMesh({
       }
 
       const cloud = new three.BufferGeometry()
-      // `position` est exige par three meme si le shader reconstruit le point
-      // depuis `aDir` : sans lui la plage de dessin est nulle.
+      // `position` is required by three even though the shader rebuilds the
+      // point from `aDir`: without it the draw range is zero.
       cloud.setAttribute('position', new three.BufferAttribute(dirs, 3))
       cloud.setAttribute('aDir', new three.BufferAttribute(dirs, 3))
       cloud.setAttribute('aSeed', new three.BufferAttribute(seeds, 1))
@@ -278,12 +278,12 @@ export function GlobeMesh({
       })
 
       const points = new three.Points(cloud, pointMaterial)
-      // Le shader deplace les points hors de la surface : le calcul de culling
-      // de three ne peut pas savoir ou ils sont reellement.
+      // The shader moves the points off the surface: the culling computation
+      // of three cannot know where they really are.
       points.frustumCulled = false
       group.add(points)
 
-      // La cage et ses panneaux, tires du meme icosaedre.
+      // The cage and its panels, drawn from the same icosahedron.
       const solid = new three.IcosahedronGeometry(CAGE, s.detail)
       const edges = new three.EdgesGeometry(solid)
       const edgePos = edges.attributes['position']
@@ -306,8 +306,8 @@ export function GlobeMesh({
         edges.setAttribute('aSeed', new three.BufferAttribute(edgeSeed, 1))
       }
 
-      // L'icosaedre sort non indexe : les positions sont deja en triplets, et
-      // le centre de chaque face est a trois sommets d'ecart.
+      // The icosahedron comes out unindexed: the positions already come in
+      // triplets, and the centre of each face is three vertices apart.
       const facePos = solid.attributes['position']
       if (facePos !== undefined) {
         const total = facePos.count
@@ -361,8 +361,8 @@ export function GlobeMesh({
         blending: three.AdditiveBlending,
         depthWrite: false,
         depthTest: false,
-        // Les deux faces : un panneau du fond doit se voir a travers la boule
-        // plutot que d'etre un trou dans le remplissage.
+        // Both sides: a panel at the back must show through the ball rather
+        // than be a hole in the fill.
         side: three.DoubleSide,
       })
 
@@ -373,8 +373,8 @@ export function GlobeMesh({
       group.add(panels)
       group.add(cage)
 
-      // Le pointeur : son rayon coupe la boule, et le point touche revient
-      // dans l'espace du groupe.
+      // The pointer: its ray cuts the ball, and the point it touches comes
+      // back into the space of the group.
       const hit = new three.Vector3()
       const readAim = (): void => {
         const { x, y } = aim.current
@@ -390,8 +390,8 @@ export function GlobeMesh({
         const b = 6.7 * dz
         const c = 6.7 * 6.7 - CAGE * CAGE
         const disc = b * b - c
-        // Un rate se rabat sur le point d'approche la plus proche : la tache
-        // glisse alors le long du bord au lieu de rester collee.
+        // A miss falls back on the closest approach point: the spot then
+        // slides along the rim instead of staying stuck.
         const t = disc > 0 ? -b - Math.sqrt(disc) : -b
 
         hit.set(dx * t, dy * t, 6.7 + dz * t)
@@ -403,7 +403,7 @@ export function GlobeMesh({
         }
       }
 
-      // La boucle du moteur pilote tout : rien n'est ouvert ici.
+      // The engine loop drives everything: nothing is opened here.
       const advance = (frame: SceneFrame): void => {
         const delta = Math.min(frame.delta, 0.05)
         shared.uTime.value = frame.time
@@ -430,8 +430,8 @@ export function GlobeMesh({
         }
 
         group.rotation.y = state.angle + state.dragY
-        // Basculee au-dela, la boule perd sa vue de trois quarts et la cage
-        // s'ecrase en anneaux concentriques.
+        // Tilted beyond that, the ball loses its three-quarter view and the
+        // cage flattens into concentric rings.
         group.rotation.x = clamp(state.dragX * 0.5, -1, 1)
 
         const pointer = aim.current
@@ -444,8 +444,8 @@ export function GlobeMesh({
         }
       }
 
-      // La fonction d'avance est rangee sur le groupe : `frame` la retrouve
-      // sans qu'une ref supplementaire ait a la porter.
+      // The advance function is stowed on the group: `frame` finds it again
+      // without an extra ref having to carry it.
       group.userData['advance'] = advance
 
       return () => {
@@ -465,7 +465,7 @@ export function GlobeMesh({
     },
   })
 
-  // Le pointeur : lu sur l'hote, jamais sur la fenetre entiere.
+  // The pointer: read on the host, never on the whole window.
   useEffect(() => {
     if (element === null || !interactive || reduced) return
 
@@ -481,7 +481,7 @@ export function GlobeMesh({
       last.current = { x: event.clientX, y: event.clientY }
       turn.current.dragY += dx * DRAG
       turn.current.dragX += dy * DRAG
-      // Conserve pour que le globe continue de tourner apres le relachement.
+      // Kept so that the globe carries on turning after the release.
       turn.current.velY = dx * DRAG
       turn.current.velX = dy * DRAG
     }
@@ -495,8 +495,8 @@ export function GlobeMesh({
     const up = (): void => {
       dragging.current = false
     }
-    // `enter` et `leave`, pas `over` et `out` : ces derniers se declenchent
-    // aussi quand le pointeur passe d'un enfant a l'autre.
+    // `enter` and `leave`, not `over` and `out`: the latter also fire when the
+    // pointer moves from one child to another.
     const enter = (): void => {
       aim.current.target = 1
     }
@@ -539,7 +539,7 @@ export function GlobeMesh({
       className={className}
       style={{ touchAction: 'none', ...style }}
       role="img"
-      aria-label="Globe de points dans une cage filaire"
+      aria-label="Globe of points in a wireframe cage"
     >
       {waiting.visible ? (
         <div style={waiting.style} className={`o-absolute o-inset-0 ${poster}`} />

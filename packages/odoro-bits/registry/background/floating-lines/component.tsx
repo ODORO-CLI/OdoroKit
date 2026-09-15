@@ -1,28 +1,28 @@
 /**
- * Lignes flottantes : des segments courbes fins qui derivent et se croisent.
+ * Floating lines: thin curved segments that drift and cross.
  *
- * ## Le principe
+ * ## The principle
  *
- * Chaque ligne est un segment de longueur finie, pose dans son propre repere :
- * un centre qui derive en figure de Lissajous, une inclinaison qui oscille
- * autour d'une diagonale, des extremites qui s'eteignent. Aucun trace :
- * le fragment se projette sur l'axe et la normale de chaque segment.
+ * Each line is a segment of finite length, laid in a frame of its own: a
+ * centre that drifts in a Lissajous figure, a tilt that oscillates around a
+ * diagonal, ends that fade out. Nothing is traced: the fragment projects
+ * onto the axis and the normal of each segment.
  *
- * Ce qui distingue cette entree de ses cousines : les lignes sont diagonales
- * et de longueur finie, elles derivent librement au lieu d'onduler sur place,
- * et le rythme est tres lent — c'est le croisement de deux halos qui fait
- * l'evenement, pas le mouvement.
+ * What sets this entry apart from its cousins: the lines are diagonal and of
+ * finite length, they drift freely instead of rippling in place, and the
+ * rhythm is very slow — it is the crossing of two halos that makes the
+ * event, not the movement.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur — les recopier ici en ferait autant
- * de versions a maintenir qu'il y a de fonds.
+ * It carries only what sets it apart: its shader, its settings and its fallback.
+ * Reading the tokens, converting them to floats and re-reading them when the
+ * theme changes all come from the engine — copying them here would leave as
+ * many versions to maintain as there are backgrounds.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en
- * accorde qu'une par backend — et sous mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface — it grants only one
+ * per backend — and under reduced motion.
  *
  * @module
  */
@@ -39,52 +39,52 @@ import { type ReactElement } from 'react'
 
 import { FLOATING_LINES_FRAGMENT } from './floating-lines.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface FloatingLinesControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to this component. */
 export interface FloatingLinesOwnProps {
-  /** Nombre de lignes. Borne a dix par le shader. @defaultValue 7 */
+  /** Number of lines. Capped at ten by the shader. @defaultValue 7 */
   count?: number
-  /** Vitesse de la derive. @defaultValue 0.3 */
+  /** Speed of the drift. @defaultValue 0.3 */
   speed?: number
-  /** Longueur des segments, en hauteurs de cadre. @defaultValue 0.6 */
+  /** Length of the segments, in frame heights. @defaultValue 0.6 */
   length?: number
-  /** Largeur du halo autour du trait. @defaultValue 0.03 */
+  /** Width of the halo around the stroke. @defaultValue 0.03 */
   glow?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<FloatingLinesControls>
 }
 
-/** Toutes les proprietes. */
+/** Every property. */
 export type FloatingLinesProps = Customisable<FloatingLinesOwnProps>
 
-/** Tokens employes par defaut : le fond, le halo, le coeur du trait. */
+/** Tokens used by default: the background, the halo, the core of the stroke. */
 const DEFAULT_TOKENS = ['--o-theme-bg', '--o-theme-muted', '--o-palette-sky-400'] as const
 
-/** Repli par defaut : une teinte figee, dans les memes tons. */
+/** Default fallback: a frozen hue, in the same tones. */
 const DEFAULT_FALLBACK = 'o-bg-zinc-50 dark:o-bg-zinc-950'
 
 /**
- * Nombre de lignes en qualite basse.
+ * Number of lines at low quality.
  *
- * Chaque ligne se paie une projection, un sinus et une exponentielle par
- * fragment : c'est le seul levier de cout, et il se retrograde sans toucher au
+ * Each line costs a projection, a sine and an exponential per fragment: it
+ * is the only lever on cost, and it degrades without touching the
  * shader.
  */
 const LOW_COUNT = 4
 
 /**
- * Lignes flottantes.
+ * Floating lines.
  *
  * @example
  * <div className="o-relative o-min-h-screen">

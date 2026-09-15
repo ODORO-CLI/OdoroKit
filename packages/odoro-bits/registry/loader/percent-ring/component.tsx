@@ -1,29 +1,29 @@
 /**
- * Anneau de progression : un anneau complet qui se remplit depuis le sommet,
- * le pourcentage au centre.
+ * Progress ring: a complete ring that fills from the top, the percentage in
+ * the centre.
  *
- * ## Le remplissage est un decalage
+ * ## The fill is an offset
  *
- * La piste et le remplissage sont le meme cercle. Le tirete du second a la
- * longueur de la circonference, et son decalage retient la part qui n'est
- * pas encore atteinte : passer de 40 a 60 ne change qu'un nombre, que le
- * navigateur fait glisser sans recalculer la mise en page. Le cercle part
- * de trois heures ; un quart de tour en arriere le fait partir du sommet,
- * la ou l'on attend le zero d'une horloge.
+ * The track and the fill are the same circle. The dash of the second is as
+ * long as the circumference, and its offset holds back the share not yet
+ * reached: going from 40 to 60 changes only a number, which the browser
+ * slides without recomputing layout. The circle starts at three o'clock; a
+ * quarter turn backwards makes it start at the top, where one expects the
+ * zero of a clock.
  *
- * ## Deux modes, deux honnetetes
+ * ## Two modes, two kinds of honesty
  *
- * Le mode determine recoit `value` et le montre tel quel : l'anneau est un
- * `role="progressbar"` complet, valeur comprise, et le chiffre au centre est
- * du texte reel. Le mode `indeterminate` ne pretend rien mesurer : un arc
- * d'un quart de tour tourne sans fin, le centre reste vide, et le
- * `progressbar` est declare **sans** valeur — c'est ainsi que la
- * specification decrit une progression inconnue. Afficher un pourcentage
- * invente serait le mensonge classique des chargeurs.
+ * The determinate mode receives `value` and shows it as is: the ring is a
+ * complete `role="progressbar"`, value included, and the figure in the centre
+ * is real text. The `indeterminate` mode claims to measure nothing: a
+ * quarter-turn arc turns endlessly, the centre stays empty, and the
+ * `progressbar` is declared **without** a value — that is how the
+ * specification describes unknown progress. Showing an invented percentage
+ * would be the classic lie of loaders.
  *
- * Sous mouvement reduit, la valeur saute sans transition, et l'arc
- * indetermine reste au sommet : la figure se lit encore, seul le mouvement
- * s'arrete.
+ * Under reduced motion, the value jumps without transition, and the
+ * indeterminate arc stays at the top: the figure still reads, only the
+ * movement stops.
  *
  * @module
  */
@@ -31,10 +31,10 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Id of the injected stylesheet. */
 const STYLE_ID = 'o-percent-ring'
 
-/** Pose l'anneau, sa transition et sa rotation, une fois par document. */
+/** Sets the ring, its transition and its rotation, once per document. */
 function ensurePercentRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -44,8 +44,8 @@ function ensurePercentRule(): void {
   style.textContent = [
     '[data-o-percent-ring]{position:relative;display:inline-block;line-height:0}',
     '[data-o-percent-ring] svg{display:block}',
-    // Le cercle part du sommet : la rotation est posee en CSS pour que la
-    // version animee puisse la remplacer sans se battre avec un attribut.
+    // The circle starts at the top: the rotation is set in CSS so that the
+    // animated version can replace it without fighting an attribute.
     '[data-o-pct-fill]{',
     'transform-box:view-box;transform-origin:50% 50%;transform:rotate(-90deg);',
     'transition:stroke-dashoffset var(--o-duration-base) var(--o-ease-standard);',
@@ -70,36 +70,36 @@ function ensurePercentRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to the component. */
 export interface PercentRingOwnProps {
-  /** Progression, de 0 a 100. Ignoree en mode indetermine. @defaultValue 42 */
+  /** Progress, from 0 to 100. Ignored in indeterminate mode. @defaultValue 42 */
   value?: number
-  /** Arc tournant sans valeur, quand rien n'est mesurable. @defaultValue false */
+  /** Turning arc without a value, when nothing is measurable. @defaultValue false */
   indeterminate?: boolean
-  /** Diametre de l'anneau, en pixels. @defaultValue 80 */
+  /** Diameter of the ring, in pixels. @defaultValue 80 */
   size?: number
-  /** Epaisseur de l'anneau, en pixels. @defaultValue 5 */
+  /** Thickness of the ring, in pixels. @defaultValue 5 */
   thickness?: number
-  /** Duree d'un tour de l'arc indetermine, en millisecondes. @defaultValue 1000 */
+  /** Duration of one turn of the indeterminate arc, in milliseconds. @defaultValue 1000 */
   speed?: number
-  /** Couleur du remplissage. @defaultValue la couleur du texte */
+  /** Colour of the fill. @defaultValue the text colour */
   color?: string
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */
+  /** Label announced to screen readers. @defaultValue 'Loading' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type PercentRingProps = Customisable<PercentRingOwnProps, 'span'>
 
 /**
- * Anneau de progression, determine ou tournant.
+ * Progress ring, determinate or turning.
  *
  * @example
- * // Progression reelle.
+ * // Real progress.
  * <PercentRing value={sent / total * 100} />
  *
  * @example
- * // Attente sans mesure, dans la teinte de marque.
+ * // A wait without measure, in the brand hue.
  * <PercentRing indeterminate color="var(--o-palette-brand-500)" />
  */
 export function PercentRing({
@@ -109,15 +109,15 @@ export function PercentRing({
   thickness = 5,
   speed = 1000,
   color = 'currentColor',
-  label = 'Chargement',
+  label = 'Loading',
   ...rest
 }: PercentRingProps): ReactElement {
   ensurePercentRule()
 
   const clamped = Math.min(100, Math.max(0, value))
 
-  // Le dessin vit dans une vue de 100 unites : l'epaisseur demandee en
-  // pixels est convertie pour que le trait garde sa mesure a toute taille.
+  // The drawing lives in a 100-unit view: the thickness asked for in pixels
+  // is converted so that the stroke keeps its measure at any size.
   const stroke = Math.min((thickness / size) * 100, 25)
   const radius = 50 - stroke / 2
   const circumference = 2 * Math.PI * radius
@@ -142,8 +142,9 @@ export function PercentRing({
       data-o-pct-indeterminate={indeterminate ? '' : undefined}
       role="progressbar"
       aria-label={label}
-      // Un progressbar sans aria-valuenow est indetermine : c'est la maniere
-      // normative de dire « j'avance, mais je ne sais pas de combien ».
+      // A progressbar without aria-valuenow is indeterminate: it is the
+      // normative way of saying "I am advancing, but I do not know by how
+      // much".
       aria-valuemin={indeterminate ? undefined : 0}
       aria-valuemax={indeterminate ? undefined : 100}
       aria-valuenow={indeterminate ? undefined : Math.round(clamped)}
@@ -166,7 +167,7 @@ export function PercentRing({
           fill="none"
           stroke="currentColor"
           strokeWidth={stroke}
-          // A zero, un bout rond dessinerait encore un point.
+          // At zero, a round cap would still draw a dot.
           strokeLinecap={indeterminate || clamped > 0 ? 'round' : 'butt'}
           strokeDasharray={
             indeterminate

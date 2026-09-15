@@ -1,24 +1,23 @@
 /**
- * Verification des demonstrations vivantes, entree par entree.
+ * Check of the live demonstrations, entry by entry.
  *
- * ## Ce que ce controle repond
+ * ## What this check answers
  *
- * Deux questions, dans cet ordre.
+ * Two questions, in this order.
  *
- * **Chaque entree publiee a-t-elle un apercu ?** La page d'une entree sans
- * demonstration affiche un encart qui le dit. Il est honnete, et il ne doit
- * plus y en avoir : c'est la premiere assertion.
+ * **Does every published entry have a preview?** The page of an entry without
+ * a demonstration shows a notice saying so. It is honest, and there must be
+ * none of them left: that is the first assertion.
  *
- * **L'apercu fait-il quelque chose ?** Un cadre qui contient un composant
- * mais reste inerte passe toutes les verifications de type. On agit donc sur
- * chacun — defiler, deplacer le pointeur, cliquer — et on regarde ce qui a
- * bouge dans le document.
+ * **Does the preview do anything?** A frame that contains a component but
+ * stays inert passes every type check. So we act on each one — scroll, move
+ * the pointer, click — and we look at what moved in the document.
  *
- * Les quatre composants de defilement sont les plus exposes : ils mesurent
- * contre un conteneur, et le conteneur par defaut est la fenetre. Poses dans
- * un cadre qui defile, ils n'echouent pas — il ne se passe simplement rien.
+ * The four scrolling components are the most exposed: they measure against a
+ * container, and the default container is the window. Placed in a frame that
+ * scrolls, they do not fail — nothing simply happens.
  *
- * Usage :
+ * Usage:
  *
  *   node scripts/check-demos.mjs [url]
  */
@@ -31,7 +30,7 @@ const catalogue = JSON.parse(
   readFileSync('packages/odoro-bits/dist/registry/index.json', 'utf8'),
 )
 
-/** Segment d'URL de chaque categorie. */
+/** URL segment of each category. */
 const SEGMENTS = {
   background: 'backgrounds',
   hero: 'heros',
@@ -43,37 +42,37 @@ const SEGMENTS = {
 }
 
 /**
- * Ce qu'on fait a un apercu, et ce qui doit avoir change ensuite.
+ * What we do to a preview, and what must have changed afterwards.
  *
- * Une entree absente de cette table n'est verifiee que pour la presence de son
- * apercu : c'est deja ce que les autres controles couvrent pour les fonds, les
- * effets de texte et les images.
+ * An entry absent from this table is only checked for the presence of its
+ * preview: that is already what the other checks cover for the backgrounds,
+ * the text effects and the images.
  */
 const ACTIONS = {
-  'effect/parallax': 'defilement',
-  'effect/scroll-progress': 'defilement',
-  'section/sticky-stack': 'defilement',
-  'section/scroll-steps': 'defilement',
-  'hooks/use-pointer-damped': 'pointeur',
-  'hooks/use-poster': 'boutons',
+  'effect/parallax': 'scroll',
+  'effect/scroll-progress': 'scroll',
+  'section/sticky-stack': 'scroll',
+  'section/scroll-steps': 'scroll',
+  'hooks/use-pointer-damped': 'pointer',
+  'hooks/use-poster': 'buttons',
 }
 
 const { chromium } = await import('playwright')
 const browser = await chromium.launch()
 const page = await browser.newPage({ viewport: { width: 1280, height: 900 } })
 
-const echecs = []
-let avecApercu = 0
+const failures = []
+let withPreview = 0
 
 for (const entry of catalogue.entries) {
   const segment = SEGMENTS[entry.category]
   if (segment === undefined) continue
 
-  const erreurs = []
+  const errors = []
   const onConsole = (m) => {
-    if (m.type() === 'error') erreurs.push(m.text().slice(0, 160))
+    if (m.type() === 'error') errors.push(m.text().slice(0, 160))
   }
-  const onError = (e) => erreurs.push(String(e).slice(0, 200))
+  const onError = (e) => errors.push(String(e).slice(0, 200))
   page.on('console', onConsole)
   page.on('pageerror', onError)
 
@@ -81,55 +80,55 @@ for (const entry of catalogue.entries) {
     waitUntil: 'networkidle',
   })
 
-  const probleme = []
+  const problem = []
 
-  // L'encart d'absence est le signal le plus direct : la page le dit elle-meme.
-  const sansApercu = await page
+  // The absence notice is the most direct signal: the page says it itself.
+  const withoutPreview = await page
     .getByText('n a pas encore de demonstration vivante')
     .count()
-  if (sansApercu > 0) probleme.push('aucune demonstration vivante')
-  else avecApercu += 1
+  if (withoutPreview > 0) problem.push('no live demonstration')
+  else withPreview += 1
 
-  const cadre = page.locator('[data-o-atelier-frame]').first()
+  const frame = page.locator('[data-o-atelier-frame]').first()
   const action = ACTIONS[entry.id]
 
-  if (probleme.length === 0 && action !== undefined) {
-    await cadre.waitFor({ state: 'visible', timeout: 10_000 })
+  if (problem.length === 0 && action !== undefined) {
+    await frame.waitFor({ state: 'visible', timeout: 10_000 })
     await page.waitForTimeout(900)
 
-    // L'empreinte : les transformations et les largeurs posees en ligne, plus
-    // le texte. Tout ce qu'une demonstration peut faire bouger passe par la.
-    const empreinte = () =>
-      cadre.evaluate((node) =>
+    // The hash: the transforms and the widths set inline, plus the text.
+    // Everything a demonstration can move goes through there.
+    const hash = () =>
+      frame.evaluate((node) =>
         [...node.querySelectorAll('*')]
           .map((child) => `${child.getAttribute('style') ?? ''}|${child.className}`)
           .join('~')
           .slice(0, 20_000),
       )
 
-    const avant = await empreinte()
+    const before = await hash()
 
-    if (action === 'defilement') {
-      // Le debordement traite, et pas seulement un contenu plus haut : une
-      // boite en `overflow: hidden` contenant une image trop grande repond
-      // aussi a la seconde condition, et lui poser un `scrollTop` ne fait
-      // rien. C'est ce piege qui a d'abord fait passer deux apercus pour
-      // inertes alors qu'ils fonctionnaient.
-      const defile = await cadre.evaluate((node) => {
-        const cible = [node, ...node.querySelectorAll('*')].find((child) => {
+    if (action === 'scroll') {
+      // The overflow handled, and not merely a taller content: a box in
+      // `overflow: hidden` containing an oversized image also answers the
+      // second condition, and setting a `scrollTop` on it does nothing. It is
+      // that trap which first made two previews look inert while they were
+      // working.
+      const scrolled = await frame.evaluate((node) => {
+        const target = [node, ...node.querySelectorAll('*')].find((child) => {
           const style = getComputedStyle(child)
           return (
             /auto|scroll/.test(style.overflowY) && child.scrollHeight > child.clientHeight
           )
         })
-        if (cible === undefined) return false
-        cible.scrollTop = cible.scrollHeight
-        return cible.scrollTop > 0
+        if (target === undefined) return false
+        target.scrollTop = target.scrollHeight
+        return target.scrollTop > 0
       })
-      if (!defile) probleme.push('aucun conteneur du cadre ne defile')
+      if (!scrolled) problem.push('no container of the frame scrolls')
       await page.waitForTimeout(900)
-    } else if (action === 'pointeur') {
-      const box = await cadre.boundingBox()
+    } else if (action === 'pointer') {
+      const box = await frame.boundingBox()
       await page.mouse.move(box.x + box.width * 0.2, box.y + box.height * 0.3)
       await page.waitForTimeout(200)
       await page.mouse.move(box.x + box.width * 0.8, box.y + box.height * 0.7, {
@@ -137,22 +136,22 @@ for (const entry of catalogue.entries) {
       })
       await page.waitForTimeout(700)
     } else {
-      await cadre.getByRole('button', { name: 'La scene est prete' }).click()
+      await frame.getByRole('button', { name: 'La scene est prete' }).click()
       await page.waitForTimeout(900)
     }
 
-    if ((await empreinte()) === avant) {
-      probleme.push(`inerte apres ${action} : rien n a bouge dans le cadre`)
+    if ((await hash()) === before) {
+      problem.push(`inert after ${action}: nothing moved in the frame`)
     }
   }
 
-  if (erreurs.length > 0) probleme.push(`console : ${erreurs.join(' | ')}`)
+  if (errors.length > 0) problem.push(`console: ${errors.join(' | ')}`)
 
-  if (probleme.length > 0) {
-    console.log(`! ${entry.id.padEnd(28)} ${probleme.join(' ; ')}`)
-    echecs.push(`${entry.id} : ${probleme.join(' ; ')}`)
+  if (problem.length > 0) {
+    console.log(`! ${entry.id.padEnd(28)} ${problem.join(' ; ')}`)
+    failures.push(`${entry.id}: ${problem.join(' ; ')}`)
   } else if (action !== undefined) {
-    console.log(`  ${entry.id.padEnd(28)} reagit au ${action}`)
+    console.log(`  ${entry.id.padEnd(28)} reacts to ${action}`)
   }
 
   page.off('console', onConsole)
@@ -162,11 +161,11 @@ for (const entry of catalogue.entries) {
 await browser.close()
 
 console.log(
-  `\n${String(avecApercu)} entree(s) sur ${String(catalogue.entries.length)} ont un apercu.`,
+  `\n${String(withPreview)} entry(ies) out of ${String(catalogue.entries.length)} have a preview.`,
 )
 
-if (echecs.length > 0) {
-  console.error(`\n${String(echecs.length)} probleme(s) :`)
-  for (const echec of echecs) console.error(`  - ${echec}`)
+if (failures.length > 0) {
+  console.error(`\n${String(failures.length)} problem(s):`)
+  for (const failure of failures) console.error(`  - ${failure}`)
   process.exit(1)
 }

@@ -49,7 +49,7 @@
       "step": 10
     },
     {
-      "name": "largeur",
+      "name": "width",
       "type": "number",
       "default": 0.72,
       "unit": "em",
@@ -59,7 +59,7 @@
       "step": 0.02
     },
     {
-      "name": "declenchement",
+      "name": "trigger",
       "type": "'montage' | 'vue' | 'survol'",
       "default": "vue",
       "description": "Des le montage, a l entree dans le champ, ou a chaque survol.",

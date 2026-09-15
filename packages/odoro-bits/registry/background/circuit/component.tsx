@@ -1,29 +1,29 @@
 /**
- * Circuit imprime : des pistes tirees par tuiles, des pastilles a leurs
- * extremites, et des impulsions qui les parcourent.
+ * Printed circuit: traces drawn tile by tile, pads at their ends, and
+ * pulses running along them.
  *
- * ## Le principe
+ * ## The principle
  *
- * Chaque tuile tire un trait droit ou un coude ; deux voisines qui
- * s'ouvrent l'une vers l'autre se raccordent d'elles-memes, et un bord
- * ouvert d'un seul cote porte une pastille. Aucun chemin n'est construit.
- * Les impulsions courent le long de l'axe de chaque piste, avec une graine
- * par rangee ou par colonne pour qu'elles ne pulsent pas en choeur.
+ * Each tile draws a straight stroke or an elbow; two neighbours that open
+ * towards each other join up on their own, and an edge open on one side
+ * only carries a pad. No path is built. The pulses run along the axis of
+ * each trace, with one seed per row or column so that they do not pulse
+ * in chorus.
  *
- * Ce qui distingue cette entree de `maze` : des pastilles aux extremites,
- * des coudes droits, et des impulsions plutot qu'une tete qui dessine ; et
- * de `truchet` : rien ne pivote, les pistes sont fixes et parcourues.
+ * What sets this entry apart from `maze`: pads at the ends, right-angled
+ * elbows, and pulses rather than a head that draws; and from `truchet`:
+ * nothing pivots, the traces are fixed and travelled along.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur — les recopier ici en ferait autant
- * de versions a maintenir qu'il y a de fonds.
+ * It carries only what sets it apart: its shader, its settings and its fallback.
+ * Reading the tokens, converting them to floats and re-reading them when the
+ * theme changes all come from the engine — copying them here would leave as
+ * many versions to maintain as there are backgrounds.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en
- * accorde qu'une par backend — et sous mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface — it grants only one
+ * per backend — and under reduced motion.
  *
  * @module
  */
@@ -40,47 +40,47 @@ import { type ReactElement } from 'react'
 
 import { CIRCUIT_FRAGMENT } from './circuit.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface CircuitControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to this component. */
 export interface CircuitOwnProps {
-  /** Nombre de tuiles sur la hauteur. Borne a quarante par le shader. @defaultValue 10 */
+  /** Number of tiles across the height. Capped at forty by the shader. @defaultValue 10 */
   cells?: number
-  /** Epaisseur des pistes, en fraction de tuile. @defaultValue 0.08 */
+  /** Trace thickness, as a fraction of a tile. @defaultValue 0.08 */
   width?: number
-  /** Vitesse des impulsions. @defaultValue 1 */
+  /** Pulse speed. @defaultValue 1 */
   speed?: number
-  /** Part des pistes parcourues a un instant donne. Zero les eteint. @defaultValue 0.5 */
+  /** Share of the traces lit at any given instant. Zero puts them out. @defaultValue 0.5 */
   pulses?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<CircuitControls>
 }
 
-/** Toutes les proprietes. */
+/** Every property. */
 export type CircuitProps = Customisable<CircuitOwnProps>
 
-/** Tokens employes par defaut : le substrat, les pistes, les impulsions. */
+/** Tokens used by default: the substrate, the traces, the pulses. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-theme-line',
   '--o-palette-emerald-400',
 ] as const
 
-/** Repli par defaut : une teinte figee, dans les memes tons. */
+/** Default fallback: a frozen hue, in the same tones. */
 const DEFAULT_FALLBACK = 'o-bg-zinc-50 dark:o-bg-zinc-950'
 
 /**
- * Circuit imprime.
+ * Printed circuit.
  *
  * @example
  * <div className="o-relative o-min-h-screen">
@@ -103,8 +103,8 @@ export function Circuit({
     colors,
     uniforms: { uCells: cells, uWidth: width, uSpeed: speed, uPulses: pulses },
     name: 'circuit',
-    // Des pistes fines sur des tuiles petites scintillent a densite de
-    // pixels reduite : en qualite basse, les tuiles s'elargissent.
+    // Thin traces on small tiles shimmer at reduced pixel density: at low
+    // quality the tiles grow wider.
     degrade: (quality) => ({
       uCells: quality === 'low' ? Math.min(cells, 6) : cells,
     }),

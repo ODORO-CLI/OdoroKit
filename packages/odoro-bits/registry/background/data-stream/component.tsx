@@ -1,28 +1,28 @@
 /**
- * Flux de donnees : des segments qui defilent en couloirs, chacun a son
- * sens et sa vitesse, la tete relevee.
+ * Data stream: segments scrolling in lanes, each with its own direction
+ * and speed, the head raised.
  *
- * ## Le principe
+ * ## The principle
  *
- * L'ecran est decoupe en couloirs independants ; chacun tire son sens, sa
- * vitesse et son depart, et numerote des cases dont chacune porte un
- * segment ou rien. Le bout qui avance est releve : c'est ce qui donne le
- * sens de la marche, sans fleche.
+ * The screen is cut into independent lanes; each draws its direction, its
+ * speed and its start, and numbers slots, each of which carries a segment
+ * or nothing. The leading end is raised: that is what gives the direction
+ * of travel, without an arrow.
  *
- * Ce qui distingue cette entree de `rain` et de `code-rain` : le flux est
- * horizontal, en deux sens, et fait de segments pleins ; et de
- * `hyperspace` : aucune perspective, des couloirs plats.
+ * What sets this entry apart from `rain` and `code-rain`: the stream is
+ * horizontal, running both ways, and made of solid segments; and from
+ * `hyperspace`: no perspective, flat lanes.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur — les recopier ici en ferait autant
- * de versions a maintenir qu'il y a de fonds.
+ * It carries only what sets it apart: its shader, its settings and its fallback.
+ * Reading the tokens, converting them to floats and re-reading them when the
+ * theme changes all come from the engine — copying them here would leave as
+ * many versions to maintain as there are backgrounds.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en
- * accorde qu'une par backend — et sous mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface — it grants only one
+ * per backend — and under reduced motion.
  *
  * @module
  */
@@ -39,43 +39,43 @@ import { type ReactElement } from 'react'
 
 import { DATA_STREAM_FRAGMENT } from './data-stream.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface DataStreamControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to this component. */
 export interface DataStreamOwnProps {
-  /** Nombre de couloirs sur la hauteur. Borne a quatre-vingts par le shader. @defaultValue 24 */
+  /** Number of lanes across the height. Capped at eighty by the shader. @defaultValue 24 */
   lanes?: number
-  /** Vitesse moyenne du defilement. @defaultValue 1 */
+  /** Average scrolling speed. @defaultValue 1 */
   speed?: number
-  /** Nombre de cases par unite de largeur. @defaultValue 6 */
+  /** Number of slots per unit of width. @defaultValue 6 */
   density?: number
-  /** Epaisseur des segments, en fraction de couloir. @defaultValue 0.35 */
+  /** Thickness of the segments, as a fraction of a lane. @defaultValue 0.35 */
   thickness?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<DataStreamControls>
 }
 
-/** Toutes les proprietes. */
+/** Every property. */
 export type DataStreamProps = Customisable<DataStreamOwnProps>
 
-/** Tokens employes par defaut : le fond, les segments, leur tete. */
+/** Tokens used by default: the background, the segments, their head. */
 const DEFAULT_TOKENS = ['--o-theme-bg', '--o-palette-blue-500', '--o-theme-fg'] as const
 
-/** Repli par defaut : une teinte figee, dans les memes tons. */
+/** Default fallback: a frozen hue, in the same tones. */
 const DEFAULT_FALLBACK = 'o-bg-zinc-50 dark:o-bg-zinc-950'
 
 /**
- * Flux de donnees.
+ * Data stream.
  *
  * @example
  * <div className="o-relative o-min-h-screen">
@@ -103,8 +103,8 @@ export function DataStream({
       uThickness: thickness,
     },
     name: 'data-stream',
-    // Des couloirs serres scintillent sur leurs bords a densite de pixels
-    // reduite : en qualite basse, ils s'elargissent.
+    // Tight lanes shimmer on their edges at reduced pixel density: at low
+    // quality they grow wider.
     degrade: (quality) => ({
       uLanes: quality === 'low' ? Math.min(lanes, 14) : lanes,
     }),

@@ -1,10 +1,10 @@
 /**
- * Entree du paquet `create-odoro`.
+ * Entry point of the `create-odoro` package.
  *
- * Ce paquet n'existe que pour rendre `npm create odoro@latest` fonctionnel :
- * npm impose ce nom exact. Il ne contient aucune logique propre et delegue
- * integralement au moteur, ce qui garantit que `npm create odoro` et
- * `odoro create` se comportent a l'identique.
+ * This package only exists to make `npm create odoro@latest` work: npm forces
+ * that exact name. It holds no logic of its own and delegates entirely to the
+ * engine, which guarantees that `npm create odoro` and `odoro create` behave
+ * identically.
  *
  * @module
  */

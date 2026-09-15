@@ -1,39 +1,40 @@
 /**
- * Compteur en pourcentage : un chiffre qui monte de zero a cent avec une
- * acceleration douce, tient, et repart ; ou qui rejoint la valeur qu'on lui
- * donne.
+ * Percent counter: a number that climbs from zero to a hundred with a gentle
+ * acceleration, holds, and starts again; or that joins the value it is
+ * given.
  *
- * ## Deux regimes, et lequel est honnete
+ * ## Two regimes, and which one is honest
  *
- * Sans `value`, le compteur boucle : c'est un signe d'activite, pas une
- * mesure, et il ne pretend pas en etre une — il repasse par zero, ce qu'un
- * vrai pourcentage ne fait jamais. Avec `value`, il rejoint la valeur donnee
- * et s'y arrete : chaque changement est rattrape en douceur depuis le chiffre
- * affiche, sans repartir de zero. C'est la version a brancher sur une vraie
- * progression ; la premiere est celle qui attend sans savoir combien.
+ * Without `value`, the counter loops: it is a sign of activity, not a
+ * measure, and it does not pretend to be one — it goes back through zero,
+ * which a real percentage never does. With `value`, it joins the given value
+ * and stops there: every change is caught up smoothly from the number on
+ * screen, without starting over from zero. That is the version to wire onto
+ * a real progression; the first is the one that waits without knowing how
+ * long.
  *
- * La montee est acceleree puis freinee : un chiffre lineaire se lit comme un
- * chronometre, et un chronometre promet une fin qu'on peut calculer.
+ * The climb accelerates then brakes: a linear number reads like a stopwatch,
+ * and a stopwatch promises an end that can be computed.
  *
- * ## Le chiffre s'ecrit dans le DOM, pas dans l'etat
+ * ## The number is written into the DOM, not into state
  *
- * Le compteur avance a chaque image de la boucle du moteur. En passer par
- * l'etat React declencherait un rendu par image pour un chiffre qui ne
- * change qu'une centaine de fois par cycle. Le noeud texte est donc ecrit
- * directement, par reference, et seulement quand l'entier affiche bouge.
+ * The counter advances on every frame of the engine loop. Going through
+ * React state would trigger one render per frame for a number that only
+ * changes a hundred or so times per cycle. The text node is therefore
+ * written directly, by ref, and only when the displayed integer moves.
  *
- * La boucle du moteur plutot qu'un minuteur : un intervalle fixe bat contre
- * la cadence de l'ecran et produit un chiffre qui saute par a-coups.
+ * The engine loop rather than a timer: a fixed interval beats against the
+ * refresh rate of the screen and produces a number that jumps in fits.
  *
- * ## Un statut, pas un dessin
+ * ## A status, not a drawing
  *
- * L'element porte `role="status"` et un libelle pour les lecteurs d'ecran.
- * Le chiffre est retire de l'arbre d'accessibilite : dans une region de
- * statut, chacun de ses changements serait annonce.
+ * The element carries `role="status"` and a label for screen readers. The
+ * number is removed from the accessibility tree: inside a status region,
+ * every one of its changes would be announced.
  *
- * Sous mouvement reduit, le chiffre est fige : sur la valeur donnee, ou a
- * zero quand il n'y en a pas. Un compteur fige a cent dirait que c'est
- * termine ; a zero, il dit encore l'attente.
+ * Under reduced motion, the number is frozen: on the given value, or at
+ * zero when there is none. A counter frozen at a hundred would say it is
+ * over; at zero, it still says the wait.
  *
  * @module
  */
@@ -46,13 +47,13 @@ import {
 } from '@odoro-cli/engine'
 import { useEffect, useRef, type CSSProperties, type ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Id of the injected stylesheet. */
 const STYLE_ID = 'o-percent-counter'
 
-/** Part de la montee ajoutee en tenue a cent, avant de repartir. */
+/** Share of the climb added as a hold at a hundred, before starting again. */
 const HOLD_SHARE = 0.3
 
-/** Pose le chiffre et sa legende, une fois par document. */
+/** Sets the number and its caption, once per document. */
 function ensurePercentCounterRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -64,8 +65,8 @@ function ensurePercentCounterRule(): void {
     'display:inline-flex;flex-direction:column;align-items:center;gap:0.45em;',
     'line-height:1;font-size:var(--o-pc-size);color:var(--o-pc-color);',
     '}',
-    // Des chiffres a chasse fixe, et une largeur minimale de trois : le
-    // passage de 9 a 10 ne decale rien.
+    // Fixed-pitch figures, and a minimum width of three: going from 9 to 10
+    // shifts nothing.
     '[data-o-pc-figure]{',
     'display:inline-flex;align-items:baseline;justify-content:flex-end;min-width:3.2ch;',
     'font-size:2.5em;font-weight:600;letter-spacing:-0.03em;font-variant-numeric:tabular-nums;',
@@ -76,58 +77,58 @@ function ensurePercentCounterRule(): void {
   document.head.append(style)
 }
 
-/** Acceleration puis freinage, pour une montee qui ne se lit pas comme un chronometre. */
+/** Acceleration then braking, for a climb that does not read like a stopwatch. */
 function easeInOut(t: number): number {
   return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2
 }
 
-/** Freinage seul, pour rejoindre une valeur sans la depasser. */
+/** Braking alone, to join a value without overshooting it. */
 function easeOut(t: number): number {
   return 1 - Math.pow(1 - t, 3)
 }
 
-/** Proprietes propres au composant. */
+/** The component's own props. */
 export interface PercentCounterOwnProps {
-  /** La legende sous le chiffre. Chaine vide pour ne garder que le chiffre. @defaultValue 'Chargement' */
+  /** The caption under the number. Empty string to keep only the number. @defaultValue 'Loading' */
   text?: string
   /**
-   * Progression reelle, de 0 a 100.
+   * Real progression, from 0 to 100.
    *
-   * Sans elle, le compteur boucle et ne pretend pas mesurer. Avec elle, il
-   * rejoint la valeur et s'y arrete.
+   * Without it, the counter loops and does not pretend to measure. With it,
+   * it joins the value and stops there.
    */
   value?: number
-  /** Corps de reference, en pixels ; le chiffre en fait deux fois et demie. @defaultValue 16 */
+  /** Reference body size, in pixels; the number is two and a half times that. @defaultValue 16 */
   size?: number
-  /** Duree d'une montee de zero a cent, ou d'un rattrapage, en millisecondes. @defaultValue 2400 */
+  /** Duration of a climb from zero to a hundred, or of a catch-up, in milliseconds. @defaultValue 2400 */
   speed?: number
-  /** Couleur du chiffre et de la legende. @defaultValue la couleur du texte */
+  /** Color of the number and the caption. @defaultValue the text color */
   color?: string
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */
+  /** Label announced to screen readers. @defaultValue 'Loading' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type PercentCounterProps = Customisable<PercentCounterOwnProps, 'span'>
 
 /**
- * Signale une attente par un pourcentage qui monte.
+ * Signals a wait with a percentage that climbs.
  *
  * @example
- * // Sans valeur : le compteur boucle, signe d'activite.
+ * // Without a value: the counter loops, a sign of activity.
  * <PercentCounter />
  *
  * @example
- * // Branche sur une vraie progression : il la rejoint et s'y arrete.
- * <PercentCounter value={avancement} text="Envoi" color="var(--o-palette-brand-500)" />
+ * // Wired onto a real progression: it joins it and stops there.
+ * <PercentCounter value={progress} text="Envoi" color="var(--o-palette-brand-500)" />
  */
 export function PercentCounter({
-  text = 'Chargement',
+  text = 'Loading',
   value,
   size = 16,
   speed = 2400,
   color = 'currentColor',
-  label = 'Chargement',
+  label = 'Loading',
   ...rest
 }: PercentCounterProps): ReactElement {
   ensurePercentCounterRule()
@@ -138,8 +139,8 @@ export function PercentCounter({
     const node = figure.current
     if (node === null) return
 
-    // On n'ecrit que lorsque l'entier affiche change : une ecriture par
-    // image pour la meme chaine serait un travail de mise en page inutile.
+    // We only write when the displayed integer changes: one write per frame
+    // for the same string would be pointless layout work.
     let shown = -1
     const write = (amount: number): void => {
       const whole = Math.round(amount)
@@ -155,8 +156,8 @@ export function PercentCounter({
       return
     }
 
-    // Le rattrapage part du chiffre affiche, pas de zero : un changement de
-    // valeur est une suite, pas un nouveau depart.
+    // The catch-up starts from the displayed number, not from zero: a change
+    // of value is a continuation, not a new start.
     const from = Number(node.textContent ?? '') || 0
     let elapsed = 0
 

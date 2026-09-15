@@ -1,43 +1,43 @@
 /**
- * Fusee : une fusee se pose sur le pas de tir, allume sa poussee, puis
- * quitte la vue par le haut. La suivante arrive par le bas.
+ * Rocket: a rocket sets down on the launch pad, lights its thrust, then leaves
+ * the view through the top. The next one arrives from the bottom.
  *
- * ## Une acceleration, pas un aller-retour
+ * ## An acceleration, not a round trip
  *
- * Un decollage n'a pas de vitesse constante et ne revient jamais. La montee
- * part donc lentement et finit vite — `ease-in` pousse a fond — et la fusee
- * sort du cadre au lieu de s'arreter en haut. Le cadre du SVG la coupe : il
- * n'y a rien a masquer, elle est simplement dehors.
+ * A lift-off has no constant speed and never comes back. The climb therefore
+ * starts slowly and finishes fast — `ease-in` at full throttle — and the
+ * rocket exits the frame instead of stopping at the top. The frame of the SVG
+ * cuts it off: there is nothing to mask, it is simply outside.
  *
- * La boucle ne rembobine pas la meme fusee : elle en amene une autre par le
- * bas, qui monte en freinant jusqu'a son point d'arret — l'exact contraire
- * de la courbe du decollage. On lit deux gestes distincts, une arrivee et
- * un depart, la ou une seule courbe symetrique donnerait un yo-yo.
+ * The loop does not rewind the same rocket: it brings another one up from the
+ * bottom, which rises while braking to its stopping point — the exact
+ * opposite of the lift-off curve. One reads two distinct gestures, an arrival
+ * and a departure, where a single symmetric curve would give a yo-yo.
  *
- * Juste avant de partir, la fusee s'enfonce de quelques unites : c'est
- * l'appui qui annonce le mouvement, la meme raison qui fait qu'on plie les
- * genoux avant de sauter.
+ * Just before leaving, the rocket sinks by a few units: that is the crouch
+ * that announces the movement, the same reason one bends the knees before
+ * jumping.
  *
- * ## Deux echelles de temps pour la flamme
+ * ## Two time scales for the flame
  *
- * La flamme fait deux choses a la fois, a des rythmes qui n'ont rien a voir :
- * elle s'allonge quand la poussee monte — au rythme du cycle — et elle
- * vacille — dix fois plus vite. Les melanger dans une seule animation
- * obligerait a repeter les images cles du vacillement a chaque etape de la
- * poussee. Elles vivent donc sur deux groupes emboites, chacun avec sa
- * duree : leurs echelles se multiplient d'elles-memes.
+ * The flame does two things at once, at rates that have nothing to do with
+ * each other: it stretches as the thrust rises — at the rate of the cycle —
+ * and it flickers — ten times faster. Mixing them in a single animation would
+ * force repeating the flicker keyframes at every stage of the thrust. So they
+ * live on two nested groups, each with its own duration: their scales
+ * multiply on their own.
  *
- * Trois animations CSS sur des elements SVG, tenues par le compositeur,
- * aucun JavaScript apres le premier rendu.
+ * Three CSS animations on SVG elements, held by the compositor, no JavaScript
+ * after the first render.
  *
- * ## Un statut, pas un dessin
+ * ## A status, not a drawing
  *
- * L'element porte `role="status"` et un libelle pour les lecteurs d'ecran :
- * l'attente est une information, pas une decoration. Le dessin est retire
- * de l'arbre d'accessibilite.
+ * The element carries `role="status"` and a label for screen readers: the
+ * wait is information, not decoration. The drawing is removed from the
+ * accessibility tree.
  *
- * Sous mouvement reduit, la fusee est posee au centre, flamme allumee et
- * stable : la figure se lit, seul le vol s'arrete.
+ * Under reduced motion, the rocket sits at the centre, flame lit and steady:
+ * the figure reads, only the flight stops.
  *
  * @module
  */
@@ -45,25 +45,25 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-rocket'
 
-/** Le fuselage, ogive comprise. */
+/** The fuselage, nose cone included. */
 const BODY = 'M 50 8 C 62 24, 68 40, 68 56 L 32 56 C 32 40, 38 24, 50 8 Z'
 
-/** L'aileron gauche. */
+/** The left fin. */
 const FIN_LEFT = 'M 32 38 L 19 62 L 32 57 Z'
 
-/** L'aileron droit. */
+/** The right fin. */
 const FIN_RIGHT = 'M 68 38 L 81 62 L 68 57 Z'
 
-/** La tuyere, sous le fuselage. */
+/** The nozzle, under the fuselage. */
 const NOZZLE = 'M 37 56 L 63 56 L 59 65 L 41 65 Z'
 
-/** La flamme, accrochee a la levre de la tuyere. */
+/** The flame, hooked to the lip of the nozzle. */
 const FLAME = 'M 41 65 Q 50 96 59 65 Z'
 
-/** Pose la fusee, son decollage et sa flamme, une fois par document. */
+/** Applies the rocket, its lift-off and its flame, once per document. */
 function ensureRocketRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -81,8 +81,8 @@ function ensureRocketRule(): void {
     'transform-origin:50px 50px;',
     'animation-name:o-rocket-launch;animation-duration:var(--o-rocket-speed);',
     '}',
-    // Les deux groupes de la flamme partagent la levre de la tuyere comme
-    // origine : elle s'allonge et vacille par le bas, jamais par le milieu.
+    // Both groups of the flame share the lip of the nozzle as their origin:
+    // it stretches and flickers from the bottom, never from the middle.
     '[data-o-rocket-thrust],[data-o-rocket-flicker]{transform-origin:50px 65px}',
     '[data-o-rocket-thrust]{',
     'animation-name:o-rocket-thrust;animation-duration:var(--o-rocket-speed);',
@@ -91,15 +91,15 @@ function ensureRocketRule(): void {
     'animation-name:o-rocket-flicker;',
     'animation-duration:calc(var(--o-rocket-speed) / 14);',
     '}',
-    // Arrivee en freinant par le bas, appui, puis depart en accelerant
-    // jusqu'a sortir du cadre.
+    // Braking arrival from the bottom, crouch, then departure accelerating
+    // until it leaves the frame.
     '@keyframes o-rocket-launch{',
     '0%{transform:translateY(130px);animation-timing-function:cubic-bezier(0.2,0.8,0.3,1)}',
     '24%{transform:translateY(0)}',
     '42%{transform:translateY(8px);animation-timing-function:cubic-bezier(0.6,0,0.9,0.2)}',
     '100%{transform:translateY(-150px)}',
     '}',
-    // La poussee se creuse pendant l'appui, puis s'allonge pour le depart.
+    // The thrust dips during the crouch, then stretches for the departure.
     '@keyframes o-rocket-thrust{',
     '0%,24%{transform:scaleY(0.8);animation-timing-function:ease-in-out}',
     '42%{transform:scaleY(0.5);animation-timing-function:ease-out}',
@@ -109,7 +109,7 @@ function ensureRocketRule(): void {
     '0%,100%{transform:scaleY(1) scaleX(1)}',
     '50%{transform:scaleY(0.72) scaleX(1.1)}',
     '}',
-    // Fusee posee, flamme allumee et stable : la figure est dite, au sol.
+    // Rocket set down, flame lit and steady: the figure is stated, on the ground.
     '@media (prefers-reduced-motion:reduce){',
     '[data-o-rocket-body],[data-o-rocket-thrust],[data-o-rocket-flicker]{',
     'animation:none;transform:none;',
@@ -119,36 +119,36 @@ function ensureRocketRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface RocketOwnProps {
-  /** Cote du dessin, en pixels. @defaultValue 72 */
+  /** Side of the drawing, in pixels. @defaultValue 72 */
   size?: number
-  /** Duree d'un decollage complet, en millisecondes. @defaultValue 2200 */
+  /** Duration of one complete lift-off, in milliseconds. @defaultValue 2200 */
   speed?: number
-  /** Couleur de la fusee et de sa flamme. @defaultValue la couleur du texte */
+  /** Colour of the rocket and of its flame. @defaultValue the text colour */
   color?: string
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */
+  /** Label announced to screen readers. @defaultValue 'Loading' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All the properties. */
 export type RocketProps = Customisable<RocketOwnProps, 'span'>
 
 /**
- * Signale une attente par une fusee qui decolle, sans fin.
+ * Signals a wait with a rocket taking off, endlessly.
  *
  * @example
  * <Rocket />
  *
  * @example
- * // Plus grande, plus lente, dans la teinte de marque.
+ * // Bigger, slower, in the brand hue.
  * <Rocket size={112} speed={3200} color="var(--o-palette-brand-500)" />
  */
 export function Rocket({
   size = 72,
   speed = 2200,
   color = 'currentColor',
-  label = 'Chargement',
+  label = 'Loading',
   ...rest
 }: RocketProps): ReactElement {
   ensureRocketRule()
@@ -183,8 +183,8 @@ export function Rocket({
           <path d={FIN_RIGHT} fill="currentColor" fillOpacity={0.7} />
           <path d={NOZZLE} fill="currentColor" fillOpacity={0.7} />
           <path d={BODY} fill="currentColor" />
-          {/* Le hublot est un trou dans le fuselage, pas une pastille
-              posee dessus : c'est le fond qui se voit au travers. */}
+          {/* The porthole is a hole in the fuselage, not a dot laid on top
+              of it is the background that shows through. */}
           <circle cx={50} cy={34} r={8} fill="var(--o-theme-bg)" />
         </g>
       </svg>

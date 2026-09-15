@@ -1,31 +1,31 @@
 /**
- * `onReady` : niveau 5 du contrat, l'echappatoire.
+ * `onReady`: level 5 of the contract, the escape hatch.
  *
- * ## Ce qu'elle donne
+ * ## What it gives
  *
- * L'objet imperatif que le composant a construit — une timeline, une scene,
- * une surface — au moment ou il devient utilisable, et pas avant. Ce qui suit
- * n'a plus besoin de passer par une propriete : on tient la chose elle-meme.
+ * The imperative object the component built — a timeline, a scene, a surface —
+ * at the moment it becomes usable, and not before. What follows no longer
+ * needs to go through a property: you hold the thing itself.
  *
- * ## Le piege qu'elle evite
+ * ## The trap it avoids
  *
- * Une echappatoire ecrite naivement se declenche a chaque rendu du parent.
- * L'appelant ecrit presque toujours une fonction en ligne :
+ * An escape hatch written naively fires on every render of the parent. The
+ * caller almost always writes an inline function:
  *
  * ```tsx
  * <Molten onReady={({ handle }) => handle.timeScale(0.5)} />
  * ```
  *
- * Cette fonction est **une nouvelle valeur a chaque rendu**. Un effet qui
- * l'aurait dans ses dependances rejouerait l'echappatoire des que le parent
- * se rerend — pour une raison sans rapport, comme un survol ailleurs dans la
- * page. Selon ce que fait le rappel, cela va du gaspillage a la fuite : un
- * abonnement pose a chaque rendu et libere une seule fois.
+ * That function is **a new value on every render**. An effect that had it in
+ * its dependencies would replay the escape hatch as soon as the parent
+ * re-renders — for an unrelated reason, such as a hover elsewhere on the page.
+ * Depending on what the callback does, this ranges from waste to a leak: a
+ * subscription set on every render and released only once.
  *
- * La fonction est donc gardee dans une reference, et l'effet ne depend que de
- * ce qui compte reellement : l'objet, et l'element. On ne demande pas a
- * l'appelant de memoriser son rappel — il l'oublierait, et le defaut serait
- * invisible jusqu'au profil memoire.
+ * The function is therefore kept in a ref, and the effect only depends on what
+ * really matters: the object, and the element. We do not ask the caller to
+ * memoise their callback — they would forget, and the flaw would be invisible
+ * until the memory profile.
  *
  * @module
  */
@@ -34,36 +34,36 @@ import { useEffect, useRef } from 'react'
 
 import { motionPolicy, type MotionState } from '../core/motion-policy.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface ReadyContext<Handle> {
-  /** L'objet imperatif construit par le composant. */
+  /** The imperative object built by the component. */
   readonly handle: Handle
-  /** L'element racine, deja dans le document. */
+  /** The root element, already in the document. */
   readonly element: HTMLElement
   /**
-   * Etat du mouvement au moment de l'appel. Un rappel qui ajoute une animation
-   * doit le consulter : l'echappatoire contourne l'API du composant, pas la
-   * preference de l'utilisateur.
+   * Motion state at the time of the call. A callback that adds an animation
+   * must consult it: the escape hatch bypasses the component's API, not the
+   * user's preference.
    */
   readonly motion: MotionState
 }
 
 /**
- * Rappel d'echappatoire.
+ * Escape hatch callback.
  *
- * Ce qu'il rend, s'il rend quelque chose, est appele au demontage — ou avant
- * de rejouer le rappel. Une echappatoire qui pose un abonnement sans pouvoir
- * le retirer serait une fuite offerte par l'API elle-meme.
+ * What it returns, if it returns anything, is called on unmount — or before
+ * replaying the callback. An escape hatch that sets a subscription without
+ * being able to remove it would be a leak offered by the API itself.
  */
 export type ReadyCallback<Handle> = (context: ReadyContext<Handle>) => void | (() => void)
 
 /**
- * Declenche l'echappatoire une fois l'objet pret.
+ * Fires the escape hatch once the object is ready.
  *
- * @param callback Rappel fourni par l'appelant. Peut etre une fonction en
- * ligne : sa reidentite n'a aucun effet.
- * @param handle Objet imperatif, ou `null` tant qu'il n'existe pas.
- * @param element Element racine, ou `null` tant qu'il n'est pas monte.
+ * @param callback Callback supplied by the caller. May be an inline function:
+ * its re-identity has no effect.
+ * @param handle Imperative object, or `null` as long as it does not exist.
+ * @param element Root element, or `null` as long as it is not mounted.
  *
  * @example
  * const timeline = useTimeline(…)
@@ -84,8 +84,8 @@ export function useOnReady<Handle>(
     if (element === null || element === undefined) return
 
     return run({ handle, element, motion: motionPolicy.state })
-    // La fonction est volontairement absente des dependances : elle est lue
-    // dans la reference, ce que l'analyse des dependances reconnait. Voir
-    // l'explication en tete de module.
+    // The function is deliberately absent from the dependencies: it is read
+    // from the ref, which the dependency analysis recognises. See the
+    // explanation at the top of the module.
   }, [handle, element])
 }

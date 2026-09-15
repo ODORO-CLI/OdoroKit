@@ -1,36 +1,36 @@
 /**
- * Bloc balaye : une seule surface en attente, traversee par un reflet
- * oblique.
+ * Swept block: a single waiting surface, crossed by an oblique highlight.
  *
- * ## Une primitive, pas une maquette
+ * ## A primitive, not a mockup
  *
- * Les squelettes de ce lot dessinent une forme reconnaissable — un
- * paragraphe, une carte, un tableau. Celui-ci ne dessine rien : c'est le
- * bloc nu, celui qu'on pose soi-meme aux dimensions du contenu attendu.
- * Il prend la largeur de son parent et la hauteur qu'on lui donne, et c'est
- * tout ce qu'il promet.
+ * The skeletons of this set draw a recognisable shape — a paragraph, a
+ * card, a table. This one draws nothing: it is the bare block, the one you
+ * lay down yourself at the dimensions of the expected content. It takes the
+ * width of its parent and the height you give it, and that is all it
+ * promises.
  *
- * ## Le reflet est dans le fond, pas au-dessus
+ * ## The highlight is in the background, not above it
  *
- * La bande n'est pas une couche posee par-dessus : c'est le fond du bloc
- * lui-meme, une image large de deux fois et demie sa boite dont seule la
- * **position** bouge. Aucun element de plus, aucune composition a empiler —
- * et surtout, la bande suit les angles arrondis sans avoir a redire le
- * rayon.
+ * The band is not a layer laid over the block: it is the background of the
+ * block itself, an image two and a half times as wide as its box, of which
+ * only the **position** moves. Not one element more, no composition to
+ * stack — and above all, the band follows the rounded corners without
+ * having to restate the radius.
  *
- * L'obliquite est reglable et vaut cent dix degres par defaut : une bande
- * verticale se lit comme un curseur, et un curseur promet une position dans
- * une progression. Penchee, elle redevient un reflet sur une surface.
+ * The obliquity is adjustable and is a hundred and ten degrees by default:
+ * a vertical band reads as a cursor, and a cursor promises a position
+ * within a progress. Tilted, it becomes a highlight on a surface again.
  *
- * `pulse-block` traite la meme surface autrement : il n'a pas de bande du
- * tout, il respire. Un reflet dit « quelque chose passe » et donne un sens
- * de lecture ; une pulsation dit seulement « pas encore ».
+ * `pulse-block` treats the same surface differently: it has no band at all,
+ * it breathes. A highlight says "something is going through" and gives a
+ * reading direction; a pulse only says "not yet".
  *
- * ## Un statut, pas un dessin
+ * ## A status, not a drawing
  *
- * L'element porte `role="status"` et un libelle ; le bloc est retire de
- * l'arbre d'accessibilite. Sous mouvement reduit, le fond perd sa bande et
- * garde sa pleine valeur : la surface reste visible, elle ne s'efface pas.
+ * The element carries `role="status"` and a label; the block is removed
+ * from the accessibility tree. Under reduced motion, the background loses
+ * its band and keeps its full value: the surface stays visible, it does not
+ * fade away.
  *
  * @module
  */
@@ -38,10 +38,10 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-shimmer-block'
 
-/** Pose le bloc et son reflet, une fois par document. */
+/** Applies the block and its highlight, once per document. */
 function ensureShimmerBlockRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -53,16 +53,16 @@ function ensureShimmerBlockRule(): void {
     '[data-o-shb-face]{',
     'display:block;width:100%;height:var(--o-shb-height);',
     'border-radius:var(--o-shb-radius);',
-    // Le ton du bloc : le filet donne la densite, la surface l'eclaircit.
+    // The tone of the block: the line gives the density, the surface lightens it.
     'background-color:color-mix(in oklab,var(--o-theme-line) 72%,var(--o-theme-surface));',
-    // La bande est le fond, pas une couche : elle suit donc le rayon.
+    // The band is the background, not a layer: it therefore follows the radius.
     'background-image:linear-gradient(var(--o-shb-angle),transparent 0 calc(50% - var(--o-shb-band)),color-mix(in oklab,var(--o-theme-surface) 85%,transparent) 50%,transparent calc(50% + var(--o-shb-band)) 100%);',
     'background-size:250% 100%;background-repeat:no-repeat;',
     'background-position:150% 0;',
     'animation:o-shb-sweep var(--o-shb-speed) linear infinite;',
     '}',
     '@keyframes o-shb-sweep{from{background-position:150% 0}to{background-position:-50% 0}}',
-    // Sans bande, a pleine valeur : la place reste tenue.
+    // With no band, at full value: the space is still held.
     '@media (prefers-reduced-motion:reduce){',
     '[data-o-shb-face]{animation:none;background-image:none}',
     '}',
@@ -70,33 +70,33 @@ function ensureShimmerBlockRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface ShimmerBlockOwnProps {
-  /** Hauteur du bloc, en pixels. @defaultValue 96 */
+  /** Height of the block, in pixels. @defaultValue 96 */
   height?: number
-  /** Rayon des angles, en pixels. @defaultValue 12 */
+  /** Radius of the corners, in pixels. @defaultValue 12 */
   radius?: number
-  /** Obliquite de la bande, en degres. @defaultValue 110 */
+  /** Obliquity of the band, in degrees. @defaultValue 110 */
   angle?: number
-  /** Demi-largeur de la bande, en pourcentage de l'image de fond. @defaultValue 14 */
+  /** Half-width of the band, as a percentage of the background image. @defaultValue 14 */
   band?: number
-  /** Duree d'un passage de la bande, en millisecondes. @defaultValue 1800 */
+  /** Duration of one pass of the band, in milliseconds. @defaultValue 1800 */
   speed?: number
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */
+  /** Label announced to screen readers. @defaultValue 'Loading' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All the properties. */
 export type ShimmerBlockProps = Customisable<ShimmerBlockOwnProps, 'div'>
 
 /**
- * Reserve une surface et la traverse d'un reflet.
+ * Reserves a surface and crosses it with a highlight.
  *
  * @example
  * <ShimmerBlock height={140} />
  *
  * @example
- * // Une bande large et presque horizontale, lente.
+ * // A wide, almost horizontal band, slow.
  * <ShimmerBlock height={64} angle={80} band={24} speed={2600} />
  */
 export function ShimmerBlock({
@@ -105,7 +105,7 @@ export function ShimmerBlock({
   angle = 110,
   band = 14,
   speed = 1800,
-  label = 'Chargement',
+  label = 'Loading',
   ...rest
 }: ShimmerBlockProps): ReactElement {
   ensureShimmerBlockRule()

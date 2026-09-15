@@ -1,26 +1,26 @@
 /**
- * Flottement : chaque enfant direct oscille doucement, jamais en choeur.
+ * Float: every direct child sways gently, never in chorus.
  *
- * ## La cadence vient de l'index, pas du hasard
+ * ## The cadence comes from the index, not from chance
  *
- * Duree et phase de chaque enfant sont derivees de sa position par la meme
- * suite deterministe que la pluie de meteores. `Math.random()` au rendu
- * donnerait deux flottements differents entre le serveur et le client — une
- * erreur d'hydratation par enfant — et un flottement nouveau a chaque rendu
- * du parent. La graine par index garantit surtout ce qui fait l'effet : deux
- * voisins n'ont jamais ni la meme duree ni la meme phase, et le groupe
- * respire au lieu de sauter a l'unisson.
+ * Duration and phase of each child are derived from its position by the same
+ * deterministic sequence as the meteor shower. `Math.random()` at render time
+ * would give two different floats between the server and the client — one
+ * hydration error per child — and a new float on every render of the parent.
+ * Above all, seeding by index guarantees what makes the effect: two
+ * neighbours never share either duration or phase, and the group breathes
+ * instead of jumping in unison.
  *
- * ## Le compositeur porte tout
+ * ## The compositor carries everything
  *
- * Chaque enfant est enveloppe d'un `span` qui porte une seule animation CSS
- * — une translation verticale sinusoidale — reglee par variables. Aucun
- * JavaScript ne s'execute pendant le flottement ; le delai negatif fait que
- * chacun est deja quelque part sur sa course au premier regard.
+ * Each child is wrapped in a `span` that carries a single CSS animation — a
+ * sinusoidal vertical translation — driven by variables. No JavaScript runs
+ * during the float; the negative delay means each one is already somewhere
+ * along its course at first glance.
  *
- * Les enveloppes ne portent pas d'`aria-hidden` : elles contiennent du vrai
- * contenu — badges, vignettes — que le flottement ne doit pas faire taire.
- * Sous mouvement reduit, l'animation est suspendue : tout reste en place.
+ * The wrappers carry no `aria-hidden`: they contain real content — badges,
+ * thumbnails — that the float must not silence. Under reduced motion, the
+ * animation is suspended: everything stays in place.
  *
  * @module
  */
@@ -28,34 +28,34 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import { Children, type CSSProperties, type ReactElement, type ReactNode } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface FloatGroupOwnProps {
-  /** Elements qui flottent, chacun sur sa propre cadence. */
+  /** Elements that float, each on its own cadence. */
   children: ReactNode
-  /** Amplitude de l'oscillation, en pixels. @defaultValue 8 */
+  /** Amplitude of the sway, in pixels. @defaultValue 8 */
   amplitude?: number
-  /** Duree de reference d'un aller-retour, en millisecondes. @defaultValue 3000 */
+  /** Reference duration of one round trip, in milliseconds. @defaultValue 3000 */
   duration?: number
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type FloatGroupProps = Customisable<FloatGroupOwnProps>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-float-group'
 
 /**
- * Valeur pseudo-aleatoire dans [0, 1), stable pour un couple index-canal.
+ * Pseudo-random value in [0, 1), stable for an index-channel pair.
  *
- * Une congruence suffit : il ne s'agit pas de cryptographie, seulement de
- * garantir que deux voisins ne partagent jamais leur cadence.
+ * A congruence is enough: this is not cryptography, only a guarantee that two
+ * neighbours never share their cadence.
  */
 function seeded(index: number, channel: number): number {
   const value = Math.sin(index * 127.1 + channel * 311.7) * 43758.5453
   return value - Math.floor(value)
 }
 
-/** Pose l'oscillation, une fois par document. */
+/** Sets the sway, once per document. */
 function ensureFloatRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -69,8 +69,8 @@ function ensureFloatRule(): void {
     'animation-delay:var(--o-float-phase);',
     'will-change:transform;',
     '}',
-    // Une sinusoide en trois points : l'aller-retour est symetrique, et
-    // ease-in-out arrondit les extremes comme un vrai flotteur.
+    // A sine wave in three points: the round trip is symmetric, and
+    // ease-in-out rounds the extremes like a real float.
     '@keyframes o-float-drift{',
     '0%,100%{transform:translateY(0)}',
     '50%{transform:translateY(calc(var(--o-float-amplitude) * -1))}',
@@ -81,22 +81,22 @@ function ensureFloatRule(): void {
 }
 
 /**
- * Fait flotter chacun de ses enfants directs, pour badges et vignettes.
+ * Makes each of its direct children float, for badges and thumbnails.
  *
- * La mise en page du groupe appartient a l'appelant : une rangee, une
- * grille, un nuage — le composant ne fait qu'envelopper chaque enfant.
+ * The layout of the group belongs to the caller: a row, a grid, a cloud — the
+ * component only wraps each child.
  *
  * @example
  * <FloatGroup className="o-flex o-items-center o-gap-6">
- *   <Badge>Nouveau</Badge>
- *   <Badge>Sans engagement</Badge>
- *   <Badge>Ouvert la nuit</Badge>
+ *   <Badge>New</Badge>
+ *   <Badge>No commitment</Badge>
+ *   <Badge>Open at night</Badge>
  * </FloatGroup>
  *
  * @example
- * // Un flottement ample et lent, pour de grandes vignettes.
+ * // A wide and slow float, for large thumbnails.
  * <FloatGroup amplitude={16} duration={5000} className="o-grid o-grid-cols-3 o-gap-8">
- *   {vignettes}
+ *   {thumbnails}
  * </FloatGroup>
  */
 export function FloatGroup({
@@ -112,8 +112,8 @@ export function FloatGroup({
   return (
     <div {...rest} className={className} style={style}>
       {Children.map(children, (child, index) => {
-        // Duree etalee autour de la reference, phase portee par un delai
-        // negatif : voir l'en-tete du module.
+        // Duration spread around the reference, phase carried by a negative
+        // delay: see the module header.
         const own = duration * (0.85 + seeded(index, 0) * 0.4)
         return (
           <span

@@ -1,32 +1,30 @@
 /**
- * Sphere de points : un nuage spherique qui tourne, et que le pointeur
- * souleve.
+ * Sphere of points: a spherical cloud that turns, and that the pointer lifts.
  *
- * ## A quoi ce fond reagit
+ * ## What this background reacts to
  *
- * Au deplacement du pointeur, avec amortissement : la position du curseur
- * est projetee sur l'hemisphere qui fait face a la camera, puis ramenee dans
- * le repere de la sphere qui tourne — sans cela, la bosse tournerait avec
- * elle au lieu de rester sous le curseur. Les points proches de cette
- * direction sont souleves le long de leur normale et changent de teinte. A
- * la sortie du cadre, la bosse s'efface.
+ * To pointer movement, with damping: the position of the cursor is projected
+ * onto the hemisphere facing the camera, then brought back into the frame of
+ * the sphere as it turns — without that, the bump would turn with it instead
+ * of staying under the cursor. The points near that direction are lifted
+ * along their normal and change hue. On leaving the frame, the bump fades
+ * out.
  *
- * Ce qui distingue cette entree de `orbital-sphere` : la-bas une sphere
- * decorative, ceinte d'anneaux et piquee de noeuds, qui ne fait que tourner ;
- * ici une surface de points qui se deforme sous la main.
+ * What sets this entry apart from `orbital-sphere`: over there a decorative
+ * sphere, girded with rings and studded with nodes, which only turns; here a
+ * surface of points that deforms under the hand.
  *
- * ## Ce qui se passe par image
+ * ## What happens per frame
  *
- * Aucun rendu React : la rotation, la direction du pointeur et la force de
- * la bosse sont ecrites dans des uniformes vivants depuis la boucle du
- * moteur. Les vecteurs et quaternions de travail sont alloues une fois, a la
- * construction.
+ * No React render: the rotation, the direction of the pointer and the
+ * strength of the bump are written into live uniforms from the engine loop.
+ * The working vectors and quaternions are allocated once, at construction.
  *
- * ## Le repli
+ * ## The fallback
  *
- * Pendant le chargement de la scene, sans WebGL, sous mouvement reduit, ou si
- * l'arbitre refuse une seconde scene, un degrade flou prend la place — dans
- * les memes tons, sans bord dur.
+ * While the scene loads, without WebGL, under reduced motion, or if the
+ * arbiter refuses a second scene, a blurred gradient takes its place — in the
+ * same tones, with no hard edge.
  *
  * @module
  */
@@ -52,72 +50,72 @@ import {
   PARTICLE_SPHERE_VERTEX,
 } from './particle-sphere.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface ParticleSphereControls {
-  /** Contexte de la scene : objets, camera, moteur de rendu, module. */
+  /** Scene context: objects, camera, renderer, module. */
   readonly scene: SceneContext
-  /** Uniformes vivants : les modifier change le rendu a l'image suivante. */
+  /** Live uniforms: changing them changes the render on the next frame. */
   readonly uniforms: Record<string, { value: unknown }>
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to this component. */
 export interface ParticleSphereOwnProps {
-  /** Nombre de points. @defaultValue 3000 */
+  /** Number of points. @defaultValue 3000 */
   points?: number
-  /** Taille d'un point, en pixels. @defaultValue 2.5 */
+  /** Size of a point, in pixels. @defaultValue 2.5 */
   size?: number
-  /** Hauteur de la bosse sous le pointeur, en rayons. @defaultValue 0.35 */
+  /** Height of the bump under the pointer, in radii. @defaultValue 0.35 */
   pull?: number
-  /** Etendue de la bosse, entre zero et un. @defaultValue 0.45 */
+  /** Extent of the bump, between zero and one. @defaultValue 0.45 */
   reach?: number
-  /** Vitesse de rotation, en tours par minute. @defaultValue 1.5 */
+  /** Rotation speed, in turns per minute. @defaultValue 1.5 */
   rpm?: number
-  /** Tokens : le fond, les points, les points souleves. */
+  /** Tokens: the background, the points, the lifted points. */
   colors?: readonly [string, string, string]
-  /** Classes du repli. */
+  /** Fallback classes. */
   poster?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<ParticleSphereControls>
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type ParticleSphereProps = Customisable<ParticleSphereOwnProps>
 
-/** Tokens employes par defaut. */
+/** Tokens used by default. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-cyan-400',
   '--o-palette-amber-400',
 ] as const
 
-/** Repli par defaut : un halo fige, dans les memes tons. */
+/** Default fallback: a frozen halo, in the same tones. */
 const DEFAULT_POSTER =
   'o-bg-gradient-to-br o-from-zinc-50 dark:o-from-zinc-950 o-via-cyan-200 dark:o-via-cyan-900 o-to-zinc-50 dark:o-to-zinc-950 o-blur-2xl o-scale-110'
 
-/** Nombre de points en qualite basse. */
+/** Number of points at low quality. */
 const LOW_POINTS = 1200
 
-/** Plafond du nombre de points : au-dela, le nuage n'est plus que du bruit. */
+/** Ceiling on the number of points: beyond it, the cloud is nothing but noise. */
 const MAX_POINTS = 8000
 
-/** L'angle d'or, qui donne son pas a la spirale. */
+/** The golden angle, which gives the spiral its step. */
 const GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5))
 
-/** Ce que la boucle manipule, construit une fois par montage. */
+/** What the loop handles, built once per mount. */
 interface World {
   readonly group: InstanceType<SceneContext['three']['Group']>
   readonly direction: InstanceType<SceneContext['three']['Vector3']>
   readonly inverse: InstanceType<SceneContext['three']['Quaternion']>
 }
 
-/** Nombre pseudo-aleatoire d'un indice, stable d'un montage a l'autre. */
+/** Pseudo-random number for an index, stable from one mount to the next. */
 function hash(index: number): number {
   const x = Math.sin(index * 127.1 + 311.7) * 43758.5453123
   return x - Math.floor(x)
 }
 
 /**
- * Sphere de points.
+ * Sphere of points.
  *
  * @example
  * <div className="o-relative o-h-96 o-overflow-hidden o-rounded-xl">
@@ -139,14 +137,14 @@ export function ParticleSphere({
   const { theme } = useMotionState()
   const [host, setHost] = useState<HTMLDivElement | null>(null)
 
-  const pointer = usePointerDamped({ host, speed: 4, name: 'particle-sphere : pointeur' })
+  const pointer = usePointerDamped({ host, speed: 4, name: 'particle-sphere : pointer' })
 
   const uniforms = useRef<Record<string, { value: unknown }>>({})
   const context = useRef<SceneContext | null>(null)
   const world = useRef<World | null>(null)
 
-  // Le hook ramene le pointeur au centre quand il quitte le cadre : sans ce
-  // drapeau, la bosse resterait plantee au milieu de la sphere.
+  // The hook brings the pointer back to the centre when it leaves the frame:
+  // without this flag, the bump would stay stuck in the middle of the sphere.
   const inside = useRef(false)
   const strength = useRef(0)
 
@@ -166,8 +164,8 @@ export function ParticleSphere({
     }
   }, [host])
 
-  // Les reglages sont lus par ref dans la boucle : un changement de curseur
-  // dans l'atelier prend effet a l'image suivante sans reconstruire la scene.
+  // The settings are read by ref inside the loop: moving a slider in the
+  // workshop takes effect on the next frame without rebuilding the scene.
   const settings = useRef({ size, pull, reach, rpm })
   settings.current = { size, pull, reach, rpm }
 
@@ -183,9 +181,10 @@ export function ParticleSphere({
         readTokenColour(token, host),
       )
 
-      // Le fond est la couleur du theme. Le token est en sRGB et le moteur
-      // encode sa couleur d'effacement du lineaire vers le sRGB : sans la
-      // conversion inverse, le fond ressort un cran plus clair que la page.
+      // The background is the colour of the theme. The token is in sRGB and
+      // the engine encodes its clear colour from linear to sRGB: without the
+      // inverse conversion, the background comes out a notch lighter than the
+      // page.
       renderer.setClearColor(paint(background ?? [0, 0, 0]).convertSRGBToLinear(), 1)
 
       const total = Math.min(
@@ -193,9 +192,9 @@ export function ParticleSphere({
         MAX_POINTS,
       )
 
-      // La spirale de Fibonacci repartit les points a distance egale ; un
-      // leger tirage par point casse la regularite du reseau, qui se lirait
-      // sinon comme des moires.
+      // The Fibonacci spiral spreads the points at equal distance; a slight
+      // draw per point breaks the regularity of the lattice, which would
+      // otherwise read as moire.
       const positions = new Float32Array(total * 3)
       for (let index = 0; index < total; index += 1) {
         const y = 1 - (index / Math.max(total - 1, 1)) * 2
@@ -258,14 +257,15 @@ export function ParticleSphere({
       const { size: px, pull: height, reach: extent, rpm: turns } = settings.current
       const current = uniforms.current
 
-      // La rotation est exprimee en fonction du temps ecoule : le meme
-      // reglage donne la meme vitesse a soixante comme a cent vingt images.
+      // The rotation is expressed as a function of the elapsed time: the same
+      // setting gives the same speed at sixty as at a hundred and twenty
+      // frames.
       group.rotation.y += (delta * turns * Math.PI * 2) / 60
       group.rotation.x = Math.sin(time * 0.2) * 0.18
 
-      // Le pointeur, projete sur l'hemisphere qui fait face a la camera :
-      // dans le cadre, la direction pointe vers l'avant ; au bord, elle se
-      // couche sur le contour.
+      // The pointer, projected onto the hemisphere facing the camera: inside
+      // the frame, the direction points forward; at the edge, it lies down
+      // onto the outline.
       let x = pointer.current.x * 1.15
       let y = -pointer.current.y * 1.15
       const spread = Math.hypot(x, y)
@@ -274,12 +274,13 @@ export function ParticleSphere({
         y /= spread
       }
       const z = Math.sqrt(Math.max(0, 1 - x * x - y * y))
-      // Puis ramene dans le repere de la sphere, qui tourne sous le curseur.
+      // Then brought back into the frame of the sphere, which turns under the
+      // cursor.
       inverse.copy(group.quaternion).invert()
       direction.set(x, y, z).applyQuaternion(inverse)
 
-      // La force monte et retombe en douceur : la bosse ne claque pas a
-      // l'entree du cadre, et ne reste pas plantee a la sortie.
+      // The strength rises and falls gently: the bump does not snap on
+      // entering the frame, and does not stay stuck on leaving it.
       const target = inside.current ? height : 0
       strength.current += (target - strength.current) * Math.min(1, delta * 6)
 
@@ -298,8 +299,8 @@ export function ParticleSphere({
     },
   })
 
-  // Le theme a bascule : les tokens sont relus et les couleurs mises a jour
-  // en place. La scene n'est pas reconstruite — seules ses couleurs changent.
+  // The theme has flipped: the tokens are read again and the colours updated
+  // in place. The scene is not rebuilt — only its colours change.
   useEffect(() => {
     const scene = context.current
     const live = uniforms.current

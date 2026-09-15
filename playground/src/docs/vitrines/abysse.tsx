@@ -39,7 +39,7 @@
  */
 
 import { Icon } from '@odoro-cli/icons'
-import { ArrowDown, ArrowRight, ArrowUpRight, Ticket } from '@odoro-cli/icons/filaire'
+import { ArrowDown, ArrowRight, ArrowUpRight, Ticket } from '@odoro-cli/icons/outline'
 import { Reveal } from '@odoro-cli/libs/motion'
 import { useEffect, useRef, useState, type CSSProperties, type ReactElement } from 'react'
 

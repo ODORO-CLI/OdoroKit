@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { motionPolicy } from './motion-policy.js'
 
-/** Force la reponse du systeme pour `prefers-reduced-motion`. */
+/** Forces the system answer for `prefers-reduced-motion`. */
 function setSystemReduced(reduced: boolean): void {
   window.matchMedia = ((query: string) => ({
     matches: query.includes('prefers-reduced-motion') ? reduced : false,
@@ -24,62 +24,62 @@ afterEach(() => {
   motionPolicy.dispose()
 })
 
-describe('preference systeme', () => {
-  it('respecte la preference par defaut', () => {
+describe('system preference', () => {
+  it('respects the preference by default', () => {
     setSystemReduced(true)
     motionPolicy.configure({})
     expect(motionPolicy.state.reduced).toBe(true)
   })
 
-  it('n annonce rien de reduit quand le systeme ne demande rien', () => {
+  it('reports nothing reduced when the system asks for nothing', () => {
     motionPolicy.configure({})
     expect(motionPolicy.state.reduced).toBe(false)
   })
 
-  it('neutralise en toutes circonstances avec force', () => {
+  it('neutralises in every circumstance with force', () => {
     motionPolicy.configure({ reducedMotion: 'force' })
     expect(motionPolicy.state.reduced).toBe(true)
   })
 
-  it('passe outre la preference avec ignore', () => {
+  it('overrides the preference with ignore', () => {
     setSystemReduced(true)
     motionPolicy.configure({ reducedMotion: 'ignore' })
     expect(motionPolicy.state.reduced).toBe(false)
   })
 
-  it('ramene la qualite au plus bas quand le mouvement est reduit', () => {
-    // L'animation est neutralisee ; il serait absurde de continuer a rendre au
-    // niveau de detail le plus couteux.
+  it('brings the quality down to the lowest when motion is reduced', () => {
+    // The animation is neutralised; it would be absurd to keep rendering at
+    // the most expensive level of detail.
     motionPolicy.configure({ quality: 'high', reducedMotion: 'force' })
     expect(motionPolicy.state.quality).toBe('low')
   })
 })
 
-describe('qualite imposee', () => {
-  it('retient le niveau demande', () => {
+describe('forced quality', () => {
+  it('keeps the requested level', () => {
     motionPolicy.configure({ quality: 'low' })
     expect(motionPolicy.state.quality).toBe('low')
-    expect(motionPolicy.state.reason).toBe('qualite imposee')
+    expect(motionPolicy.state.reason).toBe('forced quality')
 
     motionPolicy.configure({ quality: 'high' })
     expect(motionPolicy.state.quality).toBe('high')
   })
 
-  it('part du niveau le plus eleve en automatique', () => {
+  it('starts from the highest level in automatic mode', () => {
     motionPolicy.configure({ quality: 'auto' })
     expect(motionPolicy.state.quality).toBe('high')
   })
 })
 
-describe('instantane', () => {
-  it('conserve la meme reference tant que rien ne change', () => {
-    // `useSyncExternalStore` compare les instantanes par identite : en
-    // reconstruire un a chaque lecture provoquerait une boucle de rendu.
+describe('snapshot', () => {
+  it('keeps the same reference as long as nothing changes', () => {
+    // `useSyncExternalStore` compares snapshots by identity: rebuilding one on
+    // every read would cause a render loop.
     motionPolicy.configure({})
     expect(motionPolicy.state).toBe(motionPolicy.state)
   })
 
-  it('change de reference a un changement reel', () => {
+  it('changes reference on a real change', () => {
     motionPolicy.configure({ quality: 'high' })
     const before = motionPolicy.state
     motionPolicy.configure({ quality: 'low' })
@@ -87,8 +87,8 @@ describe('instantane', () => {
   })
 })
 
-describe('abonnement', () => {
-  it('notifie a un changement d etat', () => {
+describe('subscription', () => {
+  it('notifies on a state change', () => {
     const listener = vi.fn()
     motionPolicy.configure({ quality: 'high' })
     motionPolicy.subscribe(listener)
@@ -99,7 +99,7 @@ describe('abonnement', () => {
     expect(listener.mock.calls[0]?.[0]).toMatchObject({ quality: 'low' })
   })
 
-  it('ne notifie pas quand rien ne change', () => {
+  it('does not notify when nothing changes', () => {
     const listener = vi.fn()
     motionPolicy.configure({ quality: 'low' })
     motionPolicy.subscribe(listener)
@@ -109,7 +109,7 @@ describe('abonnement', () => {
     expect(listener).not.toHaveBeenCalled()
   })
 
-  it('cesse de notifier apres desabonnement', () => {
+  it('stops notifying after unsubscribing', () => {
     const listener = vi.fn()
     motionPolicy.configure({ quality: 'high' })
     const unsubscribe = motionPolicy.subscribe(listener)
@@ -121,8 +121,8 @@ describe('abonnement', () => {
   })
 })
 
-describe('visibilite de l onglet', () => {
-  it('suit l etat du document', () => {
+describe('tab visibility', () => {
+  it('follows the state of the document', () => {
     motionPolicy.configure({})
     expect(motionPolicy.state.visible).toBe(true)
 
@@ -147,8 +147,8 @@ describe('visibilite de l onglet', () => {
   })
 })
 
-describe('liberation', () => {
-  it('revient aux reglages initiaux', () => {
+describe('release', () => {
+  it('returns to the initial settings', () => {
     motionPolicy.configure({ quality: 'low', reducedMotion: 'force' })
     motionPolicy.dispose()
 
@@ -156,7 +156,7 @@ describe('liberation', () => {
     expect(motionPolicy.state.quality).toBe('high')
   })
 
-  it('retire les ecouteurs', () => {
+  it('removes the listeners', () => {
     const listener = vi.fn()
     motionPolicy.configure({})
     motionPolicy.subscribe(listener)

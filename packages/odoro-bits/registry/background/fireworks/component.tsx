@@ -1,31 +1,31 @@
 /**
- * Feux d'artifice : un bouquet eclate a chaque clic et retombe sous la
- * gravite.
+ * Fireworks: a burst breaks open at every click and falls back under
+ * gravity.
  *
- * ## A quoi ce fond reagit
+ * ## What this background reacts to
  *
- * Au clic — ou au toucher — sur le cadre : chaque appui date un bouquet dans
- * un tampon circulaire de six emplacements, et les etincelles partent du
- * point exact de l'appui. Le deplacement du pointeur ne change rien.
+ * On a click — or a touch — on the frame: each press timestamps a burst in
+ * a circular buffer of six slots, and the sparks leave from the exact point
+ * of the press. Moving the pointer changes nothing.
  *
- * Un bouquet automatique part aussi tout seul, a intervalle regle : un ciel
- * qui n'existe qu'au clic resterait vide dans la plupart des pages. Zero le
- * coupe.
+ * An automatic burst also goes off on its own, at a set interval: a sky
+ * that exists only on a click would stay empty on most pages. Zero cuts
+ * it.
  *
- * ## Le pont clic -> shader
+ * ## The click -> shader bridge
  *
- * Aucun rendu React par image : le tampon est un tableau stable de dix-huit
- * flottants (six fois x, y, temps de depart), mute en place a chaque clic.
- * La surface relit ses uniforms a chaque image, l'identite du tableau ne
- * change pas — la mutation suffit.
+ * No React render per frame: the buffer is a stable array of eighteen
+ * floats (six times x, y, start time), mutated in place on every click.
+ * The surface re-reads its uniforms every frame, the array's identity never
+ * changes — mutating is enough.
  *
- * Le temps ecrit dans le tampon est celui de l'horloge du moteur, memorise par
- * une souscription en priorite d'entree : c'est le meme temps que `uTime` du
- * shader, sans quoi l'age des bouquets serait faux.
+ * The time written into the buffer is the engine clock's, recorded by a
+ * subscription at input priority: it is the same time as the shader's `uTime`,
+ * without which the age of the bursts would be wrong.
  *
- * ## Sous mouvement reduit
+ * ## Under reduced motion
  *
- * La surface est refusee par le moteur et le repli statique s'affiche.
+ * The surface is refused by the engine and the static fallback shows.
  *
  * @module
  */
@@ -44,60 +44,60 @@ import { useEffect, useRef, useState, type ReactElement } from 'react'
 
 import { FIREWORKS_FRAGMENT } from './fireworks.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface FireworksControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to this component. */
 export interface FireworksOwnProps {
-  /** Etincelles par bouquet. @defaultValue 32 */
+  /** Sparks per burst. @defaultValue 32 */
   sparks?: number
-  /** Force de la retombee. @defaultValue 0.25 */
+  /** Strength of the fall-back. @defaultValue 0.25 */
   gravity?: number
-  /** Vitesse d'extinction des etincelles. @defaultValue 1.1 */
+  /** Rate at which the sparks fade out. @defaultValue 1.1 */
   decay?: number
-  /** Periode des bouquets automatiques, en secondes. Zero les coupe. @defaultValue 2.6 */
+  /** Period of the automatic bursts, in seconds. Zero cuts them. @defaultValue 2.6 */
   auto?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<FireworksControls>
 }
 
-/** Toutes les proprietes. */
+/** Every property. */
 export type FireworksProps = Customisable<FireworksOwnProps>
 
-/** Tokens employes par defaut : le ciel, les deux teintes d'etincelles. */
+/** Tokens used by default: the sky, the two spark hues. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-brand-500',
   '--o-palette-amber-200',
 ] as const
 
-/** Repli par defaut : un ciel fige, dans les memes tons. */
+/** Default fallback: a frozen sky, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-t o-from-zinc-50 dark:o-from-zinc-950 o-to-brand-200 dark:o-to-brand-950'
 
-/** Nombre de bouquets vivants a la fois. */
+/** Number of bursts live at once. */
 const SLOTS = 6
 
 /**
- * Etincelles par bouquet en qualite basse.
+ * Sparks per burst at low quality.
  *
- * Chaque etincelle est une exponentielle et un sinus par fragment, pour
- * chacun des sept bouquets possibles : c'est le seul levier de cout, et il
- * n'a pas besoin d'etre une prop pour etre retrograde.
+ * Each spark is an exponential and a sine per fragment, for each of the
+ * seven possible bursts: it is the only lever on cost, and it does not need
+ * to be a prop in order to be degraded.
  */
 const LOW_SPARKS = 14
 
 /**
- * Feux d'artifice.
+ * Fireworks.
  *
  * @example
  * <div className="o-relative o-min-h-screen">
@@ -117,12 +117,12 @@ export function Fireworks({
 }: FireworksProps): ReactElement {
   const [host, setHost] = useState<HTMLDivElement | null>(null)
 
-  // Tampon stable, mute en place : six fois (x, y, temps de depart). Un
-  // depart a -1000 donne un age enorme, donc un bouquet inerte d'office.
+  // Stable buffer, mutated in place: six times (x, y, start time). A start
+  // at -1000 gives an enormous age, hence a burst inert by default.
   const uClicks = useRef<number[]>(Array.from({ length: SLOTS * 3 }, () => -1000)).current
 
-  // Le temps de l'horloge du moteur — le meme que uTime du shader. C'est lui
-  // qui date les bouquets ; performance.now() donnerait une autre origine.
+  // The engine clock's time — the same as the shader's uTime. It is what
+  // timestamps the bursts; performance.now() would give another origin.
   const lastTime = useRef(0)
 
   useEffect(() => {
@@ -130,7 +130,7 @@ export function Fireworks({
       ({ time }) => {
         lastTime.current = time
       },
-      { priority: CLOCK_PRIORITY.input, name: 'fireworks : horloge' },
+      { priority: CLOCK_PRIORITY.input, name: 'fireworks : clock' },
     )
     return () => subscription.unsubscribe()
   }, [])
@@ -141,10 +141,10 @@ export function Fireworks({
     const onDown = (event: PointerEvent): void => {
       const bounds = host.getBoundingClientRect()
       const x = (event.clientX - bounds.left) / Math.max(bounds.width, 1)
-      // vUv a son origine en bas : l'axe vertical de l'ecran est inverse.
+      // vUv has its origin at the bottom: the screen's vertical axis is flipped.
       const y = 1 - (event.clientY - bounds.top) / Math.max(bounds.height, 1)
 
-      // Tampon circulaire : tout se decale d'un cran, le nouveau bouquet en tete.
+      // Circular buffer: everything shifts by one, the new burst at the head.
       for (let i = SLOTS - 1; i > 0; i -= 1) {
         uClicks[i * 3] = uClicks[(i - 1) * 3] ?? -1000
         uClicks[i * 3 + 1] = uClicks[(i - 1) * 3 + 1] ?? -1000

@@ -42,7 +42,7 @@ import {
   Server,
   SlidersHorizontal,
   X,
-} from '@odoro-cli/icons/filaire'
+} from '@odoro-cli/icons/outline'
 import { Reveal } from '@odoro-cli/libs/motion'
 import { Link } from '@odoro-cli/libs/router'
 import { SelectMenu } from '@odoro-cli/libs/ui'

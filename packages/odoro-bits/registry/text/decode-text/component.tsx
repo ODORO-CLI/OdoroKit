@@ -1,23 +1,22 @@
 /**
- * Decodage : le texte se stabilise depuis un brouillage.
+ * Decoding: the text settles out of a scramble.
  *
- * ## Le texte reste lisible pendant tout l'effet
+ * ## The text stays readable throughout the effect
  *
- * Un brouillage remplace les caracteres affiches par des symboles aleatoires.
- * Rendu tel quel, c'est du bruit : un lecteur d'ecran annonce des suites de
- * signes, et une recherche dans la page ne trouve rien pendant toute la duree
- * de l'animation.
+ * A scramble replaces the displayed characters with random symbols. Rendered
+ * as it is, that is noise: a screen reader announces strings of signs, and an
+ * in-page search finds nothing for the whole duration of the animation.
  *
- * Le texte veritable est donc porte par l'element, en `aria-label`, et le
- * brouillage n'existe que dans ce qui est peint. L'effet ne coute alors rien a
- * personne d'autre qu'a l'oeil.
+ * The real text is therefore carried by the element, as an `aria-label`, and
+ * the scramble exists only in what is painted. The effect then costs nothing
+ * to anybody but the eye.
  *
- * ## Pourquoi la boucle du moteur
+ * ## Why the engine loop
  *
- * Le brouillage doit changer a la cadence de l'ecran, sans quoi il saccade. Un
- * minuteur a intervalle fixe donnerait un rythme different du rafraichissement
- * et produirait un battement visible. C'est le cas d'ecole d'un effet qui
- * possede la frame.
+ * The scramble must change at the rate of the screen, otherwise it stutters. A
+ * timer at a fixed interval would give a rhythm different from the refresh and
+ * would produce a visible beat. It is the textbook case of an effect that owns
+ * the frame.
  *
  * @module
  */
@@ -40,45 +39,45 @@ import {
   type ReactElement,
 } from 'react'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface DecodeControls {
-  /** Rejoue la sequence depuis le debut. */
+  /** Replays the sequence from the start. */
   replay(): void
 }
 
-/** Ce qui declenche la sequence. */
+/** What triggers the sequence. */
 export type DecodeTrigger = 'mount' | 'view' | 'hover'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface DecodeTextOwnProps {
-  /** Texte a decoder. */
+  /** Text to decode. */
   children: string
-  /** Balise rendue. @defaultValue 'span' */
+  /** Rendered tag. @defaultValue 'span' */
   as?: ElementType
-  /** Duree totale de la stabilisation, en millisecondes. @defaultValue 1200 */
+  /** Total duration of the settling, in milliseconds. @defaultValue 1200 */
   duration?: number
-  /** Caracteres employes pour le brouillage. */
+  /** Characters used for the scramble. */
   alphabet?: string
-  /** Ce qui declenche la sequence. @defaultValue 'view' */
+  /** What triggers the sequence. @defaultValue 'view' */
   trigger?: DecodeTrigger
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<DecodeControls>
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type DecodeTextProps = Customisable<DecodeTextOwnProps, 'span'>
 
 /**
- * Alphabet par defaut.
+ * Default alphabet.
  *
- * Volontairement sans lettres accentuees ni signes larges : un caractere plus
- * large que celui qu'il remplace ferait respirer la ligne a chaque image, et
- * le texte tremblerait au lieu de se stabiliser.
+ * Deliberately without accented letters or wide signs: a character wider than
+ * the one it replaces would make the line breathe on every frame, and the text
+ * would shiver instead of settling.
  */
 const DEFAULT_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#%&@$?!/\\|<>*+='
 
 /**
- * Revele un texte en le decodant.
+ * Reveals a text by decoding it.
  *
  * @example
  * <DecodeText as="h2" className="o-text-4xl o-font-bold">
@@ -86,9 +85,9 @@ const DEFAULT_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#%&@$?!/\\|<>*+='
  * </DecodeText>
  *
  * @example
- * // Niveau 5 : rejouer la sequence depuis l exterieur.
- * const rejouer = useRef<(() => void) | null>(null)
- * <DecodeText onReady={({ handle }) => { rejouer.current = handle.replay }}>
+ * // Level 5: replaying the sequence from the outside.
+ * const replay = useRef<(() => void) | null>(null)
+ * <DecodeText onReady={({ handle }) => { replay.current = handle.replay }}>
  *   Odoro
  * </DecodeText>
  */
@@ -109,8 +108,8 @@ export function DecodeText({
     const target = output.current
     if (target === null) return
 
-    // Sous mouvement reduit, le texte est simplement la. L'animation est
-    // neutralisee, jamais l'etat final.
+    // Under reduced motion, the text is simply there. The animation is
+    // neutralised, never the final state.
     if (reduced) {
       target.textContent = children
       return
@@ -122,8 +121,9 @@ export function DecodeText({
     const subscription = clock.subscribe(
       () => {
         const ratio = Math.min(1, (performance.now() - started) / duration)
-        // Chaque lettre se fige a son tour, de la premiere a la derniere : la
-        // progression avance dans le mot, elle ne le stabilise pas d'un bloc.
+        // Each letter settles in turn, from the first to the last: the
+        // progress advances through the word, it does not settle it in one
+        // block.
         const settled = ratio * letters.length
 
         target.textContent = letters
@@ -136,7 +136,7 @@ export function DecodeText({
 
         if (ratio >= 1) subscription.unsubscribe()
       },
-      { name: 'decodage de texte', priority: CLOCK_PRIORITY.default },
+      { name: 'text decoding', priority: CLOCK_PRIORITY.default },
     )
 
     return () => subscription.unsubscribe()
@@ -166,10 +166,10 @@ export function DecodeText({
     return () => host.removeEventListener('pointerenter', onEnter)
   }, [host, trigger, run])
 
-  // La poignee est stable : `useOnReady` ne depend que d'elle et de l'element,
-  // et un objet neuf a chaque rendu rejouerait l'echappatoire en boucle. Elle
-  // lit `run` dans une reference pour rester juste apres un changement de
-  // reglage.
+  // The handle is stable: `useOnReady` depends only on it and on the element,
+  // and a new object on every render would replay the escape hatch endlessly.
+  // It reads `run` through a ref so as to stay correct after a change of
+  // setting.
   const runRef = useRef(run)
   runRef.current = run
   const controls = useRef<DecodeControls>({ replay: () => void runRef.current() })
@@ -183,8 +183,8 @@ export function DecodeText({
       ref={setHost}
       className={className}
       style={style}
-      // Le brouillage n'existe que pour l'oeil : le texte veritable reste
-      // annonce, cherchable et copiable.
+      // The scramble exists for the eye only: the real text stays announced,
+      // searchable and copyable.
       aria-label={children}
     >
       <span ref={output} aria-hidden>

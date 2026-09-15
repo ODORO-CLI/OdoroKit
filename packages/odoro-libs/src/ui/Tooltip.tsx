@@ -1,11 +1,11 @@
 /**
- * Infobulle au survol et au focus.
+ * Tooltip on hover and on focus.
  *
- * Le panneau est positionne en absolu par rapport a une enveloppe `o-relative`
- * qui entoure le declencheur : aucune mesure ni calcul de position, le flux
- * CSS suffit. Les classes de placement (`o-translate-center-*`) vivent sur une
- * enveloppe distincte du panneau anime, car `usePresence` pilote la propriete
- * `transform` et ecraserait le centrage pendant l'animation.
+ * The panel is positioned absolutely relative to an `o-relative` wrapper that
+ * surrounds the trigger: no measuring and no position computation, the CSS
+ * flow is enough. The placement classes (`o-translate-center-*`) live on a
+ * wrapper distinct from the animated panel, because `usePresence` drives the
+ * `transform` property and would crush the centering during the animation.
  *
  * @module
  */
@@ -26,29 +26,29 @@ import {
 import { usePresence } from '../motion/usePresence.js'
 import { cx } from '../styles/cx.js'
 
-/** Cote d'apparition de l'infobulle. */
+/** Side the tooltip appears on. */
 export type TooltipPlacement = 'top' | 'bottom' | 'left' | 'right'
 
-/** Proprietes de {@link Tooltip}. */
+/** Properties of {@link Tooltip}. */
 export interface TooltipProps {
-  /** Contenu de l'infobulle. Court : une phrase, pas un paragraphe. */
+  /** Tooltip content. Short: one sentence, not a paragraph. */
   content: ReactNode
-  /** Element declencheur, survole ou focalise. */
+  /** Trigger element, hovered or focused. */
   children: ReactNode
-  /** Cote d'apparition. @defaultValue 'top' */
+  /** Side it appears on. @defaultValue 'top' */
   placement?: TooltipPlacement
   /**
-   * Delai avant apparition, en millisecondes. Evite le clignotement quand le
-   * pointeur ne fait que traverser l'element.
+   * Delay before it appears, in milliseconds. Avoids flickering when the
+   * pointer merely crosses the element.
    *
    * @defaultValue 300
    */
   delay?: number
-  /** Classes additionnelles pour le panneau. */
+  /** Additional classes for the panel. */
   className?: string
 }
 
-/** Classes de placement de l'enveloppe positionnee, par cote. */
+/** Placement classes of the positioned wrapper, per side. */
 const PLACEMENT_CLASSES: Readonly<Record<TooltipPlacement, string>> = {
   top: 'o-bottom-full o-left-1/2 o-translate-center-x o-mb-1',
   bottom: 'o-top-full o-left-1/2 o-translate-center-x o-mt-1',
@@ -57,15 +57,15 @@ const PLACEMENT_CLASSES: Readonly<Record<TooltipPlacement, string>> = {
 }
 
 /**
- * Infobulle accessible.
+ * Accessible tooltip.
  *
- * Apparait au survol comme au focus clavier, disparait a la sortie, au blur et
- * sur Echap. Le declencheur est decrit par `aria-describedby` tant que
- * l'infobulle est visible.
+ * Appears on hover as well as on keyboard focus, disappears on leave, on blur
+ * and on Escape. The trigger is described by `aria-describedby` as long as
+ * the tooltip is visible.
  *
  * @example
- * <Tooltip content="Copier dans le presse-papiers">
- *   <Button tone="ghost">Copier</Button>
+ * <Tooltip content="Copy to the clipboard">
+ *   <Button tone="ghost">Copy</Button>
  * </Tooltip>
  */
 export function Tooltip({
@@ -104,8 +104,8 @@ export function Tooltip({
 
   useEffect(() => () => clearTimeout(timerRef.current), [])
 
-  // Le declencheur porte `aria-describedby` quand c'est un element unique ;
-  // sinon la description est posee sur l'enveloppe, faute de mieux.
+  // The trigger carries `aria-describedby` when it is a single element;
+  // otherwise the description is placed on the wrapper, for want of better.
   const describedBy = isMounted ? tooltipId : undefined
   const trigger = isValidElement<{ 'aria-describedby'?: string }>(children)
     ? cloneElement(children, { 'aria-describedby': describedBy })

@@ -1,29 +1,29 @@
 /**
- * Groupe bouton et champ : un champ et son bouton soudes dans une meme
- * pilule, avec une confirmation qui glisse dans le bouton apres l'envoi.
+ * Button and field group: a field and its button welded into a single pill,
+ * with a confirmation that slides into the button after submission.
  *
- * ## Pas de formulaire dans le composant
+ * ## No form inside the component
  *
- * Un champ avec un bouton d'envoi appelle un `form`. Mais ce groupe se pose
- * le plus souvent dans un formulaire qui existe deja — une inscription au
- * pied d'une page, une recherche dans un en-tete — et deux formulaires
- * imbriques sont invalides. Le groupe est donc un `role="group"`, et Entree
- * dans le champ fait ce que le bouton fait ; le formulaire, s'il y en a un,
- * reste celui de la page.
+ * A field with a submit button calls for a `form`. But this group is most
+ * often dropped inside a form that already exists — a sign-up at the foot of
+ * a page, a search in a header — and two nested forms are invalid. The group
+ * is therefore a `role="group"`, and Enter in the field does what the button
+ * does; the form, if there is one, remains the page's own.
  *
- * ## Le bouton a deux faces
+ * ## The button has two faces
  *
- * Le libelle de repos et la confirmation sont deux lignes superposees dans
- * un bouton qui n'en montre qu'une. A l'envoi, la pile glisse d'une ligne :
- * le libelle monte, la confirmation arrive par le bas. La largeur du bouton
- * est celle de la plus longue des deux, mesuree par le navigateur — le
- * bouton ne change pas de taille en cours de route.
+ * The rest label and the confirmation are two stacked lines inside a button
+ * that shows only one. On submit, the stack slides by one line: the label
+ * rises, the confirmation arrives from below. The button's width is that of
+ * the longer of the two, measured by the browser — the button does not change
+ * size along the way.
  *
- * ## Une promesse tient le bouton occupe
+ * ## A promise keeps the button busy
  *
- * Si `onSubmit` rend une promesse, la confirmation attend sa fin, et le
- * bouton est marque occupe entre-temps : on ne confirme pas ce qui n'est
- * pas parti. Un rejet ramene le bouton au repos sans confirmer.
+ * If `onSubmit` returns a promise, the confirmation waits for it to settle,
+ * and the button is marked busy in the meantime: one does not confirm what
+ * has not left. A rejection brings the button back to rest without
+ * confirming.
  *
  * @module
  */
@@ -39,46 +39,46 @@ import {
   type ReactNode,
 } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface ButtonGroupInputOwnProps {
-  /** Nom du champ pour les lecteurs d'ecran. */
+  /** Name of the field for screen readers. */
   label: string
-  /** Texte du champ, en mode controle. */
+  /** Text of the field, in controlled mode. */
   value?: string
-  /** Texte au montage, en mode non controle. @defaultValue '' */
+  /** Text on mount, in uncontrolled mode. @defaultValue '' */
   defaultValue?: string
-  /** Appele a chaque frappe. */
+  /** Called on every keystroke. */
   onChange?: (value: string) => void
-  /** Appele a l'envoi. Une promesse tient le bouton occupe jusqu'a sa fin. */
+  /** Called on submit. A promise keeps the button busy until it settles. */
   onSubmit?: (value: string) => void | Promise<unknown>
-  /** Texte d'attente du champ. */
+  /** Placeholder text of the field. */
   placeholder?: string
-  /** Libelle du bouton au repos. @defaultValue 'Envoyer' */
+  /** Button label at rest. @defaultValue 'Send' */
   buttonLabel?: string
-  /** Libelle glisse dans le bouton apres l'envoi. @defaultValue 'Envoye' */
+  /** Label slid into the button after submission. @defaultValue 'Sent' */
   doneLabel?: string
-  /** Ce qui precede le champ dans la pilule : une icone, un prefixe d'adresse. */
+  /** What precedes the field inside the pill: an icon, an address prefix. */
   prefix?: ReactNode
-  /** Type du champ. @defaultValue 'text' */
+  /** Type of the field. @defaultValue 'text' */
   type?: 'text' | 'email' | 'url' | 'search'
-  /** Temps pendant lequel la confirmation reste affichee, en millisecondes. @defaultValue 1800 */
+  /** Time the confirmation stays on display, in milliseconds. @defaultValue 1800 */
   hold?: number
-  /** Neutralise le champ et le bouton. @defaultValue false */
+  /** Disables the field and the button. @defaultValue false */
   disabled?: boolean
-  /** Nom du champ, transmis a l'input pour un formulaire englobant. */
+  /** Name of the field, passed to the input for an enclosing form. */
   name?: string
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type ButtonGroupInputProps = Customisable<ButtonGroupInputOwnProps>
 
-/** Ou en est le bouton. */
+/** Where the button currently stands. */
 type Phase = 'idle' | 'busy' | 'done'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-button-group-input'
 
-/** Pose la pilule, le champ et les deux faces du bouton, une fois par document. */
+/** Applies the pill, the field and the two faces of the button, once per document. */
 function ensureGroupRules(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -91,7 +91,7 @@ function ensureGroupRules(): void {
     'background:var(--o-theme-surface);border:1px solid var(--o-theme-line);',
     'transition:border-color var(--o-duration-slow) linear,box-shadow var(--o-duration-slow) linear;',
     '}',
-    // Le focus est celui de la pilule entiere : c'est elle que l'on remplit.
+    // The focus is that of the whole pill: the pill is what one fills in.
     '[data-o-bgi]:focus-within{border-color:var(--o-bgi-accent);',
     'box-shadow:0 0 0 3px color-mix(in oklab,var(--o-bgi-accent) 25%,transparent)}',
     '[data-o-bgi][data-o-bgi-disabled]{opacity:0.5;pointer-events:none}',
@@ -103,7 +103,7 @@ function ensureGroupRules(): void {
     'font:inherit;color:inherit;padding:0.5rem 0.9rem;',
     '}',
     '[data-o-bgi] input::placeholder{color:inherit;opacity:0.5}',
-    // Le bouton : une fenetre d'une ligne sur une pile de deux.
+    // The button: a one-line window onto a stack of two.
     '[data-o-bgi-button]{',
     'position:relative;overflow:hidden;cursor:pointer;flex:0 0 auto;',
     'display:inline-grid;align-items:center;padding:0.5rem 1.1rem;border:0;border-radius:999px;',
@@ -114,8 +114,8 @@ function ensureGroupRules(): void {
     '[data-o-bgi-button]:active{transform:scale(0.97)}',
     '[data-o-bgi-button][data-o-bgi-phase="busy"]{cursor:progress}',
     '[data-o-bgi-button][data-o-bgi-phase="done"]{background:var(--o-bgi-done)}',
-    // Les deux faces occupent la meme cellule de grille : la largeur est
-    // celle de la plus longue, et la pile glisse d'une ligne.
+    // Both faces occupy the same grid cell: the width is that of the longer
+    // one, and the stack slides by one line.
     '[data-o-bgi-face]{',
     'grid-area:1/1;white-space:nowrap;text-align:center;',
     'transition:transform var(--o-duration-slow) cubic-bezier(0.2,0,0,1),opacity var(--o-duration-slow) linear;',
@@ -130,28 +130,28 @@ function ensureGroupRules(): void {
 }
 
 /**
- * Champ et bouton dans une meme pilule.
+ * Field and button inside a single pill.
  *
  * @example
  * <ButtonGroupInput
- *   label="Adresse de courriel"
+ *   label="Email address"
  *   type="email"
- *   placeholder="vous@exemple.fr"
- *   buttonLabel="S'inscrire"
- *   doneLabel="Inscrit"
- *   onSubmit={inscrire}
+ *   placeholder="you@example.com"
+ *   buttonLabel="Sign up"
+ *   doneLabel="Signed up"
+ *   onSubmit={signUp}
  * />
  *
  * @example
- * // Mode controle, avec un prefixe d'adresse.
+ * // Controlled mode, with an address prefix.
  * <ButtonGroupInput
- *   label="Nom du site"
+ *   label="Site name"
  *   prefix="https://"
  *   value={site}
  *   onChange={setSite}
- *   buttonLabel="Verifier"
- *   doneLabel="Verifie"
- *   onSubmit={verifier}
+ *   buttonLabel="Check"
+ *   doneLabel="Checked"
+ *   onSubmit={check}
  * />
  */
 export function ButtonGroupInput({
@@ -161,8 +161,8 @@ export function ButtonGroupInput({
   onChange,
   onSubmit,
   placeholder,
-  buttonLabel = 'Envoyer',
-  doneLabel = 'Envoye',
+  buttonLabel = 'Send',
+  doneLabel = 'Sent',
   prefix,
   type = 'text',
   hold = 1800,
@@ -192,7 +192,7 @@ export function ButtonGroupInput({
     onChange?.(next)
   }
 
-  /** Apres la confirmation, le bouton revient au repos. */
+  /** After the confirmation, the button returns to rest. */
   const settle = (): void => {
     if (timer.current !== undefined) window.clearTimeout(timer.current)
     timer.current = window.setTimeout(() => {
@@ -273,8 +273,8 @@ export function ButtonGroupInput({
           {doneLabel}
         </span>
       </button>
-      {/* La confirmation est annoncee quand elle arrive, par une zone vive
-          hors ecran : les deux faces visibles sont du decor. */}
+      {/* The confirmation is announced when it arrives, through an off-screen
+          live region: the two visible faces are scenery. */}
       <span data-o-bgi-live="" role="status">
         {phase === 'done' ? doneLabel : ''}
       </span>

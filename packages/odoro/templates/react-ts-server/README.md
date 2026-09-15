@@ -1,16 +1,16 @@
-# Application Odoro — client et serveur
+# Odoro application — client and server
 
-Une application monopage React et une API bâtie sur `@odoro-cli/server`, dans le
-même dépôt.
+A React single-page application and an API built on `@odoro-cli/server`, in the
+same repository.
 
 ```
-client/            interface, servie par Odoro en developpement
+client/            interface, served by Odoro in development
 server/
-  src/main.ts      assemble les modules, rien d'autre
-  src/modules/     un dossier par module — commencez par `health/`
+  src/main.ts      assembles the modules, nothing else
+  src/modules/     one directory per module — start with `health/`
 ```
 
-## Demarrer
+## Getting started
 
 ```sh
 cp .env.example .env
@@ -18,30 +18,30 @@ npm install
 npm run dev
 ```
 
-Le client ecoute sur <http://localhost:5180> et transmet au serveur tout appel
-commencant par `/api`. Le navigateur ne voit donc qu'une seule origine, et
-aucune question de CORS ne se pose en developpement.
+The client listens on <http://localhost:5180> and forwards every call starting
+with `/api` to the server. The browser therefore only ever sees one origin, and
+no CORS question arises in development.
 
-## La base de donnees
+## The database
 
-**PostgreSQL, heberge, et rien d'autre.** Il n'y a pas de base locale : l'URL
-pointe sur une base joignable par le reseau.
+**PostgreSQL, hosted, and nothing else.** There is no local database: the URL
+points at one reachable over the network.
 
 ```sh
-odoro db:create            # provisionne une base et ecrit .env
-# ou collez votre propre URL dans .env :
-DATABASE_URL=postgres://utilisateur:motdepasse@hote:5432/base?sslmode=require
+odoro db:create            # provisions a database and writes .env
+# or paste your own URL into .env:
+DATABASE_URL=postgres://user:password@host:5432/database?sslmode=require
 ```
 
-Tant qu'elle est absente, **le client demarre quand meme** et le serveur repond
-`503` sur `/api/ready` en disant precisement ce qui manque. On voit donc
-l'interface des la premiere minute, et on sait ce qu'il reste a faire.
+While it is missing, **the client starts anyway** and the server answers `503`
+on `/api/ready` saying precisely what is absent. So you see the interface in
+the first minute, and you know what is left to do.
 
-## Ecrire un module
+## Writing a module
 
-`server/src/modules/health/` est l'exemple. Un module declare son nom, ce dont
-il a besoin, les services qu'il enregistre et les routes qu'il expose — et
-`main.ts` ne fait que dire lesquels sont actifs.
+`server/src/modules/health/` is the example. A module declares its name, what
+it needs, the services it registers and the routes it exposes — and `main.ts`
+does nothing but say which ones are active.
 
 ```ts
 export const billingModule = defineModule({
@@ -52,36 +52,60 @@ export const billingModule = defineModule({
 })
 ```
 
-Le noyau resout l'ordre de chargement depuis `requires`, detecte les cycles, et
-refuse de demarrer si une dependance manque. Activer ou desactiver un module
-tient donc en une ligne dans `main.ts`.
+The kernel resolves the load order from `requires`, detects cycles, and refuses
+to start if a dependency is missing. Enabling or disabling a module therefore
+takes one line in `main.ts`.
 
-## Deux points de controle, qui ne disent pas la meme chose
+## Two health endpoints, which do not say the same thing
 
-| Route         | Question                        | Qui l'interroge                                  |
-| ------------- | ------------------------------- | ------------------------------------------------ |
-| `/api/health` | Le processus vit-il ?           | L'orchestrateur, pour decider de redemarrer      |
-| `/api/ready`  | Le service peut-il travailler ? | Le repartiteur, pour decider d'envoyer du trafic |
+| Route         | Question                      | Who asks it                             |
+| ------------- | ----------------------------- | --------------------------------------- |
+| `/api/health` | Is the process alive?         | The orchestrator, to decide on a restart |
+| `/api/ready`  | Can the service do its work?  | The load balancer, to decide on traffic  |
 
-Les confondre donne l'un des deux defauts : un service qui redemarre en boucle
-pendant un incident de base, ou un repartiteur qui envoie du trafic a un
-service incapable de repondre.
+Confusing them gives one of two faults: a service restarting in a loop during a
+database incident, or a load balancer sending traffic to a service that cannot
+answer.
 
-## Compiler et deployer
+## Building and deploying
 
 ```sh
-npm run build      # client dans dist/client, serveur dans dist/server
-npm start          # sert les deux depuis un seul processus
+npm run build      # client into dist/client, server into dist/server
+npm start          # serves both from a single process
 ```
 
-Le `Dockerfile` est multi-etapes : les dependances de compilation ne se
-retrouvent pas dans l'image finale, qui tourne sous un utilisateur sans
-privileges.
+The `Dockerfile` is multi-stage: the build dependencies do not end up in the
+final image, which runs as an unprivileged user.
 
-## Variables d'environnement
+## Prerendering
 
-Voir `.env.example`, commente ligne par ligne. En production, ce qui manque
-arrete le demarrage avec un message qui **liste tout d'un coup** — plutot
-qu'une suite de redemarrages, une variable a la fois.
+`build.prerender` is on: every route of `client/src/entry-server.tsx` is
+rendered as a complete HTML document at build time, and the client hydrates it
+on load rather than rebuilding everything. That is what lets a search engine or
+a link preview find text in the very first response.
 
-`.env` n'est jamais versionne.
+The server serves those documents before falling back to the single-page
+document: a request for `/about` receives `dist/client/about/index.html`, with
+its own title and its own description.
+
+Adding a route: one line in `routes`, and the matching entry in
+`client/src/router.tsx`. Doing without: remove `prerender` from
+`odoro.config.ts`, then delete `client/src/entry-server.tsx`.
+
+## Environment variables
+
+See `.env.example`, commented line by line. In production, whatever is missing
+stops the startup with a message that **lists everything at once** — rather
+than a string of restarts, one variable at a time.
+
+The files are read from the least specific to the most specific — `.env`,
+`.env.local`, `.env.<mode>`, `.env.<mode>.local` — and a variable already set
+in the environment is never overwritten by a file: on a host, whatever it
+injects wins.
+
+**Only variables prefixed with `ODORO_` reach the browser.** The rest —
+`DATABASE_URL`, the session secrets, the API keys — never leaves the server.
+That is the only boundary that matters here, and it is held by the prefix, not
+by the file.
+
+`.env` is never committed.

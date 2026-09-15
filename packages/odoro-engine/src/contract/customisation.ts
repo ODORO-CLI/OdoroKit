@@ -1,34 +1,35 @@
 /**
- * Le contrat de personnalisation.
+ * The customisation contract.
  *
- * ## Cinq niveaux, et un sixieme qu'on paie
+ * ## Five levels, and a sixth one you pay for
  *
- * Un composant du registre est copie dans le projet : rien n'empeche d'en
- * editer la source. C'est meme la raison d'etre de la copie. Mais chaque
- * retouche est une retouche a refaire — `odoro diff` la signalera comme telle,
- * et le jour ou l'entree amont evolue, il faudra la reporter a la main.
+ * A registry component is copied into the project: nothing prevents editing
+ * its source. That is even the whole point of the copy. But every tweak is a
+ * tweak to redo — `odoro diff` will report it as such, and the day the
+ * upstream entry changes, it will have to be carried over by hand.
  *
- * Les cinq niveaux ci-dessous, eux, survivent a une reinstallation. Ils sont
- * ordonnes par la distance qu'il faut parcourir pour les atteindre, et l'on
- * ne descend d'un cran que lorsque le precedent ne suffit pas.
+ * The five levels below, on the other hand, survive a reinstall. They are
+ * ordered by the distance you have to travel to reach them, and you only go
+ * down a notch when the previous one is not enough.
  *
- * 1. **Les tokens.** Changer une variable CSS modifie tous les composants a la
- *    fois. Rien a toucher dans le code.
- * 2. **Les props.** L'API documentee, celle que la table des proprietes decrit.
- * 3. **Le passe-plat.** `className`, `style`, `ref`, et les attributs DOM :
- *    poser le composant dans une mise en page, sans rien savoir de son
- *    interieur.
- * 4. **Le slot de rendu.** Remplacer ce qui est affiche en gardant la
- *    mecanique — les mesures, les abonnements, le cycle de vie.
- * 5. **`onReady`.** L'echappatoire : l'objet imperatif lui-meme, timeline ou
- *    scene, pour ce que l'API n'a pas prevu.
+ * 1. **The tokens.** Changing a CSS variable modifies every component at once.
+ *    Nothing to touch in the code.
+ * 2. **The props.** The documented API, the one the properties table
+ *    describes.
+ * 3. **The pass-through.** `className`, `style`, `ref`, and the DOM
+ *    attributes: placing the component in a layout, without knowing anything
+ *    about its inside.
+ * 4. **The render slot.** Replacing what is displayed while keeping the
+ *    mechanics — the measurements, the subscriptions, the life cycle.
+ * 5. **`onReady`.** The escape hatch: the imperative object itself, timeline
+ *    or scene, for what the API did not anticipate.
  *
- * ## Pourquoi le cinquieme niveau existe
+ * ## Why the fifth level exists
  *
- * Sans echappatoire, chaque besoin non prevu devient une propriete de plus.
- * Au bout d'un an, le composant en a trente, personne ne sait plus laquelle
- * fait quoi, et la moitie ne sert qu'a un seul projet. `onReady` absorbe ces
- * cas-la sans elargir la surface documentee.
+ * Without an escape hatch, every unanticipated need becomes one more property.
+ * After a year, the component has thirty of them, nobody knows which does
+ * what any more, and half of them only serve a single project. `onReady`
+ * absorbs those cases without widening the documented surface.
  *
  * @module
  */
@@ -36,49 +37,49 @@
 import type { ComponentPropsWithRef, CSSProperties, ElementType } from 'react'
 
 /**
- * Les props d'un composant du registre : les siennes, plus tout ce qu'un
- * element hote accepte.
+ * The props of a registry component: its own, plus everything a host element
+ * accepts.
  *
- * @typeParam Own Proprietes propres au composant.
- * @typeParam Host Element rendu a la racine.
+ * @typeParam Own Properties of the component itself.
+ * @typeParam Host Element rendered at the root.
  *
  * @example
- * interface AuroreProps {
- *   vitesse?: number
+ * interface AuroraProps {
+ *   speed?: number
  * }
  *
- * function Aurore({ vitesse = 0.12, ...rest }: Customisable<AuroreProps>) { … }
+ * function Aurora({ speed = 0.12, ...rest }: Customisable<AuroraProps>) { … }
  */
 export type Customisable<Own, Host extends ElementType = 'div'> = Own &
   Omit<ComponentPropsWithRef<Host>, keyof Own>
 
-/** Ce qu'un composant applique a son element racine. */
+/** What a component applies to its root element. */
 export interface Presentation {
-  /** Classes, celles du composant puis celles de l'appelant. */
+  /** Classes, the component's then the caller's. */
   readonly className: string | undefined
-  /** Styles en ligne, ceux de l'appelant l'emportant. */
+  /** Inline styles, the caller's winning. */
   readonly style: CSSProperties | undefined
 }
 
 /**
- * Fusionne l'habillage du composant et celui de l'appelant.
+ * Merges the component's presentation with the caller's.
  *
- * Les classes sont **concatenees**, jamais remplacees : un composant qui
- * ecraserait ses propres classes par celles qu'on lui passe perdrait sa mise
- * en forme des qu'on veut seulement le decaler d'un cran.
+ * Classes are **concatenated**, never replaced: a component that overwrote its
+ * own classes with the ones passed to it would lose its formatting as soon as
+ * you only wanted to shift it by one notch.
  *
- * ## Ce que la concatenation ne fait pas
+ * ## What concatenation does not do
  *
- * Elle ne garantit pas que l'appelant l'emporte. L'ordre des classes dans
- * l'attribut n'a **aucun** effet sur la cascade CSS : entre deux regles de
- * meme specificite, c'est celle qui vient en dernier **dans la feuille** qui
- * gagne, pas celle qui vient en dernier dans le `class`. C'est une confusion
- * repandue, et la source de « pourquoi ma classe ne s'applique pas ».
+ * It does not guarantee that the caller wins. The order of the classes in the
+ * attribute has **no** effect on the CSS cascade: between two rules of the
+ * same specificity, the one that comes last **in the stylesheet** wins, not
+ * the one that comes last in the `class`. This is a widespread confusion, and
+ * the source of "why is my class not applying".
  *
- * D'ou la place du niveau 3 dans l'echelle : il sert a **poser** le composant
- * — marges, position, largeur, ou rien ne se dispute — plutot qu'a le
- * repeindre. Pour repeindre avec certitude, il y a un token au-dessus et
- * `style` en dessous, qui, lui, l'emporte toujours.
+ * Hence the place of level 3 on the ladder: it serves to **place** the
+ * component — margins, position, width, where nothing is disputed — rather
+ * than to repaint it. To repaint with certainty, there is a token above and
+ * `style` below, which always wins.
  *
  * @example
  * const { className, style } = mergePresentation(
@@ -98,8 +99,8 @@ export function mergePresentation(
 
   return {
     className: classes.length === 0 ? undefined : classes.join(' '),
-    // L'appelant en dernier : en ligne, c'est la derniere ecriture qui reste,
-    // et c'est le seul endroit ou l'emporter est garanti.
+    // The caller last: inline, the last write is the one that stays, and it is
+    // the only place where winning is guaranteed.
     style: hasStyle ? { ...base.style, ...incoming.style } : undefined,
   }
 }

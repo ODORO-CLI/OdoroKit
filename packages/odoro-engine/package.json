@@ -4,7 +4,7 @@
   "type": "module",
   "license": "UNLICENSED",
   "author": "BouBouw",
-  "description": "Moteur d'animation Odoro : boucle de rendu unique, politique de mouvement, arbitrage des surfaces.",
+  "description": "Odoro motion engine: a single render loop, a motion policy, and surface arbitration.",
   "engines": {
     "node": ">=20"
   },

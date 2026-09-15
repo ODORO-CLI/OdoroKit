@@ -1,37 +1,36 @@
 /**
- * Formulaire de carte, avec un aperçu qui se retourne.
+ * Card form, with a preview that flips over.
  *
- * ## À lire avant de le brancher sur un paiement réel
+ * ## To read before wiring it to a real payment
  *
- * Ce composant rend des champs ordinaires. Les numéros saisis passent donc par
- * le document et par le JavaScript de la page, et cela a une conséquence qui ne
- * se voit pas dans le code : **l'application entre dans le périmètre complet de
- * PCI-DSS**. Un formulaire hébergé par le prestataire de paiement — un champ
- * dans une iframe qui rend un jeton — laisse au contraire l'application hors du
- * périmètre, parce que les données de carte ne la traversent jamais.
+ * This component renders ordinary fields. The numbers typed in therefore pass
+ * through the document and through the page's JavaScript, and that has a
+ * consequence which is invisible in the code: **the application enters the
+ * full PCI-DSS scope**. A form hosted by the payment provider — a field inside
+ * an iframe that hands back a token — leaves the application out of scope
+ * instead, because card data never crosses it.
  *
- * L'écart entre les deux se compte en audits, pas en lignes de code.
+ * The gap between the two is measured in audits, not in lines of code.
  *
- * Ce composant a donc sa place pour un aperçu, une maquette, un formulaire de
- * démonstration, ou une saisie que l'on remet immédiatement à un client de
- * tokenisation. Il n'en a aucune comme point d'entrée d'un vrai encaissement.
- * `onSubmit` rend l'état et sa validité ; il n'envoie rien, et c'est voulu.
+ * So this component belongs in a preview, a mockup, a demonstration form, or
+ * an entry handed straight over to a tokenisation client. It has no place as
+ * the entry point of a real charge. `onSubmit` returns the state and its
+ * validity; it sends nothing, and that is deliberate.
  *
- * ## La validation refuse ce qui est faux, pas ce qui est incomplet
+ * ## Validation refuses what is wrong, not what is unfinished
  *
- * L'implémentation d'origine annonçait un contrôle de Luhn dans ses
- * commentaires et n'en faisait aucun : elle se contentait de compter treize
- * chiffres. Or Luhn est ce qui distingue une faute de frappe d'un numéro
- * plausible, et c'est tout l'intérêt d'un contrôle côté client — signaler la
- * coquille avant l'aller-retour réseau. Il est ici, et il est court.
+ * The original implementation announced a Luhn check in its comments and did
+ * none: it merely counted thirteen digits. Yet Luhn is what tells a typo from
+ * a plausible number, and that is the whole point of a client-side check — to
+ * flag the slip before the network round trip. It is here, and it is short.
  *
- * ## Ce que le retournement ne fait pas
+ * ## What the flip does not do
  *
- * Il ne cache rien. La face arrière est masquée par `backface-visibility`, ce
- * qui la retire de la peinture mais **pas** du document : son contenu reste
- * lisible par un lecteur d'écran et atteignable au clavier. C'est pour cela que
- * l'aperçu entier est `aria-hidden` — les champs du formulaire portent déjà
- * l'information, et l'annoncer deux fois n'aide personne.
+ * It hides nothing. The back face is masked by `backface-visibility`, which
+ * removes it from painting but **not** from the document: its content stays
+ * readable by a screen reader and reachable from the keyboard. That is why the
+ * whole preview is `aria-hidden` — the form fields already carry the
+ * information, and announcing it twice helps nobody.
  *
  * @module
  */
@@ -39,77 +38,76 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import { useId, useMemo, useState, type FormEvent, type ReactElement } from 'react'
 
-/** Ce que le formulaire tient. */
+/** What the form holds. */
 export interface CardFormState {
-  /** Chiffres du numero, sans espaces. */
+  /** Digits of the number, without spaces. */
   readonly number: string
-  /** Nom du porteur, en majuscules. */
+  /** Name of the holder, in upper case. */
   readonly holder: string
-  /** Mois d'expiration, de `01` a `12`. */
+  /** Expiry month, from `01` to `12`. */
   readonly month: string
-  /** Annee d'expiration, sur quatre chiffres. */
+  /** Expiry year, on four digits. */
   readonly year: string
-  /** Code de verification, trois ou quatre chiffres. */
+  /** Verification code, three or four digits. */
   readonly cvv: string
 }
 
-/** Ce que la validation dit de chaque champ. */
+/** What validation says about each field. */
 export interface CardFormValidity {
-  /** Longueur plausible **et** somme de Luhn correcte. */
+  /** Plausible length **and** correct Luhn sum. */
   readonly number: boolean
   readonly holder: boolean
   readonly expiry: boolean
   readonly cvv: boolean
-  /** Vrai si les quatre le sont. */
+  /** True if all four are. */
   readonly all: boolean
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface CardFormOwnProps {
-  /** Valeurs de depart. */
+  /** Starting values. */
   defaultValue?: Partial<CardFormState>
-  /** Masque les chiffres du milieu sur l'apercu. @defaultValue true */
+  /** Masks the middle digits on the preview. @defaultValue true */
   maskMiddle?: boolean
-  /** Affiche le bouton d'envoi. @defaultValue true */
+  /** Shows the submit button. @defaultValue true */
   showSubmit?: boolean
-  /** Libelle du bouton d'envoi. */
+  /** Label of the submit button. */
   submitLabel?: string
-  /** Tokens des deux halos de la carte. */
+  /** Tokens of the card's two halos. */
   colors?: readonly [string, string]
-  /** Appele a chaque frappe. */
+  /** Called on every keystroke. */
   onValueChange?: (state: CardFormState, validity: CardFormValidity) => void
-  /** Appele a l'envoi. Ne transmet rien : c'est a l'application de le faire. */
+  /** Called on submit. Transmits nothing: that is the application's job. */
   onSubmit?: (state: CardFormState, validity: CardFormValidity) => void
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type CardFormProps = Customisable<CardFormOwnProps, 'section'>
 
-/** Tokens employes par defaut. */
+/** Tokens used by default. */
 const DEFAULT_TOKENS = ['--o-palette-fuchsia-500', '--o-palette-brand-500'] as const
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-card-form'
 
-/** Nombre de cases affichees sur l'apercu. */
+/** Number of slots shown on the preview. */
 const SLOTS = 16
 
 /**
- * Somme de Luhn.
+ * Luhn sum.
  *
- * ## Le principe
+ * ## The principle
  *
- * En partant de la droite, un chiffre sur deux est double ; si le double
- * depasse neuf, on lui retire neuf — ce qui revient a additionner ses deux
- * chiffres. La somme de tous les chiffres ainsi obtenus doit etre un multiple
- * de dix.
+ * Starting from the right, every other digit is doubled; if the double goes
+ * past nine, nine is taken off it — which amounts to adding its two digits
+ * together. The sum of all the digits so obtained must be a multiple of ten.
  *
- * Le controle attrape toute erreur d'un seul chiffre et presque toutes les
- * transpositions de deux chiffres voisins, c'est-a-dire les deux fautes de
- * frappe reelles. Il ne dit rien de l'existence du compte : ce n'est pas son
- * role, et aucun controle local ne peut le faire.
+ * The check catches any single-digit error and nearly every transposition of
+ * two neighbouring digits, that is, the two real typing mistakes. It says
+ * nothing about whether the account exists: that is not its job, and no local
+ * check can do it.
  *
- * @param digits Chiffres du numero, sans espaces.
+ * @param digits Digits of the number, without spaces.
  *
  * @example
  * luhn('4242424242424242') // true
@@ -133,17 +131,17 @@ export function luhn(digits: string): boolean {
   return sum % 10 === 0
 }
 
-/** Ne retient que les chiffres, et borne la longueur. */
+/** Keeps only the digits, and caps the length. */
 function digitsOf(value: string, max: number): string {
   return value.replace(/\D/g, '').slice(0, max)
 }
 
-/** Groupe le numero par quatre, pour la saisie. */
+/** Groups the number by four, for typing. */
 function grouped(digits: string): string {
   return digits.replace(/(\d{4})(?=\d)/g, '$1 ')
 }
 
-/** Pose les regles du formulaire, une fois par document. */
+/** Applies the form rules, once per document. */
 function ensureCardRules(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -159,15 +157,15 @@ function ensureCardRules(): void {
     'position:relative;overflow:hidden}',
     '[data-o-card-face="back"]{position:absolute;inset:0;transform:rotateY(180deg)}',
 
-    // Les deux halos, flous, qui donnent sa profondeur a la carte.
+    // The two halos, blurred, that give the card its depth.
     '[data-o-card-face]::before,[data-o-card-face]::after{content:"";position:absolute;',
     'border-radius:100%;height:300px;width:300px;filter:blur(13px);pointer-events:none}',
     '[data-o-card-face]::before{border:16px solid var(--o-card-ring-a);left:-17%;top:-45px}',
     '[data-o-card-face]::after{border:16px solid var(--o-card-ring-b);left:-200px;top:55%}',
 
-    // Chaque case du numero contient deux lignes ; elle glisse d'une hauteur
-    // pour reveler le chiffre. C'est ce qui donne l'impression que le chiffre
-    // tombe en place au lieu d'apparaitre.
+    // Each slot of the number holds two lines; it slides by one height to
+    // reveal the digit. That is what makes the digit feel as if it falls into
+    // place instead of appearing.
     '[data-o-card-slot]{display:inline-flex;height:2rem;overflow:hidden}',
     '[data-o-card-slot]>span{display:flex;flex-direction:column;height:2rem;',
     'line-height:2rem;transition:transform var(--o-duration-base) var(--o-ease-standard)}',
@@ -181,20 +179,20 @@ function ensureCardRules(): void {
 }
 
 /**
- * Formulaire de carte avec apercu.
+ * Card form with a preview.
  *
  * @example
- * <CardForm onSubmit={(etat, validite) => tokeniser(etat)} />
+ * <CardForm onSubmit={(state, validity) => tokenise(state)} />
  *
  * @example
- * // Sans bouton : l'envoi est porte par le formulaire qui l'entoure.
- * <CardForm showSubmit={false} onValueChange={setEtat} />
+ * // Without a button: the submit is carried by the surrounding form.
+ * <CardForm showSubmit={false} onValueChange={setState} />
  */
 export function CardForm({
   defaultValue,
   maskMiddle = true,
   showSubmit = true,
-  submitLabel = 'Valider',
+  submitLabel = 'Confirm',
   colors = DEFAULT_TOKENS,
   onValueChange,
   onSubmit,
@@ -221,9 +219,9 @@ export function CardForm({
     const number = state.number.length >= 13 && luhn(state.number)
     const holder = state.holder.trim().length >= 2
 
-    // L'expiration se juge d'un bloc : un mois sans annee ne veut rien dire, et
-    // un mois passe de l'annee courante est expire alors que chaque champ,
-    // pris seul, semble correct.
+    // The expiry is judged as a whole: a month without a year means nothing,
+    // and a past month of the current year is expired while each field, taken
+    // on its own, looks correct.
     const now = new Date()
     const month = Number(state.month)
     const year = Number(state.year)
@@ -238,12 +236,13 @@ export function CardForm({
     return { number, holder, expiry, cvv, all: number && holder && expiry && cvv }
   }, [state])
 
-  /** Ecrit un champ, et previent l'appelant. */
+  /** Writes a field, and tells the caller. */
   const write = (patch: Partial<CardFormState>): void => {
     const next = { ...state, ...patch }
     setState(next)
-    // La validite est recalculee au rendu suivant ; l'appelant recoit celle du
-    // rendu courant, ce qui suffit pour un apercu et evite de la dupliquer.
+    // Validity is recomputed on the next render; the caller receives the one
+    // from the current render, which is enough for a preview and avoids
+    // duplicating it.
     onValueChange?.(next, validity)
   }
 
@@ -252,7 +251,7 @@ export function CardForm({
     onSubmit?.(state, validity)
   }
 
-  // Les cases de l'apercu : seize, remplies par la gauche.
+  // The preview slots: sixteen of them, filled from the left.
   const slots = Array.from({ length: SLOTS }, (_, index) => {
     const digit = state.number[index]
     if (digit === undefined) return { text: '#', filled: false }
@@ -267,8 +266,8 @@ export function CardForm({
 
   return (
     <section {...rest} className={className} style={style}>
-      {/* L'apercu est decoratif : les champs portent deja l'information, et la
-          face arriere reste dans le document malgre le retournement. */}
+      {/* The preview is decorative: the fields already carry the information,
+          and the back face stays in the document despite the flip. */}
       <div
         aria-hidden
         className="o-mx-auto o-w-full o-max-w-md"
@@ -287,7 +286,7 @@ export function CardForm({
             data-o-card-face="front"
             className="o-flex o-h-56 o-flex-col o-justify-between o-rounded-2xl o-bg-gradient-to-br o-from-zinc-700 o-to-zinc-950 o-p-6 o-text-zinc-50 o-shadow-xl"
           >
-            <p className="o-relative o-font-semibold">Carte</p>
+            <p className="o-relative o-font-semibold">Card</p>
 
             <p className="o-relative o-flex o-text-2xl">
               {slots.map((slot, index) => (
@@ -307,16 +306,16 @@ export function CardForm({
             <span className="o-relative o-flex o-items-end o-justify-between o-gap-4">
               <span className="o-flex o-flex-col">
                 <span className="o-text-xs o-font-semibold o-uppercase o-text-zinc-500 dark:o-text-zinc-400">
-                  Porteur
+                  Holder
                 </span>
-                <span className="o-uppercase">{state.holder || 'NOM SUR LA CARTE'}</span>
+                <span className="o-uppercase">{state.holder || 'NAME ON CARD'}</span>
               </span>
               <span className="o-flex o-flex-col">
                 <span className="o-text-xs o-font-semibold o-uppercase o-text-zinc-500 dark:o-text-zinc-400">
-                  Expire
+                  Expires
                 </span>
                 <span>
-                  {state.month || 'MM'}/{state.year ? state.year.slice(-2) : 'AA'}
+                  {state.month || 'MM'}/{state.year ? state.year.slice(-2) : 'YY'}
                 </span>
               </span>
             </span>
@@ -344,7 +343,7 @@ export function CardForm({
       >
         <div>
           <label htmlFor={`${ids}-number`} className="o-mb-1 o-block o-font-medium">
-            Numero de carte
+            Card number
           </label>
           <input
             id={`${ids}-number`}
@@ -359,9 +358,9 @@ export function CardForm({
             aria-describedby={validity.number ? undefined : `${ids}-number-error`}
             className="o-h-12 o-w-full o-rounded-lg o-border-w-1 o-border-zinc-300 o-bg-transparent o-px-4 focus:o-border-zinc-500 focus:o-outline-none dark:o-border-zinc-700"
           />
-          {/* L'erreur n'apparait qu'une fois le numero assez long : la signaler
-              a la premiere frappe reprocherait a l'utilisateur de ne pas avoir
-              fini de taper. */}
+          {/* The error only appears once the number is long enough: flagging it
+              on the first keystroke would blame the user for not having
+              finished typing. */}
           <p
             id={`${ids}-number-error`}
             className={
@@ -371,20 +370,20 @@ export function CardForm({
             }
           >
             {state.number.length >= 13 && !validity.number
-              ? 'Ce numero comporte une erreur de saisie.'
+              ? 'This number has a typing error.'
               : ''}
           </p>
         </div>
 
         <div>
           <label htmlFor={`${ids}-holder`} className="o-mb-1 o-block o-font-medium">
-            Nom du porteur
+            Cardholder name
           </label>
           <input
             id={`${ids}-holder`}
             type="text"
             autoComplete="cc-name"
-            placeholder="JEANNE MARTIN"
+            placeholder="JANE MARTIN"
             value={state.holder}
             onChange={(event) => write({ holder: event.target.value.toUpperCase() })}
             onFocus={() => setFocused('other')}
@@ -396,10 +395,10 @@ export function CardForm({
 
         <div className="o-grid o-gap-4 sm:o-grid-cols-3">
           <div className="sm:o-col-span-2">
-            <span className="o-mb-1 o-block o-font-medium">Expiration</span>
+            <span className="o-mb-1 o-block o-font-medium">Expiry</span>
             <div className="o-grid o-grid-cols-2 o-gap-3">
               <label className="o-sr-only" htmlFor={`${ids}-month`}>
-                Mois d expiration
+                Expiry month
               </label>
               <select
                 id={`${ids}-month`}
@@ -410,7 +409,7 @@ export function CardForm({
                 aria-invalid={!validity.expiry}
                 className="o-h-12 o-w-full o-rounded-lg o-border-w-1 o-border-zinc-300 o-bg-transparent o-px-4 focus:o-border-zinc-500 focus:o-outline-none dark:o-border-zinc-700"
               >
-                <option value="">Mois</option>
+                <option value="">Month</option>
                 {Array.from({ length: 12 }, (_, index) =>
                   String(index + 1).padStart(2, '0'),
                 ).map((month) => (
@@ -421,7 +420,7 @@ export function CardForm({
               </select>
 
               <label className="o-sr-only" htmlFor={`${ids}-year`}>
-                Annee d expiration
+                Expiry year
               </label>
               <select
                 id={`${ids}-year`}
@@ -432,7 +431,7 @@ export function CardForm({
                 aria-invalid={!validity.expiry}
                 className="o-h-12 o-w-full o-rounded-lg o-border-w-1 o-border-zinc-300 o-bg-transparent o-px-4 focus:o-border-zinc-500 focus:o-outline-none dark:o-border-zinc-700"
               >
-                <option value="">Annee</option>
+                <option value="">Year</option>
                 {years.map((year) => (
                   <option key={year} value={year}>
                     {year}
@@ -453,8 +452,8 @@ export function CardForm({
               placeholder="123"
               value={state.cvv}
               onChange={(event) => write({ cvv: digitsOf(event.target.value, 4) })}
-              // Le focus sur ce champ retourne la carte : c'est la seule
-              // raison pour laquelle l'etat de focus existe.
+              // Focus on this field flips the card: that is the only reason the
+              // focus state exists.
               onFocus={() => setFocused('cvv')}
               onBlur={() => setFocused(null)}
               aria-invalid={!validity.cvv}
@@ -469,7 +468,7 @@ export function CardForm({
             disabled={!validity.all}
             className="o-mt-2 o-h-12 o-rounded-lg o-bg-zinc-950 o-font-semibold o-text-zinc-50 disabled:o-opacity-50 dark:o-bg-zinc-50 dark:o-text-zinc-950"
           >
-            {validity.all ? submitLabel : 'Completez les champs'}
+            {validity.all ? submitLabel : 'Complete the fields'}
           </button>
         ) : null}
       </form>

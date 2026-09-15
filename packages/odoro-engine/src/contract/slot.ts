@@ -1,23 +1,22 @@
 /**
- * Le slot de rendu : niveau 4 du contrat.
+ * The render slot: level 4 of the contract.
  *
- * ## Ce qu'un slot separe
+ * ## What a slot separates
  *
- * Un composant du registre fait deux choses tres differentes : il **calcule**
- * — mesures, abonnements a la boucle, progression, cycle de vie — et il
- * **affiche**. La premiere partie est ce qu'on vient chercher ; la seconde est
- * presque toujours a refaire, parce qu'un balisage convient rarement a deux
- * maquettes.
+ * A registry component does two very different things: it **computes** —
+ * measurements, subscriptions to the loop, progress, life cycle — and it
+ * **displays**. The first part is what you came for; the second is almost
+ * always to be redone, because one piece of markup rarely suits two mockups.
  *
- * Le slot rend la seconde partie remplacable sans toucher a la premiere. Sans
- * lui, il ne reste qu'a copier le composant entier pour changer une balise —
- * et l'on herite alors de la maintenance de tout le calcul.
+ * The slot makes the second part replaceable without touching the first.
+ * Without it, the only option left is to copy the whole component to change a
+ * tag — and you then inherit the maintenance of all the computation.
  *
- * ## Pourquoi une fonction plutot que `children`
+ * ## Why a function rather than `children`
  *
- * Le slot recoit ce que le composant a calcule. Des `children` ordinaires
- * seraient rendus une fois, en dehors de ce contexte, et n'auraient acces a
- * rien. La fonction est ce qui transporte l'etat vers le balisage.
+ * The slot receives what the component computed. Ordinary `children` would be
+ * rendered once, outside that context, and would have access to nothing. The
+ * function is what carries the state through to the markup.
  *
  * @module
  */
@@ -25,18 +24,18 @@
 import type { ReactNode } from 'react'
 
 /**
- * Un slot de rendu : recoit l'etat calcule, rend le balisage.
+ * A render slot: receives the computed state, renders the markup.
  *
- * @typeParam Args Ce que le composant transmet a son slot.
+ * @typeParam Args What the component passes to its slot.
  */
 export type Slot<Args> = (args: Args) => ReactNode
 
 /**
- * Rend le slot s'il est fourni, le balisage par defaut sinon.
+ * Renders the slot if it is supplied, the default markup otherwise.
  *
- * Le defaut est une **fonction**, pas une valeur : le calculer a chaque rendu
- * pour le jeter aussitot quand un slot est fourni serait du travail perdu, et
- * ce travail contient souvent des elements React entiers.
+ * The default is a **function**, not a value: computing it on every render
+ * only to throw it away when a slot is supplied would be wasted work, and that
+ * work often contains whole React elements.
  *
  * @example
  * return (

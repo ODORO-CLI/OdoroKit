@@ -1,32 +1,32 @@
 /**
- * Relief en fil de fer : une nappe quadrillee dont les cretes defilent vers
- * la camera, et s'effacent dans le brouillard au loin.
+ * Wireframe terrain: a gridded sheet whose crests scroll towards
+ * the camera, and fade into the fog in the distance.
  *
- * ## Pourquoi une scene, et pas un shader plein ecran
+ * ## Why a scene, and not a fullscreen shader
  *
- * Un shader de fragment peut projeter un sol en posant z = 1/y — c'est ce
- * que fait `night-drive` — mais pas un relief : il faudrait, pour chaque
- * pixel, chercher le point de la nappe qui se projette dessus, et cette
- * recherche n'a pas de forme close. Une scene porte la nappe comme une
- * geometrie de segments dont seules les hauteurs changent ; la projection
- * est faite par le pipeline, une fois par sommet. C'est le cas ou les lignes
- * du moteur 3D coutent moins cher que leur equivalent par fragment.
+ * A fragment shader can project a floor by setting z = 1/y — that is what
+ * `night-drive` does — but not a terrain: for every pixel it would have to
+ * find the point of the sheet that projects onto it, and that search has no
+ * closed form. A scene carries the sheet as a geometry of segments whose
+ * heights alone change; the projection is done by the pipeline, once per
+ * vertex. This is the case where the 3D engine's lines cost less than their
+ * per-fragment equivalent.
  *
- * ## Comment le relief defile
+ * ## How the terrain scrolls
  *
- * Les sommets ne bougent pas en profondeur : c'est le bruit qui est lu a
- * une profondeur decalee du temps. Les cretes semblent avancer, la nappe
- * reste en place — aucun sommet ne franchit jamais le bord de la scene. Le
- * bruit est un bruit de valeur a deux octaves, evalue une fois par sommet
- * et par image ; quelques milliers de sommets, c'est une boucle courte.
+ * The vertices do not move in depth: it is the noise that is read at a
+ * depth offset by time. The crests seem to advance, the sheet stays put
+ * — no vertex ever crosses the edge of the scene. The noise is a
+ * two-octave value noise, evaluated once per vertex per frame; a few
+ * thousand vertices make for a short loop.
  *
- * Une vallee centrale est menagee dans le relief : les cretes montent sur
- * les cotes, le centre reste plat. Sans elle, le regard buterait sur la
- * crete la plus proche.
+ * A central valley is left in the terrain: the crests rise on the sides,
+ * the centre stays flat. Without it, the eye would run straight into the
+ * nearest crest.
  *
- * ## Sous mouvement reduit
+ * ## Under reduced motion
  *
- * La scene est refusee par le moteur et le repli statique s'affiche.
+ * The scene is refused by the engine and the static fallback is shown.
  *
  * @module
  */
@@ -43,76 +43,76 @@ import { useEffect, useRef, useState, type ReactElement } from 'react'
 
 import { usePoster } from '@registre/hooks/usePoster'
 
-/** Proprietes propres au composant. */
+/** Props specific to this component. */
 export interface TerrainWireframeOwnProps {
-  /** Colonnes de la nappe. Les rangees en valent la moitie. @defaultValue 80 */
+  /** Columns of the sheet. The rows are half as many. @defaultValue 80 */
   columns?: number
-  /** Vitesse de defilement, en unites de scene par seconde. @defaultValue 1.2 */
+  /** Scrolling speed, in scene units per second. @defaultValue 1.2 */
   speed?: number
-  /** Hauteur des cretes, en unites de scene. @defaultValue 1.6 */
+  /** Height of the crests, in scene units. @defaultValue 1.6 */
   height?: number
-  /** Largeur de la vallee centrale, entre zero et un. Zero la supprime. @defaultValue 0.6 */
+  /** Width of the central valley, between zero and one. Zero removes it. @defaultValue 0.6 */
   valley?: number
-  /** Tokens : le fond et le brouillard, les lignes, les cretes. */
+  /** Tokens: the background and the fog, the lines, the crests. */
   colors?: readonly [string, string, string]
-  /** Classes du repli. */
+  /** Fallback classes. */
   poster?: string
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type TerrainWireframeProps = Customisable<TerrainWireframeOwnProps>
 
-/** Tokens employes par defaut. */
+/** Tokens used by default. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-teal-500',
   '--o-palette-teal-200',
 ] as const
 
-/** Repli par defaut : une teinte figee, dans les memes tons. */
+/** Default fallback: a frozen tint, in the same tones. */
 const DEFAULT_POSTER =
   'o-bg-gradient-to-t o-from-zinc-50 dark:o-from-zinc-950 o-to-teal-100 dark:o-to-teal-950'
 
 /**
- * Colonnes en qualite basse.
+ * Columns at low quality.
  *
- * Le cout est dans la boucle de bruit, un appel par sommet et par image ;
- * diviser les colonnes par deux divise les sommets par quatre.
+ * The cost is in the noise loop, one call per vertex per frame; halving
+ * the columns divides the vertices by four.
  */
 const LOW_COLUMNS = 40
 
-/** Largeur de la nappe, en unites de scene. */
+/** Width of the sheet, in scene units. */
 const WIDTH = 18
 
-/** Profondeur de la nappe, en unites de scene. */
+/** Depth of the sheet, in scene units. */
 const DEPTH = 16
 
-/** Echelle du bruit : cretes par unite de scene. */
+/** Scale of the noise: crests per scene unit. */
 const SCALE = 0.35
 
 type Three = SceneContext['three']
 type Fog = InstanceType<Three['Fog']>
 
-/** Ce que la scene garde entre la construction et les images. */
+/** What the scene keeps between construction and frames. */
 interface Relief {
   readonly columns: number
   readonly rows: number
-  /** Tampon de sommets, x et z fixes, y reecrit par image. */
+  /** Vertex buffer, x and z fixed, y rewritten every frame. */
   readonly positions: Float32Array
-  /** Tampon de couleurs, un melange lignes/cretes selon la hauteur. */
+  /** Colour buffer, a lines/crests mix according to the height. */
   readonly colours: Float32Array
   readonly positionAttribute: { needsUpdate: boolean }
   readonly colourAttribute: { needsUpdate: boolean }
   readonly fog: Fog
 }
 
-/** Nombre pseudo-aleatoire deterministe sur une grille entiere. */
+/** Deterministic pseudo-random number over an integer grid. */
 function hash(x: number, y: number): number {
   const value = Math.sin(x * 127.1 + y * 311.7) * 43758.5453
   return value - Math.floor(value)
 }
 
-/** Bruit de valeur : quatre tirages interpoles en lissage cubique. */
+/** Value noise: four draws interpolated with cubic smoothing. */
 function noise(x: number, y: number): number {
   const ix = Math.floor(x)
   const iy = Math.floor(y)
@@ -128,7 +128,7 @@ function noise(x: number, y: number): number {
 }
 
 /**
- * Relief en fil de fer.
+ * Wireframe terrain.
  *
  * @example
  * <div className="o-relative o-h-96 o-overflow-hidden o-rounded-xl">
@@ -151,8 +151,8 @@ export function TerrainWireframe({
   const relief = useRef<Relief | null>(null)
   const context = useRef<SceneContext | null>(null)
 
-  // Les couleurs sont lues par ref dans la boucle : un changement de theme
-  // les remplace sans reconstruire la scene.
+  // The colours are read through a ref inside the loop: a theme change
+  // replaces them without rebuilding the scene.
   const shades = useRef<readonly ShaderColour[]>([])
 
   const settings = useRef({ speed, height, valley })
@@ -167,11 +167,11 @@ export function TerrainWireframe({
       shades.current = colors.map((token) => readTokenColour(token, ref.current))
       const [bg] = shades.current
 
-      // Le fond de la scene est le fond de la page, et le brouillard a la
-      // meme couleur : les cretes lointaines s'y effacent sans bord visible.
-      // Le token est en sRGB et le moteur encode sa couleur d'effacement du
-      // lineaire vers le sRGB : sans la conversion inverse, le fond ressort
-      // un cran plus clair.
+      // The scene's background is the page's background, and the fog has the
+      // same colour: the distant crests fade into it with no visible edge.
+      // The token is in sRGB and the engine encodes its clear colour from
+      // linear to sRGB: without the reverse conversion, the background comes
+      // out one notch lighter.
       const bgColour = new three.Color(
         bg?.[0] ?? 0,
         bg?.[1] ?? 0,
@@ -181,8 +181,8 @@ export function TerrainWireframe({
       const fog = new three.Fog(bgColour, 4, DEPTH + 2)
       scene.scene.fog = fog
 
-      // La camera est basse et regarde loin devant : le relief se lit en
-      // perspective, l'horizon dans le tiers superieur.
+      // The camera sits low and looks far ahead: the terrain reads in
+      // perspective, the horizon in the upper third.
       camera.position.set(0, 1.8, 3.5)
       camera.lookAt(0, 0.2, -DEPTH)
 
@@ -191,7 +191,7 @@ export function TerrainWireframe({
       const rows = Math.max(Math.round(cols / 2), 4)
       const count = (cols + 1) * (rows + 1)
 
-      // Les sommets : x et z sont fixes, y est reecrit par image.
+      // The vertices: x and z are fixed, y is rewritten every frame.
       const positions = new Float32Array(count * 3)
       const colours = new Float32Array(count * 3)
       for (let row = 0; row <= rows; row += 1) {
@@ -203,8 +203,8 @@ export function TerrainWireframe({
         }
       }
 
-      // Les segments : chaque sommet est relie a son voisin de droite et a
-      // celui de derriere. Pas de diagonales : un quadrillage, pas des
+      // The segments: each vertex is joined to its neighbour on the right and
+      // to the one behind. No diagonals: a grid, not
       // triangles.
       const pairs: number[] = []
       for (let row = 0; row <= rows; row += 1) {
@@ -224,8 +224,8 @@ export function TerrainWireframe({
       geometry.setAttribute('color', colourAttribute)
       geometry.setIndex(pairs)
 
-      // Les couleurs viennent des sommets : c'est ce qui permet d'eclaircir
-      // une crete sans un materiau par segment.
+      // The colours come from the vertices: that is what makes it possible to
+      // lighten a crest without one material per segment.
       const material = new three.LineBasicMaterial({
         vertexColors: true,
         transparent: true,
@@ -255,8 +255,8 @@ export function TerrainWireframe({
     },
 
     frame: (_, { time }) => {
-      const nappe = relief.current
-      if (nappe === null) return
+      const sheet = relief.current
+      if (sheet === null) return
       const { speed: rate, height: amplitude, valley: hollow } = settings.current
       const [, line, peak] = shades.current
       const lr = line?.[0] ?? 0
@@ -266,50 +266,50 @@ export function TerrainWireframe({
       const pg = peak?.[1] ?? 0
       const pb = peak?.[2] ?? 0
 
-      // Le bruit est lu a une profondeur decalee du temps : les cretes
-      // avancent, les sommets restent.
+      // The noise is read at a depth offset by time: the crests
+      // advance, the vertices stay put.
       const offset = time * rate
-      const count = (nappe.columns + 1) * (nappe.rows + 1)
+      const count = (sheet.columns + 1) * (sheet.rows + 1)
       const halfValley = hollow * 3
 
       for (let index = 0; index < count; index += 1) {
         const at = index * 3
-        const x = nappe.positions[at] ?? 0
-        const z = nappe.positions[at + 2] ?? 0
+        const x = sheet.positions[at] ?? 0
+        const z = sheet.positions[at + 2] ?? 0
         const sx = x * SCALE
         const sz = (z - offset) * SCALE
 
-        // Deux octaves : la seconde, deux fois plus fine et deux fois plus
-        // faible, casse la rondeur de la premiere.
+        // Two octaves: the second, twice as fine and twice as
+        // weak, breaks the roundness of the first.
         let bump = noise(sx, sz) * 0.7 + noise(sx * 2 + 17, sz * 2 + 31) * 0.3
 
-        // La vallee : plat au centre, plein sur les cotes.
+        // The valley: flat at the centre, full on the sides.
         if (halfValley > 0) {
           const edge = Math.min(Math.max((Math.abs(x) - halfValley) / 2.5, 0), 1)
           bump *= edge * edge * (3 - 2 * edge)
         }
 
         const y = bump * amplitude
-        nappe.positions[at + 1] = y
+        sheet.positions[at + 1] = y
 
         const share = Math.min(Math.max(y / Math.max(amplitude, 0.001), 0), 1)
-        nappe.colours[at] = lr + (pr - lr) * share
-        nappe.colours[at + 1] = lg + (pg - lg) * share
-        nappe.colours[at + 2] = lb + (pb - lb) * share
+        sheet.colours[at] = lr + (pr - lr) * share
+        sheet.colours[at + 1] = lg + (pg - lg) * share
+        sheet.colours[at + 2] = lb + (pb - lb) * share
       }
 
-      nappe.positionAttribute.needsUpdate = true
-      nappe.colourAttribute.needsUpdate = true
+      sheet.positionAttribute.needsUpdate = true
+      sheet.colourAttribute.needsUpdate = true
     },
   })
 
-  // Le theme a bascule : les tokens sont relus et les couleurs remplacees en
-  // place. Les lignes lisent la ref a l'image suivante ; le fond et le
-  // brouillard sont peints ici, parce qu'ils ne sont pas relus par image.
+  // The theme has flipped: the tokens are read again and the colours replaced
+  // in place. The lines read the ref on the next frame; the background and the
+  // fog are painted here, because they are not re-read every frame.
   useEffect(() => {
     const scene = context.current
-    const nappe = relief.current
-    if (scene === null || nappe === null || host === null) return
+    const sheet = relief.current
+    if (scene === null || sheet === null || host === null) return
     shades.current = colors.map((token) => readTokenColour(token, host))
     const [bg] = shades.current
     const bgColour = new scene.three.Color(
@@ -318,7 +318,7 @@ export function TerrainWireframe({
       bg?.[2] ?? 0,
     ).convertSRGBToLinear()
     scene.renderer.setClearColor(bgColour, 1)
-    nappe.fog.color.copy(bgColour)
+    sheet.fog.color.copy(bgColour)
   }, [theme, colors, host, ready])
 
   const pending = usePoster({ ready, refused })

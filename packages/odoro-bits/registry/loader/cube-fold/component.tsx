@@ -1,33 +1,32 @@
 /**
- * Carre qui se plie : un patron en croix dont les quatre volets se relevent
- * un a un pour fermer une boite, puis se rabattent.
+ * Folding square: a cross-shaped net whose four flaps rise one by one to close
+ * a box, then fold back down.
  *
- * ## Un volet tourne sur sa charniere
+ * ## A flap turns on its hinge
  *
- * Le patron est une face centrale et quatre volets colles a ses cotes.
- * Chaque volet pivote autour du cote qu'il partage avec le centre — son
- * origine de transformation est cette arete, pas son milieu. Une rotation
- * centree ferait passer le volet a travers le centre ; depuis l'arete, il
- * se releve comme un rabat de carton.
+ * The net is a central face and four flaps stuck to its sides. Each flap
+ * pivots around the side it shares with the centre — its transform origin is
+ * that edge, not its middle. A centred rotation would send the flap through
+ * the centre; from the edge, it rises like a cardboard lid.
  *
- * Les quatre volets jouent la meme animation, mais chacun sur son axe et
- * dans son sens : la rotation est ecrite `rotate3d` avec des variables par
- * volet, que l'image cle resout element par element. Une animation, quatre
- * charnieres. Les delais sont negatifs et decales d'un volet a l'autre : le
- * pliage est en cours des la premiere image, et les volets se relevent en
- * tournant autour de la boite plutot que tous ensemble.
+ * The four flaps play the same animation, but each on its own axis and in its
+ * own direction: the rotation is written `rotate3d` with per-flap variables,
+ * which the keyframe resolves element by element. One animation, four hinges.
+ * The delays are negative and staggered from one flap to the next: the fold is
+ * already under way on the first frame, and the flaps rise turning around the
+ * box rather than all together.
  *
- * Les volets se plient vers l'arriere, loin du regard : on voit l'exterieur
- * de la boite, avec ses faces ombrees, et non l'interieur d'un puits.
+ * The flaps fold backwards, away from the viewer: what is seen is the outside
+ * of the box, with its shaded faces, and not the inside of a well.
  *
- * ## Un statut, pas un dessin
+ * ## A status, not a drawing
  *
- * L'element porte `role="status"` et un libelle pour les lecteurs d'ecran :
- * l'attente est une information, pas une decoration. Le patron est retire
- * de l'arbre d'accessibilite.
+ * The element carries `role="status"` and a label for screen readers: the wait
+ * is information, not decoration. The net is removed from the accessibility
+ * tree.
  *
- * Sous mouvement reduit, la boite reste fermee : c'est l'etat ou le pliage
- * aboutit, et le seul ou la figure est un cube.
+ * Under reduced motion, the box stays closed: that is the state the fold
+ * arrives at, and the only one where the figure is a cube.
  *
  * @module
  */
@@ -35,17 +34,17 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-cube-fold'
 
 /**
- * Les quatre volets : place dans le patron, charniere, axe et sens.
+ * The four flaps: place in the net, hinge, axis and direction.
  *
- * La place est comptee en faces : le centre est en (1, 1). Le sens est
- * choisi pour que chaque volet se replie vers l'arriere : autour de X dans
- * le sens positif pour le volet du haut, negatif pour celui du bas, et de
- * meme sur Y pour la droite et la gauche. L'ordre de la liste est l'ordre
- * de pliage, dans le sens horaire.
+ * The place is counted in faces: the centre is at (1, 1). The direction is
+ * chosen so that each flap folds backwards: around X in the positive
+ * direction for the top flap, negative for the bottom one, and likewise on Y
+ * for the right and the left. The order of the list is the order of folding,
+ * clockwise.
  */
 const FLAPS: ReadonlyArray<{
   readonly row: number
@@ -60,7 +59,7 @@ const FLAPS: ReadonlyArray<{
   { row: 1, column: 0, hinge: 'right center', axis: '0,1,0', turn: -90 },
 ]
 
-/** Pose le patron et son pliage, une fois par document. */
+/** Sets the net and its folding, once per document. */
 function ensureCubeFoldRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -73,8 +72,8 @@ function ensureCubeFoldRule(): void {
     'width:calc(var(--o-fold-size) * 3);height:calc(var(--o-fold-size) * 3);',
     'perspective:calc(var(--o-fold-size) * 12);',
     '}',
-    // Une inclinaison fixe : de face, les volets replies disparaitraient
-    // derriere le centre et le pliage se lirait comme un retrecissement.
+    // A fixed tilt: head-on, the folded flaps would disappear behind the
+    // centre and the fold would read as a shrinking.
     '[data-o-cube-fold-tilt]{',
     'display:block;position:relative;width:100%;height:100%;',
     'transform-style:preserve-3d;',
@@ -92,8 +91,8 @@ function ensureCubeFoldRule(): void {
     'animation:o-cube-fold-close var(--o-fold-speed) ease-in-out infinite;',
     'animation-delay:var(--o-fold-delay);',
     '}',
-    // Plie, tient, deplie. Les variables d'axe et d'angle sont celles du
-    // volet : une seule animation, quatre charnieres.
+    // Folds, holds, unfolds. The axis and angle variables are the flap's own:
+    // a single animation, four hinges.
     '@keyframes o-cube-fold-close{',
     '0%,12%{transform:rotate3d(var(--o-fold-axis),0deg)}',
     '38%,62%{transform:rotate3d(var(--o-fold-axis),var(--o-fold-turn))}',
@@ -106,36 +105,36 @@ function ensureCubeFoldRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface CubeFoldOwnProps {
-  /** Cote d'une face, en pixels. Le patron deplie en occupe trois. @defaultValue 20 */
+  /** Side of one face, in pixels. The unfolded net takes three. @defaultValue 20 */
   size?: number
-  /** Duree d'un cycle de pliage et depliage, en millisecondes. @defaultValue 2600 */
+  /** Duration of one fold and unfold cycle, in milliseconds. @defaultValue 2600 */
   speed?: number
-  /** Couleur des faces. @defaultValue la couleur du texte */
+  /** Colour of the faces. @defaultValue the text colour */
   color?: string
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */
+  /** Label announced to screen readers. @defaultValue 'Loading' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All the properties. */
 export type CubeFoldProps = Customisable<CubeFoldOwnProps, 'span'>
 
 /**
- * Signale une attente par un patron qui se plie en boite.
+ * Signals a wait with a net that folds itself into a box.
  *
  * @example
  * <CubeFold />
  *
  * @example
- * // Plus grand, plus lent, dans la teinte de marque.
+ * // Bigger, slower, in the brand hue.
  * <CubeFold size={32} speed={4000} color="var(--o-palette-brand-500)" />
  */
 export function CubeFold({
   size = 20,
   speed = 2600,
   color = 'currentColor',
-  label = 'Chargement',
+  label = 'Loading',
   ...rest
 }: CubeFoldProps): ReactElement {
   ensureCubeFoldRule()
@@ -182,9 +181,9 @@ export function CubeFold({
                 '--o-fold-hinge': flap.hinge,
                 '--o-fold-axis': flap.axis,
                 '--o-fold-turn': `${String(flap.turn)}deg`,
-                // Un dixieme de cycle entre deux volets, en negatif : le
-                // premier volet est deja releve quand le dernier commence,
-                // et le pliage tourne autour de la boite.
+                // A tenth of a cycle between two flaps, negative: the first
+                // flap is already up when the last one starts, and the fold
+                // turns around the box.
                 '--o-fold-delay': `${String(Math.round(-speed * index * 0.1))}ms`,
               } as CSSProperties
             }

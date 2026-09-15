@@ -8,7 +8,7 @@
  */
 
 import { Icon } from '@odoro-cli/icons'
-import { Check, Copy } from '@odoro-cli/icons/filaire'
+import { Check, Copy } from '@odoro-cli/icons/outline'
 import { type ReactElement, type ReactNode, useState } from 'react'
 
 /** Un lexeme colore. */

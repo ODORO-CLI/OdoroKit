@@ -1,40 +1,37 @@
 /**
- * Shaders de fond : la famille des semis.
+ * Background shaders: the scatter family.
  *
- * Quatre motifs faits de nombreux petits elements — etoiles, gouttes, fils,
- * bulles. Aucun n'existe en tant qu'objet : chacun est retrouve par le
- * fragment a partir de sa position, grace au meme principe que les pavages.
- * C'est ce qui permet d'en afficher des milliers sans en declarer un seul.
+ * Four patterns made of many small elements — stars, drops, threads, bubbles.
+ * None exists as an object: each is recovered by the fragment from its
+ * position, thanks to the same principle as the tilings. This is what makes it
+ * possible to display thousands of them without declaring a single one.
  *
- * Aucun de ces shaders n'est repris d'ailleurs.
+ * None of these shaders is taken from elsewhere.
  *
  * @module
  */
 
 /**
- * Etoiles : un semis a plusieurs profondeurs.
+ * Stars: a scatter at several depths.
  *
- * ## Comment mille etoiles tiennent en neuf lignes
+ * ## How a thousand stars fit in nine lines
  *
- * L'espace est replie sur une grille, chaque cellule contient au plus une
- * etoile, et sa position dans la cellule est tiree de l'identifiant de la
- * cellule. Le fragment n'a donc jamais a parcourir une liste : il regarde
- * dans quelle cellule il se trouve, et calcule la seule etoile qui puisse y
- * etre.
+ * Space is folded onto a grid, each cell contains at most one star, and its
+ * position inside the cell is drawn from the identifier of the cell. The
+ * fragment therefore never has to walk a list: it looks at which cell it is
+ * in, and computes the only star that can be there.
  *
- * ## La profondeur
+ * ## The depth
  *
- * Trois couches de densites differentes defilent a trois vitesses. C'est du
- * parallaxe au sens strict : ce qui est loin bouge peu. Une seule couche
- * donnerait un semis plat, immediatement reconnaissable comme une texture qui
- * glisse.
+ * Three layers of different densities scroll at three speeds. This is
+ * parallax in the strict sense: what is far moves little. A single layer would
+ * give a flat scatter, immediately recognisable as a sliding texture.
  *
- * Le scintillement n'est pas aleatoire par image — cela produirait du bruit.
- * C'est un sinus dont la phase est tiree de l'etoile : chacune scintille a son
- * rythme, et de facon reproductible.
+ * The twinkling is not random per frame — that would produce noise. It is a
+ * sine whose phase is drawn from the star: each twinkles at its own rhythm,
+ * and reproducibly.
  *
- * Uniformes : `uColorA`, `uColorB`, `uSpeed`, `uScale` (densite),
- * `uTwinkle`.
+ * Uniforms: `uColorA`, `uColorB`, `uSpeed`, `uScale` (density), `uTwinkle`.
  */
 export const STARS_FRAGMENT = /* glsl */ `
 precision highp float;
@@ -49,73 +46,71 @@ uniform float uSpeed;
 uniform float uScale;
 uniform float uTwinkle;
 
-vec3 odoroTirage(vec2 cellule) {
-  float a = fract(sin(dot(cellule, vec2(127.1, 311.7))) * 43758.5453);
-  float b = fract(sin(dot(cellule, vec2(269.5, 183.3))) * 43758.5453);
-  float c = fract(sin(dot(cellule, vec2(419.2, 371.9))) * 43758.5453);
+vec3 odoroRandom3(vec2 cell) {
+  float a = fract(sin(dot(cell, vec2(127.1, 311.7))) * 43758.5453);
+  float b = fract(sin(dot(cell, vec2(269.5, 183.3))) * 43758.5453);
+  float c = fract(sin(dot(cell, vec2(419.2, 371.9))) * 43758.5453);
   return vec3(a, b, c);
 }
 
-// Une couche : une grille, une etoile par cellule, aucune liste a parcourir.
-float odoroCouche(vec2 p, float densite, float t, float scintillement) {
-  vec2 grille = p * densite;
-  vec2 cellule = floor(grille);
-  vec2 local = fract(grille);
+// One layer: a grid, one star per cell, no list to walk.
+float odoroLayer(vec2 p, float density, float t, float twinkle) {
+  vec2 grid = p * density;
+  vec2 cell = floor(grid);
+  vec2 local = fract(grid);
 
-  vec3 tirage = odoroTirage(cellule);
+  vec3 rand = odoroRandom3(cell);
 
-  // Les deux tiers des cellules restent vides : une etoile par cellule
-  // donnerait une grille parfaitement reguliere, que l'oeil reconnait.
-  if (tirage.z > 0.34) return 0.0;
+  // Two thirds of the cells stay empty: one star per cell would give a
+  // perfectly regular grid, which the eye recognises.
+  if (rand.z > 0.34) return 0.0;
 
-  float d = length(local - tirage.xy);
+  float d = length(local - rand.xy);
 
-  // Le scintillement est un sinus de phase tiree de l'etoile : chacune a son
-  // rythme, et il est reproductible d'une image a l'autre.
-  float eclat = 1.0 - scintillement * (0.5 + 0.5 * sin(t * 3.0 + tirage.z * 62.8));
+  // The twinkling is a sine whose phase is drawn from the star: each has its
+  // own rhythm, and it is reproducible from one frame to the next.
+  float brightness = 1.0 - twinkle * (0.5 + 0.5 * sin(t * 3.0 + rand.z * 62.8));
 
-  return smoothstep(0.06, 0.0, d) * eclat;
+  return smoothstep(0.06, 0.0, d) * brightness;
 }
 
 void main() {
   float aspect = uResolution.x / max(uResolution.y, 1.0);
   vec2 p = vUv * vec2(aspect, 1.0);
   float t = uTime * uSpeed;
-  float densite = max(uScale, 1.0);
-  float scintillement = clamp(uTwinkle, 0.0, 1.0);
+  float density = max(uScale, 1.0);
+  float twinkle = clamp(uTwinkle, 0.0, 1.0);
 
-  // Trois profondeurs, trois vitesses : ce qui est loin bouge peu. Une seule
-  // couche se lirait comme une texture qui glisse.
-  float lumiere = odoroCouche(p + vec2(t * 0.010, 0.0), densite, t, scintillement) * 1.0;
-  lumiere += odoroCouche(p + vec2(t * 0.025, 0.0), densite * 1.7, t, scintillement) * 0.7;
-  lumiere += odoroCouche(p + vec2(t * 0.050, 0.0), densite * 2.6, t, scintillement) * 0.4;
+  // Three depths, three speeds: what is far moves little. A single layer would
+  // read as a sliding texture.
+  float light = odoroLayer(p + vec2(t * 0.010, 0.0), density, t, twinkle) * 1.0;
+  light += odoroLayer(p + vec2(t * 0.025, 0.0), density * 1.7, t, twinkle) * 0.7;
+  light += odoroLayer(p + vec2(t * 0.050, 0.0), density * 2.6, t, twinkle) * 0.4;
 
-  gl_FragColor = vec4(mix(uColorA, uColorB, clamp(lumiere, 0.0, 1.0)), 1.0);
+  gl_FragColor = vec4(mix(uColorA, uColorB, clamp(light, 0.0, 1.0)), 1.0);
 }
 `
 
 /**
- * Pluie : des trainees verticales de longueurs inegales.
+ * Rain: vertical trails of unequal lengths.
  *
- * ## La technique
+ * ## The technique
  *
- * L'espace est decoupe en colonnes. Chaque colonne recoit une vitesse et une
- * phase tirees de son indice, puis defile independamment : c'est ce decalage
- * qui empeche la pluie de tomber en rangs.
+ * Space is cut into columns. Each column receives a speed and a phase drawn
+ * from its index, then scrolls independently: it is that offset which keeps
+ * the rain from falling in ranks.
  *
- * Une goutte est un segment, pas un point. On la dessine en attenuant
- * progressivement vers le haut a partir de sa tete — la trainee est donc
- * gratuite, elle n'est qu'une fonction de la distance a la tete.
+ * A drop is a segment, not a point. It is drawn by fading progressively
+ * upwards from its head — the trail is therefore free, it is only a function
+ * of the distance to the head.
  *
- * ## Pourquoi la colonne est repliee, pas la goutte
+ * ## Why the column is folded, not the drop
  *
- * Replier la coordonnee verticale de la colonne entiere fait qu'une goutte
- * sortie par le bas rentre par le haut sans discontinuite. Deplacer une
- * goutte demanderait de la faire exister comme objet, et de gerer sa
- * disparition.
+ * Folding the vertical coordinate of the whole column means a drop that leaves
+ * at the bottom comes back at the top without discontinuity. Moving a drop
+ * would require making it exist as an object, and handling its disappearance.
  *
- * Uniformes : `uColorA`, `uColorB`, `uSpeed`, `uScale` (colonnes),
- * `uLength`.
+ * Uniforms: `uColorA`, `uColorB`, `uSpeed`, `uScale` (columns), `uLength`.
  */
 export const RAIN_FRAGMENT = /* glsl */ `
 precision highp float;
@@ -138,53 +133,53 @@ void main() {
   vec2 p = vUv;
   float t = uTime * uSpeed;
 
-  float colonnes = max(uScale, 1.0);
-  float indice = floor(p.x * colonnes);
-  float dans = fract(p.x * colonnes);
+  float columns = max(uScale, 1.0);
+  float index = floor(p.x * columns);
+  float inside = fract(p.x * columns);
 
-  float tirage = odoroHash1(indice);
+  float rand = odoroHash1(index);
 
-  // Vitesse et phase propres a la colonne : sans ce decalage, la pluie
-  // tomberait en rangs parfaitement alignes.
-  float vitesse = 0.6 + tirage * 1.4;
-  float tete = fract(tirage + t * vitesse);
+  // Speed and phase of the column's own: without that offset, the rain would
+  // fall in perfectly aligned ranks.
+  float speed = 0.6 + rand * 1.4;
+  float head = fract(rand + t * speed);
 
-  // La coordonnee est repliee sur la colonne entiere : une goutte sortie par
-  // le bas rentre par le haut sans qu'on ait a la faire disparaitre.
-  float distance = fract(p.y + tete);
+  // The coordinate is folded onto the whole column: a drop that leaves at the
+  // bottom comes back at the top without having to make it disappear.
+  float distance = fract(p.y + head);
 
-  // La trainee n'est qu'une fonction de la distance a la tete : aucun segment
-  // n'est dessine, seule l'attenuation le suggere.
-  float trainee = smoothstep(max(uLength, 0.01), 0.0, distance);
+  // The trail is only a function of the distance to the head: no segment is
+  // drawn, only the fading suggests it.
+  float trail = smoothstep(max(uLength, 0.01), 0.0, distance);
 
-  // Largeur du filet : le meme adoucissement de chaque cote de la colonne.
-  float filet = smoothstep(0.5, 0.15, abs(dans - 0.5));
+  // Width of the line: the same softening on each side of the column.
+  float line = smoothstep(0.5, 0.15, abs(inside - 0.5));
 
-  gl_FragColor = vec4(mix(uColorA, uColorB, trainee * filet), 1.0);
+  gl_FragColor = vec4(mix(uColorA, uColorB, trail * line), 1.0);
 }
 `
 
 /**
- * Fils : un faisceau de courbes fines.
+ * Threads: a bundle of fine curves.
  *
- * ## Comment tracer une courbe sans la tracer
+ * ## How to trace a curve without tracing it
  *
- * Un fragment ne peut pas suivre un trace ; il peut en revanche mesurer sa
- * distance a une courbe dont il connait l'equation. Ici chaque fil est un
- * `y = f(x)`, et le fragment compare son propre `y` a celui du fil. Proche,
- * il s'allume ; loin, il reste eteint.
+ * A fragment cannot follow a path; it can, however, measure its distance to a
+ * curve whose equation it knows. Here each thread is a `y = f(x)`, and the
+ * fragment compares its own `y` to the thread's. Close by, it lights up; far
+ * away, it stays dark.
  *
- * ## La correction de pente
+ * ## The slope correction
  *
- * Sans elle, un fil parait epais la ou il est plat et fin la ou il monte : la
- * distance verticale n'est pas la distance a la courbe. Diviser par la racine
- * de `1 + f'(x)²` corrige exactement cet ecart — c'est la meme division qui
- * apparait dans la distance d'un point a une droite.
+ * Without it, a thread looks thick where it is flat and thin where it climbs:
+ * the vertical distance is not the distance to the curve. Dividing by the
+ * square root of `1 + f'(x)2` corrects exactly that gap — it is the same
+ * division that appears in the distance from a point to a line.
  *
- * Sans cette correction, l'effet ressemble a une erreur d'anticrenelage. Avec
- * elle, l'epaisseur est constante sur toute la longueur du fil.
+ * Without that correction, the effect looks like an anti-aliasing error. With
+ * it, the thickness is constant over the whole length of the thread.
  *
- * Uniformes : `uColorA`, `uColorB`, `uSpeed`, `uScale` (nombre de fils),
+ * Uniforms: `uColorA`, `uColorB`, `uSpeed`, `uScale` (number of threads),
  * `uThickness`.
  */
 export const THREADS_FRAGMENT = /* glsl */ `
@@ -203,33 +198,33 @@ uniform float uThickness;
 void main() {
   vec2 p = vUv;
   float t = uTime * uSpeed;
-  float fils = max(uScale, 1.0);
-  float epaisseur = max(uThickness, 0.0005);
+  float threads = max(uScale, 1.0);
+  float thickness = max(uThickness, 0.0005);
 
   vec3 colour = uColorA;
 
   for (int i = 0; i < 12; i += 1) {
-    if (float(i) >= fils) break;
+    if (float(i) >= threads) break;
 
-    float k = float(i) / fils;
+    float k = float(i) / threads;
     float phase = t + k * 6.28318;
 
-    // Deux sinus de frequences non multiples : le fil ne se repete pas a
-    // l'oeil sur la largeur du cadre.
+    // Two sines of non-multiple frequencies: the thread does not repeat to the
+    // eye across the width of the frame.
     float y = 0.5
       + 0.18 * sin(p.x * 4.0 + phase)
       + 0.07 * sin(p.x * 9.3 - phase * 1.7)
       + (k - 0.5) * 0.7;
 
-    // La derivee de la meme expression : elle sert a corriger l'epaisseur.
-    float pente = 0.18 * 4.0 * cos(p.x * 4.0 + phase)
+    // The derivative of the same expression: it serves to correct the thickness.
+    float slope = 0.18 * 4.0 * cos(p.x * 4.0 + phase)
       - 0.07 * 9.3 * cos(p.x * 9.3 - phase * 1.7);
 
-    // Distance a la courbe, et non distance verticale : sans cette division
-    // le fil paraitrait epais la ou il est plat et fin la ou il monte.
-    float d = abs(p.y - y) / sqrt(1.0 + pente * pente);
+    // Distance to the curve, not vertical distance: without this division the
+    // thread would look thick where it is flat and thin where it climbs.
+    float d = abs(p.y - y) / sqrt(1.0 + slope * slope);
 
-    colour = mix(colour, uColorB, smoothstep(epaisseur, 0.0, d));
+    colour = mix(colour, uColorB, smoothstep(thickness, 0.0, d));
   }
 
   gl_FragColor = vec4(colour, 1.0);
@@ -237,29 +232,28 @@ void main() {
 `
 
 /**
- * Bulles : des disques qui montent et se fondent entre eux.
+ * Bubbles: discs that rise and merge into one another.
  *
- * ## La fusion
+ * ## The merging
  *
- * Deux disques dessines cote a cote restent deux disques. Additionner des
- * champs qui decroissent avec la distance, puis seuiller la somme, les fait
- * fusionner des qu'ils se rapprochent : c'est le principe des surfaces
- * implicites, et le seul moyen d'obtenir cette jonction en col sans decrire
- * de geometrie.
+ * Two discs drawn side by side stay two discs. Adding fields that decay with
+ * distance, then thresholding the sum, makes them merge as soon as they come
+ * close: this is the principle of implicit surfaces, and the only way to get
+ * that neck-shaped junction without describing any geometry.
  *
- * Le champ employe est `r²/d²`, qui vaut un sur le bord du disque et decroit
- * ensuite. La somme est comparee a un, si bien qu'un disque isole retrouve
- * exactement sa taille nominale — ce qui ne serait pas le cas avec un champ
- * gaussien.
+ * The field used is `r2/d2`, which equals one on the edge of the disc and
+ * decays afterwards. The sum is compared to one, so that an isolated disc
+ * recovers exactly its nominal size — which would not be the case with a
+ * Gaussian field.
  *
- * ## La remontee
+ * ## The rise
  *
- * Chaque bulle a sa propre vitesse, et sa hauteur est repliee sur `[0,1]` :
- * elle reapparait en bas des qu'elle sort en haut, sans discontinuite. Sa
- * derive horizontale est un sinus de phase propre — sans elle, les bulles
- * monteraient sur des rails.
+ * Every bubble has its own speed, and its height is folded onto `[0,1]`: it
+ * reappears at the bottom as soon as it leaves at the top, without
+ * discontinuity. Its horizontal drift is a sine with its own phase — without
+ * it, the bubbles would rise on rails.
  *
- * Uniformes : `uColorA`, `uColorB`, `uSpeed`, `uScale` (nombre), `uRadius`.
+ * Uniforms: `uColorA`, `uColorB`, `uSpeed`, `uScale` (count), `uRadius`.
  */
 export const BUBBLES_FRAGMENT = /* glsl */ `
 precision highp float;
@@ -279,34 +273,34 @@ void main() {
   vec2 p = (vUv - 0.5) * vec2(aspect, 1.0);
   float t = uTime * uSpeed;
 
-  float nombre = max(uScale, 1.0);
-  float rayon = max(uRadius, 0.001);
-  float champ = 0.0;
+  float count = max(uScale, 1.0);
+  float radius = max(uRadius, 0.001);
+  float field = 0.0;
 
   for (int i = 0; i < 16; i += 1) {
-    if (float(i) >= nombre) break;
+    if (float(i) >= count) break;
 
     float k = float(i);
-    float tirage = fract(sin(k * 127.1) * 43758.5453);
-    float autre = fract(sin(k * 311.7) * 43758.5453);
+    float rand = fract(sin(k * 127.1) * 43758.5453);
+    float other = fract(sin(k * 311.7) * 43758.5453);
 
-    // La hauteur est repliee : la bulle reapparait en bas des qu'elle sort en
-    // haut, sans qu'on ait a la creer ni a la detruire.
-    float y = fract(tirage + t * (0.3 + autre * 0.7)) - 0.5;
-    float x = (tirage - 0.5) * aspect + 0.08 * sin(t * 1.3 + autre * 6.28318);
+    // The height is folded: the bubble reappears at the bottom as soon as it
+    // leaves at the top, without having to create or destroy it.
+    float y = fract(rand + t * (0.3 + other * 0.7)) - 0.5;
+    float x = (rand - 0.5) * aspect + 0.08 * sin(t * 1.3 + other * 6.28318);
 
-    float taille = rayon * (0.5 + autre);
-    vec2 ecart = p - vec2(x, y);
+    float size = radius * (0.5 + other);
+    vec2 offset = p - vec2(x, y);
 
-    // r2/d2 : vaut un sur le bord, decroit ensuite. Compare a un, un disque
-    // isole retrouve exactement sa taille nominale.
-    champ += (taille * taille) / max(dot(ecart, ecart), 0.0001);
+    // r2/d2: equals one on the edge, decays afterwards. Compared to one, an
+    // isolated disc recovers exactly its nominal size.
+    field += (size * size) / max(dot(offset, offset), 0.0001);
   }
 
-  // Le seuil sur la somme, et non sur chaque disque : c'est la que deux
-  // bulles proches fusionnent en formant un col.
-  float forme = smoothstep(0.85, 1.15, champ);
+  // The threshold on the sum, and not on each disc: this is where two close
+  // bubbles merge, forming a neck.
+  float shape = smoothstep(0.85, 1.15, field);
 
-  gl_FragColor = vec4(mix(uColorA, uColorB, forme), 1.0);
+  gl_FragColor = vec4(mix(uColorA, uColorB, shape), 1.0);
 }
 `

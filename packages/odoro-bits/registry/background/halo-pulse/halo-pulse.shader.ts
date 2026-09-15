@@ -1,29 +1,29 @@
 /**
- * Shader du halo qui pulse.
+ * Shader for the pulsing halo.
  *
- * ## L'idee mathematique
+ * ## The mathematical idea
  *
- * Un coeur gaussien qui respire au rythme d'une periode reglable, et des
- * anneaux emis a ce meme rythme : chacun est une gaussienne de la distance
- * au centre, dont le rayon croit avec sa phase, qui s'elargit et palit en
- * s'eloignant. Les anneaux se repartissent uniformement sur la periode, si
- * bien que l'emission est reguliere, jamais en rafale.
+ * A gaussian core that breathes to the rhythm of an adjustable period, and
+ * rings emitted at that same rhythm: each is a gaussian of the distance to
+ * the centre, whose radius grows with its phase, which widens and pales as
+ * it moves away. The rings spread evenly over the period, so that the
+ * emission is steady, never in bursts.
  *
- * Distinct du sonar, dont les fronts sont raides, suivent le pointeur et
- * laissent une traine sombre : ici tout est doux, lent, et pose par melange
- * borne vers les teintes.
+ * Distinct from the sonar, whose fronts are steep, follow the pointer and
+ * leave a dark wake: here everything is soft, slow, and applied by bounded
+ * mixing towards the hues.
  *
  * ## Uniforms
  *
- * - `uTime` — temps en secondes, fourni par le moteur.
- * - `uResolution` — taille du canevas en pixels, fournie par le moteur.
- * - `uColorA` — le fond.
- * - `uColorB` — les anneaux et le halo.
- * - `uColorC` — le coeur.
- * - `uX`, `uY` — position du centre, en fraction du cadre.
- * - `uPeriod` — periode du rythme, en secondes.
- * - `uRings` — nombre d'anneaux en vol.
- * - `uSize` — portee des anneaux, en hauteurs de cadre.
+ * - `uTime` — time in seconds, supplied by the engine.
+ * - `uResolution` — canvas size in pixels, supplied by the engine.
+ * - `uColorA` — the background.
+ * - `uColorB` — the rings and the halo.
+ * - `uColorC` — the core.
+ * - `uX`, `uY` — position of the centre, as a fraction of the frame.
+ * - `uPeriod` — period of the rhythm, in seconds.
+ * - `uRings` — number of rings in flight.
+ * - `uSize` — reach of the rings, in frame heights.
  */
 export const HALO_PULSE_FRAGMENT = /* glsl */ `
 precision highp float;
@@ -47,31 +47,31 @@ void main() {
   vec2 centre = vec2(uX * aspect, uY);
   float r = length(p - centre);
 
-  float periode = max(uPeriod, 0.5);
-  float portee = max(uSize, 0.1);
+  float period = max(uPeriod, 0.5);
+  float reach = max(uSize, 0.1);
   int n = int(clamp(uRings, 1.0, 6.0));
 
-  // Les anneaux : chacun decale d'une fraction de la periode, pour une
-  // emission reguliere. Le rayon croit avec la phase ; la largeur aussi,
-  // et l'intensite tombe au carre — un anneau meurt avant sa portee.
-  float anneaux = 0.0;
+  // The rings: each offset by a fraction of the period, for a steady
+  // emission. The radius grows with the phase; so does the width, and the
+  // intensity falls as a square — a ring dies before its reach.
+  float rings = 0.0;
   for (int i = 0; i < 6; i += 1) {
     if (i >= n) break;
-    float phase = fract(uTime / periode + float(i) / float(n));
-    float rayon = phase * portee;
-    float largeur = 0.012 + 0.06 * phase;
-    float e = (r - rayon) / largeur;
-    float vie = 1.0 - phase;
-    anneaux += exp(-e * e) * vie * vie;
+    float phase = fract(uTime / period + float(i) / float(n));
+    float radius = phase * reach;
+    float width = 0.012 + 0.06 * phase;
+    float e = (r - radius) / width;
+    float life = 1.0 - phase;
+    rings += exp(-e * e) * life * life;
   }
 
-  // Le coeur respire au meme rythme : il grossit a l'emission.
-  float souffle = 0.5 + 0.5 * sin(uTime / periode * 6.2831853);
-  float coeur = exp(-r * r / (0.012 + 0.012 * souffle));
-  float halo = exp(-r * (7.0 - 2.5 * souffle)) * 0.5;
+  // The core breathes to the same rhythm: it swells at emission.
+  float breath = 0.5 + 0.5 * sin(uTime / period * 6.2831853);
+  float core = exp(-r * r / (0.012 + 0.012 * breath));
+  float halo = exp(-r * (7.0 - 2.5 * breath)) * 0.5;
 
-  vec3 colour = mix(uColorA, uColorB, clamp(anneaux * 0.8 + halo * 0.6, 0.0, 1.0));
-  colour = mix(colour, uColorC, clamp(coeur * (0.7 + 0.3 * souffle), 0.0, 1.0));
+  vec3 colour = mix(uColorA, uColorB, clamp(rings * 0.8 + halo * 0.6, 0.0, 1.0));
+  colour = mix(colour, uColorC, clamp(core * (0.7 + 0.3 * breath), 0.0, 1.0));
 
   gl_FragColor = vec4(colour, 1.0);
 }

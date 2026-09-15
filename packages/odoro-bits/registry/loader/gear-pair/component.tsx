@@ -1,39 +1,36 @@
 /**
- * Deux engrenages : un grand et un petit tournent en sens contraires, dents
- * engrenees, a des vitesses qui respectent leur rapport.
+ * Two gears: a big one and a small one turn in opposite directions, teeth
+ * meshed, at speeds that respect their ratio.
  *
- * ## Des dents qui ne se traversent pas
+ * ## Teeth that do not pass through each other
  *
- * Deux engrenages dessines au hasard se chevauchent : une dent de l'un
- * finit toujours par passer a travers une dent de l'autre, et l'oeil le
- * voit meme sans savoir pourquoi. Ici les deux roues ont des dents de la
- * meme hauteur et du meme pas, ce qui fixe leurs rayons a proportion de
- * leur nombre de dents, et leur entraxe a la somme de leurs rayons
- * primitifs. Chaque roue est ensuite tournee pour qu'une dent de l'une
- * pointe vers l'autre, et un creux de l'autre vers la premiere.
+ * Two gears drawn at random overlap: a tooth of one always ends up passing
+ * through a tooth of the other, and the eye sees it even without knowing why.
+ * Here the two wheels have teeth of the same height and the same pitch, which
+ * fixes their radii in proportion to their tooth counts, and their centre
+ * distance to the sum of their pitch radii. Each wheel is then turned so that
+ * a tooth of one points towards the other, and a gap of the other towards the
+ * first.
  *
- * Le rapport des vitesses est celui des dents : douze contre huit, le
- * petit engrenage tourne une fois et demie plus vite, en sens inverse.
- * C'est la seule vitesse ou les dents restent engrenees ; toute autre les
- * ferait glisser.
+ * The speed ratio is the tooth ratio: twelve against eight, the small gear
+ * turns one and a half times faster, in the opposite direction. That is the
+ * only speed at which the teeth stay meshed; any other would make them slip.
  *
- * Les dents sont des trapezes, pas des developpantes : a cette taille, la
- * difference est invisible, et le trace reste une suite de segments que le
- * navigateur rend sans effort.
+ * The teeth are trapezoids, not involutes: at this size, the difference is
+ * invisible, and the path stays a sequence of segments the browser renders
+ * without effort.
  *
- * Deux animations de rotation, tenues par le compositeur. Aucun JavaScript
- * apres le premier rendu : les traces sont calcules une fois au chargement
- * du module.
+ * Two rotation animations, held by the compositor. No JavaScript after the
+ * first render: the paths are computed once when the module loads.
  *
- * ## Un statut, pas un dessin
+ * ## A status, not a drawing
  *
- * L'element porte `role="status"` et un libelle pour les lecteurs d'ecran :
- * l'attente est une information, pas une decoration. Le dessin est retire
- * de l'arbre d'accessibilite.
+ * The element carries `role="status"` and a label for screen readers: waiting
+ * is information, not decoration. The drawing is removed from the
+ * accessibility tree.
  *
- * Sous mouvement reduit, les engrenages restent immobiles, dents
- * engrenees : la figure se lit encore comme un chargeur, seul le mouvement
- * s'arrete.
+ * Under reduced motion, the gears stay still, teeth meshed: the figure still
+ * reads as a loader, only the movement stops.
  *
  * @module
  */
@@ -41,37 +38,37 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-gear-pair'
 
-/** Ce qui definit une roue. */
+/** What defines a wheel. */
 interface Gear {
   readonly cx: number
   readonly cy: number
   readonly teeth: number
-  /** Rayon primitif : la ou les dents des deux roues se rencontrent. */
+  /** Pitch radius: where the teeth of the two wheels meet. */
   readonly pitch: number
 }
 
-/** Hauteur d'une dent, de part et d'autre du rayon primitif. */
+/** Height of a tooth, on either side of the pitch radius. */
 const TOOTH = 4
 
 /**
- * Jeu au sommet des dents.
+ * Clearance at the tip of the teeth.
  *
- * Sans lui, le bout d'une dent toucherait exactement le fond du creux d'en
- * face, et les dents en trapeze s'y chevaucheraient d'une fraction d'unite
- * a chaque passage. Une unite de retrait suffit a l'eviter.
+ * Without it, the tip of a tooth would touch exactly the bottom of the gap
+ * facing it, and the trapezoid teeth would overlap there by a fraction of a
+ * unit on every pass. One unit of setback is enough to avoid that.
  */
 const CLEARANCE = 1
 
 /**
- * Trace d'une roue dentee, avec son trou central.
+ * Path of a toothed wheel, with its central hole.
  *
- * Chaque dent est un trapeze : montee au quart du pas, plateau jusqu'a la
- * moitie, descente aux trois quarts, creux jusqu'au pas suivant. `toothAt`
- * est l'angle, en degres, ou l'on veut le milieu d'une dent : c'est par lui
- * que les deux roues s'engrenent.
+ * Each tooth is a trapezoid: rise over a quarter of the pitch, plateau to the
+ * half, fall at three quarters, gap until the next pitch. `toothAt` is the
+ * angle, in degrees, where the middle of a tooth is wanted: it is through it
+ * that the two wheels mesh.
  */
 function gearPath(gear: Gear, toothAt: number): string {
   const outer = gear.pitch + TOOTH - CLEARANCE
@@ -101,15 +98,15 @@ function gearPath(gear: Gear, toothAt: number): string {
   ].join(' ')
 }
 
-/** La grande roue, en bas a gauche de la vue. */
+/** The big wheel, at the bottom left of the view. */
 const BIG: Gear = { cx: 38, cy: 58, teeth: 12, pitch: 24 }
 
-/** Direction du petit engrenage depuis le grand, en degres. */
+/** Direction of the small gear from the big one, in degrees. */
 const LINK = -35
 
 /**
- * La petite roue, a l'entraxe exact : la somme des rayons primitifs, dans
- * la direction de liaison.
+ * The small wheel, at the exact centre distance: the sum of the pitch radii,
+ * in the direction of the link.
  */
 const SMALL: Gear = {
   cx: BIG.cx + (BIG.pitch + 16) * Math.cos((LINK * Math.PI) / 180),
@@ -118,11 +115,11 @@ const SMALL: Gear = {
   pitch: 16,
 }
 
-/** Une dent du grand pointe vers le petit ; un creux du petit lui repond. */
+/** A tooth of the big one points at the small one; a gap of the small one answers it. */
 const BIG_PATH = gearPath(BIG, LINK)
 const SMALL_PATH = gearPath(SMALL, LINK + 180 + 360 / SMALL.teeth / 2)
 
-/** Pose les engrenages et leurs rotations, une fois par document. */
+/** Sets up the gears and their rotations, once per document. */
 function ensureGearRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -132,7 +129,7 @@ function ensureGearRule(): void {
   style.textContent = [
     '[data-o-gear-pair]{display:inline-block;line-height:0}',
     '[data-o-gear-pair] svg{display:block}',
-    // Chaque roue tourne autour de son propre centre, en unites de la vue.
+    // Each wheel turns around its own centre, in view units.
     '[data-o-gear]{',
     'transform-box:view-box;transform-origin:var(--o-gear-origin);',
     'animation:var(--o-gear-spin) var(--o-gear-speed) linear infinite;',
@@ -146,36 +143,36 @@ function ensureGearRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** Props of the component itself. */
 export interface GearPairOwnProps {
-  /** Cote de la zone de dessin, en pixels. @defaultValue 56 */
+  /** Side of the drawing area, in pixels. @defaultValue 56 */
   size?: number
-  /** Duree d'un tour du grand engrenage, en millisecondes. @defaultValue 3000 */
+  /** Duration of one turn of the big gear, in milliseconds. @defaultValue 3000 */
   speed?: number
-  /** Couleur des engrenages. @defaultValue la couleur du texte */
+  /** Colour of the gears. @defaultValue the text colour */
   color?: string
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */
+  /** Label announced to screen readers. @defaultValue 'Loading' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All the props. */
 export type GearPairProps = Customisable<GearPairOwnProps, 'span'>
 
 /**
- * Signale une attente par deux engrenages qui tournent l'un contre l'autre.
+ * Signals a wait through two gears turning against each other.
  *
  * @example
  * <GearPair />
  *
  * @example
- * // Plus grand, plus lent, dans la teinte de marque.
+ * // Bigger, slower, in the brand hue.
  * <GearPair size={96} speed={5000} color="var(--o-palette-brand-500)" />
  */
 export function GearPair({
   size = 56,
   speed = 3000,
   color = 'currentColor',
-  label = 'Chargement',
+  label = 'Loading',
   ...rest
 }: GearPairProps): ReactElement {
   ensureGearRule()
@@ -222,8 +219,8 @@ export function GearPair({
             {
               '--o-gear-origin': `${SMALL.cx.toFixed(2)}px ${SMALL.cy.toFixed(2)}px`,
               '--o-gear-spin': 'o-gear-pair-ccw',
-              // Le rapport des dents : le petit fait un tour pendant que le
-              // grand en fait huit douziemes.
+              // The tooth ratio: the small one makes a full turn while the big
+              // one makes eight twelfths.
               '--o-gear-speed': `${String(Math.round((speed * SMALL.teeth) / BIG.teeth))}ms`,
             } as CSSProperties
           }

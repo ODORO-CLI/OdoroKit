@@ -1,36 +1,35 @@
 /**
- * Boucle de rendu unique.
+ * Single render loop.
  *
- * ## Le point d'architecture le plus important du moteur
+ * ## The most important architectural point of the engine
  *
- * Il n'existe **qu'une seule** boucle de rendu dans une page Odoro. Aucune
- * scene, aucune surface, aucun effet n'ouvre son propre
- * `requestAnimationFrame` : tous s'abonnent ici.
+ * There is **only one** render loop in an Odoro page. No scene, no surface, no
+ * effect opens its own `requestAnimationFrame`: they all subscribe here.
  *
- * Ce n'est pas une preference de style. Deux boucles concurrentes rendent dans
- * un ordre non deterministe : le DOM peut etre mis a jour apres le rendu WebGL
- * d'une meme image, produisant un decalage d'une frame entre un element anime
- * et le fond qui devrait le suivre. Le symptome est un tremblement irregulier,
- * qui ne se reproduit pas a la demande et resiste au profilage. Avec une
- * boucle unique et un ordre explicite, le probleme ne peut pas exister.
+ * This is not a style preference. Two competing loops render in a
+ * non-deterministic order: the DOM can be updated after the WebGL render of the
+ * same frame, producing a one-frame gap between an animated element and the
+ * background that should follow it. The symptom is an irregular jitter that
+ * does not reproduce on demand and resists profiling. With a single loop and an
+ * explicit order, the problem cannot exist.
  *
- * ## Deux deltas, et pourquoi
+ * ## Two deltas, and why
  *
- * La boucle sous-jacente ecrete les deltas anormaux : apres un blocage de 800
- * millisecondes, elle annonce 33 millisecondes. C'est le bon comportement pour
- * une animation — sans quoi elle sauterait brutalement a la reprise — mais
- * c'est un mensonge pour une simulation qui integre le temps ecoule : un
- * champ de particules dériverait silencieusement.
+ * The underlying loop clamps abnormal deltas: after an 800 millisecond stall,
+ * it reports 33 milliseconds. That is the right behaviour for an animation —
+ * without it, it would jump abruptly on resume — but it is a lie for a
+ * simulation that integrates elapsed time: a particle field would silently
+ * drift.
  *
- * `delta` est donc la valeur lissee, `deltaRaw` la valeur reelle, mesuree ici
- * meme. Les animations utilisent la premiere, les simulations la seconde.
+ * `delta` is therefore the smoothed value, `deltaRaw` the real one, measured
+ * right here. Animations use the first, simulations the second.
  *
  * ## Pause
  *
- * `pause()` suspend la distribution aux abonnes de cette horloge, **sans**
- * toucher a la boucle sous-jacente : la mettre en sommeil figerait aussi les
- * animations d'interface sans rapport. La suspension d'un effet particulier —
- * hors ecran, onglet masque — passe par `setActive` sur son abonnement.
+ * `pause()` suspends delivery to this clock's subscribers, **without** touching
+ * the underlying loop: putting it to sleep would also freeze unrelated
+ * interface animations. Suspending one particular effect — off screen, hidden
+ * tab — goes through `setActive` on its subscription.
  *
  * @module
  */
@@ -38,72 +37,73 @@
 import gsap from 'gsap'
 
 /**
- * Priorites d'execution dans la frame.
+ * Execution priorities within the frame.
  *
- * Plus la valeur est **haute**, plus tot l'abonne s'execute. Le rendu graphique
- * porte donc une priorite basse : il doit voir l'etat final de la frame, apres
- * que toutes les mises a jour l'ont produit.
+ * The **higher** the value, the earlier the subscriber runs. Graphics rendering
+ * therefore carries a low priority: it must see the final state of the frame,
+ * after every update has produced it.
  */
 export const CLOCK_PRIORITY = {
-  /** Lecture des entrees — pointeur, defilement. */
+  /** Reading inputs — pointer, scroll. */
   input: 200,
-  /** Mesures et mises a jour de mise en page. */
+  /** Measurements and layout updates. */
   layout: 100,
-  /** Valeur par defaut. */
+  /** Default value. */
   default: 0,
-  /** Rendu graphique, en fin de frame. */
+  /** Graphics rendering, at the end of the frame. */
   render: -100,
 } as const
 
-/** Etat d'une image, transmis a chaque abonne. */
+/** State of a frame, passed to every subscriber. */
 export interface FrameInfo {
-  /** Temps ecoule depuis le demarrage de la boucle, en secondes. */
+  /** Time elapsed since the loop started, in seconds. */
   readonly time: number
   /**
-   * Duree de l'image precedente, en secondes, **lissee**. A utiliser pour
-   * animer : elle ne saute pas apres un blocage.
+   * Duration of the previous frame, in seconds, **smoothed**. Use this to
+   * animate: it does not jump after a stall.
    */
   readonly delta: number
   /**
-   * Duree reelle de l'image precedente, en secondes. A utiliser pour toute
-   * simulation qui integre le temps.
+   * Real duration of the previous frame, in seconds. Use this for any
+   * simulation that integrates time.
    */
   readonly deltaRaw: number
-  /** Numero d'image depuis le demarrage. */
+  /** Frame number since startup. */
   readonly frame: number
 }
 
-/** Fonction appelee a chaque image. */
+/** Function called on every frame. */
 export type ClockCallback = (frame: FrameInfo) => void
 
-/** Options d'un abonnement. */
+/** Options of a subscription. */
 export interface SubscribeOptions {
   /**
-   * Position dans la frame. Voir {@link CLOCK_PRIORITY}.
+   * Position within the frame. See {@link CLOCK_PRIORITY}.
    *
    * @defaultValue 0
    */
   priority?: number
-  /** Nom affiche dans le panneau de diagnostic. */
+  /** Name shown in the diagnostics panel. */
   name?: string
 }
 
-/** Abonnement a la boucle. */
+/** Subscription to the loop. */
 export interface ClockSubscription {
-  /** Retire l'abonnement. */
+  /** Removes the subscription. */
   unsubscribe(): void
   /**
-   * Suspend ou reprend cet abonne, sans le retirer. C'est le mecanisme a
-   * employer pour un effet hors ecran : il conserve son ordre et son etat.
+   * Suspends or resumes this subscriber, without removing it. This is the
+   * mechanism to use for an off-screen effect: it keeps its order and its
+   * state.
    */
   setActive(active: boolean): void
-  /** `true` si l'abonne recoit les images. */
+  /** `true` if the subscriber receives frames. */
   readonly active: boolean
-  /** Nom donne a l'abonnement. */
+  /** Name given to the subscription. */
   readonly name: string
 }
 
-/** Un abonne enregistre. */
+/** A registered subscriber. */
 interface Entry {
   callback: ClockCallback
   priority: number
@@ -111,10 +111,10 @@ interface Entry {
   active: boolean
 }
 
-/** Nombre d'images retenues pour la moyenne glissante. */
+/** Number of frames kept for the rolling average. */
 const FPS_WINDOW = 30
 
-/** Horloge de la page : une instance, et une seule. */
+/** Clock of the page: one instance, and one only. */
 class Clock {
   private readonly entries: Entry[] = []
   private attached = false
@@ -123,21 +123,21 @@ class Clock {
   private lastRaw = 0
   private readonly durations: number[] = []
 
-  /** Numero de la derniere image distribuee. */
+  /** Number of the last delivered frame. */
   public frame = 0
 
-  /** Temps ecoule depuis le demarrage, en secondes. */
+  /** Time elapsed since startup, in seconds. */
   public time = 0
 
-  /** Horodatage courant, isole pour les tests. */
+  /** Current timestamp, isolated for the tests. */
   private now(): number {
     return typeof performance === 'undefined' ? Date.now() : performance.now()
   }
 
   /**
-   * Images par seconde, moyennees sur les trente dernieres images.
+   * Frames per second, averaged over the last thirty frames.
    *
-   * Retourne 0 tant qu'aucune image n'a ete distribuee.
+   * Returns 0 as long as no frame has been delivered.
    */
   public get fps(): number {
     if (this.durations.length === 0) return 0
@@ -145,17 +145,17 @@ class Clock {
     return total === 0 ? 0 : Math.round((this.durations.length * 1000) / total)
   }
 
-  /** `true` si la distribution est suspendue. */
+  /** `true` if delivery is suspended. */
   public get isPaused(): boolean {
     return this.paused
   }
 
-  /** Nombre d'abonnes, actifs ou non. */
+  /** Number of subscribers, active or not. */
   public get size(): number {
     return this.entries.length
   }
 
-  /** Abonnes, du plus prioritaire au moins prioritaire. */
+  /** Subscribers, from the highest priority to the lowest. */
   public inspect(): readonly { name: string; priority: number; active: boolean }[] {
     return this.entries.map((entry) => ({
       name: entry.name,
@@ -164,7 +164,7 @@ class Clock {
     }))
   }
 
-  /** Distribue une image a tous les abonnes actifs. */
+  /** Delivers a frame to every active subscriber. */
   private readonly tick = (time: number, deltaMs: number, frame: number): void => {
     const raw = this.now()
     const deltaRaw = this.lastRaw === 0 ? deltaMs : raw - this.lastRaw
@@ -185,20 +185,20 @@ class Clock {
       frame,
     }
 
-    // Une copie protege la boucle d'un abonne qui se desabonnerait pendant sa
-    // propre execution — cas courant d'une animation qui se termine.
+    // A copy protects the loop from a subscriber that would unsubscribe during
+    // its own execution — a common case for an animation that ends.
     for (const entry of [...this.entries]) {
       if (!entry.active) continue
       try {
         entry.callback(info)
       } catch (cause) {
-        // Un abonne fautif ne doit pas interrompre la frame des autres.
-        console.error(`[odoro] echec de l'abonne "${entry.name}"`, cause)
+        // A faulty subscriber must not interrupt the frame of the others.
+        console.error(`[odoro] subscriber "${entry.name}" failed`, cause)
       }
     }
   }
 
-  /** Branche la boucle sous-jacente, une seule fois. */
+  /** Attaches the underlying loop, only once. */
   private attach(): void {
     if (this.attached || typeof window === 'undefined') return
     this.attached = true
@@ -207,7 +207,7 @@ class Clock {
     gsap.ticker.add(this.tick)
   }
 
-  /** Debranche la boucle quand plus personne n'ecoute. */
+  /** Detaches the loop when nobody listens any more. */
   private detach(): void {
     if (!this.attached) return
     this.attached = false
@@ -216,7 +216,7 @@ class Clock {
   }
 
   /**
-   * Abonne une fonction a la boucle.
+   * Subscribes a function to the loop.
    *
    * @example
    * const subscription = clock.subscribe(
@@ -231,12 +231,12 @@ class Clock {
     const entry: Entry = {
       callback,
       priority: options.priority ?? CLOCK_PRIORITY.default,
-      name: options.name ?? 'anonyme',
+      name: options.name ?? 'anonymous',
       active: true,
     }
 
     this.entries.push(entry)
-    // Tri decroissant : la priorite haute passe en premier, le rendu en dernier.
+    // Descending sort: high priority runs first, rendering last.
     this.entries.sort((a, b) => b.priority - a.priority)
     this.attach()
 
@@ -259,27 +259,27 @@ class Clock {
   }
 
   /**
-   * Suspend la distribution.
+   * Suspends delivery.
    *
-   * La boucle sous-jacente continue de tourner : les animations d'interface
-   * qui n'appartiennent pas a cette horloge ne sont pas affectees.
+   * The underlying loop keeps running: interface animations that do not belong
+   * to this clock are not affected.
    */
   public pause(): void {
     this.paused = true
   }
 
-  /** Reprend la distribution. */
+  /** Resumes delivery. */
   public resume(): void {
     this.paused = false
-    // Le delta suivant serait sinon egal a toute la duree de la pause.
+    // The next delta would otherwise equal the whole duration of the pause.
     this.lastRaw = 0
   }
 
   /**
-   * Retire tous les abonnes et endort la boucle sous-jacente.
+   * Removes every subscriber and puts the underlying loop to sleep.
    *
-   * Reserve aux tests et a la fermeture d'une page : sans cela, la boucle
-   * maintient le processus en vie indefiniment.
+   * Reserved for the tests and for closing a page: without it, the loop keeps
+   * the process alive indefinitely.
    */
   public dispose(): void {
     this.entries.length = 0
@@ -292,10 +292,10 @@ class Clock {
 }
 
 /**
- * Horloge de la page.
+ * Clock of the page.
  *
- * C'est deliberement un singleton de module : l'unicite de la boucle est la
- * garantie que ce module apporte, et deux instances la reduiraient a neant.
+ * This is deliberately a module singleton: the uniqueness of the loop is the
+ * guarantee this module brings, and two instances would reduce it to nothing.
  *
  * @example
  * import { clock, CLOCK_PRIORITY } from '@odoro-cli/engine'
@@ -306,5 +306,5 @@ class Clock {
  */
 export const clock = new Clock()
 
-/** Type de l'horloge, pour les signatures qui la recoivent en parametre. */
+/** Type of the clock, for the signatures that take it as a parameter. */
 export type ClockInstance = Clock

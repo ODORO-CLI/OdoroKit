@@ -1,28 +1,28 @@
 /**
- * Le contrat de module.
+ * The module contract.
  *
- * ## Ce qu'un module est, et ce qu'il n'est pas
+ * ## What a module is, and what it is not
  *
- * Un module est une **déclaration** : un nom, ce dont il a besoin, ce qu'il
- * enregistre, ce qu'il expose. Il ne s'installe pas lui-même, il ne connaît
- * pas l'application, et il ne touche jamais à Express. C'est le noyau qui le
- * monte.
+ * A module is a **declaration**: a name, what it needs, what it
+ * registers, what it exposes. It does not install itself, it does not know
+ * the application, and it never touches Express. It is the kernel that
+ * mounts it.
  *
- * La conséquence pratique : activer ou désactiver un module tient en une ligne
- * dans `main.ts`, et rien d'autre ne bouge. Un module qui s'installerait
- * lui-même laisserait des traces derrière lui — une route posée, un écouteur
- * abonné — et « désactiver » deviendrait un travail d'archéologie.
+ * The practical consequence: enabling or disabling a module takes one line
+ * in `main.ts`, and nothing else moves. A module that would install
+ * itself would leave traces behind it — a route set, a listener
+ * subscribed — and "disabling" would become a work of archaeology.
  *
- * ## L'ordre de chargement
+ * ## The loading order
  *
- * `requires` déclare les modules dont celui-ci a besoin. Le noyau en tire un
- * ordre topologique, détecte les cycles, et refuse de démarrer si une
- * dépendance manque.
+ * `requires` declares the modules this one needs. The kernel derives from it a
+ * topological order, detects the cycles, and refuses to start if a
+ * dependency is missing.
  *
- * Ce refus est au démarrage, pas à la première requête. Un module `account`
- * qui suppose `auth` monté, sur un serveur où `auth` a été retiré, doit
- * échouer à l'instant où quelqu'un le déploie — et non le lendemain, sur la
- * route que personne n'appelle en recette.
+ * That refusal is at startup, not on the first request. An `account` module
+ * that assumes `auth` mounted, on a server where `auth` was removed, must
+ * fail at the instant somebody deploys it — and not the day after, on
+ * the route nobody calls in staging.
  *
  * @module
  */
@@ -30,45 +30,45 @@
 import type { Container } from './container.js'
 import type { RouteDefinition } from './http/route.js'
 
-/** Ce qu'un module déclare. */
+/** What a module declares. */
 export interface ModuleDefinition<Services = Record<never, never>> {
-  /** Nom, unique, employé par `requires` et par la CLI. */
+  /** Name, unique, used by `requires` and by the CLI. */
   readonly name: string
 
   /**
-   * Modules requis, par nom.
+   * Required modules, by name.
    *
-   * Une dépendance manquante ou un cycle font échouer le démarrage.
+   * A missing dependency or a cycle fail the startup.
    */
   readonly requires?: readonly string[]
 
   /**
-   * Enregistre les services du module dans le conteneur.
+   * Registers the services of the module in the container.
    *
-   * Appelé dans l'ordre topologique : les services des modules requis sont
-   * déjà enregistrés quand celui-ci s'exécute.
+   * Called in the topological order: the services of the required modules are
+   * already registered when this one runs.
    */
   readonly register?: (container: Container<Services>) => void
 
-  /** Routes exposées. */
+  /** Exposed routes. */
   readonly routes?: readonly RouteDefinition[]
 
   /**
-   * Capacités de base exigées.
+   * Required database capabilities.
    *
-   * Un module qui s'appuie sur `jsonb` ou sur la recherche plein texte le
-   * déclare ici. Le noyau compare aux capacités du dialecte courant et refuse
-   * de démarrer si l'une manque — plutôt que de laisser le module échouer à
-   * l'usage, sur une requête rare, avec une erreur de pilote.
+   * A module that leans on `jsonb` or on the full text search
+   * declares it here. The kernel compares to the capabilities of the current dialect and refuses
+   * to start if one is missing — rather than letting the module fail
+   * on use, on a rare request, with a driver error.
    */
   readonly requiresCapabilities?: readonly string[]
 }
 
 /**
- * Déclare un module.
+ * Declares a module.
  *
- * La fonction ne fait que typer : elle n'existe que pour l'inférence, et pour
- * que la déclaration se lise comme une déclaration.
+ * The function only types: it exists only for the inference, and so
+ * that the declaration reads as a declaration.
  *
  * @example
  * export const accountModule = defineModule({
@@ -84,7 +84,7 @@ export function defineModule<Services = Record<never, never>>(
   return definition
 }
 
-/** Levée quand l'ensemble des modules ne peut pas être monté. */
+/** Thrown when the set of modules cannot be mounted. */
 export class ModuleError extends Error {
   constructor(message: string) {
     super(message)
@@ -93,21 +93,21 @@ export class ModuleError extends Error {
 }
 
 /**
- * Ordonne les modules selon leurs dépendances.
+ * Orders the modules according to their dependencies.
  *
- * ## Le parcours
+ * ## The traversal
  *
- * Un tri topologique par parcours en profondeur, avec trois états par nœud :
- * jamais vu, en cours de visite, terminé. Le second est ce qui distingue un
- * cycle d'un simple losange — un module atteint deux fois par des chemins
- * différents est normal, un module atteint pendant sa propre visite est un
+ * A topological sort by depth-first traversal, with three states per node:
+ * never seen, being visited, done. The second is what distinguishes a
+ * cycle from a plain diamond — a module reached twice by different
+ * paths is normal, a module reached during its own visit is a
  * cycle.
  *
- * L'ordre alphabétique est appliqué aux frères, pour que deux démarrages du
- * même ensemble produisent la même séquence. Un ordre qui varie rend
- * irreproductible tout défaut qui en dépend.
+ * The alphabetical order is applied to the siblings, so that two startups of the
+ * same set produce the same sequence. An order that varies makes
+ * irreproducible any flaw that depends on it.
  *
- * @throws {ModuleError} Sur un nom manquant, un doublon ou un cycle.
+ * @throws {ModuleError} On a missing name, a duplicate or a cycle.
  */
 export function orderModules(
   modules: readonly ModuleDefinition<never>[],
@@ -116,7 +116,7 @@ export function orderModules(
 
   for (const module of modules) {
     if (byName.has(module.name)) {
-      throw new ModuleError(`Deux modules portent le nom "${module.name}".`)
+      throw new ModuleError(`Two modules bear the name "${module.name}".`)
     }
     byName.set(module.name, module)
   }
@@ -131,7 +131,7 @@ export function orderModules(
     const cycleAt = visiting.indexOf(name)
     if (cycleAt !== -1) {
       throw new ModuleError(
-        `Cycle entre modules : ${[...visiting.slice(cycleAt), name].join(' -> ')}.`,
+        `Cycle between modules: ${[...visiting.slice(cycleAt), name].join(' -> ')}.`,
       )
     }
 
@@ -139,15 +139,15 @@ export function orderModules(
     if (module === undefined) {
       throw new ModuleError(
         requiredBy === undefined
-          ? `Module inconnu : "${name}".`
-          : `Le module "${requiredBy}" requiert "${name}", qui n'est pas active. ` +
-              `Modules actives : ${[...byName.keys()].sort().join(', ')}.`,
+          ? `Unknown module: "${name}".`
+          : `The module "${requiredBy}" requires "${name}", which is not enabled. ` +
+              `Enabled modules: ${[...byName.keys()].sort().join(', ')}.`,
       )
     }
 
     visiting.push(name)
-    // Les freres sont visites dans l'ordre alphabetique : deux demarrages du
-    // meme ensemble doivent produire la meme sequence.
+    // The siblings are visited in alphabetical order: two startups of the
+    // same set must produce the same sequence.
     for (const dependency of [...(module.requires ?? [])].sort()) {
       visit(dependency, name)
     }
@@ -163,10 +163,10 @@ export function orderModules(
 }
 
 /**
- * Vérifie que les capacités exigées sont disponibles.
+ * Checks that the required capabilities are available.
  *
- * @throws {ModuleError} En nommant le module, la capacité et le dialecte —
- *   les trois sont nécessaires pour savoir quoi faire du message.
+ * @throws {ModuleError} Naming the module, the capability and the dialect —
+ *   all three are needed to know what to do with the message.
  */
 export function assertCapabilities(
   modules: readonly ModuleDefinition<never>[],
@@ -179,7 +179,7 @@ export function assertCapabilities(
     for (const capability of module.requiresCapabilities ?? []) {
       if (available[capability] !== true) {
         problems.push(
-          `  "${module.name}" exige la capacite "${capability}", absente de ${dialect}`,
+          `  "${module.name}" requires the capability "${capability}", absent from ${dialect}`,
         )
       }
     }
@@ -188,11 +188,11 @@ export function assertCapabilities(
   if (problems.length > 0) {
     throw new ModuleError(
       [
-        `Modules incompatibles avec le moteur de base de donnees :`,
+        `Modules incompatible with the database engine:`,
         '',
         ...problems,
         '',
-        `Desactivez ces modules, ou employez un moteur qui offre ces capacites.`,
+        `Disable these modules, or use an engine that offers these capabilities.`,
       ].join('\n'),
     )
   }

@@ -1,33 +1,33 @@
 /**
- * Bouton a reflet speculaire : un point de lumiere suit le pointeur sur la
- * surface, et le bord s'eclaire du cote d'ou vient la lumiere.
+ * Button with a specular reflection: a point of light follows the pointer on
+ * the surface, and the edge lights up on the side the light comes from.
  *
- * ## Ce qui le distingue d'un lisere tournant ou d'une nacre
+ * ## What sets it apart from a turning edge light or a pearl
  *
- * Le lisere tournant anime son contour tout seul ; la nacre est un volume
- * fixe. Ici rien ne bouge sans le pointeur : la lumiere est un point que la
- * main deplace, et la surface repond comme un objet verni — le reflet se
- * pose sous le curseur, le bord oppose s'eteint, le bord voisin s'allume.
+ * The turning edge light animates its outline on its own; the pearl is a
+ * fixed volume. Here nothing moves without the pointer: the light is a point
+ * that the hand moves, and the surface answers like a varnished object — the
+ * reflection settles under the cursor, the opposite edge goes out, the
+ * neighbouring edge lights up.
  *
- * ## La position est un nombre, pas une longueur
+ * ## The position is a number, not a length
  *
- * Le reflet a besoin de la position en pourcentage, pour le degrade ; le bord
- * a besoin d'un decalage en pixels, pour l'ombre interne. Une seule paire de
- * variables sert aux deux : deux nombres de zero a un, enregistres par
- * `@property`, que chaque regle multiplie par ce qu'il lui faut. L'ombre
- * interne n'accepte pas de pourcentage, c'est tout le probleme ; un nombre
- * nu s'ecrit dans les deux.
+ * The reflection needs the position as a percentage, for the gradient; the
+ * edge needs an offset in pixels, for the inset shadow. A single pair of
+ * variables serves both: two numbers from zero to one, registered by
+ * `@property`, which each rule multiplies by what it needs. The inset shadow
+ * does not accept a percentage, that is the whole problem; a bare number
+ * writes in both.
  *
- * Enregistrees, ces variables s'interpolent : la transition que le
- * compositeur applique dessus est le retard du reflet sur la main, et il
- * n'y a pas de boucle a ouvrir pour l'obtenir.
+ * Registered, these variables interpolate: the transition the compositor
+ * applies on them is the lag of the reflection behind the hand, and there is
+ * no loop to open to get it.
  *
- * ## Le repos est un eclairage, pas une absence
+ * ## Rest is a lighting, not an absence
  *
- * Quand le pointeur s'en va, la lumiere ne s'eteint pas : elle revient en
- * haut a gauche, la ou une interface pose sa source par convention. Un
- * bouton eclaire au repos garde son volume ; un bouton eteint aurait l'air
- * inactif.
+ * When the pointer leaves, the light does not go out: it returns to the top
+ * left, where an interface places its source by convention. A button lit at
+ * rest keeps its volume; an unlit button would look inactive.
  *
  * @module
  */
@@ -42,44 +42,44 @@ import {
   type ReactNode,
 } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface SpecularButtonOwnProps {
-  /** Libelle du bouton. */
+  /** Label of the button. */
   children: ReactNode
-  /** Cible du lien. Avec elle, le bouton est rendu comme un lien. */
+  /** Target of the link. With it, the button is rendered as a link. */
   href?: string
   /**
-   * Tokens du corps, du libelle et de la lumiere.
+   * Tokens of the body, the label and the light.
    *
-   * Trois, dans cet ordre. La lumiere sert au reflet et au bord eclaire.
+   * Three, in that order. The light serves the reflection and the lit edge.
    */
   colors?: readonly [string, string, string]
-  /** Diametre du reflet, en pourcentage de la largeur du bouton. @defaultValue 120 */
+  /** Diameter of the reflection, as a percentage of the button width. @defaultValue 120 */
   size?: number
-  /** Intensite du reflet, de zero a un. @defaultValue 0.55 */
+  /** Intensity of the reflection, from zero to one. @defaultValue 0.55 */
   strength?: number
-  /** Retard du reflet sur le pointeur, en millisecondes. @defaultValue 180 */
+  /** Lag of the reflection behind the pointer, in milliseconds. @defaultValue 180 */
   lag?: number
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type SpecularButtonProps = Customisable<SpecularButtonOwnProps, 'button'>
 
-/** Tokens employes par defaut. */
+/** Tokens used by default. */
 const DEFAULT_TOKENS = [
   '--o-palette-brand-600',
   '--o-palette-zinc-50',
   '--o-palette-white',
 ] as const
 
-/** Position de repos de la lumiere : en haut a gauche. */
+/** Rest position of the light: at the top left. */
 const REST_X = 0.3
 const REST_Y = 0.2
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-specular-button'
 
-/** Pose la surface, le reflet et le bord, une fois par document. */
+/** Applies the surface, the reflection and the edge, once per document. */
 function ensureSpecularRules(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -87,7 +87,7 @@ function ensureSpecularRules(): void {
   const style = document.createElement('style')
   style.id = STYLE_ID
   style.textContent = [
-    // Deux nombres, pas deux longueurs : voir l'en-tete du module.
+    // Two numbers, not two lengths: see the header of the module.
     '@property --o-spec-x{syntax:"<number>";initial-value:0.3;inherits:false}',
     '@property --o-spec-y{syntax:"<number>";initial-value:0.2;inherits:false}',
 
@@ -98,8 +98,8 @@ function ensureSpecularRules(): void {
     'background:var(--o-spec-body);color:var(--o-spec-ink);',
     'transition:--o-spec-x var(--o-spec-lag) linear,--o-spec-y var(--o-spec-lag) linear,',
     'box-shadow var(--o-spec-lag) linear;',
-    // Le bord : une ombre interne dont le decalage suit la lumiere. Elle est
-    // tiree vers le point lumineux, donc claire du cote eclaire.
+    // The edge: an inset shadow whose offset follows the light. It is pulled
+    // towards the bright point, hence light on the lit side.
     'box-shadow:inset calc((var(--o-spec-x) - 0.5) * 6px) calc((var(--o-spec-y) - 0.5) * 6px) 8px -3px ',
     'color-mix(in oklab,var(--o-spec-light) 55%,transparent),',
     'inset 0 0 0 1px color-mix(in oklab,var(--o-spec-light) 18%,transparent);',
@@ -109,7 +109,7 @@ function ensureSpecularRules(): void {
     '[data-o-spec]:disabled,[data-o-spec][aria-disabled="true"]{',
     'opacity:0.5;cursor:not-allowed;pointer-events:none}',
 
-    // Le reflet : un disque de lumiere centre sur la position.
+    // The reflection: a disc of light centred on the position.
     '[data-o-spec]::before{',
     'content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;',
     'background:radial-gradient(var(--o-spec-size) circle at ',
@@ -117,7 +117,7 @@ function ensureSpecularRules(): void {
     'var(--o-spec-light) 0%,transparent 60%);',
     'opacity:var(--o-spec-strength);',
     '}',
-    // Le vernis : un voile clair en haut, qui donne la courbure.
+    // The varnish: a light veil at the top, which gives the curvature.
     '[data-o-spec]::after{',
     'content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;',
     'background:linear-gradient(to bottom,color-mix(in oklab,var(--o-spec-light) 22%,transparent),transparent 55%);',
@@ -130,20 +130,20 @@ function ensureSpecularRules(): void {
 }
 
 /**
- * Bouton dont la lumiere suit le pointeur.
+ * Button whose light follows the pointer.
  *
  * @example
- * <SpecularButton onClick={commander}>Commander</SpecularButton>
+ * <SpecularButton onClick={order}>Order</SpecularButton>
  *
  * @example
- * // Un lien, corps sombre et reflet plus discret, qui colle au curseur.
+ * // A link, dark body and a more discreet reflection, sticking to the cursor.
  * <SpecularButton
- *   href="/tarifs"
+ *   href="/pricing"
  *   colors={['--o-palette-zinc-900', '--o-palette-zinc-50', '--o-palette-zinc-50']}
  *   strength={0.3}
  *   lag={0}
  * >
- *   Voir les tarifs
+ *   See pricing
  * </SpecularButton>
  */
 export function SpecularButton({
@@ -160,10 +160,10 @@ export function SpecularButton({
   ensureSpecularRules()
 
   useEffect(() => {
-    // Sous mouvement reduit la lumiere reste au repos : le suivi est un
-    // agrement, l'eclairage est le contenu.
+    // Under reduced motion the light stays at rest: the tracking is an
+    // ornament, the lighting is the content.
     if (host === null || reduced) return
-    if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return
+    if (!window.matchMedia('(hover) and (pointer: fine)').matches) return
 
     const onMove = (event: PointerEvent): void => {
       const box = host.getBoundingClientRect()
@@ -191,8 +191,8 @@ export function SpecularButton({
     rest,
   )
 
-  // Un lien quand il y a une cible, un bouton sinon : le meme habillage sur
-  // les deux, et la semantique qui convient a chacun.
+  // A link when there is a target, a button otherwise: the same dressing on
+  // both, and the semantics that suits each.
   const Tag = (href === undefined ? 'button' : 'a') as ElementType
   const { disabled, type, ...attributes } = rest
 

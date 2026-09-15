@@ -1,7 +1,7 @@
 /**
- * Types ambiants pour le code client d'un projet Odoro.
+ * Ambient types for the client code of an Odoro project.
  *
- * A referencer une fois dans le projet :
+ * To be referenced once in the project:
  *
  * ```ts
  * /// <reference types="odoro/client" />
@@ -10,37 +10,111 @@
  * @module
  */
 
-/** Variables d'environnement exposees au navigateur. */
+/** Environment variables exposed to the browser. */
 interface OdoroEnv {
-  /** Mode de compilation. */
-  readonly MODE: 'development' | 'production'
-  /** Vrai en developpement. */
+  /**
+   * Build mode.
+   *
+   * `development` and `production` are the two default modes, but a project can
+   * name others — `staging`, `demo` — and each reads its own `.env.<mode>`
+   * files.
+   */
+  readonly MODE: string
+  /** True in development. */
   readonly DEV: boolean
-  /** Vrai en production. */
+  /** True in production. */
   readonly PROD: boolean
-  /** Prefixe des URL publiques. */
+  /** True during prerendering, absent in the browser. */
+  readonly SSR?: boolean
+  /** Prefix of the public URLs. */
   readonly BASE_URL: string
-  /** Variables du projet portant le prefixe configure. */
+  /** Project variables carrying the configured prefix. */
   readonly [key: string]: string | boolean | undefined
 }
 
-/** API de rechargement a chaud exposee a chaque module. */
+/** Hot reloading API exposed to every module. */
 interface OdoroHot {
-  /** Donnees conservees d'une version de module a la suivante. */
+  /** Data kept from one module version to the next. */
   readonly data: Record<string, unknown>
-  /** Declare que ce module sait se remplacer a chaud. */
+  /** Declares that this module knows how to replace itself hot. */
   accept(callback?: (module: unknown) => void): void
-  /** Enregistre un nettoyage a executer avant le remplacement. */
+  /** Registers a cleanup to run before the replacement. */
   dispose(callback: (data: Record<string, unknown>) => void): void
-  /** Renonce au remplacement a chaud et recharge la page. */
+  /** Gives up hot replacement and reloads the page. */
   invalidate(): void
 }
 
 interface ImportMeta {
-  /** Variables d'environnement du projet. */
+  /** Environment variables of the project. */
   readonly env: OdoroEnv
-  /** Present uniquement en developpement. */
+  /** Present in development only. */
   hot?: OdoroHot
+
+  /**
+   * Imports every module matched by a pattern.
+   *
+   * The pattern is resolved at build time: what comes out of it is a table of
+   * static imports, whose keys are the paths as they were written.
+   *
+   * @example
+   * const pages = import.meta.glob('./pages/*.tsx')
+   * const module = await pages['./pages/home.tsx']?.()
+   */
+  glob<T = Record<string, unknown>>(
+    pattern: string | readonly string[],
+    options?: { eager?: false; import?: string },
+  ): Record<string, () => Promise<T>>
+
+  /**
+   * The same thing, but everything is loaded right away.
+   *
+   * @example
+   * const titles = import.meta.glob('./pages/*.tsx', { eager: true, import: 'title' })
+   */
+  glob<T = Record<string, unknown>>(
+    pattern: string | readonly string[],
+    options: { eager: true; import?: string },
+  ): Record<string, T>
+}
+
+/**
+ * The content of a file, as a string.
+ *
+ * @example
+ * import charter from './CHARTER.md?raw'
+ */
+declare module '*?raw' {
+  const content: string
+  export default content
+}
+
+/**
+ * The public address of a file, without loading it.
+ *
+ * @example
+ * import logo from './logo.svg?url'
+ */
+declare module '*?url' {
+  const address: string
+  export default address
+}
+
+/**
+ * A module to run in a separate worker.
+ *
+ * The class is constructed like any other `Worker`; the file is built apart and
+ * loaded as a module.
+ *
+ * @example
+ * import Compute from './compute.ts?worker'
+ * const worker = new Compute()
+ * worker.postMessage(21)
+ */
+declare module '*?worker' {
+  const Worker_: {
+    new (options?: WorkerOptions): Worker
+  }
+  export default Worker_
 }
 
 declare module '*.css' {

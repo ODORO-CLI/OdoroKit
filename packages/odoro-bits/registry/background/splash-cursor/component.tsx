@@ -1,32 +1,32 @@
 /**
- * Eclaboussures : le pointeur seme des taches de peinture qui s'ouvrent
- * puis se fanent.
+ * Splashes: the pointer sows blots of paint that open out
+ * then fade away.
  *
- * ## A quoi ce fond reagit
+ * ## What this background reacts to
  *
- * Au deplacement du pointeur : la boucle du moteur echantillonne sa position
- * — une toutes les 90 ms environ, et seulement s'il s'est deplace d'un seuil
- * franc — dans un tampon circulaire de dix taches datees. Une tache s'ouvre
- * vite, se stabilise, puis s'eteint avec l'age.
+ * To the movement of the pointer: the engine loop samples its position
+ * — one sample every 90 ms or so, and only if it has moved by a clear
+ * threshold — into a ring buffer of ten dated blots. A blot opens out
+ * quickly, settles, then dies away with age.
  *
- * Ce qui distingue cette entree de `wake` : la trainee y est une suite de
- * halos gaussiens qui se fondent en un trait continu ; ici chaque depot est
- * une tache a contour bosselle, plus grande, plus espacee, et sa teinte est
- * tiree entre deux couleurs — le geste laisse des marques, pas un fil. Et de
- * `ink`, qui ne repond qu'au clic et recouvre le cadre entier.
+ * What sets this entry apart from `wake`: there the trail is a run of
+ * gaussian glows that blend into a continuous stroke; here each deposit is
+ * a blot with a lumpy outline, larger, more widely spaced, and its hue is
+ * drawn between two colours — the gesture leaves marks, not a thread. And
+ * from `ink`, which answers only to the click and covers the whole frame.
  *
- * ## Le pont pointeur → shader
+ * ## The pointer → shader bridge
  *
- * Aucun rendu React par image : le tampon est un tableau stable de trente
- * flottants (dix fois x, y, date de depot), mute en place dans la
- * souscription d'horloge. La surface relit ses uniforms a chaque image — la
- * mutation suffit. Les depots sont dates avec le temps de l'horloge du
- * moteur, le meme que `uTime` du shader.
+ * No React render per frame: the buffer is a stable array of thirty
+ * floats (ten times x, y, deposit time), mutated in place inside the
+ * clock subscription. The surface re-reads its uniforms every frame — the
+ * mutation is enough. The deposits are dated with the engine clock's time,
+ * the same as the shader's `uTime`.
  *
- * ## Sous mouvement reduit
+ * ## Under reduced motion
  *
- * La surface est refusee par le moteur et le repli statique s'affiche : le
- * suivi du pointeur est un agrement, pas un contenu.
+ * The surface is refused by the engine and the static fallback is shown:
+ * pointer tracking is a nicety, not content.
  *
  * @module
  */
@@ -47,60 +47,60 @@ import { usePointerDamped } from '@registre/hooks/usePointerDamped'
 
 import { SPLASH_CURSOR_FRAGMENT } from './splash-cursor.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface SplashCursorControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to this component. */
 export interface SplashCursorOwnProps {
-  /** Duree de vie d'une tache, en secondes. @defaultValue 1.8 */
+  /** Lifetime of a blot, in seconds. @defaultValue 1.8 */
   life?: number
-  /** Rayon d'une tache, en hauteurs de cadre. @defaultValue 0.16 */
+  /** Radius of a blot, in frame heights. @defaultValue 0.16 */
   size?: number
-  /** Irregularite du contour, entre zero et un. @defaultValue 0.6 */
+  /** Irregularity of the outline, between zero and one. @defaultValue 0.6 */
   lobes?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<SplashCursorControls>
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type SplashCursorProps = Customisable<SplashCursorOwnProps>
 
-/** Tokens employes par defaut : le fond, et les deux teintes de peinture. */
+/** Tokens used by default: the background, and the two paint hues. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-rose-500',
   '--o-palette-amber-400',
 ] as const
 
-/** Repli par defaut : un degrade fige, dans les memes tons. */
+/** Default fallback: a frozen gradient, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-br o-from-zinc-50 dark:o-from-zinc-950 o-to-rose-100 dark:o-to-rose-950'
 
-/** Nombre de taches vivantes a la fois. Le shader en attend exactement autant. */
+/** Number of blots alive at once. The shader expects exactly that many. */
 const SLOTS = 10
 
-/** Intervalle minimal entre deux depots, en secondes. */
+/** Minimum interval between two deposits, in seconds. */
 const DEPOSIT_EVERY = 0.09
 
 /**
- * Deplacement minimal entre deux depots, en coordonnees de texture.
+ * Minimum movement between two deposits, in texture coordinates.
  *
- * Plus franc que celui d'une trainee continue : deux taches collees se
- * liraient comme une seule flaque.
+ * Clearer-cut than that of a continuous trail: two blots stuck together
+ * would read as a single puddle.
  */
 const DEPOSIT_THRESHOLD = 0.05
 
 /**
- * Eclaboussures.
+ * Splashes.
  *
  * @example
  * <div className="o-relative o-min-h-screen">
@@ -119,13 +119,13 @@ export function SplashCursor({
 }: SplashCursorProps): ReactElement {
   const [host, setHost] = useState<HTMLDivElement | null>(null)
 
-  // Tampon stable, mute en place : dix fois (x, y, date de depot). Un depot
-  // a -1000 donne un age enorme, donc une tache eteinte d'office.
+  // Stable buffer, mutated in place: ten times (x, y, deposit time). A deposit
+  // at -1000 gives a huge age, hence a blot that is dead from the start.
   const uSplash = useRef<number[]>(Array.from({ length: SLOTS * 3 }, () => -1000)).current
 
-  // Vitesse 8 : presque le pointeur brut. Une tache doit tomber ou le geste
-  // passe, pas ou sa version lissee passera.
-  const pointer = usePointerDamped({ host, speed: 8, name: 'splash-cursor : pointeur' })
+  // Speed 8: almost the raw pointer. A blot has to land where the gesture
+  // goes, not where its smoothed version will go.
+  const pointer = usePointerDamped({ host, speed: 8, name: 'splash-cursor : pointer' })
 
   useEffect(() => {
     let lastDeposit = -1000
@@ -154,7 +154,7 @@ export function SplashCursor({
         lastX = x
         lastY = y
       },
-      { priority: CLOCK_PRIORITY.input, name: 'splash-cursor : depots' },
+      { priority: CLOCK_PRIORITY.input, name: 'splash-cursor : deposits' },
     )
     return () => subscription.unsubscribe()
   }, [pointer, uSplash])

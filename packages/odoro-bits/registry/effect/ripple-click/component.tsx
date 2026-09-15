@@ -1,24 +1,24 @@
 /**
- * Onde au clic : un cercle part du point touche et s'etend jusqu'aux bords.
+ * Click ripple: a circle leaves the touched point and spreads to the edges.
  *
- * ## L'onde vit dans le DOM, pas dans l'etat
+ * ## The ripple lives in the DOM, not in state
  *
- * Chaque clic cree un element, le lance avec l'API Web Animations, et le
- * retire quand l'animation se termine. Porter les ondes dans l'etat React
- * imposerait un rendu par clic et un autre par disparition, pour des
- * elements que personne ne lit : ils sont decoratifs, ephemeres, et leur
- * cycle de vie est exactement celui de leur animation. `onfinish` est leur
- * seul contrat.
+ * Each click creates an element, launches it with the Web Animations API, and
+ * removes it when the animation ends. Carrying the ripples in React state
+ * would impose one render per click and another per disappearance, for
+ * elements that nobody reads: they are decorative, ephemeral, and their
+ * lifecycle is exactly that of their animation. `onfinish` is their only
+ * contract.
  *
- * ## Le rayon est calcule, pas devine
+ * ## The radius is computed, not guessed
  *
- * L'onde doit atteindre le coin le plus lointain de la zone, quel que soit
- * l'endroit du clic. Le rayon final est donc la distance au coin le plus
- * eloigne — un cercle a taille fixe paraitrait court pres des bords et
- * demesure au centre.
+ * The ripple must reach the furthest corner of the area, wherever the click
+ * lands. The final radius is therefore the distance to the furthest corner — a
+ * fixed-size circle would look short near the edges and oversized at the
+ * centre.
  *
- * Sous mouvement reduit, aucun element n'est cree : l'onde n'est qu'un
- * geste, et le geste est ce qu'on nous demande d'omettre.
+ * Under reduced motion, no element is created: the ripple is only a gesture,
+ * and the gesture is what we are asked to leave out.
  *
  * @module
  */
@@ -26,36 +26,36 @@
 import { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'
 import { useEffect, useState, type ReactElement, type ReactNode } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface RippleClickOwnProps {
-  /** Contenu de la zone cliquable. */
+  /** Content of the clickable area. */
   children: ReactNode
-  /** Duree de l'expansion, en millisecondes. @defaultValue 600 */
+  /** Duration of the expansion, in milliseconds. @defaultValue 600 */
   duration?: number
-  /** Opacite de depart de l'onde. @defaultValue 0.25 */
+  /** Starting opacity of the ripple. @defaultValue 0.25 */
   opacity?: number
-  /** Couleur de l'onde. @defaultValue la couleur du texte */
+  /** Colour of the ripple. @defaultValue the text colour */
   color?: string
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type RippleClickProps = Customisable<RippleClickOwnProps>
 
 /**
- * Fait partir une onde de chaque clic sur sa zone.
+ * Sends a ripple out of every click on its area.
  *
- * L'enveloppe est transparente : elle se pose autour d'un bouton, d'une
- * carte, d'une ligne de tableau, sans rien changer a leur mise en page.
+ * The wrapper is transparent: it goes around a button, a card, a table row,
+ * without changing anything to their layout.
  *
  * @example
  * <RippleClick className="o-rounded-xl">
- *   <button type="button" className="o-px-6 o-py-3">Valider</button>
+ *   <button type="button" className="o-px-6 o-py-3">Confirm</button>
  * </RippleClick>
  *
  * @example
- * // Une onde teintee, plus lente.
+ * // A tinted ripple, slower.
  * <RippleClick color="var(--o-palette-brand-500)" duration={900} opacity={0.2}>
- *   <div className="o-p-8">Toute la carte repond</div>
+ *   <div className="o-p-8">The whole card responds</div>
  * </RippleClick>
  */
 export function RippleClick({
@@ -76,8 +76,8 @@ export function RippleClick({
       const x = event.clientX - box.left
       const y = event.clientY - box.top
 
-      // Distance au coin le plus lointain : l'onde couvre toute la zone,
-      // d'ou que parte le clic.
+      // Distance to the furthest corner: the ripple covers the whole area,
+      // wherever the click comes from.
       const radius = Math.hypot(Math.max(x, box.width - x), Math.max(y, box.height - y))
 
       const ripple = document.createElement('span')
@@ -106,8 +106,8 @@ export function RippleClick({
     host.addEventListener('pointerdown', onPointerDown)
     return () => {
       host.removeEventListener('pointerdown', onPointerDown)
-      // Les ondes en vol appartiennent a cette instance : elles partent
-      // avec elle.
+      // The ripples still in flight belong to this instance: they leave with
+      // it.
       for (const orphan of host.querySelectorAll('[data-o-ripple]')) {
         orphan.remove()
       }
@@ -121,8 +121,8 @@ export function RippleClick({
       {...rest}
       ref={setHost}
       className={className}
-      // L'onde est absolue dans la zone, et coupee a ses bords : sans le
-      // debordement cache, elle s'etendrait sur toute la page.
+      // The ripple is absolute inside the area, and clipped at its edges:
+      // without the hidden overflow, it would spread over the whole page.
       style={{ position: 'relative', overflow: 'hidden', ...style }}
     >
       {children}

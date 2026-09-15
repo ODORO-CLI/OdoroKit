@@ -1,9 +1,9 @@
 /**
- * Les commandes de registre : `init`, `add`, `list`, `diff`, `doctor`.
+ * The registry commands: `init`, `add`, `list`, `diff`, `doctor`.
  *
- * Elles ne portent que l'interaction et l'affichage. Tout ce qui se decide —
- * resolution du graphe, plan d'ecriture, comparaison des versions — vit dans
- * les modules voisins, ou cela se teste sans terminal.
+ * They carry only the interaction and the display. Everything that is decided —
+ * graph resolution, write plan, comparison of versions — lives in the
+ * neighbouring modules, where it can be tested without a terminal.
  *
  * @module
  */
@@ -25,60 +25,58 @@ import { isRemote, openRegistry } from './source.js'
 import { requiredPackages, weighEntries } from './weight.js'
 import { applyPlan } from './writer.js'
 
-/** Registre public par defaut. */
+/** Default public registry. */
 export const DEFAULT_REGISTRY = 'https://register.odoro.dev'
 
-/** Options communes a toutes les commandes de registre. */
+/** Options common to every registry command. */
 export interface RegistryOptions {
-  /** Racine du projet. */
+  /** Project root. */
   root: string
-  /** Adresse du registre, si elle surcharge celle du projet. */
+  /** Address of the registry, when it overrides the project one. */
   registry?: string | undefined
-  /** N'attend aucune confirmation. */
+  /** Waits for no confirmation. */
   yes?: boolean | undefined
 }
 
 /**
- * Indique si l'on peut poser une question.
+ * Tells whether a question can be asked.
  *
- * Sans terminal — integration continue, sortie redirigee, script — une
- * invite n'attendrait pas une reponse : elle attendrait indefiniment. La
- * commande refuse alors, en disant quoi ajouter, plutot que de bloquer une
- * chaine de compilation sur un curseur que personne ne voit.
+ * Without a terminal — continuous integration, redirected output, script — a
+ * prompt would not wait for an answer: it would wait forever. The command then
+ * refuses, saying what to add, rather than block a build chain on a cursor
+ * nobody sees.
  */
 function canAsk(options: RegistryOptions): boolean {
   return options.yes !== true && process.stdin.isTTY === true
 }
 
-/** Refus explicite quand une confirmation serait necessaire mais impossible. */
+/** Explicit refusal when a confirmation would be needed but is impossible. */
 function needsConfirmation(what: string): number {
-  log.error(
-    `${what} Relancez avec ${colors.cyan('--yes')} pour l'accepter sans question.`,
-  )
+  log.error(`${what} Run again with ${colors.cyan('--yes')} to accept it without asking.`)
   return 1
 }
 
-/** Affiche une liste de problemes et rend le code de sortie. */
+/** Prints a list of problems and returns the exit code. */
 function fail(title: string, problems: readonly string[]): number {
   log.error(title)
   for (const problem of problems) console.error(`  ${colors.dim('·')} ${problem}`)
   return 1
 }
 
-/** Charge la configuration, ou explique quoi faire. */
+/** Loads the configuration, or explains what to do. */
 async function requireProject(root: string): Promise<ProjectConfig | number> {
   const loaded = await loadProject(root)
   if (loaded.ok) return loaded.config
 
   if (loaded.reason === 'absent') {
-    log.error(`Aucun ${CONFIG_FILE} ici. Lancez ${colors.cyan('odoro init')} d'abord.`)
+    log.error(`No ${CONFIG_FILE} here. Run ${colors.cyan('odoro init')} first.`)
     return 1
   }
-  return fail(`${CONFIG_FILE} est illisible :`, loaded.problems)
+  return fail(`${CONFIG_FILE} is unreadable:`, loaded.problems)
 }
 
 /**
- * Prepare un projet a recevoir des composants.
+ * Prepares a project to receive components.
  *
  * @example
  * await initCommand({ root: process.cwd(), yes: true })
@@ -89,14 +87,14 @@ export async function initCommand(options: RegistryOptions): Promise<number> {
   const existing = await loadProject(root)
   if (existing.ok && options.yes !== true) {
     if (!canAsk(options)) {
-      return needsConfirmation(`${CONFIG_FILE} existe deja et serait remplace.`)
+      return needsConfirmation(`${CONFIG_FILE} already exists and would be replaced.`)
     }
     const replace = await prompts.confirm({
-      message: `${CONFIG_FILE} existe deja. Le remplacer ?`,
+      message: `${CONFIG_FILE} already exists. Replace it?`,
       initialValue: false,
     })
     if (prompts.isCancel(replace) || !replace) {
-      log.info('Rien n a ete change.')
+      log.info('Nothing was changed.')
       return 0
     }
   }
@@ -106,11 +104,11 @@ export async function initCommand(options: RegistryOptions): Promise<number> {
 
   if (guess === null) {
     log.warn(
-      `Aucun alias trouve dans tsconfig.json : les composants iront dans ${colors.cyan(suggested.directory)}/ et s importeront entre eux en relatif.`,
+      `No alias found in tsconfig.json: the components will go to ${colors.cyan(suggested.directory)}/ and will import each other relatively.`,
     )
   } else {
     log.info(
-      `Alias trouve dans tsconfig.json : ${colors.cyan(`${guess.prefix}/*`)} vers ${colors.cyan(`${guess.directory}/`)}.`,
+      `Alias found in tsconfig.json: ${colors.cyan(`${guess.prefix}/*`)} towards ${colors.cyan(`${guess.directory}/`)}.`,
     )
   }
 
@@ -119,18 +117,18 @@ export async function initCommand(options: RegistryOptions): Promise<number> {
 
   if (canAsk(options)) {
     const directory = await prompts.text({
-      message: 'Ou ecrire les composants ?',
+      message: 'Where should the components be written?',
       initialValue: suggested.directory,
     })
     if (prompts.isCancel(directory)) return 0
 
     const importPrefix = await prompts.text({
-      message: 'Sous quel prefixe les importer ?',
+      message: 'Under which prefix should they be imported?',
       initialValue: suggested.import,
     })
     if (prompts.isCancel(importPrefix)) return 0
 
-    const source = await prompts.text({ message: 'Registre ?', initialValue: registry })
+    const source = await prompts.text({ message: 'Registry?', initialValue: registry })
     if (prompts.isCancel(source)) return 0
 
     aliases = { directory, import: importPrefix }
@@ -140,23 +138,23 @@ export async function initCommand(options: RegistryOptions): Promise<number> {
   const config: ProjectConfig = { version: 1, registry, aliases, installed: {} }
   await saveProject(root, config)
 
-  log.success(`${CONFIG_FILE} ecrit.`)
+  log.success(`${CONFIG_FILE} written.`)
   console.log(`  ${colors.dim('destination')}  ${aliases.directory}/`)
   console.log(`  ${colors.dim('imports')}      ${aliases.import}/…`)
-  console.log(`  ${colors.dim('registre')}     ${registry}`)
-  console.log(`\n  ${colors.cyan('odoro list')} donne le catalogue.\n`)
+  console.log(`  ${colors.dim('registry')}     ${registry}`)
+  console.log(`\n  ${colors.cyan('odoro list')} gives the catalogue.\n`)
   return 0
 }
 
-/** Symbole affiche devant une action d'ecriture. */
+/** Symbol shown in front of a write action. */
 const ACTION_MARK = {
-  creation: colors.green('+'),
-  remplacement: colors.yellow('~'),
-  inchange: colors.dim('='),
+  create: colors.green('+'),
+  replace: colors.yellow('~'),
+  unchanged: colors.dim('='),
 } as const
 
 /**
- * Installe une ou plusieurs entrees du registre.
+ * Installs one or several registry entries.
  *
  * @example
  * await addCommand({ root: process.cwd() }, ['hero/molten'])
@@ -171,33 +169,31 @@ export async function addCommand(
   if (typeof config === 'number') return config
 
   if (requested.length === 0) {
-    log.error('Rien a installer. Donnez un nom, ou "odoro list" pour le catalogue.')
+    log.error('Nothing to install. Give a name, or "odoro list" for the catalogue.')
     return 1
   }
 
   const registry = openRegistry(options.registry ?? config.registry, root)
   const prepared = await prepareInstall(registry, requested)
-  if (!prepared.ok) return fail('Installation impossible :', prepared.problems)
+  if (!prepared.ok) return fail('Install impossible:', prepared.problems)
 
   const { entries, implied } = prepared
 
-  // Ce qui arrive sans avoir ete demande doit etre dit avant, pas decouvert
-  // apres coup dans le suivi de version.
+  // What arrives without having been asked for must be said beforehand, not
+  // discovered afterwards in version control.
   if (implied.length > 0) {
-    log.info(`Dependances ajoutees : ${implied.map((id) => colors.cyan(id)).join(', ')}`)
+    log.info(`Dependencies added: ${implied.map((id) => colors.cyan(id)).join(', ')}`)
   }
 
   for (const warning of weighEntries(entries)) log.warn(warning.message)
 
   const missing = await missingPackages(root, requiredPackages(entries))
   if (missing.length > 0) {
-    log.warn(
-      `A installer ensuite : ${missing.map((name) => colors.cyan(name)).join(' ')}`,
-    )
+    log.warn(`To install next: ${missing.map((name) => colors.cyan(name)).join(' ')}`)
   }
 
   const plan = await planInstall(root, config, entries)
-  const replacing = plan.filter((write) => write.action === 'remplacement')
+  const replacing = plan.filter((write) => write.action === 'replace')
 
   console.log('')
   for (const write of plan) {
@@ -206,19 +202,19 @@ export async function addCommand(
   console.log('')
 
   if (replacing.length > 0 && options.yes !== true) {
-    // Un remplacement peut effacer des heures de reglages. C'est la seule
-    // question que la commande pose vraiment.
+    // A replacement can erase hours of tuning. It is the only question the
+    // command really asks.
     if (!canAsk(options)) {
       return needsConfirmation(
-        `${String(replacing.length)} fichier(s) existant(s) seraient remplaces.`,
+        `${String(replacing.length)} existing file(s) would be replaced.`,
       )
     }
     const go = await prompts.confirm({
-      message: `${String(replacing.length)} fichier(s) existant(s) seront remplaces. Continuer ?`,
+      message: `${String(replacing.length)} existing file(s) will be replaced. Continue?`,
       initialValue: false,
     })
     if (prompts.isCancel(go) || !go) {
-      log.info('Rien n a ete ecrit.')
+      log.info('Nothing was written.')
       return 0
     }
   }
@@ -233,10 +229,10 @@ export async function addCommand(
 
     const written = String(report.written.length)
     const skipped =
-      report.skipped.length > 0 ? `, ${String(report.skipped.length)} inchange(s)` : ''
-    log.success(`${written} fichier(s) ecrit(s)${skipped}.`)
+      report.skipped.length > 0 ? `, ${String(report.skipped.length)} unchanged` : ''
+    log.success(`${written} file(s) written${skipped}.`)
   } catch (cause) {
-    log.error('Ecriture interrompue : le projet est inchange.', cause)
+    log.error('Write interrupted: the project is unchanged.', cause)
     return 1
   }
 
@@ -244,7 +240,7 @@ export async function addCommand(
   return 0
 }
 
-/** Signale les imports de registre qu'une entree n'a pas declares. */
+/** Reports the registry imports an entry did not declare. */
 function warnUndeclared(entries: readonly PublishedEntry[]): void {
   const targets = new Set(
     entries.flatMap((entry) => entry.files.map((file) => file.target)),
@@ -256,7 +252,7 @@ function warnUndeclared(entries: readonly PublishedEntry[]): void {
         const matched = [...targets].some((target) => target.startsWith(token))
         if (!matched) {
           log.warn(
-            `${entry.id} importe ${colors.cyan(token)} sans l'avoir declare : signalez-le au registre.`,
+            `${entry.id} imports ${colors.cyan(token)} without declaring it: report it to the registry.`,
           )
         }
       }
@@ -264,7 +260,7 @@ function warnUndeclared(entries: readonly PublishedEntry[]): void {
   }
 }
 
-/** Paquets reclames qui ne figurent pas dans le `package.json` du projet. */
+/** Required packages that do not appear in the `package.json` of the project. */
 async function missingPackages(
   root: string,
   required: readonly string[],
@@ -291,7 +287,7 @@ async function missingPackages(
 }
 
 /**
- * Affiche le catalogue.
+ * Shows the catalogue.
  *
  * @example
  * await listCommand({ root: process.cwd() })
@@ -308,7 +304,7 @@ export async function listCommand(options: RegistryOptions): Promise<number> {
 
   const registry = openRegistry(location, root)
   const index = await registry.index()
-  if (!index.ok) return fail('Catalogue illisible :', index.problems)
+  if (!index.ok) return fail('Catalogue unreadable:', index.problems)
 
   const byCategory = new Map<string, typeof index.value.entries>()
   for (const entry of index.value.entries) {
@@ -333,22 +329,22 @@ export async function listCommand(options: RegistryOptions): Promise<number> {
   }
 
   const total = String(index.value.entries.length)
-  const marked = installed.size > 0 ? `, ${colors.green('✓')} = deja installe` : ''
-  console.log(`  ${colors.dim(`${total} entree(s)${marked}`)}\n`)
+  const marked = installed.size > 0 ? `, ${colors.green('✓')} = already installed` : ''
+  console.log(`  ${colors.dim(`${total} entr${total === '1' ? 'y' : 'ies'}${marked}`)}\n`)
   return 0
 }
 
-/** Couleur associee a un etat de fichier. */
+/** Colour matching a file state. */
 function stateColor(state: FileState): string {
   const label = STATE_LABEL[state]
-  if (state === 'a-jour') return colors.green(label)
-  if (state === 'retouche') return colors.cyan(label)
-  if (state === 'absent' || state === 'divergence') return colors.red(label)
+  if (state === 'up-to-date') return colors.green(label)
+  if (state === 'edited') return colors.cyan(label)
+  if (state === 'missing' || state === 'diverged') return colors.red(label)
   return colors.yellow(label)
 }
 
 /**
- * Compare ce qui est installe a ce que le registre sert.
+ * Compares what is installed to what the registry serves.
  *
  * @example
  * await diffCommand({ root: process.cwd() })
@@ -361,7 +357,7 @@ export async function diffCommand(options: RegistryOptions): Promise<number> {
 
   const ids = Object.keys(config.installed)
   if (ids.length === 0) {
-    log.info('Aucun composant installe.')
+    log.info('No component installed.')
     return 0
   }
 
@@ -373,19 +369,21 @@ export async function diffCommand(options: RegistryOptions): Promise<number> {
 
   for (const report of reports) {
     if (report.orphan) {
-      console.log(`  ${colors.cyan(report.id)} ${colors.dim('— absent du registre')}`)
+      console.log(
+        `  ${colors.cyan(report.id)} ${colors.dim('— missing from the registry')}`,
+      )
       interesting += 1
       continue
     }
 
     for (const file of report.files) {
-      if (file.state === 'a-jour') continue
+      if (file.state === 'up-to-date') continue
       interesting += 1
 
       console.log(`  ${colors.cyan(report.id)} ${colors.dim(file.path)}`)
       console.log(`    ${stateColor(file.state)}`)
 
-      if (file.local !== null && file.upstream !== null && file.state !== 'retouche') {
+      if (file.local !== null && file.upstream !== null && file.state !== 'edited') {
         const changes = previewChanges(file.local, file.upstream)
         for (const line of changes.removed)
           console.log(`    ${colors.red(`- ${line.trim()}`)}`)
@@ -397,18 +395,20 @@ export async function diffCommand(options: RegistryOptions): Promise<number> {
   }
 
   if (interesting === 0) {
-    log.success(`${String(ids.length)} entree(s) installee(s), toutes a jour.`)
+    log.success(
+      `${String(ids.length)} entr${ids.length === 1 ? 'y' : 'ies'} installed, all up to date.`,
+    )
     return 0
   }
 
   console.log(
-    `  ${colors.dim(`odoro add <nom> réécrit une entrée depuis le registre. Vos retouches seraient perdues.`)}\n`,
+    `  ${colors.dim(`odoro add <name> rewrites an entry from the registry. Your edits would be lost.`)}\n`,
   )
   return 0
 }
 
 /**
- * Verifie qu'un projet est en etat de fonctionner.
+ * Checks that a project is in working order.
  *
  * @example
  * await doctorCommand({ root: process.cwd() })
@@ -421,66 +421,66 @@ export async function doctorCommand(options: RegistryOptions): Promise<number> {
   const loaded = await loadProject(root)
   if (!loaded.ok) {
     return loaded.reason === 'absent'
-      ? fail('Diagnostic impossible :', [`aucun ${CONFIG_FILE}. Lancez "odoro init".`])
-      : fail(`${CONFIG_FILE} est illisible :`, loaded.problems)
+      ? fail('Diagnostics impossible:', [`no ${CONFIG_FILE}. Run "odoro init".`])
+      : fail(`${CONFIG_FILE} is unreadable:`, loaded.problems)
   }
   const config = loaded.config
 
-  notes.push(`registre : ${config.registry}`)
+  notes.push(`registry: ${config.registry}`)
   if (!isRemote(config.registry)) {
-    notes.push('registre local : les autres machines de l equipe ne le verront pas.')
+    notes.push('local registry: the other machines of the team will not see it.')
   }
 
-  // Le dossier de destination.
+  // The destination directory.
   const { access } = await import('node:fs/promises')
   try {
     await access(join(root, config.aliases.directory))
   } catch {
     if (Object.keys(config.installed).length > 0) {
       troubles.push(
-        `${config.aliases.directory}/ n'existe pas, alors que des entrees y sont notees.`,
+        `${config.aliases.directory}/ does not exist, while entries are recorded in it.`,
       )
     }
   }
 
-  // Les fichiers annonces.
+  // The announced files.
   const registry = openRegistry(options.registry ?? config.registry, root)
   const reports = await inspectAll(root, config, registry)
 
-  let retouched = 0
+  let edited = 0
   for (const report of reports) {
     if (report.orphan) {
-      notes.push(`${report.id} n'est plus servi par le registre.`)
+      notes.push(`${report.id} is no longer served by the registry.`)
       continue
     }
     for (const file of report.files) {
-      if (file.state === 'absent') {
-        troubles.push(`${report.id} : ${file.path} est note comme installe mais absent.`)
+      if (file.state === 'missing') {
+        troubles.push(`${report.id}: ${file.path} is recorded as installed but missing.`)
       }
-      if (file.state === 'retouche') retouched += 1
-      if (file.state === 'mise-a-jour' || file.state === 'divergence') {
-        notes.push(`${report.id} : ${STATE_LABEL[file.state]} (${file.path}).`)
+      if (file.state === 'edited') edited += 1
+      if (file.state === 'update-available' || file.state === 'diverged') {
+        notes.push(`${report.id}: ${STATE_LABEL[file.state]} (${file.path}).`)
       }
     }
   }
 
-  if (retouched > 0) {
-    // Une retouche locale n'est pas un probleme — c'est la raison d'etre de la
-    // copie. Elle est signalee parce qu'une reinstallation l'effacerait.
+  if (edited > 0) {
+    // A local edit is not a problem — it is the whole point of the copy. It is
+    // reported because a reinstall would erase it.
     notes.push(
-      `${String(retouched)} fichier(s) retouche(s) localement : "odoro add" les reecrirait.`,
+      `${String(edited)} file(s) edited locally: "odoro add" would rewrite them.`,
     )
   }
 
-  // Les paquets reclames. Ils se lisent dans le `meta` de chaque entree, pas
-  // dans l'index : celui-ci ne garde pas les plugins d'orchestration.
+  // The required packages. They are read from the `meta` of each entry, not
+  // from the index: that one does not keep the orchestration plugins.
   const served = reports
     .map((report) => report.upstream)
     .filter((entry): entry is PublishedEntry => entry !== null)
 
   for (const name of await missingPackages(root, requiredPackages(served))) {
     troubles.push(
-      `${name} est requis par un composant installe mais absent du package.json.`,
+      `${name} is required by an installed component but missing from the package.json.`,
     )
   }
 
@@ -489,12 +489,12 @@ export async function doctorCommand(options: RegistryOptions): Promise<number> {
   if (notes.length > 0) console.log('')
 
   if (troubles.length === 0) {
-    log.success('Rien a signaler.')
+    log.success('Nothing to report.')
     return 0
   }
 
   for (const trouble of troubles) console.error(`  ${colors.red('·')} ${trouble}`)
   console.log('')
-  log.error(`${String(troubles.length)} probleme(s).`)
+  log.error(`${String(troubles.length)} problem(s).`)
   return 1
 }

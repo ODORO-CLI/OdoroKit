@@ -48,8 +48,8 @@ import {
   Menu,
   MousePointer_2,
   X,
-} from '@odoro-cli/icons/filaire'
-import { Instagram, Linkedin, Twitter } from '@odoro-cli/icons/marques'
+} from '@odoro-cli/icons/outline'
+import { Instagram, Linkedin, Twitter } from '@odoro-cli/icons/brands'
 import { useInView } from '@odoro-cli/libs/motion'
 import {
   useCallback,

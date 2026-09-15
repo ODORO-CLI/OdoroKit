@@ -1,22 +1,23 @@
 /**
- * Labyrinthe : des diagonales qui se dessinent et se redessinent.
+ * Maze: diagonals drawing themselves and redrawing themselves.
  *
- * ## Pourquoi un front, et pas un fondu
+ * ## Why a front, and not a cross-fade
  *
- * Un labyrinthe qui change d'un coup ne se voit pas changer ; un fondu entre
- * deux labyrinthes montre deux dessins superposes, lisibles ni l'un ni
- * l'autre. Le front, lui, ne touche qu'une diagonale de cellules a la fois :
- * le dessin reste lisible partout, et l'oeil suit la tete qui trace.
+ * A maze that changes all at once is not seen changing; a cross-fade between
+ * two mazes shows two superimposed drawings, neither of them legible. The
+ * front, on the other hand, only ever touches one diagonal of cells at a time:
+ * the drawing stays legible everywhere, and the eye follows the head that
+ * traces it.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur.
+ * It carries only what sets it apart: its shader, its settings and its
+ * fallback. Reading the tokens, converting them to floats and re-reading them
+ * when the theme changes all come from the engine.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface et sous
- * mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface and under reduced
+ * motion.
  *
  * @module
  */
@@ -33,41 +34,41 @@ import { type ReactElement } from 'react'
 
 import { MAZE_FRAGMENT } from './maze.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface MazeControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to this component. */
 export interface MazeOwnProps {
-  /** Duree d'un dessin complet, en secondes. @defaultValue 6 */
+  /** Duration of a complete drawing, in seconds. @defaultValue 6 */
   period?: number
-  /** Nombre de cellules sur la hauteur. @defaultValue 14 */
+  /** Number of cells across the height. @defaultValue 14 */
   density?: number
-  /** Epaisseur des traits, en fraction de la cellule. @defaultValue 0.1 */
+  /** Thickness of the strokes, as a fraction of the cell. @defaultValue 0.1 */
   thickness?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<MazeControls>
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type MazeProps = Customisable<MazeOwnProps>
 
-/** Tokens employes par defaut : le fond, les traits, la tete. */
+/** Tokens used by default: the background, the strokes, the head. */
 const DEFAULT_TOKENS = ['--o-theme-bg', '--o-theme-fg', '--o-palette-brand-500'] as const
 
-/** Repli par defaut : une teinte figee, dans les memes tons. */
+/** Default fallback: a frozen tint, in the same tones. */
 const DEFAULT_FALLBACK = 'o-bg-zinc-50 dark:o-bg-zinc-950'
 
 /**
- * Labyrinthe.
+ * Maze.
  *
  * @example
  * <div className="o-relative o-min-h-screen">

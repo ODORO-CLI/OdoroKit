@@ -1,38 +1,36 @@
 /**
- * Helice d'ADN : deux brins de points tournent l'un autour de l'autre,
- * relies par des barreaux qui s'allongent et se resserrent.
+ * DNA helix: two strands of dots turn around each other, linked by rungs that
+ * stretch and draw together.
  *
- * ## Une helice vue de cote est un sinus, et une profondeur
+ * ## A helix seen from the side is a sine, and a depth
  *
- * Chaque point tourne sur un cercle vu par la tranche : sa hauteur est un
- * sinus du temps, et sa distance a l'oeil un cosinus. Le second n'est pas
- * un detail : c'est lui qui fait lire une helice plutot que deux vagues
- * qui se croisent. Un point qui passe devant est grand et plein, un point
- * qui passe derriere est petit et pale, et l'ordre de superposition change
- * au passage — sans quoi le point de derriere viendrait couvrir celui de
- * devant a chaque croisement.
+ * Each dot turns on a circle seen edge-on: its height is a sine of time, and
+ * its distance from the eye a cosine. The second is not a detail: it is what
+ * makes it read as a helix rather than two waves crossing. A dot passing in
+ * front is large and solid, a dot passing behind is small and pale, and the
+ * stacking order changes as it goes by — otherwise the dot behind would cover
+ * the one in front at every crossing.
  *
- * Une seule animation, echantillonnee tous les trente degres, en lineaire :
- * une courbe d'acceleration ne peut pas servir a la fois le sinus de la
- * hauteur et le cosinus de la profondeur, alors le sinus est trace par
- * points, assez serres pour que l'oeil ne voie pas les segments. Chaque
- * colonne joue la meme animation avec un decalage de phase ; le second brin
- * a un demi-tour de retard sur le premier ; le barreau entre les deux est
- * aussi long que leur ecart, c'est-a-dire la valeur absolue du meme sinus.
+ * A single animation, sampled every thirty degrees, linearly: an easing curve
+ * cannot serve both the sine of the height and the cosine of the depth, so the
+ * sine is traced by points, close enough together that the eye does not see
+ * the segments. Each column plays the same animation with a phase offset; the
+ * second strand is a half turn behind the first; the rung between the two is
+ * as long as their spread, that is to say the absolute value of the same sine.
  *
- * Les phases sont posees en negatif : l'helice est complete des la premiere
- * image, et sa forme au repos — calculee ici, colonne par colonne — est
- * exactement une image de son mouvement.
+ * The phases are set negative: the helix is complete from the first frame, and
+ * its shape at rest — computed here, column by column — is exactly one frame of
+ * its movement.
  *
- * ## Un statut, pas un dessin
+ * ## A status, not a drawing
  *
- * L'element porte `role="status"` et un libelle pour les lecteurs d'ecran :
- * l'attente est une information, pas une decoration. Les brins sont retires
- * de l'arbre d'accessibilite.
+ * The element carries `role="status"` and a label for screen readers: waiting
+ * is information, not decoration. The strands are removed from the
+ * accessibility tree.
  *
- * Sous mouvement reduit, l'helice reste figee dans sa forme : chaque point
- * garde la hauteur et la profondeur de sa phase, et la figure se lit encore
- * comme une helice.
+ * Under reduced motion, the helix stays frozen in its shape: every dot keeps
+ * the height and the depth of its phase, and the figure still reads as a
+ * helix.
  *
  * @module
  */
@@ -40,32 +38,32 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-dna-loader'
 
-/** Amplitude de la hauteur, en diametres de point. */
+/** Amplitude of the height, in dot diameters. */
 const AMPLITUDE = 1.6
 
-/** Echantillons par tour : un tous les trente degres. */
+/** Samples per turn: one every thirty degrees. */
 const STEPS = 12
 
-/** Ce qu'un point montre a une phase donnee. */
+/** What a dot shows at a given phase. */
 interface Pose {
-  /** Hauteur, en part de l'amplitude. */
+  /** Height, as a share of the amplitude. */
   readonly y: number
-  /** Echelle : pleine devant, reduite derriere. */
+  /** Scale: full in front, reduced behind. */
   readonly scale: number
-  /** Opacite : pleine devant, palie derriere. */
+  /** Opacity: full in front, faded behind. */
   readonly opacity: number
-  /** Ordre de superposition : devant ou derriere le barreau. */
+  /** Stacking order: in front of or behind the rung. */
   readonly layer: number
 }
 
-/** Position d'un point a une phase, en radians. */
+/** Position of a dot at a phase, in radians. */
 function poseAt(phase: number): Pose {
   const depth = Math.cos(phase)
-  // Le point est devant sur la moitie du tour centree sur la phase zero ;
-  // la bascule tombe entre deux echantillons, pas dessus.
+  // The dot is in front over the half turn centred on phase zero; the switch
+  // falls between two samples, not on one.
   const degrees = ((((phase * 180) / Math.PI) % 360) + 360) % 360
   return {
     y: Math.sin(phase),
@@ -75,7 +73,7 @@ function poseAt(phase: number): Pose {
   }
 }
 
-/** Pose les brins, les barreaux et leur rotation, une fois par document. */
+/** Sets up the strands, the rungs and their rotation, once per document. */
 function ensureDnaRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -100,8 +98,8 @@ function ensureDnaRule(): void {
     '[data-o-dna-pair]{',
     'position:relative;width:var(--o-dna-size);height:100%;',
     '}',
-    // Le barreau est centre et s'etire depuis son milieu : ses deux bouts
-    // suivent les deux points.
+    // The rung is centred and stretches from its middle: its two ends follow
+    // the two dots.
     '[data-o-dna-rung]{',
     'position:absolute;left:50%;top:50%;',
     'width:calc(var(--o-dna-size) * 0.18);',
@@ -113,8 +111,8 @@ function ensureDnaRule(): void {
     'animation:o-dna-loader-rung var(--o-dna-speed) linear infinite;',
     'animation-delay:var(--o-dna-delay);',
     '}',
-    // Au repos, chaque point tient sa pose de phase ; en mouvement,
-    // l'animation la remplace image par image.
+    // At rest, each dot holds its phase pose; in motion, the animation
+    // replaces it frame by frame.
     '[data-o-dna-dot]{',
     'position:absolute;left:0;top:50%;',
     'width:var(--o-dna-size);height:var(--o-dna-size);',
@@ -127,7 +125,7 @@ function ensureDnaRule(): void {
     '}',
     `@keyframes o-dna-loader-turn{${turn.join('')}}`,
     `@keyframes o-dna-loader-rung{${rung.join('')}}`,
-    // L'helice figee dans sa forme : chaque point garde sa pose.
+    // The helix frozen in its shape: every dot keeps its pose.
     '@media (prefers-reduced-motion:reduce){',
     '[data-o-dna-dot],[data-o-dna-rung]{animation:none}',
     '}',
@@ -135,24 +133,24 @@ function ensureDnaRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** Props of the component itself. */
 export interface DnaLoaderOwnProps {
-  /** Diametre d'un point, en pixels. @defaultValue 6 */
+  /** Diameter of a dot, in pixels. @defaultValue 6 */
   size?: number
-  /** Nombre de paires de points, soit de barreaux. Un tour d'helice les traverse tous. @defaultValue 8 */
+  /** Number of dot pairs, and so of rungs. One turn of the helix crosses them all. @defaultValue 8 */
   pairs?: number
-  /** Duree d'un tour complet, en millisecondes. @defaultValue 1600 */
+  /** Duration of a complete turn, in milliseconds. @defaultValue 1600 */
   speed?: number
-  /** Couleur des points et des barreaux. @defaultValue la couleur du texte */
+  /** Colour of the dots and of the rungs. @defaultValue the text colour */
   color?: string
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */
+  /** Label announced to screen readers. @defaultValue 'Loading' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All the props. */
 export type DnaLoaderProps = Customisable<DnaLoaderOwnProps, 'span'>
 
-/** Variables de pose d'un point, pour son etat au repos. */
+/** Pose variables of a dot, for its state at rest. */
 function poseVars(phase: number): CSSProperties {
   const pose = poseAt(phase)
   return {
@@ -164,13 +162,13 @@ function poseVars(phase: number): CSSProperties {
 }
 
 /**
- * Signale une attente par une helice d'ADN qui tourne.
+ * Signals a wait through a turning DNA helix.
  *
  * @example
  * <DnaLoader />
  *
  * @example
- * // Plus de paires, plus lent, dans la teinte de marque.
+ * // More pairs, slower, in the brand hue.
  * <DnaLoader pairs={12} speed={2400} color="var(--o-palette-brand-500)" />
  */
 export function DnaLoader({
@@ -178,7 +176,7 @@ export function DnaLoader({
   pairs = 8,
   speed = 1600,
   color = 'currentColor',
-  label = 'Chargement',
+  label = 'Loading',
   ...rest
 }: DnaLoaderProps): ReactElement {
   ensureDnaRule()
@@ -205,8 +203,8 @@ export function DnaLoader({
     >
       <span className="o-sr-only">{label}</span>
       {Array.from({ length: count }, (_, pair) => {
-        // Une part de tour par colonne, en negatif : l'helice est la des la
-        // premiere image, et sa pose au repos coincide avec sa phase.
+        // A share of a turn per column, negative: the helix is there from the
+        // first frame, and its pose at rest matches its phase.
         const phase = (2 * Math.PI * pair) / count
         const delay = Math.round((-speed * pair) / count)
         return (

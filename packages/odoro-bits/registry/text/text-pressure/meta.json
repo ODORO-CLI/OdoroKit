@@ -24,7 +24,7 @@
       "description": "Balise rendue."
     },
     {
-      "name": "graisseBasse",
+      "name": "minWeight",
       "type": "number",
       "default": 200,
       "description": "Graisse au repos, sur l axe wght.",
@@ -33,7 +33,7 @@
       "step": 25
     },
     {
-      "name": "graisseHaute",
+      "name": "maxWeight",
       "type": "number",
       "default": 900,
       "description": "Graisse sous le pointeur, sur l axe wght.",
@@ -42,7 +42,7 @@
       "step": 25
     },
     {
-      "name": "chasse",
+      "name": "stretch",
       "type": "number",
       "default": 25,
       "description": "Etirement maximal sur l axe wdth, en points de chasse.",
@@ -51,7 +51,7 @@
       "step": 1
     },
     {
-      "name": "rayon",
+      "name": "radius",
       "type": "number",
       "default": 260,
       "unit": "px",

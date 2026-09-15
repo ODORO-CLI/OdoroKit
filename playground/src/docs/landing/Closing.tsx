@@ -12,7 +12,7 @@ import {
   Package,
   Palette,
   Shield,
-} from '@odoro-cli/icons/filaire'
+} from '@odoro-cli/icons/outline'
 import { Reveal, Stagger } from '@odoro-cli/libs/motion'
 import { Link } from '@odoro-cli/libs/router'
 import { buttonClasses } from '@odoro-cli/libs/ui'

@@ -1,49 +1,49 @@
 /**
- * Liberation des ressources d'une scene 3D.
+ * Releasing the resources of a 3D scene.
  *
- * ## Rien n'est libere automatiquement
+ * ## Nothing is released automatically
  *
- * Le ramasse-miettes de JavaScript ignore la memoire de la carte graphique.
- * Une geometrie, un materiau, une texture ou une cible de rendu abandonnes
- * conservent leurs tampons cote pilote jusqu'a la fermeture de l'onglet.
+ * The JavaScript garbage collector ignores the memory of the graphics card. An
+ * abandoned geometry, material, texture or render target keeps its buffers on
+ * the driver side until the tab is closed.
  *
- * Le symptome n'est pas une erreur : c'est une degradation lente. La premiere
- * visite est fluide, la dixieme rame, et rien dans la console ne l'explique.
- * C'est la premiere cause de fuite dans ce type de projet, et la raison pour
- * laquelle ce module existe separement — il doit etre lisible, teste, et
- * appele sans exception.
+ * The symptom is not an error: it is a slow degradation. The first visit is
+ * smooth, the tenth struggles, and nothing in the console explains it. It is
+ * the leading cause of leaks in this kind of project, and the reason this
+ * module exists separately — it must be readable, tested, and called without
+ * exception.
  *
- * ## Ce qui est parcouru
+ * ## What is walked
  *
- * L'arbre entier de la scene, y compris les objets qu'un chargeur de modele y
- * a places sans qu'on les ait nommes. Un materiau peut porter une dizaine de
- * textures sous des noms differents : plutot que d'en tenir la liste — qui
- * changera —, on inspecte chacune de ses proprietes et on libere tout ce qui
- * ressemble a une texture.
+ * The whole tree of the scene, including the objects a model loader placed
+ * there without us naming them. A material can carry a dozen textures under
+ * different names: rather than keeping the list — which will change — each of
+ * its properties is inspected and everything that looks like a texture is
+ * released.
  *
  * @module
  */
 
 import type { Material, Object3D, Texture, WebGLRenderer, WebGLRenderTarget } from 'three'
 
-/** Ce qui a ete libere, pour l'assertion d'un test de fuite. */
+/** What was released, for the assertion of a leak test. */
 export interface DisposalReport {
-  /** Geometries liberees. */
+  /** Geometries released. */
   geometries: number
-  /** Materiaux liberes. */
+  /** Materials released. */
   materials: number
-  /** Textures liberees. */
+  /** Textures released. */
   textures: number
-  /** Cibles de rendu liberees. */
+  /** Render targets released. */
   renderTargets: number
 }
 
-/** Tout ce qui expose une methode de liberation. */
+/** Anything that exposes a release method. */
 interface Disposable {
   dispose: () => void
 }
 
-/** Reconnait un objet liberable. */
+/** Recognises a releasable object. */
 function isDisposable(value: unknown): value is Disposable {
   return (
     typeof value === 'object' &&
@@ -52,7 +52,7 @@ function isDisposable(value: unknown): value is Disposable {
   )
 }
 
-/** Reconnait une texture, par sa signature plutot que par son nom de classe. */
+/** Recognises a texture, by its signature rather than by its class name. */
 function isTexture(value: unknown): value is Texture {
   return (
     isDisposable(value) && 'image' in (value as object) && 'wrapS' in (value as object)
@@ -60,15 +60,16 @@ function isTexture(value: unknown): value is Texture {
 }
 
 /**
- * Libere un materiau et toutes les textures qu'il porte.
+ * Releases a material and every texture it carries.
  *
- * @returns Le nombre de textures liberees.
+ * @returns The number of textures released.
  */
 export function disposeMaterial(material: Material, seen: Set<unknown>): number {
   let textures = 0
 
-  // Les noms de proprietes portant une texture varient d'un materiau a l'autre
-  // et d'une version a l'autre : on inspecte plutot que d'enumerer.
+  // The names of the properties carrying a texture vary from one material to
+  // the next and from one version to the next: we inspect rather than
+  // enumerate.
   for (const value of Object.values(material as unknown as Record<string, unknown>)) {
     if (!isTexture(value) || seen.has(value)) continue
     seen.add(value)
@@ -81,16 +82,15 @@ export function disposeMaterial(material: Material, seen: Set<unknown>): number 
 }
 
 /**
- * Libere tout ce qu'un arbre d'objets 3D retient.
+ * Releases everything a tree of 3D objects holds.
  *
- * Les ressources partagees entre plusieurs objets ne sont liberees qu'une
- * fois : un materiau reutilise par cinquante instances ne doit pas etre
- * libere cinquante fois, ce qui produirait des avertissements et masquerait de
- * vraies anomalies.
+ * Resources shared between several objects are only released once: a material
+ * reused by fifty instances must not be released fifty times, which would
+ * produce warnings and would mask real anomalies.
  *
  * @example
- * const rapport = disposeObject(scene)
- * console.log(`${rapport.geometries} geometries liberees`)
+ * const report = disposeObject(scene)
+ * console.log(`${report.geometries} geometries released`)
  */
 export function disposeObject(root: Object3D): DisposalReport {
   const report: DisposalReport = {
@@ -124,20 +124,20 @@ export function disposeObject(root: Object3D): DisposalReport {
     }
   })
 
-  // Le contenu est detache apres coup : detacher pendant le parcours
-  // interromprait celui-ci.
+  // The content is detached afterwards: detaching during the walk would
+  // interrupt it.
   root.clear()
 
   return report
 }
 
 /**
- * Libere une scene, ses cibles de rendu et son moteur de rendu.
+ * Releases a scene, its render targets and its renderer.
  *
- * `forceContextLoss` relache l'emplacement de contexte aupres du navigateur.
- * Sans lui, l'emplacement reste occupe jusqu'au ramassage du canevas, et une
- * page qui monte et demonte plusieurs scenes finit par epuiser le quota — le
- * navigateur perdant alors silencieusement la plus ancienne.
+ * `forceContextLoss` gives the context slot back to the browser. Without it,
+ * the slot stays occupied until the canvas is collected, and a page that
+ * mounts and unmounts several scenes ends up exhausting the quota — the
+ * browser then silently losing the oldest one.
  *
  * @example
  * disposeScene({ scene, renderer, targets: [depthTarget] })

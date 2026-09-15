@@ -1,40 +1,41 @@
 /**
- * Barre a loupe : les elements grossissent a l'approche du pointeur.
+ * Magnifying dock: the items grow as the pointer comes near.
  *
- * ## Ce que la distance decide
+ * ## What the distance decides
  *
- * Chaque element regarde l'ecart entre son centre et le pointeur, sur l'axe
- * horizontal seulement. En dessous d'un rayon, il grandit ; au-dela, il reste
- * a sa taille. Le profil est une cosinusoide relevee plutot qu'une rampe
- * lineaire : la bosse est arrondie a son sommet et se raccorde a plat sur les
- * bords, si bien que le voisin du voisin ne sursaute pas quand le pointeur
- * franchit sa limite.
+ * Each item looks at the gap between its centre and the pointer, on the
+ * horizontal axis only. Below a radius, it grows; beyond it, it stays at its
+ * own size. The profile is a raised cosine rather than a linear ramp: the
+ * bump is rounded at its top and joins flat at the edges, so that the
+ * neighbour of the neighbour does not jump when the pointer crosses its
+ * limit.
  *
- * ## L'agrandissement pousse ses voisins vers le haut, jamais sur les cotes
+ * ## The magnification pushes its neighbours upwards, never sideways
  *
- * Faire grossir un element dans un flux horizontal deplace tous les suivants,
- * et la barre entiere se met a respirer — ce qui rend le survol imprevisible :
- * la cible bouge pendant qu'on la vise.
+ * Growing an item in a horizontal flow moves every item after it, and the
+ * whole dock starts to breathe — which makes the hover unpredictable: the
+ * target moves while one aims at it.
  *
- * L'echelle est donc appliquee **depuis le bas** (`transform-origin: bottom`),
- * et la largeur de la boite ne change jamais. L'element grandit vers le haut,
- * ses voisins restent ou ils sont, et l'on clique ou l'on croyait cliquer.
+ * The scale is therefore applied **from the bottom** (`transform-origin: bottom`),
+ * and the width of the box never changes. The item grows upwards, its
+ * neighbours stay where they are, and one clicks where one thought one was
+ * clicking.
  *
- * ## Aucun rendu React pendant le mouvement
+ * ## No React render during the movement
  *
- * Les echelles sont ecrites directement dans le style de chaque element depuis
- * la boucle. Les passer par l'etat provoquerait un rendu de la barre entiere a
- * chaque pixel parcouru par la souris.
+ * The scales are written straight into the style of each item from the loop.
+ * Passing them through state would cause a render of the whole dock at every
+ * pixel travelled by the mouse.
  *
- * ## Ce qui reste quand on retire le mouvement
+ * ## What is left when the movement is taken away
  *
- * Une barre. Sous `prefers-reduced-motion`, plus rien ne grossit — et rien
- * n'est perdu, parce que l'agrandissement n'a jamais porte d'information : les
- * libelles sont la, les cibles sont a leur taille de repos, qui est une vraie
- * taille cliquable.
+ * A dock. Under `prefers-reduced-motion`, nothing grows any more — and
+ * nothing is lost, because the magnification never carried information: the
+ * labels are there, the targets are at their rest size, which is a real
+ * clickable size.
  *
- * Au doigt, meme chose : il n'y a pas de survol sur un ecran tactile, et une
- * barre dont les elements ne grossissent jamais est exactement ce qu'il faut.
+ * With a finger, same thing: there is no hover on a touch screen, and a dock
+ * whose items never grow is exactly what is needed.
  *
  * @module
  */
@@ -48,34 +49,34 @@ import {
   type ReactNode,
 } from 'react'
 
-/** Proprietes propres au composant. */
+/** Props specific to the component. */
 export interface MagnifyDockOwnProps {
-  /** Les elements de la barre. Chacun doit rester cliquable au repos. */
+  /** The items of the dock. Each one must stay clickable at rest. */
   children: ReactNode
   /**
-   * Echelle maximale, atteinte quand le pointeur est sur l'element.
+   * Maximum scale, reached when the pointer is over the item.
    *
    * @defaultValue 1.6
    */
   scale?: number
   /**
-   * Rayon d'influence, en pixels.
+   * Radius of influence, in pixels.
    *
-   * Au-dela, un element ne bouge plus. Trop large, toute la barre gonfle et
-   * l'effet se perd ; trop etroit, il devient nerveux.
+   * Beyond it, an item no longer moves. Too wide, the whole dock swells and
+   * the effect is lost; too narrow, it turns jumpy.
    *
    * @defaultValue 130
    */
   radius?: number
 }
 
-/** Toutes les proprietes. */
+/** All the props. */
 export type MagnifyDockProps = Customisable<MagnifyDockOwnProps, 'div'>
 
-/** Identifiant de la feuille injectee. */
+/** Id of the injected stylesheet. */
 const STYLE_ID = 'o-magnify-dock'
 
-/** Pose les regles de la barre, une fois par document. */
+/** Sets the rules of the dock, once per document. */
 function ensureDockRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -85,31 +86,31 @@ function ensureDockRule(): void {
   style.textContent = [
     '[data-o-dock]{display:flex;align-items:flex-end;gap:0.5rem}',
     '[data-o-dock]>*{',
-    // Depuis le bas : c'est ce qui fait grandir vers le haut sans pousser les
-    // voisins de cote.
+    // From the bottom: that is what makes it grow upwards without pushing the
+    // neighbours sideways.
     'transform-origin:bottom center;',
     'will-change:transform;',
-    // La transition ne sert qu'au retour au repos, quand le pointeur quitte la
-    // barre : pendant le survol, c'est la boucle qui ecrit, image par image.
+    // The transition only serves the return to rest, when the pointer leaves
+    // the dock: during the hover, the loop writes, frame by frame.
     'transition:transform 260ms cubic-bezier(0.22,1,0.36,1);',
     '}',
-    '[data-o-dock-actif]>*{transition:none}',
+    '[data-o-dock-active]>*{transition:none}',
   ].join('')
   document.head.append(style)
 }
 
 /**
- * Une barre dont les elements grossissent a l'approche du pointeur.
+ * A dock whose items grow as the pointer comes near.
  *
  * @example
  * <MagnifyDock>
- *   <button type="button">Accueil</button>
- *   <button type="button">Travaux</button>
+ *   <button type="button">Home</button>
+ *   <button type="button">Work</button>
  *   <button type="button">Contact</button>
  * </MagnifyDock>
  *
  * @example
- * // Plus ample, et sur un rayon plus etroit.
+ * // Wider, and on a narrower radius.
  * <MagnifyDock scale={2} radius={90}>…</MagnifyDock>
  */
 export function MagnifyDock({
@@ -119,70 +120,70 @@ export function MagnifyDock({
   ...rest
 }: MagnifyDockProps): ReactElement {
   const { reduced } = useMotionState()
-  const barre = useRef<HTMLDivElement | null>(null)
+  const dock = useRef<HTMLDivElement | null>(null)
 
   ensureDockRule()
 
   useEffect(() => {
-    // Rien a faire sans pointeur fin : pas de survol sur un ecran tactile, et
-    // une boucle qui tourne pour un effet qui ne peut pas se produire.
+    // Nothing to do without a fine pointer: no hover on a touch screen, and a
+    // loop that runs for an effect that cannot happen.
     if (reduced || typeof window === 'undefined') return
     if (window.matchMedia('(pointer: coarse)').matches) return
 
-    const hote = barre.current
-    if (hote === null) return
+    const host = dock.current
+    if (host === null) return
 
     let x: number | undefined
-    let image = 0
+    let frame = 0
 
-    const surEntree = (evenement: PointerEvent) => {
-      x = evenement.clientX
-      hote.setAttribute('data-o-dock-actif', '')
+    const onEnter = (event: PointerEvent) => {
+      x = event.clientX
+      host.setAttribute('data-o-dock-active', '')
     }
 
-    const surSortie = () => {
+    const onLeave = () => {
       x = undefined
-      hote.removeAttribute('data-o-dock-actif')
+      host.removeAttribute('data-o-dock-active')
 
-      // Le repos est ecrit une fois, et la transition CSS s'en charge : y
-      // revenir image par image ferait un retour qu'on ne peut pas courber.
-      for (const enfant of hote.children) {
-        if (enfant instanceof HTMLElement) enfant.style.transform = ''
+      // Rest is written once, and the CSS transition takes it over: going back
+      // frame by frame would make a return one cannot curve.
+      for (const child of host.children) {
+        if (child instanceof HTMLElement) child.style.transform = ''
       }
     }
 
-    const pas = () => {
+    const step = () => {
       if (x !== undefined) {
-        for (const enfant of hote.children) {
-          if (!(enfant instanceof HTMLElement)) continue
+        for (const child of host.children) {
+          if (!(child instanceof HTMLElement)) continue
 
-          const boite = enfant.getBoundingClientRect()
-          const centre = boite.left + boite.width / 2
-          const ecart = Math.abs(x - centre)
+          const box = child.getBoundingClientRect()
+          const center = box.left + box.width / 2
+          const distance = Math.abs(x - center)
 
-          // Cosinusoide relevee : plate aux bords, arrondie au sommet. Une
-          // rampe lineaire produirait une cassure visible au moment ou un
-          // element entre dans le rayon.
-          const t = Math.min(1, ecart / radius)
-          const facteur = (Math.cos(t * Math.PI) + 1) / 2
-          const k = 1 + (scale - 1) * facteur
+          // Raised cosine: flat at the edges, rounded at the top. A linear
+          // ramp would produce a visible break at the moment an item enters
+          // the radius.
+          const t = Math.min(1, distance / radius)
+          const factor = (Math.cos(t * Math.PI) + 1) / 2
+          const k = 1 + (scale - 1) * factor
 
-          enfant.style.transform = `scale(${String(k)})`
+          child.style.transform = `scale(${String(k)})`
         }
       }
 
-      image = requestAnimationFrame(pas)
+      frame = requestAnimationFrame(step)
     }
 
-    hote.addEventListener('pointermove', surEntree, { passive: true })
-    hote.addEventListener('pointerleave', surSortie, { passive: true })
-    image = requestAnimationFrame(pas)
+    host.addEventListener('pointermove', onEnter, { passive: true })
+    host.addEventListener('pointerleave', onLeave, { passive: true })
+    frame = requestAnimationFrame(step)
 
     return () => {
-      hote.removeEventListener('pointermove', surEntree)
-      hote.removeEventListener('pointerleave', surSortie)
-      cancelAnimationFrame(image)
-      surSortie()
+      host.removeEventListener('pointermove', onEnter)
+      host.removeEventListener('pointerleave', onLeave)
+      cancelAnimationFrame(frame)
+      onLeave()
     }
   }, [reduced, scale, radius])
 
@@ -191,7 +192,7 @@ export function MagnifyDock({
   return (
     <div
       {...rest}
-      ref={barre}
+      ref={dock}
       className={className}
       style={style as CSSProperties}
       data-o-dock=""

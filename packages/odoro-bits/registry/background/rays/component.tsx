@@ -1,24 +1,24 @@
 /**
- * Rayons : des rais crepusculaires radiaux depuis un point reglable.
+ * Rays: radial crepuscular rays from an adjustable point.
  *
- * ## Le principe
+ * ## The principle
  *
- * L'intensite est un bruit 1D de l'angle autour du foyer — trois sinus de
- * frequences entieres non multiples, periodiques sur le tour — sculpte par une
- * puissance et eteint par une exponentielle de la distance. Des phases lentes
- * font le scintillement. Distinct des faisceaux : radial depuis un point, pas
- * des rais obliques paralleles.
+ * The intensity is a 1D noise of the angle around the focus — three sines at
+ * integer, non-multiple frequencies, periodic over the turn — sculpted by a
+ * power and faded out by an exponential of the distance. Slow phases make the
+ * shimmer. Distinct from the beams: radial from a point, not parallel oblique
+ * rays.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur — les recopier ici en ferait autant
- * de versions a maintenir qu'il y a de fonds.
+ * It carries only what sets it apart: its shader, its settings and its fallback.
+ * Reading the tokens, converting them to floats and re-reading them when the
+ * theme changes all come from the engine — copying that here would leave as many
+ * versions to maintain as there are backgrounds.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en
- * accorde qu'une par backend — et sous mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface — it grants only one per
+ * backend — and under reduced motion.
  *
  * @module
  */
@@ -35,48 +35,48 @@ import { type ReactElement } from 'react'
 
 import { RAYS_FRAGMENT } from './rays.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface RaysControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to this component. */
 export interface RaysOwnProps {
-  /** Position horizontale du foyer, en fraction du cadre. @defaultValue 0.5 */
+  /** Horizontal position of the focus, as a fraction of the frame. @defaultValue 0.5 */
   x?: number
-  /** Position verticale du foyer, en fraction du cadre. @defaultValue 0.75 */
+  /** Vertical position of the focus, as a fraction of the frame. @defaultValue 0.75 */
   y?: number
-  /** Nombre de rayons sur le tour. @defaultValue 12 */
+  /** Number of rays around the turn. @defaultValue 12 */
   count?: number
-  /** Douceur des rais. Bas, ils sont fins et durs. @defaultValue 0.5 */
+  /** Softness of the rays. Low, they are thin and hard. @defaultValue 0.5 */
   softness?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<RaysControls>
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type RaysProps = Customisable<RaysOwnProps>
 
-/** Tokens employes par defaut : la penombre, les rais, le foyer. */
+/** Tokens used by default: the gloom, the rays, the focus. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-orange-500',
   '--o-palette-amber-200',
 ] as const
 
-/** Repli par defaut : un degrade fige, dans les memes tons. */
+/** Default fallback: a frozen gradient, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-b o-from-orange-950 o-to-zinc-50 dark:o-to-stone-950'
 
 /**
- * Rayons.
+ * Rays.
  *
  * @example
  * <div className="o-relative o-min-h-screen">
@@ -99,9 +99,9 @@ export function Rays({
     colors,
     uniforms: { uX: x, uY: y, uCount: count, uSoftness: softness, uDetail: 3 },
     name: 'rays',
-    // Le nombre de rayons ne coute rien — c'est une frequence, pas une boucle.
-    // Ce sont les harmoniques du bruit angulaire qui pesent, donc c'est elles
-    // qui sont bornees.
+    // The number of rays costs nothing — it is a frequency, not a loop. It is
+    // the harmonics of the angular noise that weigh, so they are the ones that
+    // are bounded.
     degrade: (quality) => ({
       uDetail: quality === 'low' ? 1 : 3,
     }),

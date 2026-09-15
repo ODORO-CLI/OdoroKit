@@ -1,36 +1,36 @@
 /**
- * Etapes de progression : des etapes numerotees reliees par une barre. La
- * progression remplit la barre et coche les etapes franchies ; sans mesure,
- * un reflet parcourt la barre.
+ * Progress steps: numbered steps linked by a rail. The progress fills the
+ * rail and ticks off the steps already passed; with nothing to measure, a
+ * highlight runs along the rail.
  *
- * ## Une valeur continue, des etapes discretes
+ * ## A continuous value, discrete steps
  *
- * La barre recoit `value` en continu et la montre par une echelle de
- * transformation, jamais une largeur. Les etapes, elles, sont reparties a
- * egale distance sur la barre, et chacune se coche quand la valeur a depasse
- * sa position : la premiere etape qui ne l'est pas encore est l'etape en
- * cours, et pulse. Le composant ne demande donc pas « a quelle etape en
- * est-on » — il le deduit de la meme valeur que la barre, et les deux ne
- * peuvent pas se contredire.
+ * The rail receives `value` continuously and shows it through a transform
+ * scale, never a width. The steps are spread at equal distance along the
+ * rail, and each one ticks off when the value has passed its position: the
+ * first step that has not is the current step, and it pulses. The component
+ * therefore never asks "which step are we on" — it derives it from the same
+ * value as the rail, and the two cannot contradict each other.
  *
- * ## Deux modes, deux honnetetes
+ * ## Two modes, two kinds of honesty
  *
- * Le mode determine est un `role="progressbar"` complet, valeur comprise.
- * Le mode `indeterminate` ne pretend rien mesurer : aucune etape n'est
- * cochee, un reflet court le long de la barre, et le `progressbar` est
- * declare **sans** valeur — c'est ainsi que la specification decrit une
- * progression inconnue.
+ * The determinate mode is a complete `role="progressbar"`, value included.
+ * The `indeterminate` mode claims to measure nothing: no step is ticked
+ * off, a highlight runs along the rail, and the `progressbar` is declared
+ * **without** a value — that is how the specification describes an unknown
+ * progress.
  *
- * ## Le fond des etapes
+ * ## The background of the steps
  *
- * Une etape a franchir est un cercle vide pose sur la barre : pour que la
- * barre ne le traverse pas, il a besoin d'un fond opaque, pris au theme.
- * Le numero d'une etape franchie s'ecrit dans ce meme fond, sur la couleur
- * pleine : c'est ce qui le garde lisible dans les deux themes.
+ * A step still to pass is an empty circle set on the rail: so that the rail
+ * does not run through it, it needs an opaque background, taken from the
+ * theme. The number of a step already passed is written in that same
+ * background, over the solid color: that is what keeps it legible in both
+ * themes.
  *
- * Sous mouvement reduit, la valeur saute sans transition, l'etape en cours
- * ne pulse pas, et le reflet indetermine devient une barre pleine et
- * attenuee.
+ * Under reduced motion, the value jumps with no transition, the current
+ * step does not pulse, and the indeterminate highlight becomes a full,
+ * dimmed bar.
  *
  * @module
  */
@@ -38,10 +38,10 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-progress-steps'
 
-/** Pose la barre, les etapes et leurs etats, une fois par document. */
+/** Applies the rail, the steps and their states, once per document. */
 function ensureProgressStepsRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -49,13 +49,13 @@ function ensureProgressStepsRule(): void {
   const style = document.createElement('style')
   style.id = STYLE_ID
   style.textContent = [
-    // En bloc : les etapes se repartissent sur la largeur du parent.
+    // As a block: the steps spread themselves over the width of the parent.
     '[data-o-progress-steps]{',
     'position:relative;display:flex;align-items:center;justify-content:space-between;',
     'font-size:calc(var(--o-psteps-size) * 0.42);font-weight:600;line-height:1;',
     'font-variant-numeric:tabular-nums;',
     '}',
-    // La barre court de centre a centre des etapes extremes.
+    // The rail runs from center to center of the outermost steps.
     '[data-o-psteps-rail]{',
     'position:absolute;top:50%;left:calc(var(--o-psteps-size) / 2);right:calc(var(--o-psteps-size) / 2);',
     'height:2px;margin-top:-1px;overflow:hidden;',
@@ -81,9 +81,9 @@ function ensureProgressStepsRule(): void {
     'transition:background-color var(--o-duration-base) var(--o-ease-standard),',
     'border-color var(--o-duration-base) var(--o-ease-standard);',
     '}',
-    // Le numero est un element a part : si le cercle lui-meme prenait la
-    // couleur du fond, un `currentColor` recu en couleur s'y resoudrait et
-    // le cercle plein disparaitrait dans le fond.
+    // The number is an element of its own: if the circle itself took the
+    // background color, a `currentColor` received as the color would resolve
+    // to it and the solid circle would vanish into the background.
     '[data-o-psteps-num]{transition:color var(--o-duration-base) var(--o-ease-standard)}',
     '[data-o-psteps-step="done"]{',
     'background:var(--o-psteps-color);border-color:var(--o-psteps-color);',
@@ -93,7 +93,7 @@ function ensureProgressStepsRule(): void {
     'border-color:var(--o-psteps-color);',
     'animation:o-progress-steps-pulse var(--o-psteps-speed) ease-out infinite;',
     '}',
-    // Un halo qui s'eloigne et s'eteint : l'etape en cours respire.
+    // A halo that moves away and fades out: the current step breathes.
     '@keyframes o-progress-steps-pulse{',
     '0%{box-shadow:0 0 0 0 color-mix(in oklab,var(--o-psteps-color) 45%,transparent)}',
     '100%{box-shadow:0 0 0 calc(var(--o-psteps-size) * 0.4) transparent}',
@@ -107,39 +107,39 @@ function ensureProgressStepsRule(): void {
   document.head.append(style)
 }
 
-/** Etat d'une etape, deduit de la valeur. */
+/** State of a step, derived from the value. */
 type StepState = 'done' | 'current' | 'todo'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface ProgressStepsOwnProps {
-  /** Progression, de 0 a 100. Ignoree en mode indetermine. @defaultValue 40 */
+  /** Progress, from 0 to 100. Ignored in indeterminate mode. @defaultValue 40 */
   value?: number
-  /** Reflet sans valeur, quand rien n'est mesurable. @defaultValue false */
+  /** Highlight with no value, when nothing is measurable. @defaultValue false */
   indeterminate?: boolean
-  /** Nombre d'etapes, reparties a egale distance. @defaultValue 4 */
+  /** Number of steps, spread at equal distance. @defaultValue 4 */
   steps?: number
-  /** Diametre d'une etape, en pixels. @defaultValue 28 */
+  /** Diameter of a step, in pixels. @defaultValue 28 */
   size?: number
-  /** Periode de la pulsation et du reflet, en millisecondes. @defaultValue 1600 */
+  /** Period of the pulse and of the highlight, in milliseconds. @defaultValue 1600 */
   speed?: number
-  /** Couleur des etapes franchies et de la barre. @defaultValue la couleur du texte */
+  /** Color of the steps passed and of the rail. @defaultValue the text color */
   color?: string
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */
+  /** Label announced to screen readers. @defaultValue 'Loading' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All the properties. */
 export type ProgressStepsProps = Customisable<ProgressStepsOwnProps, 'span'>
 
 /**
- * Etapes numerotees sur une barre de progression.
+ * Numbered steps on a progress rail.
  *
  * @example
- * // Trois etapes, la deuxieme en cours.
+ * // Three steps, the second one current.
  * <ProgressSteps steps={3} value={50} />
  *
  * @example
- * // Attente sans mesure, dans la teinte de marque.
+ * // A wait with nothing to measure, in the brand hue.
  * <ProgressSteps indeterminate color="var(--o-palette-brand-500)" />
  */
 export function ProgressSteps({
@@ -149,7 +149,7 @@ export function ProgressSteps({
   size = 28,
   speed = 1600,
   color = 'currentColor',
-  label = 'Chargement',
+  label = 'Loading',
   ...rest
 }: ProgressStepsProps): ReactElement {
   ensureProgressStepsRule()
@@ -157,8 +157,8 @@ export function ProgressSteps({
   const clamped = Math.min(100, Math.max(0, value))
   const count = Math.max(2, Math.round(steps))
 
-  // Une etape est franchie quand la valeur a depasse sa position ; la
-  // premiere qui ne l'est pas est en cours. A cent, tout est franchi.
+  // A step is passed when the value has gone beyond its position; the first
+  // one that has not is the current one. At a hundred, everything is passed.
   let currentFound = false
   const states: StepState[] = Array.from({ length: count }, (_, index) => {
     if (indeterminate) return 'todo'
@@ -189,8 +189,8 @@ export function ProgressSteps({
       data-o-psteps-indeterminate={indeterminate ? '' : undefined}
       role="progressbar"
       aria-label={label}
-      // Un progressbar sans aria-valuenow est indetermine : c'est la maniere
-      // normative de dire « j'avance, mais je ne sais pas de combien ».
+      // A progressbar with no aria-valuenow is indeterminate: that is the
+      // normative way of saying "I am moving, but I do not know by how much".
       aria-valuemin={indeterminate ? undefined : 0}
       aria-valuemax={indeterminate ? undefined : 100}
       aria-valuenow={indeterminate ? undefined : Math.round(clamped)}

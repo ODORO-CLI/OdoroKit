@@ -1,56 +1,56 @@
 /**
- * Politique de mouvement : une seule decision, pour tout ce qui anime.
+ * Motion policy: a single decision, for everything that animates.
  *
- * ## Pourquoi ce module existe separement
+ * ## Why this module exists separately
  *
- * `prefers-reduced-motion` etait consulte par chaque composant de `motion`, et
- * une seconde fois, independamment, par le moteur d'animation. Deux lectures
- * de la meme preference systeme, qui repondent la meme chose tant que
- * personne ne la force — et divergent des qu'un projet decide de l'ignorer sur
- * une page precise.
+ * `prefers-reduced-motion` was consulted by each component of `motion`, and
+ * a second time, independently, by the animation engine. Two reads
+ * of the same system preference, which answer the same thing as long as
+ * nobody forces it — and diverge as soon as a project decides to ignore it on
+ * a specific page.
  *
- * La decision vit donc ici, dans un module qui ne depend de rien : ni React,
- * ni le moteur. `@odoro-cli/libs/motion` le consulte, et `@odoro-cli/engine` peut le
- * consulter aussi, sans qu'aucun des deux ne depende de l'autre.
+ * The decision therefore lives here, in a module that depends on nothing: neither React,
+ * nor the engine. `@odoro-cli/libs/motion` consults it, and `@odoro-cli/engine` can
+ * consult it too, without either of the two depending on the other.
  *
- * ## La boucle est cedable
+ * ## The loop is yieldable
  *
- * Une animation par la Web Animations API est pilotee par le compositeur :
- * aucune boucle JavaScript n'est ouverte. Certaines mesures en demandent une
- * malgre tout — une progression de defilement se lit a l'image, pas a
- * l'evenement, sous peine de recalculer la mise en page des dizaines de fois
- * par seconde.
+ * An animation through the Web Animations API is driven by the compositor:
+ * no JavaScript loop is opened. Some measurements require one
+ * nonetheless — a scroll progress is read per frame, not per
+ * event, on pain of recomputing the layout dozens of times
+ * per second.
  *
- * Cette boucle-la est **cedable**. Par defaut elle emploie
- * `requestAnimationFrame` ; quand `@odoro-cli/engine` est present, il installe son
- * propre ordonnanceur et tout passe par le ticker unique de GSAP.
+ * That loop is **yieldable**. By default it uses
+ * `requestAnimationFrame`; when `@odoro-cli/engine` is present, it installs its
+ * own scheduler and everything goes through the single GSAP ticker.
  *
- * Deux boucles concurrentes produisent un tremblement qu'on n'attribue jamais
- * a la bonne cause : chacune lit et ecrit la mise en page dans un ordre que
- * l'autre ignore, et le defaut ne se reproduit pas a la demande.
+ * Two competing loops produce a jitter that is never attributed
+ * to the right cause: each reads and writes the layout in an order that
+ * the other ignores, and the defect does not reproduce on demand.
  *
  * @module
  */
 
-/** Ce qu'un projet peut imposer par-dessus la preference systeme. */
+/** What a project can impose on top of the system preference. */
 export type ReducedMotionSetting =
-  /** Suit la preference du systeme. Le defaut, et le bon. */
+  /** Follows the system preference. The default, and the right one. */
   | 'respect'
-  /** Anime comme si la preference etait activee, quoi qu'en dise le systeme. */
+  /** Animates as if the preference were enabled, whatever the system says. */
   | 'force'
   /**
-   * Ignore la preference.
+   * Ignores the preference.
    *
-   * A n'employer que sur une animation qui porte du sens et n'a pas
-   * d'equivalent statique — une demonstration de ce que fait le moteur, par
-   * exemple. Jamais par confort esthetique.
+   * To be used only on an animation that carries meaning and has no
+   * static equivalent — a demonstration of what the engine does, for
+   * example. Never for aesthetic comfort.
    */
   | 'ignore'
 
-/** Media query interrogee. */
+/** Media query queried. */
 const QUERY = '(prefers-reduced-motion: reduce)'
 
-/** Recupere la MediaQueryList, ou `null` hors navigateur. */
+/** Retrieves the MediaQueryList, or `null` outside a browser. */
 function mediaQuery(): MediaQueryList | null {
   if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
     return null
@@ -58,28 +58,28 @@ function mediaQuery(): MediaQueryList | null {
   return window.matchMedia(QUERY)
 }
 
-/** Reglage impose, s'il y en a un. */
+/** Imposed setting, if there is one. */
 let setting: ReducedMotionSetting = 'respect'
 
-/** Abonnes aux changements, systeme ou impose. */
+/** Subscribers to the changes, system or imposed. */
 const listeners = new Set<() => void>()
 
-/** Desabonnement de la media query, quand quelqu'un ecoute. */
+/** Unsubscription from the media query, when someone listens. */
 let detach: (() => void) | undefined
 
-/** Previent les abonnes. */
+/** Warns the subscribers. */
 function notify(): void {
   for (const listener of listeners) listener()
 }
 
 /**
- * Indique si les animations doivent etre reduites.
+ * Tells whether animations must be reduced.
  *
- * Utilisable hors composant. Rend `false` cote serveur, ou l'animation n'a de
- * toute facon pas lieu.
+ * Usable outside a component. Returns `false` on the server side, where the animation does
+ * not take place anyway.
  *
  * @example
- * const duration = prefersReducedMotion() ? 0 : 300
+ * const duration = prefersReducedMotion()? 0: 300
  */
 export function prefersReducedMotion(): boolean {
   if (setting === 'force') return true
@@ -88,10 +88,10 @@ export function prefersReducedMotion(): boolean {
 }
 
 /**
- * Impose un reglage, ou revient a la preference systeme.
+ * Imposes a setting, or goes back to the system preference.
  *
  * @example
- * // Sur une page de demonstration du moteur, et nulle part ailleurs.
+ * // On an engine demonstration page, and nowhere else.
  * setReducedMotion('ignore')
  */
 export function setReducedMotion(next: ReducedMotionSetting): void {
@@ -100,22 +100,22 @@ export function setReducedMotion(next: ReducedMotionSetting): void {
   notify()
 }
 
-/** Le reglage courant. */
+/** The current setting. */
 export function reducedMotionSetting(): ReducedMotionSetting {
   return setting
 }
 
 /**
- * Abonne un ecouteur aux changements de la politique.
+ * Subscribes a listener to the changes of the policy.
  *
- * @returns De quoi se desabonner.
+ * @returns What is needed to unsubscribe.
  */
 export function subscribeMotion(listener: () => void): () => void {
   listeners.add(listener)
 
-  // La media query n'est ecoutee que tant que quelqu'un s'y interesse : un
-  // ecouteur pose au chargement et jamais retire est une fuite qu'on ne voit
-  // pas, parce qu'elle ne coute qu'un objet.
+  // The media query is listened to only as long as someone is interested in it: a
+  // listener set at load time and never removed is a leak that is not seen,
+  // because it costs only one object.
   if (detach === undefined) {
     const query = mediaQuery()
     if (query !== null) {
@@ -134,17 +134,17 @@ export function subscribeMotion(listener: () => void): () => void {
 }
 
 /* -------------------------------------------------------------------------- */
-/* L'ordonnanceur cedable                                                     */
+/* The yieldable scheduler                                                    */
 /* -------------------------------------------------------------------------- */
 
-/** Programme un travail pour la prochaine image, et rend de quoi l'annuler. */
+/** Schedules a task for the next frame, and returns what is needed to cancel it. */
 export type FrameScheduler = (task: () => void) => () => void
 
-/** Ordonnanceur par defaut : une image du navigateur. */
+/** Default scheduler: a browser frame. */
 const rafScheduler: FrameScheduler = (task) => {
   if (typeof requestAnimationFrame !== 'function') {
-    // Hors navigateur, la tache s'execute une fois, tout de suite : c'est ce
-    // qui fait qu'un rendu serveur produit une valeur plutot qu'un vide.
+    // Outside a browser, the task runs once, right away: that is what
+    // makes a server rendering produce a value rather than a void.
     task()
     return () => undefined
   }
@@ -155,17 +155,17 @@ const rafScheduler: FrameScheduler = (task) => {
 let scheduler: FrameScheduler = rafScheduler
 
 /**
- * Remplace l'ordonnanceur de la librairie.
+ * Replaces the scheduler of the library.
  *
- * Appele par `@odoro-cli/engine` a son montage, pour que les mesures de la
- * librairie passent par le meme ticker que les animations du moteur. Sans
- * cela, deux boucles lisent et ecrivent la mise en page dans un ordre que
- * l'autre ignore.
+ * Called by `@odoro-cli/engine` on its mount, so that the measurements of the
+ * library go through the same ticker as the animations of the engine. Without
+ * this, two loops read and write the layout in an order that
+ * the other ignores.
  *
- * @returns De quoi rendre l'ordonnanceur precedent, au demontage du moteur.
+ * @returns What is needed to give back the previous scheduler, on unmount of the engine.
  *
  * @example
- * // Cote moteur :
+ * // On the engine side:
  * const restore = setFrameScheduler((task) => {
  *   const wrapped = () => task()
  *   gsap.ticker.add(wrapped, true)
@@ -181,16 +181,16 @@ export function setFrameScheduler(next: FrameScheduler): () => void {
 }
 
 /**
- * Programme un travail sur la prochaine image.
+ * Schedules a task on the next frame.
  *
- * Passe par l'ordonnanceur courant : celui du navigateur, ou celui du moteur
- * quand il est present.
+ * Goes through the current scheduler: the browser one, or the engine one
+ * when it is present.
  */
 export function onFrame(task: () => void): () => void {
   return scheduler(task)
 }
 
-/** Remet la politique dans son etat initial. Reserve aux tests. */
+/** Puts the policy back in its initial state. Reserved for tests. */
 export function resetMotionPolicy(): void {
   setting = 'respect'
   listeners.clear()

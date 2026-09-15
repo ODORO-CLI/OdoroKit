@@ -1,22 +1,22 @@
 /**
- * Grille magnetique : des points repousses — ou attires — par le curseur.
+ * Magnetic grid: dots pushed away — or pulled in — by the cursor.
  *
- * ## A quoi ce fond reagit
+ * ## What this background reacts to
  *
- * Au deplacement du pointeur, avec amortissement : chaque point de la grille
- * s'ecarte du curseur d'une force en exponentielle de la distance, ou s'en
- * rapproche quand `attract` est vrai. Le deplacement se calcule entierement
- * dans le shader : aucune geometrie, aucun element du document.
+ * To the pointer moving, with damping: every dot of the grid moves away from
+ * the cursor by a force exponential in the distance, or moves towards it when
+ * `attract` is true. The displacement is computed entirely in the shader: no
+ * geometry, no element of the document.
  *
- * ## Le pont pointeur → shader
+ * ## The pointer → shader bridge
  *
- * Aucun rendu React par image : la position amortie est recopiee dans un
- * tableau stable par une souscription a l'horloge du moteur, et la surface
- * relit ses uniforms a chaque image — la mutation suffit.
+ * No React render per frame: the damped position is copied into a stable array
+ * by a subscription to the engine clock, and the surface re-reads its uniforms
+ * every frame — the mutation is enough.
  *
- * ## Sous mouvement reduit
+ * ## Under reduced motion
  *
- * La surface est refusee par le moteur et le repli statique s'affiche.
+ * The surface is refused by the engine and the static fallback is shown.
  *
  * @module
  */
@@ -37,48 +37,48 @@ import { usePointerDamped } from '@registre/hooks/usePointerDamped'
 
 import { MAGNET_GRID_FRAGMENT } from './magnet-grid.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface MagnetGridControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to this component. */
 export interface MagnetGridOwnProps {
-  /** Nombre de points par hauteur de cadre. @defaultValue 18 */
+  /** Number of dots per frame height. @defaultValue 18 */
   density?: number
-  /** Portee de l'aimant, en hauteurs de cadre. @defaultValue 0.25 */
+  /** Reach of the magnet, in frame heights. @defaultValue 0.25 */
   radius?: number
-  /** Amplitude du decalage des points. @defaultValue 0.6 */
+  /** Amplitude of the dot offset. @defaultValue 0.6 */
   force?: number
-  /** Attire les points au lieu de les repousser. @defaultValue false */
+  /** Attracts the dots instead of repelling them. @defaultValue false */
   attract?: boolean
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<MagnetGridControls>
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type MagnetGridProps = Customisable<MagnetGridOwnProps>
 
-/** Tokens employes par defaut : le fond, les points, les points excites. */
+/** Tokens used by default: the background, the dots, the excited dots. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-indigo-400',
   '--o-palette-sky-300',
 ] as const
 
-/** Repli par defaut : un degrade fige, dans les memes tons. */
+/** Default fallback: a frozen gradient, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-b o-from-zinc-50 dark:o-from-slate-950 o-to-zinc-50 dark:o-to-indigo-950'
 
 /**
- * Grille magnetique.
+ * Magnetic grid.
  *
  * @example
  * <div className="o-relative o-min-h-screen">
@@ -98,19 +98,19 @@ export function MagnetGrid({
 }: MagnetGridProps): ReactElement {
   const [host, setHost] = useState<HTMLDivElement | null>(null)
 
-  // Tableau stable, mute en place dans la boucle : aucun setState par image.
+  // Stable array, mutated in place in the loop: no setState per frame.
   const uPointer = useRef<number[]>([0.5, 0.5]).current
 
-  const pointer = usePointerDamped({ host, speed: 4, name: 'magnet-grid : pointeur' })
+  const pointer = usePointerDamped({ host, speed: 4, name: 'magnet-grid : pointer' })
 
   useEffect(() => {
     const subscription = clock.subscribe(
       () => {
-        // Du repere du hook (centre, y vers le bas) vers celui de la texture.
+        // From the hook's frame (centred, y downwards) to the texture's.
         uPointer[0] = (pointer.current.x + 1) / 2
         uPointer[1] = 1 - (pointer.current.y + 1) / 2
       },
-      { priority: CLOCK_PRIORITY.input, name: 'magnet-grid : pont' },
+      { priority: CLOCK_PRIORITY.input, name: 'magnet-grid : bridge' },
     )
     return () => subscription.unsubscribe()
   }, [pointer, uPointer])

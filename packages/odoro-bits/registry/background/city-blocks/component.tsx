@@ -1,32 +1,32 @@
 /**
- * Blocs de ville : un damier de blocs vus en isometrie, qui s'elevent et
- * redescendent en cascade diagonale.
+ * City blocks: a checkerboard of blocks seen in isometric view, rising and
+ * falling back in a diagonal cascade.
  *
- * ## Pourquoi une scene instanciee, et pas un shader
+ * ## Why an instanced scene, and not a shader
  *
- * Des boites eclairees, vues d'en haut en biais, avec leurs faces ombrees
- * et leurs occlusions : un shader de fragment devrait lancer un rayon par
- * pixel a travers le damier. Une scene le fait dans le pipeline, et une
- * seule geometrie instanciee suffit : quelques centaines de blocs se
- * dessinent en un appel, la boucle ne reecrit que leurs matrices — une
- * echelle et une position par bloc. C'est la technique la moins couteuse
- * des deux, et la seule qui donne des faces eclairees sans les simuler.
+ * Lit boxes, seen from above at an angle, with their shaded faces and
+ * their occlusions: a fragment shader would have to cast one ray per
+ * pixel through the checkerboard. A scene does it in the pipeline, and a
+ * single instanced geometry is enough: a few hundred blocks draw in one
+ * call, and the loop rewrites nothing but their matrices — one scale and
+ * one position per block. It is the cheaper of the two techniques, and
+ * the only one that gives lit faces without simulating them.
  *
- * ## La cascade
+ * ## The cascade
  *
- * La hauteur de chaque bloc suit un sinus du temps decale de la somme de
- * ses deux indices : la vague traverse le damier en diagonale, celle que
- * la camera isometrique regarde de face. Chaque bloc a en plus une hauteur
- * de base tiree une fois, sans quoi la vague se lirait comme une nappe
- * lisse et non comme une ville.
+ * Each block's height follows a sine of time offset by the sum of its two
+ * indices: the wave crosses the checkerboard along the diagonal, the one
+ * the isometric camera faces head on. Each block also has a base height
+ * drawn once, without which the wave would read as a smooth sheet rather
+ * than as a city.
  *
- * La camera n'est pas orthographique — le moteur fournit une perspective —
- * mais placee haut et loin, sur la diagonale : l'effet isometrique tient a
- * l'angle, pas a la projection. L'ensemble pivote tres lentement.
+ * The camera is not orthographic — the engine supplies a perspective — but
+ * placed high and far, on the diagonal: the isometric effect comes from
+ * the angle, not from the projection. The whole thing pivots very slowly.
  *
- * ## Sous mouvement reduit
+ * ## Under reduced motion
  *
- * La scene est refusee par le moteur et le repli statique s'affiche.
+ * The scene is refused by the engine and the static fallback shows.
  *
  * @module
  */
@@ -43,41 +43,41 @@ import { useEffect, useRef, useState, type ReactElement } from 'react'
 
 import { usePoster } from '@registre/hooks/usePoster'
 
-/** Proprietes propres au composant. */
+/** Properties specific to this component. */
 export interface CityBlocksOwnProps {
-  /** Blocs par cote du damier. @defaultValue 14 */
+  /** Blocks per side of the checkerboard. @defaultValue 14 */
   size?: number
-  /** Vitesse de la cascade. @defaultValue 0.6 */
+  /** Cascade speed. @defaultValue 0.6 */
   speed?: number
-  /** Hauteur maximale des blocs, en unites de scene. @defaultValue 2.4 */
+  /** Maximum block height, in scene units. @defaultValue 2.4 */
   height?: number
-  /** Espace entre les blocs, en fraction de bloc. @defaultValue 0.25 */
+  /** Gap between blocks, as a fraction of a block. @defaultValue 0.25 */
   gap?: number
-  /** Tokens : le fond, les blocs bas, les blocs hauts. */
+  /** Tokens: the background, the low blocks, the tall blocks. */
   colors?: readonly [string, string, string]
-  /** Classes du repli. */
+  /** Fallback classes. */
   poster?: string
 }
 
-/** Toutes les proprietes. */
+/** Every property. */
 export type CityBlocksProps = Customisable<CityBlocksOwnProps>
 
-/** Tokens employes par defaut. */
+/** Tokens used by default. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-indigo-500',
   '--o-palette-sky-300',
 ] as const
 
-/** Repli par defaut : une teinte figee, dans les memes tons. */
+/** Default fallback: a frozen hue, in the same tones. */
 const DEFAULT_POSTER =
   'o-bg-gradient-to-br o-from-zinc-50 dark:o-from-zinc-950 o-to-indigo-100 dark:o-to-indigo-950'
 
 /**
- * Blocs par cote en qualite basse.
+ * Blocks per side at low quality.
  *
- * Le cout est dans les matrices reecrites par image, une par bloc ; le
- * nombre de blocs est le carre du cote.
+ * The cost lies in the matrices rewritten every frame, one per block; the
+ * number of blocks is the square of the side.
  */
 const LOW_SIZE = 10
 
@@ -87,24 +87,24 @@ type Object3D = InstanceType<Three['Object3D']>
 type Group = InstanceType<Three['Group']>
 type Colour = InstanceType<Three['Color']>
 
-/** Ce que la scene garde entre la construction et les images. */
+/** What the scene keeps between construction and frames. */
 interface City {
   readonly side: number
   readonly mesh: InstancedMesh
-  /** Objet de travail dont la matrice est recopiee dans chaque instance. */
+  /** Scratch object whose matrix is copied into each instance. */
   readonly proxy: Object3D
   readonly group: Group
   readonly colour: Colour
 }
 
-/** Nombre pseudo-aleatoire deterministe : la ville est la meme a chaque montage. */
+/** Deterministic pseudo-random number: the city is the same on every mount. */
 function hash(seed: number): number {
   const value = Math.sin(seed * 12.9898 + 78.233) * 43758.5453
   return value - Math.floor(value)
 }
 
 /**
- * Blocs de ville.
+ * City blocks.
  *
  * @example
  * <div className="o-relative o-h-96 o-overflow-hidden o-rounded-xl">
@@ -130,7 +130,7 @@ export function CityBlocks({
   const settings = useRef({ speed, height, gap })
   settings.current = { speed, height, gap }
 
-  /** Peint chaque bloc entre les deux teintes, selon un tirage stable. */
+  /** Paints each block between the two hues, from a stable draw. */
   const paint = (
     ville: City,
     low: ShaderColour | undefined,
@@ -150,16 +150,16 @@ export function CityBlocks({
   }
 
   const { ref, ready, refused } = useScene<HTMLDivElement>({
-    name: 'blocs',
+    name: 'blocks',
     setup: (scene: SceneContext) => {
       context.current = scene
       const { three, renderer, camera, quality } = scene
 
       const [bg, low, high] = colors.map((token) => readTokenColour(token, ref.current))
 
-      // Le fond de la scene est le fond de la page. Le token est en sRGB et
-      // le moteur encode sa couleur d'effacement du lineaire vers le sRGB :
-      // sans la conversion inverse, le fond ressort un cran plus clair.
+      // The scene's background is the page's background. The token is in sRGB and
+      // the engine encodes its clear colour from linear to sRGB:
+      // without the inverse conversion, the background comes out a shade lighter.
       renderer.setClearColor(
         new three.Color(bg?.[0] ?? 0, bg?.[1] ?? 0, bg?.[2] ?? 0).convertSRGBToLinear(),
         1,
@@ -168,15 +168,15 @@ export function CityBlocks({
       const side = quality === 'low' ? Math.min(size, LOW_SIZE) : Math.max(size, 2)
       const count = side * side
 
-      // La camera, haute et loin sur la diagonale : l'isometrie tient a
-      // l'angle. La distance suit le cote, pour que le damier remplisse
-      // le cadre quel que soit son nombre de blocs.
+      // The camera, high and far on the diagonal: the isometry comes from the
+      // angle. The distance follows the side, so the checkerboard fills the
+      // frame whatever its number of blocks.
       const distance = side * 0.95
       camera.position.set(distance, distance * 0.8, distance)
       camera.lookAt(0, height * 0.25, 0)
 
-      // Une boite dont la base est a l'origine : l'echelle en y ne fait que
-      // l'elever, sans l'enfoncer dans le sol.
+      // A box whose base sits at the origin: scaling in y only raises it,
+      // without sinking it into the ground.
       const geometry = new three.BoxGeometry(1, 1, 1)
       geometry.translate(0, 0.5, 0)
 
@@ -184,15 +184,15 @@ export function CityBlocks({
       const mesh = new three.InstancedMesh(geometry, material, count)
       mesh.instanceMatrix.setUsage(three.DynamicDrawUsage)
 
-      // Deux lumieres sans couleur propre : une ambiante pour que l'ombre
-      // ne soit pas noire, une directionnelle en biais pour que les trois
-      // faces visibles aient trois valeurs.
+      // Two lights with no colour of their own: an ambient one so the shadow
+      // is not black, a directional one at an angle so the three visible
+      // faces have three values.
       const ambient = new three.AmbientLight(undefined, 0.9)
       const sun = new three.DirectionalLight(undefined, 2.2)
       sun.position.set(3, 6, 2)
 
       const group = new three.Group()
-      group.name = 'blocs'
+      group.name = 'blocks'
       group.add(mesh)
       group.add(ambient)
       group.add(sun)
@@ -228,7 +228,7 @@ export function CityBlocks({
         for (let iz = 0; iz < side; iz += 1) {
           const index = ix * side + iz
 
-          // Une hauteur de base propre au bloc, et la vague en diagonale.
+          // A base height of the block's own, and the diagonal wave.
           const base = 0.35 + hash(index + 0.5) * 0.65
           const wave = 0.5 + 0.5 * Math.sin(phase - (ix + iz) * 0.55)
           const tall = Math.max(peak * base * (0.2 + 0.8 * wave), 0.05)
@@ -241,13 +241,13 @@ export function CityBlocks({
       }
       mesh.instanceMatrix.needsUpdate = true
 
-      // L'ensemble pivote tres lentement : la vue isometrique ne se fige pas.
+      // The whole thing pivots very slowly: the isometric view does not freeze.
       ville.group.rotation.y += delta * 0.04
     },
   })
 
-  // Le theme a bascule : les tokens sont relus et les couleurs repeintes en
-  // place. La scene n'est pas reconstruite.
+  // The theme has flipped: the tokens are re-read and the colours repainted in
+  // place. The scene is not rebuilt.
   useEffect(() => {
     const scene = context.current
     const ville = city.current

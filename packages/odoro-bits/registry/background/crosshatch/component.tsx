@@ -1,19 +1,19 @@
 /**
- * Croisillons : deux trames diagonales croisees, en degrades repetes.
+ * Crosshatch: two crossed diagonal patterns, from repeated gradients.
  *
- * ## Pourquoi deux trames et pas une grille tournee
+ * ## Why two patterns and not one rotated grid
  *
- * Tourner une grille de 45 degres avec `transform` obligerait a surdimensionner
- * l'element pour couvrir les coins, puis a masquer le depassement. Deux
- * `repeating-linear-gradient` inclines a plus et moins 45 degres dessinent le
- * meme croisillon sans rotation, sans surplus et sans masque : l'inclinaison
- * est portee par le degrade lui-meme.
+ * Rotating a grid by 45 degrees with `transform` would mean oversizing the
+ * element to cover the corners, then masking the overflow. Two
+ * `repeating-linear-gradient`s tilted at plus and minus 45 degrees draw the
+ * same crosshatch without rotation, without surplus and without a mask: the
+ * tilt is carried by the gradient itself.
  *
- * ## Ou les traits se croisent
+ * ## Where the strokes cross
  *
- * Aux croisements, les deux trames se superposent et la couleur s'y accumule
- * naturellement — c'est ce leger renforcement des noeuds qui fait la matiere
- * du motif, et il est gratuit : aucune couche dediee ne le dessine.
+ * At the crossings the two patterns overlap and the colour accumulates there
+ * naturally — that slight reinforcement of the knots is what gives the
+ * pattern its substance, and it is free: no dedicated layer draws it.
  *
  * @module
  */
@@ -21,21 +21,21 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import { type CSSProperties, type ReactElement } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to this component. */
 export interface CrosshatchOwnProps {
-  /** Ecart entre deux traits d'une meme trame, en pixels. @defaultValue 14 */
+  /** Gap between two strokes of the same pattern, in pixels. @defaultValue 14 */
   spacing?: number
-  /** Opacite des traits, entre 0 et 1. @defaultValue 0.12 */
+  /** Opacity of the strokes, between 0 and 1. @defaultValue 0.12 */
   strength?: number
-  /** Couleur des traits. */
+  /** Stroke colour. */
   color?: string
 }
 
-/** Toutes les proprietes. */
+/** Every property. */
 export type CrosshatchProps = Customisable<CrosshatchOwnProps>
 
 /**
- * Croisillons de fond.
+ * Background crosshatch.
  *
  * @example
  * <div className="o-relative o-min-h-screen">

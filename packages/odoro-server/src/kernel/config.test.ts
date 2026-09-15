@@ -1,10 +1,10 @@
 /**
- * La configuration, et surtout ses refus.
+ * The configuration, and above all its refusals.
  *
- * Ce qui compte ici n'est pas qu'une configuration valide soit acceptee — cela
- * va de soi. C'est qu'une configuration incomplete soit refusee **en
- * production**, que le rapport les montre **toutes**, et qu'aucun defaut de
- * developpement ne franchisse la frontiere.
+ * What matters here is not that a valid configuration be accepted — that
+ * goes without saying. It is that an incomplete configuration be refused **in
+ * production**, that the report show them **all**, and that no development
+ * default cross the border.
  *
  * @module
  */
@@ -13,56 +13,56 @@ import { describe, expect, it } from 'vitest'
 
 import { ConfigError, defaultPoolSize, loadConfig } from './config.js'
 
-/** Un environnement de production minimal mais complet. */
+/** A minimal but complete production environment. */
 const PRODUCTION = {
   NODE_ENV: 'production',
   DATABASE_URL: 'postgres://user:pass@localhost:5432/odoro',
   SESSION_SECRET: 'x'.repeat(32),
-  APP_URL: 'https://exemple.fr',
+  APP_URL: 'https://example.com',
 }
 
-describe('lecture', () => {
-  it('convertit les tailles ecrites lisiblement', () => {
+describe('reading', () => {
+  it('converts the sizes written readably', () => {
     const config = loadConfig(undefined, { ...PRODUCTION, BODY_LIMIT: '2mb' })
     expect(config.BODY_LIMIT).toBe(2 * 1024 * 1024)
   })
 
-  it('convertit les durees ecrites lisiblement', () => {
+  it('converts the durations written readably', () => {
     const config = loadConfig(undefined, { ...PRODUCTION, SHUTDOWN_TIMEOUT: '2m' })
     expect(config.SHUTDOWN_TIMEOUT).toBe(120_000)
   })
 
-  it('applique les replis lisibles quand la variable est absente', () => {
+  it('applies the readable fallbacks when the variable is absent', () => {
     const config = loadConfig(undefined, PRODUCTION)
     expect(config.BODY_LIMIT).toBe(1024 * 1024)
     expect(config.SHUTDOWN_TIMEOUT).toBe(15_000)
   })
 
-  it('decoupe les listes et ignore les espaces', () => {
+  it('splits the lists and ignores the spaces', () => {
     const config = loadConfig(undefined, {
       ...PRODUCTION,
-      ALLOWED_ORIGINS: 'https://a.fr, https://b.fr ,',
+      ALLOWED_ORIGINS: 'https://a.com, https://b.com ,',
     })
-    expect(config.ALLOWED_ORIGINS).toEqual(['https://a.fr', 'https://b.fr'])
+    expect(config.ALLOWED_ORIGINS).toEqual(['https://a.com', 'https://b.com'])
   })
 
-  it('rend un objet gele', () => {
+  it('gives a frozen object', () => {
     const config = loadConfig(undefined, PRODUCTION)
     expect(Object.isFrozen(config)).toBe(true)
   })
 })
 
-describe('refus en production', () => {
-  it('refuse une configuration vide', () => {
+describe('refusal in production', () => {
+  it('refuses an empty configuration', () => {
     expect(() => loadConfig(undefined, { NODE_ENV: 'production' })).toThrow(ConfigError)
   })
 
-  it('rapporte tous les problemes d un coup', () => {
-    // Le point de ce test : une variable par execution transformerait la mise
-    // en service en une suite de redemarrages.
+  it('reports every problem at once', () => {
+    // The point of this test: one variable per run would turn going
+    // live into a series of restarts.
     try {
       loadConfig(undefined, { NODE_ENV: 'production' })
-      expect.unreachable('la configuration aurait du etre refusee')
+      expect.unreachable('the configuration should have been refused')
     } catch (error) {
       expect(error).toBeInstanceOf(ConfigError)
       const variables = (error as ConfigError).problems.map((p) => p.variable)
@@ -71,93 +71,93 @@ describe('refus en production', () => {
     }
   })
 
-  it('exige une URL de base en production', () => {
+  it('requires a database URL in production', () => {
     const problems = capture({ ...PRODUCTION, DATABASE_URL: '' })
     expect(problems).toEqual([
       {
         variable: 'DATABASE_URL',
-        reason: expect.stringContaining('requise en production'),
+        reason: expect.stringContaining('required in production'),
       },
     ])
   })
 
-  it('refuse une URL qui n est pas PostgreSQL', () => {
-    // Il n'y a plus qu'un moteur. Une URL SQLite heritee d'un projet plus
-    // ancien doit echouer au demarrage, pas au premier acces.
+  it('refuses a URL that is not PostgreSQL', () => {
+    // There is only one engine left. An SQLite URL inherited from an older
+    // project must fail at startup, not on the first access.
     const problems = capture({ ...PRODUCTION, DATABASE_URL: 'file:./storage/dev.db' })
     expect(problems[0]?.variable).toBe('DATABASE_URL')
     expect(problems[0]?.reason).toContain('postgres://')
   })
 
-  it('n applique aucun defaut de developpement', () => {
-    // Le defaut de developpement de SESSION_SECRET est une constante ecrite
-    // dans le depot : la voir franchir en production serait la pire des fuites
-    // silencieuses, puisque tout demarrerait normalement.
+  it('applies no development default', () => {
+    // The development default of SESSION_SECRET is a constant written
+    // in the repository: seeing it cross into production would be the worst of silent
+    // leaks, since everything would start normally.
     const problems = capture({ NODE_ENV: 'production' })
     expect(problems.map((p) => p.variable)).toContain('SESSION_SECRET')
   })
 
-  it('ne propose aucun defaut pour l URL de base', () => {
-    // Ce qui remplacerait une base locale serait une URL distante, donc un
-    // secret. Un secret n'a pas de valeur par defaut.
+  it('offers no default for the database URL', () => {
+    // What would replace a local database would be a remote URL, therefore a
+    // secret. A secret has no default value.
     const config = loadConfig(undefined, {})
     expect(config.DATABASE_URL).toBe('')
   })
 
-  it('refuse un secret de session trop court', () => {
-    const problems = capture({ ...PRODUCTION, SESSION_SECRET: 'trop-court' })
+  it('refuses a session secret that is too short', () => {
+    const problems = capture({ ...PRODUCTION, SESSION_SECRET: 'too-short' })
     expect(problems).toEqual([
-      { variable: 'SESSION_SECRET', reason: 'au moins 32 caracteres' },
+      { variable: 'SESSION_SECRET', reason: 'at least 32 characters' },
     ])
   })
 
-  it('refuse une taille mal ecrite', () => {
-    const problems = capture({ ...PRODUCTION, BODY_LIMIT: '2 megaoctets' })
+  it('refuses a badly written size', () => {
+    const problems = capture({ ...PRODUCTION, BODY_LIMIT: '2 megabytes' })
     expect(problems[0]?.variable).toBe('BODY_LIMIT')
   })
 
-  it('refuse une URL publique qui n en est pas une', () => {
-    const problems = capture({ ...PRODUCTION, APP_URL: 'exemple.fr' })
+  it('refuses a public URL that is not one', () => {
+    const problems = capture({ ...PRODUCTION, APP_URL: 'example.com' })
     expect(problems[0]?.variable).toBe('APP_URL')
   })
 })
 
-describe('developpement', () => {
-  it('comble les variables absentes', () => {
+describe('development', () => {
+  it('fills the absent variables', () => {
     const config = loadConfig(undefined, {})
     expect(config.NODE_ENV).toBe('development')
     expect(config.APP_URL).toBe('http://localhost:3001')
   })
 
-  it('tolere une URL de base absente', () => {
-    // Il n'y a pas de base locale : un projet fraichement echafaude n'a pas
-    // encore d'URL. Le serveur demarre quand meme, et `/ready` repond 503 en
-    // disant ce qui manque — refuser de demarrer ferait de la premiere
-    // impression un echec, alors que l'interface est deja servie.
+  it('tolerates an absent database URL', () => {
+    // There is no local database: a freshly scaffolded project does not have
+    // a URL yet. The server starts anyway, and `/ready` answers 503
+    // saying what is missing — refusing to start would make the first
+    // impression a failure, while the interface is already served.
     const config = loadConfig(undefined, {})
     expect(config.DATABASE_URL).toBe('')
   })
 
-  it('ne recouvre jamais une valeur fournie', () => {
+  it('never overwrites a supplied value', () => {
     const config = loadConfig(undefined, { DATABASE_URL: 'postgres://local/db' })
     expect(config.DATABASE_URL).toBe('postgres://local/db')
   })
 })
 
-describe('extension par un module', () => {
-  it('fusionne le schema du module', async () => {
+describe('extension by a module', () => {
+  it('merges the schema of the module', async () => {
     const { z } = await import('zod')
     const config = loadConfig(z.object({ SMTP_HOST: z.string().min(1) }), {
       ...PRODUCTION,
-      SMTP_HOST: 'smtp.exemple.fr',
+      SMTP_HOST: 'smtp.example.com',
     })
 
-    expect(config.SMTP_HOST).toBe('smtp.exemple.fr')
-    // Le noyau reste present : l'extension ajoute, elle ne remplace pas.
+    expect(config.SMTP_HOST).toBe('smtp.example.com')
+    // The kernel stays present: the extension adds, it does not replace.
     expect(config.PORT).toBe(3001)
   })
 
-  it('refuse aussi ce que le module exige', async () => {
+  it('refuses as well what the module requires', async () => {
     const { z } = await import('zod')
     expect(() =>
       loadConfig(z.object({ SMTP_HOST: z.string().min(1) }), PRODUCTION),
@@ -165,17 +165,17 @@ describe('extension par un module', () => {
   })
 })
 
-describe('taille de pool', () => {
-  it('differe selon l environnement', () => {
-    // Les contraintes ne sont pas les memes : une base locale et une instance
-    // en developpement, plusieurs instances qui se partagent la limite du
-    // serveur en production.
+describe('pool size', () => {
+  it('differs according to the environment', () => {
+    // The constraints are not the same: a local database and one instance
+    // in development, several instances sharing the limit of the
+    // server in production.
     expect(defaultPoolSize('test')).toBeLessThan(defaultPoolSize('development'))
     expect(defaultPoolSize('development')).toBeLessThan(defaultPoolSize('production'))
   })
 })
 
-/** Recueille les problemes d'une configuration attendue invalide. */
+/** Collects the problems of a configuration expected to be invalid. */
 function capture(
   source: NodeJS.ProcessEnv,
 ): readonly { variable: string; reason: string }[] {

@@ -1,24 +1,24 @@
 /**
- * Degrade granuleux : des taches de couleur qui derivent lentement, dont les transitions se dissolvent en grain au lieu de s etaler.
+ * Grainient: blobs of colour drifting slowly, whose transitions dissolve into grain instead of spreading.
  *
- * ## Le principe
+ * ## The principle
  *
- * Des gaussiennes autour de centres en courbes de Lissajous, les paires
- * d'une teinte et les impaires de l'autre. Le grain n'est pas pose sur
- * l'image : un tirage par pixel, renouvele a douze images par seconde,
- * decale les poids avant le melange. Le fond nu reste intact — le grain
- * ne vit que la ou il y a de la couleur.
+ * Gaussians around centres tracing Lissajous curves, the even ones in one
+ * hue and the odd ones in the other. The grain is not laid over the image:
+ * one draw per pixel, renewed twelve times a second, shifts the weights
+ * before the mix. The bare background stays intact — the grain lives only
+ * where there is colour.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur — les recopier ici en ferait autant
- * de versions a maintenir qu'il y a de fonds.
+ * It carries only what sets it apart: its shader, its settings and its fallback.
+ * Reading the tokens, converting them to floats and re-reading them when the
+ * theme changes all come from the engine — copying them here would leave as
+ * many versions to maintain as there are backgrounds.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en
- * accorde qu'une par backend — et sous mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface — it grants only one
+ * per backend — and under reduced motion.
  *
  * @module
  */
@@ -35,57 +35,57 @@ import { type ReactElement } from 'react'
 
 import { GRAINIENT_FRAGMENT } from './grainient.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface GrainientControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to this component. */
 export interface GrainientOwnProps {
-  /** Vitesse de derive des taches. @defaultValue 0.15 */
+  /** Drift speed of the blobs. @defaultValue 0.15 */
   speed?: number
-  /** Force du grain. @defaultValue 0.6 */
+  /** Strength of the grain. @defaultValue 0.6 */
   grain?: number
-  /** Taille des taches. @defaultValue 1.2 */
+  /** Size of the blobs. @defaultValue 1.2 */
   scale?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<GrainientControls>
 }
 
-/** Toutes les proprietes. */
+/** Every property. */
 export type GrainientProps = Customisable<GrainientOwnProps>
 
-/** Tokens employes par defaut : le fond, les deux teintes des taches. */
+/** Tokens used by default: the background, the two hues of the blobs. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-violet-400',
   '--o-palette-orange-300',
 ] as const
 
-/** Repli par defaut : un degrade fige, dans les memes tons. */
+/** Default fallback: a frozen gradient, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-br o-from-violet-200 dark:o-from-violet-900 o-via-zinc-50 dark:o-via-zinc-950 o-to-orange-200 dark:o-to-orange-900'
 
 /**
- * Detail hors qualite basse.
+ * Detail outside low quality.
  *
- * Le grain est un tirage, il ne coute rien ; ce sont les taches, une
- * exponentielle chacune, qui tombent a deux en qualite basse.
+ * The grain is a draw, it costs nothing; it is the blobs, one exponential
+ * each, that drop to two at low quality.
  */
 const DETAIL = 4
 
-/** Detail en qualite basse. */
+/** Detail at low quality. */
 const LOW_DETAIL = 2
 
 /**
- * Degrade granuleux.
+ * Grainient.
  *
  * @example
  * <div className="o-relative o-min-h-screen">

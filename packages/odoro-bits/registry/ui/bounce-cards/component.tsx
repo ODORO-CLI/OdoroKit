@@ -1,41 +1,39 @@
 /**
- * Cartes rebondissantes : un eventail deja ouvert, dont les cartes arrivent
- * en rebondissant une a une, et s'ecartent pour celle qu'on survole.
+ * Bouncing cards: a fan already open, whose cards arrive bouncing one by one,
+ * and part for the one being hovered.
  *
- * ## Ce qui les distingue des cartes en eventail
+ * ## What sets them apart from fanned cards
  *
- * Les cartes en eventail sont un paquet ferme qui s'ouvre au survol. Ici
- * l'eventail est **l'etat de repos** : il est ouvert des l'arrivee, et c'est
- * l'arrivee qui est l'evenement. Chaque carte tombe en place avec un
- * depassement — elle passe sa position, revient, se pose — decalee de la
- * precedente. Ensuite, survoler une carte la souleve et la redresse, et ses
- * voisines s'ecartent pour lui faire de la place, comme un jeu qu'on etale
- * et dont on tire une carte.
+ * Fanned cards are a closed deck that opens on hover. Here the fan is the
+ * **rest state**: it is open from the moment it arrives, and the arrival is
+ * the event. Each card falls into place with an overshoot — it passes its
+ * position, comes back, settles — offset from the previous one. After that,
+ * hovering a card lifts it and straightens it, and its neighbours part to
+ * make room, like a deck spread out from which one card is pulled.
  *
- * ## Le rebond est une courbe, pas une simulation
+ * ## The bounce is a curve, not a simulation
  *
- * Une courbe de Bezier dont l'ordonnee depasse un — `1.56` au second point
- * de controle — produit exactement un depassement puis un retour. C'est
- * tenu par le compositeur, sans une ligne de JavaScript par image, et
- * interrompre le geste repart de la position courante.
+ * A Bezier curve whose ordinate goes past one — `1.56` at the second control
+ * point — produces exactly one overshoot then a return. The compositor holds
+ * it, without a line of JavaScript per frame, and interrupting the gesture
+ * restarts from the current position.
  *
- * ## Les voisines s'ecartent sans JavaScript
+ * ## The neighbours part without JavaScript
  *
- * Le combinateur `~` designe les cartes qui suivent la carte survolee ;
- * `:has(~ :hover)` designe celles qui la precedent. Deux regles, et toute la
- * rangee reagit, sans ecouteur ni etat.
+ * The `~` combinator designates the cards following the hovered card;
+ * `:has(~ :hover)` designates those preceding it. Two rules, and the whole
+ * row reacts, with no listener and no state.
  *
- * ## Le decalage d'arrivee ne doit pas retarder le survol
+ * ## The arrival offset must not delay the hover
  *
- * Le delai par carte est pose sur la transition de transformation. Laisse
- * tel quel, il retarderait aussi le soulevement au survol de la derniere
- * carte. Une fois l'arrivee terminee, l'hote passe en etat « pose » et les
- * delais tombent a zero.
+ * The per-card delay is set on the transform transition. Left as is, it would
+ * also delay the lift when hovering the last card. Once the arrival is over,
+ * the host switches to a "settled" state and the delays drop to zero.
  *
- * ## Sous mouvement reduit
+ * ## Under reduced motion
  *
- * L'eventail est ouvert, sans trajet ni rebond ; le survol change d'etat
- * sans transition. C'est l'etat final.
+ * The fan is open, with no travel and no bounce; hover changes state without
+ * a transition. This is the final state.
  *
  * @module
  */
@@ -52,28 +50,28 @@ import {
 
 import { useInView } from '@registre/hooks/useInView'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface BounceCardsOwnProps {
-  /** Les cartes, de deux a six. La premiere donne sa taille a la rangee. */
+  /** The cards, from two to six. The first one gives the row its size. */
   children: ReactNode
-  /** Angle entre deux cartes voisines, en degres. @defaultValue 6 */
+  /** Angle between two neighbouring cards, in degrees. @defaultValue 6 */
   spread?: number
-  /** Ecart horizontal entre deux cartes, en pixels. @defaultValue 56 */
+  /** Horizontal gap between two cards, in pixels. @defaultValue 56 */
   gap?: number
-  /** Decalage d'arrivee entre deux cartes, en millisecondes. @defaultValue 90 */
+  /** Arrival offset between two cards, in milliseconds. @defaultValue 90 */
   delay?: number
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type BounceCardsProps = Customisable<BounceCardsOwnProps>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-bounce-cards'
 
-/** Duree du trajet d'une carte, en millisecondes. */
+/** Duration of one card's travel, in milliseconds. */
 const TRAVEL = 640
 
-/** Pose la rangee, l'arrivee et le survol, une fois par document. */
+/** Applies the row, the arrival and the hover, once per document. */
 function ensureBounceRules(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -85,16 +83,16 @@ function ensureBounceRules(): void {
     '[data-o-bounce-item]{',
     'position:absolute;inset:0;',
     'transform:var(--o-bounce-rest);transform-origin:50% 110%;',
-    // Le second point de controle depasse un : c'est le rebond.
+    // The second control point goes past one: that is the bounce.
     `transition:transform ${String(TRAVEL)}ms cubic-bezier(0.34,1.56,0.64,1) var(--o-bounce-delay),`,
     'opacity 320ms ease var(--o-bounce-delay);',
     '}',
     '[data-o-bounce-item]:first-child{position:relative}',
-    // Avant l'arrivee : plus bas, plus petit, invisible.
+    // Before the arrival: lower, smaller, invisible.
     '[data-o-bounce]:not([data-o-bounce-in]) [data-o-bounce-item]{',
     'opacity:0;transform:translateY(72px) scale(0.6);',
     '}',
-    // Pose : les delais d'arrivee ne retardent plus le survol.
+    // Settled: the arrival delays no longer hold back the hover.
     '[data-o-bounce-settled] [data-o-bounce-item]{--o-bounce-delay:0ms}',
     '[data-o-bounce-in] [data-o-bounce-item]:hover{transform:var(--o-bounce-up);z-index:10}',
     '[data-o-bounce-in] [data-o-bounce-item]:hover ~ [data-o-bounce-item]{transform:var(--o-bounce-right)}',
@@ -107,18 +105,18 @@ function ensureBounceRules(): void {
 }
 
 /**
- * Etale des cartes en eventail, avec une arrivee qui rebondit.
+ * Spreads cards into a fan, with an arrival that bounces.
  *
  * @example
  * <BounceCards>
- *   <article className="o-w-40 o-rounded-xl o-p-4">Une</article>
- *   <article className="o-w-40 o-rounded-xl o-p-4">Deux</article>
- *   <article className="o-w-40 o-rounded-xl o-p-4">Trois</article>
+ *   <article className="o-w-40 o-rounded-xl o-p-4">One</article>
+ *   <article className="o-w-40 o-rounded-xl o-p-4">Two</article>
+ *   <article className="o-w-40 o-rounded-xl o-p-4">Three</article>
  * </BounceCards>
  *
  * @example
- * // Plus serre, arrivee plus rapide.
- * <BounceCards spread={4} gap={40} delay={50}>{cartes}</BounceCards>
+ * // Tighter, faster arrival.
+ * <BounceCards spread={4} gap={40} delay={50}>{cards}</BounceCards>
  */
 export function BounceCards({
   children,
@@ -128,7 +126,7 @@ export function BounceCards({
   ...rest
 }: BounceCardsProps): ReactElement {
   const { reduced } = useMotionState()
-  const { ref, vu } = useInView<HTMLDivElement>({ amount: 0.4 })
+  const { ref, inView } = useInView<HTMLDivElement>({ amount: 0.4 })
   const [settled, setSettled] = useState(false)
   ensureBounceRules()
 
@@ -136,7 +134,7 @@ export function BounceCards({
   const middle = (cards.length - 1) / 2
 
   useEffect(() => {
-    if (!vu) return
+    if (!inView) return
     if (reduced) {
       setSettled(true)
       return
@@ -146,7 +144,7 @@ export function BounceCards({
       TRAVEL + delay * Math.max(cards.length - 1, 0),
     )
     return () => window.clearTimeout(timer)
-  }, [vu, reduced, delay, cards.length])
+  }, [inView, reduced, delay, cards.length])
 
   const { className, style } = mergePresentation({}, rest)
 
@@ -157,7 +155,7 @@ export function BounceCards({
       className={className}
       style={style}
       data-o-bounce=""
-      {...(vu ? { 'data-o-bounce-in': '' } : {})}
+      {...(inView ? { 'data-o-bounce-in': '' } : {})}
       {...(settled ? { 'data-o-bounce-settled': '' } : {})}
     >
       {cards.map((card, index) => {

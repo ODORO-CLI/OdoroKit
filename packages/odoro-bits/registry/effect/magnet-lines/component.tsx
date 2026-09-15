@@ -1,40 +1,40 @@
 /**
- * Lignes magnetiques : un champ d'aiguilles qui se tournent vers le pointeur.
+ * Magnetic lines: a field of needles that turn towards the pointer.
  *
- * ## Une boussole par cellule
+ * ## One compass per cell
  *
- * Chaque aiguille connait sa position dans le cadre et calcule l'angle qui la
- * separe du pointeur. Rien de plus : pas de champ vectoriel, pas de bruit. Le
- * dessin d'ensemble — les cercles concentriques d'orientation autour de la
- * main — sort de la geometrie seule, et c'est ce qui le rend lisible.
+ * Each needle knows its position in the frame and computes the angle that
+ * separates it from the pointer. Nothing more: no vector field, no noise. The
+ * overall drawing — the concentric circles of orientation around the hand —
+ * comes out of the geometry alone, and that is what makes it readable.
  *
- * ## Pourquoi les centres sont calcules, jamais mesures
+ * ## Why the centres are computed, never measured
  *
- * Une grille CSS aurait demande de lire `offsetLeft` sur chaque cellule pour
- * savoir ou elle est. Ici les centres se deduisent de la taille du cadre et du
- * nombre de rangees : une division, aucune mise en page. Ils sont recalcules
- * quand le cadre change de taille, jamais entre deux images.
+ * A CSS grid would have required reading `offsetLeft` on every cell to know
+ * where it is. Here the centres are derived from the size of the frame and the
+ * number of rows: one division, no layout. They are recomputed when the frame
+ * changes size, never between two frames.
  *
- * ## L'angle est amorti, et par le plus court chemin
+ * ## The angle is damped, and by the shortest path
  *
- * Sans amortissement, les aiguilles claquent d'une orientation a l'autre. Avec
- * un amortissement naif, celles qui passent par le demi-tour font un tour
- * complet a l'envers — l'ecart brut entre 179 et -179 degres vaut 358. L'ecart
- * est donc ramene dans l'intervalle d'un demi-tour avant d'etre parcouru, ce
- * qui fait toujours prendre le plus court chemin.
+ * Without damping, the needles snap from one orientation to the next. With
+ * naive damping, those that pass through the half-turn make a full turn
+ * backwards — the raw gap between 179 and -179 degrees is 358. The gap is
+ * therefore brought back into a half-turn interval before being travelled,
+ * which always takes the shortest path.
  *
- * ## La portee
+ * ## The reach
  *
- * Au-dela de `reach`, l'aiguille revient a son angle de repos. Sans cette
- * limite, tout le champ pointe vers la main et le motif s'aplatit : c'est le
- * contraste entre la zone reglee et la zone au repos qui donne le relief.
+ * Beyond `reach`, the needle returns to its resting angle. Without that limit,
+ * the whole field points at the hand and the pattern flattens: the contrast
+ * between the governed area and the resting area is what gives the relief.
  *
- * ## Sous mouvement reduit
+ * ## Under reduced motion
  *
- * Le champ est rendu, fige a son angle de repos : c'est bien un etat final, et
- * un motif de lignes vaut par lui-meme. C'est la seule entree de la famille qui
- * laisse quelque chose a voir, parce qu'elle est la seule dont le dessin ne
- * depend pas du mouvement.
+ * The field is rendered, frozen at its resting angle: this really is a final
+ * state, and a pattern of lines stands on its own. It is the only entry of the
+ * family that leaves something to see, because it is the only one whose
+ * drawing does not depend on movement.
  *
  * @module
  */
@@ -50,36 +50,36 @@ import { useEffect, useState, type CSSProperties, type ReactElement } from 'reac
 
 import { usePointerDamped } from '@registre/hooks/usePointerDamped'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface MagnetLinesOwnProps {
-  /** Nombre de rangees. @defaultValue 9 */
+  /** Number of rows. @defaultValue 9 */
   rows?: number
-  /** Nombre de colonnes. @defaultValue 9 */
+  /** Number of columns. @defaultValue 9 */
   columns?: number
-  /** Longueur d une aiguille, en pixels. @defaultValue 26 */
+  /** Length of a needle, in pixels. @defaultValue 26 */
   length?: number
-  /** Epaisseur d une aiguille, en pixels. @defaultValue 2 */
+  /** Thickness of a needle, in pixels. @defaultValue 2 */
   thickness?: number
-  /** Portee de l aimant, en pixels. @defaultValue 260 */
+  /** Reach of the magnet, in pixels. @defaultValue 260 */
   reach?: number
-  /** Vitesse de rotation des aiguilles. Plus haut, plus sec. @defaultValue 10 */
+  /** Rotation speed of the needles. The higher, the snappier. @defaultValue 10 */
   speed?: number
-  /** Angle de repos, en degres. @defaultValue 0 */
+  /** Resting angle, in degrees. @defaultValue 0 */
   idle?: number
-  /** Couleur des aiguilles. Une valeur, pas un role. @defaultValue la couleur du texte */
+  /** Colour of the needles. A value, not a role. @defaultValue the text colour */
   color?: string
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type MagnetLinesProps = Customisable<MagnetLinesOwnProps>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-magnet-lines'
 
-/** Au-dela, le champ ne se lit plus et chaque image coute pour rien. */
+/** Beyond this, the field no longer reads and every frame costs for nothing. */
 const MAX_NEEDLES = 400
 
-/** Pose les regles du champ, une fois par document. */
+/** Sets the field rules, once per document. */
 function ensureMagnetLinesRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -94,10 +94,10 @@ function ensureMagnetLinesRule(): void {
 }
 
 /**
- * Pose un champ d aiguilles orientees par le pointeur.
+ * Lays a field of needles oriented by the pointer.
  *
- * Le composant occupe la boite qu on lui donne : c'est a l appelant de la
- * dimensionner, comme pour un fond.
+ * The component fills the box it is given: sizing it is up to the caller, as
+ * for a background.
  *
  * @example
  * <div className="o-relative o-h-96">
@@ -105,7 +105,7 @@ function ensureMagnetLinesRule(): void {
  * </div>
  *
  * @example
- * // Champ dense, aiguilles courtes, portee reduite.
+ * // Dense field, short needles, reduced reach.
  * <MagnetLines rows={16} columns={16} length={16} reach={160} />
  */
 export function MagnetLines({
@@ -124,9 +124,9 @@ export function MagnetLines({
 
   ensureMagnetLinesRule()
 
-  // Le pointeur est amorti par le crochet du registre, dans le repere du
-  // cadre : le champ n'a besoin de rien d'autre.
-  const pointer = usePointerDamped({ host, speed: 12, name: 'magnet-lines : pointeur' })
+  // The pointer is damped by the registry hook, in the frame of reference of
+  // the frame: the field needs nothing else.
+  const pointer = usePointerDamped({ host, speed: 12, name: 'magnet-lines : pointer' })
 
   useEffect(() => {
     if (host === null) return
@@ -134,8 +134,8 @@ export function MagnetLines({
 
     const lines = Math.max(2, Math.round(rows))
     const cols = Math.max(2, Math.round(columns))
-    // Le produit est plafonne, pas chaque cote : une grille tres large et
-    // basse reste legitime.
+    // The product is capped, not each side: a very wide and low grid stays
+    // legitimate.
     const step = Math.max(1, Math.ceil((lines * cols) / MAX_NEEDLES))
 
     const layer = document.createElement('div')
@@ -154,8 +154,8 @@ export function MagnetLines({
         node.style.background = color
         layer.append(node)
         needles.push({
-          // Position relative dans le cadre : elle ne depend pas de sa taille,
-          // et survit donc a un redimensionnement.
+          // Relative position in the frame: it does not depend on its size,
+          // and therefore survives a resize.
           u: (col + 0.5) / cols,
           v: (row + 0.5) / lines,
           node,
@@ -167,7 +167,7 @@ export function MagnetLines({
     let width = host.clientWidth
     let height = host.clientHeight
 
-    /** Ecrit toutes les aiguilles a leur angle courant. */
+    /** Writes every needle at its current angle. */
     const paint = (): void => {
       for (const needle of needles) {
         const x = needle.u * width
@@ -176,8 +176,8 @@ export function MagnetLines({
       }
     }
 
-    // Un observateur plutot que l'evenement de fenetre : le cadre peut changer
-    // de taille sans que la fenetre bouge — une colonne qui se replie suffit.
+    // An observer rather than the window event: the frame can change size
+    // without the window moving — a column folding away is enough.
     const observer = new ResizeObserver(() => {
       width = host.clientWidth
       height = host.clientHeight
@@ -186,8 +186,8 @@ export function MagnetLines({
     observer.observe(host)
     paint()
 
-    // Sous mouvement reduit, le champ reste a son angle de repos : rien ne
-    // s'abonne a la boucle. Voir l'en-tete du module.
+    // Under reduced motion, the field stays at its resting angle: nothing
+    // subscribes to the loop. See the module header.
     if (reduced) {
       return () => {
         observer.disconnect()
@@ -198,7 +198,8 @@ export function MagnetLines({
     const subscription = clock.subscribe(
       ({ delta }) => {
         const factor = 1 - Math.exp(-speed * delta)
-        // Du repere du crochet (centre, [-1, 1]) vers les pixels du cadre.
+        // From the hook's frame of reference (centred, [-1, 1]) to the pixels
+        // of the frame.
         const pointerX = ((pointer.current.x + 1) / 2) * width
         const pointerY = ((pointer.current.y + 1) / 2) * height
 
@@ -211,7 +212,7 @@ export function MagnetLines({
           const pull = distance > reach ? 0 : 1 - distance / Math.max(reach, 1)
           const aimed = (Math.atan2(dy, dx) * 180) / Math.PI
 
-          // Melange entre l'angle de repos et l'angle vise, par la portee.
+          // Blend between the resting angle and the aimed angle, by the reach.
           let wanted = restAngle + shortest(aimed - restAngle) * pull
           wanted = needle.angle + shortest(wanted - needle.angle)
           needle.angle += (wanted - needle.angle) * factor
@@ -219,7 +220,7 @@ export function MagnetLines({
           needle.node.style.transform = `translate3d(${x.toFixed(1)}px,${y.toFixed(1)}px,0) rotate(${needle.angle.toFixed(1)}deg)`
         }
       },
-      { name: 'magnet-lines : champ', priority: CLOCK_PRIORITY.default },
+      { name: 'magnet-lines : field', priority: CLOCK_PRIORITY.default },
     )
 
     return () => {
@@ -257,7 +258,7 @@ export function MagnetLines({
   )
 }
 
-/** Ramene un ecart d angle dans un demi-tour, pour toujours prendre le plus court. */
+/** Brings an angle gap back into a half-turn, to always take the shortest path. */
 function shortest(delta: number): number {
   return ((((delta + 180) % 360) + 360) % 360) - 180
 }

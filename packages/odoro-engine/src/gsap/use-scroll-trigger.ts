@@ -1,37 +1,37 @@
 /**
- * Animations liees au defilement.
+ * Scroll-linked animations.
  *
- * ## Le rafraichissement, et le piege qu'il recele
+ * ## The refresh, and the trap it holds
  *
- * Un declencheur de defilement memorise des positions absolues, calculees a sa
- * creation. Toute chose qui deplace la page apres coup — une image qui arrive,
- * une police qui se substitue a sa remplacante, un contenu charge a la demande
- * — rend ces positions fausses. L'animation se declenche alors trop tot ou
- * trop tard, et le defaut a la propriete deroutante de disparaitre au
- * rechargement, quand tout est deja en cache.
+ * A scroll trigger memorises absolute positions, computed when it is created.
+ * Anything that moves the page afterwards — an image arriving, a font
+ * replacing its stand-in, content loaded on demand — makes those positions
+ * wrong. The animation then fires too early or too late, and the flaw has the
+ * disconcerting property of disappearing on reload, when everything is already
+ * cached.
  *
- * Le rafraichissement apres changement de page est donc differe jusqu'a ce que
- * les images **et** les polices soient reglees. Voir {@link onRouteChange}.
+ * The refresh after a page change is therefore deferred until the images
+ * **and** the fonts are settled. See {@link onRouteChange}.
  *
- * ## Le conteneur qui defile n'est pas toujours la page
+ * ## The scrolling container is not always the page
  *
- * Un declencheur mesure par rapport a un « scroller », et celui par defaut est
- * la fenetre. Pose dans un panneau a defilement propre — une colonne laterale,
- * une fenetre modale, un cadre de documentation —, il mesure alors un
- * defilement qui ne bouge pas, et l'animation ne se declenche jamais. Le
- * defaut n'echoue pas : il ne se passe simplement rien.
+ * A trigger measures against a "scroller", and the default one is the window.
+ * Placed inside a panel with its own scrolling — a side column, a modal
+ * window, a documentation frame — it then measures a scroll that does not
+ * move, and the animation never fires. The flaw does not fail: simply nothing
+ * happens.
  *
- * Les deux hooks remontent donc la chaine des ancetres jusqu'au premier qui
- * defile reellement. C'est une detection, pas une devinette : l'ancetre doit
- * a la fois declarer un debordement traite et avoir un contenu plus haut que
- * sa boite. `scroller` permet de la court-circuiter.
+ * Both hooks therefore walk up the chain of ancestors to the first one that
+ * really scrolls. This is a detection, not a guess: the ancestor must both
+ * declare a handled overflow and have content taller than its box. `scroller`
+ * makes it possible to short-circuit it.
  *
- * ## Mouvement reduit
+ * ## Reduced motion
  *
- * Une animation liee au defilement est pilotee par l'utilisateur : elle ne
- * s'impose pas a lui. Sous mouvement reduit, elle n'est pas creee du tout et
- * l'element reste dans son etat final — plutot que de le laisser fige dans son
- * etat de depart, ce qui le rendrait invisible.
+ * A scroll-linked animation is driven by the user: it does not impose itself
+ * on them. Under reduced motion, it is not created at all and the element
+ * stays in its final state — rather than leaving it frozen in its starting
+ * state, which would make it invisible.
  *
  * @module
  */
@@ -44,20 +44,20 @@ import { registry } from '../core/registry.js'
 import { loadScrollTrigger } from './setup.js'
 
 /**
- * Premier ancetre qui defile reellement, ou `undefined` pour la fenetre.
+ * First ancestor that really scrolls, or `undefined` for the window.
  *
- * Les deux conditions comptent. Un `overflow: auto` sur un conteneur qui tient
- * dans sa boite ne defile pas, et le prendre pour scroller figerait la
- * progression a zero — exactement le defaut qu'on cherche a eviter.
+ * Both conditions count. An `overflow: auto` on a container that fits in its
+ * box does not scroll, and taking it for the scroller would freeze the
+ * progress at zero — exactly the flaw we are trying to avoid.
  */
 export function scrollingAncestor(element: Element): Element | undefined {
   let node = element.parentElement
 
   while (node !== null && node !== document.body) {
     const style = getComputedStyle(node)
-    const traite = /auto|scroll|overlay/.test(`${style.overflowY} ${style.overflowX}`)
+    const handled = /auto|scroll|overlay/.test(`${style.overflowY} ${style.overflowX}`)
     if (
-      traite &&
+      handled &&
       (node.scrollHeight > node.clientHeight || node.scrollWidth > node.clientWidth)
     ) {
       return node
@@ -69,41 +69,41 @@ export function scrollingAncestor(element: Element): Element | undefined {
 }
 
 /**
- * Reglages d'un declencheur, sans son element ni son animation : le premier
- * vient de la ref, la seconde est construite dans le contexte du composant
- * pour etre revoquee avec lui.
+ * Settings of a trigger, without its element or its animation: the first comes
+ * from the ref, the second is built in the context of the component so as to
+ * be reverted with it.
  */
 export type ScrollTriggerConfig = Omit<ScrollTrigger.StaticVars, 'trigger' | 'animation'>
 
-/** Options de {@link useScrollTrigger}. */
+/** Options of {@link useScrollTrigger}. */
 export interface ScrollTriggerOptions extends ScrollTriggerConfig {
-  /** Nom affiche dans le panneau de diagnostic. */
+  /** Name shown in the diagnostics panel. */
   name?: string
   /**
-   * Conteneur dont on suit le defilement.
+   * Container whose scroll is followed.
    *
-   * Par defaut, le premier ancetre qui defile reellement, ou la fenetre s'il
-   * n'y en a pas. `null` force la fenetre.
+   * By default, the first ancestor that really scrolls, or the window if there
+   * is none. `null` forces the window.
    */
   scroller?: Element | null
   /**
-   * Construit l'animation attachee au declencheur. Elle est creee dans le
-   * contexte du composant et revoquee avec lui.
+   * Builds the animation attached to the trigger. It is created in the context
+   * of the component and reverted with it.
    */
   animation?: (element: Element) => gsap.core.Animation | undefined
 }
 
 /**
- * Cree un declencheur de defilement lie au cycle de vie du composant.
+ * Creates a scroll trigger tied to the life cycle of the component.
  *
- * @returns La ref a poser sur l'element declencheur.
+ * @returns The ref to set on the trigger element.
  *
  * @example
  * const ref = useScrollTrigger({
  *   start: 'top 80%',
  *   end: 'bottom 20%',
  *   scrub: true,
- *   name: 'parallaxe',
+ *   name: 'parallax',
  *   animation: (element) => gsap.to(element, { y: -80, ease: 'none' }),
  * })
  *
@@ -131,16 +131,16 @@ export function useScrollTrigger<T extends Element = HTMLElement>(
       if (ScrollTriggerClass === null || cancelled || ref.current === null) return
 
       const { name: _name, animation, scroller, ...config } = optionsRef.current
-      const conteneur = scroller === undefined ? scrollingAncestor(element) : scroller
+      const container = scroller === undefined ? scrollingAncestor(element) : scroller
 
       context = gsap.context(() => {
         const created = animation?.(element)
         ScrollTriggerClass.create({
           ...config,
           trigger: element,
-          ...(conteneur === undefined || conteneur === null
+          ...(container === undefined || container === null
             ? {}
-            : { scroller: conteneur }),
+            : { scroller: container }),
           ...(created === undefined ? {} : { animation: created }),
         })
       }, element)
@@ -150,7 +150,7 @@ export function useScrollTrigger<T extends Element = HTMLElement>(
         name,
         dispose: () => context?.revert(),
         detail: {
-          start: String(start ?? 'defaut'),
+          start: String(start ?? 'default'),
           scrub: scrub === undefined ? false : true,
         },
       })
@@ -159,8 +159,8 @@ export function useScrollTrigger<T extends Element = HTMLElement>(
     return () => {
       cancelled = true
       handle?.release()
-      // `revert` detruit aussi les declencheurs creés dans le contexte : c'est
-      // ce qui garantit qu'aucun ne survit a son composant.
+      // `revert` also destroys the triggers created in the context: that is
+      // what guarantees that none survives its component.
       context?.revert()
     }
   }, [name, start, end, scrub, pin])
@@ -168,73 +168,72 @@ export function useScrollTrigger<T extends Element = HTMLElement>(
   return ref
 }
 
-/** Ce que rend {@link useScrollScrub}. */
+/** What {@link useScrollScrub} returns. */
 export interface ScrollScrubHandle<T extends Element> {
-  /** Ref a poser sur l'element observe. */
+  /** Ref to set on the observed element. */
   readonly ref: RefObject<T | null>
 }
 
-/** Options de {@link useScrollScrub}. */
+/** Options of {@link useScrollScrub}. */
 export interface ScrollScrubOptions {
   /**
-   * Element observe, quand il ne peut pas venir de la ref rendue.
+   * Observed element, when it cannot come from the returned ref.
    *
-   * ## Pourquoi cette porte existe
+   * ## Why this door exists
    *
-   * La ref est lue une fois, au montage. Cela suffit tant que l'element
-   * observe est celui sur lequel la ref est posee. Ce n'est plus le cas quand
-   * l'observateur designe un element **place plus loin dans l'arbre** : React
-   * attache les refs au fil du parcours, si bien que la ref d'un frere suivant
-   * est encore vide quand l'effet s'execute. L'element est alors nul, aucun
-   * declencheur n'est cree, et il ne se passe rien — sans erreur.
+   * The ref is read once, on mount. That is enough as long as the observed
+   * element is the one the ref is set on. This is no longer the case when the
+   * observer designates an element **placed further down the tree**: React
+   * attaches the refs as it walks, so that the ref of a following sibling is
+   * still empty when the effect runs. The element is then null, no trigger is
+   * created, and nothing happens — without an error.
    *
-   * Passer l'element ici le fait entrer dans les dependances de l'effet : le
-   * declencheur est cree des qu'il apparait.
+   * Passing the element here brings it into the dependencies of the effect:
+   * the trigger is created as soon as it appears.
    */
   element?: Element | null
-  /** Debut de la plage observee. @defaultValue 'top bottom' */
+  /** Start of the observed range. @defaultValue 'top bottom' */
   start?: string
-  /** Fin de la plage observee. @defaultValue 'bottom top' */
+  /** End of the observed range. @defaultValue 'bottom top' */
   end?: string
-  /** Nom affiche dans le panneau de diagnostic. */
+  /** Name shown in the diagnostics panel. */
   name?: string
   /**
-   * Conteneur dont on suit le defilement.
+   * Container whose scroll is followed.
    *
-   * Par defaut, le premier ancetre qui defile reellement, ou la fenetre s'il
-   * n'y en a pas. `null` force la fenetre.
+   * By default, the first ancestor that really scrolls, or the window if there
+   * is none. `null` forces the window.
    */
   scroller?: Element | null
 }
 
 /**
- * Progression du defilement d'un element, de 0 a 1.
+ * Scroll progress of an element, from 0 to 1.
  *
- * ## La frontiere avec `@odoro-cli/libs/motion`
+ * ## The boundary with `@odoro-cli/libs/motion`
  *
- * Les deux paquets touchent au defilement, et ne font pas la meme chose.
+ * Both packages touch the scroll, and do not do the same thing.
  *
- * `useScrollProgress`, dans la librairie, rend **un nombre** : l'avancee de la
- * lecture de la page, ou la traversee d'un element par la fenetre. Aucune
- * dependance, une mesure par image, et un rendu React quand la valeur change.
+ * `useScrollProgress`, in the library, returns **a number**: how far the page
+ * has been read, or the crossing of an element by the viewport. No
+ * dependencies, one measurement per frame, and a React render when the value
+ * changes.
  *
- * `useScrollScrub`, ici, asservit un **rappel** a un declencheur GSAP : bornes
- * exprimees dans la grammaire de ScrollTrigger, conteneur de defilement
- * detecte, aucun rendu React pendant la course. C'est le terme de GSAP pour
- * une animation pilotee par le defilement, et il dit exactement ce que le hook
- * fait.
+ * `useScrollScrub`, here, slaves a **callback** to a GSAP trigger: bounds
+ * expressed in the grammar of ScrollTrigger, scrolling container detected, no
+ * React render during the run. It is GSAP's term for a scroll-driven
+ * animation, and it says exactly what the hook does.
  *
- * Les deux portaient le meme nom, ce qui obligeait a lire la signature pour
- * savoir lequel on tenait. Ils ne se remplacent pas l'un l'autre : on prend
- * celui de la librairie pour afficher une barre, celui du moteur pour piloter
- * une animation.
+ * Both carried the same name, which forced you to read the signature to know
+ * which one you were holding. They do not replace one another: you take the
+ * library's to display a bar, the engine's to drive an animation.
  *
- * La valeur est transmise a un rappel plutot que rendue comme etat : une
- * progression provoquerait sinon un rendu React par image.
+ * The value is passed to a callback rather than returned as state: a progress
+ * value would otherwise cause one React render per frame.
  *
  * @example
  * const { ref } = useScrollScrub((progress) => {
- *   barre.current.style.transform = `scaleX(${progress})`
+ *   bar.current.style.transform = `scaleX(${progress})`
  * })
  */
 export function useScrollScrub<T extends Element = HTMLElement>(
@@ -248,19 +247,19 @@ export function useScrollScrub<T extends Element = HTMLElement>(
   const {
     start = 'top bottom',
     end = 'bottom top',
-    name = 'progression',
+    name = 'progress',
     scroller,
     element: given,
   } = options
 
   useEffect(() => {
-    // `undefined` signifie « rien de fourni » : on retombe sur la ref. `null`
-    // signifie « fourni, mais pas encore la » : on attend.
+    // `undefined` means "nothing supplied": we fall back on the ref. `null`
+    // means "supplied, but not there yet": we wait.
     const element = given === undefined ? ref.current : given
     if (element === null) return
 
     if (motionPolicy.state.reduced) {
-      // Etat final : la progression complete, une fois.
+      // Final state: the full progress, once.
       callback.current(1)
       return
     }
@@ -272,16 +271,16 @@ export function useScrollScrub<T extends Element = HTMLElement>(
     void loadScrollTrigger().then((ScrollTriggerClass) => {
       if (ScrollTriggerClass === null || cancelled) return
 
-      const conteneur = scroller === undefined ? scrollingAncestor(element) : scroller
+      const container = scroller === undefined ? scrollingAncestor(element) : scroller
 
       context = gsap.context(() => {
         ScrollTriggerClass.create({
           trigger: element,
           start,
           end,
-          ...(conteneur === undefined || conteneur === null
+          ...(container === undefined || container === null
             ? {}
-            : { scroller: conteneur }),
+            : { scroller: container }),
           onUpdate: (self) => callback.current(self.progress),
         })
       }, element)
@@ -304,18 +303,17 @@ export function useScrollScrub<T extends Element = HTMLElement>(
 }
 
 /**
- * Rafraichit les positions de tous les declencheurs.
+ * Refreshes the positions of every trigger.
  *
- * A appeler apres un changement de page, **une fois le nouveau contenu rendu**.
- * L'attente des images et des polices est prise en charge ici : sans elle, les
- * positions memorisees seraient celles d'une page qui n'a pas fini de se
- * mettre en place.
+ * To be called after a page change, **once the new content is rendered**.
+ * Waiting for the images and the fonts is handled here: without it, the
+ * memorised positions would be those of a page that has not finished settling.
  *
- * @param timeoutMs Delai au-dela duquel on rafraichit sans plus attendre. Une
- *   image qui ne se charge jamais ne doit pas condamner la page.
+ * @param timeoutMs Delay beyond which we refresh without waiting any longer.
+ *   An image that never loads must not condemn the page.
  *
  * @example
- * // Dans le composant racine de l'application :
+ * // In the root component of the application:
  * useEffect(() => {
  *   void onRouteChange()
  * }, [location.pathname])
@@ -326,8 +324,8 @@ export async function onRouteChange(timeoutMs = 3000): Promise<void> {
   if (ScrollTriggerClass === null) return
 
   const settled = Promise.all([
-    // Les polices se substituent a leur remplacante apres coup, ce qui decale
-    // la mise en page — souvent plus que les images.
+    // Fonts replace their stand-in afterwards, which shifts the layout — often
+    // more than the images do.
     typeof document.fonts?.ready === 'object'
       ? document.fonts.ready.catch(() => undefined)
       : Promise.resolve(),
@@ -348,10 +346,10 @@ export async function onRouteChange(timeoutMs = 3000): Promise<void> {
 }
 
 /**
- * Detruit tous les declencheurs de la page.
+ * Destroys every trigger of the page.
  *
- * A appeler au demontage d'une application, ou avant un changement de page qui
- * remplace integralement le contenu.
+ * To be called on unmounting an application, or before a page change that
+ * entirely replaces the content.
  *
  * @example
  * killScrollTriggers()

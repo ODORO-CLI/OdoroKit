@@ -34,7 +34,7 @@
       "step": 2
     },
     {
-      "name": "raideur",
+      "name": "stiffness",
       "type": "number",
       "default": 9,
       "description": "Raideur de la chaine. Plus haut, plus le mot reste groupe.",
@@ -43,7 +43,7 @@
       "step": 0.5
     },
     {
-      "name": "inclinaison",
+      "name": "tilt",
       "type": "number",
       "default": 0.4,
       "unit": "deg/px",

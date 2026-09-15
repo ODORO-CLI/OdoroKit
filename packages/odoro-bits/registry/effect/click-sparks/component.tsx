@@ -1,25 +1,24 @@
 /**
- * Etincelles : de petits traits jaillissent du point d'appui a chaque clic.
+ * Sparks: small strokes burst from the press point on every click.
  *
- * ## Les etincelles vivent dans le DOM, pas dans l'etat
+ * ## The sparks live in the DOM, not in state
  *
- * Comme l'onde au clic, chaque rafale cree ses elements, les lance avec
- * l'API Web Animations, et les retire quand l'animation se termine. Porter
- * une rafale dans l'etat React imposerait deux rendus par clic pour des
- * traits que personne ne lit : ils sont decoratifs, ephemeres, et leur cycle
- * de vie est exactement celui de leur animation. `onfinish` est leur seul
- * contrat.
+ * Like the click ripple, each burst creates its elements, launches them with
+ * the Web Animations API, and removes them when the animation ends. Carrying
+ * a burst in React state would impose two renders per click for strokes that
+ * nobody reads: they are decorative, ephemeral, and their lifecycle is exactly
+ * that of their animation. `onfinish` is their only contract.
  *
- * ## Une roue reguliere, legerement brouillee
+ * ## An even wheel, slightly scrambled
  *
- * Les angles partent d'une repartition reguliere — la rafale couvre tout le
- * tour, aucun cote n'est oublie — puis chaque trait recoit un ecart et une
- * portee tires au sort. Une roue parfaite se lirait comme un mecanisme ;
- * le brouillage la rend organique. Le tirage a lieu au moment du clic, cote
- * client uniquement : il ne peut pas creer d'ecart d'hydratation.
+ * The angles start from an even distribution — the burst covers the whole
+ * turn, no side is forgotten — then each stroke gets a random offset and a
+ * random reach. A perfect wheel would read as a mechanism; the scrambling
+ * makes it organic. The draw happens at click time, client side only: it
+ * cannot create a hydration mismatch.
  *
- * Sous mouvement reduit, aucun element n'est cree : l'etincelle n'est qu'un
- * geste, et le geste est ce qu'on nous demande d'omettre.
+ * Under reduced motion, no element is created: the spark is only a gesture,
+ * and the gesture is what we are asked to leave out.
  *
  * @module
  */
@@ -27,38 +26,38 @@
 import { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'
 import { useEffect, useState, type ReactElement, type ReactNode } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface ClickSparksOwnProps {
-  /** Contenu de la zone cliquable. */
+  /** Content of the clickable area. */
   children: ReactNode
-  /** Nombre de traits par clic. @defaultValue 8 */
+  /** Number of strokes per click. @defaultValue 8 */
   count?: number
-  /** Portee du jaillissement, en pixels. @defaultValue 48 */
+  /** Reach of the burst, in pixels. @defaultValue 48 */
   distance?: number
-  /** Duree de la rafale, en millisecondes. @defaultValue 500 */
+  /** Duration of the burst, in milliseconds. @defaultValue 500 */
   duration?: number
-  /** Couleur des traits. @defaultValue la couleur du texte */
+  /** Colour of the strokes. @defaultValue the text colour */
   color?: string
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type ClickSparksProps = Customisable<ClickSparksOwnProps>
 
 /**
- * Fait jaillir des etincelles de chaque clic sur sa zone.
+ * Makes sparks burst from every click on its area.
  *
- * L'enveloppe est transparente : elle se pose autour d'un bouton, d'une
- * carte, d'une zone entiere, sans rien changer a leur mise en page.
+ * The wrapper is transparent: it goes around a button, a card, a whole area,
+ * without changing anything to their layout.
  *
  * @example
  * <ClickSparks className="o-rounded-xl">
- *   <button type="button" className="o-px-6 o-py-3">Valider</button>
+ *   <button type="button" className="o-px-6 o-py-3">Confirm</button>
  * </ClickSparks>
  *
  * @example
- * // Une gerbe teintee, plus ample.
+ * // A tinted spray, wider.
  * <ClickSparks color="var(--o-palette-brand-500)" count={10} distance={64}>
- *   <div className="o-p-8">Toute la carte repond</div>
+ *   <div className="o-p-8">The whole card responds</div>
  * </ClickSparks>
  */
 export function ClickSparks({
@@ -81,8 +80,8 @@ export function ClickSparks({
       const y = event.clientY - box.top
 
       for (let index = 0; index < count; index += 1) {
-        // Repartition reguliere sur le tour, puis un ecart tire au sort :
-        // voir l'en-tete du module.
+        // Even distribution over the turn, then a random offset: see the
+        // module header.
         const angle = (index / count) * 360 + Math.random() * (180 / count)
         const reach = distance * (0.7 + Math.random() * 0.6)
 
@@ -94,8 +93,8 @@ export function ClickSparks({
         spark.style.height = '2px'
         spark.style.borderRadius = '1px'
         spark.style.background = color
-        // Le trait pivote autour du point d'appui, pas de son propre centre :
-        // toutes les etincelles partent exactement du meme endroit.
+        // The stroke pivots around the press point, not around its own centre:
+        // every spark starts from exactly the same place.
         spark.style.transformOrigin = 'left center'
         spark.style.pointerEvents = 'none'
         spark.setAttribute('aria-hidden', 'true')
@@ -122,8 +121,8 @@ export function ClickSparks({
     host.addEventListener('pointerdown', onPointerDown)
     return () => {
       host.removeEventListener('pointerdown', onPointerDown)
-      // Les etincelles en vol appartiennent a cette instance : elles partent
-      // avec elle.
+      // The sparks still in flight belong to this instance: they leave with
+      // it.
       for (const orphan of host.querySelectorAll('[data-o-spark]')) {
         orphan.remove()
       }
@@ -137,8 +136,9 @@ export function ClickSparks({
       {...rest}
       ref={setHost}
       className={className}
-      // Les traits sont absolus dans la zone, et coupes a ses bords : sans le
-      // debordement cache, une gerbe pres du bord s'etalerait sur la page.
+      // The strokes are absolute inside the area, and clipped at its edges:
+      // without the hidden overflow, a spray near the edge would spill over
+      // the page.
       style={{ position: 'relative', overflow: 'hidden', ...style }}
     >
       {children}

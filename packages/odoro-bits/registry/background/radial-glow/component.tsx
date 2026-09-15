@@ -1,20 +1,20 @@
 /**
- * Halo : deux lueurs superposees pour asseoir un hero.
+ * Halo: two glows layered to settle a hero.
  *
- * ## Pourquoi deux lueurs et pas une
+ * ## Why two glows and not one
  *
- * Une seule tache radiale se lit comme un projecteur : propre, mais plate. La
- * seconde lueur, decalee et dans une teinte voisine, casse la symetrie et donne
- * au fond une profondeur que l'oeil attribue a un eclairage plutot qu'a un
- * motif. Le decalage est fixe par rapport au centre principal : deplacer le
- * halo deplace l'ensemble, sans reglage supplementaire a maintenir.
+ * A single radial blob reads as a spotlight: clean, but flat. The second glow,
+ * offset and in a neighbouring hue, breaks the symmetry and gives the
+ * background a depth the eye credits to a lighting rig rather than to a
+ * pattern. The offset is fixed relative to the main centre: moving the halo
+ * moves the whole thing, with no extra setting to maintain.
  *
- * ## Pourquoi aucun script
+ * ## Why no script
  *
- * Deux `radial-gradient` sur un fond plein decrivent la scene entiere, et le
- * compositeur les peint une fois pour toutes. C'est le fond de hero le moins
- * cher qui existe : aucun contexte graphique, aucun plafond a partager, et il
- * se pose autant de fois qu'on veut.
+ * Two `radial-gradient`s over a solid background describe the entire scene, and
+ * the compositor paints them once and for all. It is the cheapest hero
+ * background there is: no graphics context, no ceiling to share, and it can be
+ * placed as many times as one likes.
  *
  * @module
  */
@@ -22,29 +22,29 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import { type CSSProperties, type ReactElement } from 'react'
 
-/** Proprietes propres au composant. */
+/** Props specific to this component. */
 export interface RadialGlowOwnProps {
-  /** Etendue du halo, en fraction du cadre. @defaultValue 0.9 */
+  /** Extent of the halo, as a fraction of the frame. @defaultValue 0.9 */
   size?: number
-  /** Position horizontale du halo, entre 0 et 1. @defaultValue 0.5 */
+  /** Horizontal position of the halo, between 0 and 1. @defaultValue 0.5 */
   x?: number
-  /** Position verticale du halo, entre 0 et 1. @defaultValue 0.3 */
+  /** Vertical position of the halo, between 0 and 1. @defaultValue 0.3 */
   y?: number
-  /** Intensite des lueurs, entre 0 et 1. @defaultValue 0.5 */
+  /** Intensity of the glows, between 0 and 1. @defaultValue 0.5 */
   strength?: number
-  /** Couleur de la lueur principale. */
+  /** Colour of the main glow. */
   color?: string
-  /** Couleur de la lueur d'accent. */
+  /** Colour of the accent glow. */
   accent?: string
-  /** Couleur du fond. */
+  /** Colour of the background. */
   background?: string
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type RadialGlowProps = Customisable<RadialGlowOwnProps>
 
 /**
- * Halo de fond.
+ * Background halo.
  *
  * @example
  * <div className="o-relative o-min-h-screen">

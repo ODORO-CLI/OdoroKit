@@ -1,24 +1,24 @@
 /**
- * Maree : une nappe lumineuse en trois dimensions.
+ * Tide: a luminous sheet in three dimensions.
  *
- * ## Pourquoi une scene, et pas un shader plein ecran
+ * ## Why a scene, and not a full-screen shader
  *
- * Le backend leger peint des fragments : il sait faire une nappe vue de face,
- * pas une nappe vue en rasant, avec une profondeur, une lumiere qui glisse
- * dessus et un horizon qui se fond. C'est exactement ce que le heros veut, et
- * c'est la seule raison de payer une scene.
+ * The light backend paints fragments: it knows how to make a sheet seen
+ * head-on, not a sheet seen at a grazing angle, with a depth, a light sliding
+ * over it and a horizon that blends away. That is exactly what the hero wants,
+ * and it is the only reason to pay for a scene.
  *
- * ## Ce que le defilement fait
+ * ## What scrolling does
  *
- * La camera recule et monte pendant que le cadre defile : la nappe s'eloigne
- * et s'aplatit, comme si l'on quittait le rivage. Le reglage `scroll` dose ce
- * recul ; a zero, la nappe ignore la page.
+ * The camera pulls back and rises while the frame scrolls: the sheet moves
+ * away and flattens, as if one were leaving the shore. The `scroll` setting
+ * doses that retreat; at zero, the sheet ignores the page.
  *
- * ## Le repli
+ * ## The fallback
  *
- * Pendant le chargement de la scene, sans WebGL, sous mouvement reduit, ou si
- * l'arbitre refuse une seconde scene, un degrade flou prend la place — dans
- * les memes tons, sans bord dur.
+ * While the scene loads, without WebGL, under reduced motion, or if the
+ * arbiter refuses a second scene, a blurred gradient takes its place — in the
+ * same tones, with no hard edge.
  *
  * @module
  */
@@ -41,51 +41,51 @@ import { usePoster } from '@registre/hooks/usePoster'
 
 import { TIDE_FRAGMENT, TIDE_VERTEX } from './tide.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface TideControls {
-  /** Contexte de la scene : objets, camera, moteur de rendu, module. */
+  /** Context of the scene: objects, camera, renderer, module. */
   readonly scene: SceneContext
-  /** Uniformes vivants : les modifier change le rendu a l'image suivante. */
+  /** Live uniforms: editing them changes the output on the next frame. */
   readonly uniforms: Record<string, { value: unknown }>
 }
 
-/** Proprietes propres au composant. */
+/** Props of the component itself. */
 export interface TideOwnProps {
-  /** Hauteur de la houle. @defaultValue 0.45 */
+  /** Height of the swell. @defaultValue 0.45 */
   amplitude?: number
-  /** Frequence du bruit. @defaultValue 0.55 */
+  /** Frequency of the noise. @defaultValue 0.55 */
   frequency?: number
-  /** Vitesse de la houle. @defaultValue 0.18 */
+  /** Speed of the swell. @defaultValue 0.18 */
   speed?: number
-  /** Intensite du reflet et du lisere de crete. @defaultValue 0.9 */
+  /** Strength of the reflection and of the crest edging. @defaultValue 0.9 */
   shine?: number
-  /** Inclinaison sous le pointeur. @defaultValue 0.2 */
+  /** Tilt under the pointer. @defaultValue 0.2 */
   parallax?: number
-  /** Recul de la camera pendant le defilement du cadre. @defaultValue 1 */
+  /** Camera retreat while the frame scrolls. @defaultValue 1 */
   scroll?: number
-  /** Tokens : le fond, la houle, les cretes. */
+  /** Tokens: the background, the swell, the crests. */
   colors?: readonly [string, string, string]
-  /** Classes du repli. */
+  /** Classes of the fallback. */
   poster?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<TideControls>
 }
 
-/** Toutes les proprietes. */
+/** All the props. */
 export type TideProps = Customisable<TideOwnProps>
 
-/** Tokens employes par defaut. */
+/** Tokens used by default. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-brand-500',
   '--o-palette-fuchsia-300',
 ] as const
 
-/** Repli par defaut : la houle figee en degrade flou, dans les memes tons. */
+/** Default fallback: the swell frozen into a blurred gradient, same tones. */
 const DEFAULT_POSTER =
   'o-bg-gradient-to-t o-from-zinc-50 dark:o-from-zinc-950 o-via-brand-100 dark:o-via-brand-950 o-to-brand-500 o-blur-2xl o-scale-110'
 
-/** Subdivision de la nappe et octaves du bruit, par palier de qualite. */
+/** Subdivision of the sheet and noise octaves, per quality tier. */
 const DETAIL: Readonly<Record<QualityLevel, { segments: number; octaves: number }>> = {
   low: { segments: 80, octaves: 2 },
   medium: { segments: 140, octaves: 3 },
@@ -93,7 +93,7 @@ const DETAIL: Readonly<Record<QualityLevel, { segments: number; octaves: number 
 }
 
 /**
- * Maree.
+ * Tide.
  *
  * @example
  * <section className="o-relative o-min-h-screen o-bg-zinc-50 dark:o-bg-zinc-950">
@@ -116,9 +116,9 @@ export function Tide({
   const { quality, theme } = useMotionState()
   const [host, setHost] = useState<HTMLElement | null>(null)
 
-  const pointer = usePointerDamped({ host, speed: 2.5, name: 'maree : pointeur' })
+  const pointer = usePointerDamped({ host, speed: 2.5, name: 'tide : pointer' })
 
-  /** Uniformes vivants, partages entre la construction et la boucle. */
+  /** Live uniforms, shared between the setup and the loop. */
   const uniforms = useRef<Record<string, { value: unknown }>>({})
   const context = useRef<SceneContext | null>(null)
   const progress = useRef(0)
@@ -126,7 +126,7 @@ export function Tide({
   const grade = DETAIL[quality]
 
   const { ref, ready, refused } = useScene({
-    name: 'maree',
+    name: 'tide',
     setup: (scene) => {
       context.current = scene
       const { three, camera, renderer } = scene
@@ -143,11 +143,11 @@ export function Tide({
         )
 
       const deepColour = toColour(deep, [0.05, 0.05, 0.07])
-      // Le fond de la scene est la couleur de brume : sans cela, le plan se
-      // decouperait sur du noir la ou la brume l'a deja efface. Le token est
-      // deja en sRGB et le moteur de rendu encode sa couleur d'effacement du
-      // lineaire vers le sRGB : sans la conversion inverse, le fond ressort
-      // gris, un cran plus clair que la page qui l'entoure.
+      // The scene background is the haze colour: without this, the plane would
+      // stand out against black where the haze has already erased it. The token
+      // is already in sRGB and the renderer encodes its clear colour from
+      // linear to sRGB: without the reverse conversion, the background comes
+      // out grey, a notch lighter than the page around it.
       renderer.setClearColor(deepColour.clone().convertSRGBToLinear(), 1)
 
       uniforms.current = {
@@ -162,7 +162,7 @@ export function Tide({
         uCrest: { value: toColour(crest, [0.95, 0.6, 0.95]) },
       }
 
-      // Un plan large et profond : la brume l'efface bien avant ses bords.
+      // A wide and deep plane: the haze erases it well before its edges.
       const mesh = new three.Mesh(
         new three.PlaneGeometry(18, 20, grade.segments, Math.round(grade.segments * 1.1)),
         new three.ShaderMaterial({
@@ -171,13 +171,13 @@ export function Tide({
           uniforms: uniforms.current,
         }),
       )
-      // Le plan est couche, legerement releve vers la camera : on le voit en
-      // rasant, ce qui fait tout le relief.
+      // The plane lies flat, slightly raised towards the camera: we see it at a
+      // grazing angle, which is what makes all the relief.
       mesh.rotation.x = -Math.PI / 2 + 0.12
       mesh.position.y = -0.9
 
       const group = new three.Group()
-      group.name = 'maree'
+      group.name = 'tide'
       group.add(mesh)
       scene.scene.add(group)
 
@@ -189,11 +189,11 @@ export function Tide({
       const time_ = uniforms.current['uTime']
       if (time_ !== undefined) time_.value = time
 
-      const group = scene.getObjectByName('maree')
+      const group = scene.getObjectByName('tide')
       if (group === undefined) return
 
-      // Le defilement du cadre eloigne la camera : lu ici, jamais par un
-      // rendu React — la valeur change a chaque image.
+      // The scrolling of the frame moves the camera away: read here, never
+      // through a React render — the value changes on every frame.
       const height = host?.clientHeight ?? 1
       const target =
         scroll === 0 ? 0 : Math.min(1, Math.max(0, window.scrollY / Math.max(height, 1)))
@@ -210,8 +210,8 @@ export function Tide({
     },
   })
 
-  // Le theme a bascule : les tokens sont relus et les uniformes mis a jour en
-  // place. La scene n'est pas reconstruite — seules ses couleurs changent.
+  // The theme has flipped: the tokens are read again and the uniforms updated
+  // in place. The scene is not rebuilt — only its colours change.
   useEffect(() => {
     const scene = context.current
     const live = uniforms.current

@@ -1,24 +1,23 @@
 /**
- * Grille sinusoidale : une grille dont chaque noeud oscille, et un moire leger.
+ * Sine grid: a grid whose every node oscillates, and a light moire.
  *
- * ## Le principe
+ * ## The principle
  *
- * Les noeuds ne sont pas deplaces : le domaine est deforme en sinus avant que
- * la grille y soit lue, et chaque noeud decrit une petite boucle avec les
- * lignes qui le joignent. Une seconde grille, un peu plus fine et tournee de
- * quelques degres, se superpose en contre-phase : ses franges de moire se
- * deplacent bien plus lentement que les noeuds.
+ * The nodes are not moved: the domain is warped by a sine before the grid is
+ * read in it, and each node traces a small loop with the lines joining it. A
+ * second grid, a little finer and turned by a few degrees, is superimposed in
+ * counter-phase: its moire fringes move far more slowly than the nodes.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur — les recopier ici en ferait autant
- * de versions a maintenir qu'il y a de fonds.
+ * It carries only what sets it apart: its shader, its settings and its
+ * fallback. Reading the tokens, converting them to floats and re-reading them
+ * when the theme changes all come from the engine — copying that here would
+ * leave as many versions to maintain as there are backgrounds.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en
- * accorde qu'une par backend — et sous mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface — it grants only one
+ * per backend — and under reduced motion.
  *
  * @module
  */
@@ -35,47 +34,47 @@ import { type ReactElement } from 'react'
 
 import { SINE_GRID_FRAGMENT } from './sine-grid.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface SineGridControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to this component. */
 export interface SineGridOwnProps {
-  /** Nombre de cellules sur la hauteur. Borne a quarante par le shader. @defaultValue 12 */
+  /** Number of cells across the height. Clamped to forty by the shader. @defaultValue 12 */
   cells?: number
-  /** Course de l'oscillation, en cellules. @defaultValue 0.18 */
+  /** Travel of the oscillation, in cells. @defaultValue 0.18 */
   amplitude?: number
-  /** Vitesse de l'oscillation. @defaultValue 0.8 */
+  /** Speed of the oscillation. @defaultValue 0.8 */
   speed?: number
-  /** Poids de la seconde grille, celle du moire. Zero l'eteint. @defaultValue 0.6 */
+  /** Weight of the second grid, the moire one. Zero puts it out. @defaultValue 0.6 */
   moire?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<SineGridControls>
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type SineGridProps = Customisable<SineGridOwnProps>
 
-/** Tokens employes par defaut : le fond, les lignes, les noeuds. */
+/** Tokens used by default: the background, the lines, the nodes. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-theme-line',
   '--o-palette-brand-500',
 ] as const
 
-/** Repli par defaut : une teinte figee, dans les memes tons. */
+/** Default fallback: a frozen tint, in the same tones. */
 const DEFAULT_FALLBACK = 'o-bg-zinc-50 dark:o-bg-zinc-950'
 
 /**
- * Grille sinusoidale.
+ * Sine grid.
  *
  * @example
  * <div className="o-relative o-min-h-screen">
@@ -98,8 +97,8 @@ export function SineGrid({
     colors,
     uniforms: { uCells: cells, uAmplitude: amplitude, uSpeed: speed, uMoire: moire },
     name: 'sine-grid',
-    // La seconde grille double les lectures et, a densite de pixels reduite,
-    // ses franges scintillent : en qualite basse elle s'eteint.
+    // The second grid doubles the reads and, at a reduced pixel density, its
+    // fringes shimmer: at low quality it is put out.
     degrade: (quality) => ({ uMoire: quality === 'low' ? 0 : moire }),
   })
 

@@ -8,7 +8,7 @@
  */
 
 import { Icon } from '@odoro-cli/icons'
-import { Search } from '@odoro-cli/icons/filaire'
+import { Search } from '@odoro-cli/icons/outline'
 import {
   type ReactElement,
   useCallback,

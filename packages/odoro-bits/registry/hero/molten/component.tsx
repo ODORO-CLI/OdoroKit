@@ -1,30 +1,30 @@
 /**
- * Molten — une masse en fusion qui respire.
+ * Molten — a molten mass that breathes.
  *
- * ## Ce que ce composant coute
+ * ## What this component costs
  *
- * Environ cent trente kilo-octets compresses au premier affichage, contre
- * treize pour le backend leger. C'est le composant le plus cher du registre,
- * et la CLI l'annonce avant d'ecrire quoi que ce soit.
+ * Around a hundred and thirty kilobytes compressed on first display, against
+ * thirteen for the light backend. It is the most expensive component of the
+ * registry, and the CLI announces it before writing anything at all.
  *
- * La contrepartie est ce qu'une scene 3D permet et qu'un shader plein ecran ne
- * permet pas : une camera, une profondeur, une silhouette qui reagit au
- * pointeur. Si l'effet recherche n'a besoin d'aucun des trois, l'aurore fait
- * le meme travail pour un dixieme du poids.
+ * The trade-off is what a 3D scene allows and a full-screen shader does not: a
+ * camera, a depth, a silhouette reacting to the pointer. If the effect being
+ * sought needs none of the three, the aurora does the same job for a tenth of
+ * the weight.
  *
- * ## Le repli est la moitie du composant
+ * ## The fallback is half the component
  *
- * Il est affiche pendant le telechargement du backend — plusieurs centaines de
- * millisecondes sur une connexion ordinaire, a l'endroit le plus visible de la
- * page — puis fondu. Il sert aussi quand la scene ne viendra jamais : sans
- * WebGL, sous mouvement reduit, ou quand l'arbitre refuse la surface.
+ * It is displayed while the backend downloads — several hundred milliseconds
+ * on an ordinary connection, in the most visible spot on the page — then faded
+ * out. It also serves when the scene will never come: without WebGL, under
+ * reduced motion, or when the arbiter refuses the surface.
  *
- * ## Ce que la qualite change
+ * ## What quality changes
  *
- * La subdivision de la sphere et le nombre d'octaves. Ce sont les deux
- * reglages qui pesent, et ce sont les deux qui se degradent le mieux : la
- * silhouette reste la, seul le detail s'efface. Baisser la definition du rendu
- * a la place aurait donne une image floue, ce qui se remarque bien davantage.
+ * The subdivision of the sphere and the number of octaves. Those are the two
+ * settings that weigh, and they are the two that degrade best: the silhouette
+ * stays, only the detail fades. Lowering the render resolution instead would
+ * have given a blurry image, which is noticed far more.
  *
  * @module
  */
@@ -47,45 +47,45 @@ import { usePoster } from '@registre/hooks/usePoster'
 
 import { MOLTEN_FRAGMENT, MOLTEN_VERTEX } from './molten.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface MoltenControls {
-  /** Contexte de la scene : objets, camera, moteur de rendu, module. */
+  /** Context of the scene: objects, camera, renderer, module. */
   readonly scene: SceneContext
-  /** Uniformes vivants du materiau, modifiables en place. */
+  /** Live uniforms of the material, editable in place. */
   readonly uniforms: Record<string, { value: unknown }>
 }
 
-/** Proprietes propres au composant. */
+/** Props of the component itself. */
 export interface MoltenOwnProps {
-  /** Profondeur de la deformation, en rayons. @defaultValue 0.28 */
+  /** Depth of the deformation, in radii. @defaultValue 0.28 */
   amplitude?: number
-  /** Echelle du bruit. @defaultValue 1.6 */
+  /** Scale of the noise. @defaultValue 1.6 */
   frequency?: number
-  /** Vitesse de la respiration. @defaultValue 0.25 */
+  /** Speed of the breathing. @defaultValue 0.25 */
   speed?: number
-  /** Intensite du halo de bord. @defaultValue 0.8 */
+  /** Strength of the rim halo. @defaultValue 0.8 */
   glow?: number
-  /** Amplitude du suivi du pointeur. Zero pour l'immobiliser. @defaultValue 0.25 */
+  /** Amount of pointer following. Zero to hold it still. @defaultValue 0.25 */
   parallax?: number
-  /** Tokens du coeur et de la croute. */
+  /** Tokens of the core and of the crust. */
   colors?: readonly [string, string]
-  /** Classes du repli. */
+  /** Classes of the fallback. */
   poster?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<MoltenControls>
 }
 
-/** Toutes les proprietes. */
+/** All the props. */
 export type MoltenProps = Customisable<MoltenOwnProps>
 
-/** Tokens employes par defaut. */
+/** Tokens used by default. */
 const DEFAULT_TOKENS = ['--o-palette-brand-600', '--o-palette-fuchsia-600'] as const
 
-/** Repli par defaut : un degrade radial dans les memes tons. */
+/** Default fallback: a radial gradient in the same tones. */
 const DEFAULT_POSTER =
   'o-bg-gradient-to-br o-from-brand-600 dark:o-from-brand-400 o-via-fuchsia-600 dark:o-via-fuchsia-400 o-to-zinc-50 dark:o-to-zinc-900 o-blur-2xl o-scale-110'
 
-/** Subdivision de la sphere et octaves du bruit, par palier de qualite. */
+/** Subdivision of the sphere and noise octaves, per quality tier. */
 const DETAIL: Readonly<Record<QualityLevel, { detail: number; octaves: number }>> = {
   low: { detail: 24, octaves: 2 },
   medium: { detail: 48, octaves: 3 },
@@ -93,7 +93,7 @@ const DETAIL: Readonly<Record<QualityLevel, { detail: number; octaves: number }>
 }
 
 /**
- * Masse en fusion, en scene 3D.
+ * Molten mass, as a 3D scene.
  *
  * @example
  * <section className="o-relative o-h-screen">
@@ -102,7 +102,7 @@ const DETAIL: Readonly<Record<QualityLevel, { detail: number; octaves: number }>
  * </section>
  *
  * @example
- * // Niveau 5 : la scene elle-meme, pour ce que l API n a pas prevu.
+ * // Level 5: the scene itself, for what the API did not plan for.
  * <Molten
  *   onReady={({ handle }) => {
  *     handle.uniforms.uGlow.value = 2
@@ -124,9 +124,9 @@ export function Molten({
   const { quality, theme } = useMotionState()
   const [host, setHost] = useState<HTMLElement | null>(null)
 
-  const pointer = usePointerDamped({ host, speed: 3, name: 'molten : pointeur' })
+  const pointer = usePointerDamped({ host, speed: 3, name: 'molten : pointer' })
 
-  /** Uniformes vivants, partages entre la construction et la boucle. */
+  /** Live uniforms, shared between the setup and the loop. */
   const uniforms = useRef<Record<string, { value: unknown }>>({})
   const context = useRef<SceneContext | null>(null)
 
@@ -154,13 +154,14 @@ export function Molten({
       }
 
       const mesh = new three.Mesh(
-        // Un icosaedre subdivise repartit ses sommets bien plus regulierement
-        // qu'une sphere en latitude et longitude, qui les entasse aux poles —
-        // la ou la deformation serait alors plus fine qu'ailleurs, sans raison.
+        // A subdivided icosahedron spreads its vertices far more evenly than a
+        // sphere in latitude and longitude, which crowds them at the poles —
+        // where the deformation would then be finer than elsewhere, for no
+        // reason.
         new three.IcosahedronGeometry(1, grade.detail),
         new three.ShaderMaterial({
-          // Le bruit vient du moteur : le recopier ici en ferait une seconde
-          // version a maintenir.
+          // The noise comes from the engine: copying it here would make a
+          // second version to maintain.
           vertexShader: `${NOISE_FUNCTIONS_3D}\n${MOLTEN_VERTEX}`,
           fragmentShader: MOLTEN_FRAGMENT,
           uniforms: uniforms.current,
@@ -176,17 +177,16 @@ export function Molten({
       if (time_ !== undefined) time_.value = time
 
       if (parallax === 0) return
-      // Le pointeur incline la masse, il ne la deplace pas : une rotation se
-      // lit comme un volume qui se presente, une translation comme une image
-      // qui glisse.
+      // The pointer tilts the mass, it does not move it: a rotation reads as a
+      // volume presenting itself, a translation as an image sliding past.
       const target = pointer.current
       scene.rotation.y += (target.x * parallax - scene.rotation.y) * delta * 2
       scene.rotation.x += (-target.y * parallax - scene.rotation.x) * delta * 2
     },
   })
 
-  // Le theme a bascule : les tokens sont relus et les uniformes mis a jour en
-  // place. La scene n'est pas reconstruite — seules ses couleurs changent.
+  // The theme has flipped: the tokens are read again and the uniforms updated
+  // in place. The scene is not rebuilt — only its colours change.
   useEffect(() => {
     const scene = context.current
     const live = uniforms.current

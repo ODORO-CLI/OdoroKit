@@ -1,48 +1,47 @@
 /**
- * Rideau qui se dissout en carreaux, dans un desordre reproductible.
+ * Curtain that dissolves into tiles, in a reproducible disorder.
  *
- * ## Le desordre est calcule, pas tire au sort
+ * ## The disorder is computed, not drawn at random
  *
- * L'ordre de disparition vient d'un melange deterministe de l'indice, pas de
- * `Math.random`. Deux raisons, et la seconde est la vraie.
+ * The order of disappearance comes from a deterministic shuffle of the index,
+ * not from `Math.random`. Two reasons, and the second is the real one.
  *
- * La premiere : un rendu serveur et le rendu client doivent produire le meme
- * document. Un delai tire au sort a la construction differerait entre les deux,
- * et React signalerait une divergence d'hydratation.
+ * The first: a server render and the client render must produce the same
+ * document. A delay drawn at random at construction time would differ between
+ * the two, and React would report a hydration mismatch.
  *
- * La seconde : un vrai hasard fait des paquets. Sur deux cents carreaux, il
- * laisse regulierement des zones entieres qui partent en meme temps et d'autres
- * qui restent, et la dissolution se lit alors comme une panne. Le melange
- * employe ici — un pas d'or module par le nombre de carreaux — repartit les
- * indices voisins loin les uns des autres : le resultat parait plus aleatoire
- * que l'aleatoire, parce qu'il n'a pas de grumeaux.
+ * The second: real randomness makes clumps. Over two hundred tiles, it
+ * regularly leaves whole areas leaving at the same time and others staying
+ * put, and the dissolve then reads as a failure. The shuffle used here — a
+ * golden step taken modulo the number of tiles — sends neighbouring indices far
+ * away from one another: the result looks more random than randomness, because
+ * it has no lumps.
  *
- * ## Un pixel de recouvrement
+ * ## One pixel of overlap
  *
- * Chaque carreau mesure un pixel de plus que sa part exacte, dans les deux
- * sens. Sans cela, une grille de vingt colonnes sur une largeur qui ne se
- * divise pas en vingt donne un quadrillage de raies claires visible avant meme
- * que le geste commence.
+ * Each tile measures one pixel more than its exact share, in both directions.
+ * Without this, a grid of twenty columns over a width that does not divide by
+ * twenty gives a mesh of light lines visible even before the gesture begins.
  *
- * ## Ce que coute la grille
+ * ## What the grid costs
  *
- * Vingt colonnes sur douze rangees font deux cent quarante elements. C'est le
- * seul rideau du lot dont le cout depend d'un reglage, et le seul ou monter les
- * valeurs a une limite : au-dela de six cents carreaux, la seule composition de
- * la couche devient sensible sur une machine modeste. Les bornes du meta
- * tiennent compte de ce plafond.
+ * Twenty columns over twelve rows make two hundred and forty elements. It is
+ * the only curtain of the set whose cost depends on a setting, and the only one
+ * where raising the values has a limit: beyond six hundred tiles, compositing
+ * the layer alone becomes noticeable on a modest machine. The bounds in the
+ * meta take that ceiling into account.
  *
- * ## La sortie part au DEBUT, pas apres
+ * ## The exit fires at the START, not after
  *
- * `onDone` est appele quand les premiers carreaux **commencent** a partir. Le
- * contenu se decouvre a travers la grille pendant qu'elle se troue ; attendre
- * la fin donnerait deux gestes successifs la ou l'on en voulait un.
+ * `onDone` is called when the first tiles **begin** to leave. The content is
+ * uncovered through the grid while it fills with holes; waiting for the end
+ * would give two successive gestures where one was wanted.
  *
- * ## Contenu ou plein ecran
+ * ## Contained or full screen
  *
- * Par defaut le rideau est `fixed`, couvre la fenetre et verrouille le
- * defilement du document. Avec `contained`, il devient `absolute`, se resout
- * contre le premier ancetre positionne et ne touche plus au defilement.
+ * By default the curtain is `fixed`, covers the window and locks the scrolling
+ * of the document. With `contained`, it becomes `absolute`, resolves against
+ * the first positioned ancestor and no longer touches scrolling.
  *
  * @module
  */
@@ -58,58 +57,57 @@ import {
   type ReactNode,
 } from 'react'
 
-/** Proprietes propres au composant. */
+/** Props of the component itself. */
 export interface PixelDissolveOwnProps {
-  /** Le fond des carreaux. @defaultValue le fond du theme */
+  /** The background of the tiles. @defaultValue the theme background */
   background?: string
-  /** L'encre du libelle. @defaultValue l'encre du theme */
+  /** The ink of the label. @defaultValue the theme ink */
   ink?: string
-  /** Ce qui s'affiche au centre pendant l'attente : un nom, une marque. */
+  /** What is displayed at the centre during the wait: a name, a brand. */
   label?: ReactNode
   /**
-   * Ce que les lecteurs d'ecran annoncent. Chaine vide pour n'annoncer que le
-   * libelle.
+   * What screen readers announce. Empty string to announce only the label.
    *
-   * @defaultValue 'Chargement'
+   * @defaultValue 'Loading'
    */
   status?: string
-  /** Nombre de colonnes. @defaultValue 20 */
+  /** Number of columns. @defaultValue 20 */
   columns?: number
-  /** Nombre de rangees. @defaultValue 12 */
+  /** Number of rows. @defaultValue 12 */
   rows?: number
-  /** Etalement des departs, en millisecondes. @defaultValue 700 */
+  /** Spread of the departures, in milliseconds. @defaultValue 700 */
   spreadMs?: number
-  /** Combien de temps la grille reste pleine, en millisecondes. @defaultValue 1200 */
+  /** How long the grid stays solid, in milliseconds. @defaultValue 1200 */
   holdMs?: number
-  /** Duree de disparition d'un carreau, en millisecondes. @defaultValue 420 */
+  /** Time for one tile to disappear, in milliseconds. @defaultValue 420 */
   exitMs?: number
   /**
-   * Etat controle : la grille couvre tant que c'est `true`, et se dissout au
-   * premier `false`. Renseigne, il remplace `holdMs`.
+   * Controlled state: the grid covers as long as this is `true`, and dissolves
+   * on the first `false`. When given, it replaces `holdMs`.
    */
   open?: boolean
-  /** Couvre le parent positionne plutot que la fenetre. @defaultValue false */
+  /** Covers the positioned parent rather than the window. @defaultValue false */
   contained?: boolean
-  /** Appele au **debut** de la sortie. Voir l'en-tete du module. */
+  /** Called at the **start** of the exit. See the module header. */
   onDone?: () => void
 }
 
-/** Toutes les proprietes. */
+/** All the props. */
 export type PixelDissolveProps = Customisable<PixelDissolveOwnProps, 'div'>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-pixel-dissolve'
 
 /**
- * Pas d'or, en fraction du tour.
+ * Golden step, as a fraction of the turn.
  *
- * Multiplie modulo le nombre de carreaux, il envoie deux indices voisins aux
- * deux bouts de la grille : c'est la suite la plus uniformement repartie qui
- * existe, et la raison pour laquelle elle bat un tirage au sort. Voir l'en-tete.
+ * Multiplied modulo the number of tiles, it sends two neighbouring indices to
+ * the two ends of the grid: it is the most evenly spread sequence there is, and
+ * the reason why it beats a random draw. See the header.
  */
 const GOLDEN = 0.618_033_988_75
 
-/** Pose les regles de la grille, une fois par document. */
+/** Sets up the rules of the grid, once per document. */
 function ensurePixelDissolveRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -133,9 +131,9 @@ function ensurePixelDissolveRule(): void {
     'transition:opacity var(--o-pxd-exit) linear var(--o-pxd-d),',
     'transform var(--o-pxd-exit) cubic-bezier(0.4,0,1,1) var(--o-pxd-d);',
     '}',
-    // Le carreau ne fait pas que s'effacer : il se retracte legerement. Une
-    // opacite seule se lit comme un fondu du plan entier ; un retrait dit que
-    // chaque carreau est une piece.
+    // The tile does not merely fade out: it shrinks back slightly. Opacity
+    // alone reads as a fade of the whole plane; a shrink says that each tile is
+    // a piece.
     '[data-o-pxd-out] [data-o-pxd-cell]{opacity:0;transform:scale(0.55)}',
     '[data-o-pxd-status]{',
     'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;',
@@ -147,20 +145,20 @@ function ensurePixelDissolveRule(): void {
 }
 
 /**
- * Couvre la page d'une grille, puis la dissout carreau par carreau.
+ * Covers the page with a grid, then dissolves it tile by tile.
  *
  * @example
  * <PixelDissolve label="Odoro" onDone={ouvrir} />
  *
  * @example
- * // Gros carreaux, dissolution serree.
+ * // Big tiles, tight dissolve.
  * <PixelDissolve columns={10} rows={6} spreadMs={400} onDone={ouvrir} />
  */
 export function PixelDissolve({
   background = 'var(--o-theme-bg)',
   ink = 'var(--o-theme-fg)',
   label,
-  status = 'Chargement',
+  status = 'Loading',
   columns = 20,
   rows = 12,
   spreadMs = 700,
@@ -172,154 +170,153 @@ export function PixelDissolve({
   ...rest
 }: PixelDissolveProps): ReactElement | null {
   const { reduced } = useMotionState()
-  const [sortant, setSortant] = useState(false)
-  const [parti, setParti] = useState(false)
+  const [exiting, setExiting] = useState(false)
+  const [gone, setGone] = useState(false)
 
-  // Dans une ref : la sortie ne s'annonce qu'une fois, et un rendu de plus ne
-  // doit pas rejouer le rappel.
-  const annonce = useRef(false)
-  const rappel = useRef(onDone)
-  rappel.current = onDone
+  // In a ref: the exit only announces itself once, and one more render must
+  // not replay the callback.
+  const announced = useRef(false)
+  const callback = useRef(onDone)
+  callback.current = onDone
 
   ensurePixelDissolveRule()
 
   const cols = Math.max(2, Math.round(columns))
-  const lignes = Math.max(2, Math.round(rows))
+  const lines = Math.max(2, Math.round(rows))
 
-  // La grille est memorisee : elle ne depend que des reglages, et la
-  // reconstruire a chaque rendu recreerait deux cents objets pour rien.
-  const carreaux = useMemo(() => {
-    const total = cols * lignes
+  // The grid is memoised: it only depends on the settings, and rebuilding it
+  // on every render would recreate two hundred objects for nothing.
+  const tiles = useMemo(() => {
+    const total = cols * lines
     return Array.from({ length: total }, (_, index) => ({
       x: index % cols,
       y: Math.floor(index / cols),
-      delai: ((index * GOLDEN) % 1) * spreadMs,
+      delay: ((index * GOLDEN) % 1) * spreadMs,
     }))
-  }, [cols, lignes, spreadMs])
+  }, [cols, lines, spreadMs])
 
   useEffect(() => {
-    const annoncer = (): void => {
-      if (annonce.current) return
-      annonce.current = true
-      rappel.current?.()
+    const announce = (): void => {
+      if (announced.current) return
+      announced.current = true
+      callback.current?.()
     }
 
-    // Mouvement reduit : la sortie est immediate. La grille n'apportait qu'un
-    // geste, et le geste est ce qu'on nous demande d'omettre.
+    // Reduced motion: the exit is immediate. The grid only brought a gesture,
+    // and the gesture is what we are being asked to leave out.
     if (reduced) {
-      annoncer()
-      setParti(true)
+      announce()
+      setGone(true)
       return
     }
 
     if (open !== undefined) {
       if (!open) {
-        setSortant(true)
-        annoncer()
+        setExiting(true)
+        announce()
       }
       return
     }
 
-    const minuteur = window.setTimeout(() => {
-      setSortant(true)
-      annoncer()
+    const timer = window.setTimeout(() => {
+      setExiting(true)
+      announce()
     }, holdMs)
 
     return () => {
-      window.clearTimeout(minuteur)
+      window.clearTimeout(timer)
     }
   }, [reduced, open, holdMs])
 
-  // Un minuteur, et non `transitionend` : deux cent quarante carreaux emettent
-  // autant d'evenements, et le premier arrive quand la grille est encore
-  // presque pleine.
+  // A timer, and not `transitionend`: two hundred and forty tiles emit as many
+  // events, and the first one arrives when the grid is still almost full.
   useEffect(() => {
-    if (!sortant) return
+    if (!exiting) return
 
-    const minuteur = window.setTimeout(
+    const timer = window.setTimeout(
       () => {
-        setParti(true)
+        setGone(true)
       },
       exitMs + spreadMs + 40,
     )
 
     return () => {
-      window.clearTimeout(minuteur)
+      window.clearTimeout(timer)
     }
-  }, [sortant, exitMs, spreadMs])
+  }, [exiting, exitMs, spreadMs])
 
-  // Le verrou de defilement, seulement quand la grille couvre la fenetre.
+  // The scroll lock, only when the grid covers the window.
   useEffect(() => {
-    if (contained || parti || reduced) return
+    if (contained || gone || reduced) return
 
-    // Un verrou COMPTE, et non memorise. Deux rideaux peuvent se chevaucher
-    // — rechargement a chaud, navigation, rendu concurrent — et le second
-    // memoriserait alors la valeur posee par le premier, « hidden », pour la
-    // restaurer en sortant : la page resterait bloquee sans erreur ni trace.
-    const racine = document.documentElement
-    const verrous = Number(racine.dataset['oPorteVerrous'] ?? '0')
-    if (verrous === 0) racine.dataset['oPorteAvant'] = racine.style.overflow
-    racine.dataset['oPorteVerrous'] = String(verrous + 1)
-    racine.style.overflow = 'hidden'
+    // A COUNTED lock, not a remembered one. Two curtains can overlap — hot
+    // reload, navigation, concurrent rendering — and the second one would then
+    // remember the value set by the first, "hidden", to restore it on the way
+    // out: the page would stay stuck with neither error nor trace.
+    const root = document.documentElement
+    const locks = Number(root.dataset['oGateLocks'] ?? '0')
+    if (locks === 0) root.dataset['oGatePrevious'] = root.style.overflow
+    root.dataset['oGateLocks'] = String(locks + 1)
+    root.style.overflow = 'hidden'
 
-    let rendu = false
-    const rendreLaMain = (): void => {
-      if (rendu) return
-      rendu = true
-      const reste = Number(racine.dataset['oPorteVerrous'] ?? '1') - 1
-      if (reste > 0) {
-        racine.dataset['oPorteVerrous'] = String(reste)
+    let released = false
+    const release = (): void => {
+      if (released) return
+      released = true
+      const remaining = Number(root.dataset['oGateLocks'] ?? '1') - 1
+      if (remaining > 0) {
+        root.dataset['oGateLocks'] = String(remaining)
         return
       }
-      racine.style.overflow = racine.dataset['oPorteAvant'] ?? ''
-      delete racine.dataset['oPorteVerrous']
-      delete racine.dataset['oPorteAvant']
+      root.style.overflow = root.dataset['oGatePrevious'] ?? ''
+      delete root.dataset['oGateLocks']
+      delete root.dataset['oGatePrevious']
     }
 
-    // Le garde-fou. Plus long que le plafond de n importe quel rideau, donc
-    // invisible en marche normale : il n existe que pour qu un retard ne
-    // puisse jamais laisser la page sans defilement.
-    const secours = window.setTimeout(rendreLaMain, 8000)
+    // The failsafe. Longer than the cap of any curtain, and so invisible in
+    // normal operation: it only exists so that a delay can never leave the
+    // page without scrolling.
+    const failsafe = window.setTimeout(release, 8000)
 
     return () => {
-      window.clearTimeout(secours)
-      rendreLaMain()
+      window.clearTimeout(failsafe)
+      release()
     }
-  }, [contained, parti, reduced])
+  }, [contained, gone, reduced])
 
-  if (parti) return null
+  if (gone) return null
 
   const { className, style } = mergePresentation({}, rest)
 
-  const styleGrille = {
+  const gridStyle = {
     ...style,
     '--o-pxd-bg': background,
     '--o-pxd-ink': ink,
     '--o-pxd-exit': `${String(exitMs)}ms`,
     '--o-pxd-cols': String(cols),
-    '--o-pxd-rows': String(lignes),
+    '--o-pxd-rows': String(lines),
   } as CSSProperties
 
   return (
     <div
       {...rest}
       className={className}
-      style={styleGrille}
+      style={gridStyle}
       data-o-pxd=""
-      {...(sortant ? { 'data-o-pxd-out': '' } : {})}
+      {...(exiting ? { 'data-o-pxd-out': '' } : {})}
       {...(contained ? { 'data-o-pxd-contained': '' } : {})}
     >
-      {/* La grille est du decor : elle ne doit pas etre lue. */}
+      {/* The grid is decor: it must not be read. */}
       <div aria-hidden="true">
-        {carreaux.map((carreau, index) => (
+        {tiles.map((tile, index) => (
           <div
             key={index}
             data-o-pxd-cell=""
             style={
               {
-                '--o-pxd-x': String(carreau.x),
-                '--o-pxd-y': String(carreau.y),
-                '--o-pxd-d': `${String(Math.round(carreau.delai))}ms`,
+                '--o-pxd-x': String(tile.x),
+                '--o-pxd-y': String(tile.y),
+                '--o-pxd-d': `${String(Math.round(tile.delay))}ms`,
               } as CSSProperties
             }
           />

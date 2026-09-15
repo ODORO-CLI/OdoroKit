@@ -1,22 +1,22 @@
 /**
- * Onglets a pastille : un fond glisse sous l'onglet actif.
+ * Pill tabs: a background slides under the active tab.
  *
- * ## La pastille est mesuree, jamais devinee
+ * ## The pill is measured, never guessed
  *
- * La position et la largeur viennent d'`offsetLeft` et d'`offsetWidth` sur le
- * vrai bouton, apres rendu : la pastille epouse le texte reel, quelles que
- * soient la police, la langue ou la taille. Une largeur calculee en fractions
- * — un cinquieme pour cinq onglets — mentirait des le premier libelle long.
+ * Position and width come from `offsetLeft` and `offsetWidth` on the real
+ * button, after render: the pill hugs the actual text, whatever the font, the
+ * language or the size. A width computed in fractions — one fifth for five
+ * tabs — would lie from the first long label onwards.
  *
- * Le placement est ecrit d'abord, l'animation part ensuite de la position
- * precedente memorisee : si l'utilisateur clique pendant le trajet, le
- * depart est la ou la pastille se trouve logiquement, sans teleportation.
+ * The placement is written first, the animation then starts from the stored
+ * previous position: if the user clicks during the trip, the departure is
+ * where the pill logically is, with no teleporting.
  *
- * ## Un seul onglet dans l'ordre de tabulation
+ * ## A single tab in the tab order
  *
- * C'est le motif du roving tabindex : Tab entre dans le groupe, les fleches
- * circulent dedans. Mettre chaque onglet dans l'ordre de tabulation
- * obligerait a traverser toute la barre pour en sortir.
+ * This is the roving tabindex pattern: Tab enters the group, the arrows move
+ * around inside it. Putting every tab in the tab order would force the user to
+ * cross the whole bar to leave it.
  *
  * @module
  */
@@ -31,37 +31,37 @@ import {
   type ReactElement,
 } from 'react'
 
-/** Un onglet. */
+/** A tab. */
 export interface PillTabItem {
-  /** Identifiant, unique dans la barre. */
+  /** Id, unique within the bar. */
   readonly id: string
-  /** Libelle affiche. */
+  /** Displayed label. */
   readonly label: string
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to the component. */
 export interface PillTabsOwnProps {
-  /** Les onglets, dans l'ordre d'affichage. */
+  /** The tabs, in display order. */
   items: readonly PillTabItem[]
-  /** Identifiant de l'onglet actif, en mode controle. */
+  /** Id of the active tab, in controlled mode. */
   value?: string
-  /** Onglet actif au montage, en mode non controle. */
+  /** Active tab on mount, in uncontrolled mode. */
   defaultValue?: string
-  /** Appele quand l'utilisateur change d'onglet. */
+  /** Called when the user changes tab. */
   onValueChange?: (id: string) => void
-  /** Taille des onglets. @defaultValue 'md' */
+  /** Size of the tabs. @defaultValue 'md' */
   size?: 'sm' | 'md'
-  /** Nom du groupe pour les lecteurs d'ecran. @defaultValue 'Onglets' */
+  /** Name of the group for screen readers. @defaultValue 'Tabs' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type PillTabsProps = Customisable<PillTabsOwnProps>
 
-/** Identifiant de la feuille injectee. */
+/** Id of the injected stylesheet. */
 const STYLE_ID = 'o-pill-tabs'
 
-/** Pose la barre et sa pastille, une fois par document. */
+/** Applies the bar and its pill, once per document. */
 function ensurePillRules(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -90,27 +90,27 @@ function ensurePillRules(): void {
   document.head.append(style)
 }
 
-/** Remplissage des deux tailles, en classes du systeme. */
+/** Padding of the two sizes, in system classes. */
 const SIZES = {
   sm: 'o-px-3 o-py-2 o-text-xs o-font-medium',
   md: 'o-px-4 o-py-2 o-text-sm o-font-medium',
 } as const
 
 /**
- * Barre d'onglets dont la pastille glisse sous l'onglet actif.
+ * Tab bar whose pill slides under the active tab.
  *
  * @example
  * <PillTabs
  *   items={[
- *     { id: 'jour', label: 'Jour' },
- *     { id: 'semaine', label: 'Semaine' },
+ *     { id: 'day', label: 'Day' },
+ *     { id: 'week', label: 'Week' },
  *   ]}
- *   defaultValue="jour"
+ *   defaultValue="day"
  * />
  *
  * @example
- * // Mode controle : la page decide.
- * <PillTabs items={vues} value={vue} onValueChange={setVue} size="sm" />
+ * // Controlled mode: the page decides.
+ * <PillTabs items={views} value={view} onValueChange={setView} size="sm" />
  */
 export function PillTabs({
   items,
@@ -118,7 +118,7 @@ export function PillTabs({
   defaultValue,
   onValueChange,
   size = 'md',
-  label = 'Onglets',
+  label = 'Tabs',
   ...rest
 }: PillTabsProps): ReactElement {
   const { reduced } = useMotionState()
@@ -158,8 +158,8 @@ export function PillTabs({
     listRef.current?.querySelectorAll<HTMLButtonElement>('[role="tab"]')[target]?.focus()
   }
 
-  // Placement immediat, puis animation depuis la position precedente : voir
-  // l'en-tete du module.
+  // Immediate placement, then animation from the previous position: see the
+  // module header.
   useLayoutEffect(() => {
     const list = listRef.current
     const indicator = indicatorRef.current
@@ -191,7 +191,7 @@ export function PillTabs({
     )
   }, [activeIndex, reduced, items])
 
-  // Une barre dont les onglets changent invalide la position memorisee.
+  // A bar whose tabs change invalidates the stored position.
   useLayoutEffect(() => {
     previousRect.current = null
   }, [items])
@@ -209,10 +209,10 @@ export function PillTabs({
       className={className}
       style={
         {
-          // Des valeurs par defaut, donc **avant** le style de l'appelant :
-          // ecrites apres, elles rendaient la pastille impossible a reteinter,
-          // et l'encre de l'onglet actif restait claire quelle que soit la
-          // palette — blanc sur blanc pour la moitie des teintes.
+          // Default values, so **before** the caller's style: written after,
+          // they made the pill impossible to re-tint, and the ink of the
+          // active tab stayed light whatever the palette — white on white for
+          // half of the hues.
           '--o-pill-fill': 'var(--o-palette-brand-600)',
           '--o-pill-ink': 'var(--o-palette-zinc-50)',
           ...style,

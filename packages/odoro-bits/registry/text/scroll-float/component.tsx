@@ -1,40 +1,39 @@
 /**
- * Flottaison : les mots derivent tant que le bloc entre, puis se posent.
+ * Float: the words drift while the block is entering, then settle.
  *
- * ## Une amplitude pilotee par le defilement, pas une position
+ * ## An amplitude driven by the scroll, not a position
  *
- * Les parallaxes de texte deplacent les mots proportionnellement au
- * defilement : le mot est *ailleurs*, et il revient. Ici les mots sont
- * toujours a leur place — ce que le defilement commande est **l'amplitude**
- * d'une oscillation continue. Loin dans la page, ils flottent largement ;
- * une fois le bloc franchement entre, l'amplitude tombe a zero et le
- * paragraphe se lit comme un paragraphe.
+ * Text parallaxes move the words in proportion to the scroll: the word is
+ * *elsewhere*, and it comes back. Here the words are always in their place —
+ * what the scroll commands is the **amplitude** of a continuous oscillation.
+ * Far down the page, they float widely; once the block has properly entered,
+ * the amplitude falls to zero and the paragraph reads as a paragraph.
  *
- * Chaque mot a sa propre phase, de sorte qu'ils ne montent jamais ensemble :
- * c'est ce dephasage qui donne l'impression de flottaison plutot que de houle.
+ * Each word has its own phase, so that they never rise together: it is that
+ * phase shift that gives the impression of floating rather than of a swell.
  *
- * ## Une seule variable ecrite par image
+ * ## A single variable written per frame
  *
- * La boucle du moteur ecrit `--o-slf-p` sur le conteneur, et rien d'autre. Les
- * mots en deduisent leur amplitude et leur opacite par `calc` : aucun rendu
- * React, aucune ecriture de style par mot, quel que soit leur nombre.
+ * The engine loop writes `--o-slf-p` on the container, and nothing else. The
+ * words derive their amplitude and their opacity from it by `calc`: no React
+ * render, no style write per word, whatever their number.
  *
- * L'oscillation elle-meme est une animation CSS, composee, qui ne demande
- * jamais la main.
+ * The oscillation itself is a CSS animation, composited, which never asks for
+ * control.
  *
- * ## La progression se mesure contre ce qui defile vraiment
+ * ## The progress is measured against what really scrolls
  *
- * Contre la fenetre par defaut, mais contre le premier ancetre a defilement
- * interne s'il y en a un : pose dans un panneau, le texte doit repondre au
- * panneau. Un ecouteur de `scroll` aurait donne un rythme different de celui
- * du rafraichissement, et le tremblement qui va avec.
+ * Against the window by default, but against the first ancestor with internal
+ * scrolling if there is one: laid inside a panel, the text must answer the
+ * panel. A `scroll` listener would have given a rhythm different from that of
+ * the refresh, and the judder that goes with it.
  *
- * ## Le repos est la valeur par defaut
+ * ## Rest is the default value
  *
- * `--o-slf-p` vaut 1 dans la feuille : sans JavaScript, sans boucle, les mots
- * sont poses, nets et immobiles. La progression ne peut que *retirer* du
- * repos, jamais le donner — un texte qui ne s'allume qu'a l'execution est un
- * texte qui manque.
+ * `--o-slf-p` is 1 in the stylesheet: with no JavaScript, with no loop, the
+ * words are settled, crisp and motionless. The progress can only *take* rest
+ * away, never give it — a text that only lights up at runtime is a text that
+ * is missing.
  *
  * @module
  */
@@ -54,33 +53,33 @@ import {
   type ReactElement,
 } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface ScrollFloatOwnProps {
-  /** Texte a faire flotter. Une chaine : elle est decoupee en mots. */
+  /** Text to float. A string: it is split into words. */
   children: string
-  /** Balise rendue. @defaultValue 'p' */
+  /** Rendered tag. @defaultValue 'p' */
   as?: ElementType
-  /** Amplitude de la derive a l'entree, en pixels. @defaultValue 26 */
+  /** Amplitude of the drift on entry, in pixels. @defaultValue 26 */
   lift?: number
-  /** Duree d'une oscillation complete, en millisecondes. @defaultValue 3200 */
+  /** Duration of one full oscillation, in milliseconds. @defaultValue 3200 */
   period?: number
   /**
-   * Course du reglage, en hauteurs de fenetre.
+   * Run of the control, in window heights.
    *
-   * Plus haut, plus il faut defiler avant que les mots se posent.
+   * The higher, the more scrolling is needed before the words settle.
    *
    * @defaultValue 0.6
    */
-  course?: number
+  travel?: number
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type ScrollFloatProps = Customisable<ScrollFloatOwnProps, 'p'>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-scroll-float'
 
-/** Pose les regles de la flottaison, une fois par document. */
+/** Sets the float rules, once per document. */
 function ensureScrollFloatRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -88,7 +87,7 @@ function ensureScrollFloatRule(): void {
   const style = document.createElement('style')
   style.id = STYLE_ID
   style.textContent = [
-    // Un au repos : sans boucle, le texte est pose. Voir l'en-tete.
+    // One at rest: with no loop, the text is settled. See the header.
     '[data-o-scroll-float]{--o-slf-p:1}',
     '[data-o-scroll-float-word]{',
     'display:inline-block;',
@@ -97,13 +96,13 @@ function ensureScrollFloatRule(): void {
     'animation:o-slf-bob var(--o-slf-period) ease-in-out infinite;',
     'animation-delay:var(--o-slf-delay,0ms);',
     '}',
-    // `translate` plutot que `transform` : la propriete independante laisse le
-    // transform disponible a qui veut poser le sien.
+    // `translate` rather than `transform`: the independent property leaves the
+    // transform available to whoever wants to set their own.
     '@keyframes o-slf-bob{',
     '0%,100%{translate:0 calc(var(--o-slf-amp) * -1)}',
     '50%{translate:0 var(--o-slf-amp)}',
     '}',
-    // Sans mouvement, les mots sont poses, nets : l'etat d'arrivee.
+    // With no motion, the words are settled, crisp: the arrival state.
     '@media (prefers-reduced-motion:reduce){',
     '[data-o-scroll-float-word]{animation:none;opacity:1;translate:none}',
     '}',
@@ -111,115 +110,115 @@ function ensureScrollFloatRule(): void {
   document.head.append(style)
 }
 
-/** Premier ancetre dont le contenu defile reellement, ou rien : la page sert. */
-function ancetreDefilant(element: HTMLElement): HTMLElement | null {
-  let noeud = element.parentElement
-  while (noeud !== null) {
-    const debord = getComputedStyle(noeud).overflowY
+/** First ancestor whose content really scrolls, or nothing: the page will do. */
+function scrollingAncestor(element: HTMLElement): HTMLElement | null {
+  let node = element.parentElement
+  while (node !== null) {
+    const overflow = getComputedStyle(node).overflowY
     if (
-      (debord === 'auto' || debord === 'scroll') &&
-      noeud.scrollHeight > noeud.clientHeight
+      (overflow === 'auto' || overflow === 'scroll') &&
+      node.scrollHeight > node.clientHeight
     ) {
-      return noeud
+      return node
     }
-    noeud = noeud.parentElement
+    node = node.parentElement
   }
   return null
 }
 
 /**
- * Fait deriver les mots d'un texte tant qu'il entre dans le champ.
+ * Drifts the words of a text while it is entering the viewport.
  *
  * @example
  * <ScrollFloat as="h2" className="o-text-3xl o-font-semibold">
- *   Ce qui compte merite d etre lu
+ *   What matters deserves to be read
  * </ScrollFloat>
  *
  * @example
- * // Une derive ample et lente, qui met longtemps a se poser.
- * <ScrollFloat lift={48} period={5200} course={1}>Une entree en matiere</ScrollFloat>
+ * // A wide and slow drift, which takes a long time to settle.
+ * <ScrollFloat lift={48} period={5200} travel={1}>An opening</ScrollFloat>
  */
 export function ScrollFloat({
   children,
   as: Tag = 'p',
   lift = 26,
   period = 3200,
-  course = 0.6,
+  travel = 0.6,
   ...rest
 }: ScrollFloatProps): ReactElement {
   const { reduced } = useMotionState()
-  const hote = useRef<HTMLElement | null>(null)
+  const host = useRef<HTMLElement | null>(null)
 
   ensureScrollFloatRule()
 
   useEffect(() => {
-    const element = hote.current
+    const element = host.current
     if (element === null || reduced) return
 
-    // L'ancetre est cherche une fois : il ne change pas pendant la vie du
-    // composant, et le chercher a chaque image couterait pour rien.
-    const defilant = ancetreDefilant(element)
+    // The ancestor is looked up once: it does not change during the life of
+    // the component, and looking it up on every frame would cost for nothing.
+    const scroller = scrollingAncestor(element)
 
-    const abonnement = clock.subscribe(
+    const subscription = clock.subscribe(
       () => {
-        const boite = element.getBoundingClientRect()
-        const vueHaut = defilant === null ? 0 : defilant.getBoundingClientRect().top
-        const vueHauteur = defilant === null ? window.innerHeight : defilant.clientHeight
-        const vueBas = vueHaut + vueHauteur
+        const box = element.getBoundingClientRect()
+        const viewTop = scroller === null ? 0 : scroller.getBoundingClientRect().top
+        const viewHeight = scroller === null ? window.innerHeight : scroller.clientHeight
+        const viewBottom = viewTop + viewHeight
 
-        // Zero quand le haut du bloc touche le bas du champ ; un quand il a
-        // remonte de sa propre hauteur plus la course demandee.
-        const parcouru = vueBas - boite.top
-        const total = Math.max(1, vueHauteur * course + boite.height)
-        const avance = Math.min(1, Math.max(0, parcouru / total))
+        // Zero when the top of the block touches the bottom of the viewport;
+        // one when it has risen by its own height plus the requested run.
+        const travelled = viewBottom - box.top
+        const total = Math.max(1, viewHeight * travel + box.height)
+        const progress = Math.min(1, Math.max(0, travelled / total))
 
-        element.style.setProperty('--o-slf-p', avance.toFixed(4))
+        element.style.setProperty('--o-slf-p', progress.toFixed(4))
       },
-      { name: 'mots flottants', priority: CLOCK_PRIORITY.input },
+      { name: 'floating words', priority: CLOCK_PRIORITY.input },
     )
 
     return () => {
-      abonnement.unsubscribe()
+      subscription.unsubscribe()
       element.style.removeProperty('--o-slf-p')
     }
-  }, [reduced, course, children])
+  }, [reduced, travel, children])
 
   const { className, style } = mergePresentation({}, rest)
 
-  const styleRacine = {
+  const rootStyle = {
     ...style,
     '--o-slf-lift': `${String(lift)}px`,
     '--o-slf-period': `${String(period)}ms`,
   } as CSSProperties
 
-  const mots = children.split(' ').filter((mot) => mot.length > 0)
+  const words = children.split(' ').filter((word) => word.length > 0)
 
   return (
     <Tag
       {...rest}
-      ref={hote}
+      ref={host}
       className={className}
-      style={styleRacine}
+      style={rootStyle}
       data-o-scroll-float=""
     >
-      {/* Le texte complet, d'un seul tenant, pour les lecteurs d'ecran. */}
+      {/* The complete text, in one piece, for screen readers. */}
       <span className="o-sr-only">{children}</span>
       <span aria-hidden>
-        {mots.map((mot, index) => (
-          <span key={`${mot}-${String(index)}`}>
+        {words.map((word, index) => (
+          <span key={`${word}-${String(index)}`}>
             <span
               data-o-scroll-float-word=""
               style={
                 {
-                  // Un retard negatif, different pour chaque mot : ils ne
-                  // montent jamais ensemble, et la derive parait libre.
+                  // A negative delay, different for each word: they never rise
+                  // together, and the drift looks free.
                   '--o-slf-delay': `${String(-(index * period) / 7)}ms`,
                 } as CSSProperties
               }
             >
-              {mot}
+              {word}
             </span>
-            {index < mots.length - 1 ? ' ' : null}
+            {index < words.length - 1 ? ' ' : null}
           </span>
         ))}
       </span>

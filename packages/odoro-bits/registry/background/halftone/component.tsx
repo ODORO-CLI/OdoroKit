@@ -1,22 +1,22 @@
 /**
- * Trame : un demi-ton dont les points grossissent avec la lumiere, comme en impression.
+ * Halftone: a half-tone whose dots grow with the light, as in printing.
  *
- * ## Le principe
+ * ## The principle
  *
- * La trame est bicolore : c est le taux de couverture, donc la taille des points, qui simule la nuance.
+ * The pattern is two-tone: it is the coverage ratio, hence the size of the dots, that simulates the shade.
  *
- * La grille est tournee pour la meme raison qu en impression : alignee sur les axes, elle bat avec la grille de pixels et produit un moire.
+ * The grid is rotated for the same reason as in printing: aligned on the axes, it beats against the pixel grid and produces a moire.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur — les recopier ici en ferait autant
- * de versions a maintenir qu'il y a de fonds.
+ * It carries only what sets it apart: its shader, its settings and its fallback.
+ * Reading the tokens, converting them to floats and re-reading them when the
+ * theme changes all come from the engine — copying them here would leave as
+ * many versions to maintain as there are backgrounds.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en
- * accorde qu'une par backend — et sous mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface — it grants only one
+ * per backend — and under reduced motion.
  *
  * @module
  */
@@ -32,41 +32,41 @@ import {
 } from '@odoro-cli/engine'
 import { type ReactElement } from 'react'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface HalftoneControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to this component. */
 export interface HalftoneOwnProps {
-  /** Vitesse du champ. @defaultValue 0.12 */
+  /** Speed of the field. @defaultValue 0.12 */
   speed?: number
-  /** Finesse de la trame. @defaultValue 26 */
+  /** Fineness of the pattern. @defaultValue 26 */
   density?: number
-  /** Rotation de la trame, en radians. @defaultValue 0.26 */
+  /** Rotation of the pattern, in radians. @defaultValue 0.26 */
   angle?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<HalftoneControls>
 }
 
-/** Toutes les proprietes. */
+/** Every property. */
 export type HalftoneProps = Customisable<HalftoneOwnProps>
 
-/** Tokens employes par defaut. */
+/** Tokens used by default. */
 const DEFAULT_TOKENS = ['--o-theme-bg', '--o-palette-amber-300'] as const
 
-/** Repli par defaut : une teinte figee, dans les memes tons. */
+/** Default fallback: a frozen hue, in the same tones. */
 const DEFAULT_FALLBACK = 'o-bg-zinc-50 dark:o-bg-zinc-950'
 
 /**
- * Trame.
+ * Halftone.
  *
  * @example
  * <div className="o-relative o-min-h-screen">

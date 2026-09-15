@@ -1,22 +1,22 @@
 /**
- * Un fond en shader dont les couleurs viennent de la palette.
+ * A shader background whose colours come from the palette.
  *
- * ## Ce que ce hook mutualise
+ * ## What this hook shares
  *
- * Tous les fonds animes font la meme chose : lire deux ou trois tokens, les
- * convertir en flottants, les joindre aux reglages du composant, et relire le
- * tout quand le theme bascule. Ecrite dans chaque composant, cette sequence
- * serait recopiee autant de fois qu'il y a de fonds — et chaque copie
- * derivrait a son rythme.
+ * Every animated background does the same thing: read two or three tokens,
+ * convert them into floats, join them to the settings of the component, and
+ * read the whole lot again when the theme switches. Written in each component,
+ * this sequence would be copied as many times as there are backgrounds — and
+ * each copy would drift at its own pace.
  *
- * Elle vit donc ici. Un composant de fond se reduit alors a son shader, ses
- * proprietes et son repli, c'est-a-dire a ce qui le distingue.
+ * It therefore lives here. A background component then reduces to its shader,
+ * its properties and its fallback, that is to say to what distinguishes it.
  *
- * ## Pourquoi les couleurs sont relues
+ * ## Why the colours are read again
  *
- * Un fond fige dans les teintes du theme clair, au milieu d'une page passee en
- * sombre, est le meme defaut qu'une couleur ecrite en dur — un cran plus loin,
- * parce qu'il a l'air correct au premier chargement.
+ * A background frozen in the hues of the light theme, in the middle of a page
+ * switched to dark, is the same flaw as a hard-coded colour — one notch
+ * further, because it looks correct on first load.
  *
  * @module
  */
@@ -32,46 +32,47 @@ import {
   type UniformValue,
 } from './use-shader-surface.js'
 
-/** Options de {@link useTokenShader}. */
+/** Options of {@link useTokenShader}. */
 export interface TokenShaderOptions {
-  /** Source du shader de fragment. */
+  /** Source of the fragment shader. */
   fragment: string
   /**
-   * Tokens dont les couleurs alimentent `uColorA`, `uColorB`, `uColorC`, dans
-   * cet ordre. Deux suffisent quand le shader n'en emploie que deux.
+   * Tokens whose colours feed `uColorA`, `uColorB`, `uColorC`, in that order.
+   * Two are enough when the shader only uses two.
    */
   colors: readonly string[]
-  /** Uniformes propres au composant. */
+  /** Uniforms of the component itself. */
   uniforms?: Readonly<Record<string, UniformValue>>
-  /** Nom affiche dans le panneau de diagnostic. */
+  /** Name shown in the diagnostics panel. */
   name: string
   /**
-   * Ajuste les uniformes selon la qualite retenue. Sert a retrograder ce qui
-   * coute — un nombre d'octaves, une densite — sans toucher au shader.
+   * Adjusts the uniforms according to the selected quality. Serves to
+   * downgrade what costs — a number of octaves, a density — without touching
+   * the shader.
    */
   degrade?: (quality: QualityLevel) => Readonly<Record<string, UniformValue>>
 }
 
-/** Ce que rend {@link useTokenShader}. */
+/** What {@link useTokenShader} returns. */
 export interface TokenShaderHandle<T extends HTMLElement> extends ShaderSurfaceHandle<T> {
-  /** Element hote, a poser sur le conteneur. */
+  /** Host element, to set on the container. */
   readonly setHost: (element: T | null) => void
-  /** Couleurs effectivement lues, pour l'echappatoire. */
+  /** Colours actually read, for the escape hatch. */
   readonly colours: readonly ShaderColour[]
 }
 
-/** Noms des uniformes de couleur, dans l'ordre. */
+/** Names of the colour uniforms, in order. */
 const COLOUR_UNIFORMS = ['uColorA', 'uColorB', 'uColorC'] as const
 
 /**
- * Monte un fond en shader colore par la palette.
+ * Mounts a shader background coloured by the palette.
  *
  * @example
  * const { ref, setHost, ready, refused } = useTokenShader<HTMLDivElement>({
  *   fragment: WAVES_FRAGMENT,
  *   colors: ['--o-palette-zinc-950', '--o-palette-brand-500'],
  *   uniforms: { uSpeed: 0.2, uScale: 5, uAmplitude: 0.12 },
- *   name: 'ondes',
+ *   name: 'waves',
  * })
  */
 export function useTokenShader<T extends HTMLElement = HTMLDivElement>(
@@ -85,8 +86,8 @@ export function useTokenShader<T extends HTMLElement = HTMLDivElement>(
   useEffect(() => {
     if (host === null) return
     setColours(colors.map((token) => readTokenColour(token, host)))
-    // La politique de mouvement suit `data-theme` et la preference systeme :
-    // sa bascule est ce qui declenche la relecture des tokens.
+    // The motion policy follows `data-theme` and the system preference: its
+    // toggle is what triggers the re-reading of the tokens.
   }, [host, colors, reduced, quality, theme])
 
   const merged = useMemo(() => {
@@ -102,8 +103,8 @@ export function useTokenShader<T extends HTMLElement = HTMLDivElement>(
 
   const surface = useShaderSurface<T>({
     fragment,
-    // Tant que les couleurs ne sont pas lues, le shader recevrait des vecteurs
-    // absents et peindrait du noir. Le repli couvre mieux cet instant.
+    // As long as the colours are not read, the shader would receive missing
+    // vectors and would paint black. The fallback covers that moment better.
     uniforms: merged ?? {},
     name,
   })

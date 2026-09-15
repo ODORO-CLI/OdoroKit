@@ -1,37 +1,38 @@
 /**
- * Shader de la grille neon.
+ * Shader of the neon grid.
  *
- * ## L'idee mathematique
+ * ## The mathematical idea
  *
- * Sous l'horizon, le sol est projete en posant la profondeur egale a
- * l'inverse de la distance a l'horizon : les lignes verticales convergent,
- * les lignes de profondeur se resserrent, et un simple decalage du domaine
- * les fait defiler vers le spectateur.
+ * Below the horizon, the ground is projected by setting the depth equal to the
+ * inverse of the distance to the horizon: the vertical lines converge, the
+ * depth lines crowd together, and a plain offset of the domain makes them
+ * scroll towards the viewer.
  *
- * Les traits sont filtres analytiquement : la couverture d'un pixel est
- * l'integrale exacte du train d'impulsions sur l'empreinte du pixel, deduite
- * de la projection — sans derivee d'ecran. Pres de l'horizon, ou des dizaines
- * de cellules tiennent dans un pixel, la couverture tend vers sa moyenne au
- * lieu de moirer, et les coeurs s'effacent quand ils depassent leur cellule.
+ * The strokes are filtered analytically: the coverage of a pixel is the exact
+ * integral of the pulse train over the footprint of the pixel, derived from the
+ * projection — with no screen-space derivative. Near the horizon, where dozens
+ * of cells fit into one pixel, the coverage tends towards its mean instead of
+ * moiring, and the cores fade out when they outgrow their cell.
  *
- * Au-dessus, un soleil raye : un disque dont le bas est decoupe par des
- * fentes de plus en plus larges vers l'horizon, qui glissent. Une ligne
- * d'horizon en neon coud les deux moities.
+ * Above it, a striped sun: a disc whose lower part is cut by slits growing
+ * wider towards the horizon, and sliding. A neon horizon line sews the two
+ * halves together.
  *
- * Distinct du quadrillage plat, qui derive sans perspective, et du tunnel,
- * qui est radial : ici la grille fuit vers un point de l'horizon.
+ * Distinct from the flat grid, which drifts without perspective, and from the
+ * tunnel, which is radial: here the grid recedes towards a point on the
+ * horizon.
  *
  * ## Uniforms
  *
- * - `uTime` — temps en secondes, fourni par le moteur.
- * - `uResolution` — taille du canevas en pixels, fournie par le moteur.
- * - `uColorA` — le fond.
- * - `uColorB` — le neon de la grille et de l'horizon.
- * - `uColorC` — le soleil.
- * - `uSpeed` — vitesse de defilement du sol.
- * - `uHorizon` — hauteur de l'horizon, en fraction du cadre.
- * - `uDensity` — nombre de lignes de profondeur visibles.
- * - `uGlow` — portee du halo des traits, en cellules de sol.
+ * - `uTime` — time in seconds, supplied by the engine.
+ * - `uResolution` — canvas size in pixels, supplied by the engine.
+ * - `uColorA` — the background.
+ * - `uColorB` — the neon of the grid and of the horizon.
+ * - `uColorC` — the sun.
+ * - `uSpeed` — speed at which the ground scrolls.
+ * - `uHorizon` — height of the horizon, as a fraction of the frame.
+ * - `uDensity` — number of visible depth lines.
+ * - `uGlow` — reach of the halo of the strokes, in ground cells.
  */
 export const NEON_GRID_FRAGMENT = /* glsl */ `
 precision highp float;
@@ -48,27 +49,27 @@ uniform float uHorizon;
 uniform float uDensity;
 uniform float uGlow;
 
-// Couverture d'un train d'impulsions de largeur w, centrees sur les entiers,
-// integree sur l'empreinte f du pixel. Une boite d'un pixel ne suffit pas
-// quand la cellule approche le pixel — les deux frequences battent — donc,
-// des que l'empreinte depasse un quart de cellule, la couverture glisse vers
-// sa moyenne, qui est la largeur.
-float trait(float x, float w, float f) {
-  float largeur = clamp(w, 0.0, 1.0);
-  float empreinte = max(f, 0.0001) * 1.5;
-  float a = x + 0.5 - 0.5 * empreinte;
-  float b = x + 0.5 + 0.5 * empreinte;
-  float ia = floor(a) * largeur + clamp(fract(a) - 0.5 + 0.5 * largeur, 0.0, largeur);
-  float ib = floor(b) * largeur + clamp(fract(b) - 0.5 + 0.5 * largeur, 0.0, largeur);
-  return mix((ib - ia) / empreinte, largeur, smoothstep(0.25, 0.6, f));
+// Coverage of a pulse train of width w, centred on the integers, integrated
+// over the footprint f of the pixel. A one-pixel box is not enough when the
+// cell approaches the pixel — the two frequencies beat — so, as soon as the
+// footprint exceeds a quarter of a cell, the coverage slides towards its mean,
+// which is the width.
+float stroke(float x, float w, float f) {
+  float width = clamp(w, 0.0, 1.0);
+  float footprint = max(f, 0.0001) * 1.5;
+  float a = x + 0.5 - 0.5 * footprint;
+  float b = x + 0.5 + 0.5 * footprint;
+  float ia = floor(a) * width + clamp(fract(a) - 0.5 + 0.5 * width, 0.0, width);
+  float ib = floor(b) * width + clamp(fract(b) - 0.5 + 0.5 * width, 0.0, width);
+  return mix((ib - ia) / footprint, width, smoothstep(0.25, 0.6, f));
 }
 
-// Le halo d'un trait : une exponentielle de la distance au trait, qui glisse
-// elle aussi vers sa moyenne quand les cellules se resserrent sous le pixel.
+// The halo of a stroke: an exponential of the distance to the stroke, which
+// also slides towards its mean when the cells crowd below the pixel.
 float halo(float x, float g, float f) {
   float l = abs(fract(x) - 0.5);
-  float moyenne = 2.0 * g * (1.0 - exp(-0.5 / g));
-  return mix(exp(-l / g), moyenne, smoothstep(0.15, 0.5, f));
+  float mean = 2.0 * g * (1.0 - exp(-0.5 / g));
+  return mix(exp(-l / g), mean, smoothstep(0.15, 0.5, f));
 }
 
 void main() {
@@ -79,59 +80,58 @@ void main() {
   float px = 1.0 / max(uResolution.y, 1.0);
   float density = max(uDensity, 1.0) * 0.25;
 
-  float sol = 0.0;
-  float soleil = 0.0;
-  float ciel = 0.0;
+  float ground = 0.0;
+  float sun = 0.0;
+  float sky = 0.0;
 
   if (vUv.y < horizon) {
-    // Le sol : la profondeur est l'inverse de la distance a l'horizon.
+    // The ground: the depth is the inverse of the distance to the horizon.
     float depth = max(horizon - vUv.y, 0.0005);
     float xw = x / depth * density;
     float zw = 1.0 / depth * density + t * 2.0;
 
-    // L'empreinte d'un pixel en cellules de sol : le gradient de la
-    // projection. Les lignes verticales varient aussi avec la hauteur —
-    // d'autant plus qu'on s'ecarte du point de fuite — d'ou le second terme.
-    // Les coeurs font un pixel et demi a toute distance.
+    // The footprint of a pixel in ground cells: the gradient of the projection.
+    // The vertical lines also vary with the height — all the more so the
+    // further from the vanishing point — hence the second term. The cores are
+    // a pixel and a half at every distance.
     float fx = px * density / depth * sqrt(1.0 + (x * x) / (depth * depth));
     float fz = px * density / (depth * depth);
     float wx = fx * 1.5;
     float wz = fz * 1.5;
 
-    // Un coeur plus large qu'un tiers de sa cellule n'est plus un trait :
-    // il s'efface, et seule la nappe reste pres de l'horizon.
-    float coeurX = trait(xw, wx, fx) * (1.0 - smoothstep(0.2, 0.5, wx));
-    float coeurZ = trait(zw, wz, fz) * (1.0 - smoothstep(0.2, 0.5, wz));
+    // A core wider than a third of its cell is no longer a stroke: it fades
+    // out, and only the haze remains near the horizon.
+    float coreX = stroke(xw, wx, fx) * (1.0 - smoothstep(0.2, 0.5, wx));
+    float coreZ = stroke(zw, wz, fz) * (1.0 - smoothstep(0.2, 0.5, wz));
 
     float g = max(uGlow, 0.005);
     float halos = halo(xw, g, fx) + halo(zw, g, fz);
 
-    float nappe = exp(-depth * 22.0) * 0.35;
-    sol = max(coeurX, coeurZ) + halos * 0.35 + nappe;
+    float haze = exp(-depth * 22.0) * 0.35;
+    ground = max(coreX, coreZ) + halos * 0.35 + haze;
   } else {
-    // Le ciel : une teinte qui s'eteint en montant.
+    // The sky: a hue fading out as it rises.
     float y = vUv.y - horizon;
-    ciel = exp(-y * 5.0) * 0.25;
+    sky = exp(-y * 5.0) * 0.25;
 
-    // Le soleil : un disque au-dessus de l'horizon, decoupe en bas par des
-    // fentes qui s'elargissent en descendant et glissent lentement. Meme au
-    // ras de l'horizon, un filet de disque subsiste entre deux fentes : le
-    // soleil se pose, il ne flotte pas.
+    // The sun: a disc above the horizon, cut at the bottom by slits that widen
+    // downwards and slide slowly. Even right at the horizon, a sliver of disc
+    // remains between two slits: the sun settles, it does not float.
     vec2 centre = vec2(0.0, 0.17);
     float rs = length(vec2(x, y) - centre);
-    float rayon = 0.2;
-    float disque = 1.0 - smoothstep(rayon, rayon + px * 3.0, rs);
-    float seuil = mix(-0.85, 1.3, smoothstep(0.0, 0.3, y));
-    float bandes = smoothstep(-0.12, 0.12, sin(y * 70.0 - t * 1.5) + seuil);
-    float couronne = exp(-max(rs - rayon, 0.0) * 9.0) * 0.45;
-    soleil = disque * bandes + couronne;
+    float radius = 0.2;
+    float disc = 1.0 - smoothstep(radius, radius + px * 3.0, rs);
+    float threshold = mix(-0.85, 1.3, smoothstep(0.0, 0.3, y));
+    float bands = smoothstep(-0.12, 0.12, sin(y * 70.0 - t * 1.5) + threshold);
+    float corona = exp(-max(rs - radius, 0.0) * 9.0) * 0.45;
+    sun = disc * bands + corona;
   }
 
-  // L'horizon : une ligne de neon qui coud le sol au ciel.
-  float ligne = exp(-abs(vUv.y - horizon) / 0.006) * 0.75;
+  // The horizon: a neon line sewing the ground to the sky.
+  float line = exp(-abs(vUv.y - horizon) / 0.006) * 0.75;
 
-  vec3 colour = mix(uColorA, uColorC, clamp(soleil, 0.0, 1.0));
-  colour = mix(colour, uColorB, clamp(sol + ciel + ligne, 0.0, 1.0));
+  vec3 colour = mix(uColorA, uColorC, clamp(sun, 0.0, 1.0));
+  colour = mix(colour, uColorB, clamp(ground + sky + line, 0.0, 1.0));
 
   gl_FragColor = vec4(colour, 1.0);
 }

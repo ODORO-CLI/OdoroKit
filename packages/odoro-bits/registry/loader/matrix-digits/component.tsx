@@ -1,36 +1,36 @@
 /**
- * Chiffres qui se figent : un code dont les chiffres defilent tous, puis se
- * verrouillent un a un de gauche a droite, tiennent, et repartent.
+ * Digits that freeze: a code whose digits all spin, then lock one by one
+ * from left to right, hold, and start over.
  *
- * ## Le verrouillage est la seule information
+ * ## The locking is the only information
  *
- * Des chiffres qui defilent sans fin sont du bruit : rien n'y avance. Ce qui
- * fait de ce code un chargeur, c'est le verrou. Chaque case cesse de tourner
- * a son tour, de gauche a droite, et le regard suit le front qui progresse
- * comme il suivrait une barre. Le code complet tient un moment, le temps
- * d'etre lu comme un resultat, puis tout repart : c'est une boucle, et elle
- * ne pretend pas mesurer.
+ * Digits spinning endlessly are noise: nothing in them advances. What makes
+ * this code a loader is the lock. Each slot stops turning in its turn, from
+ * left to right, and the eye follows the front as it progresses just as it
+ * would follow a bar. The complete code holds for a moment, long enough to
+ * be read as a result, then everything starts again: it is a loop, and it
+ * does not pretend to measure.
  *
- * Le defilement change de chiffre a cadence fixe, pas a chaque image : a
- * soixante changements par seconde, l'oeil ne voit qu'un gris ; a vingt, il
- * voit des chiffres qui passent. Le tic est compte en temps ecoule sur la
- * boucle du moteur, ce qui le rend independant de la cadence de l'ecran.
+ * The spin changes digit at a fixed cadence, not on every frame: at sixty
+ * changes per second, the eye sees only grey; at twenty, it sees digits go
+ * by. The tick is counted in time elapsed on the engine loop, which makes it
+ * independent of the screen's cadence.
  *
- * ## Les chiffres s'ecrivent dans le DOM, pas dans l'etat
+ * ## The digits are written to the DOM, not to state
  *
- * Six cases qui changent vingt fois par seconde feraient cent vingt rendus
- * React par seconde pour des noeuds texte. Chaque case est donc ecrite par
- * reference, et le verrou est un attribut pose sur la case, que la feuille
- * traduit en pleine encre.
+ * Six slots changing twenty times a second would make a hundred and twenty
+ * React renders per second for text nodes. Each slot is therefore written by
+ * reference, and the lock is an attribute set on the slot, which the
+ * stylesheet turns into full ink.
  *
- * ## Un statut, pas un dessin
+ * ## A status, not a drawing
  *
- * L'element porte `role="status"` et un libelle pour les lecteurs d'ecran.
- * Le code est retire de l'arbre d'accessibilite : ses chiffres n'ont pas de
- * sens, et dans une region de statut chacun serait annonce.
+ * The element carries `role="status"` and a label for screen readers. The
+ * code is removed from the accessibility tree: its digits carry no meaning,
+ * and inside a status region each one would be announced.
  *
- * Sous mouvement reduit, le code est verrouille d'emblee : la figure se lit
- * encore comme un chargeur, seul le defilement s'arrete.
+ * Under reduced motion, the code is locked straight away: the figure still
+ * reads as a loader, only the spin stops.
  *
  * @module
  */
@@ -43,19 +43,19 @@ import {
 } from '@odoro-cli/engine'
 import { useEffect, useRef, type CSSProperties, type ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Id of the injected stylesheet. */
 const STYLE_ID = 'o-matrix-digits'
 
-/** Part du cycle ou tout defile, avant le premier verrou. */
+/** Share of the cycle where everything spins, before the first lock. */
 const SPIN_SHARE = 0.3
 
-/** Part du cycle sur laquelle les verrous se posent, de gauche a droite. */
+/** Share of the cycle over which the locks land, from left to right. */
 const LOCK_SHARE = 0.45
 
-/** Intervalle entre deux chiffres d'une case qui defile, en millisecondes. */
+/** Interval between two digits of a spinning slot, in milliseconds. */
 const TICK_MS = 50
 
-/** Pose le code et sa legende, une fois par document. */
+/** Sets the code and its caption, once per document. */
 function ensureMatrixDigitsRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -70,8 +70,8 @@ function ensureMatrixDigitsRule(): void {
     '[data-o-md-code]{',
     'display:inline-flex;gap:0.2em;font-family:var(--o-font-mono);font-size:1.5em;font-weight:600;',
     '}',
-    // Une case qui tourne est a demi-encre sur un fond leger ; verrouillee,
-    // elle passe en pleine encre et son fond se renforce.
+    // A spinning slot is half-ink on a light background; locked, it goes to
+    // full ink and its background strengthens.
     '[data-o-md-slot]{',
     'display:inline-block;min-width:1ch;text-align:center;padding:0.2em 0.12em;border-radius:0.15em;',
     'opacity:0.4;background:color-mix(in oklab,currentColor 8%,transparent);',
@@ -83,48 +83,48 @@ function ensureMatrixDigitsRule(): void {
   document.head.append(style)
 }
 
-/** Un chiffre au hasard, different du precedent pour que chaque tic se voie. */
+/** A random digit, different from the previous one so that each tick shows. */
 function nextDigit(previous: number): number {
   const candidate = Math.floor(Math.random() * 9)
   return candidate >= previous ? candidate + 1 : candidate
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to the component. */
 export interface MatrixDigitsOwnProps {
-  /** La legende sous le code. Chaine vide pour ne garder que le code. @defaultValue 'Chargement' */
+  /** The caption under the code. Empty string to keep only the code. @defaultValue 'Loading' */
   text?: string
-  /** Nombre de chiffres du code. @defaultValue 6 */
+  /** Number of digits in the code. @defaultValue 6 */
   digits?: number
-  /** Corps de reference, en pixels ; les chiffres en font une fois et demie. @defaultValue 16 */
+  /** Reference body size, in pixels; the digits are one and a half times that. @defaultValue 16 */
   size?: number
-  /** Duree d'un cycle, defilement, verrouillage et tenue, en millisecondes. @defaultValue 2600 */
+  /** Duration of one cycle — spin, locking and hold — in milliseconds. @defaultValue 2600 */
   speed?: number
-  /** Couleur des chiffres et de la legende. @defaultValue la couleur du texte */
+  /** Colour of the digits and of the caption. @defaultValue the text colour */
   color?: string
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */
+  /** Label announced to screen readers. @defaultValue 'Loading' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type MatrixDigitsProps = Customisable<MatrixDigitsOwnProps, 'span'>
 
 /**
- * Signale une attente par un code de chiffres qui se verrouillent.
+ * Signals a wait with a code of digits that lock.
  *
  * @example
  * <MatrixDigits />
  *
  * @example
- * // Un code court, plus vif, dans la teinte de marque.
+ * // A short code, livelier, in the brand hue.
  * <MatrixDigits digits={4} speed={1800} color="var(--o-palette-brand-500)" />
  */
 export function MatrixDigits({
-  text = 'Chargement',
+  text = 'Loading',
   digits = 6,
   size = 16,
   speed = 2600,
   color = 'currentColor',
-  label = 'Chargement',
+  label = 'Loading',
   ...rest
 }: MatrixDigitsProps): ReactElement {
   ensureMatrixDigitsRule()
@@ -170,7 +170,7 @@ export function MatrixDigits({
         elapsed += step
         sinceTick += step
 
-        // Nouveau cycle : nouveau code, tous les verrous sautent.
+        // New cycle: new code, every lock releases.
         const cycle = Math.floor(elapsed / speed)
         if (cycle !== cycleIndex) {
           cycleIndex = cycle

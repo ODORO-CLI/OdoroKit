@@ -1,33 +1,34 @@
 /**
- * Roue d'options : un tambour que l'on fait tourner et qui se cale sur une
- * valeur, comme la molette d'un selecteur de date.
+ * Option wheel: a drum one turns and that settles on a value, like the wheel
+ * of a date picker.
  *
- * ## C'est un vrai defilement, pas une simulation
+ * ## This is real scrolling, not a simulation
  *
- * La roue est une zone qui defile avec `scroll-snap-type` : la molette, le
- * doigt, la barre laterale, l'inertie du systeme et le calage sur la ligne
- * centrale sont ceux du navigateur. Reecrire cela au pointeur donnerait une
- * inertie approximative, differente sur chaque appareil, et un tambour qui
- * ignore la molette.
+ * The wheel is an area that scrolls with `scroll-snap-type`: the scroll
+ * wheel, the finger, the scrollbar, the inertia of the system and the
+ * snapping onto the centre line are the browser's own. Rewriting that from
+ * the pointer would give an approximate inertia, different on every device,
+ * and a drum that ignores the scroll wheel.
  *
- * ## La courbe est peinte, la valeur est posee a l'arret
+ * ## The curve is painted, the value is set at the stop
  *
- * A chaque image utile, chaque ligne recoit une rotation proportionnelle a sa
- * distance au centre — ecriture directe, sans rendu React. La valeur, elle,
- * n'est publiee que lorsque le defilement s'arrete : la publier en cours de
- * route ferait clignoter tout ce qui l'ecoute pendant le geste.
+ * On every useful frame, each row receives a rotation proportional to its
+ * distance to the centre — a direct write, with no React render. The value,
+ * for its part, is published only once the scrolling stops: publishing it
+ * along the way would make everything that listens to it flicker during the
+ * gesture.
  *
- * ## Les lignes ont toutes la meme hauteur
+ * ## The rows all have the same height
  *
- * C'est ce qui rend la position lisible : la ligne au centre est le quotient
- * du defilement par la hauteur d'une ligne. Un tambour a lignes inegales
- * demanderait une mesure par ligne a chaque image, pour un objet dont l'interet
- * est justement la regularite.
+ * That is what makes the position legible: the row at the centre is the
+ * quotient of the scroll by the height of a row. A drum with unequal rows
+ * would call for one measure per row on every frame, for an object whose
+ * whole point is regularity.
  *
- * ## Mouvement reduit
+ * ## Reduced motion
  *
- * Pas de courbe et pas de defilement anime : la roue devient une liste plate
- * qui saute a l'option choisie — son etat final.
+ * No curve and no animated scrolling: the wheel becomes a flat list that
+ * jumps to the chosen option — its final state.
  *
  * @module
  */
@@ -43,39 +44,39 @@ import {
   type ReactElement,
 } from 'react'
 
-/** Une option de la roue. */
+/** An option of the wheel. */
 export interface WheelOption {
-  /** Valeur rendue par `onChange`. */
+  /** Value returned by `onChange`. */
   readonly value: string
-  /** Libelle affiche. */
+  /** Displayed label. */
   readonly label: string
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to the component. */
 export interface OptionWheelOwnProps {
-  /** Les options, dans l'ordre du tambour. */
+  /** The options, in drum order. */
   options: readonly WheelOption[]
-  /** Nom de la roue pour les lecteurs d'ecran. */
+  /** Name of the wheel for screen readers. */
   label: string
-  /** Option choisie, en mode controle. */
+  /** Chosen option, in controlled mode. */
   value?: string
-  /** Option choisie au montage, en mode non controle. */
+  /** Option chosen on mount, in uncontrolled mode. */
   defaultValue?: string
-  /** Appele quand la roue se cale sur une option. */
+  /** Called when the wheel settles on an option. */
   onChange?: (value: string) => void
-  /** Nombre de lignes visibles. Un nombre impair centre la ligne choisie. @defaultValue 5 */
+  /** Number of visible rows. An odd number centres the chosen row. @defaultValue 5 */
   visible?: number
-  /** Inclinaison ajoutee par ligne d'ecart au centre. @defaultValue 18 */
+  /** Tilt added per row of distance to the centre. @defaultValue 18 */
   curve?: number
 }
 
-/** Toutes les proprietes. */
+/** All the props. */
 export type OptionWheelProps = Customisable<OptionWheelOwnProps>
 
-/** Identifiant de la feuille injectee. */
+/** Id of the injected stylesheet. */
 const STYLE_ID = 'o-option-wheel'
 
-/** Pose le tambour, ses lignes et la fenetre centrale, une fois par document. */
+/** Sets the drum, its rows and the centre window, once per document. */
 function ensureWheelRules(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -85,13 +86,13 @@ function ensureWheelRules(): void {
   style.textContent = [
     '[data-o-wheel]{position:relative;isolation:isolate}',
     '[data-o-wheel-scroll]{',
-    // La fenetre visible d'une zone qui defile est sa boite de remplissage :
-    // sans `border-box`, les marges internes agrandiraient le tambour.
+    // The visible window of an area that scrolls is its padding box: without
+    // `border-box`, the inner padding would grow the drum.
     'position:relative;box-sizing:border-box;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none;',
     'scroll-snap-type:y mandatory;perspective:600px;transform-style:preserve-3d;',
     'height:calc(var(--o-wheel-visible) * var(--o-wheel-row));',
     'padding-block:calc((var(--o-wheel-visible) - 1) / 2 * var(--o-wheel-row));',
-    // Les extremites s'effacent : le tambour n'a pas de bord franc.
+    // The ends fade away: the drum has no hard edge.
     '-webkit-mask-image:linear-gradient(to bottom,transparent,currentColor 35%,currentColor 65%,transparent);',
     'mask-image:linear-gradient(to bottom,transparent,currentColor 35%,currentColor 65%,transparent);',
     '}',
@@ -104,7 +105,7 @@ function ensureWheelRules(): void {
     'transition:color var(--o-duration-fast) linear;',
     '}',
     '[data-o-wheel-scroll] [role="option"][aria-selected="true"]{color:var(--o-wheel-accent);font-weight:600}',
-    // La fenetre : deux filets qui marquent la ligne retenue.
+    // The window: two rules that mark the row held.
     '[data-o-wheel-window]{',
     'position:absolute;left:0;right:0;top:50%;height:var(--o-wheel-row);',
     'translate:0 -50%;pointer-events:none;z-index:1;',
@@ -116,11 +117,11 @@ function ensureWheelRules(): void {
 }
 
 /**
- * Roue d'options a defilement et calage.
+ * Option wheel with scrolling and snapping.
  *
  * @example
  * <OptionWheel
- *   label="Duree"
+ *   label="Duration"
  *   options={[
  *     { value: '15', label: '15 minutes' },
  *     { value: '30', label: '30 minutes' },
@@ -129,8 +130,8 @@ function ensureWheelRules(): void {
  * />
  *
  * @example
- * // Mode controle, sept lignes visibles et une courbe plus marquee.
- * <OptionWheel label="Ville" options={villes} value={ville} onChange={setVille} visible={7} curve={26} />
+ * // Controlled mode, seven visible rows and a more marked curve.
+ * <OptionWheel label="City" options={cities} value={city} onChange={setCity} visible={7} curve={26} />
  */
 export function OptionWheel({
   options,
@@ -164,19 +165,19 @@ export function OptionWheel({
     onChange?.(next)
   }
 
-  /** Incline chaque ligne selon sa distance a la ligne centrale. */
+  /** Tilts each row according to its distance to the centre row. */
   const paint = (): void => {
     frame.current = 0
     const host = scrollRef.current
     const row = rowHeight.current
     if (host === null || row === 0) return
-    const centre = host.scrollTop / row
+    const center = host.scrollTop / row
     const half = Math.max(1, (visible - 1) / 2)
 
     for (const [index, element] of Array.from(
       host.querySelectorAll<HTMLElement>('[role="option"]'),
     ).entries()) {
-      const away = index - centre
+      const away = index - center
       const far = Math.min(1, Math.abs(away) / (half + 0.5))
       element.style.opacity = String(1 - far * 0.75)
       element.style.transform = reduced
@@ -189,8 +190,8 @@ export function OptionWheel({
     if (frame.current === 0 && typeof requestAnimationFrame === 'function') {
       frame.current = requestAnimationFrame(paint)
     }
-    // Le calage est publie a l'arret : `scrollend` n'est pas partout, un
-    // silence de quelques images l'est.
+    // The snap is published at the stop: `scrollend` is not everywhere, a
+    // silence of a few frames is.
     clearTimeout(settle.current)
     settle.current = setTimeout(() => {
       const host = scrollRef.current
@@ -202,9 +203,9 @@ export function OptionWheel({
     }, 140)
   }
 
-  // Mesure, calage sur l'option courante, premiere peinture. Le premier
-  // passage saute, les suivants glissent : arriver en glissant sur une valeur
-  // que l'on n'a pas encore vue n'a aucun sens.
+  // Measure, snap onto the current option, first paint. The first pass jumps,
+  // the next ones slide: arriving by sliding onto a value one has not seen yet
+  // makes no sense.
   useLayoutEffect(() => {
     const host = scrollRef.current
     if (host === null) return

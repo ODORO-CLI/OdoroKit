@@ -1,27 +1,27 @@
 /**
- * Vague tranchee : une bande epaisse lue par colonnes, qui ondule en escalier.
+ * Sliced waves: a thick band read by columns, rippling in a staircase.
  *
- * ## Le principe
+ * ## The principle
  *
- * Le cadre est decoupe en tranches verticales ; dans chacune, la hauteur de
- * la bande est evaluee au centre de la colonne, jamais au fragment. La vague
- * saute donc d'une marche a la suivante, et chaque colonne bat en plus a son
- * propre rythme.
+ * The frame is cut into vertical slices; in each of them, the height of the
+ * band is evaluated at the centre of the column, never at the fragment. The
+ * wave therefore jumps from one step to the next, and each column additionally
+ * beats to a rhythm of its own.
  *
- * Ce qui distingue cette entree de ses cousines : la bande est epaisse, le
- * mouvement est vertical — les colonnes montent et descendent — et le rythme
- * est vif, avec un tressaillement propre a chaque tranche.
+ * What sets this entry apart from its cousins: the band is thick, the motion is
+ * vertical — the columns rise and fall — and the rhythm is brisk, with a twitch
+ * of its own in every slice.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur — les recopier ici en ferait autant
- * de versions a maintenir qu'il y a de fonds.
+ * It carries only what sets it apart: its shader, its settings and its
+ * fallback. Reading the tokens, converting them to floats and re-reading them
+ * when the theme changes all come from the engine — copying that here would
+ * leave as many versions to maintain as there are backgrounds.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en
- * accorde qu'une par backend — et sous mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface — it grants only one
+ * per backend — and under reduced motion.
  *
  * @module
  */
@@ -38,58 +38,58 @@ import { type ReactElement } from 'react'
 
 import { SLICED_WAVES_FRAGMENT } from './sliced-waves.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface SlicedWavesControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to this component. */
 export interface SlicedWavesOwnProps {
-  /** Nombre de tranches. Borne a cent vingt par le shader. @defaultValue 40 */
+  /** Number of slices. Clamped to a hundred and twenty by the shader. @defaultValue 40 */
   slices?: number
-  /** Hauteur de la vague, en fraction du cadre. @defaultValue 0.22 */
+  /** Height of the wave, as a fraction of the frame. @defaultValue 0.22 */
   amplitude?: number
-  /** Vitesse de la vague. @defaultValue 0.9 */
+  /** Speed of the wave. @defaultValue 0.9 */
   speed?: number
-  /** Epaisseur de la bande, en fraction du cadre. @defaultValue 0.28 */
+  /** Thickness of the band, as a fraction of the frame. @defaultValue 0.28 */
   height?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<SlicedWavesControls>
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type SlicedWavesProps = Customisable<SlicedWavesOwnProps>
 
-/** Tokens employes par defaut : le fond, le corps de la bande, son bord. */
+/** Tokens used by default: the background, the body of the band, its edge. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-violet-500',
   '--o-palette-violet-200',
 ] as const
 
-/** Repli par defaut : un degrade fige, dans les memes tons. */
+/** Default fallback: a frozen gradient, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-b o-from-zinc-50 dark:o-from-zinc-950 o-to-violet-950'
 
 /**
- * Nombre de tranches en qualite basse.
+ * Number of slices at low quality.
  *
- * Le shader evalue une tranche par fragment, donc le nombre ne coute rien en
- * calcul. Mais un sillon d'un pixel entre des tranches etroites, a densite de
- * pixels reduite, se met a scintiller : moins de tranches, plus larges, et
- * l'escalier reste net.
+ * The shader evaluates one slice per fragment, so the number costs nothing in
+ * computation. But a one-pixel groove between narrow slices, at a reduced pixel
+ * density, starts to shimmer: fewer slices, wider, and the staircase stays
+ * crisp.
  */
 const LOW_SLICES = 20
 
 /**
- * Vague tranchee.
+ * Sliced waves.
  *
  * @example
  * <div className="o-relative o-min-h-screen">

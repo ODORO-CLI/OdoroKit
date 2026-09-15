@@ -1,28 +1,28 @@
 /**
- * Blocs qui sautent : une image dont des blocs se decalent par a-coups,
- * teintes inversees ou ecartees.
+ * Glitch blocks: a picture whose blocks jolt out of place, their hues
+ * inverted or pulled apart.
  *
- * ## Le principe
+ * ## The principle
  *
- * Tout est hache par paliers de temps : entre deux paliers, rien ne bouge.
- * A chaque palier, un tirage par bloc decide s'il saute ; un bloc qui saute
- * lit l'image ailleurs et l'ecrit a l'envers. Des bandes entieres sautent
- * plus rarement, d'un seul tenant.
+ * Everything is chopped into ticks of time: between two ticks nothing moves.
+ * At each tick, a draw per block decides whether it jumps; a block that
+ * jumps reads the image elsewhere and writes it the other way round. Whole
+ * bands jump more rarely, in a single piece.
  *
- * Ce qui distingue cette entree de `tv-static` : il y a une image, et elle
- * se casse ; et de `vhs-tracking` : ici les sauts sont des rectangles nets,
- * pas des bandes qui roulent.
+ * What sets this entry apart from `tv-static`: there is a picture, and it
+ * breaks; and from `vhs-tracking`: here the jumps are crisp rectangles, not
+ * bands that roll.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur — les recopier ici en ferait autant
- * de versions a maintenir qu'il y a de fonds.
+ * It carries only what sets it apart: its shader, its settings and its fallback.
+ * Reading the tokens, converting them to floats and re-reading them when the
+ * theme changes all come from the engine — copying them here would leave as
+ * many versions to maintain as there are backgrounds.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en
- * accorde qu'une par backend — et sous mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface — it grants only one
+ * per backend — and under reduced motion.
  *
  * @module
  */
@@ -39,48 +39,48 @@ import { type ReactElement } from 'react'
 
 import { GLITCH_BLOCKS_FRAGMENT } from './glitch-blocks.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface GlitchBlocksControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to this component. */
 export interface GlitchBlocksOwnProps {
-  /** Nombre de rangees de blocs sur la hauteur. Borne a quarante par le shader. @defaultValue 12 */
+  /** Number of rows of blocks across the height. Capped at forty by the shader. @defaultValue 12 */
   blocks?: number
-  /** Paliers par seconde. @defaultValue 6 */
+  /** Ticks per second. @defaultValue 6 */
   rate?: number
-  /** Part des blocs qui sautent a chaque palier. Zero fige l'image. @defaultValue 0.5 */
+  /** Share of the blocks that jump at each tick. Zero freezes the picture. @defaultValue 0.5 */
   amount?: number
-  /** Vitesse du degrade de fond. @defaultValue 0.3 */
+  /** Speed of the background gradient. @defaultValue 0.3 */
   speed?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<GlitchBlocksControls>
 }
 
-/** Toutes les proprietes. */
+/** Every property. */
 export type GlitchBlocksProps = Customisable<GlitchBlocksOwnProps>
 
-/** Tokens employes par defaut : le fond, les deux teintes du degrade. */
+/** Tokens used by default: the background, the two hues of the gradient. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-violet-500',
   '--o-palette-cyan-400',
 ] as const
 
-/** Repli par defaut : un degrade fige, dans les memes tons. */
+/** Default fallback: a frozen gradient, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-br o-from-zinc-50 dark:o-from-zinc-950 o-via-violet-100 dark:o-via-violet-950 o-to-cyan-100 dark:o-to-cyan-950'
 
 /**
- * Blocs qui sautent.
+ * Glitch blocks.
  *
  * @example
  * <div className="o-relative o-min-h-screen">
@@ -103,8 +103,8 @@ export function GlitchBlocks({
     colors,
     uniforms: { uBlocks: blocks, uRate: rate, uAmount: amount, uSpeed: speed },
     name: 'glitch-blocks',
-    // Le fragment coute autant a chaque image ; ce qui pese, c'est le
-    // rythme des images reellement differentes, donc il est borne.
+    // The fragment costs the same on every frame; what weighs is the rate of
+    // genuinely different frames, so that is what is capped.
     degrade: (quality) => ({
       uRate: quality === 'low' ? Math.min(rate, 3) : rate,
     }),

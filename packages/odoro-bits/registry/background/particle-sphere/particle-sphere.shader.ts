@@ -1,25 +1,25 @@
 /**
- * Shaders de la sphere de points.
+ * Shaders of the sphere of points.
  *
- * ## L'idee
+ * ## The idea
  *
- * Chaque point est un sommet sur une sphere unite. Le vertex shader le
- * souleve le long de sa normale — qui est sa position — d'une bosse centree
- * sur la direction du pointeur, plus une respiration de bruit. La bosse est
- * une fonction du cosinus de l'angle entre le point et le pointeur : nulle
- * loin, maximale sous lui, et son etendue est un reglage.
+ * Every point is a vertex on a unit sphere. The vertex shader lifts it along
+ * its normal — which is its position — by a bump centred on the direction of
+ * the pointer, plus a breathing of noise. The bump is a function of the
+ * cosine of the angle between the point and the pointer: nil far away,
+ * greatest under it, and its extent is a setting.
  *
- * Le fragment dessine un disque doux dans le point, teinte selon le
- * soulevement, et attenue l'hemisphere arriere : sans cette attenuation, les
- * deux faces de la sphere se superposent en un disque plat.
+ * The fragment draws a soft disc inside the point, tinted according to the
+ * lift, and dims the rear hemisphere: without that dimming, the two faces of
+ * the sphere pile up into a flat disc.
  *
- * Le bruit est fourni par le moteur (`NOISE_FUNCTIONS_3D`), prefixe au
+ * The noise is supplied by the engine (`NOISE_FUNCTIONS_3D`), prefixed to the
  * vertex.
  *
  * @module
  */
 
-/** Vertex shader : bosse sous le pointeur, respiration, taille par la profondeur. */
+/** Vertex shader: bump under the pointer, breathing, size from the depth. */
 export const PARTICLE_SPHERE_VERTEX = /* glsl */ `
 uniform float uTime;
 uniform vec3 uPointer;
@@ -34,12 +34,12 @@ varying float vFacing;
 void main() {
   vec3 normal = normalize(position);
 
-  // La bosse : proche de 1 sous le pointeur, nulle au-dela de la portee.
+  // The bump: close to 1 under the pointer, nil beyond the reach.
   float proximity = dot(normal, uPointer);
   float bump = smoothstep(1.0 - uReach, 1.0, proximity);
   bump = bump * bump * (3.0 - 2.0 * bump);
 
-  // La respiration : un bruit lent qui fait onduler toute la surface.
+  // The breathing: a slow noise that ripples the whole surface.
   float breathe = odoroNoise3(normal * 2.2 + vec3(0.0, uTime * 0.3, 0.0)) - 0.5;
 
   float lift = bump * uPull + breathe * 0.1;
@@ -51,13 +51,13 @@ void main() {
   vLift = bump;
   vFacing = viewNormal.z;
 
-  // La taille suit la profondeur, et les points souleves grossissent.
+  // The size follows the depth, and the lifted points grow.
   gl_PointSize = uSize * uPixelRatio * (1.0 + bump * 1.4) * (3.2 / max(-viewPosition.z, 0.5));
   gl_Position = projectionMatrix * viewPosition;
 }
 `
 
-/** Fragment shader : disque doux, teinte par soulevement, arriere attenue. */
+/** Fragment shader: soft disc, tinted by lift, rear dimmed. */
 export const PARTICLE_SPHERE_FRAGMENT = /* glsl */ `
 precision highp float;
 
@@ -72,7 +72,7 @@ void main() {
   float disc = 1.0 - smoothstep(0.2, 0.5, d);
   if (disc <= 0.001) discard;
 
-  // L'arriere de la sphere est plus sombre : c'est ce qui la fait ronde.
+  // The rear of the sphere is darker: that is what makes it round.
   float depth = mix(0.3, 1.0, smoothstep(-1.0, 0.6, vFacing));
 
   vec3 colour = mix(uColorA, uColorB, vLift);

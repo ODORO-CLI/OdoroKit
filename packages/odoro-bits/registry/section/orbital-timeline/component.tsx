@@ -1,35 +1,35 @@
 /**
- * Frise orbitale : des étapes disposées en cercle, qui tourne.
+ * Orbital timeline: steps laid out on a circle, which rotates.
  *
- * ## La rotation passe par la boucle du moteur
+ * ## The rotation goes through the engine loop
  *
- * L'implémentation d'origine ouvrait un `setInterval` de cinquante
- * millisecondes et posait l'angle dans un état React. Trois conséquences, dont
- * deux invisibles en développement :
+ * The original implementation opened a fifty millisecond `setInterval` and set
+ * the angle in a React state. Three consequences, two of which are invisible
+ * in development:
  *
- * 1. un rendu React complet vingt fois par seconde, pour déplacer des éléments
- *    que le compositeur sait déplacer seul ;
- * 2. une cadence qui ne suit pas celle de l'écran — donc un mouvement qui
- *    saccade sur un écran à cent vingt images, et dérive sur un onglet en
- *    arrière-plan, où les minuteurs sont ralentis mais pas arrêtés ;
- * 3. aucun arrêt hors du champ.
+ * 1. a full React render twenty times a second, to move elements that the
+ *    compositor knows how to move on its own;
+ * 2. a cadence that does not follow the one of the screen — so a motion that
+ *    stutters on a hundred and twenty frame display, and drifts on a
+ *    background tab, where timers are slowed down but not stopped;
+ * 3. no stop off screen.
  *
- * L'angle vit donc dans une ref, la boucle unique l'avance en fonction du temps
- * écoulé, et les positions sont écrites directement en style. Aucun rendu React
- * pendant la rotation.
+ * The angle therefore lives in a ref, the single loop advances it according to
+ * the elapsed time, and the positions are written directly in style. No React
+ * render during the rotation.
  *
- * ## Ce qui reste un état, et pourquoi
+ * ## What stays a state, and why
  *
- * L'étape ouverte. Elle change la structure du document — une fiche apparaît —
- * et cela, seul React peut le faire. Elle change une fois par clic, pas vingt
- * fois par seconde.
+ * The open step. It changes the structure of the document — a card appears —
+ * and only React can do that. It changes once per click, not twenty times a
+ * second.
  *
- * ## Ce n'est pas une frise chronologique au sens du balisage
+ * ## This is not a timeline in the markup sense
  *
- * C'est une liste d'étapes, et elle est balisée comme telle : `<ul>`, `<li>`,
- * un bouton par étape. La disposition circulaire est de la présentation. Au
- * clavier, on tabule d'une étape à la suivante dans l'ordre de la liste, et non
- * dans l'ordre où le cercle les a placées — ce qui est le seul ordre stable.
+ * It is a list of steps, and it is marked up as such: `<ul>`, `<li>`, one
+ * button per step. The circular layout is presentation. With the keyboard, one
+ * tabs from a step to the next in the order of the list, and not in the order
+ * in which the circle placed them — which is the only stable order.
  *
  * @module
  */
@@ -50,48 +50,48 @@ import {
   type ReactNode,
 } from 'react'
 
-/** Etat d'avancement d'une etape. */
+/** Progress state of a step. */
 export type OrbitalStatus = 'done' | 'current' | 'todo'
 
-/** Une etape de la frise. */
+/** One step of the timeline. */
 export interface OrbitalStep {
-  /** Identifiant, unique dans la frise. */
+  /** Identifier, unique within the timeline. */
   readonly id: string
-  /** Titre affiche sous le noeud. */
+  /** Title displayed under the node. */
   readonly title: string
-  /** Date ou reperage temporel, affiche dans la fiche. */
+  /** Date or time marker, displayed in the card. */
   readonly date?: string
-  /** Corps de la fiche. */
+  /** Body of the card. */
   readonly content?: ReactNode
-  /** Pictogramme du noeud. Emplacement : le registre n'en fournit aucun. */
+  /** Glyph of the node. Slot: the registry provides none. */
   readonly icon?: ReactNode
-  /** Identifiants des etapes liees, mises en avant a l'ouverture. */
+  /** Identifiers of the related steps, highlighted on opening. */
   readonly relatedIds?: readonly string[]
-  /** Avancement. @defaultValue 'todo' */
+  /** Progress. @defaultValue 'todo' */
   readonly status?: OrbitalStatus
-  /** Intensite, de 0 a 100. Elle dessine le halo et la jauge. */
+  /** Energy, from 0 to 100. It draws the halo and the gauge. */
   readonly energy?: number
 }
 
-/** Proprietes propres au composant. */
+/** Properties of the component itself. */
 export interface OrbitalTimelineOwnProps {
-  /** Les etapes, dans l'ordre ou elles se suivent. */
+  /** The steps, in the order in which they follow one another. */
   steps: readonly OrbitalStep[]
-  /** Rayon du cercle, en pixels. @defaultValue 200 */
+  /** Radius of the circle, in pixels. @defaultValue 200 */
   radius?: number
-  /** Tours par minute. Zero immobilise la frise. @defaultValue 1 */
+  /** Turns per minute. Zero holds the timeline still. @defaultValue 1 */
   rpm?: number
-  /** Libelle de la liste, pour les technologies d'assistance. */
+  /** Label of the list, for assistive technologies. */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All the properties. */
 export type OrbitalTimelineProps = Customisable<OrbitalTimelineOwnProps, 'section'>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-orbital-timeline'
 
-/** Pose les regles de la frise, une fois par document. */
+/** Sets the rules of the timeline, once per document. */
 function ensureOrbitalRules(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -99,14 +99,14 @@ function ensureOrbitalRules(): void {
   const style = document.createElement('style')
   style.id = STYLE_ID
   style.textContent = [
-    // Le coeur respire, et ses deux anneaux se propagent vers l'exterieur.
+    // The core breathes, and its two rings spread outwards.
     '[data-o-orbital-core]{animation:o-orbital-beat 2s var(--o-ease-standard) infinite}',
     '[data-o-orbital-ring]{animation:o-orbital-ping 2s var(--o-ease-out) infinite}',
     '[data-o-orbital-ring="2"]{animation-delay:0.5s}',
     '@keyframes o-orbital-beat{0%,100%{opacity:1}50%{opacity:0.55}}',
     '@keyframes o-orbital-ping{75%,100%{transform:scale(2);opacity:0}}',
 
-    // Le halo d'une etape liee, le temps qu'on la remarque.
+    // The halo of a related step, long enough for it to be noticed.
     '[data-o-orbital-halo="on"]{animation:o-orbital-beat 1s var(--o-ease-standard) infinite}',
 
     '@media (prefers-reduced-motion:reduce){',
@@ -116,47 +116,47 @@ function ensureOrbitalRules(): void {
   document.head.append(style)
 }
 
-/** Classes de la pastille d'avancement. */
+/** Classes of the progress badge. */
 const STATUS_CLASS: Readonly<Record<OrbitalStatus, string>> = {
   done: 'o-bg-emerald-500 o-text-zinc-950',
   current: 'o-bg-zinc-50 o-text-zinc-950',
   todo: 'o-bg-zinc-800 o-text-zinc-300',
 }
 
-/** Libelle de l'avancement. */
+/** Label of the progress. */
 const STATUS_LABEL: Readonly<Record<OrbitalStatus, string>> = {
-  done: 'Termine',
-  current: 'En cours',
-  todo: 'A venir',
+  done: 'Done',
+  current: 'In progress',
+  todo: 'Upcoming',
 }
 
 /**
- * Frise orbitale.
+ * Orbital timeline.
  *
  * @example
  * <OrbitalTimeline
  *   steps={[
- *     { id: 'plan', title: 'Cadrage', date: 'Janvier', status: 'done', energy: 100 },
- *     { id: 'build', title: 'Fabrication', date: 'Mars', status: 'current', energy: 60,
+ *     { id: 'plan', title: 'Scoping', date: 'January', status: 'done', energy: 100 },
+ *     { id: 'build', title: 'Build', date: 'March', status: 'current', energy: 60,
  *       relatedIds: ['plan'] },
  *   ]}
  * />
  *
  * @example
- * // Immobile : la disposition circulaire sans la rotation.
- * <OrbitalTimeline steps={etapes} rpm={0} />
+ * // Still: the circular layout without the rotation.
+ * <OrbitalTimeline steps={steps} rpm={0} />
  */
 export function OrbitalTimeline({
   steps,
   radius = 200,
   rpm = 1,
-  label = 'Etapes',
+  label = 'Steps',
   ...rest
 }: OrbitalTimelineProps): ReactElement {
   const { reduced } = useMotionState()
   const [open, setOpen] = useState<string | null>(null)
 
-  /** Angle courant, en tours. Une ref : la rotation ne doit rien rendre. */
+  /** Current angle, in turns. A ref: the rotation must render nothing. */
   const turns = useRef(0)
   const nodes = useRef<Map<string, HTMLElement>>(new Map())
   const host = useRef<HTMLDivElement | null>(null)
@@ -169,9 +169,9 @@ export function OrbitalTimeline({
     [steps],
   )
 
-  // Le placement. Il s'execute a chaque image pendant la rotation, et une seule
-  // fois quand elle est arretee — l'ecriture est la meme, seule la source de
-  // l'angle change.
+  // The placement. It runs on every frame during the rotation, and a single
+  // time when it is stopped — the write is the same, only the source of the
+  // angle changes.
   useEffect(() => {
     const place = (): void => {
       const count = steps.length
@@ -186,8 +186,8 @@ export function OrbitalTimeline({
         const y = Math.sin(angle) * radius
 
         element.style.transform = `translate3d(${x.toFixed(1)}px,${y.toFixed(1)}px,0)`
-        // Les noeuds du fond passent derriere et s'estompent : c'est ce qui
-        // donne la profondeur, sans perspective ni transformation 3D.
+        // The nodes at the back go behind and fade out: that is what gives the
+        // depth, without perspective nor 3D transform.
         element.style.zIndex = String(Math.round(100 + 50 * Math.cos(angle)))
         element.style.opacity =
           step.id === open ? '1' : (0.4 + 0.6 * ((1 + Math.sin(angle)) / 2)).toFixed(3)
@@ -196,8 +196,8 @@ export function OrbitalTimeline({
 
     place()
 
-    // Arretee sur demande, sous mouvement reduit, ou pendant qu'une fiche est
-    // ouverte : elle emporterait sa fiche hors du cadre.
+    // Stopped on request, under reduced motion, or while a card is open: it
+    // would carry its card out of the frame.
     if (reduced || rpm === 0 || open !== null) return
 
     const subscription = clock.subscribe(
@@ -205,7 +205,7 @@ export function OrbitalTimeline({
         turns.current = (turns.current + (delta * rpm) / 60) % 1
         place()
       },
-      { name: 'frise-orbitale', priority: CLOCK_PRIORITY.layout },
+      { name: 'orbital-timeline', priority: CLOCK_PRIORITY.layout },
     )
 
     return () => subscription.unsubscribe()
@@ -222,7 +222,7 @@ export function OrbitalTimeline({
         ref={host}
         className="o-relative o-flex o-h-full o-w-full o-items-center o-justify-center"
       >
-        {/* Le coeur, et ses deux anneaux. */}
+        {/* The core, and its two rings. */}
         <div
           aria-hidden
           data-o-orbital-core
@@ -239,15 +239,15 @@ export function OrbitalTimeline({
           <span className="o-h-8 o-w-8 o-rounded-full o-bg-zinc-50" />
         </div>
 
-        {/* Le cercle sur lequel les etapes sont posees. */}
+        {/* The circle on which the steps are placed. */}
         <div
           aria-hidden
           className="o-absolute o-rounded-full o-border-w-1 o-border-zinc-800"
           style={{ width: radius * 2, height: radius * 2 }}
         />
 
-        {/* Les etapes : une liste, malgre le cercle. C'est l'ordre qui compte
-            au clavier, et il est celui de la frise, pas celui de l'ecran. */}
+        {/* The steps: a list, despite the circle. What counts at the keyboard
+            is the order, and it is the timeline's, not the screen's. */}
         <ul aria-label={label} className="o-absolute o-list-none o-p-0">
           {steps.map((step) => {
             const status = step.status ?? 'todo'
@@ -271,7 +271,7 @@ export function OrbitalTimeline({
                   onClick={() => setOpen(isOpen ? null : step.id)}
                   className="o-relative o-flex o-flex-col o-items-center o-gap-2 o-bg-transparent"
                 >
-                  {/* Le halo : sa taille dit l'intensite de l'etape. */}
+                  {/* The halo: its size tells the energy of the step. */}
                   <span
                     aria-hidden
                     data-o-orbital-halo={isRelated ? 'on' : 'off'}
@@ -332,11 +332,11 @@ export function OrbitalTimeline({
 
                     <div className="o-mt-4 o-border-t o-border-zinc-800 o-pt-3">
                       <div className="o-flex o-items-center o-justify-between o-text-xs o-text-zinc-400">
-                        <span>Intensite</span>
+                        <span>Energy</span>
                         <span className="o-font-mono">{energy}%</span>
                       </div>
-                      {/* Une jauge natale : lue par les technologies
-                          d'assistance sans qu'on ait a decrire la barre. */}
+                      {/* A native gauge: read by assistive technologies
+                          without having to describe the bar. */}
                       <progress
                         value={energy}
                         max={100}
@@ -349,7 +349,7 @@ export function OrbitalTimeline({
                     {(step.relatedIds ?? []).length === 0 ? null : (
                       <div className="o-mt-4 o-border-t o-border-zinc-800 o-pt-3">
                         <p className="o-mb-2 o-text-xs o-uppercase o-tracking-wide o-text-zinc-400">
-                          Etapes liees
+                          Related steps
                         </p>
                         <div className="o-flex o-flex-wrap o-gap-1">
                           {(step.relatedIds ?? []).map((id) => (

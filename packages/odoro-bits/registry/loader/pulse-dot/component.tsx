@@ -1,27 +1,27 @@
 /**
- * Point qui pulse : un point plein d'ou s'echappent deux ondes concentriques.
+ * Pulsing dot: a solid dot from which two concentric waves escape.
  *
- * ## Deux ondes, une demi-periode d'ecart
+ * ## Two waves, half a period apart
  *
- * Une seule onde qui grandit puis disparait laisse un trou : pendant qu'elle
- * s'eteint, rien ne part du centre, et le rythme semble hoqueter. Deux ondes
- * a une demi-periode d'ecart se relaient sans blanc — il y en a toujours une
- * en route. Le delai de la seconde est negatif, pour qu'elle soit deja en
- * chemin a la premiere image plutot que d'attendre son tour.
+ * A single wave that grows then vanishes leaves a hole: while it fades,
+ * nothing leaves the centre, and the rhythm seems to stutter. Two waves half
+ * a period apart relieve one another with no gap — there is always one on its
+ * way. The delay of the second is negative, so that it is already on its way
+ * at the first frame rather than waiting its turn.
  *
- * Le point central, lui, ne bouge pas : c'est l'ancre visuelle, ce que l'oeil
- * fixe pendant que les ondes s'eloignent. Un centre qui pulserait aussi
- * brouillerait la lecture — rien ne resterait fixe.
+ * The central dot, for its part, does not move: it is the visual anchor, what
+ * the eye holds on to while the waves travel out. A centre that pulsed as
+ * well would blur the reading — nothing would stay fixed.
  *
- * ## Un statut, pas un dessin
+ * ## A status, not a drawing
  *
- * L'element porte `role="status"` et un libelle pour les lecteurs d'ecran :
- * l'attente est une information, pas une decoration. Point et ondes sont
- * retires de l'arbre d'accessibilite.
+ * The element carries `role="status"` and a label for screen readers: the
+ * wait is information, not decoration. Dot and waves are removed from the
+ * accessibility tree.
  *
- * Sous mouvement reduit, le point reste plein et une seule onde est figee a
- * mi-course, attenuee : la figure dit encore « quelque chose emet », sans
- * mouvement.
+ * Under reduced motion, the dot stays solid and a single wave is frozen
+ * halfway, dimmed: the figure still says "something is emitting", without
+ * movement.
  *
  * @module
  */
@@ -29,10 +29,10 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Id of the injected stylesheet. */
 const STYLE_ID = 'o-pulse-dot'
 
-/** Pose le point et ses ondes, une fois par document. */
+/** Sets the dot and its waves, once per document. */
 function ensurePulseRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -58,9 +58,9 @@ function ensurePulseRule(): void {
     'from{transform:scale(0.3);opacity:0.9}',
     'to{transform:scale(1);opacity:0}',
     '}',
-    // Une onde figee a mi-course : la figure dit encore « emission », sans
-    // rien qui bouge. La seconde onde disparait, deux ondes fixes seraient
-    // une cible, pas un chargeur.
+    // One wave frozen halfway: the figure still says "emission", with
+    // nothing moving. The second wave disappears — two fixed waves would be
+    // a target, not a loader.
     '@media (prefers-reduced-motion:reduce){',
     '[data-o-pulse-wave]{animation:none;transform:scale(0.7);opacity:0.35}',
     '[data-o-pulse-wave]:last-child{display:none}',
@@ -69,36 +69,36 @@ function ensurePulseRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to the component. */
 export interface PulseDotOwnProps {
-  /** Diametre de l'onde a son extension maximale, en pixels. @defaultValue 32 */
+  /** Diameter of the wave at its widest, in pixels. @defaultValue 32 */
   size?: number
-  /** Duree de vie d'une onde, en millisecondes. @defaultValue 1400 */
+  /** Lifetime of one wave, in milliseconds. @defaultValue 1400 */
   speed?: number
-  /** Couleur du point et des ondes. @defaultValue la couleur du texte */
+  /** Colour of the dot and of the waves. @defaultValue the text colour */
   color?: string
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */
+  /** Label announced to screen readers. @defaultValue 'Loading' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type PulseDotProps = Customisable<PulseDotOwnProps, 'span'>
 
 /**
- * Signale une attente par un point d'ou partent des ondes.
+ * Signals a wait with a dot from which waves leave.
  *
  * @example
  * <PulseDot />
  *
  * @example
- * // Plus large, plus lent, dans la teinte de marque.
+ * // Wider, slower, in the brand hue.
  * <PulseDot size={64} speed={2200} color="var(--o-palette-brand-500)" />
  */
 export function PulseDot({
   size = 32,
   speed = 1400,
   color = 'currentColor',
-  label = 'Chargement',
+  label = 'Loading',
   ...rest
 }: PulseDotProps): ReactElement {
   ensurePulseRule()
@@ -129,8 +129,8 @@ export function PulseDot({
           data-o-pulse-wave=""
           style={
             {
-              // Une demi-periode d'ecart, en negatif : la seconde onde est
-              // deja en route a la premiere image.
+              // Half a period apart, in the negative: the second wave is
+              // already on its way at the first frame.
               '--o-pdot-delay': `${String(Math.round((-speed * wave) / 2))}ms`,
             } as CSSProperties
           }

@@ -1,34 +1,35 @@
 /**
- * Bouton verre liquide : une pastille de verre depoli, un reflet qui coule
- * au survol, une pression qui l'ecrase avant le retour elastique.
+ * Liquid glass button: a pill of frosted glass, a highlight that flows on
+ * hover, a press that squashes it before the elastic return.
  *
- * ## Ce n'est pas le bouton a maree
+ * ## This is not the tide button
  *
- * Le bouton a maree est opaque, et son mouvement est un calque qui monte
- * derriere le libelle. Ici la surface est translucide — le fond de la page se
- * devine a travers, flou et sature — et le mouvement est celui d'une matiere
- * molle : le reflet glisse d'un bord a l'autre comme une goutte, et la
- * pression deforme la pastille au lieu de la colorer.
+ * The tide button is opaque, and its movement is a layer that rises behind
+ * the label. Here the surface is translucent — the background of the page
+ * shows through, blurred and saturated — and the movement is that of a soft
+ * matter: the highlight slides from one edge to the other like a drop, and
+ * the press deforms the pill instead of colouring it.
  *
- * ## Le verre est une somme de bords, pas une image
+ * ## The glass is a sum of edges, not an image
  *
- * Un `backdrop-filter` seul donne un rectangle flou. Ce qui fait le verre,
- * c'est la lumiere sur ses aretes : un filet clair en haut, la ou la lumiere
- * frappe, un filet teinte en bas, la ou l'epaisseur retient la couleur, et un
- * halo porte de la teinte sous la pastille. Trois ombres internes et une
- * externe, toutes tirees de deux tokens.
+ * A `backdrop-filter` alone gives a blurred rectangle. What makes the glass
+ * is the light on its edges: a bright rule at the top, where the light
+ * strikes, a tinted rule at the bottom, where the thickness holds the colour,
+ * and a halo cast in the hue under the pill. Three inner shadows and one
+ * outer, all drawn from two tokens.
  *
- * ## Le retour est plus lent que l'aller
+ * ## The return is slower than the way out
  *
- * La pression est immediate : le doigt appuie, le verre cede. Le retour
- * prend sa duree et depasse sa cible avant de s'y poser — c'est cette
- * asymetrie qui fait la matiere liquide plutot que le ressort mecanique.
+ * The press is immediate: the finger pushes, the glass gives way. The return
+ * takes its duration and overshoots its target before settling on it — it is
+ * that asymmetry which makes the matter liquid rather than a mechanical
+ * spring.
  *
- * ## Sous mouvement reduit
+ * ## Under reduced motion
  *
- * Le reflet est deja a sa place d'arrivee, et la pression n'a plus de
- * rebond. Le verre reste du verre : l'information — translucide, en relief
- * — ne depend pas du mouvement.
+ * The highlight is already at its arrival place, and the press no longer has
+ * a bounce. The glass stays glass: the information — translucent, in relief
+ * — does not depend on the movement.
  *
  * @module
  */
@@ -41,37 +42,37 @@ import {
   type ReactNode,
 } from 'react'
 
-/** Proprietes propres au composant. */
+/** Props specific to the component. */
 export interface LiquidGlassButtonOwnProps {
-  /** Libelle du bouton. */
+  /** Label of the button. */
   children: ReactNode
-  /** Cible du lien. Avec elle, le bouton est rendu comme un lien. */
+  /** Target of the link. With it, the button is rendered as a link. */
   href?: string
   /**
-   * Tokens de la teinte du verre et de sa lumiere.
+   * Tokens of the hue of the glass and of its light.
    *
-   * Deux, dans cet ordre. La teinte colore le verre et son halo ; la lumiere
-   * fait les aretes et le reflet.
+   * Two, in this order. The hue colours the glass and its halo; the light
+   * makes the edges and the highlight.
    */
   colors?: readonly [string, string]
-  /** Flou du fond vu a travers le verre, en pixels. @defaultValue 14 */
+  /** Blur of the background seen through the glass, in pixels. @defaultValue 14 */
   blur?: number
-  /** Part de teinte dans le verre, de zero a un. @defaultValue 0.18 */
+  /** Share of hue in the glass, from zero to one. @defaultValue 0.18 */
   tint?: number
-  /** Duree du retour elastique apres la pression, en millisecondes. @defaultValue 600 */
+  /** Duration of the elastic return after the press, in milliseconds. @defaultValue 600 */
   spring?: number
 }
 
-/** Toutes les proprietes. */
+/** All the props. */
 export type LiquidGlassButtonProps = Customisable<LiquidGlassButtonOwnProps, 'button'>
 
-/** Tokens employes par defaut. */
+/** Tokens used by default. */
 const DEFAULT_TOKENS = ['--o-palette-brand-500', '--o-palette-white'] as const
 
-/** Identifiant de la feuille injectee. */
+/** Id of the injected stylesheet. */
 const STYLE_ID = 'o-liquid-glass-button'
 
-/** Pose le verre, ses aretes et son reflet, une fois par document. */
+/** Sets the glass, its edges and its highlight, once per document. */
 function ensureGlassRules(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -87,12 +88,12 @@ function ensureGlassRules(): void {
     'background:color-mix(in oklab,var(--o-lglass-tint) calc(var(--o-lglass-part) * 100%),transparent);',
     '-webkit-backdrop-filter:blur(var(--o-lglass-blur)) saturate(160%);',
     'backdrop-filter:blur(var(--o-lglass-blur)) saturate(160%);',
-    // Les aretes : lumiere en haut, epaisseur teintee en bas, halo dessous.
+    // The edges: light at the top, tinted thickness at the bottom, halo under.
     'box-shadow:inset 0 1px 0 color-mix(in oklab,var(--o-lglass-light) 60%,transparent),',
     'inset 0 -1px 0 color-mix(in oklab,var(--o-lglass-tint) 40%,transparent),',
     'inset 1px 0 0 color-mix(in oklab,var(--o-lglass-light) 20%,transparent),',
     '0 10px 30px -12px color-mix(in oklab,var(--o-lglass-tint) 55%,transparent);',
-    // Aller sec, retour lent et depassant : voir l'en-tete du module.
+    // Dry on the way out, slow and overshooting on the way back: see the module header.
     'transition:transform var(--o-lglass-spring) cubic-bezier(0.34,1.56,0.64,1),',
     'background-color var(--o-duration-slow) linear;',
     '}',
@@ -103,8 +104,8 @@ function ensureGlassRules(): void {
     '[data-o-lglass]:disabled,[data-o-lglass][aria-disabled="true"]{',
     'opacity:0.5;cursor:not-allowed;pointer-events:none}',
 
-    // Le reflet : une goutte de lumiere, gare en haut a gauche, qui coule
-    // vers le bas a droite au survol.
+    // The highlight: a drop of light, parked at the top left, that flows down
+    // to the right on hover.
     '[data-o-lglass]::before{',
     'content:"";position:absolute;z-index:-1;pointer-events:none;',
     'inset:-40% auto auto -20%;width:80%;height:90%;border-radius:50%;',
@@ -125,20 +126,20 @@ function ensureGlassRules(): void {
 }
 
 /**
- * Bouton de verre depoli, teinte et en relief.
+ * Button of frosted glass, tinted and in relief.
  *
  * @example
- * <LiquidGlassButton onClick={reserver}>Reserver une place</LiquidGlassButton>
+ * <LiquidGlassButton onClick={book}>Book a seat</LiquidGlassButton>
  *
  * @example
- * // Verre plus epais, teinte ciel, sur une image de fond.
+ * // Thicker glass, sky hue, over a background image.
  * <LiquidGlassButton
- *   href="/galerie"
+ *   href="/gallery"
  *   colors={['--o-palette-sky-400', '--o-palette-white']}
  *   blur={24}
  *   tint={0.3}
  * >
- *   Ouvrir la galerie
+ *   Open the gallery
  * </LiquidGlassButton>
  */
 export function LiquidGlassButton({

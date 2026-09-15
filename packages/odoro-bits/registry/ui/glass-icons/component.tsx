@@ -1,47 +1,46 @@
 /**
- * Icones de verre : des pastilles depolies posees chacune sur une lueur
- * coloree, que le verre etale.
+ * Glass icons: frosted tiles, each one set on a colored glow that the glass
+ * spreads out.
  *
- * ## La lueur est derriere le verre, pas dedans
+ * ## The glow is behind the glass, not inside it
  *
- * `backdrop-filter` ne floute que ce qui est deja peint **derriere**
- * l'element. La lueur est donc une soeur de la pastille, posee avant elle
- * dans le meme bouton : le verre la trouve dans son arriere-plan et l'etale.
- * Mise a l'interieur de la pastille, elle resterait nette — un rond de
- * couleur colle sur du verre, ce qui est exactement l'effet qu'on ne veut
- * pas.
+ * `backdrop-filter` only blurs what is already painted **behind** the element.
+ * The glow is therefore a sibling of the tile, placed before it in the same
+ * button: the glass finds it in its backdrop and spreads it. Put inside the
+ * tile, it would stay sharp — a disc of color stuck onto glass, which is
+ * exactly the effect we do not want.
  *
- * C'est aussi ce qui rend le flou utile ici, alors qu'une surface de verre
- * posee sur un aplat ne montre rien : la pastille a toujours quelque chose a
- * diffuser, meme sur une page unie.
+ * It is also what makes the blur useful here, whereas a glass surface set on a
+ * flat fill shows nothing: the tile always has something to diffuse, even on a
+ * plain page.
  *
- * ## Le pivot est fixe, il ne suit pas le pointeur
+ * ## The pivot is fixed, it does not follow the pointer
  *
- * Une carte qui s'incline vers le pointeur demande une boucle, une mesure et
- * un amortissement — pour une cible de soixante-seize pixels, ou le pointeur
- * n'a la place de rien nuancer. Le pivot est donc un etat, pas un suivi :
- * une transition entre deux transformations, que le compositeur tient seul.
- * Le clavier obtient exactement le meme etat, ce qu'un suivi de pointeur ne
- * saurait pas faire.
+ * A card that tilts toward the pointer requires a loop, a measurement and a
+ * damping — for a target of seventy-six pixels, where the pointer has no room
+ * to shade anything. The pivot is therefore a state, not a tracking: a
+ * transition between two transforms, held by the compositor alone. The
+ * keyboard gets exactly the same state, which a pointer tracking would not
+ * know how to do.
  *
- * ## Ce n'est pas la barre a loupe
+ * ## This is not the magnifying dock
  *
- * La barre a loupe est un rang d'elements dont la taille depend de la
- * distance au pointeur : l'effet vit dans le voisinage. Ici chaque pastille
- * est seule — elle s'allume pour elle-meme, et se range en planche plutot
- * qu'en rang.
+ * The magnifying dock is a row of elements whose size depends on the distance
+ * to the pointer: the effect lives in the neighborhood. Here each tile is
+ * alone — it lights up for itself, and is arranged as a board rather than as a
+ * row.
  *
- * ## Le libelle est du texte, sous la pastille
+ * ## The label is text, under the tile
  *
- * Une icone seule n'est comprise que par qui la connait deja. Le libelle est
- * donc toujours affiche, dans le document, et l'icone est marquee comme
- * decorative : le lecteur d'ecran annonce le bouton une fois, avec son nom.
+ * An icon alone is only understood by whoever already knows it. The label is
+ * therefore always displayed, in the document, and the icon is marked as
+ * decorative: the screen reader announces the button once, with its name.
  *
- * ## Ce qui reste quand on retire le verre ou le mouvement
+ * ## What is left when the glass or the motion is taken away
  *
- * Sans flou de fond, la pastille devient opaque et prend sa teinte : la
- * planche reste lisible et coloree. Sous mouvement reduit, elle s'allume sans
- * pivoter — l'etat d'arrivee, sans le trajet.
+ * Without backdrop blur, the tile becomes opaque and takes its hue: the board
+ * stays legible and colored. Under reduced motion, it lights up without
+ * pivoting — the end state, without the trip.
  *
  * @module
  */
@@ -49,43 +48,43 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import { type CSSProperties, type ReactElement, type ReactNode } from 'react'
 
-/** Une pastille de la planche. */
+/** One tile of the board. */
 export interface GlassIconItem {
-  /** Identifiant, unique dans la planche. */
+  /** Identifier, unique within the board. */
   readonly id: string
-  /** Libelle affiche sous la pastille. */
+  /** Label displayed under the tile. */
   readonly label: string
-  /** Signe pose sur le verre. Il est decoratif : le nom est le libelle. */
+  /** Sign set on the glass. It is decorative: the name is the label. */
   readonly icon: ReactNode
 }
 
-/** Proprietes propres au composant. */
+/** Properties owned by the component. */
 export interface GlassIconsOwnProps {
-  /** Les pastilles, dans l'ordre. */
+  /** The tiles, in order. */
   items: readonly GlassIconItem[]
-  /** Nom de la planche pour les lecteurs d'ecran. */
+  /** Name of the board for screen readers. */
   label: string
   /**
-   * Appele au clic ou a Entree sur une pastille.
+   * Called on click or on Enter on a tile.
    *
-   * Obligatoire : une planche de pastilles existe pour mener quelque part, et
-   * un bouton qui ne fait rien promet une suite qui n'existe pas.
+   * Required: a board of tiles exists to lead somewhere, and a button that
+   * does nothing promises a follow-up that does not exist.
    */
   onSelect: (id: string) => void
-  /** Tokens des lueurs, attribues dans l'ordre et en boucle. */
+  /** Tokens of the glows, assigned in order and cycling. */
   colors?: readonly string[]
-  /** Cote d'une pastille, en pixels. @defaultValue 76 */
+  /** Side of a tile, in pixels. @defaultValue 76 */
   size?: number
-  /** Flou du verre, en pixels. @defaultValue 10 */
+  /** Blur of the glass, in pixels. @defaultValue 10 */
   blur?: number
-  /** Angle de trois quarts pris au survol, en degres. @defaultValue 16 */
+  /** Three-quarter angle taken on hover, in degrees. @defaultValue 16 */
   tilt?: number
 }
 
-/** Toutes les proprietes. */
+/** All the properties. */
 export type GlassIconsProps = Customisable<GlassIconsOwnProps, 'ul'>
 
-/** Tokens employes par defaut. */
+/** Tokens used by default. */
 const DEFAULT_TOKENS = [
   '--o-palette-brand-500',
   '--o-palette-fuchsia-500',
@@ -93,10 +92,10 @@ const DEFAULT_TOKENS = [
   '--o-palette-emerald-500',
 ] as const
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-glass-icons'
 
-/** Pose la planche, la lueur, le verre et leur repli, une fois par document. */
+/** Sets the board, the glow, the glass and their fallback, once per document. */
 function ensureIconsRules(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -108,18 +107,18 @@ function ensureIconsRules(): void {
     'display:flex;flex-wrap:wrap;justify-content:center;gap:1.25rem;',
     'margin:0;padding:0;list-style:none;',
     '}',
-    '[data-o-gicons-cible]{',
+    '[data-o-gicons-target]{',
     'display:flex;flex-direction:column;align-items:center;gap:0.55rem;',
     'position:relative;padding:0;border:0;background:none;font:inherit;color:inherit;',
     'cursor:pointer;perspective:520px;',
     '}',
-    'button[data-o-gicons-cible]:focus-visible{outline:none}',
-    // La lueur : peinte avant le verre, donc dans son arriere-plan.
+    'button[data-o-gicons-target]:focus-visible{outline:none}',
+    // The glow: painted before the glass, hence in its backdrop.
     '[data-o-gicons-lueur]{',
     'position:absolute;top:0;left:50%;pointer-events:none;',
     'width:var(--o-gicons-cote);height:var(--o-gicons-cote);',
     'translate:-50% 0;border-radius:38%;',
-    'background:radial-gradient(closest-side,var(--o-gicons-teinte),transparent);',
+    'background:radial-gradient(closest-side,var(--o-gicons-tint),transparent);',
     'transition:scale var(--o-duration-slow) var(--o-ease-emphasized),',
     'opacity var(--o-duration-slow) linear;',
     'opacity:0.75;',
@@ -129,60 +128,60 @@ function ensureIconsRules(): void {
     'width:var(--o-gicons-cote);height:var(--o-gicons-cote);',
     'border-radius:30%;position:relative;',
     'border:1px solid color-mix(in oklab,var(--o-palette-white) 34%,var(--o-theme-line));',
-    'background:color-mix(in oklab,var(--o-gicons-teinte) 10%,transparent);',
-    '-webkit-backdrop-filter:blur(var(--o-gicons-flou)) saturate(180%);',
-    'backdrop-filter:blur(var(--o-gicons-flou)) saturate(180%);',
+    'background:color-mix(in oklab,var(--o-gicons-tint) 10%,transparent);',
+    '-webkit-backdrop-filter:blur(var(--o-gicons-blur)) saturate(180%);',
+    'backdrop-filter:blur(var(--o-gicons-blur)) saturate(180%);',
     'box-shadow:inset 0 1px 0 color-mix(in oklab,var(--o-palette-white) 55%,transparent),',
-    'inset 0 -1px 0 color-mix(in oklab,var(--o-gicons-teinte) 45%,transparent),',
-    '0 12px 26px -16px var(--o-gicons-teinte);',
+    'inset 0 -1px 0 color-mix(in oklab,var(--o-gicons-tint) 45%,transparent),',
+    '0 12px 26px -16px var(--o-gicons-tint);',
     'transform-style:preserve-3d;',
     'transition:transform var(--o-duration-slow) var(--o-ease-emphasized);',
     '}',
     '[data-o-gicons-signe]{display:flex;line-height:0;font-size:calc(var(--o-gicons-cote) * 0.4)}',
     '[data-o-gicons-nom]{font-size:0.8125em;color:var(--o-theme-muted);text-align:center}',
-    // L'etat de survol et l'etat de focus sont le meme etat : ce que la souris
-    // obtient, le clavier l'obtient aussi.
-    '[data-o-gicons-cible]:is(:hover,:focus-visible) [data-o-gicons-verre]{',
+    // The hover state and the focus state are the same state: what the mouse
+    // gets, the keyboard gets as well.
+    '[data-o-gicons-target]:is(:hover,:focus-visible) [data-o-gicons-verre]{',
     'transform:translateY(-6px) rotateX(calc(var(--o-gicons-pivot) * -0.7)) rotateY(var(--o-gicons-pivot));',
     '}',
-    '[data-o-gicons-cible]:is(:hover,:focus-visible) [data-o-gicons-lueur]{scale:1.25;opacity:1}',
-    '[data-o-gicons-cible]:focus-visible [data-o-gicons-verre]{',
-    'outline:2px solid var(--o-gicons-teinte);outline-offset:4px;',
+    '[data-o-gicons-target]:is(:hover,:focus-visible) [data-o-gicons-lueur]{scale:1.25;opacity:1}',
+    '[data-o-gicons-target]:focus-visible [data-o-gicons-verre]{',
+    'outline:2px solid var(--o-gicons-tint);outline-offset:4px;',
     '}',
-    '[data-o-gicons-cible]:active [data-o-gicons-verre]{transform:translateY(-2px) scale(0.96)}',
-    // Sans flou de fond, la lueur ne serait plus etalee mais posee en rond net
-    // sous une plaque translucide : la pastille se ferme et prend la teinte.
+    '[data-o-gicons-target]:active [data-o-gicons-verre]{transform:translateY(-2px) scale(0.96)}',
+    // Without backdrop blur, the glow would no longer be spread out but set as
+    // a sharp disc under a translucent plate: the tile closes and takes the hue.
     '@supports not ((backdrop-filter:blur(2px)) or (-webkit-backdrop-filter:blur(2px))){',
-    '[data-o-gicons-verre]{background:color-mix(in oklab,var(--o-gicons-teinte) 20%,var(--o-theme-surface))}',
+    '[data-o-gicons-verre]{background:color-mix(in oklab,var(--o-gicons-tint) 20%,var(--o-theme-surface))}',
     '[data-o-gicons-lueur]{display:none}',
     '}',
     '@media (prefers-reduced-motion:reduce){',
     '[data-o-gicons-verre],[data-o-gicons-lueur]{transition:none}',
-    '[data-o-gicons-cible]:is(:hover,:focus-visible) [data-o-gicons-verre]{transform:none}',
-    '[data-o-gicons-cible]:active [data-o-gicons-verre]{transform:none}',
+    '[data-o-gicons-target]:is(:hover,:focus-visible) [data-o-gicons-verre]{transform:none}',
+    '[data-o-gicons-target]:active [data-o-gicons-verre]{transform:none}',
     '}',
   ].join('')
   document.head.append(style)
 }
 
 /**
- * Planche de pastilles de verre.
+ * Board of glass tiles.
  *
  * @example
  * <GlassIcons
- *   label="Raccourcis"
+ *   label="Shortcuts"
  *   items={[
- *     { id: 'agenda', label: 'Agenda', icon: <Icon name="calendar" /> },
+ *     { id: 'calendar', label: 'Calendar', icon: <Icon name="calendar" /> },
  *     { id: 'messages', label: 'Messages', icon: <Icon name="mail" /> },
  *   ]}
- *   onSelect={ouvrir}
+ *   onSelect={open}
  * />
  *
  * @example
- * // Pastilles larges, verre epais, deux teintes en alternance.
+ * // Wide tiles, thick glass, two hues alternating.
  * <GlassIcons
- *   label="Univers"
- *   items={rayons}
+ *   label="Departments"
+ *   items={aisles}
  *   colors={['--o-palette-violet-500', '--o-palette-amber-500']}
  *   size={110}
  *   blur={18}
@@ -201,7 +200,7 @@ export function GlassIcons({
   ensureIconsRules()
 
   const { className, style } = mergePresentation({}, rest)
-  const teintes = colors.length === 0 ? DEFAULT_TOKENS : colors
+  const hues = colors.length === 0 ? DEFAULT_TOKENS : colors
 
   return (
     <ul
@@ -212,7 +211,7 @@ export function GlassIcons({
       style={
         {
           '--o-gicons-cote': `${String(size)}px`,
-          '--o-gicons-flou': `${String(blur)}px`,
+          '--o-gicons-blur': `${String(blur)}px`,
           '--o-gicons-pivot': `${String(tilt)}deg`,
           ...style,
         } as CSSProperties
@@ -223,13 +222,13 @@ export function GlassIcons({
           key={item.id}
           style={
             {
-              '--o-gicons-teinte': `var(${teintes[index % teintes.length] ?? DEFAULT_TOKENS[0]})`,
+              '--o-gicons-tint': `var(${hues[index % hues.length] ?? DEFAULT_TOKENS[0]})`,
             } as CSSProperties
           }
         >
           <button
             type="button"
-            data-o-gicons-cible=""
+            data-o-gicons-target=""
             onClick={() => {
               onSelect(item.id)
             }}

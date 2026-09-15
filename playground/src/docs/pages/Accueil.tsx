@@ -13,7 +13,7 @@ import {
   Shapes,
   Type,
   Zap,
-} from '@odoro-cli/icons/filaire'
+} from '@odoro-cli/icons/outline'
 import { type ReactElement, type ReactNode } from 'react'
 import { Link } from '@odoro-cli/libs/router'
 import { Reveal, Stagger, TextReveal } from '@odoro-cli/libs/motion'

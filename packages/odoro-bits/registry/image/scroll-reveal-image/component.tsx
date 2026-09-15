@@ -1,39 +1,38 @@
 /**
- * Image decouverte au defilement : le rideau suit la position de la page,
- * pas une minuterie. On peut l'arreter au milieu, revenir en arriere, le
- * refermer.
+ * Image uncovered by scrolling: the curtain follows the position of the page,
+ * not a timer. It can be stopped midway, reversed, closed again.
  *
- * ## Ce qui la distingue de l'image revelee
+ * ## What sets it apart from the revealed image
  *
- * L'image revelee est un declenchement : elle entre dans le champ, elle joue
- * son ouverture une fois, c'est fini. Ici l'avancement **est** la position de
- * defilement — un « scrub ». Remonter la page referme le rideau. C'est
- * l'effet qu'on veut sur une longue page ou l'image se decouvre au rythme de
- * la lecture, et il ne se simule pas avec une transition.
+ * The revealed image is a trigger: it enters the viewport, it plays its
+ * opening once, and that is that. Here the progress **is** the scroll position
+ * — a "scrub". Scrolling back up closes the curtain again. It is the effect
+ * one wants on a long page where the image is uncovered at the pace of the
+ * reading, and it cannot be simulated with a transition.
  *
- * ## Un seul nombre traverse la frontiere
+ * ## A single number crosses the boundary
  *
- * La mesure ecrit une variable CSS sur le cadre, entre zero et un. Tout le
- * reste — decoupage du rideau, contre-zoom de l'image, position du lisere —
- * en decoule dans la feuille de styles, en `calc`. Aucun rendu React, et une
- * seule ecriture par image, sautee quand la valeur n'a pas bouge.
+ * The measurement writes a CSS variable on the frame, between zero and one.
+ * Everything else — the clipping of the curtain, the counter-zoom of the
+ * image, the position of the edging — follows from it in the stylesheet, in
+ * `calc`. No React render, and a single write per frame, skipped when the
+ * value has not moved.
  *
- * ## Pourquoi la boucle du moteur et pas un ecouteur de defilement
+ * ## Why the engine loop and not a scroll listener
  *
- * Un ecouteur de `scroll` se declenche a un rythme decide par le navigateur,
- * qui n'est pas celui du rafraichissement : la valeur arriverait en retard
- * d'une image sur une sur trois, ce qui se voit comme un tremblement sur un
- * bord net. La mesure passe donc par l'horloge du moteur, avant le rendu de
- * la meme image.
+ * A `scroll` listener fires at a rhythm decided by the browser, which is not
+ * that of the refresh: the value would arrive one frame late on one frame in
+ * three, which shows as a judder on a crisp edge. The measurement therefore
+ * goes through the engine clock, before the render of the same frame.
  *
- * La progression est mesuree contre le premier ancetre qui defile vraiment,
- * et non contre la fenetre : posee dans un panneau a defilement interne,
- * l'image se decouvre quand ce panneau bouge.
+ * The progress is measured against the first ancestor that really scrolls, and
+ * not against the window: laid inside a panel with internal scrolling, the
+ * image is uncovered when that panel moves.
  *
- * ## Sous mouvement reduit
+ * ## Under reduced motion
  *
- * Le rideau est ouvert en grand des le premier rendu et rien ne s'abonne :
- * l'etat final, jamais l'etat d'attente.
+ * The curtain is wide open from the first render and nothing subscribes: the
+ * final state, never the waiting state.
  *
  * @module
  */
@@ -47,47 +46,49 @@ import {
 } from '@odoro-cli/engine'
 import { useEffect, useRef, type CSSProperties, type ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-scroll-reveal-image'
 
-/** Part de la traversee franchie avant que le rideau commence a s'ouvrir. */
+/** Share of the crossing covered before the curtain starts to open. */
 const START = 0.12
 
-/** Pose les regles du rideau, une fois par document. */
+/** Sets the curtain rules, once per document. */
 function ensureScrollRevealRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
 
-  /** Le complement de l'avancement, en pour cent : l'epaisseur du rideau. */
-  const epais = 'calc((1 - var(--o-sr-p)) * 100%)'
+  /** The complement of the progress, as a percentage: the thickness of the curtain. */
+  const thick = 'calc((1 - var(--o-sr-p)) * 100%)'
 
   const style = document.createElement('style')
   style.id = STYLE_ID
   style.textContent = [
-    // Le decoupage : un seul cote bouge, celui d'ou vient l'ouverture.
-    `[data-o-sr-veil="up"]{clip-path:inset(${epais} 0 0 0)}`,
-    `[data-o-sr-veil="down"]{clip-path:inset(0 0 ${epais} 0)}`,
-    `[data-o-sr-veil="left"]{clip-path:inset(0 ${epais} 0 0)}`,
-    `[data-o-sr-veil="right"]{clip-path:inset(0 0 0 ${epais})}`,
-    // Le contre-zoom : l'image finit de se poser au moment ou le rideau finit
-    // de s'ouvrir. Sans lui, l'image serait deja arrivee avant d'etre vue.
+    // The clipping: a single side moves, the one the opening comes from.
+    `[data-o-sr-veil="up"]{clip-path:inset(${thick} 0 0 0)}`,
+    `[data-o-sr-veil="down"]{clip-path:inset(0 0 ${thick} 0)}`,
+    `[data-o-sr-veil="left"]{clip-path:inset(0 ${thick} 0 0)}`,
+    `[data-o-sr-veil="right"]{clip-path:inset(0 0 0 ${thick})}`,
+    // The counter-zoom: the image finishes settling at the moment the curtain
+    // finishes opening. Without it, the image would already have arrived
+    // before being seen.
     '[data-o-sr-image]{transform:scale(calc(1.06 - var(--o-sr-p) * 0.06))}',
-    // Le lisere marque le bord qui avance, et s'efface avec la fin de la
-    // course : l'opacite depasse un au debut, le navigateur la borne.
+    // The edging marks the edge that advances, and fades out with the end of
+    // the run: the opacity goes past one at the start, and the browser clamps
+    // it.
     '[data-o-sr-edge]{',
     'position:absolute;pointer-events:none;',
     'background:var(--o-palette-brand-500);',
     'opacity:calc((1 - var(--o-sr-p)) * 4);',
     '}',
-    `[data-o-sr-edge="up"]{left:0;right:0;height:2px;top:${epais}}`,
-    `[data-o-sr-edge="down"]{left:0;right:0;height:2px;bottom:${epais}}`,
-    `[data-o-sr-edge="left"]{top:0;bottom:0;width:2px;right:${epais}}`,
-    `[data-o-sr-edge="right"]{top:0;bottom:0;width:2px;left:${epais}}`,
+    `[data-o-sr-edge="up"]{left:0;right:0;height:2px;top:${thick}}`,
+    `[data-o-sr-edge="down"]{left:0;right:0;height:2px;bottom:${thick}}`,
+    `[data-o-sr-edge="left"]{top:0;bottom:0;width:2px;right:${thick}}`,
+    `[data-o-sr-edge="right"]{top:0;bottom:0;width:2px;left:${thick}}`,
   ].join('')
   document.head.append(style)
 }
 
-/** Premier ancetre dont le contenu defile reellement. */
+/** First ancestor whose content really scrolls. */
 function scrollParentOf(element: HTMLElement): HTMLElement | null {
   let node = element.parentElement
   while (node !== null) {
@@ -98,43 +99,43 @@ function scrollParentOf(element: HTMLElement): HTMLElement | null {
   return null
 }
 
-/** Sens d'ouverture du rideau. */
+/** Direction in which the curtain opens. */
 export type ScrollRevealDirection = 'up' | 'down' | 'left' | 'right'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface ScrollRevealImageOwnProps {
-  /** Source de l'image. */
+  /** Source of the image. */
   src: string
-  /** Texte de remplacement. Chaine vide si l'image est purement decorative. */
+  /** Alternative text. Empty string if the image is purely decorative. */
   alt: string
-  /** Rapport largeur sur hauteur du cadre. @defaultValue 1.777 */
+  /** Width to height ratio of the frame. @defaultValue 1.777 */
   ratio?: number
-  /** Sens de l'ouverture du rideau. @defaultValue 'up' */
+  /** Direction in which the curtain opens. @defaultValue 'up' */
   direction?: ScrollRevealDirection
   /**
-   * Part de la traversee du champ pendant laquelle le rideau s'ouvre.
+   * Share of the crossing of the viewport during which the curtain opens.
    *
-   * A un, l'image n'est entierement decouverte qu'en sortant par le haut ;
-   * a un quart, elle l'est des qu'elle est franchement entree.
+   * At one, the image is only fully uncovered as it leaves through the top; at
+   * a quarter, it is uncovered as soon as it has properly entered.
    *
    * @defaultValue 0.55
    */
   span?: number
-  /** Marquer le bord qui avance d'un lisere. @defaultValue true */
+  /** Mark the advancing edge with an edging. @defaultValue true */
   edge?: boolean
 }
 
-/** Toutes les proprietes : les siennes, plus celles d'une image. */
+/** All properties: its own, plus those of an image. */
 export type ScrollRevealImageProps = Customisable<ScrollRevealImageOwnProps, 'img'>
 
 /**
- * Decouvre une image au rythme du defilement.
+ * Uncovers an image at the pace of the scroll.
  *
  * @example
- * <ScrollRevealImage src="/photo.jpg" alt="Vue de l atelier" />
+ * <ScrollRevealImage src="/photo.jpg" alt="View of the workshop" />
  *
  * @example
- * // Ouverture laterale, courte, sans lisere.
+ * // Lateral opening, short, with no edging.
  * <ScrollRevealImage src="/photo.jpg" alt="" direction="right" span={0.3} edge={false} />
  */
 export function ScrollRevealImage({
@@ -150,7 +151,7 @@ export function ScrollRevealImage({
   const host = useRef<HTMLDivElement | null>(null)
   ensureScrollRevealRule()
 
-  const course = Math.min(1, Math.max(0.1, span))
+  const run = Math.min(1, Math.max(0.1, span))
 
   useEffect(() => {
     if (reduced) return
@@ -158,8 +159,8 @@ export function ScrollRevealImage({
     const frame = host.current
     if (frame === null) return
 
-    // Le parent qui defile est cherche une fois : il ne change pas pendant la
-    // vie du composant.
+    // The scrolling parent is looked up once: it does not change during the
+    // life of the component.
     const scroller = scrollParentOf(frame)
     let last = -1
 
@@ -169,31 +170,31 @@ export function ScrollRevealImage({
         const viewTop = scroller === null ? 0 : scroller.getBoundingClientRect().top
         const viewHeight = scroller === null ? window.innerHeight : scroller.clientHeight
 
-        // Traversee : zero quand le cadre entre par le bas, un quand il sort
-        // par le haut.
+        // Crossing: zero when the frame enters from the bottom, one when it
+        // leaves through the top.
         const total = viewHeight + box.height
         const crossing = Math.min(
           1,
           Math.max(0, (viewTop + viewHeight - box.top) / Math.max(total, 1)),
         )
 
-        // L'ouverture n'occupe qu'une part de la traversee, apres un temps
-        // mort : une image qui commence a se decouvrir avant d'etre entree
-        // n'a pas l'air d'etre decouverte du tout.
-        const value = Math.min(1, Math.max(0, (crossing - START) / course))
+        // The opening occupies only a share of the crossing, after a dead
+        // time: an image that starts being uncovered before it has entered
+        // does not look uncovered at all.
+        const value = Math.min(1, Math.max(0, (crossing - START) / run))
 
-        // Deux centiemes suffisent a l'oeil : en deca, l'ecriture ne ferait
-        // que declencher un recalcul de style pour rien.
+        // Two hundredths are enough for the eye: below that, the write would
+        // only trigger a style recalculation for nothing.
         const rounded = Math.round(value * 100) / 100
         if (rounded === last) return
         last = rounded
         frame.style.setProperty('--o-sr-p', String(rounded))
       },
-      { priority: CLOCK_PRIORITY.input, name: 'image decouverte au defilement' },
+      { priority: CLOCK_PRIORITY.input, name: 'image uncovered by scrolling' },
     )
 
     return () => subscription.unsubscribe()
-  }, [reduced, course])
+  }, [reduced, run])
 
   const { className, style } = mergePresentation(
     { className: 'o-relative o-overflow-hidden' },
@@ -203,7 +204,7 @@ export function ScrollRevealImage({
   const hostStyle = {
     ...style,
     aspectRatio: String(ratio),
-    // Sous mouvement reduit, l'unique etat est l'etat final.
+    // Under reduced motion, the only state is the final state.
     '--o-sr-p': reduced ? '1' : '0',
   } as CSSProperties
 
@@ -221,8 +222,8 @@ export function ScrollRevealImage({
         />
       </div>
 
-      {/* Le lisere est decoratif : il marque une progression que l'image dit
-          deja. */}
+      {/* The edging is decorative: it marks a progress that the image already
+          tells. */}
       {edge && !reduced ? <div aria-hidden data-o-sr-edge={direction} /> : null}
     </div>
   )

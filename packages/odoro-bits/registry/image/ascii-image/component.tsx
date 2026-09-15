@@ -1,39 +1,41 @@
 /**
- * Image en caracteres : la photo est echantillonnee dans un canevas hors du
- * document, puis rendue en texte monospace au-dessus d'elle.
+ * Image in characters: the photograph is sampled into a canvas outside the
+ * document, then rendered as monospace text over it.
  *
- * ## Ce qui la distingue du champ ASCII
+ * ## What sets it apart from the ASCII field
  *
- * Le champ ASCII est un bruit calcule par un shader : il n'a pas de sujet. Ici
- * le sujet est une image reelle, et le rendu en caracteres est une **lecture**
- * de cette image. C'est aussi pourquoi rien n'est calcule par image : la
- * conversion a lieu une fois, au chargement, et son resultat est du texte.
+ * The ASCII field is noise computed by a shader: it has no subject. Here the
+ * subject is a real image, and the rendering in characters is a **reading** of
+ * that image. That is also why nothing is computed per frame: the conversion
+ * happens once, on load, and its result is text.
  *
- * ## L'image reelle reste dessous
+ * ## The real image stays underneath
  *
- * Le `pre` est decoratif et opaque ; l'element `img` qu'il recouvre porte le
- * texte de remplacement et reste la source de verite pour les technologies
- * d'assistance. Au survol, le `pre` s'efface et rend la photo : c'est aussi le
- * repli naturel quand la conversion echoue.
+ * The `pre` is decorative and opaque; the `img` element it covers carries the
+ * alternative text and remains the source of truth for assistive technologies.
+ * On hover, the `pre` fades out and gives back the photograph: it is also the
+ * natural fallback when the conversion fails.
  *
- * ## Pourquoi la conversion peut echouer, et ce qui arrive alors
+ * ## Why the conversion can fail, and what happens then
  *
- * Lire les pixels d'une image venue d'un autre domaine sans en-tete
- * d'autorisation teinte le canevas, et la lecture leve. Le composant ne
- * l'ignore pas : il rend le `pre` vide, donc invisible, et la photo reste
- * affichee. Une image en caracteres qui manque vaut mieux qu'un cadre vide.
+ * Reading the pixels of an image that comes from another domain without an
+ * authorisation header taints the canvas, and the read throws. The component
+ * does not ignore this: it renders an empty `pre`, hence invisible, and the
+ * photograph stays displayed. A missing character image is better than an
+ * empty frame.
  *
- * ## L'encre suit le theme
+ * ## The ink follows the theme
  *
- * En theme clair, l'encre est sombre sur fond clair : un pixel lumineux doit
- * donc recevoir **moins** de caracteres. En theme sombre, c'est l'inverse. La
- * rampe est donc parcourue dans un sens ou dans l'autre selon le theme ; sans
- * cela, l'image apparait en negatif la moitie du temps.
+ * In a light theme, the ink is dark on a light ground: a bright pixel must
+ * therefore receive **fewer** characters. In a dark theme, it is the reverse.
+ * The ramp is thus walked one way or the other depending on the theme; without
+ * that, the image appears as a negative half the time.
  *
- * ## Sous mouvement reduit
+ * ## Under reduced motion
  *
- * Rien ne change : le rendu en caracteres est un etat, pas un mouvement. Seule
- * la transition vers la photo disparait — le passage devient instantane.
+ * Nothing changes: the rendering in characters is a state, not a movement.
+ * Only the transition towards the photograph disappears — the passage becomes
+ * instantaneous.
  *
  * @module
  */
@@ -41,27 +43,26 @@
 import { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'
 import { useEffect, useState, type CSSProperties, type ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-ascii-image'
 
 /**
- * Rampe d'encre, du vide au plein.
+ * Ink ramp, from empty to full.
  *
- * C'est la rampe classique des convertisseurs d'images en texte : dix
- * niveaux, ce que l'oeil distingue sans hesiter a taille de glyphe.
+ * It is the classic ramp of image-to-text converters: ten levels, which is
+ * what the eye tells apart without hesitation at glyph size.
  */
 const RAMP = ' .:-=+*#%@'
 
 /**
- * Rapport largeur sur hauteur d'une cellule de texte monospace.
+ * Width to height ratio of a monospace text cell.
  *
- * Il vaut a peu de chose pres trois cinquiemes dans toutes les polices a
- * chasse fixe. Sans lui, l'image sortirait etiree en hauteur : une cellule
- * n'est pas un carre.
+ * It is roughly three fifths in every fixed-width font. Without it, the image
+ * would come out stretched in height: a cell is not a square.
  */
 const CELL = 0.6
 
-/** Pose les regles du rendu, une fois par document. */
+/** Sets the rendering rules, once per document. */
 function ensureAsciiRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -69,52 +70,52 @@ function ensureAsciiRule(): void {
   const style = document.createElement('style')
   style.id = STYLE_ID
   style.textContent = [
-    // La taille du glyphe est exprimee en pour cent de la largeur du cadre :
-    // le dessin garde ses proportions dans n'importe quelle colonne.
+    // The glyph size is expressed as a percentage of the width of the frame:
+    // the drawing keeps its proportions in any column.
     '[data-o-ascii]{container-type:inline-size}',
     '[data-o-ai-art]{font-size:calc(var(--o-ai-glyph) * 1cqw);line-height:1}',
-    '[data-o-ascii-survol]:hover [data-o-ai-art],',
-    '[data-o-ascii-survol]:focus-within [data-o-ai-art]{opacity:0}',
+    '[data-o-ascii-hover]:hover [data-o-ai-art],',
+    '[data-o-ascii-hover]:focus-within [data-o-ai-art]{opacity:0}',
   ].join('')
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface AsciiImageOwnProps {
-  /** Source de l'image. */
+  /** Source of the image. */
   src: string
-  /** Texte de remplacement. Chaine vide si l'image est purement decorative. */
+  /** Alternative text. Empty string if the image is purely decorative. */
   alt: string
-  /** Rapport largeur sur hauteur du cadre. @defaultValue 1.777 */
+  /** Width to height ratio of the frame. @defaultValue 1.777 */
   ratio?: number
   /**
-   * Nombre de caracteres sur la largeur.
+   * Number of characters across the width.
    *
-   * Borne a deux cents : au-dela, les glyphes sont plus petits qu'un pixel et
-   * la conversion coute pour rien.
+   * Capped at two hundred: beyond that, the glyphs are smaller than a pixel
+   * and the conversion costs for nothing.
    *
    * @defaultValue 90
    */
   columns?: number
-  /** Contraste applique avant le choix du caractere. @defaultValue 1.3 */
+  /** Contrast applied before the character is chosen. @defaultValue 1.3 */
   contrast?: number
-  /** Retourne la rampe : l'image sort en negatif. @defaultValue false */
+  /** Flips the ramp: the image comes out as a negative. @defaultValue false */
   invert?: boolean
-  /** Rendre la photo au survol et au focus. @defaultValue true */
+  /** Give back the photograph on hover and on focus. @defaultValue true */
   hover?: boolean
 }
 
-/** Toutes les proprietes : les siennes, plus celles d'une image. */
+/** All properties: its own, plus those of an image. */
 export type AsciiImageProps = Customisable<AsciiImageOwnProps, 'img'>
 
 /**
- * Rend une image en caracteres.
+ * Renders an image in characters.
  *
  * @example
- * <AsciiImage src="/portrait.jpg" alt="Portrait de l equipe" />
+ * <AsciiImage src="/portrait.jpg" alt="Portrait of the team" />
  *
  * @example
- * // Plus grossier, en negatif, sans retour a la photo.
+ * // Coarser, as a negative, with no return to the photograph.
  * <AsciiImage src="/portrait.jpg" alt="" columns={48} invert hover={false} />
  */
 export function AsciiImage({
@@ -132,8 +133,8 @@ export function AsciiImage({
   ensureAsciiRule()
 
   const cols = Math.round(Math.min(200, Math.max(16, columns)))
-  // Une cellule est plus haute que large : sans ce rapport, le dessin sortirait
-  // etire d'un bon tiers.
+  // A cell is taller than it is wide: without this ratio, the drawing would
+  // come out stretched by a good third.
   const rows = Math.max(2, Math.round((cols * CELL) / Math.max(ratio, 0.1)))
 
   useEffect(() => {
@@ -141,16 +142,16 @@ export function AsciiImage({
 
     let cancelled = false
     const source = new Image()
-    // Sans cet attribut, une image d'un autre domaine teinte le canevas et la
-    // lecture leve ; avec lui, elle est refusee au chargement quand le serveur
-    // ne l'autorise pas. Dans les deux cas la photo reste affichee.
+    // Without this attribute, an image from another domain taints the canvas
+    // and the read throws; with it, it is refused at load time when the server
+    // does not allow it. In both cases the photograph stays displayed.
     source.crossOrigin = 'anonymous'
     source.decoding = 'async'
 
     const convert = (): void => {
       if (cancelled) return
 
-      let lignes = ''
+      let drawing = ''
       try {
         const canvas = document.createElement('canvas')
         canvas.width = cols
@@ -158,15 +159,14 @@ export function AsciiImage({
         const context = canvas.getContext('2d')
         if (context === null) return
 
-        // Le canevas fait exactement la taille de la grille : le navigateur
-        // fait la moyenne des pixels pour nous, et il la fait mieux qu'une
-        // boucle.
+        // The canvas is exactly the size of the grid: the browser averages the
+        // pixels for us, and it does it better than a loop.
         context.drawImage(source, 0, 0, cols, rows)
         const pixels = context.getImageData(0, 0, cols, rows).data
 
         const last = RAMP.length - 1
-        // En theme sombre l'encre est claire : un pixel lumineux appelle plus
-        // d'encre, pas moins. Voir l'en-tete.
+        // In a dark theme the ink is light: a bright pixel calls for more ink,
+        // not less. See the header.
         const dense = theme === 'dark' ? !invert : invert
 
         const out: string[] = []
@@ -179,22 +179,22 @@ export function AsciiImage({
             const b = pixels[index + 2] ?? 0
             const alpha = (pixels[index + 3] ?? 255) / 255
 
-            // Luminance perceptuelle, pas une moyenne : le vert pese plus que
-            // le bleu dans ce que l'oeil appelle « clair ».
+            // Perceptual luminance, not an average: green weighs more than
+            // blue in what the eye calls "light".
             const luma = ((0.2126 * r + 0.7152 * g + 0.0722 * b) / 255) * alpha
-            const pousse = Math.min(1, Math.max(0, (luma - 0.5) * contrast + 0.5))
-            const level = dense ? pousse : 1 - pousse
+            const pushed = Math.min(1, Math.max(0, (luma - 0.5) * contrast + 0.5))
+            const level = dense ? pushed : 1 - pushed
             line += RAMP[Math.min(last, Math.max(0, Math.round(level * last)))] ?? ' '
           }
           out.push(line)
         }
-        lignes = out.join('\n')
+        drawing = out.join('\n')
       } catch {
-        // Canevas teinte : la photo reste, le dessin n'aura pas lieu.
-        lignes = ''
+        // Tainted canvas: the photograph stays, the drawing will not happen.
+        drawing = ''
       }
 
-      if (!cancelled) setArt(lignes)
+      if (!cancelled) setArt(drawing)
     }
 
     source.addEventListener('load', convert)
@@ -215,8 +215,8 @@ export function AsciiImage({
   const hostStyle = {
     ...style,
     aspectRatio: String(ratio),
-    // La largeur totale vaut le nombre de colonnes fois la chasse d'un
-    // glyphe : c'est cette egalite qui donne la taille de police.
+    // The total width equals the number of columns times the advance width of
+    // a glyph: it is that equality that gives the font size.
     '--o-ai-glyph': (100 / (cols * CELL)).toFixed(4),
   } as CSSProperties
 
@@ -233,7 +233,7 @@ export function AsciiImage({
       className={className}
       style={hostStyle}
       data-o-ascii=""
-      data-o-ascii-survol={hover ? '' : undefined}
+      data-o-ascii-hover={hover ? '' : undefined}
     >
       <img
         loading="lazy"
@@ -244,10 +244,10 @@ export function AsciiImage({
         className="o-size-full o-object-cover"
       />
 
-      {/* Le dessin est decoratif : tout ce qu'il dit, l'image le dit deja.
-          Tant qu'il n'existe pas — image en cours de chargement, canevas
-          teinte — le calque n'est pas rendu du tout : opaque et vide, il
-          masquerait la photo qu'il est cense representer. */}
+      {/* The drawing is decorative: everything it says, the image already
+          says. As long as it does not exist — image still loading, tainted
+          canvas — the layer is not rendered at all: opaque and empty, it would
+          hide the photograph it is supposed to represent. */}
       {art === '' ? null : (
         <pre
           aria-hidden

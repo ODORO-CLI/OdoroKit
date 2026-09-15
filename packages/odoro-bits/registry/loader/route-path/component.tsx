@@ -1,39 +1,39 @@
 /**
- * Itineraire : une route se dessine depuis le point de depart jusqu'a la
- * destination, qui s'allume a l'arrivee.
+ * Route: a road draws itself from the starting point all the way to the
+ * destination, which lights up on arrival.
  *
- * ## Une route se parcourt, elle ne clignote pas
+ * ## A route is travelled, it does not blink
  *
- * Le trace est un tiret aussi long que le chemin entier : le faire glisser
- * par son decalage revient a faire avancer une tete, du depart vers la
- * destination, sans que la queue ne bouge. C'est le geste d'un doigt sur
- * une carte, pas un remplissage.
+ * The stroke is a dash as long as the whole path: sliding it by its offset
+ * amounts to moving a head forward, from the start toward the destination,
+ * without the tail moving at all. It is the gesture of a finger on a map,
+ * not a fill.
  *
- * Le chemin declare une longueur de cent : le tiret et son decalage se
- * lisent alors en pour cent du trace, quelle que soit sa longueur reelle.
- * Les images cles tombent juste sans qu'aucune mesure ne soit lue dans le
- * document.
+ * The path declares a length of a hundred: the dash and its offset then read
+ * as a percentage of the stroke, whatever its real length. The keyframes
+ * fall right without any measurement being read from the document.
  *
- * Sous le trace, la route en pointille reste toujours visible : sans elle,
- * un itineraire a demi parcouru n'est qu'une courbe qui s'arrete, et l'oeil
- * ne sait pas ou elle va. La destination, elle, n'apparait qu'a l'arrivee —
- * c'est ce qui fait la difference entre « en route » et « arrive ».
+ * Under the stroke, the dotted road stays visible at all times: without it,
+ * a half-travelled route is only a curve that stops, and the eye does not
+ * know where it goes. The destination, on the other hand, only appears on
+ * arrival — that is what makes the difference between "on the way" and
+ * "arrived".
  *
- * La boucle ne se rembobine pas : une fois la destination atteinte, le
- * trace s'efface en fondu, et le cycle repart d'un chemin vide. Un retour
- * en arriere donnerait un itineraire qu'on defait, ce qui ne veut rien dire.
+ * The loop does not rewind: once the destination is reached, the stroke
+ * fades out, and the cycle starts again from an empty path. Going backwards
+ * would give a route being undone, which means nothing.
  *
- * Deux animations CSS sur des elements SVG, tenues par le compositeur,
- * aucun JavaScript apres le premier rendu.
+ * Two CSS animations on SVG elements, held by the compositor, no JavaScript
+ * after the first render.
  *
- * ## Un statut, pas un dessin
+ * ## A status, not a drawing
  *
- * L'element porte `role="status"` et un libelle pour les lecteurs d'ecran :
- * l'attente est une information, pas une decoration. Le dessin est retire
- * de l'arbre d'accessibilite.
+ * The element carries `role="status"` and a label for screen readers: the
+ * wait is information, not decoration. The drawing is removed from the
+ * accessibility tree.
  *
- * Sous mouvement reduit, la route est entierement tracee et la destination
- * allumee : c'est l'etat d'arrivee, celui qui dit le plus.
+ * Under reduced motion, the road is drawn in full and the destination lit:
+ * it is the arrival state, the one that says the most.
  *
  * @module
  */
@@ -41,24 +41,24 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Id of the injected stylesheet. */
 const STYLE_ID = 'o-route-path'
 
 /**
- * L'itineraire, dans une vue de 100 unites.
+ * The route, in a view of 100 units.
  *
- * Deux courbes cubiques qui se raccordent : la route serpente au lieu de
- * filer droit, ce qui donne au parcours une duree lisible.
+ * Two cubic curves joined together: the road winds instead of running
+ * straight, which gives the journey a readable duration.
  */
 const ROUTE = 'M 14 82 C 34 82, 28 58, 46 54 C 64 50, 58 32, 76 28'
 
-/** Depart de la route. */
+/** Start of the road. */
 const FROM = { x: 14, y: 82 }
 
 /** Destination. */
 const TO = { x: 76, y: 28 }
 
-/** Pose la route, son trace et l'arrivee, une fois par document. */
+/** Sets the road, its stroke and the arrival, once per document. */
 function ensureRouteRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -77,24 +77,24 @@ function ensureRouteRule(): void {
     `transform-origin:${String(TO.x)}px ${String(TO.y)}px;`,
     'animation:o-route-path-land var(--o-route-speed) infinite;',
     '}',
-    // La tete avance du depart a la destination, marque un temps, puis le
-    // trace s'efface : le cycle repart d'un chemin vide, jamais d'un retour
-    // en arriere.
+    // The head moves from the start to the destination, holds a beat, then
+    // the stroke fades out: the cycle starts again from an empty path, never
+    // from a step backwards.
     '@keyframes o-route-path-draw{',
     '0%{stroke-dashoffset:100;opacity:1;animation-timing-function:ease-in-out}',
     '62%{stroke-dashoffset:0;opacity:1}',
     '84%{stroke-dashoffset:0;opacity:1;animation-timing-function:ease-in}',
     '100%{stroke-dashoffset:0;opacity:0}',
     '}',
-    // La destination se pose avec un leger depassement, comme une epingle
-    // qu'on plante, juste au moment ou la tete l'atteint.
+    // The destination lands with a slight overshoot, like a pin being stuck
+    // in, just as the head reaches it.
     '@keyframes o-route-path-land{',
     '0%,54%{transform:scale(0.3);opacity:0;animation-timing-function:cubic-bezier(0.34,1.56,0.64,1)}',
     '70%{transform:scale(1);opacity:1}',
     '84%{transform:scale(1);opacity:1;animation-timing-function:ease-in}',
     '100%{transform:scale(1);opacity:0}',
     '}',
-    // Route parcourue, destination allumee : l'etat d'arrivee, immobile.
+    // Road travelled, destination lit: the arrival state, still.
     '@media (prefers-reduced-motion:reduce){',
     '[data-o-route-line]{animation:none;stroke-dashoffset:0}',
     '[data-o-route-goal]{animation:none;opacity:1;transform:none}',
@@ -103,31 +103,31 @@ function ensureRouteRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** The component's own props. */
 export interface RoutePathOwnProps {
-  /** Cote du dessin, en pixels. @defaultValue 72 */
+  /** Side of the drawing, in pixels. @defaultValue 72 */
   size?: number
-  /** Epaisseur de la route, en pixels. @defaultValue 4 */
+  /** Thickness of the road, in pixels. @defaultValue 4 */
   thickness?: number
-  /** Duree d'un parcours complet, en millisecondes. @defaultValue 2400 */
+  /** Duration of one complete journey, in milliseconds. @defaultValue 2400 */
   speed?: number
-  /** Couleur de la route et des reperes. @defaultValue la couleur du texte */
+  /** Color of the road and the markers. @defaultValue the text color */
   color?: string
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */
+  /** Label announced to screen readers. @defaultValue 'Loading' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type RoutePathProps = Customisable<RoutePathOwnProps, 'span'>
 
 /**
- * Signale une attente par un itineraire qui se trace jusqu'a sa destination.
+ * Signals a wait with a route that draws itself to its destination.
  *
  * @example
  * <RoutePath />
  *
  * @example
- * // Plus grand, plus lent, dans la teinte de marque.
+ * // Bigger, slower, in the brand hue.
  * <RoutePath size={112} speed={3200} color="var(--o-palette-brand-500)" />
  */
 export function RoutePath({
@@ -135,15 +135,15 @@ export function RoutePath({
   thickness = 4,
   speed = 2400,
   color = 'currentColor',
-  label = 'Chargement',
+  label = 'Loading',
   ...rest
 }: RoutePathProps): ReactElement {
   ensureRouteRule()
 
   const { className, style } = mergePresentation({}, rest)
 
-  // Le dessin vit dans une vue de 100 unites : l'epaisseur demandee en
-  // pixels est convertie pour que la route garde sa mesure a toute taille.
+  // The drawing lives in a view of 100 units: the thickness asked for in
+  // pixels is converted so the road keeps its measure at any size.
   const stroke = Math.min((thickness / size) * 100, 12)
 
   const loaderStyle = {

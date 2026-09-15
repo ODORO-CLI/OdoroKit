@@ -60,14 +60,79 @@ Structure produite :
 
 ```
 index.html          Document d'entrée.
-odoro.config.ts     defineConfig({ alias, server, base, build })
+odoro.config.ts     defineConfig({ alias, server, base, build, plugins })
+.env.example        Les variables attendues. À copier en `.env`.
 src/
   App.tsx           Toute la page : barre, sections, pages.
   router.tsx        Le routeur, importé en une ligne par App.tsx.
-  fond.tsx          Le fond décoratif.
+  entry-server.tsx  Le pré-rendu : la liste des routes et leurs balises de tête.
+  background.tsx    Le fond décoratif.
   main.tsx          Montage React et imports de feuilles.
   styles.css        Styles du projet et surcharges de jetons.
 ```
+
+---
+
+## Les variables d'environnement
+
+Fichiers lus, du moins précis au plus précis : `.env`, `.env.local`,
+`.env.<mode>`, `.env.<mode>.local`. Une variable déjà posée dans
+l'environnement n'est **jamais** écrasée par un fichier.
+
+**Seul le préfixe `ODORO_` part dans le navigateur**, via `import.meta.env`.
+Tout ce qui n'a pas ce préfixe reste sur la machine.
+
+```ts
+const api = import.meta.env.ODORO_API // visible de tous
+```
+
+N'écris jamais une clé secrète dans une variable préfixée : elle finirait en
+clair dans le paquet publié, et rien ne la rattraperait ensuite. Une clé d'API,
+un jeton, une URL de base de données vont dans une variable **sans** préfixe,
+lue par le serveur.
+
+`--mode <nom>` choisit les fichiers lus et remplit `import.meta.env.MODE`.
+
+---
+
+## Le pré-rendu
+
+Actif par défaut dans les deux gabarits. `odoro build` rend chaque route de
+`src/entry-server.tsx` en HTML complet ; `main.tsx` l'hydrate au chargement.
+Une route `/tarifs` produit `dist/tarifs/index.html`.
+
+**C'est ce qui rend un site vitrine lisible par un moteur de recherche et par
+un aperçu de lien.** Sans lui, la première réponse est un document vide.
+
+Quand tu ajoutes une page, fais les deux gestes :
+
+```
+src/router.tsx        <Route path="tarifs" element={tarifs} />
+src/entry-server.tsx  export const routes = ['/', '/about', '/tarifs']
+```
+
+Oublier le second n'échoue pas : la page marche au clic et reste vide pour les
+robots. C'est précisément le genre de défaut que personne ne voit.
+
+Le rendu se fait sur la machine de compilation : `window`, `document` et
+`localStorage` n'y existent pas. Tout accès direct va dans un `useEffect`, ou
+dans un `try`.
+
+---
+
+## Les imports particuliers
+
+```ts
+import charter from './CHARTER.md?raw' // le texte du fichier
+import logo from './logo.svg?url' // son adresse publique
+import Worker from './work.ts?worker' // un fil d'exécution
+
+const pages = import.meta.glob('./pages/*.tsx') // chargement différé
+const titles = import.meta.glob('./pages/*.tsx', { eager: true, import: 'title' })
+```
+
+Les motifs sont résolus à la compilation : ce sont des imports statiques
+ordinaires, que le découpage et l'élagage traitent comme les autres.
 
 ---
 
@@ -147,7 +212,7 @@ import {
 } from '@odoro-cli/libs/motion'
 import { palette, theme } from '@odoro-cli/libs/tokens'
 import { Icon } from '@odoro-cli/icons'
-import { ArrowRight } from '@odoro-cli/icons/filaire'
+import { ArrowRight } from '@odoro-cli/icons/outline'
 ```
 
 **`/ui`** — une quarantaine de composants : `Accordion Alert Avatar Badge
@@ -168,8 +233,8 @@ bibliothèques : il n'y a **rien de plus à installer**.
 useScrollProgress useElementScrollProgress usePresence
 usePrefersReducedMotion`. Le mouvement réduit est respecté d'office.
 
-**`@odoro-cli/icons`** — cinq familles importables séparément : `filaire`
-(2 050), `compact` (2 039), `classique` (1 993), `etendu` (3 838), `marques`
+**`@odoro-cli/icons`** — cinq familles importables séparément : `outline`
+(2 050), `compact` (2 039), `classic` (1 993), `extended` (3 838), `brands`
 (608). Les icônes prennent `currentColor` et la taille de leur conteneur.
 
 **`@odoro-cli/engine`** — WebGL, surfaces arbitrées, politique de mouvement,
@@ -288,8 +353,15 @@ Chacun a été rencontré pour de vrai. Aucun ne se signale à la compilation.
 - **`odoro add` sur un projet sans alias** → les imports entre composants
   copiés sont écrits en relatif. Avec un alias `@/*`, ils l'emploient.
 - **Port occupé** → le serveur glisse vers le suivant et l'annonce. Lis la
-  ligne : l'adresse n'est pas forcément `:5180`.
+  ligne : l'adresse n'est pas forcément `:5180`. `--strict-port` fait échouer
+  au lieu de glisser, quand un proxy vise ce port précis.
 - **Deux serveurs sur le même projet** → supporté.
+- **Route ajoutée sans l'ajouter à `entry-server.tsx`** → la page marche au
+  clic et reste vide pour les robots. Rien ne le signale.
+- **Secret dans une variable `ODORO_`** → publié en clair dans le paquet. Le
+  préfixe est la frontière, pas le fichier.
+- **`window` ou `localStorage` au rendu** → casse le pré-rendu, qui tourne dans
+  Node. Dans un `useEffect`, ou dans un `try`.
 
 ---
 

@@ -1,38 +1,37 @@
 /**
- * Barres de signal : les barres s'allument l'une apres l'autre, de la plus
- * courte a la plus haute, puis s'eteignent dans le meme ordre.
+ * Signal bars: the bars light up one after another, from the shortest to the
+ * tallest, then go out in the same order.
  *
- * ## Une seule animation, decalee dans le temps
+ * ## A single animation, offset in time
  *
- * Les barres font toutes la meme chose : monter et s'eclaircir, tenir,
- * retomber. Ce qui les distingue n'est pas leur animation mais l'instant ou
- * elle commence. Une seule regle, donc, et un retard par barre — la vague
- * nait du decalage, pas d'images cles recopiees quatre fois. Changer le
- * nombre de barres ne demande alors aucune modification de la feuille.
+ * The bars all do the same thing: rise and brighten, hold, fall back. What
+ * tells them apart is not their animation but the moment it starts. A single
+ * rule, then, and one delay per bar — the wave is born from the offset, not
+ * from keyframes copied four times over. Changing the number of bars then
+ * requires no change to the stylesheet.
  *
- * Le retard est une fraction de la duree du cycle, jamais une valeur en
- * millisecondes : la sequence garde ses proportions a toutes les vitesses.
+ * The delay is a fraction of the cycle duration, never a value in
+ * milliseconds: the sequence keeps its proportions at every speed.
  *
- * Chaque barre monte depuis sa base — son origine de transformation est en
- * bas — parce qu'une barre de signal est plantee sur une ligne, comme une
- * antenne. Une croissance depuis le centre donnerait un histogramme
- * flottant.
+ * Each bar rises from its base — its transform origin is at the bottom —
+ * because a signal bar is planted on a line, like an antenna. Growing from the
+ * centre would give a floating histogram.
  *
- * L'etat eteint n'est pas l'absence : la barre reste visible, courte et
- * attenuee. C'est ce qui fait lire une echelle qui se remplit plutot que
- * des barres qui apparaissent de nulle part.
+ * The unlit state is not absence: the bar stays visible, short and dimmed.
+ * That is what makes one read a scale filling up rather than bars appearing
+ * out of nowhere.
  *
- * Une seule animation CSS par barre, tenue par le compositeur, aucun
- * JavaScript apres le premier rendu.
+ * One single CSS animation per bar, held by the compositor, no JavaScript
+ * after the first render.
  *
- * ## Un statut, pas un dessin
+ * ## A status, not a drawing
  *
- * L'element porte `role="status"` et un libelle pour les lecteurs d'ecran :
- * l'attente est une information, pas une decoration. Les barres sont
- * retirees de l'arbre d'accessibilite.
+ * The element carries `role="status"` and a label for screen readers: waiting
+ * is information, not decoration. The bars are removed from the accessibility
+ * tree.
  *
- * Sous mouvement reduit, toutes les barres sont a leur pleine hauteur : le
- * signal est au complet, l'echelle se lit encore.
+ * Under reduced motion, every bar is at its full height: the signal is
+ * complete, the scale still reads.
  *
  * @module
  */
@@ -40,16 +39,16 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-signal-bars'
 
-/** Part du cycle qui separe deux barres. */
+/** Share of the cycle separating two bars. */
 const STAGGER = 0.11
 
-/** Hauteur de la plus courte, en part de la plus haute. */
+/** Height of the shortest one, as a share of the tallest. */
 const SHORTEST = 0.38
 
-/** Pose les barres et leur sequence, une fois par document. */
+/** Sets up the bars and their sequence, once per document. */
 function ensureSignalRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -63,14 +62,14 @@ function ensureSignalRule(): void {
     'transform-origin:bottom;transform:scaleY(0.55);opacity:0.24;',
     'animation:o-signal-bars-lit var(--o-signal-speed) ease-in-out infinite;',
     '}',
-    // Montee franche, palier, retour : le palier est ce qui donne a la
-    // sequence le temps d'etre lue comme une sequence.
+    // Clean rise, plateau, return: the plateau is what gives the sequence the
+    // time to be read as a sequence.
     '@keyframes o-signal-bars-lit{',
     '0%{transform:scaleY(0.55);opacity:0.24}',
     '16%,62%{transform:scaleY(1);opacity:1}',
     '80%,100%{transform:scaleY(0.55);opacity:0.24}',
     '}',
-    // Toutes les barres pleines : le signal au complet, immobile.
+    // Every bar full: the signal complete, motionless.
     '@media (prefers-reduced-motion:reduce){',
     '[data-o-signal-bar]{animation:none;transform:none;opacity:1}',
     '}',
@@ -78,31 +77,31 @@ function ensureSignalRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** Props of the component itself. */
 export interface SignalBarsOwnProps {
-  /** Hauteur de la barre la plus haute, en pixels. @defaultValue 32 */
+  /** Height of the tallest bar, in pixels. @defaultValue 32 */
   size?: number
-  /** Nombre de barres. @defaultValue 4 */
+  /** Number of bars. @defaultValue 4 */
   count?: number
-  /** Duree d'un cycle complet, en millisecondes. @defaultValue 1400 */
+  /** Duration of a complete cycle, in milliseconds. @defaultValue 1400 */
   speed?: number
-  /** Couleur des barres. @defaultValue la couleur du texte */
+  /** Colour of the bars. @defaultValue the text colour */
   color?: string
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */
+  /** Label announced to screen readers. @defaultValue 'Loading' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All the props. */
 export type SignalBarsProps = Customisable<SignalBarsOwnProps, 'span'>
 
 /**
- * Signale une attente par des barres de signal qui montent en sequence.
+ * Signals a wait through signal bars rising in sequence.
  *
  * @example
  * <SignalBars />
  *
  * @example
- * // Cinq barres, plus hautes et plus lentes, dans la teinte de marque.
+ * // Five bars, taller and slower, in the brand hue.
  * <SignalBars count={5} size={48} speed={2000} color="var(--o-palette-brand-500)" />
  */
 export function SignalBars({
@@ -110,15 +109,15 @@ export function SignalBars({
   count = 4,
   speed = 1400,
   color = 'currentColor',
-  label = 'Chargement',
+  label = 'Loading',
   ...rest
 }: SignalBarsProps): ReactElement {
   ensureSignalRule()
 
   const { className, style } = mergePresentation({}, rest)
 
-  // Deux barres au moins : en dessous, il n'y a plus d'echelle, donc plus
-  // rien a lire dans la sequence.
+  // Two bars at least: below that, there is no scale left, and so nothing
+  // left to read in the sequence.
   const bars = Math.max(2, Math.round(count))
   const width = Math.max(2, size * 0.2)
   const gap = Math.max(2, size * 0.12)
@@ -146,8 +145,8 @@ export function SignalBars({
           aria-hidden
           style={{
             width: `${String(width)}px`,
-            // Les hauteurs s'echelonnent regulierement de la plus courte a
-            // la plus haute : c'est cette progression qui fait l'echelle.
+            // The heights step up evenly from the shortest to the tallest: it
+            // is that progression which makes the scale.
             height: `${String(size * (SHORTEST + ((1 - SHORTEST) * index) / (bars - 1)))}px`,
             animationDelay: `${String(Math.round(speed * STAGGER * index))}ms`,
           }}

@@ -1,33 +1,33 @@
 /**
- * Shader du tri de pixels.
+ * Shader of the pixel sort.
  *
- * ## L'idee mathematique
+ * ## The mathematical idea
  *
- * Le tri de pixels est un accident devenu style : dans une image, les
- * pixels de chaque colonne dont la luminance passe un seuil sont tries par
- * ordre croissant, et la colonne se change en degrade monotone. L'effet
- * reel demande de lire toute la colonne ; ici, il est simule sans aucune
- * lecture — chaque colonne de pixels porte des segments dont la position,
- * la longueur et le depart sont tires de leur rang. A l'interieur d'un
- * segment, la luminance croit lineairement du haut vers le bas : c'est le
- * degrade que produirait un tri. Un segment n'apparait que la ou l'image de
- * fond, lue a son origine, passe le seuil — les bandes sortent donc des
- * zones claires et coulent, comme dans l'effet d'origine.
+ * Pixel sorting is an accident turned into a style: in an image, the pixels
+ * of each column whose luminance passes a threshold are sorted in
+ * increasing order, and the column turns into a monotone gradient. The real
+ * effect requires reading the whole column; here, it is simulated without
+ * any read at all — every column of pixels carries segments whose position,
+ * length and start are drawn from their rank. Inside a segment, the
+ * luminance grows linearly from top to bottom: that is the gradient a sort
+ * would produce. A segment appears only where the background image, read at
+ * its origin, passes the threshold — the bands therefore come out of the
+ * light areas and flow, as in the original effect.
  *
- * Les segments defilent vers le bas a une vitesse propre a leur colonne,
- * si bien que les bandes coulent a des rythmes inegaux.
+ * The segments scroll downwards at a speed of their column's own, so that
+ * the bands flow at unequal rhythms.
  *
  * ## Uniforms
  *
- * - `uTime` — temps en secondes, fourni par le moteur.
- * - `uResolution` — taille du canevas en pixels, fournie par le moteur.
- * - `uColorA` — le fond.
- * - `uColorB` — la teinte de l'image et le bas des bandes.
- * - `uColorC` — le haut des bandes.
- * - `uPixel` — largeur d'une colonne, en pixels physiques.
- * - `uDensity` — nombre de segments sur la hauteur d'une colonne.
- * - `uThreshold` — seuil de luminance au-dessus duquel une bande sort.
- * - `uSpeed` — vitesse d'ecoulement.
+ * - `uTime` — time in seconds, supplied by the engine.
+ * - `uResolution` — canvas size in pixels, supplied by the engine.
+ * - `uColorA` — the background.
+ * - `uColorB` — the hue of the image and the bottom of the bands.
+ * - `uColorC` — the top of the bands.
+ * - `uPixel` — width of a column, in physical pixels.
+ * - `uDensity` — number of segments over the height of a column.
+ * - `uThreshold` — luminance threshold above which a band comes out.
+ * - `uSpeed` — speed of the flow.
  */
 export const PIXEL_SORT_FRAGMENT = /* glsl */ `
 precision highp float;
@@ -44,13 +44,13 @@ uniform float uDensity;
 uniform float uThreshold;
 uniform float uSpeed;
 
-// Nombre pseudo-aleatoire : projection sur une direction arbitraire, sinus
-// amplifie, partie fractionnaire.
+// Pseudo-random number: projection onto an arbitrary direction, amplified
+// sine, fractional part.
 float sortHash(vec2 p) {
   return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
 }
 
-// Bruit de valeur : interpolation lissee entre les quatre coins de la cellule.
+// Value noise: smoothed interpolation between the four corners of the cell.
 float sortNoise(vec2 p) {
   vec2 cell = floor(p);
   vec2 local = fract(p);
@@ -64,7 +64,7 @@ float sortNoise(vec2 p) {
   return mix(mix(a, b, smoothed.x), mix(c, d, smoothed.x), smoothed.y);
 }
 
-// L'image de fond : deux octaves de bruit en derive lente, entre zero et un.
+// The background image: two octaves of noise in slow drift, between zero and one.
 float sortImage(vec2 uv, float t) {
   vec2 p = uv * 2.4 + vec2(t * 0.08, -t * 0.05);
   float value = sortNoise(p) + 0.5 * sortNoise(p * 2.3 + 7.0);
@@ -76,22 +76,22 @@ void main() {
   float pixel = max(uPixel, 1.0);
   float t = uTime;
 
-  // La colonne : tout ce qui suit se calcule au centre de sa largeur.
+  // The column: everything that follows is computed at the centre of its width.
   float column = floor(gl_FragCoord.x / pixel);
   float x = (column + 0.5) * pixel / uResolution.x * aspect;
 
   float image = sortImage(vec2(vUv.x * aspect, vUv.y), t);
 
-  // Les segments de la colonne, qui defilent vers le bas a une vitesse
-  // propre a la colonne.
+  // The segments of the column, scrolling downwards at a speed of the
+  // column's own.
   float seed = sortHash(vec2(column, 3.0));
   float density = max(uDensity, 1.0);
   float run = (1.0 - vUv.y) * density + seed * 20.0 + t * uSpeed * (0.3 + 0.7 * seed);
   float segment = floor(run);
   float local = fract(run);
 
-  // Longueur du segment, et son origine : la bande ne sort que si l'image
-  // y est assez claire.
+  // Length of the segment, and its origin: the band comes out only if the
+  // image is light enough there.
   float span = mix(0.2, 0.95, sortHash(vec2(column, segment)));
   float originY = 1.0 - (segment - seed * 20.0 - t * uSpeed * (0.3 + 0.7 * seed)) / density;
   float origin = sortImage(vec2(x, fract(originY)), t);
@@ -99,7 +99,8 @@ void main() {
 
   float inside = step(local, span) * gate;
 
-  // Le degrade du tri : la luminance croit du haut vers le bas du segment.
+  // The gradient of the sort: the luminance grows from the top to the bottom
+  // of the segment.
   float sorted = local / span;
 
   vec3 base = mix(uColorA, uColorB, image * 0.85);

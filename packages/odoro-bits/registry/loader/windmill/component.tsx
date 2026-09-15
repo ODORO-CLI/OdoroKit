@@ -1,34 +1,34 @@
 /**
- * Moulin a vent : quatre ailes a claire-voie tournent sur leur tour, au
- * rythme d'un vent qui souffle par rafales.
+ * Windmill: four latticed sails turn on their tower, to the rhythm of a
+ * wind that blows in gusts.
  *
- * ## Le vent n'est pas constant, la tour ne bouge pas
+ * ## The wind is not constant, the tower does not move
  *
- * Un ventilateur tourne a vitesse constante parce qu'un moteur l'entraine.
- * Un moulin, lui, depend du vent, et le vent vient par bouffees : les
- * ailes prennent de l'elan, tiennent un moment, puis perdent leur vitesse
- * jusqu'a presque s'arreter, et la rafale suivante les relance. C'est ce
- * que posent les images cles d'un tour : une prise en `ease-in`, un
- * plateau lineaire, une fin en `ease-out`. La boucle se referme a vitesse
- * nulle des deux cotes, sans a-coup. Les ailes tournent dans le sens
- * inverse des aiguilles, comme celles des moulins qu'on voit de face.
+ * A fan turns at constant speed because a motor drives it. A windmill
+ * depends on the wind, and the wind comes in puffs: the sails gather
+ * momentum, hold for a moment, then lose their speed until they nearly
+ * stop, and the next gust sets them going again. That is what the keyframes
+ * of one turn lay down: an `ease-in` pickup, a linear plateau, an
+ * `ease-out` ending. The loop closes at zero speed on both sides, without a
+ * jolt. The sails turn counter-clockwise, like those of the mills one sees
+ * head-on.
  *
- * Chaque aile est une lame a claire-voie sur un cote de son bras : c'est
- * ce dessin, et non une simple croix, qui fait reconnaitre un moulin a
- * cette taille. Une seule aile est decrite, les trois autres sont ses
- * copies tournees d'un quart de tour autour du moyeu.
+ * Each sail is a latticed blade on one side of its arm: it is that drawing,
+ * and not a plain cross, that makes a windmill recognizable at this size.
+ * Only one sail is described, the other three are its copies turned a
+ * quarter turn around the hub.
  *
- * Une animation de rotation sur un groupe SVG, tenue par le compositeur,
- * aucun JavaScript apres le premier rendu.
+ * A rotation animation on an SVG group, held by the compositor, no
+ * JavaScript after the first render.
  *
- * ## Un statut, pas un dessin
+ * ## A status, not a drawing
  *
- * L'element porte `role="status"` et un libelle pour les lecteurs d'ecran :
- * l'attente est une information, pas une decoration. Le moulin est retire
- * de l'arbre d'accessibilite.
+ * The element carries `role="status"` and a label for screen readers: the
+ * wait is information, not decoration. The windmill is removed from the
+ * accessibility tree.
  *
- * Sous mouvement reduit, les ailes sont a l'arret, en croix droite : c'est
- * un moulin par temps calme, et la figure se reconnait encore.
+ * Under reduced motion, the sails are at a standstill, in an upright cross:
+ * it is a windmill in calm weather, and the figure is still recognizable.
  *
  * @module
  */
@@ -36,22 +36,22 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Id of the injected stylesheet. */
 const STYLE_ID = 'o-windmill'
 
-/** Le moyeu, ou les ailes s'attachent, dans une vue de 100. */
+/** The hub, where the sails attach, in a view of 100. */
 const HUB = { x: 50, y: 42 }
 
-/** Longueur d'un bras, du moyeu a son bout. */
+/** Length of one arm, from the hub to its tip. */
 const ARM = 36
 
-/** La tour, un trapeze sous le moyeu. */
+/** The tower, a trapezoid under the hub. */
 const TOWER = `M 41 96 L 59 96 L 55 ${String(HUB.y)} L 45 ${String(HUB.y)} Z`
 
-/** Les quatre orientations des ailes, en degres. */
+/** The four orientations of the sails, in degrees. */
 const SAILS = [0, 90, 180, 270] as const
 
-/** Pose le moulin et sa rotation par rafales, une fois par document. */
+/** Sets the windmill and its gusting rotation, once per document. */
 function ensureWindmillRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -65,14 +65,14 @@ function ensureWindmillRule(): void {
     `transform-box:view-box;transform-origin:${String(HUB.x)}px ${String(HUB.y)}px;`,
     'animation:o-windmill-gust var(--o-windmill-speed) infinite;',
     '}',
-    // Une rafale par tour : elan, plateau, puis les ailes s'eteignent.
+    // One gust per turn: momentum, plateau, then the sails die down.
     '@keyframes o-windmill-gust{',
     '0%{transform:rotate(0deg);animation-timing-function:ease-in}',
     '35%{transform:rotate(-150deg);animation-timing-function:linear}',
     '65%{transform:rotate(-270deg);animation-timing-function:ease-out}',
     '100%{transform:rotate(-360deg)}',
     '}',
-    // Les ailes en croix droite : un moulin par temps calme.
+    // The sails in an upright cross: a windmill in calm weather.
     '@media (prefers-reduced-motion:reduce){',
     '[data-o-windmill-sails]{animation:none;transform:none}',
     '}',
@@ -80,36 +80,36 @@ function ensureWindmillRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** The component's own props. */
 export interface WindmillOwnProps {
-  /** Hauteur du moulin, en pixels. @defaultValue 56 */
+  /** Height of the windmill, in pixels. @defaultValue 56 */
   size?: number
-  /** Duree d'un tour des ailes, rafale comprise, en millisecondes. @defaultValue 2400 */
+  /** Duration of one turn of the sails, gust included, in milliseconds. @defaultValue 2400 */
   speed?: number
-  /** Couleur de la tour et des ailes. @defaultValue la couleur du texte */
+  /** Color of the tower and the sails. @defaultValue the text color */
   color?: string
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */
+  /** Label announced to screen readers. @defaultValue 'Loading' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type WindmillProps = Customisable<WindmillOwnProps, 'span'>
 
 /**
- * Signale une attente par un moulin dont les ailes tournent par rafales.
+ * Signals a wait with a windmill whose sails turn in gusts.
  *
  * @example
  * <Windmill />
  *
  * @example
- * // Plus grand, plus lent, dans la teinte de marque.
+ * // Bigger, slower, in the brand hue.
  * <Windmill size={96} speed={4000} color="var(--o-palette-brand-500)" />
  */
 export function Windmill({
   size = 56,
   speed = 2400,
   color = 'currentColor',
-  label = 'Chargement',
+  label = 'Loading',
   ...rest
 }: WindmillProps): ReactElement {
   ensureWindmillRule()
@@ -143,7 +143,7 @@ export function Windmill({
               key={angle}
               transform={`rotate(${String(angle)} ${String(HUB.x)} ${String(HUB.y)})`}
             >
-              {/* Le bras, du moyeu au bout. */}
+              {/* The arm, from the hub to the tip. */}
               <line
                 x1={HUB.x}
                 y1={HUB.y}
@@ -153,7 +153,7 @@ export function Windmill({
                 strokeWidth={2.5}
                 strokeLinecap="round"
               />
-              {/* La lame a claire-voie, sur un seul cote du bras. */}
+              {/* The latticed blade, on one side of the arm only. */}
               <rect
                 x={HUB.x + 1.5}
                 y={tip + 1}

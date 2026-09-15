@@ -1,5 +1,5 @@
 /**
- * Revelation d'un element a son entree dans le viewport.
+ * Reveal of an element on its entry into the viewport.
  *
  * @module
  */
@@ -31,58 +31,58 @@ import {
   resolveEasing,
 } from './tokens.js'
 
-/** Proprietes communes aux composants d'animation d'entree. */
+/** Properties common to the entrance animation components. */
 export interface RevealTiming {
-  /** Duree : nom de token ou millisecondes. @defaultValue 'slow' */
+  /** Duration: token name or milliseconds. @defaultValue 'slow' */
   duration?: DurationInput
-  /** Courbe : nom de token ou valeur CSS. @defaultValue 'entrance' */
+  /** Curve: token name or CSS value. @defaultValue 'entrance' */
   easing?: EasingInput
-  /** Retard avant demarrage, en millisecondes. @defaultValue 0 */
+  /** Delay before start, in milliseconds. @defaultValue 0 */
   delay?: number
-  /** Etat de depart. @defaultValue opacite nulle et decalage vertical */
+  /** Starting state. @defaultValue zero opacity and vertical offset */
   from?: MotionKeyframe
-  /** Etat d'arrivee. @defaultValue etat naturel de l'element */
+  /** End state. @defaultValue natural state of the element */
   to?: MotionKeyframe
 }
 
-/** Proprietes de {@link Reveal}. */
+/** Properties of {@link Reveal}. */
 export interface RevealProps extends RevealTiming, ComponentPropsWithoutRef<'div'> {
-  /** Element rendu. @defaultValue 'div' */
+  /** Rendered element. @defaultValue 'div' */
   as?: ElementType
-  /** Contenu revele. */
+  /** Revealed content. */
   children?: ReactNode
   /**
-   * Etat de depart nomme, choisi dans {@link revealPresets}. Un `from`
-   * explicite reste prioritaire.
+   * Named starting state, chosen from {@link revealPresets}. An explicit
+   * `from` stays prioritary.
    */
   preset?: RevealPresetName
   /**
-   * Proportion de l'element devant etre visible pour declencher.
+   * Proportion of the element that must be visible to trigger.
    * @defaultValue 0.15
    */
   threshold?: number
-  /** Marge appliquee au viewport d'observation. @defaultValue '0px' */
+  /** Margin applied to the observation viewport. @defaultValue '0px' */
   rootMargin?: string
-  /** Ne joue l'animation qu'une seule fois. @defaultValue true */
+  /** Plays the animation only once. @defaultValue true */
   once?: boolean
-  /** Desactive l'animation : le contenu est rendu tel quel. */
+  /** Disables the animation: the content is rendered as is. */
   disabled?: boolean
 }
 
 /**
- * Anime un element lorsqu'il entre dans le viewport.
+ * Animates an element when it enters the viewport.
  *
- * Le rendu serveur — et le rendu sans JavaScript — produit l'etat **final** :
- * l'etat de depart n'est applique qu'en couche layout, juste avant la
- * premiere peinture. Un contenu ne peut donc jamais rester invisible parce
- * qu'un script a echoue.
+ * Server rendering — and rendering without JavaScript — produces the **final** state:
+ * the starting state is applied only in the layout layer, just before the
+ * first paint. Content can therefore never stay invisible because
+ * a script has failed.
  *
- * Sous `prefers-reduced-motion`, l'animation est entierement neutralisee et le
- * contenu reste visible.
+ * Under `prefers-reduced-motion`, the animation is entirely neutralized and the
+ * content stays visible.
  *
  * @example
  * <Reveal duration="slow" delay={100}>
- *   <h2>Titre revele au scroll</h2>
+ *   <h2>Title revealed on scroll</h2>
  * </Reveal>
  */
 export function Reveal({
@@ -104,15 +104,15 @@ export function Reveal({
   const reduced = usePrefersReducedMotion()
   const inactive = disabled || reduced
 
-  // Couche layout : l'etat de depart est pose avant la premiere peinture, donc
-  // sans scintillement, mais apres le rendu serveur, qui reste final.
+  // Layout layer: the starting state is set before the first paint, so
+  // without flicker, but after the server rendering, which stays final.
   useLayoutEffect(() => {
     const element = ref.current
     if (element === null || inactive) return
     applyStyles(element, from)
     return () => clearStyles(element, from)
-    // `from` est un litteral cote appelant : le comparer par identite
-    // relancerait l'effet a chaque rendu.
+    // `from` is a literal on the caller side: comparing it by identity
+    // would restart the effect on every render.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inactive])
 
@@ -136,9 +136,9 @@ export function Reveal({
       })
       void animation.finished.then(
         () => {
-          // L'etat d'arrivee est l'etat naturel de l'element : on retire le
-          // style inline de depart et l'animation, plutot que de laisser une
-          // animation figee retenir une couche de composition.
+          // The end state is the natural state of the element: we remove the
+          // inline starting style and the animation, rather than letting a
+          // frozen animation hold a composition layer.
           clearStyles(element, from)
           animation?.cancel()
           animation = null

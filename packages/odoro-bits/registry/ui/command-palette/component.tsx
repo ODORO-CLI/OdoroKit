@@ -1,39 +1,39 @@
 /**
- * Palette de commandes : une fenetre qui s'ouvre au-dessus de la page, filtre
- * une liste a la frappe, et lance ce qui est retenu.
+ * Command palette: a window that opens above the page, filters a list as one
+ * types, and runs whatever is picked.
  *
- * ## L'ouverture appartient a la page
+ * ## Opening belongs to the page
  *
- * La palette ne connait pas le raccourci qui l'appelle : `open` est une
- * propriete controlee, `onOpenChange` demande la fermeture. C'est la seule
- * facon d'avoir un raccourci global, une entree de menu et un bouton qui
- * ouvrent la meme fenetre sans qu'aucun des trois n'ait a en connaitre l'etat
- * interne — et cela laisse le composant testable sans clavier.
+ * The palette does not know the shortcut that calls it: `open` is a controlled
+ * property, `onOpenChange` asks for the close. It is the only way to have a
+ * global shortcut, a menu entry and a button open the same window without any
+ * of the three having to know its internal state — and it leaves the component
+ * testable without a keyboard.
  *
- * ## Fermee, elle n'existe pas
+ * ## Closed, it does not exist
  *
- * Aucun noeud n'est laisse dans le document : ni le voile qui intercepte les
- * clics, ni la liste que la navigation au clavier traverserait a l'aveugle.
+ * No node is left behind in the document: neither the veil that intercepts the
+ * clicks, nor the list that keyboard navigation would cross blindly.
  *
- * ## Le champ est le seul point de focus, la liste est designee
+ * ## The field is the only focus point, the list is designated
  *
- * Les fleches ne deplacent pas le focus — elles deplacent
- * `aria-activedescendant`. C'est ce qui permet de continuer a ecrire tout en
- * parcourant les resultats, et c'est le motif `combobox` de l'ARIA. Tab est
- * retenu dans la fenetre, et le focus retourne d'ou il venait a la fermeture :
- * sans cela, on rouvre la page au debut du document.
+ * The arrow keys do not move the focus — they move
+ * `aria-activedescendant`. That is what allows one to keep typing while going
+ * through the results, and it is the ARIA `combobox` pattern. Tab is held
+ * inside the window, and the focus returns where it came from on close:
+ * without that, the page is reopened at the start of the document.
  *
- * ## Le filtre ignore la casse et les accents
+ * ## The filter ignores case and diacritics
  *
- * Un mot cherche sans ses signes doit trouver le mot qui les porte : c'est
- * ainsi que l'on tape, vite et sans y penser. Les signes sont retires par
- * decomposition Unicode plutot que par une table de correspondances, qui
- * serait fausse des la premiere langue non prevue.
+ * A word searched without its marks must find the word that carries them: that
+ * is how one types, fast and without thinking about it. The marks are removed
+ * by Unicode decomposition rather than by a correspondence table, which would
+ * be wrong as soon as the first unforeseen language shows up.
  *
- * ## Mouvement reduit
+ * ## Reduced motion
  *
- * La fenetre parait a sa taille et a sa place, sans montee ni voile qui
- * s'installe.
+ * The window appears at its size and at its place, with no rise and no veil
+ * settling in.
  *
  * @module
  */
@@ -50,45 +50,45 @@ import {
   type ReactNode,
 } from 'react'
 
-/** Une commande de la palette. */
+/** A command of the palette. */
 export interface PaletteCommand {
-  /** Identifiant, unique dans la palette. */
+  /** Identifier, unique within the palette. */
   readonly id: string
-  /** Libelle affiche, et sur lequel porte le filtre. */
+  /** Displayed label, and the one the filter applies to. */
   readonly label: string
-  /** Precision affichee a droite : un raccourci, un chemin. */
+  /** Detail shown on the right: a shortcut, a path. */
   readonly hint?: string
-  /** Nom du groupe sous lequel ranger la commande. */
+  /** Name of the group the command is filed under. */
   readonly group?: string
-  /** Icone posee avant le libelle. */
+  /** Icon placed before the label. */
   readonly icon?: ReactNode
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface CommandPaletteOwnProps {
-  /** Les commandes, dans leur ordre naturel. */
+  /** The commands, in their natural order. */
   commands: readonly PaletteCommand[]
-  /** Fenetre ouverte. La page en decide, toujours. */
+  /** Window open. The page always decides. */
   open: boolean
-  /** Appele quand la palette demande sa fermeture. */
+  /** Called when the palette asks to be closed. */
   onOpenChange?: (open: boolean) => void
-  /** Appele avec l'identifiant de la commande lancee. */
+  /** Called with the identifier of the command that was run. */
   onRun?: (id: string) => void
-  /** Nom de la fenetre pour les lecteurs d'ecran. @defaultValue 'Commandes' */
+  /** Name of the window for screen readers. @defaultValue 'Commands' */
   label?: string
-  /** Texte d'attente du champ. @defaultValue 'Rechercher une commande...' */
+  /** Waiting text of the field. @defaultValue 'Search for a command...' */
   placeholder?: string
-  /** Phrase affichee quand rien ne correspond. @defaultValue 'Aucune commande.' */
+  /** Sentence shown when nothing matches. @defaultValue 'No commands.' */
   empty?: string
 }
 
-/** Toutes les proprietes. */
+/** All the properties. */
 export type CommandPaletteProps = Customisable<CommandPaletteOwnProps>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-command-palette'
 
-/** Pose le voile, la fenetre, le champ et la liste, une fois par document. */
+/** Places the veil, the window, the field and the list, once per document. */
 function ensurePaletteRules(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -99,8 +99,8 @@ function ensurePaletteRules(): void {
     '[data-o-palette]{',
     'position:fixed;inset:0;z-index:var(--o-z-modal);',
     'display:flex;align-items:flex-start;justify-content:center;padding:12vh 1rem 1rem;',
-    // Un voile est sombre dans les deux themes : c'est le seul endroit ou la
-    // teinte ne bascule pas, sinon la fenetre claire s'enfoncerait dans du blanc.
+    // A veil is dark in both themes: it is the only place where the hue does
+    // not switch, otherwise the light window would sink into white.
     'background:color-mix(in oklab,var(--o-palette-zinc-950) 45%,transparent);',
     'animation:o-palette-veil var(--o-duration-base) linear both;',
     '}',
@@ -150,10 +150,10 @@ function ensurePaletteRules(): void {
 }
 
 /**
- * Retire les signes diacritiques et la casse, pour comparer deux textes.
+ * Strips the diacritics and the case, so that two texts can be compared.
  *
- * La decomposition separe la lettre de son signe ; l'intervalle retire ensuite
- * tous les signes combinants d'un coup, sans table a tenir a jour.
+ * The decomposition separates the letter from its mark; the range then removes
+ * every combining mark at once, with no table to keep up to date.
  */
 function plain(text: string): string {
   return text
@@ -163,17 +163,17 @@ function plain(text: string): string {
 }
 
 /**
- * Palette de commandes, ouverte par la page.
+ * Command palette, opened by the page.
  *
  * @example
- * const [ouverte, setOuverte] = useState(false)
+ * const [open, setOpen] = useState(false)
  * <CommandPalette
- *   open={ouverte}
- *   onOpenChange={setOuverte}
- *   onRun={(id) => { lancer(id) }}
+ *   open={open}
+ *   onOpenChange={setOpen}
+ *   onRun={(id) => { run(id) }}
  *   commands={[
- *     { id: 'nouveau', label: 'Nouveau document', group: 'Fichier', hint: 'Ctrl N' },
- *     { id: 'ouvrir', label: 'Ouvrir un projet', group: 'Fichier' },
+ *     { id: 'new', label: 'New document', group: 'File', hint: 'Ctrl N' },
+ *     { id: 'open', label: 'Open a project', group: 'File' },
  *   ]}
  * />
  */
@@ -182,9 +182,9 @@ export function CommandPalette({
   open,
   onOpenChange,
   onRun,
-  label = 'Commandes',
-  placeholder = 'Rechercher une commande...',
-  empty = 'Aucune commande.',
+  label = 'Commands',
+  placeholder = 'Search for a command...',
+  empty = 'No commands.',
   ...rest
 }: CommandPaletteProps): ReactElement | null {
   const panelRef = useRef<HTMLDivElement | null>(null)
@@ -203,8 +203,8 @@ export function CommandPalette({
   )
   const active = Math.min(at, Math.max(0, found.length - 1))
 
-  // A l'ouverture : champ vide, premier resultat, focus dans le champ. A la
-  // fermeture : le focus retourne exactement d'ou il venait.
+  // On open: empty field, first result, focus in the field. On close: the
+  // focus returns exactly where it came from.
   useEffect(() => {
     if (!open) return
     const opener = document.activeElement
@@ -227,7 +227,7 @@ export function CommandPalette({
     close()
   }
 
-  /** Retient Tab dans la fenetre : dehors, il n'y a plus de page atteignable. */
+  /** Holds Tab inside the window: outside, there is no reachable page left. */
   const trap = (event: KeyboardEvent<HTMLDivElement>): void => {
     const focusable = Array.from(
       panelRef.current?.querySelectorAll<HTMLElement>(
@@ -281,8 +281,8 @@ export function CommandPalette({
     }
   }
 
-  // Les resultats sont ranges par groupes consecutifs : l'ordre donne par la
-  // page est conserve, et un intitule ne parait qu'au changement de groupe.
+  // The results are filed under consecutive groups: the order given by the
+  // page is kept, and a heading only appears when the group changes.
   const segments: {
     name?: string
     items: { command: PaletteCommand; index: number }[]
@@ -305,7 +305,7 @@ export function CommandPalette({
         { '--o-cmd-accent': 'var(--o-palette-brand-500)', ...style } as CSSProperties
       }
       onPointerDown={(event) => {
-        // Cliquer a cote de la fenetre, c'est vouloir la fermer.
+        // Clicking beside the window means wanting it closed.
         if (event.target === event.currentTarget) close()
         rest.onPointerDown?.(event)
       }}
@@ -336,7 +336,7 @@ export function CommandPalette({
             type="text"
             role="combobox"
             aria-expanded="true"
-            aria-controls={`${baseId}-liste`}
+            aria-controls={`${baseId}-list`}
             aria-activedescendant={
               found[active] === undefined ? undefined : `${baseId}-${String(active)}`
             }
@@ -354,7 +354,7 @@ export function CommandPalette({
           <p data-o-palette-empty="">{empty}</p>
         ) : (
           <div
-            id={`${baseId}-liste`}
+            id={`${baseId}-list`}
             role="listbox"
             aria-label={label}
             data-o-palette-list=""
@@ -398,8 +398,8 @@ export function CommandPalette({
           </div>
         )}
         <div data-o-palette-foot="">
-          <span>Fleches pour parcourir, Entree pour lancer</span>
-          <span>Echap pour fermer</span>
+          <span>Arrows to browse, Enter to run</span>
+          <span>Esc to close</span>
         </div>
       </div>
     </div>

@@ -1,34 +1,34 @@
 /**
- * Design tokens d'Odoro — source de verite unique du systeme visuel.
+ * Odoro design tokens — the single source of truth of the visual system.
  *
- * La fondation numerique du design system vit dans
- * `src/styles/generated/baseTokens.ts` : 288 couleurs en OKLCH, 18 tailles de
- * texte, rayons, ombres, flous, conteneurs, perspectives et courbes. C'est un
- * artefact fige, versionne, que ce module habille.
+ * The numeric foundation of the design system lives in
+ * `src/styles/generated/baseTokens.ts`: 288 colors in OKLCH, 18 text sizes,
+ * radii, shadows, blurs, containers, perspectives and curves. It is a frozen,
+ * versioned artifact that this module dresses up.
  *
- * Ce que ce fichier ajoute par-dessus :
+ * What this file adds on top:
  *
- * 1. une **teinte de marque** Odoro, sur les 11 nuances habituelles ;
- * 2. une **echelle d'espacement enumeree**, exprimee en `calc()` sur un pas de
- *    base unique ;
- * 3. des echelles de **duree**, d'**opacite** et de **plan** (`z-index`), et
- *    des **courbes d'entree/sortie** utilisees par le moteur d'animation.
+ * 1. an Odoro **brand hue**, across the usual 11 shades;
+ * 2. an **enumerated spacing scale**, expressed in `calc()` over a single
+ *    base step;
+ * 3. **duration**, **opacity** and **layer** (`z-index`) scales, and the
+ *    **entrance/exit curves** used by the animation engine.
  *
- * Il n'y a **pas** de couche semantique. Une couleur se designe par sa place
- * dans la palette — `zinc-900`, `brand-600` — jamais par le role qu'elle joue.
- * Le theme se dit alors explicitement, sur chaque classe : `o-bg-white
- * dark:o-bg-zinc-900`. C'est plus verbeux, et c'est la contrepartie assumee
- * d'un systeme ou l'on voit la couleur qu'on ecrit.
+ * There is **no** semantic layer. A color is named by its place in the
+ * palette — `zinc-900`, `brand-600` — never by the role it plays. The theme
+ * is then spelled out explicitly, on every class: `o-bg-white
+ * dark:o-bg-zinc-900`. It is more verbose, and that is the accepted price of
+ * a system where you see the color you write.
  *
- * La seule exception est un petit groupe de **variables de theme**
- * (`--o-theme-*`) : cinq valeurs qui basculent avec `data-theme`, pour ce qui
- * doit suivre le theme sans passer par une classe — un fond WebGL qui lit ses
- * couleurs en JavaScript, un rideau, un chargeur.
+ * The only exception is a small group of **theme variables**
+ * (`--o-theme-*`): five values that switch with `data-theme`, for whatever
+ * must follow the theme without going through a class — a WebGL background
+ * reading its colors in JavaScript, a curtain, a loader.
  *
- * Rien d'autre dans la librairie ne contient de valeur brute : variables CSS,
- * utilitaires atomiques et composants UI en derivent tous.
+ * Nothing else in the library holds a raw value: CSS variables, atomic
+ * utilities and UI components all derive from these.
  *
- * Convention des variables generees : `--o-<groupe>-<cle>`.
+ * Convention of the generated variables: `--o-<group>-<key>`.
  *
  * @module
  */
@@ -76,18 +76,19 @@ import {
 } from './generated/baseTokens.js'
 
 /**
- * Teinte de marque d'Odoro : le bleu du logo (`#3b82f6`, `brand-500`),
- * decline sur les memes 11 nuances que le reste de la palette pour rester
- * interchangeable avec n'importe quelle autre teinte.
+ * Odoro brand hue: the blue of the logo (`#3b82f6`, `brand-500`), spread over
+ * the same 11 shades as the rest of the palette so it stays interchangeable
+ * with any other hue.
  *
- * ## Pourquoi la marque est une echelle a part, et non un alias
+ * ## Why the brand is a scale of its own, and not an alias
  *
- * Les valeurs sont recopiees depuis l'echelle bleue de la palette de base
- * plutot que referencees. Un alias lierait la marque a une famille : la
- * reteinter demanderait alors de changer de famille partout ou `brand` est
- * employe — c'est-a-dire dans la documentation, les vitrines et les gabarits.
+ * The values are copied from the blue scale of the base palette rather than
+ * referenced. An alias would tie the brand to a family: recoloring it would
+ * then mean switching family everywhere `brand` is used — that is, in the
+ * documentation, the showcases and the templates.
  *
- * Ici, une seule table change, et tout ce qui lit `--o-palette-brand-*` suit.
+ * Here a single table changes, and everything reading `--o-palette-brand-*`
+ * follows.
  */
 export const brand = {
   'brand-50': 'oklch(97.0% 0.014 254.604)',
@@ -104,11 +105,11 @@ export const brand = {
 } as const
 
 /**
- * Palette brute complete : la fondation, plus la teinte de marque.
+ * The complete raw palette: the foundation, plus the brand hue.
  *
- * Elle n'est pas destinee a etre utilisee directement dans les composants de
- * la librairie — ceux-ci passent par la couche semantique — mais reste
- * entierement disponible cote application.
+ * It is not meant to be used directly inside the components of the library —
+ * those go through the semantic layer — but it stays fully available on the
+ * application side.
  */
 export const palette = {
   ...basePalette,
@@ -118,32 +119,32 @@ export const palette = {
 } as const
 
 /**
- * Variables de theme : ce qui bascule quand la page passe en sombre.
+ * Theme variables: what switches when the page goes dark.
  *
- * Ce n'est pas une couche semantique — cinq roles, pas une nomenclature —
- * mais ce qu'un fond WebGL, un rideau ou un chargeur doivent lire pour suivre
- * le theme du visiteur au lieu d'imposer le leur. Un composant qui pose ses
- * couleurs par classe n'en a pas besoin : `o-bg-zinc-50 dark:o-bg-zinc-950`
- * dit la meme chose. Celui qui les lit en JavaScript, ou les ecrit dans une
- * variable, n'a que ce chemin.
+ * This is not a semantic layer — five roles, not a nomenclature — but what a
+ * WebGL background, a curtain or a loader must read to follow the visitor's
+ * theme instead of imposing their own. A component that sets its colors by
+ * class has no need for them: `o-bg-zinc-50 dark:o-bg-zinc-950` says the same
+ * thing. The one that reads them in JavaScript, or writes them into a
+ * variable, has only this path.
  *
- * Le theme clair vit dans `:root` ; le sombre est pose sous `data-theme` et
- * sous la preference systeme, par le generateur.
+ * The light theme lives in `:root`; the dark one is placed under `data-theme`
+ * and under the system preference, by the generator.
  */
 export const theme = {
-  /** Fond de la page. */
+  /** Page background. */
   bg: 'var(--o-palette-zinc-50)',
-  /** Fond d'une surface posee sur la page. */
+  /** Background of a surface laid on the page. */
   surface: 'var(--o-palette-white)',
-  /** Encre : le texte courant. */
+  /** Ink: the running text. */
   fg: 'var(--o-palette-zinc-900)',
-  /** Encre en sourdine : legendes, traits secondaires. */
+  /** Muted ink: captions, secondary strokes. */
   muted: 'var(--o-palette-zinc-500)',
-  /** Filet : bordures et separateurs. */
+  /** Line: borders and separators. */
   line: 'var(--o-palette-zinc-200)',
 } as const
 
-/** Les memes roles, en theme sombre. */
+/** The same roles, in dark theme. */
 export const themeDark: Readonly<Record<keyof typeof theme, string>> = {
   bg: 'var(--o-palette-zinc-950)',
   surface: 'var(--o-palette-zinc-900)',
@@ -152,15 +153,15 @@ export const themeDark: Readonly<Record<keyof typeof theme, string>> = {
   line: 'var(--o-palette-zinc-800)',
 }
 
-/** Nom d'une variable de theme. */
+/** Name of a theme variable. */
 export type ThemeToken = keyof typeof theme
 
-/** Nom d'une couleur de la palette brute. */
+/** Name of a color in the raw palette. */
 export type PaletteToken = keyof typeof palette
 
 /**
- * Pas de l'echelle d'espacement. Chaque valeur vaut `pas x --o-spacing`,
- * exception faite de `0` et `px`.
+ * Steps of the spacing scale. Each value is `step x --o-spacing`, with the
+ * exception of `0` and `px`.
  */
 const SPACING_STEPS = [
   0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 16, 20, 24, 28, 32, 36,
@@ -168,9 +169,9 @@ const SPACING_STEPS = [
 ] as const
 
 /**
- * Echelle d'espacement enumeree. Les valeurs sont exprimees en `calc()` sur
- * `--o-spacing` : changer le pas de base redimensionne tout le systeme d'un
- * seul reglage.
+ * Enumerated spacing scale. The values are expressed in `calc()` over
+ * `--o-spacing`: changing the base step resizes the whole system with a
+ * single setting.
  */
 export const space: Readonly<Record<string, string>> = Object.freeze({
   0: '0',
@@ -180,18 +181,18 @@ export const space: Readonly<Record<string, string>> = Object.freeze({
   ),
 })
 
-/** Pas d'espacement de base : toute l'echelle en est un multiple. */
+/** Base spacing step: the whole scale is a multiple of it. */
 export const spacingBase = baseSpacingUnit
 
-/** Familles de police. */
+/** Font families. */
 export const fontFamily = baseFontFamily
 
 /**
- * Echelle typographique.
+ * Typographic scale.
  *
- * La fondation range ses ombres de texte sous les cles `shadow-*` de la meme
- * echelle ; on les en extrait ici — une taille de texte et une ombre portee ne
- * sont pas la meme grandeur, et les meler produirait des classes absurdes.
+ * The foundation files its text shadows under the `shadow-*` keys of the same
+ * scale; they are pulled out here — a text size and a drop shadow are not the
+ * same quantity, and mixing them would produce absurd classes.
  */
 export const fontSize: Readonly<Record<string, string>> = Object.freeze(
   Object.fromEntries(
@@ -199,7 +200,7 @@ export const fontSize: Readonly<Record<string, string>> = Object.freeze(
   ),
 )
 
-/** Ombres de texte, extraites de la fondation (voir {@link fontSize}). */
+/** Text shadows, pulled out of the foundation (see {@link fontSize}). */
 export const textShadow: Readonly<Record<string, string>> = Object.freeze({
   ...Object.fromEntries(
     Object.entries(baseFontSize)
@@ -208,34 +209,34 @@ export const textShadow: Readonly<Record<string, string>> = Object.freeze({
   ),
   none: 'none',
 })
-/** Hauteur de ligne par defaut associee a chaque taille de texte. */
+/** Default line height paired with each text size. */
 export const fontSizeLeading = baseFontSizeLeading
-/** Graisses. */
+/** Weights. */
 export const fontWeight = baseFontWeight
-/** Hauteurs de ligne nommees. */
+/** Named line heights. */
 export const lineHeight = baseLeading
-/** Interlettrages. */
+/** Letter spacings. */
 export const letterSpacing = baseTracking
-/** Rayons de bordure. */
+/** Border radii. */
 export const radius = baseRadius
-/** Ombres portees. */
+/** Drop shadows. */
 export const shadow = baseShadow
-/** Ombres internes. */
+/** Inset shadows. */
 export const insetShadow = baseInsetShadow
-/** Ombres de filtre. */
+/** Filter shadows. */
 export const dropShadow = baseDropShadow
-/** Flous. */
+/** Blurs. */
 export const blur = baseBlur
-/** Points de rupture. */
+/** Breakpoints. */
 export const breakpoint = baseBreakpoint
-/** Largeurs de conteneur. */
+/** Container widths. */
 export const container = baseContainer
-/** Distances de perspective. */
+/** Perspective distances. */
 export const perspective = basePerspective
-/** Rapports de forme. */
+/** Aspect ratios. */
 export const aspect = baseAspect
 
-/** Epaisseurs de bordure. */
+/** Border widths. */
 export const borderWidth = {
   0: '0',
   1: '1px',
@@ -245,8 +246,8 @@ export const borderWidth = {
 } as const
 
 /**
- * Durees d'animation. La fondation n'expose qu'une duree de transition par
- * defaut ; le moteur d'animation d'Odoro a besoin d'une echelle nommee.
+ * Animation durations. The foundation exposes only a default transition
+ * duration; the Odoro animation engine needs a named scale.
  */
 export const duration = {
   instant: '0ms',
@@ -260,12 +261,12 @@ export const duration = {
 } as const
 
 /**
- * Courbes de Bezier : les courbes de la fondation, completees par celles
- * qu'Odoro ajoute — une entree decelerante, une sortie accelerante et une
- * courbe a depassement leger.
+ * Bezier curves: the curves of the foundation, completed by the ones Odoro
+ * adds — a decelerating entrance, an accelerating exit and a curve with a
+ * slight overshoot.
  *
- * Le moteur d'animation n'implemente pas de ressorts physiques dans cette
- * version — voir `docs/motion.md` pour le raisonnement.
+ * The animation engine implements no physical springs in this version — see
+ * `docs/motion.md` for the reasoning.
  */
 export const easing = {
   ...baseEase,
@@ -276,14 +277,14 @@ export const easing = {
   emphasized: 'cubic-bezier(0.2, 0, 0, 1.2)',
 } as const
 
-/** Echelle d'opacite, par pas de 5 %. */
+/** Opacity scale, in steps of 5 %. */
 export const opacity: Readonly<Record<string, string>> = Object.freeze(
   Object.fromEntries(
     Array.from({ length: 21 }, (_, index) => [String(index * 5), String(index * 0.05)]),
   ),
 )
 
-/** Plans de superposition. */
+/** Stacking layers. */
 export const zIndex = {
   auto: 'auto',
   0: '0',
@@ -300,11 +301,11 @@ export const zIndex = {
 } as const
 
 /**
- * Ensemble des tokens, regroupes par prefixe de variable CSS.
+ * The whole token set, grouped by CSS variable prefix.
  *
  * @example
- * tokens.color.primary // couleur semantique -> --o-color-primary
- * tokens.palette['sky-500'] // couleur brute  -> --o-palette-sky-500
+ * tokens.color.primary // semantic color   -> --o-color-primary
+ * tokens.palette['sky-500'] // raw color   -> --o-palette-sky-500
  */
 export const tokens = {
   spacing: spacingBase,
@@ -332,8 +333,8 @@ export const tokens = {
   z: zIndex,
 } as const
 
-/** Type de l'ensemble des tokens. */
+/** Type of the whole token set. */
 export type Tokens = typeof tokens
 
-/** Nom d'un pas d'espacement. */
+/** Name of a spacing step. */
 export type SpaceToken = keyof typeof space

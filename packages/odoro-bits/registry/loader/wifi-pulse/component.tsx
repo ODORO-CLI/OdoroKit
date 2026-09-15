@@ -1,39 +1,38 @@
 /**
- * Onde wifi : les arcs se tracent du plus proche au plus lointain, tiennent
- * un instant tous ensemble, puis s'effacent d'un coup.
+ * Wifi wave: the arcs draw themselves from the nearest to the farthest,
+ * hold for a moment all together, then clear at once.
  *
- * ## Une onde part de la source, elle n'apparait pas partout a la fois
+ * ## A wave leaves the source, it does not appear everywhere at once
  *
- * Chaque arc se dessine par son milieu — de gauche a droite le long du
- * chemin — au lieu d'apparaitre en fondu : une onde a une direction, et un
- * fondu n'en a aucune. Les arcs partent ensuite l'un apres l'autre, du plus
- * petit au plus grand, ce qui donne la propagation. C'est le meme trace
- * pour tous, decale d'une fraction du cycle : le nombre d'arcs ne change
- * rien a la feuille de style.
+ * Every arc draws itself through its middle — from left to right along the
+ * path — instead of appearing in a fade: a wave has a direction, and a fade
+ * has none. The arcs then leave one after the other, from the smallest to
+ * the largest, which gives the propagation. It is the same stroke for all
+ * of them, offset by a fraction of the cycle: the number of arcs changes
+ * nothing in the stylesheet.
  *
- * Le chemin declare une longueur de cent : le tiret et son decalage se
- * lisent en pour cent, quel que soit le rayon de l'arc. Sans cela, chaque
- * arc demanderait ses propres valeurs, puisqu'ils n'ont pas la meme
- * longueur.
+ * The path declares a length of one hundred: the dash and its offset read
+ * as per cent, whatever the radius of the arc. Without that, every arc
+ * would ask for its own values, since they do not share the same length.
  *
- * Les trois arcs partagent le meme centre, celui du point d'emission, et
- * couvrent le meme secteur : ils sont donc concentriques a l'oeil, ce
- * qu'une suite d'arcs poses a la main ne serait pas.
+ * The three arcs share the same center, that of the emission point, and
+ * cover the same sector: they are therefore concentric to the eye, which a
+ * series of arcs placed by hand would not be.
  *
- * Le point ne clignote pas au rythme des arcs : il donne une seule impulsion
- * par cycle, au depart de l'onde. C'est la source, pas un quatrieme arc.
+ * The dot does not blink in time with the arcs: it gives a single impulse
+ * per cycle, as the wave leaves. It is the source, not a fourth arc.
  *
- * Une animation CSS par arc, la meme, plus une pour le point, tenues par le
- * compositeur, aucun JavaScript apres le premier rendu.
+ * One CSS animation per arc, the same one, plus one for the dot, held by
+ * the compositor, no JavaScript after the first render.
  *
- * ## Un statut, pas un dessin
+ * ## A status, not a drawing
  *
- * L'element porte `role="status"` et un libelle pour les lecteurs d'ecran :
- * l'attente est une information, pas une decoration. Le dessin est retire
- * de l'arbre d'accessibilite.
+ * The element carries `role="status"` and a label for screen readers: the
+ * wait is information, not decoration. The drawing is removed from the
+ * accessibility tree.
  *
- * Sous mouvement reduit, tous les arcs sont traces et le point est pose :
- * c'est l'instant ou l'onde est complete, celui qui dit la figure.
+ * Under reduced motion, every arc is drawn and the dot is placed: that is
+ * the instant when the wave is complete, the one that states the figure.
  *
  * @module
  */
@@ -41,21 +40,21 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-wifi-pulse'
 
-/** Le point d'emission, dans une vue de 100 unites. */
+/** The emission point, in a 100-unit view box. */
 const SOURCE = { x: 50, y: 80 }
 
-/** Rayons des arcs, du plus proche au plus lointain. */
+/** Radii of the arcs, from the nearest to the farthest. */
 const RADII = [22, 38, 54] as const
 
-/** Part du cycle qui separe deux arcs. */
+/** Share of the cycle that separates two arcs. */
 const STAGGER = 0.12
 
 /**
- * Un arc de quatre-vingt-dix degres centre sur la source, ouvert vers le
- * haut : de l'oblique gauche a l'oblique droite, en passant par le sommet.
+ * A ninety-degree arc centered on the source, open towards the top: from
+ * the left diagonal to the right diagonal, by way of the apex.
  */
 function arcAt(radius: number): string {
   const reach = radius * Math.SQRT1_2
@@ -64,7 +63,7 @@ function arcAt(radius: number): string {
   return `M ${from} A ${String(radius)} ${String(radius)} 0 0 1 ${to}`
 }
 
-/** Pose les arcs, leur propagation et le point, une fois par document. */
+/** Applies the arcs, their propagation and the dot, once per document. */
 function ensureWifiRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -83,20 +82,20 @@ function ensureWifiRule(): void {
     `transform-origin:${String(SOURCE.x)}px ${String(SOURCE.y)}px;`,
     'animation:o-wifi-pulse-dot var(--o-wifi-speed) infinite;',
     '}',
-    // L'arc se trace, tient le temps que les suivants le rejoignent, puis
-    // toute l'onde s'efface ensemble.
+    // The arc draws itself, holds long enough for the next ones to join it,
+    // then the whole wave clears together.
     '@keyframes o-wifi-pulse-arc{',
     '0%{stroke-dashoffset:100;opacity:0;animation-timing-function:ease-out}',
     '12%{opacity:1}',
     '36%,68%{stroke-dashoffset:0;opacity:1;animation-timing-function:ease-in}',
     '86%,100%{stroke-dashoffset:0;opacity:0}',
     '}',
-    // Une impulsion par cycle, au depart de l'onde.
+    // One impulse per cycle, as the wave leaves.
     '@keyframes o-wifi-pulse-dot{',
     '0%{transform:scale(0.72);animation-timing-function:cubic-bezier(0.34,1.56,0.64,1)}',
     '18%,100%{transform:scale(1)}',
     '}',
-    // Onde complete, point pose : la figure est dite, a l'arret.
+    // Complete wave, dot placed: the figure is stated, at a standstill.
     '@media (prefers-reduced-motion:reduce){',
     '[data-o-wifi-arc]{animation:none;stroke-dashoffset:0;opacity:1}',
     '[data-o-wifi-dot]{animation:none;transform:none}',
@@ -105,31 +104,31 @@ function ensureWifiRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface WifiPulseOwnProps {
-  /** Cote du dessin, en pixels. @defaultValue 56 */
+  /** Side of the drawing, in pixels. @defaultValue 56 */
   size?: number
-  /** Epaisseur des arcs, en pixels. @defaultValue 6 */
+  /** Thickness of the arcs, in pixels. @defaultValue 6 */
   thickness?: number
-  /** Duree d'un cycle complet, en millisecondes. @defaultValue 1800 */
+  /** Duration of a full cycle, in milliseconds. @defaultValue 1800 */
   speed?: number
-  /** Couleur des arcs et du point. @defaultValue la couleur du texte */
+  /** Color of the arcs and of the dot. @defaultValue the text color */
   color?: string
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */
+  /** Label announced to screen readers. @defaultValue 'Loading' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All the properties. */
 export type WifiPulseProps = Customisable<WifiPulseOwnProps, 'span'>
 
 /**
- * Signale une attente par une onde wifi qui se propage.
+ * Signals a wait with a wifi wave that propagates.
  *
  * @example
  * <WifiPulse />
  *
  * @example
- * // Plus grande, plus lente, dans la teinte de marque.
+ * // Bigger, slower, in the brand hue.
  * <WifiPulse size={88} speed={2600} color="var(--o-palette-brand-500)" />
  */
 export function WifiPulse({
@@ -137,15 +136,15 @@ export function WifiPulse({
   thickness = 6,
   speed = 1800,
   color = 'currentColor',
-  label = 'Chargement',
+  label = 'Loading',
   ...rest
 }: WifiPulseProps): ReactElement {
   ensureWifiRule()
 
   const { className, style } = mergePresentation({}, rest)
 
-  // Le dessin vit dans une vue de 100 unites : l'epaisseur demandee en
-  // pixels est convertie pour que le trait garde sa mesure a toute taille.
+  // The drawing lives in a 100-unit view box: the thickness asked for in
+  // pixels is converted so the stroke keeps its measure at any size.
   const stroke = Math.min((thickness / size) * 100, 16)
 
   const loaderStyle = {

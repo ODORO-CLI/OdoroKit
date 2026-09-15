@@ -31,7 +31,7 @@
 import { Crosshatch } from '@/odoro/background/Crosshatch.jsx'
 import { SplitFlap } from '@/odoro/text/SplitFlap.jsx'
 import { Icon } from '@odoro-cli/icons'
-import { ArrowRight, ArrowUpRight, Check, ChefHat, Clock } from '@odoro-cli/icons/filaire'
+import { ArrowRight, ArrowUpRight, Check, ChefHat, Clock } from '@odoro-cli/icons/outline'
 import { Reveal } from '@odoro-cli/libs/motion'
 import { Input, Select } from '@odoro-cli/libs/ui'
 import { useEffect, useMemo, useState, type ReactElement } from 'react'

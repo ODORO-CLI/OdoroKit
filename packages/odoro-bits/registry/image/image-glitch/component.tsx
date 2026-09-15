@@ -1,37 +1,37 @@
 /**
- * Image glitchee : deux fantomes teintes se decalent par tranches au-dessus
- * de la photo, comme une transmission qui decroche.
+ * Glitched image: two tinted ghosts shift in slices over the photograph, like
+ * a transmission losing lock.
  *
- * ## Ce qui la distingue du glitch au survol
+ * ## What sets it apart from the glitch on hover
  *
- * L'effet generique enveloppe n'importe quel contenu et tire une rafale unique
- * a l'entree du pointeur. Ici l'entree connait son sujet : c'est une image, et
- * la separation des couches est faite avec l'image elle-meme, teintee par
- * melange de fond. Le decrochage boucle tant que le pointeur reste, au lieu de
- * partir une fois — le desordre continu est ce qui fait lire un signal
- * defaillant plutot qu'un accident.
+ * The generic effect wraps any content and fires a single burst when the
+ * pointer enters. Here the entry knows its subject: it is an image, and the
+ * separation of the channels is done with the image itself, tinted by
+ * background blending. The dropout loops as long as the pointer stays, instead
+ * of firing once — the continuous disorder is what makes one read a failing
+ * signal rather than an accident.
  *
- * ## Deux fantomes, aucune troisieme copie
+ * ## Two ghosts, no third copy
  *
- * Chaque fantome est un calque dont le fond est la meme source que l'element
- * `img` — donc rien de plus a telecharger. Sa couleur est melangee a l'image
- * par `background-blend-mode: multiply`, puis le calque est compose sur la
- * photo par `mix-blend-mode: screen` : c'est exactement ce que fait une frange
- * chromatique, un canal separe et rendu a nouveau. Le blanc n'est jamais
- * ecrit : les deux teintes viennent de la palette.
+ * Each ghost is a layer whose background is the same source as the `img`
+ * element — so nothing more to download. Its colour is blended with the image
+ * by `background-blend-mode: multiply`, then the layer is composited over the
+ * photograph by `mix-blend-mode: screen`: exactly what a chromatic fringe
+ * does, a channel separated and rendered again. White is never written: both
+ * hues come from the palette.
  *
- * ## Pourquoi des paliers, et une animation deja declaree
+ * ## Why steps, and an animation already declared
  *
- * Le decrochage est fait de sauts, pas de glissements : la fonction de
- * temporisation est un palier unique, et chaque etape tient jusqu'a la
- * suivante. L'animation est declaree une fois pour le document et reste en
- * pause ; le survol ne fait que la remettre en marche. Rien n'est cree au
- * moment du geste, et aucun rendu React n'a lieu.
+ * The dropout is made of jumps, not of slides: the timing function is a single
+ * step, and each stage holds until the next. The animation is declared once
+ * for the document and stays paused; the hover does nothing but set it running
+ * again. Nothing is created at the moment of the gesture, and no React render
+ * takes place.
  *
- * ## Sous mouvement reduit
+ * ## Under reduced motion
  *
- * Les fantomes ne sont pas rendus du tout et rien n'ecoute : la photo, nette,
- * est le seul etat. Un decrochage n'a pas d'etat final a preserver.
+ * The ghosts are not rendered at all and nothing listens: the photograph,
+ * crisp, is the only state. A dropout has no final state to preserve.
  *
  * @module
  */
@@ -39,15 +39,15 @@
 import { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-image-glitch'
 
-/** Pose les regles et les deux animations, une fois par document. */
+/** Sets the rules and the two animations, once per document. */
 function ensureGlitchRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
 
-  /** Tranche fermee : le fantome existe sans rien montrer. */
+  /** Closed slice: the ghost exists without showing anything. */
   const closed = 'opacity:0;clip-path:inset(0 0 100% 0);transform:none'
 
   const style = document.createElement('style')
@@ -56,8 +56,8 @@ function ensureGlitchRule(): void {
     '[data-o-ig-copy]{',
     'position:absolute;inset:0;pointer-events:none;border-radius:inherit;',
     'background-image:var(--o-ig-src);background-size:cover;background-position:center;',
-    // Le fond teinte est melange a l'image dans le calque, puis le calque est
-    // compose sur la photo : deux melanges, une seule copie.
+    // The tinted background is blended with the image inside the layer, then
+    // the layer is composited over the photograph: two blends, a single copy.
     'background-blend-mode:multiply;mix-blend-mode:screen;',
     'animation-duration:var(--o-ig-duration);animation-timing-function:steps(1,end);',
     'animation-iteration-count:infinite;animation-play-state:paused;',
@@ -65,10 +65,11 @@ function ensureGlitchRule(): void {
     '}',
     '[data-o-ig-copy="a"]{animation-name:o-ig-a}',
     '[data-o-ig-copy="b"]{animation-name:o-ig-b}',
-    // Le survol ne cree rien : il remet en marche ce qui attendait deja.
-    '[data-o-glitch-continu] [data-o-ig-copy],',
-    '[data-o-glitch-survol]:hover [data-o-ig-copy],',
-    '[data-o-glitch-survol]:focus-within [data-o-ig-copy]{animation-play-state:running}',
+    // The hover creates nothing: it sets running again what was already
+    // waiting.
+    '[data-o-glitch-continuous] [data-o-ig-copy],',
+    '[data-o-glitch-hover]:hover [data-o-ig-copy],',
+    '[data-o-glitch-hover]:focus-within [data-o-ig-copy]{animation-play-state:running}',
     '@keyframes o-ig-a{',
     `0%,100%{${closed}}`,
     '6%{opacity:0.9;clip-path:inset(8% 0 74% 0);transform:translate3d(calc(var(--o-ig-shift) * -1),0,0)}',
@@ -89,44 +90,44 @@ function ensureGlitchRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface ImageGlitchOwnProps {
-  /** Source de l'image. */
+  /** Source of the image. */
   src: string
-  /** Texte de remplacement. Chaine vide si l'image est purement decorative. */
+  /** Alternative text. Empty string if the image is purely decorative. */
   alt: string
-  /** Rapport largeur sur hauteur du cadre. @defaultValue 1.777 */
+  /** Width to height ratio of the frame. @defaultValue 1.777 */
   ratio?: number
-  /** Decalage des tranches, en pixels. @defaultValue 10 */
+  /** Offset of the slices, in pixels. @defaultValue 10 */
   intensity?: number
-  /** Duree d'un cycle de decrochage, en millisecondes. @defaultValue 1400 */
+  /** Duration of one dropout cycle, in milliseconds. @defaultValue 1400 */
   duration?: number
-  /** Ne decrocher qu'au survol et au focus. Sinon, en continu. @defaultValue true */
+  /** Only drop out on hover and on focus. Otherwise, continuously. @defaultValue true */
   hover?: boolean
   /**
-   * Teinte du premier fantome.
+   * Hue of the first ghost.
    *
-   * Une valeur, pas une couleur en dur : ecrite en clair elle echapperait au
+   * A value, not a hard-coded colour: written in the clear it would escape the
    * theme.
    *
-   * @defaultValue un cyan clair
+   * @defaultValue a light cyan
    */
   cool?: string
-  /** Teinte du second fantome. @defaultValue un rose vif */
+  /** Hue of the second ghost. @defaultValue a vivid rose */
   warm?: string
 }
 
-/** Toutes les proprietes : les siennes, plus celles d'une image. */
+/** All properties: its own, plus those of an image. */
 export type ImageGlitchProps = Customisable<ImageGlitchOwnProps, 'img'>
 
 /**
- * Fait decrocher une image en tranches teintees.
+ * Makes an image drop out in tinted slices.
  *
  * @example
- * <ImageGlitch src="/photo.jpg" alt="Vue de l atelier" />
+ * <ImageGlitch src="/photo.jpg" alt="View of the workshop" />
  *
  * @example
- * // Decrochage permanent, plus large et plus lent.
+ * // Permanent dropout, wider and slower.
  * <ImageGlitch src="/photo.jpg" alt="" hover={false} intensity={18} duration={2200} />
  */
 export function ImageGlitch({
@@ -151,22 +152,22 @@ export function ImageGlitch({
   const hostStyle = {
     ...style,
     aspectRatio: String(ratio),
-    // Les guillemets de la source sont neutralises : une apostrophe double
-    // dans un nom de fichier fermerait la fonction `url`.
+    // The quotes of the source are neutralised: a double quote in a file name
+    // would close the `url` function.
     '--o-ig-src': `url("${src.replaceAll('"', '%22')}")`,
     '--o-ig-shift': `${String(Math.max(0, intensity))}px`,
     '--o-ig-duration': `${String(Math.max(200, duration))}ms`,
   } as CSSProperties
 
-  /** Le fond teinte du fantome, melange a l'image dans son propre calque. */
+  /** The tinted background of the ghost, blended with the image in its own layer. */
   const ghost = (colour: string): CSSProperties => ({ backgroundColor: colour })
 
   return (
     <div
       className={className}
       style={hostStyle}
-      data-o-glitch-survol={hover ? '' : undefined}
-      data-o-glitch-continu={hover ? undefined : ''}
+      data-o-glitch-hover={hover ? '' : undefined}
+      data-o-glitch-continuous={hover ? undefined : ''}
     >
       <img
         loading="lazy"
@@ -177,8 +178,8 @@ export function ImageGlitch({
         className="o-size-full o-object-cover"
       />
 
-      {/* Les fantomes sont decoratifs : ils ne montrent rien que la photo ne
-          montre deja, et sont hors d'atteinte du pointeur. */}
+      {/* The ghosts are decorative: they show nothing the photograph does not
+          already show, and are out of reach of the pointer. */}
       {reduced ? null : (
         <>
           <div aria-hidden data-o-ig-copy="a" style={ghost(cool)} />

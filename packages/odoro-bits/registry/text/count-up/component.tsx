@@ -1,36 +1,36 @@
 /**
- * Compteur : un nombre monte jusqu'a sa valeur, quand il entre dans le champ.
+ * Counter: a number climbs to its value, when it enters the viewport.
  *
- * ## Le nombre final est toujours dans le DOM
+ * ## The final number is always in the DOM
  *
- * Un compteur qui n'ecrirait que sa valeur courante ferait lire « 0 » a un
- * lecteur d'ecran — puis « 12 », puis « 47 », a chaque image. Ce qui est
- * insupportable a l'oreille, et faux au moment ou l'on copie.
+ * A counter that only wrote its current value would have a screen reader say
+ * "0" — then "12", then "47", on every frame. Which is unbearable to the ear,
+ * and wrong the moment you copy it.
  *
- * Le nombre final est donc rendu tel quel, une fois pour toutes. C'est lui qui
- * est annonce, copie, indexe. Les valeurs intermediaires vivent dans un calque
- * `aria-hidden` pose par-dessus, qui n'existe que le temps de l'animation.
+ * The final number is therefore rendered as is, once and for all. It is the one
+ * that gets announced, copied, indexed. The intermediate values live in an
+ * `aria-hidden` layer laid over it, which only exists for the duration of the
+ * animation.
  *
- * ## Les chiffres ne doivent pas gigoter
+ * ## The digits must not jitter
  *
- * Dans la plupart des polices, un « 1 » est plus etroit qu'un « 8 ». Un
- * compteur qui traverse mille valeurs voit donc sa largeur changer a chaque
- * image, et pousse ce qui suit. `font-variant-numeric: tabular-nums` donne a
- * tous les chiffres la meme chasse — c'est exactement ce pour quoi cette
- * fonctionnalite existe.
+ * In most fonts, a "1" is narrower than an "8". A counter that crosses a
+ * thousand values therefore sees its width change on every frame, and pushes
+ * whatever follows it. `font-variant-numeric: tabular-nums` gives every digit
+ * the same advance width — that is exactly what this feature exists for.
  *
- * ## Le formatage passe par `Intl`
+ * ## Formatting goes through `Intl`
  *
- * Separer les milliers a la main donne « 1,234 » a un lecteur francais, qui y
- * lit un nombre a virgule. `Intl.NumberFormat` connait la convention de chaque
- * langue, y compris les espaces insecables etroits du francais.
+ * Separating thousands by hand gives "1,234" to a French reader, who reads a
+ * decimal number in it. `Intl.NumberFormat` knows the convention of each
+ * language, including the narrow no-break spaces of French.
  *
- * ## Une boucle qui s'arrete
+ * ## A loop that stops
  *
- * L'animation tourne sur `requestAnimationFrame` — une valeur en JavaScript
- * n'est pas une propriete CSS, le compositeur ne sait pas l'interpoler. Mais
- * elle dure une seconde et demie, puis s'arrete : ce n'est pas une boucle de
- * rendu, c'est une transition.
+ * The animation runs on `requestAnimationFrame` — a value in JavaScript is not
+ * a CSS property, the compositor does not know how to interpolate it. But it
+ * lasts a second and a half, then stops: this is not a render loop, it is a
+ * transition.
  *
  * @module
  */
@@ -48,46 +48,46 @@ import {
 
 import { useInView } from '@registre/hooks/useInView'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface CountUpOwnProps {
-  /** Valeur d'arrivee. */
+  /** Target value. */
   value: number
-  /** Valeur de depart. @defaultValue 0 */
+  /** Starting value. @defaultValue 0 */
   from?: number
-  /** Balise rendue. @defaultValue 'span' */
+  /** Rendered tag. @defaultValue 'span' */
   as?: ElementType
-  /** Duree de la montee, en millisecondes. @defaultValue 1500 */
+  /** Duration of the climb, in milliseconds. @defaultValue 1500 */
   duration?: number
-  /** Retard avant le depart, en millisecondes. @defaultValue 0 */
+  /** Delay before the start, in milliseconds. @defaultValue 0 */
   delay?: number
   /**
-   * Langue du formatage.
+   * Formatting language.
    *
-   * Par defaut, celle du navigateur — et non `fr-FR` en dur : un compteur qui
-   * affiche des espaces insecables a un lecteur anglophone a l'air casse.
+   * By default, the browser's — and not a hard-coded `fr-FR`: a counter that
+   * shows no-break spaces to an English reader looks broken.
    */
   locale?: string
-  /** Nombre de decimales. @defaultValue 0 */
+  /** Number of decimals. @defaultValue 0 */
   decimals?: number
-  /** Texte colle avant le nombre. */
+  /** Text glued before the number. */
   prefix?: string
-  /** Texte colle apres le nombre. */
+  /** Text glued after the number. */
   suffix?: string
   /**
-   * Quand partir.
+   * When to start.
    *
-   * @defaultValue 'vue'
+   * @defaultValue 'view'
    */
-  declenchement?: 'vue' | 'montage'
+  trigger?: 'view' | 'mount'
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type CountUpProps = Customisable<CountUpOwnProps, 'span'>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-count-up'
 
-/** Pose les regles du calque, une fois par document. */
+/** Sets the layer rules, once per document. */
 function ensureCountUpRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -95,8 +95,8 @@ function ensureCountUpRule(): void {
   const style = document.createElement('style')
   style.id = STYLE_ID
   style.textContent = [
-    // La chasse fixe s'applique aux deux : sans cela, le nombre final n'aurait
-    // pas la meme largeur que les valeurs qui defilent au-dessus.
+    // The fixed advance width applies to both: without it, the final number
+    // would not have the same width as the values scrolling above it.
     '[data-o-count-up]{position:relative;font-variant-numeric:tabular-nums}',
     '[data-o-count-up-layer]{position:absolute;inset:0;pointer-events:none}',
     '[data-o-count-up-hidden]{color:transparent}',
@@ -105,23 +105,23 @@ function ensureCountUpRule(): void {
 }
 
 /**
- * Sortie exponentielle : vite, puis de plus en plus lentement.
+ * Exponential ease out: fast, then slower and slower.
  *
- * C'est le profil qui donne l'impression que le compteur « arrive » plutot
- * qu'il ne s'arrete. Une progression lineaire se termine sur un coup sec.
+ * This is the profile that gives the impression that the counter "arrives"
+ * rather than stops. A linear progression ends on an abrupt cut.
  */
-function sortieExpo(t: number): number {
+function easeOutExpo(t: number): number {
   return t >= 1 ? 1 : 1 - Math.pow(2, -10 * t)
 }
 
 /**
- * Fait monter un nombre jusqu'a sa valeur.
+ * Makes a number climb to its value.
  *
  * @example
- * <CountUp value={12480} suffix=" projets" className="o-text-4xl o-font-bold" />
+ * <CountUp value={12480} suffix=" projects" className="o-text-4xl o-font-bold" />
  *
  * @example
- * // Deux decimales, et un depart qui n'est pas zero.
+ * // Two decimals, and a start that is not zero.
  * <CountUp value={99.98} from={95} decimals={2} suffix=" %" />
  */
 export function CountUp({
@@ -134,20 +134,20 @@ export function CountUp({
   decimals = 0,
   prefix = '',
   suffix = '',
-  declenchement = 'vue',
+  trigger = 'view',
   ...rest
 }: CountUpProps): ReactElement {
   const { reduced } = useMotionState()
-  const { ref: refVue, vu } = useInView<HTMLElement>({
-    immediat: declenchement === 'montage',
+  const { ref: viewRef, inView } = useInView<HTMLElement>({
+    immediate: trigger === 'mount',
   })
 
-  const refCalque = useRef<HTMLSpanElement | null>(null)
-  const [anime, setAnime] = useState(false)
+  const layerRef = useRef<HTMLSpanElement | null>(null)
+  const [animating, setAnimating] = useState(false)
 
   ensureCountUpRule()
 
-  const formateur = useMemo(
+  const formatter = useMemo(
     () =>
       new Intl.NumberFormat(locale, {
         minimumFractionDigits: decimals,
@@ -156,72 +156,72 @@ export function CountUp({
     [locale, decimals],
   )
 
-  const final = `${prefix}${formateur.format(value)}${suffix}`
+  const final = `${prefix}${formatter.format(value)}${suffix}`
 
   useEffect(() => {
-    // En mouvement reduit, le nombre est simplement la. C'est d'ailleurs ce
-    // qu'on voulait montrer ; l'animation n'etait que la maniere.
-    if (reduced || !vu) return
+    // Under reduced motion, the number is simply there. That is what we wanted
+    // to show anyway; the animation was only the manner.
+    if (reduced || !inView) return
 
-    const calque = refCalque.current
-    if (calque === null) return
+    const layer = layerRef.current
+    if (layer === null) return
 
-    let image = 0
-    let depart: number | undefined
-    setAnime(true)
+    let frame = 0
+    let start: number | undefined
+    setAnimating(true)
 
-    const pas = (maintenant: number) => {
-      depart ??= maintenant
+    const step = (now: number) => {
+      start ??= now
 
-      const ecoule = maintenant - depart - delay
+      const elapsed = now - start - delay
 
-      if (ecoule < 0) {
-        calque.textContent = `${prefix}${formateur.format(from)}${suffix}`
-        image = requestAnimationFrame(pas)
+      if (elapsed < 0) {
+        layer.textContent = `${prefix}${formatter.format(from)}${suffix}`
+        frame = requestAnimationFrame(step)
         return
       }
 
-      const t = duration <= 0 ? 1 : Math.min(1, ecoule / duration)
-      const courant = from + (value - from) * sortieExpo(t)
+      const t = duration <= 0 ? 1 : Math.min(1, elapsed / duration)
+      const current = from + (value - from) * easeOutExpo(t)
 
-      calque.textContent = `${prefix}${formateur.format(courant)}${suffix}`
+      layer.textContent = `${prefix}${formatter.format(current)}${suffix}`
 
       if (t < 1) {
-        image = requestAnimationFrame(pas)
+        frame = requestAnimationFrame(step)
         return
       }
 
-      // Fini : on efface le calque et on rend la main au nombre d'origine,
-      // plutot que de laisser une valeur arrondie qui pourrait differer d'une
-      // unite peinte par-dessus lui.
-      calque.textContent = ''
-      setAnime(false)
+      // Done: we clear the layer and hand back to the original number, rather
+      // than leaving a rounded value that could differ by one unit painted
+      // over it.
+      layer.textContent = ''
+      setAnimating(false)
     }
 
-    image = requestAnimationFrame(pas)
+    frame = requestAnimationFrame(step)
 
     return () => {
-      cancelAnimationFrame(image)
-      calque.textContent = ''
-      setAnime(false)
+      cancelAnimationFrame(frame)
+      layer.textContent = ''
+      setAnimating(false)
     }
-  }, [vu, reduced, value, from, duration, delay, formateur, prefix, suffix])
+  }, [inView, reduced, value, from, duration, delay, formatter, prefix, suffix])
 
   const { className, style } = mergePresentation({}, rest)
 
   return (
     <Tag
       {...rest}
-      ref={refVue}
+      ref={viewRef}
       className={className}
       style={style as CSSProperties}
       data-o-count-up=""
     >
-      <span {...(anime ? { 'data-o-count-up-hidden': '' } : {})}>{final}</span>
-      {/* Toujours rendu, meme vide : le monter seulement pendant l'animation
-          rendrait sa reference nulle au moment ou l'effet la lit, et le
-          compteur ne partirait jamais. Un span vide ne coute rien. */}
-      <span ref={refCalque} aria-hidden="true" data-o-count-up-layer="" />
+      <span {...(animating ? { 'data-o-count-up-hidden': '' } : {})}>{final}</span>
+      {/* Always rendered, even empty: mounting it only during the animation
+          would make its ref null at the moment the effect reads it, and the
+          counter would never start. An empty span costs nothing. */}
+      <span ref={layerRef} aria-hidden="true" data-o-count-up-layer="" />
     </Tag>
   )
 }

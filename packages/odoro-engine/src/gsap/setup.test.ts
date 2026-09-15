@@ -15,8 +15,8 @@ afterEach(() => {
   resetPluginRegistry()
 })
 
-describe('enregistrement', () => {
-  it('charge et enregistre un plugin', async () => {
+describe('registration', () => {
+  it('loads and registers a plugin', async () => {
     expect(isPluginRegistered('ScrollTrigger')).toBe(false)
 
     await expect(ensurePlugin('ScrollTrigger')).resolves.toBe(true)
@@ -25,10 +25,10 @@ describe('enregistrement', () => {
     expect(registeredPlugins()).toContain('ScrollTrigger')
   })
 
-  it('n enregistre qu une seule fois malgre des appels repetes', async () => {
-    // Le mode strict de React execute chaque effet deux fois au montage : un
-    // enregistrement naif produirait des declencheurs en double, qui se
-    // rafraichissent deux fois et laissent la moitie d'entre eux orphelins.
+  it('registers only once despite repeated calls', async () => {
+    // React strict mode runs every effect twice on mount: a naive registration
+    // would produce duplicate triggers, which refresh twice and leave half of
+    // them orphaned.
     const register = vi.spyOn(gsap, 'registerPlugin')
 
     await ensurePlugin('ScrollTrigger')
@@ -38,7 +38,7 @@ describe('enregistrement', () => {
     expect(register).toHaveBeenCalledTimes(1)
   })
 
-  it('partage la meme promesse entre demandes concurrentes', async () => {
+  it('shares the same promise between concurrent requests', async () => {
     const register = vi.spyOn(gsap, 'registerPlugin')
 
     const [a, b, c] = await Promise.all([
@@ -51,33 +51,33 @@ describe('enregistrement', () => {
     expect(register).toHaveBeenCalledTimes(1)
   })
 
-  it('charge plusieurs plugins en parallele', async () => {
+  it('loads several plugins in parallel', async () => {
     await expect(ensurePlugins(['ScrollTrigger', 'SplitText'])).resolves.toBe(true)
     expect(isPluginRegistered('ScrollTrigger')).toBe(true)
     expect(isPluginRegistered('SplitText')).toBe(true)
   })
 
-  it('ne signale rien comme enregistre avant demande', () => {
+  it('reports nothing as registered before a request', () => {
     expect(isPluginRegistered('Observer')).toBe(false)
     expect(registeredPlugins()).toEqual([])
   })
 })
 
-describe('accesseurs typés', () => {
-  it('rend la valeur du declencheur de defilement', async () => {
+describe('typed accessors', () => {
+  it('returns the value of the scroll trigger', async () => {
     const ScrollTriggerClass = await loadScrollTrigger()
     expect(ScrollTriggerClass).not.toBeNull()
     expect(typeof ScrollTriggerClass?.create).toBe('function')
     expect(typeof ScrollTriggerClass?.refresh).toBe('function')
   })
 
-  it('rend la valeur du decoupeur de texte', async () => {
+  it('returns the value of the text splitter', async () => {
     const SplitTextClass = await loadSplitText()
     expect(SplitTextClass).not.toBeNull()
     expect(typeof SplitTextClass).toBe('function')
   })
 
-  it('rend la meme valeur a chaque appel', async () => {
+  it('returns the same value on every call', async () => {
     const first = await loadScrollTrigger()
     const second = await loadScrollTrigger()
     expect(second).toBe(first)

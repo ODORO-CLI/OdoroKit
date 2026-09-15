@@ -7,25 +7,25 @@ import { defineConfig } from 'tsup'
 const HERE = dirname(fileURLToPath(import.meta.url))
 
 /**
- * Une entree par jeu.
+ * One entry per pack.
  *
- * Rassembler les jeux dans un seul module obligerait chaque consommateur a
- * charger onze mille exports pour que le bundler en elague dix mille neuf
- * cent quatre-vingt-dix-sept. La separation rend l'elagage gratuit : un projet
- * qui n'importe que `filaire` ne voit jamais les autres.
+ * Gathering the packs into a single module would force every consumer to load
+ * eleven thousand exports so that the bundler could prune ten thousand nine
+ * hundred and ninety-seven of them. Keeping them apart makes pruning free: a
+ * project that only imports `outline` never sees the others.
  *
- * `splitting` est desactive : il factoriserait des morceaux communs entre des
- * jeux qui n'ont rien en commun, et forcerait un consommateur d'un seul jeu a
- * charger un fragment partage.
+ * `splitting` is turned off: it would factor common pieces out of packs that
+ * have nothing in common, and force a consumer of a single pack to load a
+ * shared chunk.
  */
 export default defineConfig({
   entry: {
     index: 'src/index.ts',
-    filaire: 'src/jeux/filaire.ts',
-    compact: 'src/jeux/compact.ts',
-    classique: 'src/jeux/classique.ts',
-    etendu: 'src/jeux/etendu.ts',
-    marques: 'src/jeux/marques.ts',
+    outline: 'src/packs/outline.ts',
+    compact: 'src/packs/compact.ts',
+    classic: 'src/packs/classic.ts',
+    extended: 'src/packs/extended.ts',
+    brands: 'src/packs/brands.ts',
   },
   format: ['esm'],
   target: 'es2022',
@@ -36,8 +36,8 @@ export default defineConfig({
   sourcemap: false,
   clean: true,
   external: ['react', 'react/jsx-runtime'],
-  // Le catalogue est une donnee, pas du code : il sert la recherche de la
-  // documentation, qui a besoin des noms et jamais des traces.
+  // The catalogue is data, not code: it serves documentation search, which
+  // needs the names and never the drawings.
   async onSuccess() {
     await cp(join(HERE, 'src', 'catalogue.json'), join(HERE, 'dist', 'catalogue.json'))
   },

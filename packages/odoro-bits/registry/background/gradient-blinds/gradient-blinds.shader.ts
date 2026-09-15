@@ -1,31 +1,31 @@
 /**
- * Shader des stores de degrade.
+ * Gradient blinds shader.
  *
- * ## L'idee mathematique
+ * ## The mathematical idea
  *
- * Des lamelles verticales devant un degrade. Chaque lamelle est une cellule
- * d'une grille en x ; son ouverture est une fraction de la cellule, et cette
- * fraction suit une onde qui traverse les lamelles d'un bord a l'autre —
- * c'est la vague d'ouverture. Une seconde onde, en y, incline la vague pour
- * que le store ne s'ouvre pas en bloc rectangulaire.
+ * Vertical slats in front of a gradient. Each slat is a cell of a grid in x;
+ * its opening is a fraction of the cell, and that fraction follows a wave
+ * that crosses the slats from one edge to the other — that is the opening
+ * wave. A second wave, in y, tilts it so that the blind does not open as a
+ * rectangular block.
  *
- * Derriere, le degrade est un melange entre deux tokens le long d'une
- * diagonale qui derive. Devant, la lamelle fermee est le fond lui-meme, a
- * peine teinte pour que sa structure reste visible ; a la lisiere de
- * l'ouverture, un liseret rappelle l'epaisseur de la lamelle.
+ * Behind, the gradient is a mix between two tokens along a diagonal that
+ * drifts. In front, the closed slat is the background itself, barely tinted
+ * so that its structure stays visible; at the rim of the opening, an edging
+ * recalls the slat's thickness.
  *
  * ## Uniforms
  *
- * - `uTime` — temps en secondes, fourni par le moteur.
- * - `uResolution` — taille du canevas en pixels, fournie par le moteur.
- * - `uColorA` — le fond, les lamelles fermees.
- * - `uColorB` — le debut du degrade.
- * - `uColorC` — la fin du degrade, et le liseret.
- * - `uCount` — nombre de lamelles sur la largeur.
- * - `uSpeed` — vitesse de la vague d'ouverture.
- * - `uOpen` — ouverture moyenne, entre ferme et ouvert.
- * - `uTilt` — inclinaison des lamelles.
- * - `uDetail` — 1 pour le liseret et l'ombre, 0 pour des aplats.
+ * - `uTime` — time in seconds, supplied by the engine.
+ * - `uResolution` — canvas size in pixels, supplied by the engine.
+ * - `uColorA` — the background, the closed slats.
+ * - `uColorB` — the start of the gradient.
+ * - `uColorC` — the end of the gradient, and the edging.
+ * - `uCount` — number of slats across the width.
+ * - `uSpeed` — speed of the opening wave.
+ * - `uOpen` — average opening, between shut and open.
+ * - `uTilt` — tilt of the slats.
+ * - `uDetail` — 1 for the edging and the shadow, 0 for flat tints.
  */
 export const GRADIENT_BLINDS_FRAGMENT = /* glsl */ `
 precision highp float;
@@ -48,40 +48,40 @@ void main() {
   float t = uTime * uSpeed;
   float count = max(floor(uCount), 2.0);
 
-  // Les lamelles : une grille en x, inclinee par y.
+  // The slats: a grid in x, tilted by y.
   float x = vUv.x + (vUv.y - 0.5) * uTilt * 0.5;
   float index = floor(x * count);
-  float cellule = fract(x * count);
+  float cell = fract(x * count);
 
-  // L'ouverture : une vague qui traverse les lamelles, inclinee par une
-  // seconde onde en y, autour de l'ouverture moyenne.
-  float vague = sin(index / count * 6.2831853 * 1.5 - t * 2.0);
-  float pente = sin(vUv.y * 3.5 + t * 0.8 + index * 0.4);
-  float ouverture = clamp(uOpen + 0.4 * vague + 0.15 * pente, 0.0, 1.0);
+  // The opening: a wave crossing the slats, tilted by a second wave in y,
+  // around the average opening.
+  float wave = sin(index / count * 6.2831853 * 1.5 - t * 2.0);
+  float slope = sin(vUv.y * 3.5 + t * 0.8 + index * 0.4);
+  float opening = clamp(uOpen + 0.4 * wave + 0.15 * slope, 0.0, 1.0);
 
-  // Le degrade derriere : une diagonale qui derive.
-  float diagonale = (vUv.x * aspect + vUv.y) * 0.8 + t * 0.15;
-  vec3 teinte = mix(uColorB, uColorC, 0.5 + 0.5 * sin(diagonale * 2.0));
+  // The gradient behind: a diagonal that drifts.
+  float diagonal = (vUv.x * aspect + vUv.y) * 0.8 + t * 0.15;
+  vec3 tint = mix(uColorB, uColorC, 0.5 + 0.5 * sin(diagonal * 2.0));
 
-  // La lamelle : ouverte a gauche de la cellule, fermee a droite.
-  float bord = 0.012;
-  float visible = 1.0 - smoothstep(ouverture - bord, ouverture + bord, cellule);
+  // The slat: open on the left of the cell, shut on the right.
+  float edge = 0.012;
+  float visible = 1.0 - smoothstep(opening - edge, opening + edge, cell);
 
-  vec3 colour = mix(uColorA, teinte, visible);
+  vec3 colour = mix(uColorA, tint, visible);
 
-  // La lamelle fermee garde une trace de la teinte : sa structure reste
-  // lisible sans que le fond soit assombri.
-  colour = mix(colour, teinte, (1.0 - visible) * 0.07);
+  // The closed slat keeps a trace of the hue: its structure stays legible
+  // without the background being darkened.
+  colour = mix(colour, tint, (1.0 - visible) * 0.07);
 
   if (uDetail > 0.5) {
-    // Le liseret : l'epaisseur de la lamelle a la lisiere de l'ouverture.
-    float liseret = exp(-abs(cellule - ouverture) * 90.0);
-    colour = mix(colour, uColorC, liseret * 0.5 * step(0.02, ouverture));
+    // The edging: the slat's thickness at the rim of the opening.
+    float rim = exp(-abs(cell - opening) * 90.0);
+    colour = mix(colour, uColorC, rim * 0.5 * step(0.02, opening));
 
-    // L'ombre portee du store sur le degrade : plus la lamelle est ouverte,
-    // plus l'ombre s'eloigne — un simple retour vers le fond, borne.
-    float ombre = exp(-(ouverture - cellule) * 30.0) * visible;
-    colour = mix(colour, uColorA, ombre * 0.25);
+    // The blind's shadow cast on the gradient: the wider the slat opens, the
+    // further the shadow moves away — a plain return towards the background.
+    float shadow = exp(-(opening - cell) * 30.0) * visible;
+    colour = mix(colour, uColorA, shadow * 0.25);
   }
 
   gl_FragColor = vec4(clamp(colour, 0.0, 1.0), 1.0);

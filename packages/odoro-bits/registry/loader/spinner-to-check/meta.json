@@ -66,13 +66,13 @@
       "description": "Libelle annonce pendant l attente."
     },
     {
-      "name": "labelSucces",
+      "name": "successLabel",
       "type": "string",
       "default": "Termine",
       "description": "Libelle annonce au succes."
     },
     {
-      "name": "labelEchec",
+      "name": "errorLabel",
       "type": "string",
       "default": "Echec",
       "description": "Libelle annonce a l echec."

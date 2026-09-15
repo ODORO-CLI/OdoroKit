@@ -1,56 +1,56 @@
 /**
- * Ce que coute reellement une installation.
+ * What an install really costs.
  *
- * ## Pourquoi avertir
+ * ## Why warn
  *
- * Une commande d'installation ne montre normalement rien du poids de ce
- * qu'elle apporte. C'est sans consequence pour un utilitaire de quelques
- * kilo-octets ; ce n'en est pas une quand un seul composant ajoute cent trente
- * kilo-octets compresses au premier chargement de la page.
+ * An install command normally shows nothing of the weight of what it brings.
+ * That is of no consequence for a utility of a few kilobytes; it is one when a
+ * single component adds a hundred and thirty compressed kilobytes to the first
+ * load of the page.
  *
- * Le chiffre n'est pas la pour dissuader. Il est la pour que la decision soit
- * prise **avant** l'installation plutot que trois semaines plus tard devant un
- * rapport de performance, quand le composant est deja integre et que le retirer
- * coute une journee.
+ * The figure is not there to deter. It is there so that the decision is taken
+ * **before** the install rather than three weeks later in front of a
+ * performance report, when the component is already integrated and removing it
+ * costs a day.
  *
- * ## Les chiffres
+ * ## The figures
  *
- * Ils sont mesures, pas estimes : une scene minimale — geometrie, materiau,
- * lumiere, rendu — compilee et compressee. Un projet reel depassera ces
- * valeurs, jamais l'inverse ; ce sont des planchers.
+ * They are measured, not estimated: a minimal scene — geometry, material,
+ * light, render — built and compressed. A real project will exceed these
+ * values, never the other way round; they are floors.
  *
  * @module
  */
 
 import type { PublishedEntry } from '../registry/index.js'
 
-/** Poids compresse d'un backend, en kilo-octets. */
+/** Compressed weight of a backend, in kilobytes. */
 export const BACKEND_WEIGHT = {
-  /** Scene 3D minimale : geometrie, materiau standard, lumiere directionnelle. */
+  /** Minimal 3D scene: geometry, standard material, directional light. */
   three: 130,
-  /** Rendu plein ecran : contexte, programme, triangle. */
+  /** Full-screen render: context, program, triangle. */
   ogl: 13,
 } as const
 
-/** Un avertissement a montrer avant d'ecrire. */
+/** A warning to show before writing. */
 export interface WeightWarning {
-  /** Backend concerne. */
+  /** Backend concerned. */
   readonly backend: keyof typeof BACKEND_WEIGHT
-  /** Poids compresse ajoute, en kilo-octets. */
+  /** Compressed weight added, in kilobytes. */
   readonly kilobytes: number
-  /** Entrees qui le reclament. */
+  /** Entries that require it. */
   readonly entries: readonly string[]
-  /** Phrase complete, prete a etre affichee. */
+  /** Complete sentence, ready to be shown. */
   readonly message: string
 }
 
 /**
- * Calcule ce qu'un ensemble d'entrees ajoute au premier chargement.
+ * Computes what a set of entries adds to the first load.
  *
- * Un backend n'est compte qu'une fois, meme reclame par cinq composants : il
- * n'est charge qu'une fois. Compter cinq fois cent trente kilo-octets serait
- * un mensonge dans l'autre sens, et un avertissement qu'on apprend a ignorer
- * ne sert plus a rien.
+ * A backend is only counted once, even when required by five components: it is
+ * only loaded once. Counting a hundred and thirty kilobytes five times would be
+ * a lie in the other direction, and a warning one learns to ignore is of no use
+ * any more.
  *
  * @example
  * const warnings = weighEntries(entries)
@@ -70,7 +70,7 @@ export function weighEntries(entries: readonly PublishedEntry[]): WeightWarning[
   const warnings: WeightWarning[] = []
   for (const [backend, ids] of byBackend) {
     const kilobytes = BACKEND_WEIGHT[backend]
-    const which = ids.length === 1 ? ids[0] : `${String(ids.length)} composants`
+    const which = ids.length === 1 ? ids[0] : `${String(ids.length)} components`
 
     warnings.push({
       backend,
@@ -78,31 +78,30 @@ export function weighEntries(entries: readonly PublishedEntry[]): WeightWarning[
       entries: ids,
       message:
         backend === 'three'
-          ? `${String(which)} charge une scene 3D : environ ${String(kilobytes)} Ko compresses au premier affichage. Le backend leger en demande ${String(BACKEND_WEIGHT.ogl)}, si un effet plein ecran suffit.`
-          : `${String(which)} charge le backend leger : environ ${String(kilobytes)} Ko compresses.`,
+          ? `${String(which)} loads a 3D scene: about ${String(kilobytes)} kB compressed on the first paint. The light backend asks for ${String(BACKEND_WEIGHT.ogl)}, when a full-screen effect is enough.`
+          : `${String(which)} loads the light backend: about ${String(kilobytes)} kB compressed.`,
     })
   }
 
-  // Le plus lourd en premier : c'est celui sur lequel la decision porte.
+  // The heaviest first: that is the one the decision bears on.
   return warnings.sort((a, b) => b.kilobytes - a.kilobytes)
 }
 
 /**
- * Paquets npm qu'un projet doit declarer pour accueillir ces entrees.
+ * npm packages a project must declare to host these entries.
  *
- * ## Ce qui n'y figure pas
+ * ## What is not in there
  *
- * Ni `gsap`, ni `ogl`, ni `three`. Ce sont des dependances d'`@odoro-cli/engine` :
- * elles arrivent avec lui, et les reclamer une seconde fois au projet
- * d'accueil produirait un avertissement que rien ne resout — la personne
- * installerait un paquet qu'elle avait deja, ou apprendrait a ignorer le
- * message.
+ * Neither `gsap`, nor `ogl`, nor `three`. They are dependencies of
+ * `@odoro-cli/engine`: they come with it, and asking the host project for them
+ * a second time would produce a warning nothing resolves — the person would
+ * install a package they already had, or would learn to ignore the message.
  *
- * Ce qui est reclame, c'est le moteur lui-meme des qu'une entree s'en sert, et
- * ce que l'entree declare de son cote.
+ * What is asked for is the engine itself as soon as an entry uses it, and what
+ * the entry declares on its own side.
  *
- * Le poids, lui, se compte separement : `weighEntries` parle de ce qui sera
- * telecharge par le navigateur, ce qui ne depend pas de qui declare quoi.
+ * The weight is counted separately: `weighEntries` speaks of what the browser
+ * will download, which does not depend on who declares what.
  *
  * @example
  * requiredPackages(entries) // ['clsx', '@odoro-cli/engine']
@@ -113,8 +112,9 @@ export function requiredPackages(entries: readonly PublishedEntry[]): string[] {
   for (const entry of entries) {
     for (const dependency of entry.dependencies) packages.add(dependency)
 
-    // Un backend graphique ou un plugin d'orchestration signifie que l'entree
-    // passe par le moteur. C'est lui, et lui seul, que le projet installe.
+    // A graphics backend or an orchestration plugin means the entry goes
+    // through the engine. It is the engine, and only it, that the project
+    // installs.
     if (entry.engine.gl !== false || entry.engine.gsap.length > 0) {
       packages.add('@odoro-cli/engine')
     }

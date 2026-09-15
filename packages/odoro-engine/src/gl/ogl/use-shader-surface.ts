@@ -1,18 +1,17 @@
 /**
- * Effets plein ecran en shader de fragment.
+ * Fullscreen effects in a fragment shader.
  *
- * ## Pourquoi ce backend plutot que l'autre
+ * ## Why this backend rather than the other
  *
- * La question a se poser pour chaque effet : **une camera et un eclairage
- * sont-ils reellement necessaires ?** Un degrade anime, un champ de bruit, une
- * grille en perspective, une distorsion — non. Tout cela se calcule par
- * fragment, sans geometrie ni transformation. Un fond anime confie a un moteur
- * de scene 3D coute un ordre de grandeur de plus pour un rendu que douze
- * kilo-octets produisent.
+ * The question to ask for every effect: **are a camera and lighting really
+ * necessary?** An animated gradient, a noise field, a grid in perspective, a
+ * distortion — no. All of this is computed per fragment, without geometry or
+ * transformation. An animated background entrusted to a 3D scene engine costs
+ * an order of magnitude more for a render that twelve kilobytes produce.
  *
- * Ce backend n'expose donc ni scene, ni camera : un triangle couvrant l'ecran
- * et un shader de fragment. Ce qui ne rentre pas dans ce cadre releve de
- * l'autre backend.
+ * This backend therefore exposes neither a scene nor a camera: a triangle
+ * covering the screen and a fragment shader. What does not fit in that frame
+ * belongs to the other backend.
  *
  * @module
  */
@@ -24,56 +23,56 @@ import { motionPolicy } from '../../core/motion-policy.js'
 import { type RefusalReason, surfaceManager } from '../surface-manager.js'
 import { FULLSCREEN_VERTEX } from './shaders.js'
 
-/** Valeur acceptee pour un uniform. */
+/** Value accepted for a uniform. */
 export type UniformValue = number | readonly number[]
 
-/** Options de {@link useShaderSurface}. */
+/** Options of {@link useShaderSurface}. */
 export interface ShaderSurfaceOptions {
-  /** Source du shader de fragment. */
+  /** Source of the fragment shader. */
   fragment: string
   /**
-   * Valeurs transmises au shader. `uTime` et `uResolution` sont fournis
-   * d'office et n'ont pas a etre declares ici.
+   * Values passed to the shader. `uTime` and `uResolution` are provided as a
+   * matter of course and do not have to be declared here.
    */
   uniforms?: Readonly<Record<string, UniformValue>>
   /**
-   * Densite de pixels. `auto` la deduit de l'ecran et de la qualite retenue
-   * par la politique de mouvement.
+   * Pixel density. `auto` deduces it from the display and from the quality
+   * selected by the motion policy.
    *
    * @defaultValue 'auto'
    */
   dpr?: 'auto' | number
   /**
-   * Suspend le rendu quand la surface sort de l'ecran.
+   * Suspends the render when the surface leaves the screen.
    *
    * @defaultValue true
    */
   pauseOffscreen?: boolean
-  /** Nom affiche dans le panneau de diagnostic. */
+  /** Name shown in the diagnostics panel. */
   name?: string
   /**
-   * Rend une image unique puis s'arrete. Utile pour un motif fixe dont seule
-   * la composition depend du shader.
+   * Renders a single frame then stops. Useful for a fixed pattern whose
+   * composition alone depends on the shader.
    *
    * @defaultValue false
    */
   still?: boolean
 }
 
-/** Etat rendu par {@link useShaderSurface}. */
+/** State returned by {@link useShaderSurface}. */
 export interface ShaderSurfaceHandle<T extends HTMLElement> {
-  /** Ref a poser sur l'element hote du canevas. */
+  /** Ref to set on the host element of the canvas. */
   readonly ref: RefObject<T | null>
-  /** `true` une fois la surface prete et la premiere image rendue. */
+  /** `true` once the surface is ready and the first frame is rendered. */
   readonly ready: boolean
   /**
-   * Motif du refus, s'il y en a un. Sa presence signifie que l'appelant doit
-   * afficher son repli statique.
+   * Reason for the refusal, if there is one. Its presence means that the
+   * caller must display its static fallback.
    */
-  readonly refused: RefusalReason | 'mouvement-reduit' | undefined
+  readonly refused: RefusalReason | 'reduced-motion' | undefined
 }
 
-/** Plafonds de densite de pixels par niveau de qualite. */
+/** Pixel density caps per quality level. */
 const DPR_CAP: Readonly<Record<'low' | 'medium' | 'high', number>> = {
   low: 1,
   medium: 1.5,
@@ -81,11 +80,11 @@ const DPR_CAP: Readonly<Record<'low' | 'medium' | 'high', number>> = {
 }
 
 /**
- * Rend un effet plein ecran dans une surface arbitree.
+ * Renders a fullscreen effect into an arbitrated surface.
  *
- * Le rendu passe par la boucle unique du moteur : aucune boucle d'animation
- * n'est ouverte ici, et la priorite basse garantit que l'image est produite
- * apres toutes les mises a jour de la frame.
+ * The rendering goes through the single loop of the engine: no animation loop
+ * is opened here, and the low priority guarantees that the frame is produced
+ * after every update of the frame.
  *
  * @example
  * const { ref, refused } = useShaderSurface({
@@ -122,10 +121,10 @@ export function useShaderSurface<T extends HTMLElement = HTMLDivElement>(
 
     const state = motionPolicy.state
     if (state.reduced) {
-      // Un fond anime n'a pas d'etat final a preserver : il n'apporte rien
-      // d'autre que son mouvement. On ne le rend donc pas du tout, et
-      // l'appelant affiche son repli.
-      setRefused('mouvement-reduit')
+      // An animated background has no final state to preserve: it brings
+      // nothing other than its motion. It is therefore not rendered at all, and
+      // the caller displays its fallback.
+      setRefused('reduced-motion')
       return
     }
 
@@ -159,9 +158,9 @@ export function useShaderSurface<T extends HTMLElement = HTMLDivElement>(
         })
         const gl = renderer.gl
 
-        // `fwidth` exige WebGL 2, ou l'extension correspondante en WebGL 1 :
-        // sans cette declaration, le shader ne compile pas sur les anciennes
-        // plateformes et l'effet disparait sans message.
+        // `fwidth` requires WebGL 2, or the corresponding extension in WebGL 1:
+        // without this declaration, the shader does not compile on older
+        // platforms and the effect disappears without a message.
         const isWebgl2 =
           'drawBuffers' in gl && typeof WebGL2RenderingContext !== 'undefined'
         const source =
@@ -199,8 +198,8 @@ export function useShaderSurface<T extends HTMLElement = HTMLDivElement>(
 
         const draw = (time: number): void => {
           program.uniforms['uTime'] = { value: time }
-          // Les valeurs fournies par l'appelant sont relues a chaque image :
-          // changer une prop suffit a modifier le rendu, sans remontage.
+          // The values supplied by the caller are read again on every frame:
+          // changing a prop is enough to modify the render, without remounting.
           for (const [key, value] of Object.entries(uniformsRef.current ?? {})) {
             program.uniforms[key] = { value }
           }
@@ -219,8 +218,8 @@ export function useShaderSurface<T extends HTMLElement = HTMLDivElement>(
           if (pauseOffscreen && typeof IntersectionObserver !== 'undefined') {
             visibility = new IntersectionObserver((entries) => {
               const visible = entries[0]?.isIntersecting ?? true
-              // L'abonnement est suspendu, pas retire : il conserve sa place
-              // dans l'ordre de la frame et son etat.
+              // The subscription is suspended, not removed: it keeps its place
+              // in the order of the frame and its state.
               subscription?.setActive(visible)
             })
             visibility.observe(host)
@@ -228,9 +227,9 @@ export function useShaderSurface<T extends HTMLElement = HTMLDivElement>(
         }
 
         dispose = () => {
-          // Chaque ressource graphique doit etre relachee explicitement : rien
-          // n'est libere automatiquement, et un oubli se paie en memoire qui
-          // ne redescend jamais.
+          // Every graphics resource must be released explicitly: nothing is
+          // freed automatically, and an oversight is paid for in memory that
+          // never comes back down.
           geometry.remove()
           program.remove()
           const lose = gl.getExtension('WEBGL_lose_context') as {
@@ -240,8 +239,8 @@ export function useShaderSurface<T extends HTMLElement = HTMLDivElement>(
         }
       })
       .catch((cause: unknown) => {
-        console.error(`[odoro] surface "${name}" : chargement impossible`, cause)
-        setRefused('webgl-indisponible')
+        console.error(`[odoro] surface "${name}": could not be loaded`, cause)
+        setRefused('webgl-unavailable')
       })
 
     return () => {
@@ -253,8 +252,8 @@ export function useShaderSurface<T extends HTMLElement = HTMLDivElement>(
       surface.release()
       setReady(false)
     }
-    // `uniforms` est relu par ref a chaque image : le comparer par identite
-    // reconstruirait la surface a chaque rendu.
+    // `uniforms` is read again through the ref on every frame: comparing it by
+    // identity would rebuild the surface on every render.
   }, [fragment, dpr, pauseOffscreen, name, still])
 
   return { ref, ready, refused }

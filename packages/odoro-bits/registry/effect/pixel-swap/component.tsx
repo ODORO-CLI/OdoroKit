@@ -1,36 +1,35 @@
 /**
- * Echange de cellules entre deux images.
+ * Cell swap between two images.
  *
- * ## Un echange, pas une transition
+ * ## A swap, not a transition
  *
- * La transition en pixels va d'un contenu a l'autre et s'arrete quand elle est
- * arrivee. Ici, rien n'arrive : une part reglee de la grille montre en
- * permanence la seconde image, et ce ne sont jamais les memes cellules. Le
- * resultat est un scintillement de mosaique, pas un passage — deux photos qui
- * se disputent le meme cadre.
+ * The pixel transition goes from one content to another and stops once it has
+ * arrived. Here nothing arrives: a set share of the grid permanently shows the
+ * second image, and it is never the same cells. The result is a mosaic
+ * shimmer, not a passage — two photographs fighting over the same frame.
  *
- * C'est pour cela que l'image de base est un vrai `img` du document : elle
- * reste le contenu, avec son texte de remplacement, et les cellules ne sont
- * qu'un ornement pose dessus.
+ * That is why the base image is a real `img` in the document: it remains the
+ * content, with its alternative text, and the cells are only an ornament laid
+ * over it.
  *
- * ## Le decoupage doit tomber juste
+ * ## The cutting must land right
  *
- * Chaque cellule peint la seconde image en fond, decalee de sa propre position.
- * Le calcul du recouvrement — l'echelle et le centrage que ferait
- * `object-fit: cover` — est refait a la main, parce qu'un fond ne connait que
- * sa propre boite : sans cela, chaque cellule recadrerait l'image entiere dans
- * son carre, et la mosaique montrerait deux cents miniatures au lieu d'un
- * morceau d'image.
+ * Each cell paints the second image as a background, offset by its own
+ * position. The cover computation — the scaling and the centring that
+ * `object-fit: cover` would do — is redone by hand, because a background knows
+ * nothing but its own box: without it, each cell would reframe the whole image
+ * inside its square, and the mosaic would show two hundred thumbnails instead
+ * of a piece of an image.
  *
- * ## Aucun rendu React pendant les echanges
+ * ## No React render during the swaps
  *
- * La boucle du moteur allume et eteint des cellules a la cadence reglee, en
- * ecrivant leur opacite. Le composant ne se rend qu'a trois occasions : au
- * montage, quand la seconde image a livre ses dimensions, et quand la zone
- * change de taille.
+ * The engine loop lights and extinguishes cells at the set rate, by writing
+ * their opacity. The component renders on three occasions only: at mount, when
+ * the second image has delivered its dimensions, and when the area changes
+ * size.
  *
- * Sous mouvement reduit, la grille n'est pas montee : reste l'image de base,
- * seule et nette.
+ * Under reduced motion, the grid is not mounted: what remains is the base
+ * image, alone and crisp.
  *
  * @module
  */
@@ -44,38 +43,38 @@ import {
 } from '@odoro-cli/engine'
 import { useEffect, useRef, useState, type ReactElement } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface PixelSwapOwnProps {
-  /** Image de base, celle qui reste dans le flux. */
+  /** Base image, the one that stays in the flow. */
   from: string
-  /** Image dont les cellules viennent s'echanger. */
+  /** Image whose cells come to be swapped in. */
   to: string
-  /** Texte de remplacement de l'image de base. */
+  /** Alternative text of the base image. */
   alt: string
-  /** Nombre de colonnes. Les lignes suivent les proportions. @defaultValue 14 */
+  /** Number of columns. The rows follow the proportions. @defaultValue 14 */
   cells?: number
-  /** Echanges par seconde. @defaultValue 12 */
+  /** Swaps per second. @defaultValue 12 */
   rate?: number
-  /** Part maximale de cellules montrant la seconde image. @defaultValue 0.16 */
+  /** Maximum share of cells showing the second image. @defaultValue 0.16 */
   mix?: number
-  /** Duree du fondu d'une cellule, en millisecondes. @defaultValue 240 */
+  /** Duration of the fade of one cell, in milliseconds. @defaultValue 240 */
   fade?: number
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type PixelSwapProps = Customisable<PixelSwapOwnProps>
 
-/** Taille d'une boite, en pixels. */
+/** Size of a box, in pixels. */
 interface Size {
   readonly width: number
   readonly height: number
 }
 
 /**
- * Recouvrement d'une image dans une boite, a la maniere de `object-fit: cover`.
+ * Cover of an image inside a box, in the manner of `object-fit: cover`.
  *
- * @param box Boite a couvrir.
- * @param natural Dimensions naturelles de l'image.
+ * @param box Box to cover.
+ * @param natural Natural dimensions of the image.
  */
 function coverFit(
   box: Size,
@@ -88,19 +87,19 @@ function coverFit(
 }
 
 /**
- * Fait echanger des cellules entre deux images.
+ * Swaps cells between two images.
  *
  * @example
  * <PixelSwap
- *   from="/avant.jpg"
- *   to="/apres.jpg"
- *   alt="La place, avant les travaux"
+ *   from="/before.jpg"
+ *   to="/after.jpg"
+ *   alt="The square, before the works"
  *   className="o-aspect-video o-w-full o-rounded-xl"
  * />
  *
  * @example
- * // Une mosaique grossiere et lente, largement melangee.
- * <PixelSwap from="/a.jpg" to="/b.jpg" alt="La place" cells={8} rate={4} mix={0.45} />
+ * // A coarse and slow mosaic, heavily mixed.
+ * <PixelSwap from="/a.jpg" to="/b.jpg" alt="The square" cells={8} rate={4} mix={0.45} />
  */
 export function PixelSwap({
   from,
@@ -118,7 +117,7 @@ export function PixelSwap({
   const [natural, setNatural] = useState<Size | null>(null)
   const grid = useRef<HTMLDivElement | null>(null)
 
-  // La taille de la zone commande le decoupage : elle est mesuree, pas devinee.
+  // The size of the area commands the cutting: it is measured, not guessed.
   useEffect(() => {
     if (host === null) return
 
@@ -130,8 +129,8 @@ export function PixelSwap({
     return () => observer.disconnect()
   }, [host])
 
-  // La seconde image n'est jamais affichee en entier ; ses dimensions
-  // naturelles sont pourtant necessaires au recouvrement, d'ou ce chargement.
+  // The second image is never displayed in full; its natural dimensions are
+  // nevertheless needed for the cover, hence this load.
   useEffect(() => {
     setNatural(null)
     if (typeof Image === 'undefined') return
@@ -174,8 +173,8 @@ export function PixelSwap({
         if (elapsed < period) return
         elapsed = 0
 
-        // Plafond atteint : la plus ancienne cellule rend sa place. La file
-        // garde l'ordre d'arrivee, l'ensemble garde l'appartenance.
+        // Ceiling reached: the oldest cell gives up its place. The queue keeps
+        // the order of arrival, the set keeps the membership.
         if (queue.length >= ceiling) {
           const oldest = queue.shift()
           if (oldest !== undefined) {
@@ -184,9 +183,9 @@ export function PixelSwap({
           }
         }
 
-        // Un tirage au sort, quelques essais au plus : parcourir la grille
-        // pour trouver a coup sur une cellule libre couterait tout un balayage,
-        // pour un echange qui n'a aucune raison d'etre exact.
+        // A random draw, a few attempts at most: walking the grid to find a
+        // free cell for certain would cost a whole sweep, for a swap that has
+        // no reason to be exact.
         for (let attempt = 0; attempt < 8; attempt += 1) {
           const index = Math.floor(Math.random() * total)
           if (on.has(index)) continue
@@ -196,7 +195,7 @@ export function PixelSwap({
           return
         }
       },
-      { priority: CLOCK_PRIORITY.default, name: 'echange de cellules' },
+      { priority: CLOCK_PRIORITY.default, name: 'cell swap' },
     )
 
     return () => {

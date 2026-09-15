@@ -1,30 +1,30 @@
 /**
- * Trainee de pixels : le curseur allume les pixels d'une trame grossiere,
- * qui s'eteignent par crans.
+ * Pixel trail: the cursor lights up the pixels of a coarse grid, which then
+ * go out in steps.
  *
- * ## A quoi ce fond reagit
+ * ## What this background reacts to
  *
- * Au deplacement du pointeur : la boucle du moteur echantillonne sa position
- * — une toutes les 35 ms environ, et seulement s'il a bouge — dans un tampon
- * circulaire de quatorze depots dates. Le shader teste le centre de chaque
- * pixel contre ces depots, ce qui donne une trainee crenelee et non un halo.
+ * To pointer movement: the engine loop samples its position — one sample
+ * every 35 ms or so, and only if it has moved — into a ring buffer of
+ * fourteen stamped deposits. The shader tests the centre of every pixel
+ * against those deposits, which gives a stepped trail and not a halo.
  *
- * Ce qui distingue cette entree de `wake` : la trainee y est continue et
- * gaussienne, ici elle est faite de carres pleins qui descendent d'un cran a
- * la fois. Et de `led-wall` ou `mosaic`, qui quantifient une image sans rien
- * devoir au pointeur.
+ * What sets this entry apart from `wake`: the trail there is continuous and
+ * gaussian, here it is made of solid squares that come down one notch at a
+ * time. And from `led-wall` or `mosaic`, which quantise an image without
+ * owing anything to the pointer.
  *
- * ## Le pont pointeur → shader
+ * ## The pointer → shader bridge
  *
- * Aucun rendu React par image : le tampon est un tableau stable de
- * quarante-deux flottants (quatorze fois x, y, date de depot), mute en place
- * dans la souscription d'horloge. Les depots sont dates avec le temps de
- * l'horloge du moteur, le meme que `uTime` du shader.
+ * No React render per frame: the buffer is a stable array of forty-two floats
+ * (fourteen times x, y, deposit time), mutated in place inside the clock
+ * subscription. The deposits are stamped with the time of the engine clock,
+ * the same as the shader's `uTime`.
  *
- * ## Sous mouvement reduit
+ * ## Under reduced motion
  *
- * La surface est refusee par le moteur et le repli statique s'affiche : le
- * suivi du pointeur est un agrement, pas un contenu.
+ * The surface is refused by the engine and the static fallback is shown:
+ * pointer tracking is a nicety, not content.
  *
  * @module
  */
@@ -45,55 +45,55 @@ import { usePointerDamped } from '@registre/hooks/usePointerDamped'
 
 import { PIXEL_TRAIL_FRAGMENT } from './pixel-trail.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface PixelTrailControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to this component. */
 export interface PixelTrailOwnProps {
-  /** Nombre de pixels sur la hauteur. Borne a quatre-vingt-dix par le shader. @defaultValue 26 */
+  /** Number of pixels over the height. Capped at ninety by the shader. @defaultValue 26 */
   pixel?: number
-  /** Duree de vie d'un pixel allume, en secondes. @defaultValue 1 */
+  /** Lifetime of a lit pixel, in seconds. @defaultValue 1 */
   life?: number
-  /** Nombre de paliers d'extinction. @defaultValue 4 */
+  /** Number of decay steps. @defaultValue 4 */
   levels?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<PixelTrailControls>
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type PixelTrailProps = Customisable<PixelTrailOwnProps>
 
-/** Tokens employes par defaut : le fond, les pixels froids, les pixels frais. */
+/** Tokens used by default: the background, the cold pixels, the fresh pixels. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-indigo-400',
   '--o-palette-pink-300',
 ] as const
 
-/** Repli par defaut : une teinte figee, dans les memes tons. */
+/** Default fallback: a frozen tint, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-b o-from-zinc-50 dark:o-from-zinc-950 o-to-indigo-100 dark:o-to-indigo-950'
 
-/** Nombre de depots vivants a la fois. Le shader en attend exactement autant. */
+/** Number of deposits alive at a time. The shader expects exactly as many. */
 const SLOTS = 14
 
-/** Intervalle minimal entre deux depots, en secondes. */
+/** Minimum interval between two deposits, in seconds. */
 const DEPOSIT_EVERY = 0.035
 
-/** Deplacement minimal entre deux depots, en coordonnees de texture. */
+/** Minimum movement between two deposits, in texture coordinates. */
 const DEPOSIT_THRESHOLD = 0.006
 
 /**
- * Trainee de pixels.
+ * Pixel trail.
  *
  * @example
  * <div className="o-relative o-min-h-screen">
@@ -112,13 +112,13 @@ export function PixelTrail({
 }: PixelTrailProps): ReactElement {
   const [host, setHost] = useState<HTMLDivElement | null>(null)
 
-  // Tampon stable, mute en place : quatorze fois (x, y, date de depot). Un
-  // depot a -1000 donne un age enorme, donc un pixel eteint d'office.
+  // Stable buffer, mutated in place: fourteen times (x, y, deposit time). A
+  // deposit at -1000 gives an enormous age, hence a pixel dark from the outset.
   const uTrail = useRef<number[]>(Array.from({ length: SLOTS * 3 }, () => -1000)).current
 
-  // Vitesse 10 : presque le pointeur brut. La trame est deja un filtre ;
-  // amortir en plus ferait trainer la trainee derriere elle-meme.
-  const pointer = usePointerDamped({ host, speed: 10, name: 'pixel-trail : pointeur' })
+  // Speed 10: nearly the raw pointer. The grid is already a filter; damping
+  // on top of that would make the trail lag behind itself.
+  const pointer = usePointerDamped({ host, speed: 10, name: 'pixel-trail : pointer' })
 
   useEffect(() => {
     let lastDeposit = -1000
@@ -147,7 +147,7 @@ export function PixelTrail({
         lastX = x
         lastY = y
       },
-      { priority: CLOCK_PRIORITY.input, name: 'pixel-trail : depots' },
+      { priority: CLOCK_PRIORITY.input, name: 'pixel-trail : deposits' },
     )
     return () => subscription.unsubscribe()
   }, [pointer, uTrail])
@@ -163,8 +163,8 @@ export function PixelTrail({
     colors,
     uniforms: { uTrail, uPixel: pixel, uLife: life, uLevels: levels },
     name: 'pixel-trail',
-    // Une trame fine coute autant qu'une grossiere, mais son filet de
-    // separation disparait a densite de pixels reduite.
+    // A fine grid costs as much as a coarse one, but its separating gap
+    // disappears at reduced pixel density.
     degrade: (quality) => ({
       uPixel: quality === 'low' ? Math.min(pixel, 18) : pixel,
     }),

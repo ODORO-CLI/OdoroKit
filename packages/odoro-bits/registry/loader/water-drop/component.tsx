@@ -1,39 +1,39 @@
 /**
- * Goutte qui tombe : une goutte se detache, s'allonge en chutant, s'ecrase
- * sur la surface, et une onde unique part du point d'impact.
+ * Falling drop: a drop breaks away, stretches as it falls, flattens on the
+ * surface, and a single ripple leaves the point of impact.
  *
- * ## L'etirement fait la chute
+ * ## The stretch is what makes the fall
  *
- * Une goutte qui descend a forme constante ressemble a une bille. Ce qui
- * dit « liquide », c'est la deformation : la goutte s'affine en prenant de
- * la vitesse, puis s'aplatit d'un coup au contact. Les deux echelles sont
- * portees par la meme transformation que la position — un seul groupe, une
- * seule animation, et l'ordre des fonctions garantit que l'ecrasement se
- * fait bien autour du centre de la goutte et non de la vue.
+ * A drop going down at constant shape looks like a marble. What says
+ * "liquid" is the deformation: the drop thins out as it picks up speed,
+ * then flattens all at once on contact. Both scales are carried by the same
+ * transform as the position — one group, one animation, and the order of
+ * the functions guarantees that the flattening does happen around the
+ * center of the drop and not around the view.
  *
- * La chute occupe les deux tiers du cycle, l'impact un dixieme, et le reste
- * est un temps mort. Sans ce temps mort, la goutte suivante partirait
- * pendant que l'onde s'etale encore, et l'oeil ne saurait plus laquelle
- * regarder.
+ * The fall takes up two thirds of the cycle, the impact a tenth, and the
+ * rest is a dead beat. Without that dead beat, the next drop would leave
+ * while the ripple was still spreading, and the eye would no longer know
+ * which one to watch.
  *
- * ## Une seule onde
+ * ## A single ripple
  *
- * L'onde est une ellipse — pas un cercle : la surface est vue de biais, et
- * un cercle la ferait basculer a plat. Elle nait petite et vive au moment
- * exact de l'impact, s'elargit et s'eteint. Une seule suffit : c'est la
- * consequence d'un evenement unique, pas un battement. C'est la ce qui
- * separe ce chargeur d'ondes concentriques, ou les anneaux se relaient sans
- * cause visible.
+ * The ripple is an ellipse — not a circle: the surface is seen at an angle,
+ * and a circle would tip it flat. It is born small and sharp at the exact
+ * moment of impact, widens and dies out. One is enough: it is the
+ * consequence of a single event, not a beat. That is what separates this
+ * loader from concentric ripples, where the rings take over from one another
+ * with no visible cause.
  *
- * ## Un statut, pas un dessin
+ * ## A status, not a drawing
  *
- * L'element porte `role="status"` et un libelle pour les lecteurs d'ecran :
- * l'attente est une information, pas une decoration. Le dessin est retire
- * de l'arbre d'accessibilite.
+ * The element carries `role="status"` and a label for screen readers: the
+ * wait is information, not decoration. The drawing is removed from the
+ * accessibility tree.
  *
- * Sous mouvement reduit, la goutte reste suspendue juste au-dessus de la
- * surface et l'onde reste naissante : les deux moities de l'histoire sont
- * visibles d'un coup, sans mouvement.
+ * Under reduced motion, the drop stays suspended just above the surface and
+ * the ripple stays newborn: both halves of the story are visible at once,
+ * without movement.
  *
  * @module
  */
@@ -41,22 +41,22 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Id of the injected stylesheet. */
 const STYLE_ID = 'o-water-drop'
 
-/** Hauteur de la surface, en unites de la vue. */
+/** Height of the surface, in view units. */
 const SURFACE = 74
 
 /**
- * Trace de la goutte, centre sur son origine locale.
+ * Path of the drop, centered on its local origin.
  *
- * Pointe en haut, ventre en bas : c'est la forme d'une goutte en chute
- * libre, pas celle d'une larme au repos.
+ * Tip up, belly down: it is the shape of a drop in free fall, not that of a
+ * teardrop at rest.
  */
 const DROP =
   'M 0 -15 C 6.4 -5.4 9.5 -1.4 9.5 4 C 9.5 10.1 5.2 15 0 15 C -5.2 15 -9.5 10.1 -9.5 4 C -9.5 -1.4 -6.4 -5.4 0 -15 Z'
 
-/** Pose la goutte, son impact et son onde, une fois par document. */
+/** Sets the drop, its impact and its ripple, once per document. */
 function ensureDropRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -66,20 +66,20 @@ function ensureDropRule(): void {
   style.textContent = [
     '[data-o-water-drop]{display:inline-block;line-height:0}',
     '[data-o-water-drop] svg{display:block}',
-    // L'origine est celle de la vue : les fonctions de transformation
-    // placent la goutte, puis la deforment autour de son propre centre.
+    // The origin is that of the view: the transform functions place the
+    // drop, then deform it around its own center.
     '[data-o-water-drop-body],[data-o-water-drop-ring]{',
     'transform-box:view-box;transform-origin:0 0;',
     '}',
     '[data-o-water-drop-body]{',
     'animation:o-water-drop-fall var(--o-drop-speed) linear infinite;',
     '}',
-    // Les positions sont celles du centre de la goutte : a chaque etape,
-    // c'est sa demi-hauteur, echelle comprise, qui dit ou est son ventre.
+    // The positions are those of the center of the drop: at each step, it is
+    // its half height, scale included, that says where its belly is.
     '@keyframes o-water-drop-fall{',
     '0%{transform:translate(50px,15px) scale(0.7,1.15);opacity:0}',
     '8%{transform:translate(50px,20px) scale(0.8,1.1);opacity:1}',
-    // La chute accelere : la moitie du chemin est faite au tiers du temps.
+    // The fall accelerates: half the way is done in a third of the time.
     '38%{transform:translate(50px,34px) scale(0.78,1.18)}',
     '62%{transform:translate(50px,55px) scale(0.72,1.32);opacity:1}',
     `70%{transform:translate(50px,${String(SURFACE - 5)}px) scale(1.45,0.34);opacity:0.85}`,
@@ -89,7 +89,7 @@ function ensureDropRule(): void {
     `transform-origin:50px ${String(SURFACE)}px;`,
     'animation:o-water-drop-spread var(--o-drop-speed) ease-out infinite;',
     '}',
-    // L'onde n'existe qu'apres l'impact : avant, elle est a zero.
+    // The ripple only exists after the impact: before, it is at zero.
     '@keyframes o-water-drop-spread{',
     '0%,66%{transform:scale(0.12);opacity:0}',
     '72%{transform:scale(0.3);opacity:0.9}',
@@ -103,36 +103,36 @@ function ensureDropRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** The component's own props. */
 export interface WaterDropOwnProps {
-  /** Cote de la zone de dessin, en pixels. @defaultValue 64 */
+  /** Side of the drawing area, in pixels. @defaultValue 64 */
   size?: number
-  /** Duree d'un cycle, chute et onde comprises, en millisecondes. @defaultValue 2000 */
+  /** Duration of one cycle, fall and ripple included, in milliseconds. @defaultValue 2000 */
   speed?: number
-  /** Couleur de la goutte, de l'onde et de la surface. @defaultValue la couleur du texte */
+  /** Color of the drop, the ripple and the surface. @defaultValue the text color */
   color?: string
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */
+  /** Label announced to screen readers. @defaultValue 'Loading' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type WaterDropProps = Customisable<WaterDropOwnProps, 'span'>
 
 /**
- * Signale une attente par une goutte qui tombe et ride la surface.
+ * Signals a wait with a drop that falls and ripples the surface.
  *
  * @example
  * <WaterDrop />
  *
  * @example
- * // Plus grande, plus lente, dans la teinte de marque.
+ * // Bigger, slower, in the brand hue.
  * <WaterDrop size={96} speed={3200} color="var(--o-palette-brand-500)" />
  */
 export function WaterDrop({
   size = 64,
   speed = 2000,
   color = 'currentColor',
-  label = 'Chargement',
+  label = 'Loading',
   ...rest
 }: WaterDropProps): ReactElement {
   ensureDropRule()
@@ -176,8 +176,8 @@ export function WaterDrop({
           fill="none"
           stroke="currentColor"
           strokeWidth={2.5}
-          // Sans cela, l'echelle epaissirait le trait a mesure que l'onde
-          // s'elargit : une ride qui grossit en s'eloignant.
+          // Without this, the scale would thicken the stroke as the ripple
+          // widens: a ripple growing fatter as it moves away.
           vectorEffect="non-scaling-stroke"
         />
         <g data-o-water-drop-body="">

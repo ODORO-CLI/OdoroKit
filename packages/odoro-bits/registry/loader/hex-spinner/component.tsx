@@ -1,36 +1,34 @@
 /**
- * Hexagone tournant : un hexagone en trait tourne par crans d'un sixieme de
- * tour tandis qu'un hexagone plein pulse en son centre.
+ * Turning hexagon: an outlined hexagon turns by notches of a sixth of a turn
+ * while a solid hexagon pulses at its centre.
  *
- * ## Tourner par crans
+ * ## Turning by notches
  *
- * Un hexagone qui tourne en continu ressemble a un rond qui tourne : rien
- * ne permet de suivre le mouvement. Par crans, chaque sixieme de tour
- * ramene la figure sur elle-meme et l'oeil voit un declic, puis un temps
- * d'arret, puis un autre declic. C'est le mouvement d'un ecrou qu'on visse,
- * pas celui d'une roue.
+ * A hexagon turning continuously looks like a round turning: nothing lets the
+ * eye follow the motion. By notches, each sixth of a turn brings the figure
+ * back onto itself and the eye sees a click, then a pause, then another click.
+ * It is the motion of a nut being tightened, not that of a wheel.
  *
- * Deux crans par cycle, et le cycle couvre un tiers de tour : un hexagone
- * est identique a lui-meme tous les sixiemes de tour, la boucle est donc
- * invisible quel que soit le nombre de crans. Deux suffisent a garder le
- * cycle court et les delais lisibles.
+ * Two notches per cycle, and the cycle covers a third of a turn: a hexagon is
+ * identical to itself every sixth of a turn, so the loop is invisible whatever
+ * the number of notches. Two are enough to keep the cycle short and the delays
+ * readable.
  *
- * Le noyau plein pulse en contretemps : il se gonfle pendant l'arret du
- * cadre et se retracte pendant le cran. Sans lui, la figure est un simple
- * contour ; avec lui, elle a un coeur qui bat.
+ * The solid core pulses off the beat: it swells while the frame rests and
+ * shrinks during the notch. Without it, the figure is a plain outline; with
+ * it, it has a beating heart.
  *
- * Les deux animations sont des transformations sur des groupes SVG, tenues
- * par le compositeur. Aucun JavaScript apres le premier rendu.
+ * Both animations are transforms on SVG groups, held by the compositor. No
+ * JavaScript after the first render.
  *
- * ## Un statut, pas un dessin
+ * ## A status, not a drawing
  *
- * L'element porte `role="status"` et un libelle pour les lecteurs d'ecran :
- * l'attente est une information, pas une decoration. Le dessin est retire
- * de l'arbre d'accessibilite.
+ * The element carries `role="status"` and a label for screen readers: the wait
+ * is information, not decoration. The drawing is removed from the
+ * accessibility tree.
  *
- * Sous mouvement reduit, les deux hexagones restent alignes, pointe en
- * haut : la figure se lit encore comme un chargeur, seul le mouvement
- * s'arrete.
+ * Under reduced motion, the two hexagons stay aligned, point up: the figure
+ * still reads as a loader, only the motion stops.
  *
  * @module
  */
@@ -38,13 +36,13 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-hex-spinner'
 
 /**
- * Sommets d'un hexagone pointe en haut, de rayon donne, autour de (50, 50).
+ * Vertices of a point-up hexagon of the given radius, around (50, 50).
  *
- * Calcules une fois par rayon : le contour et le noyau ont le leur.
+ * Computed once per radius: the outline and the core each have their own.
  */
 function hexagon(radius: number): string {
   return Array.from({ length: 6 }, (_, index) => {
@@ -55,10 +53,10 @@ function hexagon(radius: number): string {
   }).join(' ')
 }
 
-/** Le noyau plein occupe un peu moins de la moitie du contour. */
+/** The solid core takes a little less than half of the outline. */
 const CORE = hexagon(21)
 
-/** Pose les hexagones, leurs crans et leur pulsation, une fois par document. */
+/** Sets the hexagons, their notches and their pulse, once per document. */
 function ensureHexRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -68,8 +66,8 @@ function ensureHexRule(): void {
   style.textContent = [
     '[data-o-hex-spinner]{display:inline-block;line-height:0}',
     '[data-o-hex-spinner] svg{display:block}',
-    // L'origine est le centre de la vue, en unites de la vue : c'est ce que
-    // `transform-box:view-box` garantit quelle que soit la taille rendue.
+    // The origin is the centre of the view, in view units: that is what
+    // `transform-box:view-box` guarantees whatever the rendered size.
     '[data-o-hex-frame],[data-o-hex-core]{',
     'transform-box:view-box;transform-origin:50px 50px;',
     '}',
@@ -79,15 +77,15 @@ function ensureHexRule(): void {
     '[data-o-hex-core]{',
     'animation:o-hex-spinner-beat var(--o-hex-speed) ease-in-out infinite;',
     '}',
-    // Deux crans, deux arrets. Un cran dure un peu moins que l'arret qui le
-    // suit : le declic est net, la pause est lisible.
+    // Two notches, two rests. A notch lasts a little less than the rest that
+    // follows it: the click is sharp, the pause is readable.
     '@keyframes o-hex-spinner-notch{',
     '0%,12%{transform:rotate(0deg)}',
     '40%,62%{transform:rotate(60deg)}',
     '90%,100%{transform:rotate(120deg)}',
     '}',
-    // Le noyau se gonfle pendant les arrets du cadre et se retracte pendant
-    // les crans : les deux mouvements se relaient au lieu de se superposer.
+    // The core swells while the frame rests and shrinks during the notches:
+    // the two motions take turns instead of piling up.
     '@keyframes o-hex-spinner-beat{',
     '0%,12%{transform:scale(1);opacity:1}',
     '26%{transform:scale(0.55);opacity:0.5}',
@@ -102,31 +100,31 @@ function ensureHexRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface HexSpinnerOwnProps {
-  /** Largeur de l'hexagone, en pixels. @defaultValue 44 */
+  /** Width of the hexagon, in pixels. @defaultValue 44 */
   size?: number
-  /** Epaisseur du trait exterieur, en pixels. @defaultValue 3 */
+  /** Thickness of the outer stroke, in pixels. @defaultValue 3 */
   thickness?: number
-  /** Duree de deux crans, en millisecondes. @defaultValue 1600 */
+  /** Duration of two notches, in milliseconds. @defaultValue 1600 */
   speed?: number
-  /** Couleur des deux hexagones. @defaultValue la couleur du texte */
+  /** Colour of the two hexagons. @defaultValue the text colour */
   color?: string
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */
+  /** Label announced to screen readers. @defaultValue 'Loading' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All the properties. */
 export type HexSpinnerProps = Customisable<HexSpinnerOwnProps, 'span'>
 
 /**
- * Signale une attente par un hexagone qui tourne par crans.
+ * Signals a wait with a hexagon that turns by notches.
  *
  * @example
  * <HexSpinner />
  *
  * @example
- * // Un trait fin, plus lent, dans la teinte de marque.
+ * // A thin stroke, slower, in the brand hue.
  * <HexSpinner thickness={2} speed={2400} color="var(--o-palette-brand-500)" />
  */
 export function HexSpinner({
@@ -134,16 +132,16 @@ export function HexSpinner({
   thickness = 3,
   speed = 1600,
   color = 'currentColor',
-  label = 'Chargement',
+  label = 'Loading',
   ...rest
 }: HexSpinnerProps): ReactElement {
   ensureHexRule()
 
   const { className, style } = mergePresentation({}, rest)
 
-  // Le dessin vit dans une vue de 100 unites : l'epaisseur demandee en
-  // pixels est convertie pour que le trait garde sa mesure a toute taille,
-  // et le contour recule d'une demi-epaisseur pour ne pas etre rogne.
+  // The drawing lives in a view of 100 units: the thickness asked for in
+  // pixels is converted so that the stroke keeps its measure at any size, and
+  // the outline pulls back by half a thickness so as not to be clipped.
   const stroke = Math.min((thickness / size) * 100, 20)
   const frame = hexagon(48 - stroke / 2)
 

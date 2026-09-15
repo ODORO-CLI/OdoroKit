@@ -1,27 +1,26 @@
 /**
- * Zoom au survol : l'image grossit dans son cadre et regarde vers le pointeur.
+ * Zoom on hover: the image grows inside its frame and looks towards the pointer.
  *
- * ## Le cadre ne bouge jamais
+ * ## The frame never moves
  *
- * Le zoom s'applique a l'image, pas a son cadre : le rapport est fige par
- * `aspect-ratio` et le debordement est coupe. Agrandir le cadre lui-meme
- * pousserait la mise en page a chaque survol, ce qui transforme une caresse
- * en secousse.
+ * The zoom applies to the image, not to its frame: the ratio is fixed by
+ * `aspect-ratio` and the overflow is clipped. Enlarging the frame itself would
+ * push the layout on every hover, which turns a caress into a jolt.
  *
- * ## Le suivi du pointeur passe par l'origine de transformation
+ * ## Following the pointer goes through the transform origin
  *
- * Deplacer l'image en `translate` demanderait de calculer une amplitude qui
- * depend du zoom pour ne jamais decouvrir le fond. Deplacer l'**origine** de
- * la transformation donne le meme effet — la region survolee vient vers le
- * pointeur — et la geometrie garantit seule que l'image couvre toujours son
- * cadre. L'origine est ecrite en variables CSS depuis l'evenement, sans aucun
- * rendu React : le navigateur interpole le reste.
+ * Moving the image by `translate` would require computing an amplitude that
+ * depends on the zoom so as never to uncover the background. Moving the
+ * **origin** of the transform gives the same effect — the hovered region comes
+ * towards the pointer — and the geometry alone guarantees that the image
+ * always covers its frame. The origin is written into CSS variables from the
+ * event, with no React render: the browser interpolates the rest.
  *
- * ## Sous mouvement reduit
+ * ## Under reduced motion
  *
- * L'image reste a l'echelle un et l'origine ne bouge pas : le composant ne
- * pose ni attribut, ni ecouteur. Un zoom decoratif n'a pas d'information a
- * preserver.
+ * The image stays at scale one and the origin does not move: the component
+ * sets neither attribute nor listener. A decorative zoom has no information to
+ * preserve.
  *
  * @module
  */
@@ -29,14 +28,14 @@
 import { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'
 import { useRef, type CSSProperties, type ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-hover-zoom'
 
 /**
- * Pose les regles du zoom, une fois par document.
+ * Sets the zoom rules, once per document.
  *
- * Elles ne peuvent pas etre des styles en ligne : l'agrandissement depend du
- * survol du cadre, pas de celui de l'image.
+ * They cannot be inline styles: the enlargement depends on the hover of the
+ * frame, not on that of the image.
  */
 function ensureHoverZoomRule(): void {
   if (typeof document === 'undefined') return
@@ -47,8 +46,8 @@ function ensureHoverZoomRule(): void {
   style.textContent = [
     '[data-o-hover-zoom] img{',
     'transform-origin:var(--o-hz-x) var(--o-hz-y);',
-    // L'origine est lissee d'un cran plus court que le zoom : brute, chaque
-    // evenement de pointeur ferait sauter la region agrandie.
+    // The origin is smoothed one notch shorter than the zoom: raw, every
+    // pointer event would make the enlarged region jump.
     'transition:transform var(--o-hz-duration) var(--o-ease-standard),',
     'transform-origin var(--o-duration-base) linear;',
     '}',
@@ -59,32 +58,32 @@ function ensureHoverZoomRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface HoverZoomOwnProps {
-  /** Source de l'image. */
+  /** Source of the image. */
   src: string
-  /** Texte de remplacement. Chaine vide si l'image est purement decorative. */
+  /** Alternative text. Empty string if the image is purely decorative. */
   alt: string
-  /** Rapport largeur sur hauteur. @defaultValue 1.777 */
+  /** Width to height ratio. @defaultValue 1.777 */
   ratio?: number
-  /** Echelle atteinte au survol, de 1.05 a 1.6. @defaultValue 1.15 */
+  /** Scale reached on hover, from 1.05 to 1.6. @defaultValue 1.15 */
   zoom?: number
-  /** Duree de l'agrandissement, en millisecondes. @defaultValue 480 */
+  /** Duration of the enlargement, in milliseconds. @defaultValue 480 */
   duration?: number
 }
 
-/** Toutes les proprietes : les siennes, plus celles d'une image. */
+/** All properties: its own, plus those of an image. */
 export type HoverZoomProps = Customisable<HoverZoomOwnProps, 'img'>
 
 /**
- * Zoome une image au survol, vers le pointeur.
+ * Zooms an image on hover, towards the pointer.
  *
  * @example
- * <HoverZoom src="/photo.jpg" alt="Vue de l atelier" zoom={1.2} />
+ * <HoverZoom src="/photo.jpg" alt="View of the workshop" zoom={1.2} />
  *
  * @example
- * // Dans une carte cliquable : le focus du lien declenche aussi le zoom.
- * <a href="/projet">
+ * // Inside a clickable card: the focus of the link triggers the zoom too.
+ * <a href="/project">
  *   <HoverZoom src="/photo.jpg" alt="" className="o-rounded-lg" />
  * </a>
  */
@@ -124,8 +123,8 @@ export function HoverZoom({
         reduced
           ? undefined
           : (event) => {
-              // L'origine suit le pointeur en pourcentage du cadre : aucun
-              // etat React, le navigateur interpole entre deux ecritures.
+              // The origin follows the pointer as a percentage of the frame:
+              // no React state, the browser interpolates between two writes.
               const box = event.currentTarget.getBoundingClientRect()
               const x = ((event.clientX - box.left) / Math.max(box.width, 1)) * 100
               const y = ((event.clientY - box.top) / Math.max(box.height, 1)) * 100
@@ -137,8 +136,8 @@ export function HoverZoom({
         reduced
           ? undefined
           : (event) => {
-              // Retour au centre : sans cela, le prochain survol partirait de
-              // la derniere position connue, un bord au hasard.
+              // Back to the centre: without this, the next hover would start
+              // from the last known position, a random edge.
               event.currentTarget.style.setProperty('--o-hz-x', '50%')
               event.currentTarget.style.setProperty('--o-hz-y', '50%')
             }

@@ -1,36 +1,37 @@
 /**
- * Titre masque : une image visible a travers les lettres, et qui defile.
+ * Masked heading: an image seen through the letters, and drifting.
  *
- * ## Le texte est le masque, l'image est l'encre
+ * ## The text is the mask, the image is the ink
  *
- * `background-clip: text` decoupe le fond a la forme des glyphes. Ce n'est pas
- * une superposition : il n'y a qu'un seul element, et les lettres restent des
- * lettres — selectionnables, cherchables, annoncees telles quelles. Aucun
- * decoupage, aucun calque, aucun `aria-label` a maintenir.
+ * `background-clip: text` clips the background to the shape of the glyphs.
+ * This is not a superimposition: there is only one element, and the letters
+ * stay letters — selectable, searchable, announced as they are. No split, no
+ * layer, no `aria-label` to maintain.
  *
- * ## Un balancement, pas une bande sans fin
+ * ## A sway, not an endless band
  *
- * Une image quelconque n'est pas raccordable : la faire defiler en boucle
- * ferait sauter la couture a chaque tour. Le deplacement va donc d'un bord a
- * l'autre puis revient — `alternate` — ce qui n'a aucune couture a montrer.
- * L'image est agrandie au-dela du cadre pour qu'il y ait de quoi parcourir.
+ * An arbitrary image cannot be tiled: scrolling it on a loop would make the
+ * seam jump on every turn. The movement therefore goes from one edge to the
+ * other then comes back — `alternate` — which has no seam to show. The image
+ * is enlarged beyond the frame so that there is something to travel.
  *
- * ## Ce que voit un navigateur qui ne sait pas decouper
+ * ## What a browser that cannot clip sees
  *
- * Tout ce qui rend le texte invisible — le fond, la couleur transparente —
- * vit dans un `@supports`. Sans le decoupage, il ne reste qu'un titre a
- * l'encre courante. L'inverse aurait donne un titre absent.
+ * Everything that makes the text invisible — the background, the transparent
+ * colour — lives inside a `@supports`. Without the clipping, all that is left
+ * is a heading in the current ink. The other way round would have given an
+ * absent heading.
  *
- * ## L'image ne dit rien
+ * ## The image says nothing
  *
- * Elle est une matiere, pas un contenu : c'est le texte qui porte le sens, et
- * c'est pourquoi il n'y a pas de texte de remplacement a fournir. Une image
- * qui informe n'a pas sa place ici.
+ * It is a material, not a content: it is the text that carries the meaning,
+ * and that is why there is no alternative text to supply. An image that
+ * informs has no place here.
  *
- * ## Mouvement reduit
+ * ## Reduced motion
  *
- * Le balancement s'arrete au centre de l'image. Le titre reste rempli : la
- * matiere est l'etat d'arrivee, seul son deplacement etait l'animation.
+ * The sway stops at the centre of the image. The heading stays filled: the
+ * material is the arrival state, only its movement was the animation.
  *
  * @module
  */
@@ -43,38 +44,38 @@ import {
   type ReactNode,
 } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface MaskedHeadingOwnProps {
-  /** Texte du titre. */
+  /** Text of the heading. */
   children: ReactNode
   /**
-   * Image vue a travers les lettres.
+   * Image seen through the letters.
    *
-   * Purement decorative : le sens est porte par le texte.
+   * Purely decorative: the meaning is carried by the text.
    */
   src: string
-  /** Balise rendue. @defaultValue 'span' */
+  /** Rendered tag. @defaultValue 'span' */
   as?: ElementType
   /**
-   * Largeur de l'image, en part de celle du titre.
+   * Width of the image, as a share of that of the heading.
    *
-   * Au-dela de cent pour cent, il reste de quoi parcourir : c'est cette marge
-   * que le balancement traverse.
+   * Beyond a hundred percent, there is something left to travel: that margin
+   * is what the sway crosses.
    *
    * @defaultValue 220
    */
   zoom?: number
-  /** Duree d'un aller, en millisecondes. @defaultValue 14000 */
+  /** Duration of one pass, in milliseconds. @defaultValue 14000 */
   speed?: number
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type MaskedHeadingProps = Customisable<MaskedHeadingOwnProps, 'span'>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-masked-heading'
 
-/** Pose les regles du masque, une fois par document. */
+/** Sets the mask rules, once per document. */
 function ensureMaskedRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -87,8 +88,8 @@ function ensureMaskedRule(): void {
     'from{background-position:0% 50%}',
     'to{background-position:100% 50%}',
     '}',
-    // Tout ce qui rend le texte invisible vit ici : sans le decoupage, il
-    // reste un titre a l'encre courante. Voir l'en-tete.
+    // Everything that makes the text invisible lives here: without the
+    // clipping, a heading in the current ink is left. See the header.
     '@supports ((-webkit-background-clip:text) or (background-clip:text)){',
     '[data-o-masked]{',
     'background-image:var(--o-masked-image);',
@@ -101,7 +102,7 @@ function ensureMaskedRule(): void {
     'animation:o-masked-pan var(--o-masked-speed) ease-in-out infinite alternate;',
     '}',
     '}',
-    // Sans mouvement, l'image se pose au centre et n'en bouge plus.
+    // With no motion, the image settles at the centre and no longer moves.
     '@media (prefers-reduced-motion:reduce){',
     '[data-o-masked]{animation:none;background-position:50% 50%}',
     '}',
@@ -110,17 +111,17 @@ function ensureMaskedRule(): void {
 }
 
 /**
- * Remplit un titre d'une image qui se balance lentement.
+ * Fills a heading with an image that sways slowly.
  *
  * @example
- * <MaskedHeading as="h1" src="/textures/beton.jpg" className="o-text-6xl o-font-black">
- *   Matiere
+ * <MaskedHeading as="h1" src="/textures/concrete.jpg" className="o-text-6xl o-font-black">
+ *   Material
  * </MaskedHeading>
  *
  * @example
- * // Un cadrage serre, un balancement plus vif.
- * <MaskedHeading src="/textures/vagues.jpg" zoom={400} speed={6000}>
- *   Maree
+ * // A tight framing, a brisker sway.
+ * <MaskedHeading src="/textures/waves.jpg" zoom={400} speed={6000}>
+ *   Tide
  * </MaskedHeading>
  */
 export function MaskedHeading({
@@ -135,17 +136,17 @@ export function MaskedHeading({
 
   const { className, style } = mergePresentation({}, rest)
 
-  const styleRacine = {
+  const rootStyle = {
     ...style,
-    // La valeur est posee par la propriete, jamais concatenee dans une
-    // feuille : rien de ce que contient l'adresse ne peut devenir du CSS.
+    // The value is set by the property, never concatenated into a stylesheet:
+    // nothing the address contains can become CSS.
     '--o-masked-image': `url(${JSON.stringify(src)})`,
     '--o-masked-zoom': `${String(Math.max(100, zoom))}%`,
     '--o-masked-speed': `${String(speed)}ms`,
   } as CSSProperties
 
   return (
-    <Tag {...rest} className={className} style={styleRacine} data-o-masked="">
+    <Tag {...rest} className={className} style={rootStyle} data-o-masked="">
       {children}
     </Tag>
   )

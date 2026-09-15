@@ -1,9 +1,10 @@
 /**
- * Abstraction d'historique de navigation.
+ * Navigation history abstraction.
  *
- * Deux implementations : `createBrowserHistory` (au-dessus de l'API History du
- * navigateur) et `createMemoryHistory` (tests et rendu serveur). Les deux
- * exposent la meme interface d'abonnement, compatible `useSyncExternalStore`.
+ * Two implementations: `createBrowserHistory` (on top of the browser History
+ * API) and `createMemoryHistory` (tests and server-side rendering). Both
+ * expose the same subscription interface, compatible with
+ * `useSyncExternalStore`.
  *
  * @module
  */
@@ -11,40 +12,40 @@
 import { createPath, parsePath, resolvePath } from './path.js'
 import type { Location, NavigateOptions, To } from './types.js'
 
-/** Nature de la derniere navigation. */
+/** Nature of the last navigation. */
 export type NavigationType = 'PUSH' | 'REPLACE' | 'POP'
 
-/** Instantane observable de l'historique. */
+/** Observable snapshot of the history. */
 export interface HistorySnapshot {
-  /** Emplacement courant. */
+  /** Current location. */
   readonly location: Location
-  /** Comment cet emplacement a ete atteint. */
+  /** How this location was reached. */
   readonly navigationType: NavigationType
 }
 
-/** Interface commune aux implementations d'historique. */
+/** Interface shared by the history implementations. */
 export interface RouterHistory {
-  /** Instantane courant. La reference ne change qu'a la navigation. */
+  /** Current snapshot. The reference only changes on navigation. */
   getSnapshot(): HistorySnapshot
   /**
-   * Abonne un ecouteur aux changements. Retourne la fonction de desabonnement.
+   * Subscribes a listener to the changes. Returns the unsubscribe function.
    */
   subscribe(listener: () => void): () => void
-  /** Empile une nouvelle entree d'historique. */
+  /** Pushes a new history entry. */
   push(to: To, options?: NavigateOptions): void
-  /** Remplace l'entree courante. */
+  /** Replaces the current entry. */
   replace(to: To, options?: NavigateOptions): void
-  /** Deplace le curseur dans la pile d'historique. */
+  /** Moves the cursor inside the history stack. */
   go(delta: number): void
-  /** Transforme une cible en URL absolue au sein de l'application. */
+  /** Turns a target into an absolute URL within the application. */
   createHref(to: To): string
-  /** Position de defilement memorisee pour une cle d'entree donnee. */
+  /** Scroll position stored for a given entry key. */
   getScroll(key: string): number | undefined
-  /** Memorise une position de defilement pour une cle d'entree. */
+  /** Stores a scroll position for an entry key. */
   setScroll(key: string, position: number): void
 }
 
-/** Compteur de cles, suffisant pour identifier les entrees d'une session. */
+/** Key counter, enough to identify the entries of one session. */
 let keyCounter = 0
 
 function createKey(): string {
@@ -52,7 +53,7 @@ function createKey(): string {
   return `${Date.now().toString(36)}-${keyCounter.toString(36)}`
 }
 
-/** Convertit une cible de navigation en chaine, resolue contre `from`. */
+/** Converts a navigation target into a string, resolved against `from`. */
 function toHref(to: To, from: string): string {
   if (typeof to === 'string') return createPath(resolvePath(to, from))
   return createPath({
@@ -67,11 +68,11 @@ function createLocation(href: string, state: unknown, key: string): Location {
   return { pathname, search, hash, state, key }
 }
 
-/** Forme du `history.state` gere par le routeur. */
+/** Shape of the `history.state` handled by the router. */
 interface HistoryState {
-  /** Etat utilisateur passe a `navigate(to, { state })`. */
+  /** User state passed to `navigate(to, { state })`. */
   usr: unknown
-  /** Cle de l'entree, stable au retour arriere. */
+  /** Key of the entry, stable when going back. */
   key: string
 }
 
@@ -80,8 +81,8 @@ function isHistoryState(value: unknown): value is HistoryState {
 }
 
 /**
- * Socle commun aux deux implementations : gestion des abonnes, de l'instantane
- * et des positions de defilement.
+ * Base shared by both implementations: handling of the subscribers, of the
+ * snapshot and of the scroll positions.
  */
 function createHistoryCore(initial: HistorySnapshot): {
   snapshot: HistorySnapshot
@@ -115,12 +116,12 @@ function createHistoryCore(initial: HistorySnapshot): {
 }
 
 /**
- * Historique adosse a l'API History du navigateur.
+ * History backed by the browser History API.
  *
- * Desactive la restauration automatique du navigateur
- * (`history.scrollRestoration = 'manual'`) : le routeur restaure lui-meme la
- * position apres le rendu de la nouvelle route, ce que le navigateur ne peut
- * pas faire correctement avec du contenu rendu en JavaScript.
+ * Disables the automatic restoration of the browser
+ * (`history.scrollRestoration = 'manual'`): the router restores the position
+ * itself after the new route has rendered, which the browser cannot do
+ * correctly with content rendered in JavaScript.
  *
  * @example
  * const history = createBrowserHistory()
@@ -170,7 +171,7 @@ export function createBrowserHistory(): RouterHistory {
     const nextKey = createKey()
     const state: HistoryState = { usr: options?.state ?? null, key: nextKey }
 
-    // La position de l'entree quittee est memorisee avant que le DOM ne change.
+    // The position of the entry being left is stored before the DOM changes.
     core.base.setScroll(core.snapshot.location.key, window.scrollY)
 
     if (replace) globalHistory.replaceState(state, '', href)
@@ -192,9 +193,10 @@ export function createBrowserHistory(): RouterHistory {
 }
 
 /**
- * Historique en memoire, sans dependance au DOM.
+ * In-memory history, with no DOM dependency.
  *
- * @param initialEntries Pile initiale d'URL. La derniere est l'entree courante.
+ * @param initialEntries Initial stack of URLs. The last one is the current
+ *   entry.
  *
  * @example
  * const history = createMemoryHistory(['/users/42'])
@@ -208,7 +210,7 @@ export function createMemoryHistory(
   )
   let index = entries.length - 1
 
-  // `index` est borne par construction : `entries` contient au moins une entree.
+  // `index` is bounded by construction: `entries` holds at least one entry.
   const current = (): Location => entries[index] as Location
 
   const core = createHistoryCore({ location: current(), navigationType: 'POP' })

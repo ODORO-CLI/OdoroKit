@@ -1,22 +1,22 @@
 /**
- * Grille ondulante : un quadrillage souleve par une onde radiale.
+ * Ripple grid: a grid lifted by a radial wave.
  *
- * ## Le principe
+ * ## The principle
  *
- * Le deplacement est radial : chaque point s ecarte du centre le long de sa propre direction, ce qui evite le cisaillement.
+ * The displacement is radial: every point moves away from the centre along its own direction, which avoids any shearing.
  *
- * A amplitude nulle, `background/grid-lines` fait le meme travail sans contexte graphique et pour treize kilo-octets de moins.
+ * At zero amplitude, `background/grid-lines` does the same job with no graphics context and for thirteen kilobytes less.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur — les recopier ici en ferait autant
- * de versions a maintenir qu'il y a de fonds.
+ * It carries only what sets it apart: its shader, its settings and its fallback.
+ * Reading the tokens, converting them to floats and re-reading them when the
+ * theme changes all come from the engine — copying that here would leave as many
+ * versions to maintain as there are backgrounds.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en
- * accorde qu'une par backend — et sous mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface — it grants only one per
+ * backend — and under reduced motion.
  *
  * @module
  */
@@ -32,41 +32,41 @@ import {
 } from '@odoro-cli/engine'
 import { type ReactElement } from 'react'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface RippleGridControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to this component. */
 export interface RippleGridOwnProps {
-  /** Vitesse de l onde. @defaultValue 0.4 */
+  /** Speed of the wave. @defaultValue 0.4 */
   speed?: number
-  /** Nombre de mailles. @defaultValue 14 */
+  /** Number of mesh cells. @defaultValue 14 */
   density?: number
-  /** Amplitude du soulevement. @defaultValue 0.06 */
+  /** Amplitude of the lift. @defaultValue 0.06 */
   amplitude?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<RippleGridControls>
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type RippleGridProps = Customisable<RippleGridOwnProps>
 
-/** Tokens employes par defaut. */
+/** Tokens used by default. */
 const DEFAULT_TOKENS = ['--o-theme-bg', '--o-palette-sky-400'] as const
 
-/** Repli par defaut : une teinte figee, dans les memes tons. */
+/** Default fallback: a frozen tint, in the same tones. */
 const DEFAULT_FALLBACK = 'o-bg-zinc-50 dark:o-bg-zinc-950'
 
 /**
- * Grille ondulante.
+ * Ripple grid.
  *
  * @example
  * <div className="o-relative o-min-h-screen">

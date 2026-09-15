@@ -18,7 +18,7 @@
   "tokens": [],
   "props": [
     {
-      "name": "delai",
+      "name": "delay",
       "type": "number",
       "default": 1600,
       "unit": "ms",

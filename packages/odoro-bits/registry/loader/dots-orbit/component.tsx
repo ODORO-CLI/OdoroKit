@@ -1,36 +1,36 @@
 /**
- * Points en orbite : trois points tournent chacun sur son orbite
- * concentrique, l'interieur plus vite que l'exterieur.
+ * Orbiting dots: three dots each turn on their own concentric orbit, the inner
+ * one faster than the outer one.
  *
- * ## Des orbites tracees, pas seulement des points
+ * ## Drawn orbits, not just dots
  *
- * Trois points qui tournent sans rien autour se lisent mal : rien ne dit
- * qu'ils sont lies, ni qu'ils suivent un cercle. Les orbites sont donc
- * tracees, en filet attenue — c'est elles qui font le systeme, et qui
- * restent lisibles a l'arret.
+ * Three dots turning with nothing around them read badly: nothing says they
+ * are related, nor that they follow a circle. The orbits are therefore drawn,
+ * as a faint rule — they are what makes the system, and what stays readable
+ * when it stops.
  *
- * Les periodes suivent l'idee de Kepler sans en faire le calcul : plus loin
- * du centre, plus lent. Le point interieur fait presque trois tours quand
- * l'exterieur en fait un. Des periodes egales feraient une roue ; des
- * periodes multiples entre elles feraient un motif qui se repete trop vite
- * pour paraitre vivant.
+ * The periods follow Kepler's idea without doing his arithmetic: the further
+ * from the centre, the slower. The inner dot makes almost three turns while
+ * the outer one makes one. Equal periods would make a wheel; periods that were
+ * multiples of one another would make a pattern repeating too fast to look
+ * alive.
  *
- * ## Pourquoi un SVG
+ * ## Why an SVG
  *
- * Trois cercles concentriques et trois points a une position angulaire :
- * en CSS il faudrait des bordures pour les orbites et des translations
- * calculees pour les points. Dans un `viewBox`, chaque point est un cercle
- * pose en haut de son orbite, et un groupe qui tourne autour du centre.
+ * Three concentric circles and three dots at an angular position: in CSS that
+ * would take borders for the orbits and computed translations for the dots. In
+ * a `viewBox`, each dot is a circle placed at the top of its orbit, and a
+ * group that turns around the centre.
  *
- * ## Un statut, pas un dessin
+ * ## A status, not a drawing
  *
- * L'element porte `role="status"` et un libelle pour les lecteurs d'ecran :
- * l'attente est une information, pas une decoration. Le dessin est retire
- * de l'arbre d'accessibilite.
+ * The element carries `role="status"` and a label for screen readers: the wait
+ * is information, not decoration. The drawing is removed from the
+ * accessibility tree.
  *
- * Sous mouvement reduit, les trois points s'arretent a des angles distincts,
- * un tiers de tour entre eux : les orbites tracees et leurs points se lisent
- * encore comme un chargeur, seule la rotation s'arrete.
+ * Under reduced motion, the three dots stop at distinct angles, a third of a
+ * turn apart: the drawn orbits and their dots still read as a loader, only the
+ * rotation stops.
  *
  * @module
  */
@@ -38,10 +38,10 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-dots-orbit'
 
-/** Pose les orbites et leur rotation, une fois par document. */
+/** Sets the orbits and their rotation, once per document. */
 function ensureOrbitRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -54,14 +54,14 @@ function ensureOrbitRule(): void {
     'fill:none;stroke:var(--o-dorbit-color);stroke-width:1.5;opacity:0.2;',
     '}',
     '[data-o-dots-orbit-dot]{fill:var(--o-dorbit-color)}',
-    // Le groupe tourne autour du centre du dessin, pas de sa propre boite.
+    // The group turns around the centre of the drawing, not of its own box.
     '[data-o-dots-orbit-spin]{',
     'transform-box:view-box;transform-origin:50% 50%;',
     'animation:o-dots-orbit-turn var(--o-dorbit-speed) linear infinite;',
     '}',
     '@keyframes o-dots-orbit-turn{from{transform:rotate(0turn)}to{transform:rotate(1turn)}}',
-    // Trois points a un tiers de tour l'un de l'autre : la figure se lit
-    // encore comme un chargeur.
+    // Three dots a third of a turn from each other: the figure still reads as
+    // a loader.
     '@media (prefers-reduced-motion:reduce){',
     '[data-o-dots-orbit-spin]{animation:none;transform:rotate(var(--o-dorbit-rest))}',
     '}',
@@ -69,27 +69,27 @@ function ensureOrbitRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface DotsOrbitOwnProps {
-  /** Diametre de l'orbite exterieure, en pixels. @defaultValue 48 */
+  /** Diameter of the outer orbit, in pixels. @defaultValue 48 */
   size?: number
-  /** Duree d'un tour de l'orbite interieure, en millisecondes. @defaultValue 1000 */
+  /** Duration of one turn of the inner orbit, in milliseconds. @defaultValue 1000 */
   speed?: number
-  /** Couleur des points et des orbites. @defaultValue la couleur du texte */
+  /** Colour of the dots and the orbits. @defaultValue the text colour */
   color?: string
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */
+  /** Label announced to screen readers. @defaultValue 'Loading' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All the properties. */
 export type DotsOrbitProps = Customisable<DotsOrbitOwnProps, 'span'>
 
 /**
- * Les trois orbites, en unites du `viewBox` de cent sur cent.
+ * The three orbits, in units of the hundred by hundred `viewBox`.
  *
- * Le rayon du point decroit avec la distance : un point lointain et gros
- * ecraserait le centre. Le facteur de periode est irrationnel a dessein,
- * pour que le motif ne se referme pas visiblement.
+ * The dot radius shrinks with the distance: a far dot that was large would
+ * crush the centre. The period factor is irrational on purpose, so that the
+ * pattern does not visibly close on itself.
  */
 const ORBITS = [
   { radius: 14, dot: 5, factor: 1, rest: 0 },
@@ -98,20 +98,20 @@ const ORBITS = [
 ] as const
 
 /**
- * Signale une attente par trois points en orbite.
+ * Signals a wait with three orbiting dots.
  *
  * @example
  * <DotsOrbit />
  *
  * @example
- * // Plus grand, plus lent, dans la teinte de marque.
+ * // Bigger, slower, in the brand hue.
  * <DotsOrbit size={96} speed={1800} color="var(--o-palette-brand-500)" />
  */
 export function DotsOrbit({
   size = 48,
   speed = 1000,
   color = 'currentColor',
-  label = 'Chargement',
+  label = 'Loading',
   ...rest
 }: DotsOrbitProps): ReactElement {
   ensureOrbitRule()

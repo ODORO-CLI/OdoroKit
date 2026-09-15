@@ -54,7 +54,7 @@
       "step": 50
     },
     {
-      "name": "declenchement",
+      "name": "trigger",
       "type": "'montage' | 'vue' | 'survol'",
       "default": "vue",
       "description": "Des le montage, a l entree dans le champ, ou a chaque survol.",

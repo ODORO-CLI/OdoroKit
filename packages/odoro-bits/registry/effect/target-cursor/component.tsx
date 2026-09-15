@@ -1,37 +1,37 @@
 /**
- * Viseur : quatre crochets qui se calent sur ce que le pointeur survole.
+ * Sight: four brackets that lock onto whatever the pointer hovers.
  *
- * ## Le curseur devient une mesure
+ * ## The cursor becomes a measurement
  *
- * Au repos, les quatre crochets forment un petit carre autour du pointeur et
- * tournent lentement : un viseur qui cherche. Des que le pointeur entre sur une
- * cible, ils s'ecartent jusqu'aux coins de sa boite, la rotation s'annule, et
- * l'element se trouve encadre. Le curseur ne dit plus « je suis ici » mais
- * « c'est ceci » — et c'est ce qui le distingue des curseurs qui grossissent au
- * survol sans jamais designer.
+ * At rest, the four brackets form a small square around the pointer and turn
+ * slowly: a sight looking for something. As soon as the pointer enters a
+ * target, they spread out to the corners of its box, the rotation cancels, and
+ * the element finds itself framed. The cursor no longer says "I am here" but
+ * "it is this" — and that is what sets it apart from cursors that grow on
+ * hover without ever designating anything.
  *
- * ## Un seul groupe, quatre coins derives
+ * ## A single group, four derived corners
  *
- * Le centre, la largeur et la hauteur sont amortis ; les crochets ne font
- * qu'appliquer la demi-largeur et la demi-hauteur du moment. Animer quatre
- * positions independantes aurait laisse le cadre se deformer pendant la
- * transition — un coin arrive avant l'autre — au lieu de rester un rectangle.
+ * The centre, the width and the height are damped; the brackets merely apply
+ * the half-width and the half-height of the moment. Animating four independent
+ * positions would have let the frame deform during the transition — one corner
+ * arriving before the other — instead of staying a rectangle.
  *
- * La rotation est portee par le groupe, jamais par les crochets : sinon
- * chacun tournerait sur lui-meme et le cadre se disloquerait.
+ * The rotation is carried by the group, never by the brackets: otherwise each
+ * would turn on itself and the frame would come apart.
  *
- * ## La boite de la cible est mesuree quand elle change, pas par image
+ * ## The box of the target is measured when it changes, not per frame
  *
- * `getBoundingClientRect` force une mise en page. Elle est appelee a l'entree
- * sur une cible, puis seulement si la page defile ou se redimensionne. Entre
- * ces moments, la boite ne bouge pas.
+ * `getBoundingClientRect` forces a layout. It is called on entering a target,
+ * then only if the page scrolls or resizes. Between those moments, the box
+ * does not move.
  *
- * ## Ou il ne se montre pas
+ * ## Where it does not show itself
  *
- * Sans pointeur fin, aucun crochet n'est cree. Sous mouvement reduit non
- * plus : le viseur est un mouvement continu, et il n'en reste pas d'etat
- * final a poser. Le curseur du systeme reste visible — c'est lui qui porte
- * encore le signe du lien.
+ * Without a fine pointer, no bracket is created. Nor under reduced motion: the
+ * sight is a continuous movement, and no final state is left to apply. The
+ * system cursor stays visible — it is the one that still carries the sign of
+ * the link.
  *
  * @module
  */
@@ -51,42 +51,42 @@ import {
   type ReactNode,
 } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface TargetCursorOwnProps {
   /**
-   * Zone visee.
+   * Area under the sight.
    *
-   * Fournie, le viseur n'ecoute qu'elle et y est coupe. Absente, il prend la
-   * page entiere, en couche fixe qui n'intercepte rien.
+   * Provided, the sight listens only to it and is clipped to it. Absent, it
+   * takes the whole page, as a fixed layer that intercepts nothing.
    */
   children?: ReactNode
-  /** Cote du carre au repos, en pixels. @defaultValue 32 */
+  /** Side of the square at rest, in pixels. @defaultValue 32 */
   size?: number
-  /** Longueur d un crochet, en pixels. @defaultValue 12 */
+  /** Length of a bracket, in pixels. @defaultValue 12 */
   corner?: number
-  /** Marge laissee autour de la cible encadree, en pixels. @defaultValue 8 */
+  /** Margin left around the framed target, in pixels. @defaultValue 8 */
   padding?: number
-  /** Vitesse de rattrapage. Plus haut, plus sec. @defaultValue 14 */
+  /** Catch-up speed. The higher, the snappier. @defaultValue 14 */
   speed?: number
-  /** Rotation au repos, en tours par seconde. @defaultValue 0.12 */
+  /** Rotation at rest, in turns per second. @defaultValue 0.12 */
   spin?: number
   /**
-   * Ce que le viseur encadre.
+   * What the sight frames.
    *
    * @defaultValue 'a, button, [role="button"], [data-o-target]'
    */
   targets?: string
-  /** Couleur des crochets. Une valeur, pas un role. @defaultValue la couleur du texte */
+  /** Colour of the brackets. A value, not a role. @defaultValue the text colour */
   color?: string
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type TargetCursorProps = Customisable<TargetCursorOwnProps>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-target-cursor'
 
-/** Pose les regles du viseur, une fois par document. */
+/** Sets the sight rules, once per document. */
 function ensureTargetCursorRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -94,9 +94,9 @@ function ensureTargetCursorRule(): void {
   const style = document.createElement('style')
   style.id = STYLE_ID
   style.textContent = [
-    // La position de la zone vit dans une regle sans specificite : une
-    // classe de l appelant — `o-absolute` pour la poser dans un cadre —
-    // doit pouvoir la remplacer, ce qu'un style en ligne interdirait.
+    // The positioning of the area lives in a rule with no specificity: a
+    // class from the caller — `o-absolute` to place it inside a frame —
+    // must be able to replace it, which an inline style would forbid.
     ':where([data-o-target-host="zone"]){position:relative;overflow:hidden}',
     ':where([data-o-target-host="page"]){position:fixed;inset:0;z-index:9998;pointer-events:none}',
     '[data-o-target-layer]{',
@@ -110,14 +110,14 @@ function ensureTargetCursorRule(): void {
 }
 
 /**
- * Pose un viseur qui se cale sur les elements survoles.
+ * Lays a sight that locks onto the hovered elements.
  *
  * @example
- * // Sur la page entiere.
+ * // Over the whole page.
  * <TargetCursor />
  *
  * @example
- * // Sur une galerie, ou seules les vignettes sont des cibles.
+ * // On a gallery, where only the thumbnails are targets.
  * <TargetCursor targets="[data-o-target]" padding={14} spin={0}>
  *   <ul className="o-grid o-grid-cols-3 o-gap-4">…</ul>
  * </TargetCursor>
@@ -142,7 +142,7 @@ export function TargetCursor({
   useEffect(() => {
     if (host === null || reduced) return
     if (typeof window === 'undefined') return
-    // Pointeur grossier : il n'y a rien a viser, et rien n'est cree.
+    // Coarse pointer: there is nothing to aim at, and nothing is created.
     if (!window.matchMedia('(pointer: fine)').matches) return
 
     const layer = document.createElement('div')
@@ -161,8 +161,8 @@ export function TargetCursor({
       node.style.width = `${String(corner)}px`
       node.style.height = `${String(corner)}px`
       node.style.margin = `${String(-corner / 2)}px`
-      // Un seul dessin — deux bords — que la rotation suffit a decliner aux
-      // quatre coins.
+      // A single drawing — two edges — that the rotation alone is enough to
+      // decline at all four corners.
       node.style.borderTop = `2px solid ${color}`
       node.style.borderLeft = `2px solid ${color}`
       group.append(node)
@@ -173,7 +173,7 @@ export function TargetCursor({
     let locked: Element | null = null
     let seen = false
 
-    // Cible du cadre, en coordonnees de la zone.
+    // Target of the frame, in coordinates of the area.
     let wantX = -size * 4
     let wantY = -size * 4
     let wantW = size
@@ -188,7 +188,7 @@ export function TargetCursor({
     let pointerX = wantX
     let pointerY = wantY
 
-    /** Recalcule la cible : la boite verrouillee, ou le carre au pointeur. */
+    /** Recomputes the target: the locked box, or the square at the pointer. */
     const aim = (): void => {
       if (locked === null) {
         wantX = pointerX
@@ -225,8 +225,8 @@ export function TargetCursor({
 
     const onOver = (event: Event): void => {
       const node = event.target
-      // `closest` plutot que l'element lui-meme : le pointeur survole souvent
-      // le texte d'un bouton, pas le bouton.
+      // `closest` rather than the element itself: the pointer often hovers the
+      // text of a button, not the button.
       locked = node instanceof Element ? node.closest(targets) : null
       aim()
     }
@@ -253,8 +253,8 @@ export function TargetCursor({
         width += (wantW - width) * factor
         height += (wantH - height) * factor
 
-        // La rotation ne vit qu'au repos : sur une cible, un cadre penche ne
-        // designerait plus rien.
+        // The rotation only lives at rest: on a target, a slanted frame would
+        // no longer designate anything.
         const wanted = locked === null ? angle + spin * 360 * delta : 0
         angle += (wanted - angle) * factor
 
@@ -270,7 +270,7 @@ export function TargetCursor({
           index += 1
         }
       },
-      { name: 'target-cursor : viseur', priority: CLOCK_PRIORITY.default },
+      { name: 'target-cursor : sight', priority: CLOCK_PRIORITY.default },
     )
 
     return () => {

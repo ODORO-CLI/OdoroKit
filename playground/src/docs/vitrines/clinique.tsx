@@ -57,7 +57,7 @@ import {
   Phone,
   Stethoscope,
   Users,
-} from '@odoro-cli/icons/filaire'
+} from '@odoro-cli/icons/outline'
 import { useMotionState } from '@odoro-cli/engine'
 import {
   useEffect,

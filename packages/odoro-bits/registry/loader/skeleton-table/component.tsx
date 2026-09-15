@@ -1,28 +1,26 @@
 /**
- * Tableau en attente : des rangees separees par leurs filets, une premiere
- * colonne large, des cellules de longueurs inegales.
+ * Table placeholder: rows separated by their rules, a wide first column, cells
+ * of uneven lengths.
  *
- * ## Ce qui fait lire un tableau
+ * ## What makes something read as a table
  *
- * Trois choses, et aucune n'est le nombre de blocs : les **filets** entre
- * les rangees, la premiere colonne plus large que les autres, et des
- * cellules de longueurs differentes. Une grille de barres identiques se lit
- * comme un mur ; ces trois indices suffisent a la lire comme des donnees,
- * avant qu'aucune donnee ne soit la.
+ * Three things, and none of them is the number of blocks: the **rules**
+ * between the rows, the first column wider than the others, and cells of
+ * differing lengths. A grid of identical bars reads as a wall; those three
+ * clues are enough to make it read as data, before any data is there.
  *
- * Les longueurs ne sont pas tirees au hasard : un tirage change a chaque
- * rendu, et un squelette qui bouge d'un rendu a l'autre trahit qu'il est
- * faux. Elles viennent d'une suite fixe, indexee par la position de la
- * cellule.
+ * The lengths are not drawn at random: a random draw changes on every render,
+ * and a skeleton that moves from one render to the next gives away that it is
+ * fake. They come from a fixed sequence, indexed by the position of the cell.
  *
- * L'en-tete est peint a la pleine valeur du filet, plus dense que les
- * cellules : c'est ce contraste qui le detache, pas une taille differente.
+ * The header is painted at the full value of the rule, denser than the cells:
+ * it is that contrast which sets it apart, not a different size.
  *
- * ## Un statut, pas un dessin
+ * ## A status, not a drawing
  *
- * L'element porte `role="status"` et un libelle ; les cellules sont
- * retirees de l'arbre d'accessibilite. Sous mouvement reduit, elles restent
- * pleines et immobiles : la table vide reste visible, elle ne s'efface pas.
+ * The element carries `role="status"` and a label; the cells are removed from
+ * the accessibility tree. Under reduced motion, they stay solid and still: the
+ * empty table remains visible, it does not fade away.
  *
  * @module
  */
@@ -30,18 +28,18 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-skeleton-table'
 
 /**
- * Longueurs de cellule, en pourcentage de leur colonne.
+ * Cell lengths, as a percentage of their column.
  *
- * Une suite fixe plutot qu'un tirage : le squelette doit etre identique a
- * chaque rendu, sans quoi un simple re-rendu le fait tressaillir.
+ * A fixed sequence rather than a random draw: the skeleton has to be identical
+ * on every render, otherwise a simple re-render makes it flinch.
  */
 const WIDTHS = [86, 58, 72, 44, 64, 92, 52, 78] as const
 
-/** Pose la table, ses filets et l'animation des cellules, une fois par document. */
+/** Sets up the table, its rules and the cell animation, once per document. */
 function ensureSkeletonTableRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -50,8 +48,8 @@ function ensureSkeletonTableRule(): void {
   style.id = STYLE_ID
   style.textContent = [
     '[data-o-sktab]{display:block;width:100%}',
-    // Le filet est ce qui distingue une table d'une grille : il reste
-    // dessine meme quand toutes les cellules sont vides.
+    // The rule is what tells a table apart from a grid: it stays drawn even
+    // when every cell is empty.
     '[data-o-sktab-row]{',
     'display:grid;grid-template-columns:var(--o-sktab-cols);',
     'gap:1rem;align-items:center;padding:var(--o-sktab-pad) 0;',
@@ -63,7 +61,7 @@ function ensureSkeletonTableRule(): void {
     'height:var(--o-sktab-cell);border-radius:var(--o-sktab-radius);',
     'background:color-mix(in oklab,var(--o-theme-line) 72%,var(--o-theme-surface));',
     '}',
-    // L'en-tete est plus dense, a la pleine valeur du filet.
+    // The header is denser, at the full value of the rule.
     '[data-o-sktab-head] [data-o-sktab-cell]{background:var(--o-theme-line)}',
     '[data-o-sktab-shimmer] [data-o-sktab-cell]::after{',
     'content:"";position:absolute;inset:0;',
@@ -86,37 +84,37 @@ function ensureSkeletonTableRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** Props of the component itself. */
 export interface SkeletonTableOwnProps {
-  /** Nombre de rangees de donnees, en-tete exclu. @defaultValue 4 */
+  /** Number of data rows, header excluded. @defaultValue 4 */
   rows?: number
-  /** Nombre de colonnes. @defaultValue 4 */
+  /** Number of columns. @defaultValue 4 */
   columns?: number
-  /** Dessiner une rangee d en-tete plus dense. @defaultValue true */
+  /** Draw a denser header row. @defaultValue true */
   header?: boolean
-  /** Hauteur d'une cellule, en pixels. @defaultValue 10 */
+  /** Height of a cell, in pixels. @defaultValue 10 */
   height?: number
-  /** Rayon des angles d'une cellule, en pixels. @defaultValue 5 */
+  /** Corner radius of a cell, in pixels. @defaultValue 5 */
   radius?: number
-  /** Reflet qui traverse plutot qu'une pulsation d'ensemble. @defaultValue true */
+  /** A reflection crossing over rather than an overall pulse. @defaultValue true */
   shimmer?: boolean
-  /** Duree d'un passage du reflet ou d'une pulsation, en millisecondes. @defaultValue 1600 */
+  /** Duration of one pass of the reflection or of one pulse, in milliseconds. @defaultValue 1600 */
   speed?: number
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement du tableau' */
+  /** Label announced to screen readers. @defaultValue 'Loading table' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All the props. */
 export type SkeletonTableProps = Customisable<SkeletonTableOwnProps, 'div'>
 
 /**
- * Reserve la place d'un tableau de donnees.
+ * Holds the place of a data table.
  *
  * @example
  * <SkeletonTable />
  *
  * @example
- * // Six lignes, trois colonnes, sans en-tete, en pulsation.
+ * // Six rows, three columns, no header, pulsing.
  * <SkeletonTable rows={6} columns={3} header={false} shimmer={false} />
  */
 export function SkeletonTable({
@@ -127,7 +125,7 @@ export function SkeletonTable({
   radius = 5,
   shimmer = true,
   speed = 1600,
-  label = 'Chargement du tableau',
+  label = 'Loading table',
   ...rest
 }: SkeletonTableProps): ReactElement {
   ensureSkeletonTableRule()
@@ -139,7 +137,7 @@ export function SkeletonTable({
 
   const hostStyle = {
     ...style,
-    // La premiere colonne est large : c'est celle qui nomme la rangee.
+    // The first column is wide: it is the one that names the row.
     '--o-sktab-cols': `1.7fr ${Array.from({ length: columnCount - 1 }, () => '1fr').join(' ')}`,
     '--o-sktab-cell': `${String(height)}px`,
     '--o-sktab-pad': `${String(Math.round(height * 1.1))}px`,
@@ -147,7 +145,7 @@ export function SkeletonTable({
     '--o-sktab-speed': `${String(speed)}ms`,
   } as CSSProperties
 
-  /** Une rangee, en-tete ou donnees. */
+  /** One row, header or data. */
   const row = (rank: number, isHead: boolean): ReactElement => (
     <span
       key={isHead ? 'head' : rank}
@@ -161,7 +159,7 @@ export function SkeletonTable({
           data-o-sktab-cell=""
           style={
             {
-              // Le reflet descend la table dans l'ordre de lecture.
+              // The reflection goes down the table in reading order.
               '--o-sktab-delay': `${String(Math.round((speed / 14) * (rank + column)))}ms`,
               width: isHead
                 ? '55%'

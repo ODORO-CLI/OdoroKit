@@ -4,7 +4,7 @@
   "type": "module",
   "license": "UNLICENSED",
   "author": "BouBouw",
-  "description": "Librairie front maison Odoro : router, moteur d'animation, systeme de style et composants UI.",
+  "description": "Odoro in-house front-end library: router, motion engine, style system and UI components.",
   "engines": {
     "node": ">=20"
   },
@@ -43,9 +43,9 @@
       "types": "./dist/styles.d.ts",
       "import": "./dist/styles.js"
     },
-    "./generateur": {
-      "types": "./dist/generateur.d.ts",
-      "import": "./dist/generateur.js"
+    "./generator": {
+      "types": "./dist/generator.d.ts",
+      "import": "./dist/generator.js"
     },
     "./styles.css": "./dist/styles.css",
     "./package.json": "./package.json"

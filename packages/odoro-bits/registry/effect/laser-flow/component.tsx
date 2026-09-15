@@ -1,30 +1,30 @@
 /**
- * Balayage laser : un faisceau traverse le cadre en boucle.
+ * Laser sweep: a beam crosses the frame on a loop.
  *
- * ## Ce qui le distingue du trait de bordure
+ * ## What sets it apart from the border stroke
  *
- * Le trait de bordure court **le long** du contour ; ce faisceau-ci traverse
- * la surface **de part en part**. L'un souligne une carte parmi ses voisines,
- * l'autre donne l'impression qu'une machine est en train de lire ce qu'elle
- * contient. Ils ne se remplacent pas, et se posent meme ensemble.
+ * The border stroke runs **along** the outline; this beam crosses the surface
+ * **from side to side**. One underlines a card among its neighbours, the other
+ * gives the impression that a machine is reading what it contains. They do not
+ * replace one another, and can even be laid together.
  *
- * ## Deux couches, parce qu'un laser n'est pas un trait
+ * ## Two layers, because a laser is not a stroke
  *
- * Un seul rectangle clair donne un rendu de separateur, pas de lumiere. Ce
- * qui fait le laser, c'est le contraste entre un coeur net de deux pixels et
- * une nappe cent fois plus large, floue et pale, qui l'accompagne. Les deux
- * voyagent ensemble dans le meme rail.
+ * A single bright rectangle reads as a separator, not as light. What makes the
+ * laser is the contrast between a crisp two-pixel core and a sheet a hundred
+ * times wider, blurred and pale, that accompanies it. Both travel together in
+ * the same track.
  *
- * ## Pourquoi un rail plutot qu'un deplacement du faisceau
+ * ## Why a track rather than a displacement of the beam
  *
- * Un pourcentage de `translate` se rapporte a l'element deplace. Anime sur le
- * faisceau — large de deux pixels — il faudrait des milliers de pourcents, et
- * la valeur dependrait de l'epaisseur reglee. Le rail, lui, fait exactement la
- * taille du cadre : le deplacer de moitie deplace le faisceau d'une demi-
- * largeur de cadre, quelle que soit son epaisseur.
+ * A `translate` percentage refers to the element being moved. Animated on the
+ * beam — two pixels wide — it would take thousands of percent, and the value
+ * would depend on the thickness that was set. The track, on the other hand, is
+ * exactly the size of the frame: moving it by half moves the beam by half a
+ * frame width, whatever its thickness.
  *
- * Sous mouvement reduit, aucun faisceau : un balayage n'a pas d'etat final,
- * seul son passage existe. Le filet de contour, lui, reste.
+ * Under reduced motion, no beam: a sweep has no final state, only its passage
+ * exists. The outline hairline, however, stays.
  *
  * @module
  */
@@ -32,31 +32,31 @@
 import { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'
 import { type CSSProperties, type ReactElement, type ReactNode } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface LaserFlowOwnProps {
-  /** Contenu balaye. */
+  /** Swept content. */
   children: ReactNode
-  /** Duree d'une traversee, en millisecondes. @defaultValue 3200 */
+  /** Duration of one crossing, in milliseconds. @defaultValue 3200 */
   duration?: number
-  /** Inclinaison du faisceau, en degres. @defaultValue 14 */
+  /** Tilt of the beam, in degrees. @defaultValue 14 */
   angle?: number
-  /** Epaisseur du trait net, en pixels. @defaultValue 2 */
+  /** Thickness of the crisp stroke, in pixels. @defaultValue 2 */
   width?: number
-  /** Largeur de la nappe diffuse, en pixels. @defaultValue 90 */
+  /** Width of the diffuse sheet, in pixels. @defaultValue 90 */
   glow?: number
-  /** Couleur du faisceau. @defaultValue la teinte de marque */
+  /** Colour of the beam. @defaultValue the brand hue */
   color?: string
-  /** Allume aussi un filet sur le contour du cadre. @defaultValue true */
+  /** Also lights a hairline on the outline of the frame. @defaultValue true */
   frame?: boolean
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type LaserFlowProps = Customisable<LaserFlowOwnProps>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-laser-flow'
 
-/** Pose les regles du faisceau, une fois par document. */
+/** Sets the beam rules, once per document. */
 function ensureLaserRules(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -65,8 +65,8 @@ function ensureLaserRules(): void {
   style.id = STYLE_ID
   style.textContent = [
     '[data-o-laser]{position:relative;isolation:isolate}',
-    // Le rail fait la taille du cadre : un pourcent de son deplacement vaut
-    // un pourcent de la largeur, et non de l'epaisseur du faisceau.
+    // The track is the size of the frame: one percent of its displacement is
+    // one percent of the width, and not of the thickness of the beam.
     '[data-o-laser-track]{',
     'position:absolute;inset:0;pointer-events:none;',
     'animation:o-laser var(--o-laser-duration) linear infinite',
@@ -75,8 +75,8 @@ function ensureLaserRules(): void {
     'from{transform:translate3d(-58%,0,0)}',
     'to{transform:translate3d(58%,0,0)}',
     '}',
-    // Les deux couches partent du milieu du rail et debordent en hauteur :
-    // l'inclinaison ne doit jamais decouvrir leurs extremites.
+    // Both layers start from the middle of the track and overflow in height:
+    // the tilt must never uncover their ends.
     '[data-o-laser-beam]{',
     'position:absolute;top:-60%;height:220%;left:50%;',
     'transform:rotate(var(--o-laser-angle))',
@@ -100,15 +100,15 @@ function ensureLaserRules(): void {
 }
 
 /**
- * Fait traverser un faisceau sur son contenu.
+ * Sends a beam across its content.
  *
  * @example
  * <LaserFlow className="o-rounded-xl o-overflow-hidden o-p-8">
- *   <h3>Analyse en cours</h3>
+ *   <h3>Analysis in progress</h3>
  * </LaserFlow>
  *
  * @example
- * // Un balayage lent et large, sans filet de contour.
+ * // A slow and wide sweep, with no outline hairline.
  * <LaserFlow duration={7000} glow={220} frame={false} angle={-24}>
  *   <pre>…</pre>
  * </LaserFlow>

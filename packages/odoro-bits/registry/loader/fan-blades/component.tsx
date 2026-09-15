@@ -1,32 +1,30 @@
 /**
- * Pales de ventilateur : des pales courbes tournent a vitesse constante
- * dans un carter circulaire, autour d'un moyeu.
+ * Fan blades: curved blades turn at a constant speed inside a circular guard,
+ * around a hub.
  *
- * ## Une pale, dessinee une fois
+ * ## One blade, drawn once
  *
- * La pale est un seul trace : elle part du moyeu, s'evase en courbe vers
- * le carter et revient par une courbe plus tendue. Ce dessin en faucille
- * est ce qui la distingue d'un petale ou d'un triangle : une pale a un bord
- * d'attaque et un bord de fuite, et l'oeil lit le sens de rotation avant
- * meme qu'elle bouge. Les autres pales sont des copies tournees d'un
- * angle egal autour du moyeu.
+ * The blade is a single path: it leaves the hub, flares out in a curve towards
+ * the guard and comes back on a tighter curve. That sickle drawing is what
+ * tells it apart from a petal or a triangle: a blade has a leading edge and a
+ * trailing edge, and the eye reads the direction of rotation before it even
+ * moves. The other blades are copies turned by an equal angle around the hub.
  *
- * La rotation est lineaire, a dessein. Un ventilateur en marche ne
- * s'essouffle pas ; c'est `pinwheel` qui tourne par rafales. Le carter et
- * le moyeu ne bougent pas : ils donnent le cadre dans lequel la rotation se
- * mesure.
+ * The rotation is linear, on purpose. A running fan does not run out of
+ * breath; it is `pinwheel` that turns in gusts. The guard and the hub do not
+ * move: they give the frame within which the rotation is measured.
  *
- * Une seule animation, sur le groupe des pales, tenue par le compositeur.
- * Aucun JavaScript apres le premier rendu.
+ * A single animation, on the group of blades, held by the compositor. No
+ * JavaScript after the first render.
  *
- * ## Un statut, pas un dessin
+ * ## A status, not a drawing
  *
- * L'element porte `role="status"` et un libelle pour les lecteurs d'ecran :
- * l'attente est une information, pas une decoration. Le dessin est retire
- * de l'arbre d'accessibilite.
+ * The element carries `role="status"` and a label for screen readers: the wait
+ * is information, not decoration. The drawing is removed from the
+ * accessibility tree.
  *
- * Sous mouvement reduit, les pales restent immobiles dans leur carter : la
- * figure se lit encore comme un chargeur, seul le mouvement s'arrete.
+ * Under reduced motion, the blades stay still inside their guard: the figure
+ * still reads as a loader, only the motion stops.
  *
  * @module
  */
@@ -34,17 +32,17 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-fan-blades'
 
 /**
- * Une pale pointant vers le haut, du moyeu (50, 50) au carter, dans une
- * vue de 100 unites. Le bord d'attaque est la courbe large, le bord de
- * fuite la courbe tendue qui revient au moyeu.
+ * A blade pointing upwards, from the hub (50, 50) to the guard, in a view of
+ * 100 units. The leading edge is the wide curve, the trailing edge the tight
+ * curve that comes back to the hub.
  */
 const BLADE = 'M 50 50 C 36 30 52 6 72 16 C 82 24 76 44 50 50 Z'
 
-/** Pose le ventilateur et sa rotation, une fois par document. */
+/** Sets the fan and its rotation, once per document. */
 function ensureFanRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -67,31 +65,31 @@ function ensureFanRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface FanBladesOwnProps {
-  /** Diametre du carter, en pixels. @defaultValue 48 */
+  /** Diameter of the guard, in pixels. @defaultValue 48 */
   size?: number
-  /** Nombre de pales. @defaultValue 3 */
+  /** Number of blades. @defaultValue 3 */
   blades?: number
-  /** Duree d'un tour, en millisecondes. @defaultValue 1400 */
+  /** Duration of one turn, in milliseconds. @defaultValue 1400 */
   speed?: number
-  /** Couleur des pales, du moyeu et du carter. @defaultValue la couleur du texte */
+  /** Colour of the blades, the hub and the guard. @defaultValue the text colour */
   color?: string
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */
+  /** Label announced to screen readers. @defaultValue 'Loading' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All the properties. */
 export type FanBladesProps = Customisable<FanBladesOwnProps, 'span'>
 
 /**
- * Signale une attente par des pales qui tournent dans leur carter.
+ * Signals a wait with blades turning inside their guard.
  *
  * @example
  * <FanBlades />
  *
  * @example
- * // Cinq pales, plus vite, dans la teinte de marque.
+ * // Five blades, faster, in the brand hue.
  * <FanBlades blades={5} speed={900} color="var(--o-palette-brand-500)" />
  */
 export function FanBlades({
@@ -99,7 +97,7 @@ export function FanBlades({
   blades = 3,
   speed = 1400,
   color = 'currentColor',
-  label = 'Chargement',
+  label = 'Loading',
   ...rest
 }: FanBladesProps): ReactElement {
   ensureFanRule()

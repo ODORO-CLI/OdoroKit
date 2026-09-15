@@ -1,33 +1,33 @@
 /**
- * Shader de la poussiere.
+ * Shader for the dust.
  *
- * ## L'idee mathematique
+ * ## The mathematical idea
  *
- * Deux choses : un rai et des grains. Le rai est une bande douce autour d'une
- * droite oblique passant par le centre, mesuree en distance signee a cette
- * droite ; il s'evase en s'eloignant de sa source et perd de sa force, comme
- * un faisceau qui entre par une fenetre. Un bruit de valeur lent le module,
- * pour qu'il ait la texture de l'air plutot que celle d'un aplat.
+ * Two things: a shaft and motes. The shaft is a soft band around an oblique
+ * line through the centre, measured as a signed distance to that line; it
+ * widens as it moves away from its source and loses its strength, like a beam
+ * coming in through a window. A slow value noise modulates it, so that it has
+ * the texture of air rather than that of a flat fill.
  *
- * Les grains sont haches par cellule sur trois couches, et derivent sur une
- * somme de sinus de frequences non multiples — une marche brownienne
- * approchee, sans etat a conserver. Ce qui fait la poussiere, c'est que les
- * grains ne se voient que dans le rai : leur lumiere est multipliee par
- * l'intensite du faisceau a leur position — celle du grain, pas celle du
- * fragment, pour qu'un grain entre dans la lumiere d'un bloc.
+ * The motes are hashed per cell across three layers, and drift along a sum of
+ * sines of non-multiple frequencies — an approximated Brownian walk, with no
+ * state to keep. What makes it dust is that the motes are only visible inside
+ * the shaft: their light is multiplied by the intensity of the beam at their
+ * position — the mote's, not the fragment's, so that a mote enters the light
+ * as one whole.
  *
  * ## Uniforms
  *
- * - `uTime` — temps en secondes, fourni par le moteur.
- * - `uResolution` — taille du canevas en pixels, fournie par le moteur.
- * - `uColorA` — l'ombre de la piece.
- * - `uColorB` — la teinte du rai.
- * - `uColorC` — les grains dans la lumiere.
- * - `uSpeed` — vitesse de la derive des grains.
- * - `uDensity` — nombre de cellules sur la hauteur, pour la couche proche.
- * - `uAngle` — inclinaison du rai, en degres.
- * - `uWidth` — demi-largeur du rai, en hauteurs de cadre.
- * - `uLayers` — nombre de couches evaluees, et donc le cout.
+ * - `uTime` — time in seconds, supplied by the engine.
+ * - `uResolution` — canvas size in pixels, supplied by the engine.
+ * - `uColorA` — the shadow of the room.
+ * - `uColorB` — the hue of the shaft.
+ * - `uColorC` — the motes in the light.
+ * - `uSpeed` — drift speed of the motes.
+ * - `uDensity` — number of cells over the height, for the near layer.
+ * - `uAngle` — tilt of the shaft, in degrees.
+ * - `uWidth` — half-width of the shaft, in frame heights.
+ * - `uLayers` — number of layers evaluated, and so the cost.
  */
 export const DUST_FRAGMENT = /* glsl */ `
 precision highp float;
@@ -45,42 +45,42 @@ uniform float uAngle;
 uniform float uWidth;
 uniform float uLayers;
 
-// Nombre pseudo-aleatoire : projection sur une direction arbitraire, sinus
-// amplifie, partie fractionnaire.
-float poussiereHash(vec2 p) {
+// Pseudo-random number: projection onto an arbitrary direction, amplified
+// sine, fractional part.
+float dustHash(vec2 p) {
   return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
 }
 
-// Deux nombres decorreles pour une meme cellule.
-vec2 poussiereHash2(vec2 p) {
-  return vec2(poussiereHash(p), poussiereHash(p + vec2(37.3, 17.7)));
+// Two decorrelated numbers for the same cell.
+vec2 dustHash2(vec2 p) {
+  return vec2(dustHash(p), dustHash(p + vec2(37.3, 17.7)));
 }
 
-// Bruit de valeur : interpolation lissee entre les quatre coins de la cellule.
-float poussiereNoise(vec2 p) {
+// Value noise: smoothed interpolation between the cell's four corners.
+float dustNoise(vec2 p) {
   vec2 cell = floor(p);
   vec2 local = fract(p);
   vec2 smoothed = local * local * (3.0 - 2.0 * local);
 
-  float a = poussiereHash(cell);
-  float b = poussiereHash(cell + vec2(1.0, 0.0));
-  float c = poussiereHash(cell + vec2(0.0, 1.0));
-  float d = poussiereHash(cell + vec2(1.0, 1.0));
+  float a = dustHash(cell);
+  float b = dustHash(cell + vec2(1.0, 0.0));
+  float c = dustHash(cell + vec2(0.0, 1.0));
+  float d = dustHash(cell + vec2(1.0, 1.0));
 
   return mix(mix(a, b, smoothed.x), mix(c, d, smoothed.x), smoothed.y);
 }
 
-// Intensite du rai en un point, en coordonnees centrees.
-float rai(vec2 c, vec2 dir, vec2 nrm) {
+// Intensity of the shaft at a point, in centred coordinates.
+float shaft(vec2 c, vec2 dir, vec2 nrm) {
   float across = dot(c, nrm);
   float along = dot(c, dir);
 
-  // Le faisceau s'evase en s'eloignant de sa source, et s'affaiblit.
-  float largeur = max(uWidth, 0.02) * (0.7 + 0.5 * smoothstep(-1.0, 1.0, along));
-  float bande = 1.0 - smoothstep(largeur * 0.3, largeur, abs(across));
-  float force = 0.55 + 0.45 * smoothstep(1.0, -0.6, along);
+  // The beam widens as it moves away from its source, and weakens.
+  float width = max(uWidth, 0.02) * (0.7 + 0.5 * smoothstep(-1.0, 1.0, along));
+  float band = 1.0 - smoothstep(width * 0.3, width, abs(across));
+  float strength = 0.55 + 0.45 * smoothstep(1.0, -0.6, along);
 
-  return bande * force;
+  return band * strength;
 }
 
 void main() {
@@ -94,45 +94,45 @@ void main() {
   vec2 dir = vec2(cos(rad), sin(rad));
   vec2 nrm = vec2(-dir.y, dir.x);
 
-  // Le voile du rai : sa texture est un bruit lent, l'air qui bouge dedans.
-  float voile = rai(uv - centre, dir, nrm);
-  float air = 0.7 + 0.3 * poussiereNoise(uv * 3.0 + vec2(t * 0.06, -t * 0.03));
-  vec3 colour = uColorA + uColorB * voile * air * 0.35;
+  // The veil of the shaft: its texture is a slow noise, the air moving inside.
+  float veil = shaft(uv - centre, dir, nrm);
+  float air = 0.7 + 0.3 * dustNoise(uv * 3.0 + vec2(t * 0.06, -t * 0.03));
+  vec3 colour = uColorA + uColorB * veil * air * 0.35;
 
   for (int layer = 0; layer < 3; layer += 1) {
     if (layer >= layers) break;
     float depth = float(layer);
     float scale = max(uDensity, 2.0) * (1.0 + depth * 0.6);
 
-    // Les grains tombent a peine : l'air les porte plus qu'il ne les lache.
+    // The motes barely fall: the air carries them more than it drops them.
     vec2 drift = vec2(t * 0.015, t * 0.03) * (1.0 - depth * 0.25);
     vec2 p = uv * scale + drift;
     vec2 cell = floor(p);
 
     for (int dx = -1; dx <= 1; dx += 1) {
       for (int dy = -1; dy <= 1; dy += 1) {
-        vec2 voisine = cell + vec2(float(dx), float(dy));
-        vec2 graine = poussiereHash2(voisine + depth * 59.0);
-        float exists = step(0.3, poussiereHash(voisine + 9.0 + depth));
+        vec2 neighbour = cell + vec2(float(dx), float(dy));
+        vec2 seed = dustHash2(neighbour + depth * 59.0);
+        float exists = step(0.3, dustHash(neighbour + 9.0 + depth));
 
-        // Marche brownienne approchee : deux sinus par axe, frequences non
-        // multiples, phases hachees.
-        vec2 errance = 0.35 * vec2(
-          sin(t * 0.31 + graine.x * 6.28318) + 0.5 * sin(t * 0.83 + graine.y * 4.0),
-          cos(t * 0.27 + graine.y * 6.28318) + 0.5 * cos(t * 0.71 + graine.x * 5.0)
+        // Approximated Brownian walk: two sines per axis, non-multiple
+        // frequencies, hashed phases.
+        vec2 wander = 0.35 * vec2(
+          sin(t * 0.31 + seed.x * 6.28318) + 0.5 * sin(t * 0.83 + seed.y * 4.0),
+          cos(t * 0.27 + seed.y * 6.28318) + 0.5 * cos(t * 0.71 + seed.x * 5.0)
         );
-        vec2 centreP = voisine + 0.5 + errance;
+        vec2 moteCentre = neighbour + 0.5 + wander;
 
-        // Le grain n'est visible que dans la lumiere : le rai est lu a sa
-        // position, pas a celle du fragment.
-        vec2 monde = (centreP - drift) / scale;
-        float lumiere = mix(0.06, 1.0, rai(monde - centre, dir, nrm));
+        // The mote is only visible inside the light: the shaft is read at its
+        // position, not at the fragment's.
+        vec2 world = (moteCentre - drift) / scale;
+        float light = mix(0.06, 1.0, shaft(world - centre, dir, nrm));
 
-        float d = length(p - centreP);
-        float size = (0.03 + 0.04 * graine.x) * (1.0 - depth * 0.3);
+        float d = length(p - moteCentre);
+        float size = (0.03 + 0.04 * seed.x) * (1.0 - depth * 0.3);
         float halo = exp(-d * d / (size * size));
 
-        colour += uColorC * halo * lumiere * exists * (0.9 - depth * 0.3);
+        colour += uColorC * halo * light * exists * (0.9 - depth * 0.3);
       }
     }
   }

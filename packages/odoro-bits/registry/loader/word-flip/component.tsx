@@ -1,37 +1,35 @@
 /**
- * Mots qui se retournent : un tambour de mots en 3D, dont le mot courant
- * bascule vers le bas pendant que le suivant descend a sa place.
+ * Words that flip: a 3D drum of words, where the current word tips downwards
+ * while the next one comes down into its place.
  *
- * ## Un tambour, pas une pile de cartes
+ * ## A drum, not a stack of cards
  *
- * Faire tourner chaque mot separement demande autant d'animations que de
- * mots, et leurs images-cles dependent toutes du nombre total : le mot trois
- * doit entrer quand le mot deux sort. Ici les mots sont les faces d'un prisme
- * dont l'axe est horizontal, et c'est le prisme qui tourne. Une seule
- * animation, un seul objet, et les faces se relaient d'elles-memes par la
- * geometrie.
+ * Turning each word separately takes as many animations as there are words,
+ * and their keyframes all depend on the total count: word three has to enter
+ * when word two leaves. Here the words are the faces of a prism whose axis is
+ * horizontal, and it is the prism that turns. One animation, one object, and
+ * the faces relieve one another by geometry alone.
  *
- * Le rayon du prisme est calcule pour que les faces se touchent par leurs
- * bords : chaque face est a la distance du centre qui fait qu'un polygone
- * regulier a autant de cotes se referme. Deux mots donnent une piece a deux
- * faces, dos a dos ; trois, un prisme triangulaire ; et ainsi de suite. Les
- * faces tournees vers l'arriere sont cachees, et le cadre rogne ce qui
- * depasse de la ligne : on ne voit jamais qu'un mot, et le passage de l'un
- * a l'autre.
+ * The radius of the prism is computed so that the faces meet edge to edge:
+ * each face sits at the distance from the centre that makes a regular polygon
+ * with as many sides close up. Two words give a piece with two faces, back to
+ * back; three, a triangular prism; and so on. The faces turned towards the
+ * back are hidden, and the frame clips whatever overflows the line: one never
+ * sees more than one word, and the passage from one to the other.
  *
- * Le tambour tourne par crans, avec une pause sur chaque mot : sans les
- * paliers, on ne lirait jamais un mot entier. Les images-cles dependent du
- * nombre de faces, elles sont donc engendrees une fois par nombre de faces
- * rencontre, et non par composant.
+ * The drum turns in notches, with a pause on each word: without the landings,
+ * one would never read a whole word. The keyframes depend on the number of
+ * faces, so they are generated once per face count encountered, and not per
+ * component.
  *
- * ## Un statut, pas un dessin
+ * ## A status, not a drawing
  *
- * L'element porte `role="status"` et un libelle pour les lecteurs d'ecran.
- * Les faces sont retirees de l'arbre d'accessibilite : elles sont toutes
- * dans le document, et un lecteur d'ecran les enchainerait en une phrase.
+ * The element carries `role="status"` and a label for screen readers. The
+ * faces are removed from the accessibility tree: they are all in the
+ * document, and a screen reader would run them together into one sentence.
  *
- * Sous mouvement reduit, le tambour est a l'arret sur son premier mot : il
- * se lit encore comme une attente, seule la bascule s'arrete.
+ * Under reduced motion, the drum sits still on its first word: it still reads
+ * as a wait, only the flipping stops.
  *
  * @module
  */
@@ -39,16 +37,16 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Id of the injected stylesheet. */
 const STYLE_ID = 'o-word-flip'
 
-/** Part de chaque cran passee a l'arret sur le mot. */
+/** Share of each notch spent standing still on the word. */
 const HOLD_SHARE = 0.68
 
-/** Hauteur d'une face, en em du corps. */
+/** Height of one face, in em of the body size. */
 const LINE = 1.4
 
-/** Pose le cadre, le tambour et ses faces, une fois par document. */
+/** Sets the frame, the drum and its faces, once per document. */
 function ensureWordFlipRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -59,8 +57,8 @@ function ensureWordFlipRule(): void {
     '[data-o-wf]{',
     'display:inline-block;overflow:hidden;white-space:nowrap;vertical-align:middle;',
     'font-weight:600;font-size:var(--o-wf-size);color:var(--o-wf-color);',
-    // Le point de fuite est proche : un tambour vu de loin se lirait comme
-    // un simple glissement vertical.
+    // The vanishing point is close: a drum seen from afar would read as a
+    // plain vertical slide.
     'perspective:calc(var(--o-wf-h) * 5);',
     '}',
     '[data-o-wf-drum]{',
@@ -68,8 +66,8 @@ function ensureWordFlipRule(): void {
     'transform-style:preserve-3d;',
     'animation:var(--o-wf-drum) var(--o-wf-cycle) cubic-bezier(0.65,0,0.35,1) infinite;',
     '}',
-    // Le plus long des mots, invisible, tient la largeur : les faces sont
-    // hors flux et ne mesurent rien.
+    // The longest of the words, invisible, holds the width: the faces are out
+    // of flow and measure nothing.
     '[data-o-wf-sizer]{display:block;height:var(--o-wf-h);visibility:hidden;padding:0 0.15em}',
     '[data-o-wf-face]{',
     'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;',
@@ -84,11 +82,11 @@ function ensureWordFlipRule(): void {
 }
 
 /**
- * Pose les images-cles d'un tambour a `faces` faces, une fois par document
- * et par nombre de faces.
+ * Sets the keyframes of a drum with `faces` faces, once per document and per
+ * face count.
  *
- * Chaque cran : un palier sur le mot, puis un tour d'un n-ieme jusqu'au
- * suivant. Le dernier cran ramene a un tour complet, et la boucle est
+ * Each notch: a landing on the word, then a turn of one nth up to the next
+ * one. The last notch brings it back to a full turn, and the loop is
  * invisible.
  */
 function ensureWordFlipDrumRule(faces: number): void {
@@ -111,42 +109,42 @@ function ensureWordFlipDrumRule(faces: number): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to the component. */
 export interface WordFlipOwnProps {
-  /** Le premier mot du tambour, celui affiche au repos. @defaultValue 'Chargement' */
+  /** The first word of the drum, the one shown at rest. @defaultValue 'Loading' */
   text?: string
-  /** Les mots suivants, separes par des virgules. @defaultValue 'Un instant,Presque la' */
+  /** The following words, separated by commas. @defaultValue 'Un instant,Presque la' */
   words?: string
-  /** Corps du texte, en pixels. @defaultValue 18 */
+  /** Body size of the text, in pixels. @defaultValue 18 */
   size?: number
-  /** Temps passe sur chaque mot, la bascule comprise, en millisecondes. @defaultValue 1400 */
+  /** Time spent on each word, the flip included, in milliseconds. @defaultValue 1400 */
   speed?: number
-  /** Couleur du texte. @defaultValue la couleur du texte */
+  /** Colour of the text. @defaultValue the text colour */
   color?: string
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */
+  /** Label announced to screen readers. @defaultValue 'Loading' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type WordFlipProps = Customisable<WordFlipOwnProps, 'span'>
 
 /**
- * Signale une attente par des mots qui se relaient sur un tambour.
+ * Signals a wait with words relieving one another on a drum.
  *
  * @example
  * <WordFlip />
  *
  * @example
- * // Ses propres etapes, plus lentes, dans la teinte de marque.
+ * // Its own steps, slower, in the brand hue.
  * <WordFlip text="Envoi" words="Verification,Termine" speed={2000} color="var(--o-palette-brand-500)" />
  */
 export function WordFlip({
-  text = 'Chargement',
+  text = 'Loading',
   words = 'Un instant,Presque la',
   size = 18,
   speed = 1400,
   color = 'currentColor',
-  label = 'Chargement',
+  label = 'Loading',
   ...rest
 }: WordFlipProps): ReactElement {
   const faces = [
@@ -156,8 +154,8 @@ export function WordFlip({
       .map((word) => word.trim())
       .filter((word) => word.length > 0),
   ]
-  // Une seule face ne peut pas se relayer : on la double, et le tambour
-  // devient une piece qui montre deux fois le meme mot.
+  // A single face cannot relieve itself: we double it, and the drum becomes a
+  // piece that shows the same word twice.
   if (faces.length < 2) faces.push(text)
 
   ensureWordFlipRule()
@@ -166,8 +164,8 @@ export function WordFlip({
   const { className, style } = mergePresentation({}, rest)
 
   const lineHeight = size * LINE
-  // Le rayon qui referme le polygone : deux faces sont dos a dos, sans
-  // epaisseur ; au-dela, chaque face est a la distance de l'apotheme.
+  // The radius that closes the polygon: two faces are back to back, with no
+  // thickness; beyond that, each face sits at the apothem's distance.
   const radius =
     faces.length === 2 ? 0 : lineHeight / 2 / Math.tan(Math.PI / faces.length)
   const longest = faces.reduce((a, b) => (b.length > a.length ? b : a), '')

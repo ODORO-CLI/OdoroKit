@@ -1,19 +1,19 @@
 /**
- * Ondes : des bandes qui ondulent et se replient.
+ * Waves: bands that ripple and fold back on themselves.
  *
- * ## Ce que ce composant apporte, et ce qu'il delegue
+ * ## What this component brings, and what it delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur — les recopier ici en ferait autant
- * de versions a maintenir qu'il y a de fonds.
+ * It carries only what sets it apart: its shader, its settings and its
+ * fallback. Reading the tokens, converting them to floats and re-reading them
+ * when the theme changes all come from the engine — copying that here would
+ * leave as many versions to maintain as there are backgrounds.
  *
- * ## Le repli n'est pas une precaution
+ * ## The fallback is not a precaution
  *
- * C'est la moitie du composant. Il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en
- * accorde qu'une par backend — et sous mouvement reduit, ou un fond anime
- * n'apporte rien d'autre que son mouvement.
+ * It is half the component. It is shown while the backend loads, when WebGL
+ * is missing, when the arbiter refuses the surface — it grants only one per
+ * backend — and under reduced motion, where an animated background brings
+ * nothing but its motion.
  *
  * @module
  */
@@ -29,46 +29,46 @@ import {
 } from '@odoro-cli/engine'
 import { type ReactElement } from 'react'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface WavesControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to this component. */
 export interface WavesOwnProps {
-  /** Vitesse de l'ondulation. @defaultValue 0.25 */
+  /** Speed of the ripple. @defaultValue 0.25 */
   speed?: number
-  /** Nombre de bandes. Borne a huit par le shader. @defaultValue 5 */
+  /** Number of bands. Capped at eight by the shader. @defaultValue 5 */
   bands?: number
-  /** Hauteur de l'ondulation. @defaultValue 0.12 */
+  /** Height of the ripple. @defaultValue 0.12 */
   amplitude?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<WavesControls>
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type WavesProps = Customisable<WavesOwnProps>
 
-/** Tokens employes par defaut. */
+/** Tokens used by default. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-brand-500',
   '--o-palette-fuchsia-500',
 ] as const
 
-/** Repli par defaut : un degrade fige, dans les memes tons. */
+/** Default fallback: a frozen gradient, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-b o-from-zinc-50 dark:o-from-zinc-950 o-to-brand-900'
 
 /**
- * Ondes : des bandes qui ondulent et se replient.
+ * Waves: bands that ripple and fold back on themselves.
  *
  * @example
  * <div className="o-relative o-min-h-screen">
@@ -89,9 +89,9 @@ export function Waves({
     fragment: WAVES_FRAGMENT,
     colors,
     uniforms: { uSpeed: speed, uScale: bands, uAmplitude: amplitude },
-    name: 'ondes',
-    // En qualite basse, la densite est bornee : c'est le seul reglage qui
-    // pese vraiment, et le motif reste reconnaissable une fois reduit.
+    name: 'waves',
+    // At low quality the density is capped: it is the only setting that
+    // really weighs, and the pattern stays recognisable once reduced.
     degrade: (quality) => ({ uScale: quality === 'low' ? Math.min(bands, 3) : bands }),
   })
 

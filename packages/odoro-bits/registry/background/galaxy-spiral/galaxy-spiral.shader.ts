@@ -1,33 +1,33 @@
 /**
- * Shader de la galaxie spirale.
+ * Spiral galaxy shader.
  *
- * ## L'idee mathematique
+ * ## The mathematical idea
  *
- * Le plan est lu en polaire depuis le centre, puis tordu : l'angle est
- * augmente du logarithme du rayon fois une torsion. Dans ce domaine, une
- * droite radiale devient une spirale logarithmique — la forme des bras
- * observes — et un cosinus de l'angle tordu, eleve a une puissance, donne
- * les bras eux-memes : brillants sur la crete, presque vides entre deux.
+ * The plane is read in polar form from the centre, then twisted: the angle
+ * is increased by the logarithm of the radius times a twist. In that
+ * domain, a radial straight line becomes a logarithmic spiral — the shape
+ * of the observed arms — and a cosine of the twisted angle, raised to a
+ * power, gives the arms themselves: bright on the crest, nearly empty between.
  *
- * Les points sont haches par cellule dans ce domaine tordu, mais leur halo
- * est mesure en distance reelle apres retour au plan : un disque reste un
- * disque, la ou une distance mesuree dans le domaine polaire donnerait des
- * points de plus en plus etires vers le bord. Le domaine angulaire est
- * periodique par construction — les cellules sont prises modulo leur nombre —
- * pour que la couture de l'arc-tangente ne se voie jamais.
+ * The points are hashed per cell in that twisted domain, but their halo is
+ * measured in real distance after the return to the plane: a disc stays a
+ * disc, where a distance measured in the polar domain would give points
+ * ever more stretched towards the edge. The angular domain is periodic by
+ * construction — the cells are taken modulo their number — so that the seam
+ * of the arc tangent is never seen.
  *
  * ## Uniforms
  *
- * - `uTime` — temps en secondes, fourni par le moteur.
- * - `uResolution` — taille du canevas en pixels, fournie par le moteur.
- * - `uColorA` — le fond.
- * - `uColorB` — les points des bras.
- * - `uColorC` — le coeur et les points proches du coeur.
- * - `uSpeed` — vitesse de la rotation.
- * - `uArms` — nombre de bras.
- * - `uTwist` — torsion des bras ; plus haut, plus enroules.
- * - `uDensity` — nombre de cellules radiales.
- * - `uLayers` — nombre de couches evaluees, et donc le cout.
+ * - `uTime` — time in seconds, supplied by the engine.
+ * - `uResolution` — canvas size in pixels, supplied by the engine.
+ * - `uColorA` — the background.
+ * - `uColorB` — the points of the arms.
+ * - `uColorC` — the core and the points near the core.
+ * - `uSpeed` — speed of the rotation.
+ * - `uArms` — number of arms.
+ * - `uTwist` — twist of the arms; higher means more tightly wound.
+ * - `uDensity` — number of radial cells.
+ * - `uLayers` — number of layers evaluated, and so the cost.
  */
 export const GALAXY_SPIRAL_FRAGMENT = /* glsl */ `
 precision highp float;
@@ -45,15 +45,15 @@ uniform float uTwist;
 uniform float uDensity;
 uniform float uLayers;
 
-// Nombre pseudo-aleatoire : projection sur une direction arbitraire, sinus
-// amplifie, partie fractionnaire.
-float galaxieHash(vec2 p) {
+// Pseudo-random number: projection onto an arbitrary direction, amplified
+// sine, fractional part.
+float galaxyHash(vec2 p) {
   return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
 }
 
-// Deux nombres decorreles pour une meme cellule.
-vec2 galaxieHash2(vec2 p) {
-  return vec2(galaxieHash(p), galaxieHash(p + vec2(37.3, 17.7)));
+// Two decorrelated numbers for the same cell.
+vec2 galaxyHash2(vec2 p) {
+  return vec2(galaxyHash(p), galaxyHash(p + vec2(37.3, 17.7)));
 }
 
 void main() {
@@ -61,8 +61,8 @@ void main() {
   vec2 uv = (vUv - 0.5) * vec2(aspect, 1.0);
   float t = uTime * uSpeed;
 
-  // La rotation d'ensemble : lente, et c'est le plan qui tourne, pas les
-  // points un a un — un seul cosinus pour toute l'image.
+  // The overall rotation: slow, and it is the plane that turns, not the
+  // points one by one — a single cosine for the whole picture.
   float c = cos(t * 0.12);
   float s = sin(t * 0.12);
   vec2 v = mat2(c, -s, s, c) * uv;
@@ -79,8 +79,8 @@ void main() {
     float depth = float(layer);
     float scale = max(uDensity, 4.0) * (1.0 + depth * 0.9);
 
-    // Nombre entier de cellules angulaires : c'est ce qui rend le domaine
-    // periodique et efface la couture de l'arc-tangente.
+    // A whole number of angular cells: that is what makes the domain periodic
+    // and erases the seam of the arc tangent.
     float K = floor(scale * 1.2);
 
     float phi = a + uTwist * log(max(r, 0.02));
@@ -89,39 +89,39 @@ void main() {
 
     for (int dx = -1; dx <= 1; dx += 1) {
       for (int dy = -1; dy <= 1; dy += 1) {
-        vec2 voisine = cell + vec2(float(dx), float(dy));
-        vec2 cle = vec2(voisine.x, mod(voisine.y, K)) + depth * 47.0;
-        vec2 graine = galaxieHash2(cle);
-        float exists = step(0.3, galaxieHash(cle + 5.0));
+        vec2 neighbour = cell + vec2(float(dx), float(dy));
+        vec2 key = vec2(neighbour.x, mod(neighbour.y, K)) + depth * 47.0;
+        vec2 seed = galaxyHash2(key);
+        float exists = step(0.3, galaxyHash(key + 5.0));
 
-        // Position dans le domaine tordu, avec une derive lente propre.
-        vec2 centreQ = voisine + 0.5
-          + 0.36 * vec2(sin(t * 0.4 + graine.x * 6.28318), cos(t * 0.33 + graine.y * 6.28318));
+        // Position in the twisted domain, with a slow drift of its own.
+        vec2 centreQ = neighbour + 0.5
+          + 0.36 * vec2(sin(t * 0.4 + seed.x * 6.28318), cos(t * 0.33 + seed.y * 6.28318));
 
-        // Retour au plan : c'est la que le halo est mesure, en distance reelle.
+        // Back to the plane: that is where the halo is measured, in real distance.
         float r0 = centreQ.x / scale;
         float phi0 = centreQ.y / K * 6.28318;
         float a0 = phi0 - uTwist * log(max(r0, 0.02));
         vec2 xy0 = r0 * vec2(cos(a0), sin(a0));
 
         float d = length(v - xy0);
-        float size = (0.004 + 0.006 * graine.x) * (1.0 - depth * 0.35);
+        float size = (0.004 + 0.006 * seed.x) * (1.0 - depth * 0.35);
         float halo = exp(-d * d / (size * size));
 
-        // Les bras : une crete par bras, vide entre deux.
-        float bras = mix(0.06, 1.0, pow(0.5 + 0.5 * cos(phi0 * arms), 3.0));
+        // The arms: one crest per arm, empty between two.
+        float armMask = mix(0.06, 1.0, pow(0.5 + 0.5 * cos(phi0 * arms), 3.0));
 
-        // La densite decroit avec le rayon, et le scintillement est propre.
-        float chute = exp(-r0 * 2.2);
-        float eclat = 0.7 + 0.3 * sin(t * 2.0 + graine.y * 6.28318);
+        // The density falls off with the radius, and the flicker is each point's own.
+        float falloff = exp(-r0 * 2.2);
+        float flicker = 0.7 + 0.3 * sin(t * 2.0 + seed.y * 6.28318);
 
-        vec3 teinte = mix(uColorB, uColorC, smoothstep(0.35, 0.0, r0));
-        colour += teinte * halo * bras * chute * eclat * exists * (1.0 - depth * 0.3);
+        vec3 tint = mix(uColorB, uColorC, smoothstep(0.35, 0.0, r0));
+        colour += tint * halo * armMask * falloff * flicker * exists * (1.0 - depth * 0.3);
       }
     }
   }
 
-  // Le coeur : un noyau serre et un halo plus large, tous deux au centre.
+  // The core: a tight nucleus and a broader halo, both at the centre.
   colour += uColorC * exp(-r * r / 0.006) * 0.9;
   colour += uColorB * exp(-r * r / 0.05) * 0.3;
 

@@ -1,28 +1,28 @@
 /**
- * Diaporama derive : deux ou trois images en fondu croise, chacune animee
- * d'un zoom et d'une derive lents pendant son affichage.
+ * Drifting slideshow: two or three images cross-fading, each animated by a
+ * slow zoom and drift while it is on screen.
  *
- * ## Une minuterie, pas une boucle
+ * ## A timer, not a loop
  *
- * Le seul JavaScript qui tourne est un `setInterval` au rythme du diaporama —
- * un rendu React toutes les quelques secondes, pour changer l'image active.
- * Le reste est au compositeur : le fondu est une transition d'opacite, la
- * derive une animation CSS declaree une fois, deux fois plus longue que
- * l'intervalle pour qu'elle n'atteigne jamais sa fin visible.
+ * The only JavaScript that runs is a `setInterval` at the rhythm of the
+ * slideshow — one React render every few seconds, to change the active image.
+ * The rest belongs to the compositor: the fade is an opacity transition, the
+ * drift a CSS animation declared once, twice as long as the interval so that
+ * it never reaches its visible end.
  *
- * ## La derive redemarre avec l'image
+ * ## The drift restarts with the image
  *
- * L'animation n'est posee que sur l'image active : quand l'attribut tombe,
- * l'animation est retiree et se remet a zero. Chaque passage repart donc du
- * debut de sa derive, dont la direction alterne d'une image a l'autre —
- * deux images qui derivent dans le meme sens donnent un seul long travelling,
- * pas un diaporama.
+ * The animation is only set on the active image: when the attribute drops, the
+ * animation is removed and resets. Each turn therefore starts again from the
+ * beginning of its drift, whose direction alternates from one image to the
+ * next — two images drifting the same way give a single long tracking shot,
+ * not a slideshow.
  *
- * ## Sous mouvement reduit
+ * ## Under reduced motion
  *
- * La premiere image, fixe, sans cycle : ni minuterie, ni animation. Un
- * diaporama qui change tout seul est exactement le mouvement que la
- * preference demande d'eteindre.
+ * The first image, still, with no cycle: neither timer nor animation. A
+ * slideshow that changes on its own is exactly the movement the preference
+ * asks to switch off.
  *
  * @module
  */
@@ -30,10 +30,10 @@
 import { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'
 import { useEffect, useState, type CSSProperties, type ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-ken-burns'
 
-/** Pose la derive, une fois par document. */
+/** Sets the drift, once per document. */
 function ensureKenBurnsRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -49,48 +49,48 @@ function ensureKenBurnsRule(): void {
   document.head.append(style)
 }
 
-/** Une image du diaporama. */
+/** One image of the slideshow. */
 export interface KenBurnsImage {
   /** Source. */
   readonly src: string
-  /** Texte de remplacement. */
+  /** Alternative text. */
   readonly alt: string
 }
 
-/** Directions de derive, alternees d'une image a l'autre. */
+/** Drift directions, alternated from one image to the next. */
 const DRIFTS: readonly (readonly [string, string])[] = [
   ['2%', '-1.5%'],
   ['-2%', '1%'],
   ['1.5%', '2%'],
 ]
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface KenBurnsOwnProps {
-  /** Les images du diaporama, deux ou trois. */
+  /** The images of the slideshow, two or three. */
   images: readonly KenBurnsImage[]
-  /** Rapport largeur sur hauteur. @defaultValue 1.777 */
+  /** Width to height ratio. @defaultValue 1.777 */
   ratio?: number
-  /** Temps d'affichage de chaque image, en millisecondes. @defaultValue 6000 */
+  /** Time each image is shown, in milliseconds. @defaultValue 6000 */
   interval?: number
-  /** Echelle atteinte en fin de derive. @defaultValue 1.12 */
+  /** Scale reached at the end of the drift. @defaultValue 1.12 */
   zoom?: number
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type KenBurnsProps = Customisable<KenBurnsOwnProps>
 
-/** Duree du fondu croise, en millisecondes. */
+/** Duration of the cross-fade, in milliseconds. */
 const FADE_MS = 1200
 
 /**
- * Enchaine des images en fondu croise, chacune en lente derive.
+ * Chains images with a cross-fade, each in a slow drift.
  *
  * @example
  * <KenBurns
  *   images={[
- *     { src: '/aube.jpg', alt: 'L atelier a l aube' },
- *     { src: '/midi.jpg', alt: 'L atelier a midi' },
- *     { src: '/soir.jpg', alt: 'L atelier au soir' },
+ *     { src: '/dawn.jpg', alt: 'The workshop at dawn' },
+ *     { src: '/noon.jpg', alt: 'The workshop at noon' },
+ *     { src: '/dusk.jpg', alt: 'The workshop at dusk' },
  *   ]}
  * />
  */
@@ -122,7 +122,7 @@ export function KenBurns({
     rest,
   )
 
-  // Sous mouvement reduit : la premiere image, fixe, et rien d'autre.
+  // Under reduced motion: the first image, still, and nothing else.
   const shown = reduced ? images.slice(0, 1) : images
 
   return (
@@ -137,8 +137,8 @@ export function KenBurns({
           '--o-kb-zoom': String(zoom),
           '--o-kb-dx': drift[0],
           '--o-kb-dy': drift[1],
-          // La derive dure deux intervalles : l'image est partie avant que
-          // son mouvement ne s'arrete, et l'arret ne se voit jamais.
+          // The drift lasts two intervals: the image is gone before its
+          // movement stops, and the stop is never seen.
           animation:
             isActive && !reduced
               ? `o-ken-burns-drift ${String(interval * 2)}ms linear forwards`

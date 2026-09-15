@@ -18,7 +18,7 @@
   "tokens": [],
   "props": [
     {
-      "name": "arrondi",
+      "name": "round",
       "type": "boolean",
       "default": true,
       "description": "Arrondir au pixel : sans lui, une largeur fractionnaire oscille et provoque des rendus pour rien."

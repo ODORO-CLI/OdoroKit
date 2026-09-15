@@ -43,7 +43,7 @@
       "step": 0.5
     },
     {
-      "name": "couleur",
+      "name": "color",
       "type": "string",
       "description": "Couleur de la tranche."
     },

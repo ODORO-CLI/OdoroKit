@@ -1,30 +1,30 @@
 /**
- * Le composant qui rend toutes les icones.
+ * The component that renders every icon.
  *
- * ## La taille suit le texte
+ * ## The size follows the text
  *
- * Une icone posee a cote d'un mot doit grandir avec lui. La taille par defaut
- * est donc `1em` : elle vaut la taille de police heritee, et une icone placee
- * dans un titre est grande sans qu'on ait rien a regler. Un nombre force une
- * taille en pixels quand l'icone est seule et ne suit aucun texte.
+ * An icon placed next to a word has to grow with it. The default size is
+ * therefore `1em`: it equals the inherited font size, and an icon placed in a
+ * heading is large without anything having to be set. A number forces a size
+ * in pixels when the icon stands alone and follows no text.
  *
- * ## La couleur vient du texte, jamais d'une propriete
+ * ## The color comes from the text, never from a property
  *
- * Il n'y a pas de propriete `color`. Le trace prend `currentColor`, si bien
- * qu'une classe de texte — `o-text-brand-600`, `dark:o-text-zinc-100` — colore
- * l'icone comme elle colore le reste. Une propriete de couleur creerait un
- * second chemin, qui divergerait du premier au premier changement de theme.
+ * There is no `color` property. The drawing takes `currentColor`, so that a
+ * text class — `o-text-brand-600`, `dark:o-text-zinc-100` — colors the icon
+ * the way it colors the rest. A color property would create a second path,
+ * which would diverge from the first at the first theme change.
  *
- * ## L'accessibilite a un defaut, et il est correct
+ * ## Accessibility has a default, and it is the right one
  *
- * La grande majorite des icones sont decoratives : elles doublent un mot deja
- * present. Elles sont donc **retirees** de l'arbre d'accessibilite par defaut,
- * ce qui evite qu'un lecteur d'ecran annonce « image » avant chaque libelle.
+ * The vast majority of icons are decorative: they double a word that is
+ * already there. They are therefore **removed** from the accessibility tree by
+ * default, which avoids a screen reader announcing "image" before every label.
  *
- * Des qu'une icone porte seule le sens — un bouton sans texte —, `label` la
- * remet dans l'arbre avec son intitule. C'est le bon defaut dans les deux cas,
- * et le mauvais choix se voit : un bouton sans texte et sans `label` n'est
- * annonce par rien.
+ * As soon as an icon carries the meaning on its own — a button without text —
+ * `label` puts it back into the tree with its title. It is the right default
+ * in both cases, and the wrong choice shows: a button without text and without
+ * `label` is announced by nothing.
  *
  * @module
  */
@@ -33,45 +33,45 @@ import { createElement, type ReactElement, type SVGProps } from 'react'
 
 import type { IconData } from './types.js'
 
-/** Proprietes du composant. */
+/** Properties of the component. */
 export interface IconProps extends Omit<SVGProps<SVGSVGElement>, 'children'> {
-  /** L'icone a rendre, importee d'un des jeux. */
+  /** The icon to render, imported from one of the packs. */
   icon: IconData
   /**
-   * Taille du cote. Un nombre vaut des pixels, une chaine passe telle quelle.
+   * Size of the side. A number means pixels, a string passes through as is.
    *
    * @defaultValue '1em'
    */
   size?: number | string
   /**
-   * Intitule, pour une icone qui porte seule le sens.
+   * Title, for an icon that carries the meaning on its own.
    *
-   * Absent, l'icone est decorative et retiree de l'arbre d'accessibilite.
+   * Absent, the icon is decorative and removed from the accessibility tree.
    */
   label?: string
   /**
-   * Epaisseur du trait, dans les unites de la boite du jeu.
+   * Stroke weight, in the units of the box of the pack.
    *
-   * Sans effet sur un jeu plein, dont le trace est une surface. Le defaut est
-   * celui que le jeu declare.
+   * No effect on a solid pack, whose drawing is a surface. The default is the
+   * one the pack declares.
    */
   strokeWidth?: number
 }
 
 /**
- * Rend une icone.
+ * Renders an icon.
  *
  * @example
- * // Decorative, a cote d'un mot : elle grandit avec lui.
+ * // Decorative, next to a word: it grows with it.
  * <button className="o-inline-flex o-items-center o-gap-2 o-text-brand-600">
  *   <Icon icon={Download} />
- *   Telecharger
+ *   Download
  * </button>
  *
  * @example
- * // Seule dans un bouton : elle porte le sens, donc elle a un intitule.
+ * // Alone in a button: it carries the meaning, so it has a title.
  * <button aria-label={undefined}>
- *   <Icon icon={X} label="Fermer" size={20} />
+ *   <Icon icon={X} label="Close" size={20} />
  * </button>
  */
 export function Icon({
@@ -81,7 +81,7 @@ export function Icon({
   strokeWidth,
   ...rest
 }: IconProps): ReactElement {
-  const trait = icon.mode === 'trait'
+  const outline = icon.mode === 'outline'
 
   return (
     <svg
@@ -89,16 +89,16 @@ export function Icon({
       viewBox={icon.box}
       width={size}
       height={size}
-      // Le mode decide ou va la couleur. Les deux attributs sont poses dans
-      // les deux cas : sans le `fill="none"` explicite, un trace au trait est
-      // rempli par le defaut du navigateur et devient une tache.
-      fill={trait ? 'none' : 'currentColor'}
-      stroke={trait ? 'currentColor' : undefined}
-      strokeWidth={trait ? (strokeWidth ?? icon.stroke) : undefined}
-      strokeLinecap={trait ? 'round' : undefined}
-      strokeLinejoin={trait ? 'round' : undefined}
-      // Une icone posee dans une ligne de texte s'aligne sur la base, ce qui
-      // la fait flotter au-dessus du milieu des lettres.
+      // The mode decides where the color goes. Both attributes are set in both
+      // cases: without the explicit `fill="none"`, a stroked drawing is filled
+      // by the browser default and turns into a blot.
+      fill={outline ? 'none' : 'currentColor'}
+      stroke={outline ? 'currentColor' : undefined}
+      strokeWidth={outline ? (strokeWidth ?? icon.stroke) : undefined}
+      strokeLinecap={outline ? 'round' : undefined}
+      strokeLinejoin={outline ? 'round' : undefined}
+      // An icon placed in a line of text aligns on the baseline, which makes
+      // it float above the middle of the letters.
       focusable="false"
       aria-hidden={label === undefined ? true : undefined}
       role={label === undefined ? undefined : 'img'}
@@ -106,8 +106,8 @@ export function Icon({
       {...rest}
     >
       {icon.nodes.map(([tag, attributes], index) =>
-        // Les noeuds sont une donnee generee, jamais du markup : il n'y a rien
-        // a echapper, et aucune echappatoire ouverte pour plus tard.
+        // The nodes are generated data, never markup: there is nothing to
+        // escape, and no loophole left open for later.
         createElement(tag, { key: index, ...camel(attributes) }),
       )}
     </svg>
@@ -115,11 +115,11 @@ export function Icon({
 }
 
 /**
- * Traduit les attributs SVG en proprietes React.
+ * Translates SVG attributes into React properties.
  *
- * `fill-rule` et `clip-rule` sont les seuls attributs a tirets que les jeux
- * emploient ; React les attend en casse chameau et ignore silencieusement les
- * autres formes, ce qui casse les traces a trous — un `o` devient un disque.
+ * `fill-rule` and `clip-rule` are the only dashed attributes the packs use;
+ * React expects them in camel case and silently ignores the other forms, which
+ * breaks the drawings with holes — an `o` becomes a disc.
  */
 function camel(attributes: Readonly<Record<string, string>>): Record<string, string> {
   const out: Record<string, string> = {}

@@ -1,31 +1,31 @@
 /**
- * Bordure a etoile filante : deux points de lumiere parcourent le contour,
- * l'un sur le bord haut vers la droite, l'autre sur le bord bas vers la
- * gauche, avec une trainee qui s'eteint derriere eux.
+ * Shooting star border: two points of light travel along the outline, one on
+ * the top edge heading right, the other on the bottom edge heading left, with
+ * a trail that fades out behind them.
  *
- * ## Ce n'est ni le trait de bordure, ni le neon
+ * ## This is neither the border beam nor the neon
  *
- * Le trait de bordure fait tourner un degrade conique autour du centre : un
- * arc qui fait le tour. Le neon corrige ce tour pour qu'il avance a vitesse
- * constante le long du bord. Ici il n'y a pas de tour : deux etoiles, en
- * ligne droite, chacune sur son bord et dans son sens, qui naissent a un
- * coin et meurent a l'autre. C'est l'image d'une etoile filante — une
- * trajectoire, pas une orbite.
+ * The border beam spins a conic gradient around the center: an arc going all
+ * the way round. The neon corrects that spin so it advances at a constant
+ * speed along the edge. Here there is no going round: two stars, in a
+ * straight line, each on its own edge and in its own direction, born at one
+ * corner and dying at the other. It is the image of a shooting star — a
+ * trajectory, not an orbit.
  *
- * ## L'etoile est un degrade trois fois plus large que le cadre
+ * ## The star is a gradient three times wider than the frame
  *
- * Un disque radial sur un calque de trois largeurs, gare hors champ, que
- * l'animation fait traverser. Le contenu, pose par-dessus avec son propre
- * fond, ne laisse voir le calque que dans le filet d'un pixel qui l'entoure :
- * l'etoile et sa trainee n'existent que la. Un `overflow:hidden` sur le
- * cadre retient ce qui deborde. Rien n'est mesure, rien n'est calcule.
+ * A radial disc on a layer three widths across, parked off screen, which the
+ * animation makes cross over. The content, laid on top with a background of
+ * its own, only lets the layer show through the one pixel line around it: the
+ * star and its trail exist nowhere else. An `overflow:hidden` on the frame
+ * holds back what spills out. Nothing is measured, nothing is computed.
  *
- * ## Le contenu porte le fond, pas le cadre
+ * ## The content carries the background, not the frame
  *
- * Si le cadre avait un fond, il couvrirait les etoiles. C'est donc le
- * contenu qui est opaque, en surface de theme, avec un filet fin : ce que
- * l'on encadre ressemble a une carte, et c'est ce que l'on attend d'une
- * bordure.
+ * If the frame had a background, it would cover the stars. So it is the
+ * content that is opaque, on theme surface, with a thin line: what one
+ * frames looks like a card, and that is what one expects from a
+ * border.
  *
  * @module
  */
@@ -33,30 +33,30 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import { type CSSProperties, type ReactElement, type ReactNode } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface StarBorderOwnProps {
-  /** Contenu encadre. */
+  /** Framed content. */
   children: ReactNode
-  /** Token de la couleur des etoiles. @defaultValue '--o-palette-brand-400' */
+  /** Token of the star color. @defaultValue '--o-palette-brand-400' */
   color?: string
-  /** Duree d'un passage d'une etoile, en millisecondes. @defaultValue 6000 */
+  /** Duration of one pass of a star, in milliseconds. @defaultValue 6000 */
   speed?: number
-  /** Epaisseur du filet dans lequel l'etoile brille, en pixels. @defaultValue 1 */
+  /** Width of the line the star shines in, in pixels. @defaultValue 1 */
   thickness?: number
-  /** Intensite de la trainee, de zero a un. @defaultValue 0.7 */
+  /** Strength of the trail, from zero to one. @defaultValue 0.7 */
   glow?: number
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type StarBorderProps = Customisable<StarBorderOwnProps>
 
-/** Token employe par defaut. */
+/** Token used by default. */
 const DEFAULT_TOKEN = '--o-palette-brand-400'
 
-/** Identifiant de la feuille injectee. */
+/** Id of the injected stylesheet. */
 const STYLE_ID = 'o-star-border'
 
-/** Pose le cadre, les deux etoiles et le contenu, une fois par document. */
+/** Sets up the frame, the two stars and the content, once per document. */
 function ensureStarRules(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -68,7 +68,7 @@ function ensureStarRules(): void {
     'position:relative;display:inline-block;overflow:hidden;isolation:isolate;',
     'padding:var(--o-star-thickness);border-radius:999px;',
     '}',
-    // Le calque d'une etoile : trois largeurs, une demi-hauteur, un disque.
+    // The layer of one star: three widths, half a height, a disc.
     '[data-o-star-streak]{',
     'position:absolute;z-index:0;width:300%;height:50%;pointer-events:none;',
     'opacity:var(--o-star-glow);',
@@ -78,15 +78,15 @@ function ensureStarRules(): void {
     '}',
     '[data-o-star-streak="top"]{top:-11px;left:-250%;animation-name:o-star-top}',
     '[data-o-star-streak="bottom"]{bottom:-11px;right:-250%;animation-name:o-star-bottom}',
-    // Chaque etoile nait pleine a un coin et s'eteint a l'autre.
+    // Each star is born at full strength at one corner and fades at the other.
     '@keyframes o-star-top{from{transform:translateX(0);opacity:var(--o-star-glow)}to{transform:translateX(100%);opacity:0}}',
     '@keyframes o-star-bottom{from{transform:translateX(0);opacity:var(--o-star-glow)}to{transform:translateX(-100%);opacity:0}}',
-    // Le contenu : opaque, par-dessus, avec le rayon du cadre.
+    // The content: opaque, on top, with the radius of the frame.
     '[data-o-star-content]{',
     'position:relative;z-index:1;border-radius:inherit;',
     'background:var(--o-theme-surface);border:1px solid var(--o-theme-line);',
     '}',
-    // Mouvement reduit : chaque etoile posee au milieu de son bord.
+    // Reduced motion: each star parked in the middle of its edge.
     '@media (prefers-reduced-motion:reduce){',
     '[data-o-star-streak]{animation:none}',
     '[data-o-star-streak="top"]{transform:translateX(50%)}',
@@ -97,17 +97,17 @@ function ensureStarRules(): void {
 }
 
 /**
- * Encadre un contenu de deux etoiles filantes.
+ * Frames a piece of content with two shooting stars.
  *
  * @example
  * <StarBorder className="o-rounded-full">
- *   <button type="button" className="o-px-6 o-py-3">Commencer</button>
+ *   <button type="button" className="o-px-6 o-py-3">Get started</button>
  * </StarBorder>
  *
  * @example
- * // Une carte, etoiles ciel, plus lentes et plus discretes.
+ * // A card, sky stars, slower and more discreet.
  * <StarBorder color="--o-palette-sky-400" speed={9000} glow={0.5} className="o-rounded-xl">
- *   <div className="o-p-6">Une offre mise en avant</div>
+ *   <div className="o-p-6">A featured offer</div>
  * </StarBorder>
  */
 export function StarBorder({

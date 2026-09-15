@@ -1,40 +1,37 @@
 /**
- * Lignes en attente : un paragraphe remplace par ses lignes, la derniere
- * plus courte comme une vraie fin de texte.
+ * Waiting lines: a paragraph replaced by its lines, the last one shorter like
+ * a real end of text.
  *
- * ## Un substitut, pas une encre
+ * ## A stand-in, not an ink
  *
- * Les autres chargeurs sont dessines a `currentColor` : ils empruntent
- * l'encre du texte parce qu'ils sont un signe, un symbole pose dans la page.
- * Un squelette n'est pas un signe, c'est une **surface** — la place que le
- * contenu occupera. Il se peint donc avec les variables de theme, un melange
- * de filet et de surface, et non avec l'encre : sur fond clair comme sur
- * fond sombre, il reste ce qu'il est, une zone vide un peu plus dense que
- * la page.
+ * The other loaders are drawn in `currentColor`: they borrow the ink of the
+ * text because they are a sign, a symbol set down on the page. A skeleton is
+ * not a sign, it is a **surface** — the room the content will occupy. So it is
+ * painted with the theme variables, a blend of rule and surface, and not with
+ * the ink: on a light background as on a dark one, it stays what it is, an
+ * empty area slightly denser than the page.
  *
- * La derniere ligne est raccourcie. Sans elle, le bloc se lit comme une
- * grille, pas comme du texte : c'est ce raccourci qui fait reconnaitre un
- * paragraphe avant meme qu'il arrive.
+ * The last line is shortened. Without it, the block reads as a grid, not as
+ * text: it is that shortening which makes a paragraph recognisable before it
+ * even arrives.
  *
- * ## Reflet ou pulsation, jamais les deux
+ * ## Reflection or pulse, never both
  *
- * `shimmer` choisit entre un reflet qui traverse les lignes en cascade et
- * une pulsation d'ensemble. Le reflet donne un sens de lecture — quelque
- * chose arrive, de gauche a droite ; la pulsation dit seulement « pas
- * encore ». Les superposer produirait un scintillement que l'oeil suit au
- * lieu de lire.
+ * `shimmer` chooses between a reflection crossing the lines in a cascade and
+ * an overall pulse. The reflection gives a reading direction — something is
+ * coming, from left to right; the pulse only says "not yet". Overlaying them
+ * would produce a flicker the eye follows instead of reading.
  *
- * Le decalage entre les lignes est **positif**, contrairement aux chargeurs
- * a points : ici le bloc est deja visible sans son animation, aucune ligne
- * n'attend son tour pour exister. Le decalage sert la cascade, pas la
- * premiere image.
+ * The offset between the lines is **positive**, unlike the dot loaders: here
+ * the block is already visible without its animation, no line is waiting its
+ * turn to exist. The offset serves the cascade, not the first frame.
  *
- * ## Un statut, pas un dessin
+ * ## A status, not a drawing
  *
- * L'element porte `role="status"` et un libelle ; les lignes sont retirees
- * de l'arbre d'accessibilite. Sous mouvement reduit, elles restent pleines
- * et immobiles : un squelette au repos reste visible, il ne s'efface pas —
- * il n'y a rien d'autre a montrer tant que le contenu n'est pas la.
+ * The element carries `role="status"` and a label; the lines are removed from
+ * the accessibility tree. Under reduced motion, they stay solid and still: a
+ * skeleton at rest remains visible, it does not fade away — there is nothing
+ * else to show as long as the content is not there.
  *
  * @module
  */
@@ -42,13 +39,13 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-skeleton-lines'
 
-/** Largeur de la derniere ligne, en pourcentage de la colonne. */
+/** Width of the last line, as a percentage of the column. */
 const LAST_WIDTH = 62
 
-/** Pose les lignes, le reflet et la pulsation, une fois par document. */
+/** Sets up the lines, the reflection and the pulse, once per document. */
 function ensureSkeletonLinesRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -56,18 +53,18 @@ function ensureSkeletonLinesRule(): void {
   const style = document.createElement('style')
   style.id = STYLE_ID
   style.textContent = [
-    // En bloc : le squelette prend la largeur de son parent, comme le
-    // paragraphe qu'il remplace.
+    // As a block: the skeleton takes the width of its parent, like the
+    // paragraph it replaces.
     '[data-o-sklines]{display:block;width:100%}',
     '[data-o-sklines-rows]{display:flex;flex-direction:column;gap:var(--o-sklines-gap)}',
     '[data-o-sklines-row]{',
     'position:relative;display:block;overflow:hidden;',
     'height:var(--o-sklines-height);border-radius:var(--o-sklines-radius);',
-    // Le filet donne la densite, la surface l'eclaircit : le melange tient
-    // en clair comme en sombre, sans jamais devenir une encre.
+    // The rule gives the density, the surface lightens it: the blend holds in
+    // light as in dark, without ever becoming an ink.
     'background:color-mix(in oklab,var(--o-theme-line) 72%,var(--o-theme-surface));',
     '}',
-    // Le reflet est une bande de surface qui traverse la ligne.
+    // The reflection is a band of surface crossing the line.
     '[data-o-sklines-shimmer] [data-o-sklines-row]::after{',
     'content:"";position:absolute;inset:0;',
     'background:linear-gradient(90deg,transparent 0 30%,color-mix(in oklab,var(--o-theme-surface) 85%,transparent) 50%,transparent 70% 100%);',
@@ -81,7 +78,7 @@ function ensureSkeletonLinesRule(): void {
     'animation-delay:var(--o-sklines-delay);',
     '}',
     '@keyframes o-sklines-pulse{0%,100%{opacity:1}50%{opacity:0.45}}',
-    // Des lignes pleines et immobiles : la place reste dite.
+    // Solid and still lines: the room stays stated.
     '@media (prefers-reduced-motion:reduce){',
     '[data-o-sklines-row]{animation:none;opacity:1}',
     '[data-o-sklines-shimmer] [data-o-sklines-row]::after{animation:none;opacity:0}',
@@ -90,33 +87,33 @@ function ensureSkeletonLinesRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** Props of the component itself. */
 export interface SkeletonLinesOwnProps {
-  /** Nombre de lignes. @defaultValue 3 */
+  /** Number of lines. @defaultValue 3 */
   lines?: number
-  /** Epaisseur d'une ligne, en pixels. @defaultValue 12 */
+  /** Thickness of a line, in pixels. @defaultValue 12 */
   height?: number
-  /** Rayon des angles d'une ligne, en pixels. @defaultValue 6 */
+  /** Corner radius of a line, in pixels. @defaultValue 6 */
   radius?: number
-  /** Reflet qui traverse plutot qu'une pulsation d'ensemble. @defaultValue true */
+  /** A reflection crossing over rather than an overall pulse. @defaultValue true */
   shimmer?: boolean
-  /** Duree d'un passage du reflet ou d'une pulsation, en millisecondes. @defaultValue 1600 */
+  /** Duration of one pass of the reflection or of one pulse, in milliseconds. @defaultValue 1600 */
   speed?: number
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement du contenu' */
+  /** Label announced to screen readers. @defaultValue 'Loading content' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All the props. */
 export type SkeletonLinesProps = Customisable<SkeletonLinesOwnProps, 'div'>
 
 /**
- * Remplace un paragraphe par ses lignes en attente.
+ * Replaces a paragraph with its waiting lines.
  *
  * @example
  * <SkeletonLines lines={4} />
  *
  * @example
- * // Pulsation plutot que reflet, lignes plus epaisses.
+ * // A pulse rather than a reflection, thicker lines.
  * <SkeletonLines lines={2} height={16} shimmer={false} />
  */
 export function SkeletonLines({
@@ -125,7 +122,7 @@ export function SkeletonLines({
   radius = 6,
   shimmer = true,
   speed = 1600,
-  label = 'Chargement du contenu',
+  label = 'Loading content',
   ...rest
 }: SkeletonLinesProps): ReactElement {
   ensureSkeletonLinesRule()
@@ -160,11 +157,11 @@ export function SkeletonLines({
             data-o-sklines-row=""
             style={
               {
-                // Un huitieme de cycle par ligne : la cascade se voit sans
-                // que la derniere ligne attende tout un tour.
+                // An eighth of a cycle per line: the cascade shows without the
+                // last line waiting a whole turn.
                 '--o-sklines-delay': `${String(Math.round((speed / 8) * index))}ms`,
-                // Seule la derniere ligne est courte : c'est elle qui fait
-                // lire un paragraphe et non une grille.
+                // Only the last line is short: it is what makes one read a
+                // paragraph and not a grid.
                 width:
                   index === count - 1 && count > 1 ? `${String(LAST_WIDTH)}%` : undefined,
               } as CSSProperties

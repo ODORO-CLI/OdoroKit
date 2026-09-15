@@ -1,37 +1,37 @@
 /**
- * Moulinet : quatre pales triangulaires en deux nuances tournent par
- * rafales, une acceleration et un ralenti par demi-tour.
+ * Pinwheel: four triangular blades in two shades turn in gusts, one
+ * acceleration and one slowdown per half turn.
  *
- * ## Tourner comme sous le vent
+ * ## Turning as if under the wind
  *
- * Un moulinet ne tourne pas a vitesse constante : il part sous une rafale,
- * ralentit, repart. La rotation est donc decoupee en deux demi-tours, chacun
- * avec sa propre acceleration et son propre ralenti. Un moulinet a quatre
- * pales en deux nuances est identique a lui-meme tous les demi-tours : la
- * boucle est invisible, et l'oeil ne voit que des rafales.
+ * A pinwheel does not turn at constant speed: it starts under a gust, slows
+ * down, starts again. The rotation is therefore cut into two half turns,
+ * each with its own acceleration and its own slowdown. A pinwheel with four
+ * blades in two shades is identical to itself every half turn: the loop is
+ * invisible, and the eye sees nothing but gusts.
  *
- * ## Une pale, quatre fois
+ * ## One blade, four times
  *
- * Chaque pale est un carre coupe en triangle par un `clip-path`, dont l'un
- * des sommets est le centre du moulinet. Les quatre pales sont le meme
- * element, tourne d'un quart de tour a chaque fois autour de ce sommet.
- * Une pale sur deux est attenuee : sans cette alternance, quatre triangles
- * de la meme couleur forment un carre plein et rien ne tourne.
+ * Each blade is a square cut into a triangle by a `clip-path`, one vertex of
+ * which is the center of the pinwheel. The four blades are the same element,
+ * turned a quarter turn each time around that vertex. Every other blade is
+ * dimmed: without that alternation, four triangles of the same color form a
+ * solid square and nothing turns.
  *
- * Le moyeu est un point rond au centre : il cache la jonction des quatre
- * sommets, qui ne tombe jamais exactement juste au pixel pres.
+ * The hub is a round dot at the center: it hides the junction of the four
+ * vertices, which never falls exactly right to the pixel.
  *
- * Une seule animation, sur le conteneur des pales, tenue par le
- * compositeur. Aucun JavaScript apres le premier rendu.
+ * A single animation, on the container of the blades, held by the
+ * compositor. No JavaScript after the first render.
  *
- * ## Un statut, pas un dessin
+ * ## A status, not a drawing
  *
- * L'element porte `role="status"` et un libelle pour les lecteurs d'ecran :
- * l'attente est une information, pas une decoration. Le moulinet, lui, est
- * retire de l'arbre d'accessibilite.
+ * The element carries `role="status"` and a label for screen readers: the
+ * wait is information, not decoration. The pinwheel itself is removed from
+ * the accessibility tree.
  *
- * Sous mouvement reduit, le moulinet reste immobile : quatre pales en deux
- * nuances se lisent encore comme un chargeur, seul le vent tombe.
+ * Under reduced motion, the pinwheel stays still: four blades in two shades
+ * still read as a loader, only the wind drops.
  *
  * @module
  */
@@ -39,10 +39,10 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Id of the injected stylesheet. */
 const STYLE_ID = 'o-pinwheel'
 
-/** Pose les pales et leurs rafales, une fois par document. */
+/** Sets the blades and their gusts, once per document. */
 function ensurePinwheelRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -56,8 +56,8 @@ function ensurePinwheelRule(): void {
     'width:var(--o-pinwheel-size);height:var(--o-pinwheel-size);',
     'animation:o-pinwheel-gust var(--o-pinwheel-speed) infinite;',
     '}',
-    // Une pale occupe le quart haut droit ; son sommet bas gauche est le
-    // centre du moulinet, et c'est autour de lui que les copies tournent.
+    // One blade takes the top right quarter; its bottom left vertex is the
+    // center of the pinwheel, and it is around it that the copies turn.
     '[data-o-pinwheel-blade]{',
     'position:absolute;top:0;left:50%;width:50%;height:50%;',
     'background:color-mix(in oklab, var(--o-pinwheel-color) var(--o-pinwheel-shade), transparent);',
@@ -69,8 +69,8 @@ function ensurePinwheelRule(): void {
     'border-radius:50%;background:var(--o-pinwheel-color);',
     'transform:translate(-50%,-50%);',
     '}',
-    // Deux rafales par tour, chacune avec son elan et son ralenti : un
-    // `ease-in-out` par demi-tour, pas un lineaire sur le tour entier.
+    // Two gusts per turn, each with its momentum and its slowdown: one
+    // `ease-in-out` per half turn, not a linear over the whole turn.
     '@keyframes o-pinwheel-gust{',
     '0%{transform:rotate(0deg);animation-timing-function:cubic-bezier(0.55,0,0.3,1)}',
     '50%{transform:rotate(180deg);animation-timing-function:cubic-bezier(0.55,0,0.3,1)}',
@@ -83,36 +83,36 @@ function ensurePinwheelRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** The component's own props. */
 export interface PinwheelOwnProps {
-  /** Diametre du moulinet, en pixels. @defaultValue 40 */
+  /** Diameter of the pinwheel, in pixels. @defaultValue 40 */
   size?: number
-  /** Duree d'un tour, soit deux rafales, en millisecondes. @defaultValue 1600 */
+  /** Duration of one turn, that is two gusts, in milliseconds. @defaultValue 1600 */
   speed?: number
-  /** Couleur des pales. @defaultValue la couleur du texte */
+  /** Color of the blades. @defaultValue the text color */
   color?: string
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */
+  /** Label announced to screen readers. @defaultValue 'Loading' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type PinwheelProps = Customisable<PinwheelOwnProps, 'span'>
 
 /**
- * Signale une attente par un moulinet qui tourne par rafales.
+ * Signals a wait with a pinwheel that turns in gusts.
  *
  * @example
  * <Pinwheel />
  *
  * @example
- * // Plus grand, plus lent, dans la teinte de marque.
+ * // Bigger, slower, in the brand hue.
  * <Pinwheel size={64} speed={2400} color="var(--o-palette-brand-500)" />
  */
 export function Pinwheel({
   size = 40,
   speed = 1600,
   color = 'currentColor',
-  label = 'Chargement',
+  label = 'Loading',
   ...rest
 }: PinwheelProps): ReactElement {
   ensurePinwheelRule()
@@ -143,8 +143,8 @@ export function Pinwheel({
             style={
               {
                 '--o-pinwheel-angle': `${String(blade * 90)}deg`,
-                // Une pale sur deux est attenuee : c'est l'alternance qui
-                // rend la rotation visible.
+                // Every other blade is dimmed: it is the alternation that
+                // makes the rotation visible.
                 '--o-pinwheel-shade': blade % 2 === 0 ? '100%' : '45%',
               } as CSSProperties
             }

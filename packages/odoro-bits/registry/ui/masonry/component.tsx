@@ -1,44 +1,44 @@
 /**
- * Maconnerie : une galerie en colonnes de hauteurs libres, dont les vignettes
- * montent a leur place au fur et a mesure qu'on descend.
+ * Masonry: a gallery in columns of free heights, whose thumbnails rise into
+ * place as one scrolls down.
  *
- * ## Les colonnes sont celles du navigateur
+ * ## The columns are the browser's own
  *
- * Une maconnerie ecrite a la main mesure chaque vignette, choisit la colonne
- * la plus courte, et pose tout en absolu — puis recommence a chaque
- * redimensionnement, a chaque image chargee, et se trompe tant qu'une image
- * n'a pas sa taille. `columns` fait le meme partage sans une seule mesure,
- * et le refait tout seul quand la largeur change.
+ * A masonry written by hand measures every thumbnail, picks the shortest
+ * column, and lays everything out absolutely — then starts over at every
+ * resize, at every image loaded, and gets it wrong as long as an image has
+ * no size yet. `columns` does the same sharing without a single measure,
+ * and does it again on its own when the width changes.
  *
- * Le prix a payer est l'ordre de lecture : la coulee descend colonne par
- * colonne, comme un journal, et non ligne par ligne. C'est acceptable pour
- * une galerie d'images — l'oeil balaie — et cela ne l'est pas pour un texte
- * suivi. La documentation le dit plutot que de le cacher.
+ * The price to pay is the reading order: the flow runs down column by
+ * column, like a newspaper, and not row by row. That is acceptable for an
+ * image gallery — the eye sweeps — and it is not for running text. The
+ * documentation says so rather than hiding it.
  *
- * ## La montee est liberee par un attribut, pas par un rendu
+ * ## The rise is released by an attribute, not by a render
  *
- * Un observateur unique surveille toutes les vignettes et pose un attribut
- * sur celle qui entre. Passer par l'etat ferait rerendre la galerie entiere
- * a chaque vignette croisee — sur cinquante images, cinquante rendus pour un
- * effet purement visuel.
+ * A single observer watches every thumbnail and sets an attribute on the one
+ * that enters. Passing through state would rerender the whole gallery at
+ * every thumbnail crossed — on fifty images, fifty renders for a purely
+ * visual effect.
  *
- * Le retard vient du rang de la vignette **dans sa rangee**, pas de son rang
- * global : sur une galerie longue, un retard global finirait a plusieurs
- * secondes, et les dernieres vignettes arriveraient apres qu'on les a
- * depassees.
+ * The delay comes from the rank of the thumbnail **within its row**, not
+ * from its global rank: on a long gallery, a global delay would end up at
+ * several seconds, and the last thumbnails would arrive after one has
+ * passed them.
  *
- * ## Une vignette n'est une cible que si elle mene quelque part
+ * ## A thumbnail is a target only if it leads somewhere
  *
- * Sans `onSelect`, chaque vignette est une `figure` : rien a activer, rien
- * dans l'ordre de tabulation, et le lecteur d'ecran annonce une image avec
- * son texte de remplacement. Avec `onSelect`, la meme figure vit dans un
- * bouton. Un bouton sans action est pire qu'une image : il promet une suite
- * qui n'existe pas.
+ * Without `onSelect`, every thumbnail is a `figure`: nothing to activate,
+ * nothing in the tab order, and the screen reader announces an image with
+ * its alternative text. With `onSelect`, the same figure lives inside a
+ * button. A button without an action is worse than an image: it promises a
+ * follow-up that does not exist.
  *
- * ## Mouvement reduit
+ * ## Reduced motion
  *
- * Les vignettes sont a leur place finale des le premier rendu, et aucun
- * observateur n'est cree.
+ * The thumbnails are at their final place from the first render, and no
+ * observer is created.
  *
  * @module
  */
@@ -46,41 +46,41 @@
 import { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'
 import { useEffect, useRef, type CSSProperties, type ReactElement } from 'react'
 
-/** Une image de la galerie. */
+/** An image of the gallery. */
 export interface MasonryItem {
-  /** Source de l'image. */
+  /** Source of the image. */
   readonly src: string
-  /** Texte de remplacement, obligatoire : c'est le contenu, pas une decoration. */
+  /** Alternative text, mandatory: this is the content, not a decoration. */
   readonly alt: string
-  /** Legende affichee sous l'image. */
+  /** Caption shown under the image. */
   readonly caption?: string
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to the component. */
 export interface MasonryOwnProps {
-  /** Les images, dans l'ordre de lecture. */
+  /** The images, in reading order. */
   items: readonly MasonryItem[]
-  /** Nom de la galerie pour les lecteurs d'ecran. */
+  /** Name of the gallery for screen readers. */
   label: string
-  /** Appele au clic ou a Entree sur une vignette. */
+  /** Called on a click or on Enter on a thumbnail. */
   onSelect?: (src: string) => void
-  /** Nombre maximal de colonnes. @defaultValue 3 */
+  /** Maximum number of columns. @defaultValue 3 */
   columns?: number
-  /** Largeur minimale d'une colonne, en pixels. @defaultValue 200 */
+  /** Minimum width of a column, in pixels. @defaultValue 200 */
   minWidth?: number
-  /** Ecart entre deux vignettes, en pixels. @defaultValue 16 */
+  /** Gap between two thumbnails, in pixels. @defaultValue 16 */
   gap?: number
-  /** Retard ajoute d'une colonne a la suivante, en millisecondes. @defaultValue 90 */
+  /** Delay added from one column to the next, in milliseconds. @defaultValue 90 */
   stagger?: number
 }
 
-/** Toutes les proprietes. */
+/** All the props. */
 export type MasonryProps = Customisable<MasonryOwnProps>
 
-/** Identifiant de la feuille injectee. */
+/** Id of the injected stylesheet. */
 const STYLE_ID = 'o-masonry'
 
-/** Pose les colonnes, la vignette et sa montee, une fois par document. */
+/** Sets the columns, the thumbnail and its rise, once per document. */
 function ensureMasonryRules(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -88,8 +88,8 @@ function ensureMasonryRules(): void {
   const style = document.createElement('style')
   style.id = STYLE_ID
   style.textContent = [
-    // `columns` prend une largeur minimale et un nombre maximal : le navigateur
-    // en pose autant qu'il en tient, sans requete de media a ecrire.
+    // `columns` takes a minimum width and a maximum number: the browser lays
+    // out as many as fit, with no media query to write.
     '[data-o-masonry]{',
     'columns:var(--o-masonry-min) var(--o-masonry-count);',
     'column-gap:var(--o-masonry-gap);',
@@ -112,14 +112,14 @@ function ensureMasonryRules(): void {
     '[data-o-masonry-tuile] figcaption{',
     'padding:0.5rem 0.7rem 0.6rem;font-size:0.8125em;line-height:1.35;color:var(--o-theme-muted);',
     '}',
-    // Retenue avant le passage, liberee par l'attribut que pose l'observateur.
+    // Held back before the crossing, released by the attribute the observer sets.
     '[data-o-masonry][data-o-masonry-anime] [data-o-masonry-case]{',
     'opacity:0;translate:0 20px;',
     'transition:opacity var(--o-duration-slower) var(--o-ease-entrance),',
     'translate var(--o-duration-slower) var(--o-ease-entrance);',
-    'transition-delay:calc(var(--o-masonry-rang) * var(--o-masonry-stagger));',
+    'transition-delay:calc(var(--o-masonry-row) * var(--o-masonry-stagger));',
     '}',
-    '[data-o-masonry][data-o-masonry-anime] [data-o-masonry-case][data-o-masonry-vu]{',
+    '[data-o-masonry][data-o-masonry-anime] [data-o-masonry-case][data-o-masonry-seen]{',
     'opacity:1;translate:none;',
     '}',
     '@media (prefers-reduced-motion:reduce){',
@@ -130,20 +130,20 @@ function ensureMasonryRules(): void {
 }
 
 /**
- * Galerie en maconnerie, dont les vignettes montent a l'arrivee.
+ * Masonry gallery, whose thumbnails rise on arrival.
  *
  * @example
  * <Masonry
- *   label="Reportage a Lisbonne"
+ *   label="Report from Lisbon"
  *   items={[
- *     { src: '/photos/toits.jpg', alt: 'Toits de tuiles au-dessus du fleuve' },
- *     { src: '/photos/tram.jpg', alt: 'Tramway jaune dans une rue en pente' },
+ *     { src: '/photos/roofs.jpg', alt: 'Tiled roofs above the river' },
+ *     { src: '/photos/tram.jpg', alt: 'Yellow tram in a sloping street' },
  *   ]}
  * />
  *
  * @example
- * // Quatre colonnes etroites, et un clic qui ouvre la visionneuse de la page.
- * <Masonry label="Archives" items={photos} columns={4} minWidth={160} onSelect={ouvrir} />
+ * // Four narrow columns, and a click that opens the viewer of the page.
+ * <Masonry label="Archives" items={photos} columns={4} minWidth={160} onSelect={open} />
  */
 export function Masonry({
   items,
@@ -160,43 +160,41 @@ export function Masonry({
   ensureMasonryRules()
 
   useEffect(() => {
-    // En mouvement reduit, les vignettes sont deja a leur place : observer
-    // reviendrait a payer un observateur pour ne rien declencher.
+    // Under reduced motion, the thumbnails are already in place: observing
+    // would amount to paying for an observer that triggers nothing.
     if (reduced) return
-    const racine = host.current
-    if (racine === null) return
+    const root = host.current
+    if (root === null) return
 
-    const cases = Array.from(
-      racine.querySelectorAll<HTMLElement>('[data-o-masonry-case]'),
-    )
+    const cells = Array.from(root.querySelectorAll<HTMLElement>('[data-o-masonry-case]'))
 
-    // Sans observateur — navigateur ancien, environnement de test — on montre.
-    // Une galerie qui reste invisible est un defaut visible ; une galerie qui
-    // arrive sans monter ne se remarque pas.
+    // Without an observer — old browser, test environment — we show. A gallery
+    // that stays invisible is a visible defect; a gallery that arrives without
+    // rising goes unnoticed.
     if (typeof IntersectionObserver === 'undefined') {
-      for (const element of cases) element.setAttribute('data-o-masonry-vu', '')
+      for (const element of cells) element.setAttribute('data-o-masonry-seen', '')
       return
     }
 
-    const observateur = new IntersectionObserver(
-      (entrees) => {
-        for (const entree of entrees) {
-          if (!entree.isIntersecting) continue
-          entree.target.setAttribute('data-o-masonry-vu', '')
-          observateur.unobserve(entree.target)
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue
+          entry.target.setAttribute('data-o-masonry-seen', '')
+          observer.unobserve(entry.target)
         }
       },
       { threshold: 0.15 },
     )
-    for (const element of cases) observateur.observe(element)
+    for (const element of cells) observer.observe(element)
 
     return () => {
-      observateur.disconnect()
+      observer.disconnect()
     }
   }, [reduced, items])
 
   const { className, style } = mergePresentation({}, rest)
-  const parRangee = Math.max(1, Math.round(columns))
+  const perRow = Math.max(1, Math.round(columns))
 
   return (
     <div
@@ -210,7 +208,7 @@ export function Masonry({
       style={
         {
           '--o-masonry-accent': 'var(--o-palette-brand-500)',
-          '--o-masonry-count': parRangee,
+          '--o-masonry-count': perRow,
           '--o-masonry-min': `${String(minWidth)}px`,
           '--o-masonry-gap': `${String(gap)}px`,
           '--o-masonry-stagger': `${String(stagger)}ms`,
@@ -231,8 +229,8 @@ export function Masonry({
             key={item.src}
             role="listitem"
             data-o-masonry-case=""
-            // Le rang dans la rangee, pas le rang global : voir l'en-tete.
-            style={{ '--o-masonry-rang': index % parRangee } as CSSProperties}
+            // The rank within the row, not the global rank: see the header.
+            style={{ '--o-masonry-row': index % perRow } as CSSProperties}
           >
             {onSelect === undefined ? (
               <figure data-o-masonry-tuile="">{figure}</figure>

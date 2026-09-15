@@ -1,18 +1,17 @@
 /**
- * Mouvement de camera reagissant au pointeur.
+ * Camera movement reacting to the pointer.
  *
- * ## L'amortissement, et pourquoi il n'est pas cosmetique
+ * ## The damping, and why it is not cosmetic
  *
- * Suivre le pointeur sans filtre donne une camera nerveuse, qui saute d'une
- * position a l'autre au rythme des evenements du systeme — irreguliers par
- * nature. L'amortissement exponentiel corrige cela : a chaque image, la camera
- * comble une fraction de l'ecart qui la separe de sa cible.
+ * Following the pointer without a filter gives a jittery camera, jumping from
+ * one position to the next at the rhythm of the system events — irregular by
+ * nature. Exponential damping corrects this: on every frame, the camera closes
+ * a fraction of the gap that separates it from its target.
  *
- * Cette fraction doit dependre du temps ecoule, sinon la vitesse du mouvement
- * varierait avec la cadence d'affichage — deux fois plus rapide sur un ecran a
- * cent vingt images par seconde que sur un ecran a soixante. La formule
- * employee, `1 - exp(-vitesse x dt)`, produit le meme mouvement quelle que
- * soit la cadence.
+ * That fraction must depend on the elapsed time, otherwise the speed of the
+ * movement would vary with the frame rate — twice as fast on a display at one
+ * hundred and twenty frames per second as on one at sixty. The formula used,
+ * `1 - exp(-speed x dt)`, produces the same movement whatever the frame rate.
  *
  * @module
  */
@@ -23,27 +22,27 @@ import type { PerspectiveCamera } from 'three'
 import { CLOCK_PRIORITY, clock } from '../core/clock.js'
 import { motionPolicy } from '../core/motion-policy.js'
 
-/** Options de {@link useCameraRig}. */
+/** Options of {@link useCameraRig}. */
 export interface CameraRigOptions {
-  /** Camera pilotee. */
+  /** Camera being driven. */
   camera: PerspectiveCamera | null
-  /** Element dont le survol est observe. Par defaut, la fenetre entiere. */
+  /** Element whose hover is observed. Defaults to the whole window. */
   host?: HTMLElement | null
-  /** Amplitude du deplacement, en unites du monde. @defaultValue 0.4 */
+  /** Amplitude of the movement, in world units. @defaultValue 0.4 */
   amplitude?: number
-  /** Vitesse de rattrapage. Plus haut, plus sec. @defaultValue 3 */
+  /** Catch-up speed. Higher is snappier. @defaultValue 3 */
   speed?: number
-  /** Distance a l'origine, conservee pendant le mouvement. @defaultValue 5 */
+  /** Distance to the origin, kept during the movement. @defaultValue 5 */
   distance?: number
-  /** Nom affiche dans le panneau de diagnostic. */
+  /** Name shown in the diagnostics panel. */
   name?: string
 }
 
 /**
- * Fait deriver la camera avec le pointeur, doucement.
+ * Drifts the camera with the pointer, gently.
  *
- * Sous mouvement reduit, la camera reste immobile a sa position de repos : le
- * deplacement au pointeur est un agrement, pas un contenu.
+ * Under reduced motion, the camera stays still at its rest position: the
+ * pointer-driven movement is an embellishment, not content.
  *
  * @example
  * useCameraRig({ camera, host: hostRef.current, amplitude: 0.6 })
@@ -74,7 +73,7 @@ export function useCameraRig(options: CameraRigOptions): void {
           ? { left: 0, top: 0, width: window.innerWidth, height: window.innerHeight }
           : host.getBoundingClientRect()
 
-      // Coordonnees normalisees, origine au centre de la zone observee.
+      // Normalised coordinates, origin at the centre of the observed area.
       target.current = {
         x: ((pointer.clientX - bounds.left) / Math.max(bounds.width, 1)) * 2 - 1,
         y: ((pointer.clientY - bounds.top) / Math.max(bounds.height, 1)) * 2 - 1,
@@ -82,7 +81,7 @@ export function useCameraRig(options: CameraRigOptions): void {
     }
 
     const onLeave = (): void => {
-      // Retour au repos, plutot qu'un gel sur la derniere position connue.
+      // Back to rest, rather than freezing on the last known position.
       target.current = { x: 0, y: 0 }
     }
 

@@ -32,7 +32,7 @@
 
 import { useMotionState, useScrollScrub } from '@odoro-cli/engine'
 import { Icon } from '@odoro-cli/icons'
-import { ArrowRight } from '@odoro-cli/icons/filaire'
+import { ArrowRight } from '@odoro-cli/icons/outline'
 import { Reveal } from '@odoro-cli/libs/motion'
 import {
   useCallback,

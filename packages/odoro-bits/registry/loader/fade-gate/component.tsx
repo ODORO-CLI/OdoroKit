@@ -1,42 +1,41 @@
 /**
- * Voile qui se dissipe apres un delai.
+ * Veil that clears away after a delay.
  *
- * ## Le seul rideau du lot qui a le droit d'etre un voile
+ * ## The only curtain of the set allowed to be a veil
  *
- * Les autres rideaux du registre refusent l'opacite, et pour une bonne raison :
- * une plaque qui se fond laisse voir la page a travers elle, ce qui trahit
- * qu'il n'y avait jamais eu de plaque. Ils prennent donc des formes — un trou,
- * deux pans, des lames — pour rester des objets jusqu'au bout.
+ * The other curtains of the registry refuse opacity, and for a good reason: a
+ * plate that fades lets the page show through it, which gives away that there
+ * had never been a plate. So they take on shapes — a hole, two panels, slats —
+ * to stay objects to the end.
  *
- * Celui-ci assume l'inverse. Il ne pretend pas etre un objet : c'est un voile,
- * il se comporte comme un voile, et c'est exactement ce qu'on veut quand
- * l'entree ne doit rien raconter — un tableau de bord, un outil, une page ou le
- * rideau est une politesse et non une mise en scene. La franchise vaut ici
- * mieux que la forme.
+ * This one owns up to the opposite. It does not claim to be an object: it is a
+ * veil, it behaves like a veil, and that is exactly what one wants when the
+ * entrance must tell no story — a dashboard, a tool, a page where the curtain
+ * is a courtesy and not a staging. Candour is worth more here than shape.
  *
- * C'est aussi le moins cher du lot : un element, une propriete animee, celle
- * que le compositeur traite le mieux.
+ * It is also the cheapest of the set: one element, one animated property, the
+ * one the compositor handles best.
  *
- * ## Le flou est facultatif, et il se paye
+ * ## The blur is optional, and it has a price
  *
- * Avec `blurPx`, le voile devient depoli : le fond est rendu partiellement
- * transparent et le filtre d'arriere-plan floute la page en dessous, puis se
- * detend jusqu'a zero. La mise au point qui se fait est un beau geste, et il
- * coute : `backdrop-filter` fait recomposer la couche a chaque image, ce que
- * l'opacite seule ne fait pas. Il reste donc a zero par defaut, et le filtre
- * n'est meme pas declare tant qu'on ne le demande pas.
+ * With `blurPx`, the veil becomes frosted: the background is made partly
+ * transparent and the backdrop filter blurs the page underneath, then relaxes
+ * to zero. The focus pulling itself into place is a fine gesture, and it
+ * costs: `backdrop-filter` makes the layer recompose on every frame, which
+ * opacity alone does not. So it stays at zero by default, and the filter is
+ * not even declared as long as it is not asked for.
  *
- * ## La sortie part au DEBUT, pas apres
+ * ## The exit fires at the START, not after
  *
- * `onDone` est appele quand le voile **commence** a se dissiper. Le contenu
- * entre pendant qu'il s'eclaircit ; attendre la fin donnerait un voile, un
- * temps mort, puis une page qui s'anime.
+ * `onDone` is called when the veil **begins** to clear. The content comes in
+ * while it lightens; waiting for the end would give a veil, a dead moment,
+ * then a page starting to animate.
  *
- * ## Contenu ou plein ecran
+ * ## Contained or full screen
  *
- * Par defaut le voile est `fixed`, couvre la fenetre et verrouille le
- * defilement du document. Avec `contained`, il devient `absolute`, se resout
- * contre le premier ancetre positionne et ne touche plus au defilement.
+ * By default the veil is `fixed`, covers the window and locks the scrolling of
+ * the document. With `contained`, it becomes `absolute`, resolves against the
+ * first positioned ancestor and no longer touches scrolling.
  *
  * @module
  */
@@ -51,50 +50,49 @@ import {
   type ReactNode,
 } from 'react'
 
-/** Proprietes propres au composant. */
+/** Props of the component itself. */
 export interface FadeGateOwnProps {
-  /** Le fond du voile. @defaultValue le fond du theme */
+  /** The background of the veil. @defaultValue the theme background */
   background?: string
-  /** L'encre du libelle. @defaultValue l'encre du theme */
+  /** The ink of the label. @defaultValue the theme ink */
   ink?: string
-  /** Ce qui s'affiche au centre pendant l'attente : un nom, une marque. */
+  /** What is displayed at the centre during the wait: a name, a brand. */
   label?: ReactNode
   /**
-   * Ce que les lecteurs d'ecran annoncent. Chaine vide pour n'annoncer que le
-   * libelle.
+   * What screen readers announce. Empty string to announce only the label.
    *
-   * @defaultValue 'Chargement'
+   * @defaultValue 'Loading'
    */
   status?: string
   /**
-   * Flou d'arriere-plan, en pixels. Zero laisse un voile opaque et gratuit ;
-   * au-dela, le voile devient depoli et se paye. Voir l'en-tete.
+   * Backdrop blur, in pixels. Zero leaves an opaque and free veil; beyond
+   * that, the veil becomes frosted and has a price. See the header.
    *
    * @defaultValue 0
    */
   blurPx?: number
-  /** Combien de temps le voile reste plein, en millisecondes. @defaultValue 1000 */
+  /** How long the veil stays solid, in milliseconds. @defaultValue 1000 */
   holdMs?: number
-  /** Duree de la dissipation, en millisecondes. @defaultValue 700 */
+  /** Duration of the clearing, in milliseconds. @defaultValue 700 */
   exitMs?: number
   /**
-   * Etat controle : le voile couvre tant que c'est `true`, et se dissipe au
-   * premier `false`. Renseigne, il remplace `holdMs`.
+   * Controlled state: the veil covers as long as this is `true`, and clears on
+   * the first `false`. When given, it replaces `holdMs`.
    */
   open?: boolean
-  /** Couvre le parent positionne plutot que la fenetre. @defaultValue false */
+  /** Covers the positioned parent rather than the window. @defaultValue false */
   contained?: boolean
-  /** Appele au **debut** de la sortie. Voir l'en-tete du module. */
+  /** Called at the **start** of the exit. See the module header. */
   onDone?: () => void
 }
 
-/** Toutes les proprietes. */
+/** All the props. */
 export type FadeGateProps = Customisable<FadeGateOwnProps, 'div'>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-fade-gate'
 
-/** Pose les regles du voile, une fois par document. */
+/** Sets up the rules of the veil, once per document. */
 function ensureFadeGateRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -110,8 +108,8 @@ function ensureFadeGateRule(): void {
     '[data-o-fadeg][data-o-fadeg-contained]{position:absolute}',
     '[data-o-fadeg][data-o-fadeg-out]{opacity:0;pointer-events:none}',
     '[data-o-fadeg-veil]{position:absolute;inset:0;background:var(--o-fadeg-bg)}',
-    // Le depoli n'existe que si on l'a demande : sans l'attribut, aucune
-    // couche de filtre n'est creee.
+    // The frosting only exists if it was asked for: without the attribute, no
+    // filter layer is created.
     '[data-o-fadeg-frost] [data-o-fadeg-veil]{',
     'background:color-mix(in oklab,var(--o-fadeg-bg) 76%,transparent);',
     'backdrop-filter:blur(var(--o-fadeg-blur));',
@@ -126,20 +124,20 @@ function ensureFadeGateRule(): void {
 }
 
 /**
- * Couvre la page d'un voile, puis le dissipe.
+ * Covers the page with a veil, then clears it away.
  *
  * @example
  * <FadeGate label="Odoro" onDone={ouvrir} />
  *
  * @example
- * // Depoli : la page se met au point derriere le voile.
+ * // Frosted: the page pulls into focus behind the veil.
  * <FadeGate blurPx={14} exitMs={900} onDone={ouvrir} />
  */
 export function FadeGate({
   background = 'var(--o-theme-bg)',
   ink = 'var(--o-theme-fg)',
   label,
-  status = 'Chargement',
+  status = 'Loading',
   blurPx = 0,
   holdMs = 1000,
   exitMs = 700,
@@ -149,109 +147,109 @@ export function FadeGate({
   ...rest
 }: FadeGateProps): ReactElement | null {
   const { reduced } = useMotionState()
-  const [sortant, setSortant] = useState(false)
-  const [parti, setParti] = useState(false)
+  const [exiting, setExiting] = useState(false)
+  const [gone, setGone] = useState(false)
 
-  // Dans une ref : la sortie ne s'annonce qu'une fois, et un rendu de plus ne
-  // doit pas rejouer le rappel.
-  const annonce = useRef(false)
-  const rappel = useRef(onDone)
-  rappel.current = onDone
+  // In a ref: the exit only announces itself once, and one more render must
+  // not replay the callback.
+  const announced = useRef(false)
+  const callback = useRef(onDone)
+  callback.current = onDone
 
   ensureFadeGateRule()
 
   useEffect(() => {
-    const annoncer = (): void => {
-      if (annonce.current) return
-      annonce.current = true
-      rappel.current?.()
+    const announce = (): void => {
+      if (announced.current) return
+      announced.current = true
+      callback.current?.()
     }
 
-    // Mouvement reduit : la sortie est immediate. Un voile de courtoisie sans
-    // le geste n'est plus qu'une attente.
+    // Reduced motion: the exit is immediate. A courtesy veil without the
+    // gesture is nothing more than a wait.
     if (reduced) {
-      annoncer()
-      setParti(true)
+      announce()
+      setGone(true)
       return
     }
 
     if (open !== undefined) {
       if (!open) {
-        setSortant(true)
-        annoncer()
+        setExiting(true)
+        announce()
       }
       return
     }
 
-    const minuteur = window.setTimeout(() => {
-      setSortant(true)
-      annoncer()
+    const timer = window.setTimeout(() => {
+      setExiting(true)
+      announce()
     }, holdMs)
 
     return () => {
-      window.clearTimeout(minuteur)
+      window.clearTimeout(timer)
     }
   }, [reduced, open, holdMs])
 
-  // Un minuteur plutot que `transitionend` : le voile depoli anime deux
-  // proprietes, et le meme code doit valoir dans les deux cas.
+  // A timer rather than `transitionend`: the frosted veil animates two
+  // properties, and the same code has to hold in both cases.
   useEffect(() => {
-    if (!sortant) return
+    if (!exiting) return
 
-    const minuteur = window.setTimeout(() => {
-      setParti(true)
+    const timer = window.setTimeout(() => {
+      setGone(true)
     }, exitMs + 40)
 
     return () => {
-      window.clearTimeout(minuteur)
+      window.clearTimeout(timer)
     }
-  }, [sortant, exitMs])
+  }, [exiting, exitMs])
 
-  // Le verrou de defilement, seulement quand le voile couvre la fenetre.
+  // The scroll lock, only when the veil covers the window.
   useEffect(() => {
-    if (contained || parti || reduced) return
+    if (contained || gone || reduced) return
 
-    // Un verrou COMPTE, et non memorise. Deux rideaux peuvent se chevaucher
-    // — rechargement a chaud, navigation, rendu concurrent — et le second
-    // memoriserait alors la valeur posee par le premier, « hidden », pour la
-    // restaurer en sortant : la page resterait bloquee sans erreur ni trace.
-    const racine = document.documentElement
-    const verrous = Number(racine.dataset['oPorteVerrous'] ?? '0')
-    if (verrous === 0) racine.dataset['oPorteAvant'] = racine.style.overflow
-    racine.dataset['oPorteVerrous'] = String(verrous + 1)
-    racine.style.overflow = 'hidden'
+    // A COUNTED lock, not a remembered one. Two curtains can overlap — hot
+    // reload, navigation, concurrent rendering — and the second one would then
+    // remember the value set by the first, "hidden", to restore it on the way
+    // out: the page would stay stuck with neither error nor trace.
+    const root = document.documentElement
+    const locks = Number(root.dataset['oGateLocks'] ?? '0')
+    if (locks === 0) root.dataset['oGatePrevious'] = root.style.overflow
+    root.dataset['oGateLocks'] = String(locks + 1)
+    root.style.overflow = 'hidden'
 
-    let rendu = false
-    const rendreLaMain = (): void => {
-      if (rendu) return
-      rendu = true
-      const reste = Number(racine.dataset['oPorteVerrous'] ?? '1') - 1
-      if (reste > 0) {
-        racine.dataset['oPorteVerrous'] = String(reste)
+    let released = false
+    const release = (): void => {
+      if (released) return
+      released = true
+      const remaining = Number(root.dataset['oGateLocks'] ?? '1') - 1
+      if (remaining > 0) {
+        root.dataset['oGateLocks'] = String(remaining)
         return
       }
-      racine.style.overflow = racine.dataset['oPorteAvant'] ?? ''
-      delete racine.dataset['oPorteVerrous']
-      delete racine.dataset['oPorteAvant']
+      root.style.overflow = root.dataset['oGatePrevious'] ?? ''
+      delete root.dataset['oGateLocks']
+      delete root.dataset['oGatePrevious']
     }
 
-    // Le garde-fou. Plus long que le plafond de n importe quel rideau, donc
-    // invisible en marche normale : il n existe que pour qu un retard ne
-    // puisse jamais laisser la page sans defilement.
-    const secours = window.setTimeout(rendreLaMain, 8000)
+    // The failsafe. Longer than the cap of any curtain, and so invisible in
+    // normal operation: it only exists so that a delay can never leave the
+    // page without scrolling.
+    const failsafe = window.setTimeout(release, 8000)
 
     return () => {
-      window.clearTimeout(secours)
-      rendreLaMain()
+      window.clearTimeout(failsafe)
+      release()
     }
-  }, [contained, parti, reduced])
+  }, [contained, gone, reduced])
 
-  if (parti) return null
+  if (gone) return null
 
   const { className, style } = mergePresentation({}, rest)
-  const depoli = blurPx > 0
+  const frosted = blurPx > 0
 
-  const styleVoile = {
+  const veilStyle = {
     ...style,
     '--o-fadeg-bg': background,
     '--o-fadeg-ink': ink,
@@ -263,13 +261,13 @@ export function FadeGate({
     <div
       {...rest}
       className={className}
-      style={styleVoile}
+      style={veilStyle}
       data-o-fadeg=""
-      {...(sortant ? { 'data-o-fadeg-out': '' } : {})}
+      {...(exiting ? { 'data-o-fadeg-out': '' } : {})}
       {...(contained ? { 'data-o-fadeg-contained': '' } : {})}
-      {...(depoli ? { 'data-o-fadeg-frost': '' } : {})}
+      {...(frosted ? { 'data-o-fadeg-frost': '' } : {})}
     >
-      {/* Le voile est du decor : il ne doit pas etre lu. */}
+      {/* The veil is decor: it must not be read. */}
       <div data-o-fadeg-veil="" aria-hidden="true" />
 
       <div data-o-fadeg-status="" role="status">

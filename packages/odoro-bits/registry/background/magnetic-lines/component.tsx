@@ -1,26 +1,26 @@
 /**
- * Lignes de champ : les cercles d'un dipole, dont le pointeur deplace un pole.
+ * Field lines: the circles of a dipole, one pole of which the pointer moves.
  *
- * ## A quoi ce fond reagit
+ * ## What this background reacts to
  *
- * Au deplacement du pointeur, avec amortissement : le second pole s'ecarte de
- * sa place au rythme du curseur, et toutes les lignes se redessinent autour
- * de lui — elles sont calculees, pas stockees. A la sortie du cadre, le hook
- * ramene la cible au centre et le pole revient.
+ * To the pointer moving, with damping: the second pole strays from its place at
+ * the pace of the cursor, and every line redraws itself around it — they are
+ * computed, not stored. On leaving the frame, the hook brings the target back
+ * to the centre and the pole returns.
  *
- * Ce qui distingue cette entree de `magnet-grid` : celle-ci ecarte des points
- * d'une grille ; ici il n'y a pas de grille, seulement les lignes continues
- * du champ, qui glissent d'un pole a l'autre.
+ * What sets this entry apart from `magnet-grid`: that one moves aside the dots
+ * of a grid; here there is no grid, only the continuous lines of the field,
+ * sliding from one pole to the other.
  *
- * ## Le pont pointeur → shader
+ * ## The pointer → shader bridge
  *
- * Aucun rendu React par image : la position amortie est recopiee dans un
- * tableau stable par une souscription a l'horloge du moteur, et la surface
- * relit ses uniforms a chaque image — la mutation suffit.
+ * No React render per frame: the damped position is copied into a stable array
+ * by a subscription to the engine clock, and the surface re-reads its uniforms
+ * every frame — the mutation is enough.
  *
- * ## Sous mouvement reduit
+ * ## Under reduced motion
  *
- * La surface est refusee par le moteur et le repli statique s'affiche.
+ * The surface is refused by the engine and the static fallback is shown.
  *
  * @module
  */
@@ -41,47 +41,47 @@ import { usePointerDamped } from '@registre/hooks/usePointerDamped'
 
 import { MAGNETIC_LINES_FRAGMENT } from './magnetic-lines.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface MagneticLinesControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to this component. */
 export interface MagneticLinesOwnProps {
-  /** Nombre de lignes de champ par tour. @defaultValue 16 */
+  /** Number of field lines per turn. @defaultValue 16 */
   lines?: number
-  /** Demi-distance des poles, en hauteurs de cadre. @defaultValue 0.35 */
+  /** Half-distance of the poles, in frame heights. @defaultValue 0.35 */
   spread?: number
-  /** Vitesse de glissement des lignes le long du champ. @defaultValue 0.15 */
+  /** Speed at which the lines slide along the field. @defaultValue 0.15 */
   speed?: number
-  /** Dessine aussi les equipotentielles. @defaultValue true */
+  /** Also draws the equipotentials. @defaultValue true */
   potential?: boolean
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<MagneticLinesControls>
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type MagneticLinesProps = Customisable<MagneticLinesOwnProps>
 
-/** Tokens employes par defaut : le fond, les lignes, les poles. */
+/** Tokens used by default: the background, the lines, the poles. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-rose-400',
   '--o-palette-amber-300',
 ] as const
 
-/** Repli par defaut : une teinte figee, dans les memes tons. */
+/** Default fallback: a frozen tint, in the same tones. */
 const DEFAULT_FALLBACK = 'o-bg-zinc-50 dark:o-bg-zinc-950'
 
 /**
- * Lignes de champ.
+ * Field lines.
  *
  * @example
  * <div className="o-relative o-min-h-screen">
@@ -101,19 +101,19 @@ export function MagneticLines({
 }: MagneticLinesProps): ReactElement {
   const [host, setHost] = useState<HTMLDivElement | null>(null)
 
-  // Tableau stable, mute en place dans la boucle : aucun setState par image.
+  // Stable array, mutated in place in the loop: no setState per frame.
   const uPointer = useRef<number[]>([0, 0]).current
 
-  const pointer = usePointerDamped({ host, speed: 3, name: 'magnetic-lines : pointeur' })
+  const pointer = usePointerDamped({ host, speed: 3, name: 'magnetic-lines : pointer' })
 
   useEffect(() => {
     const subscription = clock.subscribe(
       () => {
-        // Le shader recoit le repere du hook tel quel : centre, y vers le bas.
+        // The shader receives the hook's frame as is: centred, y downwards.
         uPointer[0] = pointer.current.x
         uPointer[1] = pointer.current.y
       },
-      { priority: CLOCK_PRIORITY.input, name: 'magnetic-lines : pont' },
+      { priority: CLOCK_PRIORITY.input, name: 'magnetic-lines : bridge' },
     )
     return () => subscription.unsubscribe()
   }, [pointer, uPointer])

@@ -1,10 +1,10 @@
 /**
- * Menu d'actions deroulant.
+ * Dropdown action menu.
  *
- * Suit le motif APG "menu button" : le declencheur porte
- * `aria-haspopup="menu"` et `aria-expanded`, le panneau est un `role="menu"`
- * navigable aux fleches avec un tabIndex rovant — un seul item dans l'ordre de
- * tabulation, le focus reel suit la selection clavier.
+ * Follows the APG "menu button" pattern: the trigger carries
+ * `aria-haspopup="menu"` and `aria-expanded`, the panel is a `role="menu"`
+ * navigable with the arrows with a roving tabIndex — a single item in the
+ * tabbing order, the real focus follows the keyboard selection.
  *
  * @module
  */
@@ -24,52 +24,52 @@ import { usePresence } from '../motion/usePresence.js'
 import { cx } from '../styles/cx.js'
 import { buttonClasses } from './Button.jsx'
 
-/** Une action du menu. */
+/** One action of the menu. */
 export interface DropdownMenuAction {
-  /** Identifiant unique de l'action. */
+  /** Unique identifier of the action. */
   readonly id: string
-  /** Libelle affiche. */
+  /** Displayed label. */
   readonly label: ReactNode
-  /** Icone decorative placee avant le libelle. */
+  /** Decorative icon placed before the label. */
   readonly icon?: ReactNode
-  /** Raccourci clavier affiche a droite. Purement indicatif. */
+  /** Keyboard shortcut displayed on the right. Purely indicative. */
   readonly shortcut?: string
-  /** Rend l'action inactivable. */
+  /** Makes the action impossible to activate. */
   readonly disabled?: boolean
-  /** Signale une action destructrice. */
+  /** Flags a destructive action. */
   readonly danger?: boolean
-  /** Appele a la selection. */
+  /** Called on selection. */
   readonly onSelect?: () => void
 }
 
-/** Un separateur visuel entre groupes d'actions. */
+/** A visual separator between groups of actions. */
 export interface DropdownMenuSeparator {
   readonly type: 'separator'
 }
 
-/** Une entree du menu : action ou separateur. */
+/** One entry of the menu: action or separator. */
 export type DropdownMenuItem = DropdownMenuAction | DropdownMenuSeparator
 
-/** Proprietes de {@link DropdownMenu}. */
+/** Properties of {@link DropdownMenu}. */
 export interface DropdownMenuProps {
-  /** Contenu du bouton declencheur. */
+  /** Content of the trigger button. */
   label: ReactNode
-  /** Entrees du menu, dans l'ordre d'affichage. */
+  /** Entries of the menu, in display order. */
   items: readonly DropdownMenuItem[]
-  /** Registre visuel du declencheur. @defaultValue 'secondary' */
+  /** Visual register of the trigger. @defaultValue 'secondary' */
   tone?: 'primary' | 'secondary' | 'ghost' | 'danger'
-  /** Classes additionnelles pour le conteneur. */
+  /** Additional classes for the container. */
   className?: string
 }
 
-/** Distingue un separateur d'une action. */
+/** Tells a separator apart from an action. */
 function isSeparator(item: DropdownMenuItem): item is DropdownMenuSeparator {
   return 'type' in item && item.type === 'separator'
 }
 
 /**
- * Indice de la prochaine action activable, en bouclant et en sautant les
- * separateurs et les actions desactivees.
+ * Index of the next activatable action, looping around and skipping the
+ * separators and the disabled actions.
  */
 function nextEnabled(
   items: readonly DropdownMenuItem[],
@@ -86,15 +86,15 @@ function nextEnabled(
 }
 
 /**
- * Menu d'actions accessible.
+ * Accessible action menu.
  *
  * @example
  * <DropdownMenu
  *   label="Actions"
  *   items={[
- *     { id: 'renommer', label: 'Renommer', onSelect: rename },
+ *     { id: 'rename', label: 'Rename', onSelect: rename },
  *     { type: 'separator' },
- *     { id: 'supprimer', label: 'Supprimer', danger: true, onSelect: remove },
+ *     { id: 'delete', label: 'Delete', danger: true, onSelect: remove },
  *   ]}
  * />
  */
@@ -140,8 +140,8 @@ export function DropdownMenu({
     [close],
   )
 
-  // Le focus reel suit l'item actif : c'est lui que les lecteurs d'ecran
-  // annoncent, le tabIndex rovant ne suffit pas.
+  // The real focus follows the active item: it is the one screen readers
+  // announce, the roving tabIndex is not enough.
   useEffect(() => {
     if (isOpen && isMounted) itemRefs.current[activeIndex]?.focus()
   }, [activeIndex, isMounted, isOpen])
@@ -177,7 +177,7 @@ export function DropdownMenu({
         close(true)
         return
       }
-      // Tab quitte le menu : on le referme sans retenir le focus.
+      // Tab leaves the menu: we close it without keeping the focus.
       if (event.key === 'Tab') {
         close(false)
         return
@@ -247,7 +247,7 @@ export function DropdownMenu({
           {items.map((item, index) =>
             isSeparator(item) ? (
               <div
-                // Un separateur n'a pas d'identifiant : sa position suffit.
+                // A separator has no identifier: its position is enough.
                 key={`separator-${index}`}
                 role="separator"
                 className="o-my-1 o-h-px o-bg-zinc-200 dark:o-bg-zinc-800"

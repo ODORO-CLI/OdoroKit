@@ -1,30 +1,30 @@
 /**
- * Double anneau : deux anneaux a deux arcs opposes, en sens contraire.
+ * Dual ring: two rings with two opposite arcs each, turning against each other.
  *
- * ## Deux arcs par anneau, et non un seul
+ * ## Two arcs per ring, and not just one
  *
- * Chaque anneau peint deux cotes opposes de sa bordure — haut et bas pour
- * l'exterieur, gauche et droite pour l'interieur — et tourne a la meme
- * vitesse que l'autre, mais dans l'autre sens. La symetrie d'ordre deux
- * change tout par rapport a un arc unique : les quatre arcs se croisent
- * deux fois par tour, toujours aux memes endroits, et c'est ce croisement
- * regulier — pas la vitesse — qui donne l'impression d'un mecanisme.
+ * Each ring paints two opposite sides of its border — top and bottom for the
+ * outer one, left and right for the inner one — and turns at the same speed as
+ * the other, but in the other direction. Twofold symmetry changes everything
+ * compared with a single arc: the four arcs cross twice per turn, always at the
+ * same places, and it is that regular crossing — not the speed — which gives
+ * the impression of a mechanism.
  *
- * Meme vitesse, c'est voulu : a des vitesses differentes les croisements
- * deriveraient, et la figure perdrait son rythme.
+ * The same speed is deliberate: at different speeds the crossings would drift,
+ * and the figure would lose its rhythm.
  *
- * Deux animations declarees une fois, tenues par le compositeur. Aucun
- * JavaScript apres le premier rendu.
+ * Two animations declared once, held by the compositor. No JavaScript after the
+ * first render.
  *
- * ## Un statut, pas un dessin
+ * ## A status, not a drawing
  *
- * L'element porte `role="status"` et un libelle pour les lecteurs d'ecran :
- * l'attente est une information, pas une decoration. Les anneaux, eux,
- * sont retires de l'arbre d'accessibilite.
+ * The element carries `role="status"` and a label for screen readers: waiting
+ * is information, not decoration. The rings themselves are removed from the
+ * accessibility tree.
  *
- * Sous mouvement reduit, les arcs restent en croix — deux en haut et en
- * bas, deux a gauche et a droite : la figure se lit encore comme un
- * chargeur, seul le mouvement s'arrete.
+ * Under reduced motion, the arcs stay in a cross — two at the top and bottom,
+ * two at the left and right: the figure still reads as a loader, only the
+ * movement stops.
  *
  * @module
  */
@@ -32,10 +32,10 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-dual-ring'
 
-/** Pose les deux anneaux et leurs rotations, une fois par document. */
+/** Sets up the two rings and their rotations, once per document. */
 function ensureDualRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -53,8 +53,8 @@ function ensureDualRule(): void {
     'inset:0;',
     'border-top-color:var(--o-dual-color);border-bottom-color:var(--o-dual-color);',
     '}',
-    // L'anneau interieur laisse un espace d'une epaisseur entre les deux
-    // traits : colles, les arcs ne se distingueraient plus au croisement.
+    // The inner ring leaves a gap of one thickness between the two strokes:
+    // touching, the arcs would no longer be told apart at the crossing.
     '[data-o-dual-inner]{',
     'inset:calc(var(--o-dual-thickness) * 2);',
     'border-left-color:var(--o-dual-color);border-right-color:var(--o-dual-color);',
@@ -68,31 +68,31 @@ function ensureDualRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** Props of the component itself. */
 export interface DualRingOwnProps {
-  /** Diametre de l'anneau exterieur, en pixels. @defaultValue 48 */
+  /** Diameter of the outer ring, in pixels. @defaultValue 48 */
   size?: number
-  /** Epaisseur des traits, en pixels. @defaultValue 3 */
+  /** Thickness of the strokes, in pixels. @defaultValue 3 */
   thickness?: number
-  /** Duree d'un tour, en millisecondes. @defaultValue 1200 */
+  /** Duration of one turn, in milliseconds. @defaultValue 1200 */
   speed?: number
-  /** Couleur des arcs. @defaultValue la couleur du texte */
+  /** Colour of the arcs. @defaultValue the text colour */
   color?: string
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */
+  /** Label announced to screen readers. @defaultValue 'Loading' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All the props. */
 export type DualRingProps = Customisable<DualRingOwnProps, 'span'>
 
 /**
- * Signale une attente par deux anneaux qui se croisent en rythme.
+ * Signals a wait through two rings crossing in rhythm.
  *
  * @example
  * <DualRing />
  *
  * @example
- * // Plus grand, plus lent, dans la teinte de marque.
+ * // Bigger, slower, in the brand hue.
  * <DualRing size={80} thickness={5} speed={2000} color="var(--o-palette-brand-500)" />
  */
 export function DualRing({
@@ -100,7 +100,7 @@ export function DualRing({
   thickness = 3,
   speed = 1200,
   color = 'currentColor',
-  label = 'Chargement',
+  label = 'Loading',
   ...rest
 }: DualRingProps): ReactElement {
   ensureDualRule()
@@ -111,7 +111,7 @@ export function DualRing({
     ...style,
     width: `${String(size)}px`,
     height: `${String(size)}px`,
-    // Deux traits et un espace doivent tenir dans le rayon.
+    // Two strokes and a gap have to fit inside the radius.
     '--o-dual-thickness': `${String(Math.min(thickness, size / 6))}px`,
     '--o-dual-speed': `${String(speed)}ms`,
     '--o-dual-color': color,

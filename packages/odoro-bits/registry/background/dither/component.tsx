@@ -1,22 +1,22 @@
 /**
- * Tramage : un degrade anime rendu en tramage ordonne.
+ * Dither: an animated gradient rendered as an ordered dither.
  *
- * ## Pourquoi trois teintes, et pas un degrade
+ * ## Why three hues, and not a gradient
  *
- * Le tramage n'a d'interet que si les teintes sont peu nombreuses : c'est
- * la densite des points qui fait le degrade, pas leur couleur. Avec trois
- * teintes, le fond garde son grain et ses aplats ; au-dela, il redeviendrait
- * un degrade ordinaire, un peu bruite.
+ * Dithering is only of interest when the hues are few: it is the density of
+ * the dots that makes the gradient, not their colour. With three hues, the
+ * background keeps its grain and its flats; beyond that, it would become an
+ * ordinary gradient again, slightly noisy.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur.
+ * It carries only what sets it apart: its shader, its settings and its fallback.
+ * Reading the tokens, converting them to floats and re-reading them when the
+ * theme changes all come from the engine.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface et sous
- * mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface and under reduced
+ * motion.
  *
  * @module
  */
@@ -33,46 +33,46 @@ import { type ReactElement } from 'react'
 
 import { DITHER_FRAGMENT } from './dither.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface DitherControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to this component. */
 export interface DitherOwnProps {
-  /** Vitesse du degrade. @defaultValue 0.3 */
+  /** Speed of the gradient. @defaultValue 0.3 */
   speed?: number
-  /** Cote d'un pixel de trame, en pixels physiques. @defaultValue 4 */
+  /** Side of one dither pixel, in physical pixels. @defaultValue 4 */
   pixel?: number
-  /** Echelle du degrade. @defaultValue 2.2 */
+  /** Scale of the gradient. @defaultValue 2.2 */
   scale?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<DitherControls>
 }
 
-/** Toutes les proprietes. */
+/** Every property. */
 export type DitherProps = Customisable<DitherOwnProps>
 
-/** Tokens employes par defaut : les trois teintes, du fond a la plus claire. */
+/** Tokens used by default: the three hues, from the background to the lightest. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-brand-500',
   '--o-palette-indigo-500',
 ] as const
 
-/** Repli par defaut : un degrade fige, dans les memes tons. */
+/** Default fallback: a frozen gradient, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-br o-from-zinc-50 dark:o-from-zinc-950 o-via-brand-100 dark:o-via-brand-950 o-to-indigo-100 dark:o-to-indigo-950'
 
 /**
- * Tramage.
+ * Dither.
  *
  * @example
  * <div className="o-relative o-min-h-screen">

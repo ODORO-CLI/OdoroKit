@@ -1,31 +1,31 @@
 /**
- * Shader des vagues de degrade.
+ * Gradient waves shader.
  *
- * ## L'idee mathematique
+ * ## The mathematical idea
  *
- * Un degrade repete en bandes horizontales — fond, premiere teinte,
- * seconde teinte, fond — dont la hauteur est deplacee par une houle. La
- * houle est une somme de sinus de l'abscisse, a frequences non multiples
- * et a vitesses opposees, pour qu'elle ne se referme jamais sur elle-meme.
+ * A gradient repeated in horizontal bands — background, first hue, second
+ * hue, background — whose height is displaced by a swell. The swell is a
+ * sum of sines of the abscissa, at non-multiple frequencies and opposite
+ * speeds, so that it never closes back on itself.
  *
- * Ce qui distingue ces vagues des lignes ondulantes ou des tranches : il
- * n'y a ni trait ni marche, seulement des nappes de couleur qui glissent
- * l'une sur l'autre. La douceur regle la largeur des transitions : basse,
- * les bandes sont franches ; haute, elles se fondent en un seul degrade
- * qui ondule.
+ * What sets these waves apart from rippling lines or from slices: there is
+ * neither stroke nor step, only sheets of colour sliding over one another.
+ * The softness sets the width of the transitions: low, the bands are clean;
+ * high, they melt into a single gradient that
+ * ripples.
  *
  * ## Uniforms
  *
- * - `uTime` — temps en secondes, fourni par le moteur.
- * - `uResolution` — taille du canevas en pixels, fournie par le moteur.
- * - `uColorA` — le fond.
- * - `uColorB` — la premiere teinte des bandes.
- * - `uColorC` — la seconde teinte des bandes.
- * - `uBands` — nombre de bandes sur la hauteur.
- * - `uAmplitude` — hauteur de la houle, en fraction du cadre.
- * - `uSpeed` — vitesse de la houle.
- * - `uSoftness` — largeur des transitions.
- * - `uDetail` — nombre d'harmoniques de la houle, et donc son cout.
+ * - `uTime` — time in seconds, supplied by the engine.
+ * - `uResolution` — canvas size in pixels, supplied by the engine.
+ * - `uColorA` — the background.
+ * - `uColorB` — the first hue of the bands.
+ * - `uColorC` — the second hue of the bands.
+ * - `uBands` — number of bands across the height.
+ * - `uAmplitude` — height of the swell, as a fraction of the frame.
+ * - `uSpeed` — speed of the swell.
+ * - `uSoftness` — width of the transitions.
+ * - `uDetail` — number of harmonics in the swell, and so its cost.
  */
 export const GRADIENT_WAVES_FRAGMENT = /* glsl */ `
 precision highp float;
@@ -47,30 +47,30 @@ void main() {
   float aspect = uResolution.x / max(uResolution.y, 1.0);
   float x = vUv.x * aspect;
   float t = uTime * uSpeed;
-  int harmoniques = int(clamp(uDetail, 1.0, 3.0));
+  int harmonics = int(clamp(uDetail, 1.0, 3.0));
 
-  // La houle : des sinus a frequences non multiples, aux vitesses opposees.
-  float houle = sin(x * 2.4 + t);
-  if (harmoniques >= 2) houle += 0.5 * sin(x * 4.1 - t * 1.3 + 1.0);
-  if (harmoniques >= 3) houle += 0.25 * sin(x * 7.3 + t * 0.7 + 2.0);
-  houle *= uAmplitude;
+  // The swell: sines at non-multiple frequencies, at opposite speeds.
+  float swell = sin(x * 2.4 + t);
+  if (harmonics >= 2) swell += 0.5 * sin(x * 4.1 - t * 1.3 + 1.0);
+  if (harmonics >= 3) swell += 0.25 * sin(x * 7.3 + t * 0.7 + 2.0);
+  swell *= uAmplitude;
 
-  // La bande : la hauteur deplacee, et une derive lente vers le haut.
-  float phase = (vUv.y + houle) * max(uBands, 0.5) - uTime * 0.05;
+  // The band: the displaced height, and a slow drift upwards.
+  float phase = (vUv.y + swell) * max(uBands, 0.5) - uTime * 0.05;
   float w = fract(phase);
 
-  // Le degrade repete : le fond en 0, la premiere teinte en un tiers, la
-  // seconde en deux tiers, le fond en 1. La douceur elargit les paliers.
-  float douceur = mix(0.06, 0.33, clamp(uSoftness, 0.0, 1.0));
-  float kB = smoothstep(0.333 - douceur, 0.333, w) * smoothstep(0.666, 0.666 - douceur, w);
-  float kC = smoothstep(0.666 - douceur, 0.666, w) * smoothstep(1.0, 1.0 - douceur, w);
+  // The repeated gradient: the background at 0, the first hue at a third,
+  // the second at two thirds, the background at 1. The softness widens them.
+  float softness = mix(0.06, 0.33, clamp(uSoftness, 0.0, 1.0));
+  float kB = smoothstep(0.333 - softness, 0.333, w) * smoothstep(0.666, 0.666 - softness, w);
+  float kC = smoothstep(0.666 - softness, 0.666, w) * smoothstep(1.0, 1.0 - softness, w);
 
   vec3 colour = mix(uColorA, uColorB, kB);
   colour = mix(colour, uColorC, kC);
 
-  // La crete : la ou la houle culmine, la bande s'eclaire un peu.
-  float crete = smoothstep(0.0, 1.0, houle / max(uAmplitude * 1.75, 0.0001));
-  colour += mix(uColorB, uColorC, 0.5) * crete * 0.12 * max(kB, kC);
+  // The crest: where the swell peaks, the band brightens a little.
+  float crest = smoothstep(0.0, 1.0, swell / max(uAmplitude * 1.75, 0.0001));
+  colour += mix(uColorB, uColorC, 0.5) * crest * 0.12 * max(kB, kC);
 
   gl_FragColor = vec4(clamp(colour, 0.0, 1.0), 1.0);
 }

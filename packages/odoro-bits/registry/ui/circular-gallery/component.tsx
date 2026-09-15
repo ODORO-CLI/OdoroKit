@@ -1,41 +1,40 @@
 /**
- * Galerie circulaire : un ruban d'images pose sur un cylindre couche, que
- * l'on fait tourner au doigt, a la molette ou aux fleches.
+ * Circular gallery: a ribbon of images laid on a lying cylinder, turned by
+ * finger, by wheel or with the arrows.
  *
- * ## Le geste est celui du navigateur, la courbe est a nous
+ * ## The gesture is the browser's, the curve is ours
  *
- * Le ruban est une zone qui defile horizontalement avec `scroll-snap-type`.
- * Le glisser, l'inertie du systeme, le defilement lateral d'un pave tactile,
- * la barre de defilement et le calage sur l'image centrale viennent tous du
- * navigateur. Les reecrire donnerait une inertie approximative, differente
- * sur chaque appareil, et un ruban sourd a la molette.
+ * The ribbon is an area that scrolls horizontally with `scroll-snap-type`.
+ * The drag, the system's inertia, a trackpad's lateral scroll, the scrollbar
+ * and the snap onto the centre image all come from the browser. Rewriting
+ * them would give an approximate inertia, different on every device, and a
+ * ribbon deaf to the wheel.
  *
- * Ce que le navigateur ne donne pas, c'est le cylindre : a chaque image
- * utile, chaque vignette recoit une rotation et un recul proportionnels a sa
- * distance au centre du cadre. Ecriture directe sur l'element, jamais par
- * l'etat : sur un ruban de vingt images, un rendu React par pixel parcouru
- * couterait plus cher que tout le reste du composant.
+ * What the browser does not give is the cylinder: on each useful frame, every
+ * thumbnail receives a rotation and a setback proportional to its distance
+ * from the centre of the viewport. Written straight onto the element, never
+ * through state: on a ribbon of twenty images, one React render per pixel
+ * travelled would cost more than all the rest of the component.
  *
- * ## Les positions sont mesurees une fois
+ * ## The positions are measured once
  *
- * Lire la boite de chaque vignette a chaque image melerait lectures et
- * ecritures de mise en page, et la ferait recalculer vingt fois par image.
- * Les centres sont donc releves apres le rendu et au redimensionnement ; la
- * boucle, elle, ne lit qu'une seule valeur — la position de defilement.
+ * Reading each thumbnail's box on every frame would mix layout reads and
+ * writes, and force it to be recomputed twenty times per frame. The centres
+ * are therefore taken after render and on resize; the loop itself reads a
+ * single value — the scroll position.
  *
- * ## Ce n'est pas le carrousel
+ * ## This is not the carousel
  *
- * Le carrousel est un rail plat, avance page par page par deux boutons.
- * Ici il n'y a ni page ni bouton : un ruban continu que l'on pousse, dont
- * l'image du centre est celle qu'on regarde, et dont les voisines fuient en
- * profondeur. Les deux repondent a des envies differentes, et le disent par
- * leur forme.
+ * The carousel is a flat rail, moved page by page by two buttons. Here there
+ * is neither page nor button: a continuous ribbon that one pushes, whose
+ * centre image is the one being looked at, and whose neighbours flee into
+ * depth. The two answer different wishes, and say so by their shape.
  *
- * ## Mouvement reduit
+ * ## Reduced motion
  *
- * Le cylindre s'aplatit — plus de rotation, plus de recul — et le calage aux
- * fleches se fait sans glissement. Le ruban reste un ruban : il defile, il se
- * cale, rien n'est perdu.
+ * The cylinder flattens — no more rotation, no more setback — and the snap on
+ * the arrows happens without a glide. The ribbon stays a ribbon: it scrolls,
+ * it snaps, nothing is lost.
  *
  * @module
  */
@@ -51,41 +50,41 @@ import {
   type ReactElement,
 } from 'react'
 
-/** Une image du ruban. */
+/** One image of the ribbon. */
 export interface CircularGalleryItem {
-  /** Source de l'image. */
+  /** Source of the image. */
   readonly src: string
-  /** Texte de remplacement, obligatoire : c'est le contenu, pas une decoration. */
+  /** Alternative text, required: this is the content, not a decoration. */
   readonly alt: string
-  /** Legende affichee sous l'image. */
+  /** Caption shown under the image. */
   readonly caption?: string
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface CircularGalleryOwnProps {
-  /** Les images du ruban, dans l'ordre. */
+  /** The images of the ribbon, in order. */
   items: readonly CircularGalleryItem[]
-  /** Nom de la galerie, annonce aux technologies d'assistance. */
+  /** Name of the gallery, announced to assistive technologies. */
   label: string
-  /** Largeur d'une image, en pixels. @defaultValue 260 */
+  /** Width of one image, in pixels. @defaultValue 260 */
   width?: number
-  /** Hauteur d'une image, en pixels. @defaultValue 320 */
+  /** Height of one image, in pixels. @defaultValue 320 */
   height?: number
-  /** Ecart entre deux images, en pixels. @defaultValue 24 */
+  /** Gap between two images, in pixels. @defaultValue 24 */
   gap?: number
-  /** Inclinaison ajoutee par image d'ecart au centre, en degres. @defaultValue 26 */
+  /** Tilt added per image away from the centre, in degrees. @defaultValue 26 */
   curve?: number
-  /** Recul ajoute par image d'ecart au centre, en pixels. @defaultValue 120 */
+  /** Setback added per image away from the centre, in pixels. @defaultValue 120 */
   depth?: number
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type CircularGalleryProps = Customisable<CircularGalleryOwnProps>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-circular-gallery'
 
-/** Pose le ruban, ses vignettes et son cylindre, une fois par document. */
+/** Applies the ribbon, its thumbnails and its cylinder, once per document. */
 function ensureGalleryRules(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -94,15 +93,15 @@ function ensureGalleryRules(): void {
   style.id = STYLE_ID
   style.textContent = [
     '[data-o-cgal]{',
-    // `overflow-y` doit etre dit. La regle en cascade veut qu un axe a `auto`
-    // force l autre a `auto` des qu il vaut `visible` : le ruban devenait
-    // alors un conteneur a defilement VERTICAL, invisible parce que la barre
-    // est masquee, et il avalait la molette — la page entiere se figeait sous
-    // le pointeur. Le cylindre deborde en hauteur par construction, donc le
-    // debordement vertical doit etre coupe, jamais parcouru.
+    // `overflow-y` must be stated. The cascade rule has it that one axis at
+    // `auto` forces the other to `auto` as soon as it is `visible`: the ribbon
+    // then became a VERTICAL scroll container, invisible because the bar is
+    // hidden, and it swallowed the wheel — the whole page froze under the
+    // pointer. The cylinder overflows in height by construction, so the
+    // vertical overflow must be clipped, never travelled.
     'position:relative;overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;',
     'scroll-snap-type:x mandatory;scrollbar-width:none;',
-    // Les extremites s'effacent : le ruban n'a pas de bord franc.
+    // The ends fade out: the ribbon has no hard edge.
     '-webkit-mask-image:linear-gradient(to right,transparent,currentColor 12%,currentColor 88%,transparent);',
     'mask-image:linear-gradient(to right,transparent,currentColor 12%,currentColor 88%,transparent);',
     '}',
@@ -111,8 +110,8 @@ function ensureGalleryRules(): void {
     '[data-o-cgal-piste]{',
     'display:flex;align-items:center;gap:var(--o-cgal-gap);',
     'margin:0;padding-block:1.5rem;list-style:none;',
-    // La moitie d'un cadre de chaque cote : sans elle, la premiere et la
-    // derniere image ne pourraient jamais atteindre le centre.
+    // Half a frame on each side: without it, the first and the last image
+    // could never reach the centre.
     'padding-inline:calc(50% - var(--o-cgal-width) / 2);',
     'perspective:900px;',
     '}',
@@ -129,9 +128,9 @@ function ensureGalleryRules(): void {
     'margin-top:0.7rem;text-align:center;font-size:0.8125em;color:var(--o-theme-muted);',
     'opacity:0;transition:opacity var(--o-duration-base) linear;',
     '}',
-    // Seule l'image calee au centre porte sa legende : trois legendes lisibles
-    // a la fois, ce serait trois titres qui se disputent le regard.
-    '[data-o-cgal-vignette][data-o-cgal-actif] figcaption{opacity:1}',
+    // Only the image snapped at the centre carries its caption: three readable
+    // captions at once would be three titles fighting over the eye.
+    '[data-o-cgal-vignette][data-o-cgal-active] figcaption{opacity:1}',
     '@media (prefers-reduced-motion:reduce){',
     '[data-o-cgal-vignette]{transform:none}',
     '[data-o-cgal-vignette] figcaption{transition:none}',
@@ -141,20 +140,20 @@ function ensureGalleryRules(): void {
 }
 
 /**
- * Ruban d'images sur un cylindre, au geste comme au clavier.
+ * Ribbon of images on a cylinder, by gesture as much as by keyboard.
  *
  * @example
  * <CircularGallery
- *   label="Collection printemps"
+ *   label="Spring collection"
  *   items={[
- *     { src: '/looks/un.jpg', alt: 'Manteau de laine ecrue', caption: 'Manteau Ostende' },
- *     { src: '/looks/deux.jpg', alt: 'Robe longue en lin', caption: 'Robe Sables' },
+ *     { src: '/looks/one.jpg', alt: 'Undyed wool coat', caption: 'Ostend coat' },
+ *     { src: '/looks/two.jpg', alt: 'Long linen dress', caption: 'Sands dress' },
  *   ]}
  * />
  *
  * @example
- * // Un ruban plat, en vignettes plus petites.
- * <CircularGallery label="Miniatures" items={photos} width={160} height={200} curve={0} depth={0} />
+ * // A flat ribbon, in smaller thumbnails.
+ * <CircularGallery label="Thumbnails" items={photos} width={160} height={200} curve={0} depth={0} />
  */
 export function CircularGallery({
   items,
@@ -168,64 +167,64 @@ export function CircularGallery({
 }: CircularGalleryProps): ReactElement {
   const { reduced } = useMotionState()
   const rail = useRef<HTMLDivElement | null>(null)
-  /** Centres des vignettes dans la piste, releves apres le rendu. */
-  const centres = useRef<number[]>([])
+  /** Centres of the thumbnails within the track, taken after render. */
+  const centers = useRef<number[]>([])
   const frame = useRef(0)
   ensureGalleryRules()
 
-  /** Incline et recule chaque vignette selon sa distance au centre du cadre. */
-  const peindre = useCallback((): void => {
+  /** Tilts and sets back each thumbnail by its distance from the centre of the frame. */
+  const paint = useCallback((): void => {
     frame.current = 0
-    const hote = rail.current
-    if (hote === null) return
+    const host = rail.current
+    if (host === null) return
 
-    const milieu = hote.scrollLeft + hote.clientWidth / 2
-    const pas = width + gap
-    const vignettes = hote.querySelectorAll<HTMLElement>('[data-o-cgal-vignette]')
+    const middle = host.scrollLeft + host.clientWidth / 2
+    const step = width + gap
+    const thumbs = host.querySelectorAll<HTMLElement>('[data-o-cgal-vignette]')
 
-    for (const [index, vignette] of Array.from(vignettes).entries()) {
-      const centre = centres.current[index]
-      if (centre === undefined) continue
-      const ecart = (centre - milieu) / pas
-      const borne = Math.min(1, Math.abs(ecart) / 2.5)
+    for (const [index, thumb] of Array.from(thumbs).entries()) {
+      const center = centers.current[index]
+      if (center === undefined) continue
+      const offset = (center - middle) / step
+      const bound = Math.min(1, Math.abs(offset) / 2.5)
 
-      vignette.style.transform = reduced
+      thumb.style.transform = reduced
         ? ''
         : [
-            `rotateY(${(-ecart * curve).toFixed(2)}deg)`,
-            `translateZ(${(-Math.abs(ecart) * depth).toFixed(1)}px)`,
+            `rotateY(${(-offset * curve).toFixed(2)}deg)`,
+            `translateZ(${(-Math.abs(offset) * depth).toFixed(1)}px)`,
           ].join(' ')
-      vignette.style.opacity = (1 - borne * 0.55).toFixed(3)
-      // L'attribut porte l'etat visuel de l'image calee. Le passer par React
-      // rerendrait le ruban entier a chaque pixel parcouru.
-      if (Math.abs(ecart) < 0.5) vignette.setAttribute('data-o-cgal-actif', '')
-      else vignette.removeAttribute('data-o-cgal-actif')
+      thumb.style.opacity = (1 - bound * 0.55).toFixed(3)
+      // The attribute carries the visual state of the snapped image. Passing it
+      // through React would rerender the whole ribbon on every pixel travelled.
+      if (Math.abs(offset) < 0.5) thumb.setAttribute('data-o-cgal-active', '')
+      else thumb.removeAttribute('data-o-cgal-active')
     }
   }, [curve, depth, gap, reduced, width])
 
-  /** Releve les centres, puis repeint. A refaire des que la largeur change. */
-  const mesurer = useCallback((): void => {
-    const hote = rail.current
-    if (hote === null) return
-    centres.current = Array.from(
-      hote.querySelectorAll<HTMLElement>('[data-o-cgal-vignette]'),
-    ).map((vignette) => vignette.offsetLeft + vignette.offsetWidth / 2)
-    peindre()
-  }, [peindre])
+  /** Takes the centres, then repaints. To redo as soon as the width changes. */
+  const measure = useCallback((): void => {
+    const host = rail.current
+    if (host === null) return
+    centers.current = Array.from(
+      host.querySelectorAll<HTMLElement>('[data-o-cgal-vignette]'),
+    ).map((thumb) => thumb.offsetLeft + thumb.offsetWidth / 2)
+    paint()
+  }, [paint])
 
   useLayoutEffect(() => {
-    mesurer()
-  }, [mesurer, items, height])
+    measure()
+  }, [measure, items, height])
 
   useEffect(() => {
-    const hote = rail.current
-    if (hote === null || typeof ResizeObserver === 'undefined') return
-    const observateur = new ResizeObserver(mesurer)
-    observateur.observe(hote)
+    const host = rail.current
+    if (host === null || typeof ResizeObserver === 'undefined') return
+    const observer = new ResizeObserver(measure)
+    observer.observe(host)
     return () => {
-      observateur.disconnect()
+      observer.disconnect()
     }
-  }, [mesurer])
+  }, [measure])
 
   useEffect(
     () => () => {
@@ -236,24 +235,24 @@ export function CircularGallery({
 
   const onScroll = (): void => {
     if (frame.current !== 0 || typeof requestAnimationFrame !== 'function') return
-    frame.current = requestAnimationFrame(peindre)
+    frame.current = requestAnimationFrame(paint)
   }
 
-  /** Les fleches poussent le ruban d'une image ; Origine et Fin aux bouts. */
+  /** The arrows push the ribbon by one image; Home and End to the ends. */
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>): void => {
-    const hote = rail.current
-    if (hote === null) return
-    const pas = width + gap
-    const cibles: Readonly<Record<string, number | undefined>> = {
-      ArrowRight: hote.scrollLeft + pas,
-      ArrowLeft: hote.scrollLeft - pas,
+    const host = rail.current
+    if (host === null) return
+    const step = width + gap
+    const targets: Readonly<Record<string, number | undefined>> = {
+      ArrowRight: host.scrollLeft + step,
+      ArrowLeft: host.scrollLeft - step,
       Home: 0,
-      End: hote.scrollWidth,
+      End: host.scrollWidth,
     }
-    const cible = cibles[event.key]
-    if (cible === undefined) return
+    const target = targets[event.key]
+    if (target === undefined) return
     event.preventDefault()
-    hote.scrollTo({ left: cible, behavior: reduced ? 'auto' : 'smooth' })
+    host.scrollTo({ left: target, behavior: reduced ? 'auto' : 'smooth' })
   }
 
   const { className, style } = mergePresentation({}, rest)
@@ -263,7 +262,7 @@ export function CircularGallery({
       {...rest}
       ref={rail}
       role="group"
-      aria-roledescription="galerie"
+      aria-roledescription="gallery"
       aria-label={label}
       tabIndex={0}
       data-o-cgal=""

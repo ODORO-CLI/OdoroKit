@@ -1,27 +1,26 @@
 /**
- * Bouton copier : la valeur part au presse-papiers, l'icone devient une coche.
+ * Copy button: the value goes to the clipboard, the icon becomes a check.
  *
- * ## Le morphing est un fondu croise, pas un remplacement
+ * ## The morph is a cross-fade, not a replacement
  *
- * Les deux icones occupent la meme case ; la copie tourne l'une vers zero
- * pendant que l'autre arrive en grandissant. Remplacer le noeud SVG au meme
- * moment ferait le meme effet visuel en apparence, mais toute interruption
- * — un second clic pendant le retour — sauterait d'une image a l'autre.
- * Deux transitions d'opacite et d'echelle, elles, repartent toujours de
- * l'etat courant.
+ * Both icons occupy the same cell; the copy spins one towards zero while the
+ * other arrives growing. Swapping the SVG node at that same moment would look
+ * the same to the eye, but any interruption — a second click during the return
+ * — would jump from one frame to the next. Two opacity and scale transitions
+ * always restart from the current state instead.
  *
- * ## L'etat est annonce, pas seulement montre
+ * ## The state is announced, not only shown
  *
- * Une region `aria-live="polite"` hors ecran recoit « Copie » au succes :
- * un lecteur d'ecran l'annonce sans etre interrompu. L'icone seule serait
- * muette, et changer le libelle du bouton pendant qu'il a le focus est
- * annonce de facon incoherente selon les lecteurs.
+ * An off-screen `aria-live="polite"` region receives "Copied" on success: a
+ * screen reader announces it without being interrupted. The icon alone would
+ * be mute, and changing the button label while it holds focus is announced
+ * inconsistently from one reader to the next.
  *
- * ## L'echec ne pretend pas
+ * ## Failure does not pretend
  *
- * `navigator.clipboard` peut refuser — page non securisee, permission
- * retiree. Dans ce cas le bouton ne passe pas a la coche : montrer un
- * succes qui n'a pas eu lieu serait pire que ne rien faire.
+ * `navigator.clipboard` can refuse — insecure page, permission revoked. In
+ * that case the button does not switch to the check: showing a success that
+ * never happened would be worse than doing nothing.
  *
  * @module
  */
@@ -29,23 +28,23 @@
 import { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'
 import { useEffect, useRef, useState, type CSSProperties, type ReactElement } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface CopyButtonOwnProps {
-  /** Texte copie dans le presse-papiers. */
+  /** Text copied to the clipboard. */
   value: string
-  /** Libelle du bouton au repos. @defaultValue 'Copier' */
+  /** Button label at rest. @defaultValue 'Copy' */
   label?: string
-  /** Temps avant le retour a l'etat de repos, en millisecondes. @defaultValue 2000 */
+  /** Time before returning to the rest state, in milliseconds. @defaultValue 2000 */
   delay?: number
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type CopyButtonProps = Customisable<CopyButtonOwnProps, 'button'>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-copy-button'
 
-/** Pose le croisement des deux icones, une fois par document. */
+/** Applies the crossing of the two icons, once per document. */
 function ensureCopyRules(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -68,7 +67,7 @@ function ensureCopyRules(): void {
     '[data-o-copy-done]{opacity:0;transform:scale(0.4);color:var(--o-copy-tint)}',
     '[data-o-copy][data-o-copy-state="done"] [data-o-copy-plain]{opacity:0;transform:scale(0.4)}',
     '[data-o-copy][data-o-copy-state="done"] [data-o-copy-done]{opacity:1;transform:scale(1)}',
-    // Mouvement reduit : le remplacement est instantane.
+    // Reduced motion: the replacement is instant.
     '@media (prefers-reduced-motion:reduce){',
     '[data-o-copy-icons] svg{transition:none}',
     '}',
@@ -77,18 +76,18 @@ function ensureCopyRules(): void {
 }
 
 /**
- * Copie une valeur au clic et le montre — et l'annonce — le temps d'un delai.
+ * Copies a value on click and shows it — and announces it — for the length of a delay.
  *
  * @example
  * <CopyButton value="pnpm dlx odoro add ui/copy-button" />
  *
  * @example
- * // Un libelle propre au contexte, un retour plus court.
- * <CopyButton value={adresse} label="Copier l adresse" delay={1200} />
+ * // A context-specific label, a shorter return.
+ * <CopyButton value={url} label="Copy the address" delay={1200} />
  */
 export function CopyButton({
   value,
-  label = 'Copier',
+  label = 'Copy',
   delay = 2000,
   ...rest
 }: CopyButtonProps): ReactElement {
@@ -97,7 +96,7 @@ export function CopyButton({
   const timer = useRef<number | null>(null)
   ensureCopyRules()
 
-  // Une minuterie encore en vol au demontage annoncerait dans le vide.
+  // A timer still in flight at unmount would announce into the void.
   useEffect(
     () => () => {
       if (timer.current !== null) window.clearTimeout(timer.current)
@@ -116,7 +115,7 @@ export function CopyButton({
         }, delay)
       })
       .catch(() => {
-        // Voir l'en-tete du module : pas de coche sans copie reelle.
+        // See the module header: no check without a real copy.
       })
   }
 
@@ -168,7 +167,7 @@ export function CopyButton({
       </span>
       <span>{label}</span>
       <span aria-live="polite" className="o-sr-only">
-        {copied ? 'Copie' : ''}
+        {copied ? 'Copied' : ''}
       </span>
     </button>
   )

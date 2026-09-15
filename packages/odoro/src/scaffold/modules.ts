@@ -1,266 +1,266 @@
 /**
- * Ce que le createur propose de mettre dans le projet.
+ * What the creator offers to put in the project.
  *
- * ## Pourquoi un catalogue, et pas une liste de paquets
+ * ## Why a catalogue, and not a list of packages
  *
- * Les trois choses qu'on veut cocher ne sont pas de meme nature, et une liste
- * de paquets mentirait sur deux d'entre elles :
+ * The three things one wants to tick are not of the same nature, and a list of
+ * packages would lie about two of them:
  *
- * - **les bibliotheques** et **le moteur** sont bien des paquets npm ;
- * - **le routeur** n'en est pas un. Il vit dans `@odoro-cli/libs/router`, un
- *   sous-chemin des bibliotheques. Le cocher n'installe donc rien de plus :
- *   il **cable** le routeur dans l'application generee, et le decocher rend
- *   une application d'une seule page ;
- * - **le registre** n'en est pas un non plus. Ses entrees sont copiees dans le
- *   projet par `odoro add`, une par une, et aucun paquet ne porte son nom.
- *   Le cocher ecrit `odoro.json` — destination, prefixe d'import, adresse du
- *   registre — et entraine le moteur, que 455 de ses 461 entrees importent.
+ * - **the libraries** and **the engine** really are npm packages;
+ * - **the router** is not one. It lives in `@odoro-cli/libs/router`, a subpath
+ *   of the libraries. Ticking it therefore installs nothing more: it **wires**
+ *   the router into the generated application, and unticking it returns a
+ *   single-page application;
+ * - **the registry** is not one either. Its entries are copied into the project
+ *   by `odoro add`, one by one, and no package carries its name. Ticking it
+ *   writes `odoro.json` — destination, import prefix, registry address — and
+ *   pulls in the engine, which 455 of its 461 entries import.
  *
- * Chaque entree porte donc ce qu'elle fait vraiment, et le createur s'en sert
- * plutot que de deviner.
+ * Each entry therefore carries what it really does, and the creator uses that
+ * rather than guessing.
  *
- * ## Pourquoi les libelles sont en anglais
+ * ## A box that cannot be unticked is a box that lies
  *
- * Le code et les commentaires de ce depot sont en francais ; ce que voit la
- * personne qui cree un projet ne l'est pas. `npm create odoro` s'execute chez
- * n'importe qui, et l'anglais est la langue par defaut d'un outil de ligne de
- * commande publie sur npm.
+ * The libraries are ticked by default, and they can be unticked for good: the
+ * project then starts without the Odoro stylesheet, without `o-*` classes and
+ * without the router — a bare React base, with ordinary CSS. That is a
+ * legitimate choice for someone bringing their own styling system, and it was
+ * better to make it true than to display a locked box.
  *
- * ## Une case qui ne peut pas etre decochee est une case qui ment
- *
- * Les bibliotheques sont cochees par defaut, et on peut les decocher pour de
- * bon : le projet part alors sans feuille de style Odoro, sans classes `o-*`
- * et sans routeur — une base React nue, avec du CSS ordinaire. C'est un choix
- * legitime pour qui apporte son propre systeme de style, et il valait mieux le
- * rendre vrai que d'afficher une case verrouillee.
- *
- * Les deux contraintes sont de bon sens : sans les bibliotheques il n'y a pas
- * de routeur, puisque c'est la qu'il vit ; et le registre entraine le moteur,
- * faute de quoi presque aucune de ses entrees ne compilerait. `resoudre` s'en
- * charge, et le dit plutot que de corriger en silence.
+ * Both constraints are common sense: without the libraries there is no router,
+ * since that is where it lives; and the registry pulls in the engine, without
+ * which almost none of its entries would build. `resolveModules` takes care of
+ * it, and says so rather than correcting in silence.
  *
  * @module
  */
 
-/** Un module proposable a la creation. */
+/**
+ * A module offered at creation time.
+ *
+ * `registre` keeps its French spelling: it is the value `--modules` accepts,
+ * and the scaffolding test of the templates names it.
+ */
 export type ModuleId = 'libs' | 'router' | 'icons' | 'engine' | 'registre'
 
-/** Ce qu'on sait d'un module. */
+/** What is known about a module. */
 export interface Module {
   readonly id: ModuleId
-  /** Libelle affiche dans la liste. En anglais : voir l'en-tete du module. */
+  /** Label shown in the list. */
   readonly label: string
-  /** Precision affichee en gris, a droite du libelle. En anglais de meme. */
+  /** Detail shown in grey, to the right of the label. */
   readonly hint: string
-  /** Coche a l'ouverture de la liste. */
-  readonly defaut: boolean
+  /** Ticked when the list opens. */
+  readonly ticked: boolean
   /**
-   * Le paquet npm a ajouter aux dependances, s'il y en a un.
+   * The npm package to add to the dependencies, when there is one.
    *
-   * Absent pour `router` et `registre` : voir l'en-tete du module.
+   * Absent for `router` and `registre`: see the module header.
    */
-  readonly paquet?: string
+  readonly packageName?: string
 }
 
 /**
- * Le catalogue, dans l'ordre d'affichage.
+ * The catalogue, in display order.
  *
- * L'ordre n'est pas alphabetique mais va du socle au supplement : ce qu'on
- * decoche rarement d'abord, ce qu'on ajoute a l'occasion ensuite.
+ * The order is not alphabetical but goes from the base to the extra: what is
+ * rarely unticked first, what is added now and then afterwards.
  */
 export const MODULES: readonly Module[] = [
   {
     id: 'libs',
     label: 'Libraries',
     hint: 'styles, tokens, UI and motion',
-    defaut: true,
-    paquet: '@odoro-cli/libs',
+    ticked: true,
+    packageName: '@odoro-cli/libs',
   },
   {
     id: 'router',
     label: 'Router',
     hint: 'ships with the libraries — wires up the pages',
-    defaut: true,
+    ticked: true,
   },
   {
     id: 'icons',
     label: 'Icons',
     hint: 'five families, imported one by one',
-    defaut: true,
-    paquet: '@odoro-cli/icons',
+    ticked: true,
+    packageName: '@odoro-cli/icons',
   },
   {
     id: 'engine',
     label: 'Engine',
     hint: 'WebGL, surfaces and motion policy',
-    defaut: false,
-    paquet: '@odoro-cli/engine',
+    ticked: false,
+    packageName: '@odoro-cli/engine',
   },
   {
     id: 'registre',
     label: 'Component registry',
     hint: 'copied by `odoro add` — pulls in the engine',
-    defaut: false,
+    ticked: false,
   },
 ]
 
-/** Les identifiants connus, pour valider une saisie. */
-export const MODULE_IDS: readonly ModuleId[] = MODULES.map((m) => m.id)
+/** The known identifiers, to validate an input. */
+export const MODULE_IDS: readonly ModuleId[] = MODULES.map((module) => module.id)
 
-/** Ceux qui sont coches a l'ouverture de la liste. */
-export const MODULES_PAR_DEFAUT: readonly ModuleId[] = MODULES.filter(
-  (m) => m.defaut,
-).map((m) => m.id)
+/** Those that are ticked when the list opens. */
+export const DEFAULT_MODULES: readonly ModuleId[] = MODULES.filter(
+  (module) => module.ticked,
+).map((module) => module.id)
 
-/** Ce que `resoudre` a du corriger dans une selection. */
+/** What `resolveModules` had to correct in a selection. */
 export interface Resolution {
-  /** La selection effectivement retenue. */
+  /** The selection actually kept. */
   readonly modules: readonly ModuleId[]
   /**
-   * Ce qui a ete retire ou ajoute, et pourquoi.
+   * What was removed or added, and why.
    *
-   * Vide quand la selection etait deja coherente. Le createur l'affiche plutot
-   * que de corriger en silence : une case cochee qui ne produit rien, ou un
-   * paquet apparu sans explication, sont plus deroutants qu'une phrase.
+   * Empty when the selection was already coherent. The creator shows it rather
+   * than correcting in silence: a ticked box that produces nothing, or a
+   * package appearing without explanation, are more baffling than a sentence.
    */
-  readonly avertissements: readonly string[]
+  readonly warnings: readonly string[]
 }
 
 /**
- * Rend la selection coherente, et dit ce qu'elle a change.
+ * Makes the selection coherent, and says what it changed.
  *
- * Deux regles : le routeur vit dans les bibliotheques, donc il ne survit pas a
- * leur retrait ; le registre a besoin du moteur, donc il l'entraine.
+ * Two rules: the router lives in the libraries, so it does not survive their
+ * removal; the registry needs the engine, so it pulls it in.
  *
  * @example
- * resoudre(['router', 'icons'])
- * // { modules: ['icons'], avertissements: ['Le routeur vient des...'] }
+ * resolveModules(['router', 'icons'])
+ * // { modules: ['icons'], warnings: ['The router lives in the...'] }
  */
-export function resoudre(selection: readonly ModuleId[]): Resolution {
-  const choisis = new Set(selection)
-  const avertissements: string[] = []
+export function resolveModules(selection: readonly ModuleId[]): Resolution {
+  const chosen = new Set(selection)
+  const warnings: string[] = []
 
-  if (choisis.has('router') && !choisis.has('libs')) {
-    choisis.delete('router')
-    avertissements.push(
+  if (chosen.has('router') && !chosen.has('libs')) {
+    chosen.delete('router')
+    warnings.push(
       'The router lives in the libraries (@odoro-cli/libs/router) — without them it is dropped.',
     )
   }
 
-  // 455 des 461 entrees du registre importent le moteur. Configurer le
-  // registre sans lui livrerait un catalogue dont presque rien ne compile :
-  // `odoro add` ecrirait les fichiers, et le projet echouerait sur un module
-  // introuvable. Mieux vaut l'ajouter et le dire.
-  if (choisis.has('registre') && !choisis.has('engine')) {
-    choisis.add('engine')
-    avertissements.push(
+  // 455 of the 461 registry entries import the engine. Configuring the registry
+  // without it would deliver a catalogue almost none of which builds: `odoro
+  // add` would write the files, and the project would fail on a module that
+  // cannot be found. Better to add it and say so.
+  if (chosen.has('registre') && !chosen.has('engine')) {
+    chosen.add('engine')
+    warnings.push(
       'Almost every registry entry imports @odoro-cli/engine, so the engine was added.',
     )
   }
 
-  // L'ordre du catalogue plutot que celui de la saisie : deux selections
-  // identiques doivent produire le meme projet, et le meme manifeste.
-  return { modules: MODULE_IDS.filter((id) => choisis.has(id)), avertissements }
+  // The catalogue order rather than the input order: two identical selections
+  // must produce the same project, and the same manifest.
+  return { modules: MODULE_IDS.filter((id) => chosen.has(id)), warnings }
 }
 
 /**
- * Les paquets a inscrire dans les dependances, pour une selection donnee.
+ * The packages to write into the dependencies, for a given selection.
  *
  * @example
- * paquetsDe(['libs', 'router', 'icons']) // ['@odoro-cli/libs', '@odoro-cli/icons']
+ * packagesFor(['libs', 'router', 'icons']) // ['@odoro-cli/libs', '@odoro-cli/icons']
  */
-export function paquetsDe(modules: readonly ModuleId[]): readonly string[] {
-  const choisis = new Set(modules)
-  return MODULES.filter((m) => m.paquet !== undefined && choisis.has(m.id)).map(
-    (m) => m.paquet as string,
-  )
+export function packagesFor(modules: readonly ModuleId[]): readonly string[] {
+  const chosen = new Set(modules)
+  return MODULES.filter(
+    (module) => module.packageName !== undefined && chosen.has(module.id),
+  ).map((module) => module.packageName as string)
 }
 
 /**
- * Les variantes a poser par-dessus le gabarit, dans l'ordre.
+ * The variants to lay over the template, in order.
  *
- * ## Trois axes, et non une combinatoire
+ * ## Three axes, and not a combinatorial explosion
  *
- * La page d'accueil est la meme quoi qu'on coche : meme dessin, meme
- * typographie, memes sections. Ce qui change tient en trois endroits, et chacun
- * a sa variante :
+ * The home page is the same whatever is ticked: same drawing, same typography,
+ * same sections. What changes fits in three places, and each has its variant:
  *
- * - **sans bibliotheques**, tout est rendu en CSS ordinaire — le dessin tient,
- *   les classes `o-*` disparaissent. Le routeur y est deja absent, `resoudre`
- *   l'ayant retire ;
- * - **sans routeur**, l'application n'a qu'une page et compose les sections
- *   elle-meme ;
- * - **avec le moteur**, le fond decoratif devient une surface WebGL animee au
- *   lieu d'un degrade. Il ne remplace qu'un fichier, `sections/Fond.tsx` : le
- *   reste de la page ne sait pas d'ou vient son fond.
+ * - **without the libraries**, everything is rendered in ordinary CSS — the
+ *   drawing holds, the `o-*` classes disappear. The router is already absent
+ *   there, `resolveModules` having removed it;
+ * - **without the router**, the application has a single page and composes the
+ *   sections itself;
+ * - **with the engine**, the decorative background becomes an animated WebGL
+ *   surface instead of a gradient. It replaces a single file, the background
+ *   one: the rest of the page does not know where its background comes from.
  *
- * L'ordre compte : le fond du moteur est pose en dernier, donc il gagne sur
- * celui qu'une variante precedente aurait ecrit.
+ * The order matters: the engine background is laid last, so it wins over what a
+ * previous variant would have written.
+ *
+ * The returned names are the directory names under `_variants/` in the
+ * templates: they stay as they are, the templates being out of scope here.
  *
  * @example
- * variantesDe(['libs', 'router'])                    // []
- * variantesDe(['libs', 'router', 'engine'])          // ['avec-moteur']
- * variantesDe(['libs', 'icons'])                     // ['sans-routeur']
- * variantesDe(['icons', 'engine'])                   // ['sans-libs', 'avec-moteur']
+ * variantsFor(['libs', 'router'])                    // []
+ * variantsFor(['libs', 'router', 'engine'])          // ['with-engine']
+ * variantsFor(['libs', 'icons'])                     // ['without-router']
+ * variantsFor(['icons', 'engine'])                   // ['without-libs', 'with-engine']
  */
-export function variantesDe(modules: readonly ModuleId[]): readonly string[] {
-  const choisis = new Set(modules)
-  const variantes: string[] = []
+export function variantsFor(modules: readonly ModuleId[]): readonly string[] {
+  const chosen = new Set(modules)
+  const variants: string[] = []
 
-  if (!choisis.has('libs')) variantes.push('sans-libs')
-  else if (!choisis.has('router')) variantes.push('sans-routeur')
+  if (!chosen.has('libs')) variants.push('without-libs')
+  else if (!chosen.has('router')) variants.push('without-router')
 
-  if (choisis.has('engine')) variantes.push('avec-moteur')
+  if (chosen.has('engine')) variants.push('with-engine')
 
-  return variantes
+  return variants
 }
 
 /**
- * Les pages generees sont-elles decoupees par route ?
+ * Are the generated pages split by route?
  *
- * Sans routeur il n'y a qu'une page, et le dossier `routes/` du gabarit n'a
- * plus de sens : le laisser livrerait des fichiers que rien n'importe, et dont
- * les imports ne resoudraient meme pas.
+ * Without the router there is a single page, and the `routes/` directory of the
+ * template no longer makes sense: leaving it would deliver files nothing
+ * imports, and whose own imports would not even resolve.
  *
  * @example
- * gardeLesRoutes(['libs', 'router']) // true
+ * keepsRoutes(['libs', 'router']) // true
  */
-export function gardeLesRoutes(modules: readonly ModuleId[]): boolean {
+export function keepsRoutes(modules: readonly ModuleId[]): boolean {
   return modules.includes('router')
 }
 
 /**
- * Traduit une valeur de `--modules` en identifiants.
+ * Translates a `--modules` value into identifiers.
  *
- * @returns Les identifiants, ou le motif du refus.
+ * @returns The identifiers, or the reason for the refusal.
  *
  * @example
- * lireModules('libs,router') // { modules: ['libs', 'router'] }
- * lireModules('none')        // { modules: [] }
- * lireModules('')            // { modules: [] }
+ * readModules('libs,router') // { modules: ['libs', 'router'] }
+ * readModules('none')        // { modules: [] }
+ * readModules('')            // { modules: [] }
  */
-export function lireModules(
-  valeur: string,
-): { modules: readonly ModuleId[]; erreur?: undefined } | { erreur: string } {
-  const brut = valeur
+export function readModules(
+  value: string,
+): { modules: readonly ModuleId[]; error?: undefined } | { error: string } {
+  const raw = value
     .split(',')
     .map((part) => part.trim())
     .filter((part) => part !== '')
 
-  // `--modules=` sans rien, ou `--modules=none` : une application nue, ce qui
-  // est un choix valide et non une saisie vide a corriger. `aucun` reste
-  // accepte : il a ete documente, et le retirer casserait les scripts ecrits
-  // depuis.
-  if (brut.length === 1 && (brut[0] === 'none' || brut[0] === 'aucun')) {
+  // `--modules=` with nothing, or `--modules=none`: a bare application, which
+  // is a valid choice and not an empty input to correct. `aucun` is still
+  // accepted: it was documented, and removing it would break the scripts
+  // written since.
+  if (raw.length === 1 && (raw[0] === 'none' || raw[0] === 'aucun')) {
     return { modules: [] }
   }
 
-  const inconnu = brut.find((part) => !MODULE_IDS.includes(part as ModuleId))
-  if (inconnu !== undefined) {
+  const unknown = raw.find((part) => !MODULE_IDS.includes(part as ModuleId))
+  if (unknown !== undefined) {
     return {
-      erreur: `Unknown module: "${inconnu}". Available: ${MODULE_IDS.join(', ')}, or "none".`,
+      error: `Unknown module: "${unknown}". Available: ${MODULE_IDS.join(', ')}, or "none".`,
     }
   }
 
-  return { modules: brut as ModuleId[] }
+  return { modules: raw as ModuleId[] }
 }

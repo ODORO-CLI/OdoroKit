@@ -1,31 +1,30 @@
 /**
- * Shader du champ electrique : une echelle de Jacob.
+ * Shader for the electric field: a Jacob's ladder.
  *
- * ## L'idee mathematique
+ * ## The mathematical idea
  *
- * Deux electrodes qui s'ecartent vers le haut, et un arc qui les relie. L'arc
- * nait en bas, la ou les electrodes sont proches, et monte porte par l'air
- * qu'il chauffe ; en haut, l'ecart devient trop grand, l'arc se rompt et un
- * nouveau s'amorce en bas. Le chemin de l'arc est une hauteur deplacee par un
- * bruit multi-octave lu le long de l'axe horizontal, rehache une trentaine de
- * fois par seconde : c'est ce rehachage qui fait le crepitement, pas un
- * mouvement continu.
+ * Two electrodes spreading apart towards the top, and an arc joining them. The
+ * arc is born at the bottom, where the electrodes are close, and climbs
+ * carried by the air it heats; at the top the gap becomes too wide, the arc
+ * breaks and a new one strikes at the bottom. The arc's path is a height
+ * displaced by a multi-octave noise read along the horizontal axis, re-hashed
+ * some thirty times a second: it is that re-hashing that makes the crackle,
+ * not a continuous motion.
  *
- * Deux images fantomes suivent l'arc un peu plus bas, plus faibles : l'air
- * ionise garde quelques instants la trace du chemin que l'arc vient de
- * quitter.
+ * Two ghost frames follow the arc a little lower, fainter: the ionised air
+ * keeps for a few instants the trace of the path the arc has just left.
  *
  * ## Uniforms
  *
- * - `uTime` — temps en secondes, fourni par le moteur.
- * - `uResolution` — taille du canevas en pixels, fournie par le moteur.
- * - `uColorA` — le fond.
- * - `uColorB` — la lueur de l'arc et les electrodes.
- * - `uColorC` — le trait de l'arc lui-meme.
- * - `uSpeed` — montees par seconde.
- * - `uJitter` — amplitude du deplacement du chemin.
- * - `uGlow` — portee de la lueur autour du trait.
- * - `uBranches` — octaves du deplacement, donc la brisure du chemin.
+ * - `uTime` — time in seconds, supplied by the engine.
+ * - `uResolution` — canvas size in pixels, supplied by the engine.
+ * - `uColorA` — the background.
+ * - `uColorB` — the glow of the arc and the electrodes.
+ * - `uColorC` — the line of the arc itself.
+ * - `uSpeed` — climbs per second.
+ * - `uJitter` — amplitude of the path's displacement.
+ * - `uGlow` — reach of the glow around the line.
+ * - `uBranches` — octaves of the displacement, and so the break-up of the path.
  */
 export const ELECTRIC_FIELD_FRAGMENT = /* glsl */ `
 precision highp float;
@@ -42,11 +41,11 @@ uniform float uJitter;
 uniform float uGlow;
 uniform float uBranches;
 
-// Cadence du rehachage du chemin, en images par seconde.
-const float CREPITEMENT = 28.0;
+// Rate at which the path is re-hashed, in frames per second.
+const float CRACKLE = 28.0;
 
-// Nombre d'images fantomes derriere l'arc.
-const int FANTOMES = 2;
+// Number of ghost frames behind the arc.
+const int GHOSTS = 2;
 
 float arcHash(float p) {
   return fract(sin(p * 127.1) * 43758.5453123);
@@ -59,47 +58,48 @@ float arcNoise(float p) {
   return mix(arcHash(cell), arcHash(cell + 1.0), smoothed);
 }
 
-// Deplacement vertical du chemin le long de x : des octaves de plus en plus
-// fines, chacune plus faible. La graine change a chaque rehachage.
-float arcChemin(float x, float graine, int octaves) {
+// Vertical displacement of the path along x: octaves that get finer and
+// finer, each one fainter. The seed changes on every re-hash.
+float arcPath(float x, float seed, int octaves) {
   float total = 0.0;
   float amplitude = 0.09;
-  float frequence = 3.0;
+  float frequency = 3.0;
   for (int i = 0; i < 5; i += 1) {
     if (i >= octaves) break;
-    total += (arcNoise(x * frequence + graine * 91.0) - 0.5) * amplitude;
-    frequence *= 2.2;
+    total += (arcNoise(x * frequency + seed * 91.0) - 0.5) * amplitude;
+    frequency *= 2.2;
     amplitude *= 0.5;
   }
   return total;
 }
 
-// Demi-ecart des electrodes a une hauteur donnee : elles divergent.
-float arcEcart(float y) {
+// Half-gap of the electrodes at a given height: they diverge.
+float arcGap(float y) {
   return 0.06 + y * 0.34;
 }
 
-// Lueur et trait d'un arc a la hauteur "base", d'intensite donnee : deux
-// couvertures entre 0 et 1, que le compositeur fond dans le fond. Ajouter
-// les couleurs au lieu de les fondre saturerait en blanc sur un theme clair.
-vec2 arcRendu(vec2 p, float base, float graine, float intensite, int octaves, float phase) {
-  float demi = arcEcart(base);
-  // Le chemin ne vit qu'entre les electrodes : hors de leur ecart, rien.
-  float dedans = smoothstep(demi + 0.02, demi - 0.01, abs(p.x));
-  // Le deplacement est nul aux electrodes, maximal au milieu : l'arc est
-  // accroche a ses deux bouts.
-  float accroche = 1.0 - pow(abs(p.x) / max(demi, 0.001), 2.0);
-  float chemin = base + arcChemin(p.x / max(demi, 0.05), graine, octaves) * uJitter * (0.6 + demi * 2.5) * accroche;
+// Glow and line of an arc at height "base", at a given intensity: two
+// coverages between 0 and 1, which the compositor blends into the background.
+// Adding the colours instead of blending them would saturate to white on a
+// light theme.
+vec2 arcRender(vec2 p, float base, float seed, float intensity, int octaves, float phase) {
+  float halfGap = arcGap(base);
+  // The path lives only between the electrodes: outside their gap, nothing.
+  float inside = smoothstep(halfGap + 0.02, halfGap - 0.01, abs(p.x));
+  // The displacement is zero at the electrodes and greatest in the middle: the
+  // arc is anchored at both its ends.
+  float anchor = 1.0 - pow(abs(p.x) / max(halfGap, 0.001), 2.0);
+  float path = base + arcPath(p.x / max(halfGap, 0.05), seed, octaves) * uJitter * (0.6 + halfGap * 2.5) * anchor;
 
-  float ecart = abs(p.y - chemin);
-  float trait = exp(-ecart * 260.0);
-  float lueur = exp(-ecart * ecart / max(uGlow * uGlow * 0.02, 0.0005));
+  float gap = abs(p.y - path);
+  float line = exp(-gap * 260.0);
+  float glow = exp(-gap * gap / max(uGlow * uGlow * 0.02, 0.0005));
 
-  // Vers la rupture, l'arc s'effile et s'eteint par a-coups.
-  float agonie = smoothstep(1.0, 0.82, phase);
-  float vie = intensite * dedans * mix(0.35, 1.0, agonie);
+  // Towards the break, the arc thins out and dies in fits and starts.
+  float dying = smoothstep(1.0, 0.82, phase);
+  float life = intensity * inside * mix(0.35, 1.0, dying);
 
-  return vec2(lueur * vie * 0.8, trait * vie);
+  return vec2(glow * life * 0.8, line * life);
 }
 
 void main() {
@@ -107,41 +107,41 @@ void main() {
   vec2 p = vec2((vUv.x - 0.5) * aspect, vUv.y);
   int octaves = int(clamp(uBranches, 1.0, 5.0));
 
-  float cadence = max(uSpeed, 0.02);
-  float cycle = floor(uTime * cadence);
-  float phase = fract(uTime * cadence);
+  float rate = max(uSpeed, 0.02);
+  float cycle = floor(uTime * rate);
+  float phase = fract(uTime * rate);
 
-  // L'arc accelere en montant : l'air chaud le porte de plus en plus vite.
-  float hauteur = 0.06 + pow(phase, 1.35) * 0.86;
+  // The arc speeds up as it climbs: the hot air carries it faster and faster.
+  float height = 0.06 + pow(phase, 1.35) * 0.86;
 
-  // Le rehachage : une graine par image de crepitement, et par cycle.
-  float image = floor(uTime * CREPITEMENT);
-  float graine = arcHash(image + cycle * 977.0);
-  float scintillement = 0.7 + 0.3 * arcHash(image * 3.7 + cycle);
+  // The re-hash: one seed per crackle frame, and per cycle.
+  float frame = floor(uTime * CRACKLE);
+  float seed = arcHash(frame + cycle * 977.0);
+  float flicker = 0.7 + 0.3 * arcHash(frame * 3.7 + cycle);
 
-  // Les electrodes : deux traits qui divergent, eclaires par l'arc au
-  // passage.
-  float demi = arcEcart(vUv.y);
-  float electrode = exp(-abs(abs(p.x) - demi) * 320.0);
-  float chauffe = exp(-abs(vUv.y - hauteur) * 9.0) * scintillement;
+  // The electrodes: two diverging lines, lit by the arc as it goes past.
+  float halfGap = arcGap(vUv.y);
+  float electrode = exp(-abs(abs(p.x) - halfGap) * 320.0);
+  float heat = exp(-abs(vUv.y - height) * 9.0) * flicker;
 
-  // L'arc, puis ses fantomes un peu plus bas et plus faibles : les
-  // couvertures se combinent par le maximum, pas par la somme.
-  vec2 arc = arcRendu(p, hauteur, graine, scintillement, octaves, phase);
-  for (int i = 1; i <= FANTOMES; i += 1) {
-    float recul = float(i) * 0.028;
-    float ancienne = arcHash(image - float(i) * 3.0 + cycle * 977.0);
-    vec2 fantome = arcRendu(p, hauteur - recul, ancienne, 0.35 / float(i), octaves, phase) * step(recul, hauteur - 0.03);
-    arc = max(arc, fantome);
+  // The arc, then its ghosts a little lower and fainter: the coverages combine
+  // through the maximum, not through the sum.
+  vec2 arc = arcRender(p, height, seed, flicker, octaves, phase);
+  for (int i = 1; i <= GHOSTS; i += 1) {
+    float lag = float(i) * 0.028;
+    float older = arcHash(frame - float(i) * 3.0 + cycle * 977.0);
+    vec2 ghost = arcRender(p, height - lag, older, 0.35 / float(i), octaves, phase) * step(lag, height - 0.03);
+    arc = max(arc, ghost);
   }
 
-  // Une lueur montante : l'air au-dessus de l'arc est deja chaud.
-  float air = exp(-max(vUv.y - hauteur, 0.0) * 6.0) * exp(-abs(p.x) * 4.0) * step(hauteur, vUv.y);
+  // A rising glow: the air above the arc is already hot.
+  float air = exp(-max(vUv.y - height, 0.0) * 6.0) * exp(-abs(p.x) * 4.0) * step(height, vUv.y);
 
-  // Du fond vers la lueur, puis vers le trait : chaque couche est fondue
-  // dans la precedente, ce qui tient sur un theme clair comme sur un sombre.
-  float lueur = clamp(air * 0.1 * scintillement + electrode * (0.25 + chauffe * 0.7) + arc.x, 0.0, 1.0);
-  vec3 colour = mix(uColorA, uColorB, lueur);
+  // From the background towards the glow, then towards the line: each layer is
+  // blended into the previous one, which holds on a light theme as on a dark
+  // one.
+  float glow = clamp(air * 0.1 * flicker + electrode * (0.25 + heat * 0.7) + arc.x, 0.0, 1.0);
+  vec3 colour = mix(uColorA, uColorB, glow);
   colour = mix(colour, uColorC, clamp(arc.y, 0.0, 1.0));
 
   gl_FragColor = vec4(colour, 1.0);

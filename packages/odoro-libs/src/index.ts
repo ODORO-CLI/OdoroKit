@@ -1,10 +1,10 @@
 /**
- * Point d'entree principal d'`@odoro-cli/libs`.
+ * Main entry point of `@odoro-cli/libs`.
  *
- * Il reexporte le systeme de style, qui n'embarque aucun composant. Le
- * routeur, le moteur d'animation et les composants d'interface vivent derriere
- * des sous-chemins dedies, pour qu'une application qui n'utilise que les
- * tokens n'embarque pas React :
+ * It reexports the style system, which ships no component. The router, the
+ * animation engine and the interface components live behind dedicated
+ * subpaths, so that an application using only the tokens does not pull React
+ * in:
  *
  * ```ts
  * import { cx, tokens } from '@odoro-cli/libs'

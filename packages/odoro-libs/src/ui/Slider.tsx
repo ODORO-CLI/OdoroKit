@@ -1,5 +1,5 @@
 /**
- * Curseur de valeur numerique sur une plage.
+ * Slider for a numeric value over a range.
  *
  * @module
  */
@@ -17,55 +17,55 @@ import {
 
 import { cx } from '../styles/cx.js'
 
-/** Proprietes de {@link Slider}. */
+/** Properties of {@link Slider}. */
 export interface SliderProps extends Omit<
   InputHTMLAttributes<HTMLInputElement>,
   'className' | 'size' | 'type' | 'value' | 'defaultValue' | 'min' | 'max' | 'step'
 > {
-  /** Libelle du curseur. Obligatoire : un champ sans libelle est inutilisable. */
+  /** Label of the slider. Required: a field without a label is unusable. */
   label: ReactNode
-  /** Masque visuellement le libelle sans le retirer de l'arbre d'accessibilite. */
+  /** Visually hides the label without removing it from the accessibility tree. */
   hideLabel?: boolean
-  /** Texte d'aide affiche sous le curseur. */
+  /** Hint text displayed under the slider. */
   hint?: ReactNode
   /**
-   * Message d'erreur. Sa presence met le curseur en etat invalide et remplace
-   * l'aide dans la description annoncee.
+   * Error message. Its presence puts the slider in an invalid state and
+   * replaces the hint in the announced description.
    */
   error?: ReactNode
-  /** Borne basse. @defaultValue 0 */
+  /** Lower bound. @defaultValue 0 */
   min?: number
-  /** Borne haute. @defaultValue 100 */
+  /** Upper bound. @defaultValue 100 */
   max?: number
-  /** Pas d'incrementation. @defaultValue 1 */
+  /** Increment step. @defaultValue 1 */
   step?: number
-  /** Valeur en mode controle. */
+  /** Value in controlled mode. */
   value?: number
-  /** Valeur initiale en mode non controle. @defaultValue le milieu de la plage */
+  /** Initial value in uncontrolled mode. @defaultValue the middle of the range */
   defaultValue?: number
   /**
-   * Affiche la valeur courante a droite du libelle. En chiffres tabulaires :
-   * la largeur ne tressaute pas pendant le glissement.
+   * Displays the current value to the right of the label. In tabular figures:
+   * the width does not jitter during the drag.
    *
    * @defaultValue false
    */
   showValue?: boolean
-  /** Met en forme la valeur affichee par `showValue`. @defaultValue String */
+  /** Formats the value displayed by `showValue`. @defaultValue String */
   formatValue?: (value: number) => string
-  /** Classes additionnelles appliquees a l'element `<input>`. */
+  /** Additional classes applied to the `<input>` element. */
   className?: string
-  /** Classes additionnelles appliquees au conteneur. */
+  /** Additional classes applied to the container. */
   wrapperClassName?: string
-  /** Ref vers l'element natif. */
+  /** Ref to the native element. */
   ref?: Ref<HTMLInputElement>
 }
 
 /**
- * Curseur de valeur.
+ * Value slider.
  *
- * S'appuie sur l'input natif `type="range"` : clavier, tactile et lecteurs
- * d'ecran sont pris en charge par le navigateur ; la couleur vient de
- * `accent-color` via `o-accent-brand-600 dark:o-accent-brand-400` (ou le registre danger en erreur).
+ * Relies on the native `type="range"` input: keyboard, touch and screen
+ * readers are handled by the browser; the color comes from `accent-color`
+ * through `o-accent-brand-600 dark:o-accent-brand-400` (or the danger register on error).
  *
  * @example
  * <Slider
@@ -102,7 +102,8 @@ export function Slider({
   const errorId = `${sliderId}-error`
   const invalid = error !== undefined && error !== null && error !== false
 
-  // Meme valeur initiale que le natif sans attribut : le milieu de la plage.
+  // Same initial value as the native element without an attribute: the middle
+  // of the range.
   const [internal, setInternal] = useState(defaultValue ?? (min + max) / 2)
   const current = value ?? internal
 

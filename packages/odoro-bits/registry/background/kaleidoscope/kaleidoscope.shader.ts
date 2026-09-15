@@ -1,25 +1,25 @@
 /**
- * Shader du kaleidoscope.
+ * Kaleidoscope shader.
  *
- * ## L'idee mathematique
+ * ## The mathematical idea
  *
- * Un repliement angulaire : l'angle du pixel est ramene modulo 2pi/n, puis
- * reflechi par rapport au milieu du secteur. Tous les pixels d'un secteur
- * lisent donc le meme domaine, et n'importe quel motif — ici un bruit fractal
- * anime — devient symetrique sans qu'aucune symetrie ne soit dessinee. Une
- * rotation lente de l'angle avant repliement fait tourner l'ensemble.
+ * An angular fold: the pixel's angle is brought back modulo 2pi/n, then
+ * mirrored about the middle of the sector. Every pixel of a sector therefore
+ * reads the same domain, and any pattern — here an animated fractal noise —
+ * becomes symmetrical without any symmetry being drawn. A slow rotation of
+ * the angle before the fold turns the whole thing.
  *
  * ## Uniforms
  *
- * - `uTime` — temps en secondes, fourni par le moteur.
- * - `uResolution` — taille du canevas en pixels, fournie par le moteur.
- * - `uColorA` — le fond.
- * - `uColorB` — la teinte des nappes.
- * - `uColorC` — la teinte des rehauts.
- * - `uSpeed` — vitesse de rotation et de derive du bruit.
- * - `uSegments` — nombre de secteurs du repliement.
- * - `uScale` — echelle du bruit ; plus haut, plus fin.
- * - `uDetail` — nombre d'octaves du bruit, et donc son cout.
+ * - `uTime` — time in seconds, supplied by the engine.
+ * - `uResolution` — canvas size in pixels, supplied by the engine.
+ * - `uColorA` — the background.
+ * - `uColorB` — the hue of the sheets.
+ * - `uColorC` — the hue of the highlights.
+ * - `uSpeed` — rotation and noise drift speed.
+ * - `uSegments` — number of sectors in the fold.
+ * - `uScale` — noise scale; higher is finer.
+ * - `uDetail` — number of noise octaves, and so its cost.
  */
 export const KALEIDOSCOPE_FRAGMENT = /* glsl */ `
 precision highp float;
@@ -36,13 +36,13 @@ uniform float uSegments;
 uniform float uScale;
 uniform float uDetail;
 
-// Nombre pseudo-aleatoire : projection sur une direction arbitraire, sinus
-// amplifie, partie fractionnaire.
+// Pseudo-random number: projection onto an arbitrary direction, amplified
+// sine, fractional part.
 float kaleidoHash(vec2 p) {
   return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
 }
 
-// Bruit de valeur : interpolation lissee entre les quatre coins de la cellule.
+// Value noise: smoothed interpolation between the cell's four corners.
 float kaleidoNoise(vec2 p) {
   vec2 cell = floor(p);
   vec2 local = fract(p);
@@ -56,7 +56,7 @@ float kaleidoNoise(vec2 p) {
   return mix(mix(a, b, smoothed.x), mix(c, d, smoothed.x), smoothed.y);
 }
 
-// Somme d'octaves : chaque passe deux fois plus fine et deux fois plus faible.
+// Sum of octaves: each pass twice as fine and twice as faint.
 float kaleidoFbm(vec2 p, int octaves) {
   float total = 0.0;
   float amplitude = 0.5;
@@ -79,27 +79,27 @@ void main() {
   float t = uTime * uSpeed;
   int octaves = int(clamp(uDetail, 1.0, 6.0));
 
-  float rayon = length(q);
+  float radius = length(q);
   float angle = atan(q.y, q.x) + t * 0.4;
 
-  // Repliement : modulo pour ramener dans un secteur, valeur absolue autour
-  // du milieu pour le miroir. C'est cette reflexion qui fait le kaleidoscope,
-  // le modulo seul ne donnerait qu'une repetition, pas une symetrie.
-  float secteur = 6.28318 / max(uSegments, 3.0);
-  angle = mod(angle, secteur);
-  angle = abs(angle - secteur * 0.5);
+  // Fold: modulo to bring it back into one sector, absolute value around the
+  // middle for the mirror. That reflection is what makes the kaleidoscope,
+  // the modulo alone would give only a repetition, not a symmetry.
+  float sector = 6.28318 / max(uSegments, 3.0);
+  angle = mod(angle, sector);
+  angle = abs(angle - sector * 0.5);
 
-  // Retour en cartesien : tous les secteurs lisent le meme domaine.
-  vec2 domaine = vec2(cos(angle), sin(angle)) * rayon * max(uScale, 0.2);
+  // Back to cartesian: every sector reads the same domain.
+  vec2 domain = vec2(cos(angle), sin(angle)) * radius * max(uScale, 0.2);
 
-  float nappe = kaleidoFbm(domaine + vec2(t * 0.3, -t * 0.2), octaves);
+  float sheet = kaleidoFbm(domain + vec2(t * 0.3, -t * 0.2), octaves);
 
-  // Seconde lecture, decalee par la premiere : les rehauts s'enroulent au
-  // lieu de flotter au-dessus des nappes.
-  float rehaut = kaleidoFbm(domaine * 1.7 + nappe * 1.2 - t * 0.15, octaves);
+  // Second read, offset by the first: the highlights coil instead of
+  // floating above the sheets.
+  float highlight = kaleidoFbm(domain * 1.7 + sheet * 1.2 - t * 0.15, octaves);
 
-  vec3 colour = mix(uColorA, uColorB, smoothstep(0.3, 0.75, nappe));
-  colour = mix(colour, uColorC, smoothstep(0.55, 0.9, rehaut) * 0.8);
+  vec3 colour = mix(uColorA, uColorB, smoothstep(0.3, 0.75, sheet));
+  colour = mix(colour, uColorC, smoothstep(0.55, 0.9, highlight) * 0.8);
 
   gl_FragColor = vec4(colour, 1.0);
 }

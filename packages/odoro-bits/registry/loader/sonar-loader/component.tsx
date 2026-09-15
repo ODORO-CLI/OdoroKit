@@ -1,44 +1,40 @@
 /**
- * Balayage radar : un faisceau tourne sur un cadran gradue et rallume deux
- * echos a chaque passage.
+ * Radar sweep: a beam turns over a graduated dial and lights two echoes back
+ * up on each pass.
  *
- * ## Une traine faite de couches, faute de degrade angulaire
+ * ## A trail made of layers, for want of an angular gradient
  *
- * Le SVG ne connait pas le degrade conique : on ne peut pas demander a une
- * couleur de s'eteindre le long d'un angle. La traine est donc faite de
- * huit secteurs empiles, tous a la meme opacite tres faible, chacun
- * couvrant un arc plus long que le precedent depuis le bord d'attaque. La
- * ou les huit se recouvrent — juste derriere le faisceau — l'encre est a
- * son maximum ; plus loin, il en reste sept, puis six, et ainsi de suite
- * jusqu'a rien. La decroissance est donc reguliere, et surtout sans
- * couture : chaque frontiere ne fait entrer ou sortir qu'une seule couche.
+ * SVG knows nothing of the conic gradient: a colour cannot be asked to fade
+ * along an angle. The trail is therefore made of eight stacked sectors, all
+ * at the same very low opacity, each covering a longer arc than the previous
+ * one from the leading edge. Where all eight overlap — just behind the beam —
+ * the ink is at its strongest; further back, seven are left, then six, and so
+ * on down to nothing. The decay is therefore even, and above all seamless:
+ * each boundary brings exactly one layer in or out.
  *
- * Huit couches d'un peu plus de onze degres donnent une traine d'un quart
- * de tour, ce qui laisse les trois quarts du cadran sombres — assez pour
- * que le faisceau se lise comme un objet qui passe, pas comme un secteur
- * qui tourne.
+ * Eight layers of a little over eleven degrees give a trail a quarter of a
+ * turn long, which leaves three quarters of the dial dark — enough for the
+ * beam to read as an object going past, not as a sector turning.
  *
- * ## Le cadran et les echos
+ * ## The dial and the echoes
  *
- * Trois cercles de portee et une croix restent visibles en permanence, tres
- * discrets : ils donnent au faisceau quelque chose a traverser. Sans eux,
- * la rotation n'aurait aucun repere et l'oeil ne mesurerait plus sa vitesse.
+ * Three range circles and a cross stay visible at all times, very quietly:
+ * they give the beam something to cross. Without them, the rotation would
+ * have no landmark and the eye would no longer gauge its speed.
  *
- * Les deux echos ne sont pas decoratifs : leur delai est calcule depuis
- * leur propre angle, de sorte qu'ils s'allument exactement quand le
- * faisceau les atteint, puis s'eteignent lentement — la remanence d'un
- * ecran de veille. C'est ce qui separe ce chargeur d'ondes concentriques :
- * ici quelque chose cherche, et trouve.
+ * The two echoes are not decorative: their delay is computed from their own
+ * angle, so that they light up exactly when the beam reaches them, then fade
+ * slowly — the persistence of a watch screen. That is what separates this
+ * loader from concentric waves: here something is searching, and finding.
  *
- * ## Un statut, pas un dessin
+ * ## A status, not a drawing
  *
- * L'element porte `role="status"` et un libelle pour les lecteurs d'ecran :
- * l'attente est une information, pas une decoration. Le dessin est retire
- * de l'arbre d'accessibilite.
+ * The element carries `role="status"` and a label for screen readers: the
+ * wait is information, not decoration. The drawing is removed from the
+ * accessibility tree.
  *
- * Sous mouvement reduit, le faisceau reste arrete en travers du cadran et
- * les echos restent allumes : la figure se lit encore comme un radar, seul
- * le balayage s'arrete.
+ * Under reduced motion, the beam stays stopped across the dial and the echoes
+ * stay lit: the figure still reads as a radar, only the sweep stops.
  *
  * @module
  */
@@ -46,28 +42,28 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-sonar-loader'
 
-/** Portee du cadran, en unites de la vue. */
+/** Range of the dial, in view units. */
 const REACH = 46
 
-/** Nombre de couches de la traine. */
+/** Number of layers in the trail. */
 const LAYERS = 8
 
-/** Ouverture totale de la traine, en degres. */
+/** Total spread of the trail, in degrees. */
 const TAIL = 90
 
-/** Angle d'arret sous mouvement reduit, en degres. */
+/** Resting angle under reduced motion, in degrees. */
 const RESTING = 40
 
-/** Les deux echos : un angle depuis le haut, une distance, un rayon. */
+/** The two echoes: an angle from the top, a distance, a radius. */
 const ECHOES = [
   { angle: 58, distance: 32, radius: 3.4 },
   { angle: 214, distance: 21, radius: 2.6 },
 ] as const
 
-/** Un point du cadran, l'angle compte en degres depuis le haut. */
+/** A point on the dial, the angle counted in degrees from the top. */
 function point(angle: number, distance: number): { x: number; y: number } {
   const radians = ((angle - 90) * Math.PI) / 180
   return {
@@ -76,31 +72,31 @@ function point(angle: number, distance: number): { x: number; y: number } {
   }
 }
 
-/** Le meme point, ecrit pour un trace. */
+/** The same point, written out for a path. */
 function pen(angle: number, distance: number): string {
   const { x, y } = point(angle, distance)
   return `${x.toFixed(2)} ${y.toFixed(2)}`
 }
 
 /**
- * Secteur allant du bord d'attaque jusqu'a un arc en arriere.
+ * Sector running from the leading edge back to an arc behind it.
  *
- * Le bord d'attaque est en haut, a zero degre ; la traine s'etend vers les
- * angles negatifs, c'est-a-dire derriere le faisceau puisque celui-ci
- * tourne dans le sens des aiguilles.
+ * The leading edge is at the top, at zero degrees; the trail extends towards
+ * the negative angles, that is, behind the beam since the beam turns
+ * clockwise.
  */
 function sector(span: number): string {
   return [
     'M 50 50',
     `L ${pen(0, REACH)}`,
-    // L'arc revient vers l'arriere : sens trigonometrique a l'ecran, donc
-    // drapeau de balayage nul, et moins d'un demi-tour.
+    // The arc comes back towards the rear: counter-clockwise on screen, hence
+    // a zero sweep flag, and less than half a turn.
     `A ${String(REACH)} ${String(REACH)} 0 0 0 ${pen(-span, REACH)}`,
     'Z',
   ].join(' ')
 }
 
-/** Pose le cadran, la traine et les echos, une fois par document. */
+/** Sets the dial, the trail and the echoes, once per document. */
 function ensureSonarRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -119,8 +115,9 @@ function ensureSonarRule(): void {
     'animation:o-sonar-loader-fade var(--o-sonar-speed) linear infinite;',
     'animation-delay:var(--o-sonar-delay);',
     '}',
-    // L'echo s'allume d'un coup au passage, puis s'eteint sur les deux
-    // tiers du tour : au-dela, il ne reste rien a voir avant le retour.
+    // The echo lights up at once as the beam goes past, then fades over two
+    // thirds of the turn: beyond that, there is nothing left to see before
+    // the beam comes back.
     '@keyframes o-sonar-loader-fade{',
     '0%{opacity:1}',
     '65%,100%{opacity:0}',
@@ -133,36 +130,36 @@ function ensureSonarRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface SonarLoaderOwnProps {
-  /** Cote du cadran, en pixels. @defaultValue 72 */
+  /** Side of the dial, in pixels. @defaultValue 72 */
   size?: number
-  /** Duree d'un tour de faisceau, en millisecondes. @defaultValue 2400 */
+  /** Duration of one beam turn, in milliseconds. @defaultValue 2400 */
   speed?: number
-  /** Couleur du cadran, du faisceau et des echos. @defaultValue la couleur du texte */
+  /** Colour of the dial, the beam and the echoes. @defaultValue the text colour */
   color?: string
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */
+  /** Label announced to screen readers. @defaultValue 'Loading' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All the properties. */
 export type SonarLoaderProps = Customisable<SonarLoaderOwnProps, 'span'>
 
 /**
- * Signale une attente par un faisceau de radar qui balaie un cadran.
+ * Signals a wait with a radar beam sweeping a dial.
  *
  * @example
  * <SonarLoader />
  *
  * @example
- * // Plus grand, plus lent, dans la teinte de marque.
+ * // Bigger, slower, in the brand hue.
  * <SonarLoader size={112} speed={3600} color="var(--o-palette-brand-500)" />
  */
 export function SonarLoader({
   size = 72,
   speed = 2400,
   color = 'currentColor',
-  label = 'Chargement',
+  label = 'Loading',
   ...rest
 }: SonarLoaderProps): ReactElement {
   ensureSonarRule()
@@ -204,9 +201,9 @@ export function SonarLoader({
             fill="currentColor"
             style={
               {
-                // L'echo s'allume quand le faisceau l'atteint : son delai
-                // est sa part de tour, en negatif pour que la remanence soit
-                // deja en place a la premiere image.
+                // The echo lights up when the beam reaches it: its delay is
+                // its share of the turn, negative so that the persistence is
+                // already in place on the first frame.
                 '--o-sonar-delay': `${String(Math.round((echo.angle / 360 - 1) * speed))}ms`,
               } as CSSProperties
             }

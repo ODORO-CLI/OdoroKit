@@ -1,28 +1,28 @@
 /**
- * Shader de l'encre.
+ * Ink shader.
  *
- * ## L'idee mathematique
+ * ## The mathematical idea
  *
- * Chaque clic fait s'etendre un disque de la couleur suivante depuis le point
- * clique : son rayon vaut l'age fois la vitesse, son bord est adouci d'un
- * feather, et le plus recent se pose par-dessus les autres — le fond change
- * donc de couleur par vagues, en cyclant sur les trois couleurs de la palette.
- * Quatre clics vivent a la fois : le cinquieme chasse le plus ancien, qui a
- * deja recouvert le cadre.
+ * Each click spreads a disc of the next colour from the clicked point: its
+ * radius is the age times the speed, its edge is softened by a feather, and
+ * the most recent one lands on top of the others — the background therefore
+ * changes colour in waves, cycling through the three colours of the palette.
+ * Four clicks live at once: the fifth drives out the oldest, which has
+ * already covered the frame.
  *
- * Un depart a -1000 est ecarte explicitement : son rayon serait enorme et sa
- * couleur indefinie.
+ * A start at -1000 is discarded explicitly: its radius would be enormous and
+ * its colour undefined.
  *
  * ## Uniforms
  *
- * - `uTime` — temps en secondes, fourni par le moteur.
- * - `uResolution` — taille du canevas en pixels, fournie par le moteur.
- * - `uColorA` — premiere encre, et couleur de depart du fond.
- * - `uColorB` — deuxieme encre.
- * - `uColorC` — troisieme encre.
- * - `uClicks` — quatre clics (x, y, temps de depart, index de couleur).
- * - `uSpeed` — vitesse d'extension des disques.
- * - `uFeather` — largeur du bord adouci.
+ * - `uTime` — time in seconds, supplied by the engine.
+ * - `uResolution` — canvas size in pixels, supplied by the engine.
+ * - `uColorA` — the first ink, and the starting colour of the background.
+ * - `uColorB` — the second ink.
+ * - `uColorC` — the third ink.
+ * - `uClicks` — four clicks (x, y, start time, colour index).
+ * - `uSpeed` — speed at which the discs spread.
+ * - `uFeather` — width of the softened edge.
  */
 export const INK_FRAGMENT = /* glsl */ `
 precision highp float;
@@ -38,7 +38,7 @@ uniform vec4 uClicks[4];
 uniform float uSpeed;
 uniform float uFeather;
 
-// L'index de couleur cycle sur les trois encres de la palette.
+// The colour index cycles through the three inks of the palette.
 vec3 inkColour(float index) {
   if (index < 0.5) return uColorA;
   if (index < 1.5) return uColorB;
@@ -52,27 +52,27 @@ void main() {
   float feather = max(uFeather, 0.005);
   vec3 colour = uColorA;
 
-  // Du plus ancien au plus recent : l'index 0 est en tete du tampon, donc le
-  // dernier applique — c'est lui qui recouvre les autres.
+  // From the oldest to the most recent: index 0 sits at the head of the
+  // buffer, so it is applied last — it is the one that covers the others.
   for (int i = 3; i >= 0; i -= 1) {
-    vec4 clic = uClicks[i];
+    vec4 click = uClicks[i];
 
-    // Emplacement vide du tampon : rayon enorme et couleur indefinie, on
-    // l'ecarte au lieu de le laisser peindre.
-    if (clic.z < -100.0) continue;
+    // Empty slot in the buffer: enormous radius and undefined colour, it is
+    // discarded instead of being left to paint.
+    if (click.z < -100.0) continue;
 
-    vec2 centre = clic.xy * vec2(aspect, 1.0);
-    float age = max(uTime - clic.z, 0.0);
+    vec2 centre = click.xy * vec2(aspect, 1.0);
+    float age = max(uTime - click.z, 0.0);
     float radius = age * uSpeed;
     float d = length(p - centre);
 
     float alpha = 1.0 - smoothstep(radius - feather, radius + feather, d);
-    vec3 encre = inkColour(clic.w);
+    vec3 ink = inkColour(click.w);
 
-    // Le bord qui avance s'eclaire un peu : la vague se voit passer.
+    // The advancing edge brightens a little: the wave can be seen going by.
     float rim = exp(-abs(d - radius) / feather) * 0.15;
 
-    colour = mix(colour, encre * (1.0 + rim), alpha);
+    colour = mix(colour, ink * (1.0 + rim), alpha);
   }
 
   gl_FragColor = vec4(colour, 1.0);

@@ -34,7 +34,7 @@
  */
 
 import { Icon } from '@odoro-cli/icons'
-import { ArrowDown, Clapperboard } from '@odoro-cli/icons/filaire'
+import { ArrowDown, Clapperboard } from '@odoro-cli/icons/outline'
 import { useMemo, useState, type CSSProperties, type ReactElement } from 'react'
 
 import { FuzzyText } from '@/odoro/text/FuzzyText.jsx'

@@ -1,23 +1,23 @@
 /**
- * Brume basse : deux nappes qui glissent en sens contraires au bas du cadre.
+ * Low fog: two sheets sliding in opposite directions at the bottom of the frame.
  *
- * ## Le principe
+ * ## The principle
  *
- * Chaque nappe est un bruit fractal etire en largeur, dense au bas et
- * dissoute au-dessus d'une crete que le bruit dessine. Le plan lointain
- * monte plus haut, froid et fin ; le proche reste bas, dense, dans le neutre
- * du theme. Leur parallaxe fait la profondeur. Distinct de la fumee, qui
- * monte en volutes : ici la brume s'etale et reste au sol.
+ * Each sheet is a fractal noise stretched across the width, dense at the
+ * bottom and dissolved above a crest the noise draws. The far plane climbs
+ * higher, cold and fine; the near one stays low, dense, in the theme's
+ * neutral. Their parallax makes the depth. Distinct from smoke, which rises
+ * in curls: here the fog spreads and keeps to the ground.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur.
+ * It carries only what sets it apart: its shader, its settings and its fallback.
+ * Reading the tokens, converting them to floats and re-reading them when the
+ * theme changes all come from the engine.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface et sous
- * mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface and under reduced
+ * motion.
  *
  * @module
  */
@@ -34,58 +34,58 @@ import { type ReactElement } from 'react'
 
 import { FOG_DRIFT_FRAGMENT } from './fog-drift.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface FogDriftControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to this component. */
 export interface FogDriftOwnProps {
-  /** Vitesse de glissement. @defaultValue 0.5 */
+  /** Sliding speed. @defaultValue 0.5 */
   speed?: number
-  /** Hauteur de la brume, en fraction du cadre. @defaultValue 0.45 */
+  /** Height of the fog, as a fraction of the frame. @defaultValue 0.45 */
   height?: number
-  /** Opacite maximale des nappes. @defaultValue 0.8 */
+  /** Maximum opacity of the sheets. @defaultValue 0.8 */
   density?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<FogDriftControls>
 }
 
-/** Toutes les proprietes. */
+/** Every property. */
 export type FogDriftProps = Customisable<FogDriftOwnProps>
 
 /**
- * Tokens employes par defaut : le fond, la nappe proche, la nappe lointaine.
+ * Tokens used by default: the background, the near sheet, the far sheet.
  *
- * Le neutre du theme fait la nappe proche : il grise un fond clair et
- * eclaircit un fond sombre, ce qui est exactement ce qu'une brume fait.
+ * The theme's neutral makes the near sheet: it greys a light background and
+ * lightens a dark one, which is exactly what a fog does.
  */
 const DEFAULT_TOKENS = ['--o-theme-bg', '--o-theme-muted', '--o-palette-sky-300'] as const
 
-/** Repli par defaut : un degrade fige, dans les memes tons. */
+/** Default fallback: a frozen gradient, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-t o-from-zinc-200 dark:o-from-zinc-800 o-to-zinc-50 dark:o-to-zinc-950'
 
 /**
- * Detail du bruit hors qualite basse.
+ * Noise detail outside low quality.
  *
- * Deux nappes, une somme d'octaves chacune : chaque octave se paie deux
- * fois. C'est le seul levier de cout du shader.
+ * Two sheets, one sum of octaves each: every octave is paid for twice. It
+ * is the shader's only lever on cost.
  */
 const OCTAVES = 4
 
-/** Detail du bruit en qualite basse. */
+/** Noise detail at low quality. */
 const LOW_OCTAVES = 2
 
 /**
- * Brume basse.
+ * Low fog.
  *
  * @example
  * <div className="o-relative o-min-h-screen">

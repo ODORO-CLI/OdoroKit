@@ -36,7 +36,7 @@
 
 import { useMotionState } from '@odoro-cli/engine'
 import { Icon } from '@odoro-cli/icons'
-import { ArrowDown, ShoppingBasket, Thermometer } from '@odoro-cli/icons/filaire'
+import { ArrowDown, ShoppingBasket, Thermometer } from '@odoro-cli/icons/outline'
 import { useMemo, useRef, useState, type ReactElement } from 'react'
 
 import { CursorHalo } from '@/odoro/effect/CursorHalo.jsx'

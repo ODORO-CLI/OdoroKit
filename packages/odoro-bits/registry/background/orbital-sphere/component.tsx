@@ -1,33 +1,34 @@
 /**
- * Sphère de particules, ceinte d'anneaux et piquée de nœuds lumineux.
+ * Sphere of particles, girded with rings and studded with bright nodes.
  *
- * ## Ce fichier n'est pas un portage
+ * ## This file is not a port
  *
- * L'implémentation dont il s'inspire déléguait tout à un
- * `createOrbitalSphereRenderer` qui n'accompagnait pas le composant. La scène
- * est donc écrite ici, depuis sa description : une sphère de points, trois
- * anneaux inclinés, quelques nœuds plus brillants.
+ * The implementation it takes after delegated everything to a
+ * `createOrbitalSphereRenderer` that did not come with the component. The scene
+ * is therefore written here, from its description: a sphere of points, three
+ * tilted rings, a few brighter nodes.
  *
- * ## Ce qu'elle ne fait pas, contrairement à l'original
+ * ## What it does not do, unlike the original
  *
- * Elle n'ouvre ni `requestAnimationFrame`, ni `ResizeObserver`, ni
- * `IntersectionObserver`. Les trois vivent déjà dans le moteur : `useScene`
- * arbitre la surface, suit le redimensionnement, suspend le rendu hors du champ
- * et s'abonne à la boucle unique. Les rouvrir ici donnerait deux boucles
- * concurrentes sur une même page, et le tremblement irrégulier que la boucle
- * unique existe pour supprimer.
+ * It opens neither `requestAnimationFrame`, nor `ResizeObserver`, nor
+ * `IntersectionObserver`. All three already live in the engine: `useScene`
+ * arbitrates the surface, follows the resizing, suspends the render off screen
+ * and subscribes to the single loop. Reopening them here would give two
+ * competing loops on one page, and the irregular jitter the single loop exists
+ * to remove.
  *
- * L'original appliquait aussi sa teinte par `filter: hue-rotate()` sur le
- * canevas. C'est un filtre plein écran à chaque image, pour un résultat que les
- * couleurs des matériaux donnent gratuitement — et qui, lui, suit la palette.
+ * The original also applied its hue through `filter: hue-rotate()` on the
+ * canvas. That is a fullscreen filter on every frame, for a result the
+ * materials' colours give for free — and which, unlike the filter, follows the
+ * palette.
  *
- * ## La répartition des points n'est pas aléatoire
+ * ## The distribution of the points is not random
  *
- * Tirer une latitude et une longitude au hasard accumule les points aux pôles :
- * les parallèles y sont plus courts, mais reçoivent autant de tirages. La
- * spirale de Fibonacci répartit au contraire les points à distance égale, ce
- * qui est ce qu'on veut d'une sphère de particules — et ce qui se voit
- * immédiatement si on s'en passe.
+ * Drawing a latitude and a longitude at random piles the points up at the
+ * poles: the parallels are shorter there, but receive just as many draws. The
+ * Fibonacci spiral, on the contrary, spreads the points at equal distance,
+ * which is what one wants from a sphere of particles — and what is immediately
+ * visible if one goes without it.
  *
  * @module
  */
@@ -43,50 +44,50 @@ import { useEffect, useRef, useState, type ReactElement } from 'react'
 
 import { usePoster } from '@registre/hooks/usePoster'
 
-/** Proprietes propres au composant. */
+/** Props specific to this component. */
 export interface OrbitalSphereOwnProps {
-  /** Nombre de points sur la sphere. @defaultValue 2400 */
+  /** Number of points on the sphere. @defaultValue 2400 */
   points?: number
-  /** Nombre d'anneaux. @defaultValue 3 */
+  /** Number of rings. @defaultValue 3 */
   rings?: number
-  /** Nombre de noeuds lumineux. @defaultValue 12 */
+  /** Number of bright nodes. @defaultValue 12 */
   nodes?: number
-  /** Vitesse de rotation, en tours par minute. @defaultValue 2 */
+  /** Rotation speed, in turns per minute. @defaultValue 2 */
   rpm?: number
-  /** Tokens de la sphere, des anneaux et des noeuds. */
+  /** Tokens of the sphere, of the rings and of the nodes. */
   colors?: readonly [string, string, string]
-  /** Classes du repli. */
+  /** Fallback classes. */
   poster?: string
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type OrbitalSphereProps = Customisable<OrbitalSphereOwnProps>
 
-/** Tokens employes par defaut. */
+/** Tokens used by default. */
 const DEFAULT_TOKENS = [
   '--o-palette-violet-500',
   '--o-palette-violet-300',
   '--o-palette-fuchsia-400',
 ] as const
 
-/** Repli par defaut : un halo fige, dans les memes tons. */
+/** Default fallback: a frozen halo, in the same tones. */
 const DEFAULT_POSTER =
   'o-bg-gradient-to-br o-from-violet-950 o-via-zinc-50 dark:o-via-zinc-950 o-to-fuchsia-950'
 
 /**
- * Nombre de points en qualite basse.
+ * Number of points at low quality.
  *
- * Chaque point est un sommet, et le cout d'un nuage de points croit lineairement
- * avec leur nombre. C'est le seul levier qui compte ici — les anneaux et les
- * noeuds sont negligeables a cote.
+ * Every point is a vertex, and the cost of a point cloud grows linearly with
+ * their number. It is the only lever that counts here — the rings and the nodes
+ * are negligible beside it.
  */
 const LOW_POINTS = 900
 
-/** L'angle d'or, qui donne son pas a la spirale. */
+/** The golden angle, which gives the spiral its step. */
 const GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5))
 
 /**
- * Sphere de particules en rotation.
+ * Rotating sphere of particles.
  *
  * @example
  * <div className="o-relative o-h-96 o-overflow-hidden o-rounded-xl">
@@ -95,7 +96,7 @@ const GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5))
  * </div>
  *
  * @example
- * // Les couleurs suivent la palette : trois tokens, pas trois valeurs.
+ * // The colours follow the palette: three tokens, not three values.
  * <OrbitalSphere colors={[
  *   '--o-palette-sky-500',
  *   '--o-palette-sky-300',
@@ -114,8 +115,8 @@ export function OrbitalSphere({
   const { quality, reduced } = useMotionState()
   const [element, setElement] = useState<HTMLElement | null>(null)
 
-  // Les tokens entrent par leur texte : un littéral ecrit dans le JSX est un
-  // tableau neuf a chaque rendu, et une lecture qui pose un etat bouclerait.
+  // The tokens enter by their text: a literal written in the JSX is a fresh
+  // array on every render, and a read that sets a state would loop.
   const tokenList = colors.join(' ')
   const [shades, setShades] = useState<readonly (readonly number[])[]>([])
 
@@ -124,13 +125,13 @@ export function OrbitalSphere({
     setShades(tokenList.split(' ').map((token) => readTokenColour(token, element)))
   }, [element, tokenList, reduced, quality])
 
-  // La scene lit les couleurs par ref : elle est construite une fois, et un
-  // changement de theme met a jour les materiaux sans la reconstruire.
+  // The scene reads the colours by ref: it is built once, and a change of theme
+  // updates the materials without rebuilding it.
   const shadesRef = useRef(shades)
   shadesRef.current = shades
 
   const { ref, ready, refused } = useScene<HTMLDivElement>({
-    name: 'sphere-orbitale',
+    name: 'orbital-sphere',
     setup: (context: SceneContext) => {
       const { scene, camera, three, quality: level } = context
       const [sphereTint, ringTint, nodeTint] = shadesRef.current
@@ -145,11 +146,11 @@ export function OrbitalSphere({
 
       const count = level === 'low' ? LOW_POINTS : points
 
-      // La sphere de points, repartis par la spirale de Fibonacci.
+      // The sphere of points, spread by the Fibonacci spiral.
       const positions = new Float32Array(count * 3)
       for (let index = 0; index < count; index += 1) {
-        // La hauteur balaie l'intervalle a pas constant ; l'angle avance de
-        // l'angle d'or. C'est ce couple qui egalise les distances.
+        // The height sweeps the interval at a constant step; the angle advances
+        // by the golden angle. It is that pairing that equalises the distances.
         const y = 1 - (index / Math.max(count - 1, 1)) * 2
         const ray = Math.sqrt(Math.max(0, 1 - y * y))
         const theta = GOLDEN_ANGLE * index
@@ -174,7 +175,7 @@ export function OrbitalSphere({
       )
       group.add(new three.Points(cloud, cloudMaterial))
 
-      // Les anneaux, inclines regulierement autour de l'axe.
+      // The rings, tilted at regular steps around the axis.
       const ringMaterial = new three.MeshBasicMaterial({
         transparent: true,
         opacity: 0.35,
@@ -192,7 +193,7 @@ export function OrbitalSphere({
         group.add(torus)
       }
 
-      // Les noeuds : de petites spheres pleines, posees sur la meme spirale.
+      // The nodes: small solid spheres, laid on the same spiral.
       const nodeGeometry = new three.SphereGeometry(0.028, 12, 12)
       const nodeMaterial = new three.MeshBasicMaterial({
         transparent: true,
@@ -212,13 +213,13 @@ export function OrbitalSphere({
         group.add(node)
       }
 
-      // Ce qui tourne est le groupe, pas la camera : une camera qui orbite
-      // ferait tourner aussi le repere des noeuds si on venait a les ancrer.
+      // What turns is the group, not the camera: a camera that orbited would
+      // also turn the frame of the nodes if one came to anchor them.
       const spin = group
 
-      // La construction rend sa fonction de nettoyage. Les geometries et les
-      // materiaux sont liberes par le parcours de la scene ; ce qui est cree
-      // ici et n'y figure pas ne l'est pas, et il n'y en a aucun.
+      // The setup returns its cleanup function. The geometries and the
+      // materials are freed by walking the scene; whatever is created here and
+      // does not appear in it is not, and there is none.
       return () => {
         scene.remove(group)
         spin.clear()
@@ -227,8 +228,9 @@ export function OrbitalSphere({
     frame: ({ scene }, { delta }) => {
       const group = scene.children.find((child) => child.type === 'Group')
       if (group === undefined) return
-      // La rotation est exprimee en fonction du temps ecoule : le meme reglage
-      // donne la meme vitesse apparente a soixante comme a cent vingt images.
+      // The rotation is expressed as a function of the elapsed time: the same
+      // setting gives the same apparent speed at sixty as at a hundred and
+      // twenty frames.
       group.rotation.y += (delta * rpm * Math.PI * 2) / 60
       group.rotation.x = Math.sin(group.rotation.y * 0.3) * 0.12
     },

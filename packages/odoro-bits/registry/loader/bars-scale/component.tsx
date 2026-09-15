@@ -1,34 +1,33 @@
 /**
- * Barres en cascade : cinq barres poussent du sol l'une apres l'autre,
- * tiennent, puis retombent ensemble.
+ * Cascading bars: five bars grow from the floor one after the other, hold,
+ * then fall back together.
  *
- * ## Une fenetre par barre, pas un dephasage
+ * ## One window per bar, not a phase shift
  *
- * Un dephasage par delais negatifs donne une vague qui ne s'arrete jamais —
- * c'est `wave-bars`. Ici la figure a un debut et une fin : les barres
- * montent dans l'ordre, la rangee reste pleine un instant, puis tout retombe
- * d'un coup avant de recommencer. Cela demande que chaque barre connaisse
- * sa place dans le cycle, d'ou une animation par barre, ecrite une fois dans
- * la feuille, dont seules les images cles de montee different.
+ * A phase shift through negative delays gives a wave that never stops —
+ * that is `wave-bars`. Here the figure has a beginning and an end: the bars
+ * rise in order, the row stays full for a moment, then everything falls back
+ * at once before starting over. This asks that each bar know its place in
+ * the cycle, hence one animation per bar, written once into the stylesheet,
+ * of which only the rise keyframes differ.
  *
- * La montee est en `ease-out` — la barre arrive et freine — et la chute en
- * `ease-in` — elle s'effondre en accelerant : c'est le contraste entre les
- * deux qui fait lire une construction, puis une chute, et non un va-et-vient.
+ * The rise is `ease-out` — the bar arrives and brakes — and the fall
+ * `ease-in` — it collapses while accelerating: it is the contrast between
+ * the two that makes one read a construction, then a fall, and not a
+ * back-and-forth.
  *
- * Les barres sont etirees par une echelle verticale depuis le sol, jamais
- * par une hauteur : rien ne recalcule la mise en page. Un socle de quelques
- * pour cent reste visible entre deux cycles : la rangee ne disparait jamais
- * completement.
+ * The bars are stretched by a vertical scale from the floor, never by a
+ * height: nothing recomputes the layout. A base of a few per cent stays
+ * visible between two cycles: the row never disappears completely.
  *
- * ## Un statut, pas un dessin
+ * ## A status, not a drawing
  *
- * L'element porte `role="status"` et un libelle pour les lecteurs d'ecran :
- * l'attente est une information, pas une decoration. Les barres sont
- * retirees de l'arbre d'accessibilite.
+ * The element carries `role="status"` and a label for screen readers: the
+ * wait is information, not decoration. The bars are removed from the
+ * accessibility tree.
  *
- * Sous mouvement reduit, les cinq barres restent pleines, a leur hauteur de
- * fin de montee : la rangee construite se lit encore, seule la cascade
- * s'arrete.
+ * Under reduced motion, the five bars stay full, at their end-of-rise
+ * height: the built row still reads, only the cascade stops.
  *
  * @module
  */
@@ -36,22 +35,22 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Id of the injected stylesheet. */
 const STYLE_ID = 'o-bars-scale'
 
-/** Nombre de barres. */
+/** Number of bars. */
 const BARS = 5
 
-/** Part du cycle entre deux departs de montee, en pour cent. */
+/** Share of the cycle between two rise starts, in per cent. */
 const STEP = 14
 
-/** Duree d'une montee, en pour cent du cycle. */
+/** Duration of one rise, in per cent of the cycle. */
 const RISE = 12
 
-/** Instant ou la rangee pleine commence a retomber, en pour cent. */
+/** Moment when the full row starts to fall back, in per cent. */
 const FALL_AT = 84
 
-/** Pose les barres et leur cascade, une fois par document. */
+/** Sets the bars and their cascade, once per document. */
 function ensureBarsScaleRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -69,7 +68,7 @@ function ensureBarsScaleRule(): void {
     'background:var(--o-bscale-color);transform-origin:bottom;',
     'animation-duration:var(--o-bscale-speed);animation-iteration-count:infinite;',
     '}',
-    // Une fenetre de montee par barre ; la chute est commune a toutes.
+    // One rise window per bar; the fall is common to all of them.
     ...Array.from({ length: BARS }, (_, bar) => {
       const start = bar * STEP
       const end = start + RISE
@@ -82,7 +81,7 @@ function ensureBarsScaleRule(): void {
         '}',
       ].join('')
     }),
-    // Une rangee pleine : la figure construite reste dite, sans cascade.
+    // A full row: the built figure is still said, without the cascade.
     '@media (prefers-reduced-motion:reduce){',
     '[data-o-bars-scale-bar]{animation:none;transform:scaleY(1)}',
     '}',
@@ -90,36 +89,36 @@ function ensureBarsScaleRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** The component's own props. */
 export interface BarsScaleOwnProps {
-  /** Largeur d'une barre, en pixels. @defaultValue 5 */
+  /** Width of one bar, in pixels. @defaultValue 5 */
   size?: number
-  /** Duree d'un cycle complet, en millisecondes. @defaultValue 1800 */
+  /** Duration of one complete cycle, in milliseconds. @defaultValue 1800 */
   speed?: number
-  /** Couleur des barres. @defaultValue la couleur du texte */
+  /** Color of the bars. @defaultValue the text color */
   color?: string
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */
+  /** Label announced to screen readers. @defaultValue 'Loading' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type BarsScaleProps = Customisable<BarsScaleOwnProps, 'span'>
 
 /**
- * Signale une attente par cinq barres qui poussent en cascade et retombent.
+ * Signals a wait with five bars that grow in cascade and fall back.
  *
  * @example
  * <BarsScale />
  *
  * @example
- * // Plus large, plus lent, dans la teinte de marque.
+ * // Wider, slower, in the brand hue.
  * <BarsScale size={8} speed={2600} color="var(--o-palette-brand-500)" />
  */
 export function BarsScale({
   size = 5,
   speed = 1800,
   color = 'currentColor',
-  label = 'Chargement',
+  label = 'Loading',
   ...rest
 }: BarsScaleProps): ReactElement {
   ensureBarsScaleRule()

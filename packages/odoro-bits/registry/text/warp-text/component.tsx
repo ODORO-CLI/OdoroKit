@@ -1,48 +1,46 @@
 /**
- * Deformation au defilement : la ligne se creuse puis se bombe en traversant
- * le champ.
+ * Warp on scroll: the line sags then bulges as it crosses the viewport.
  *
- * ## Le defilement commande une courbure, pas une position
+ * ## The scroll commands a curvature, not a position
  *
- * `scroll-float` fait deriver les mots et `scroll-reveal` les allume. Ici la
- * ligne garde sa place : ce que le defilement commande, c'est sa **forme**.
- * Quand le bloc est bas dans le champ, la ligne pend en chainette ; quand il
- * arrive au milieu de l'ecran, elle est parfaitement droite ; quand il monte
- * vers le haut, elle se bombe dans l'autre sens.
+ * `scroll-float` drifts the words and `scroll-reveal` lights them. Here the
+ * line keeps its place: what the scroll commands is its **shape**. When the
+ * block is low in the viewport, the line hangs like a catenary; when it
+ * reaches the middle of the screen, it is perfectly straight; when it rises
+ * towards the top, it bulges the other way.
  *
- * Le point d'equilibre est donc le centre de l'ecran, la ou l'oeil se pose :
- * le texte est droit exactement au moment ou on le lit, et courbe le reste du
- * temps.
+ * The point of balance is therefore the centre of the screen, where the eye
+ * settles: the text is straight at exactly the moment one reads it, and curved
+ * the rest of the time.
  *
- * ## Une seule variable ecrite par image
+ * ## A single variable written per frame
  *
- * La boucle du moteur ecrit `--o-wt-k` sur le conteneur, un nombre signe
- * entre moins un et un. Chaque lettre porte deux constantes calculees au
- * rendu — sa part de fleche et sa pente — et compose sa propre transformation
- * en `calc`. La courbe n'est jamais calculee en JavaScript puis distribuee :
- * c'est la meme valeur, lue avec deux coefficients differents par chacune.
+ * The engine loop writes `--o-wt-k` on the container, a signed number between
+ * minus one and one. Each letter carries two constants computed at render —
+ * its share of sag and its slope — and composes its own transform in `calc`.
+ * The curve is never computed in JavaScript then distributed: it is the same
+ * value, read with two different coefficients by each of them.
  *
- * Une ligne de quarante caracteres coute donc exactement le meme travail par
- * image qu'une de cinq.
+ * A line of forty characters therefore costs exactly the same work per frame
+ * as one of five.
  *
- * ## La forme de la courbe
+ * ## The shape of the curve
  *
- * La fleche suit `1 - u * u`, maximale au milieu et nulle aux extremites : c'est
- * l'arc le plus simple qui tienne par ses deux bouts. L'inclinaison suit la
- * pente de cette meme courbe, `-u`, pour que les lettres se couchent dans le
- * sens du trait au lieu de rester debout sur une ligne penchee — c'est ce
- * detail qui fait la difference entre une deformation et un simple
- * empilement de decalages.
+ * The sag follows `1 - u * u`, maximal in the middle and zero at the ends: it
+ * is the simplest arc that holds by both of its tips. The tilt follows the
+ * slope of that same curve, `-u`, so that the letters lie along the direction
+ * of the stroke instead of standing upright on a slanted line — it is that
+ * detail that makes the difference between a warp and a mere stack of offsets.
  *
- * ## La ligne droite est la valeur par defaut
+ * ## The straight line is the default value
  *
- * `--o-wt-k` vaut zero dans la feuille : sans JavaScript, sans boucle, le
- * texte est droit et parfaitement lisible.
+ * `--o-wt-k` is zero in the stylesheet: with no JavaScript, with no loop, the
+ * text is straight and perfectly readable.
  *
- * ## Le decoupage est un artifice d'affichage
+ * ## The split is a display device
  *
- * Le texte complet figure une fois, d'un seul tenant ; les lettres sont
- * retirees de l'arbre d'accessibilite.
+ * The complete text appears once, in one piece; the letters are removed from
+ * the accessibility tree.
  *
  * @module
  */
@@ -62,30 +60,30 @@ import {
   type ReactElement,
 } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface WarpTextOwnProps {
-  /** Texte a deformer. */
+  /** Text to warp. */
   children: string
-  /** Balise rendue. @defaultValue 'span' */
+  /** Rendered tag. @defaultValue 'span' */
   as?: ElementType
-  /** Fleche maximale de la courbe, en pixels. @defaultValue 28 */
+  /** Maximum sag of the curve, in pixels. @defaultValue 28 */
   amplitude?: number
-  /** Inclinaison maximale des lettres de bord, en degres. @defaultValue 6 */
-  inclinaison?: number
-  /** Course du reglage, en hauteurs de fenetre. @defaultValue 1 */
-  course?: number
+  /** Maximum tilt of the edge letters, in degrees. @defaultValue 6 */
+  tilt?: number
+  /** Run of the control, in window heights. @defaultValue 1 */
+  travel?: number
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type WarpTextProps = Customisable<WarpTextOwnProps, 'span'>
 
-/** Espace insecable : une espace ordinaire s'ecrase dans un bloc en ligne. */
-const NBSP = ' '
+/** No-break space: an ordinary space collapses inside an inline block. */
+const NBSP = '\u00A0'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-warp-text'
 
-/** Pose la courbure, une fois par document. */
+/** Sets the curvature, once per document. */
 function ensureWarpRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -93,14 +91,14 @@ function ensureWarpRule(): void {
   const style = document.createElement('style')
   style.id = STYLE_ID
   style.textContent = [
-    // Zero au repos : sans boucle, la ligne est droite. Voir l'en-tete.
+    // Zero at rest: with no loop, the line is straight. See the header.
     '[data-o-warp]{display:inline-block;--o-wt-k:0}',
     '[data-o-warp-letter]{',
     'display:inline-block;',
     'transform:translateY(calc(var(--o-wt-k) * var(--o-wt-b) * var(--o-wt-amp)))',
     ' rotate(calc(var(--o-wt-k) * var(--o-wt-t) * var(--o-wt-tilt)));',
     '}',
-    // Sans mouvement, la ligne reste droite : c'est son etat de lecture.
+    // With no motion, the line stays straight: it is its reading state.
     '@media (prefers-reduced-motion:reduce){',
     '[data-o-warp-letter]{transform:none}',
     '}',
@@ -108,82 +106,82 @@ function ensureWarpRule(): void {
   document.head.append(style)
 }
 
-/** Premier ancetre dont le contenu defile reellement, ou rien : la page sert. */
-function ancetreDefilant(element: HTMLElement): HTMLElement | null {
-  let noeud = element.parentElement
-  while (noeud !== null) {
-    const debord = getComputedStyle(noeud).overflowY
+/** First ancestor whose content really scrolls, or nothing: the page will do. */
+function scrollingAncestor(element: HTMLElement): HTMLElement | null {
+  let node = element.parentElement
+  while (node !== null) {
+    const overflow = getComputedStyle(node).overflowY
     if (
-      (debord === 'auto' || debord === 'scroll') &&
-      noeud.scrollHeight > noeud.clientHeight
+      (overflow === 'auto' || overflow === 'scroll') &&
+      node.scrollHeight > node.clientHeight
     ) {
-      return noeud
+      return node
     }
-    noeud = noeud.parentElement
+    node = node.parentElement
   }
   return null
 }
 
 /**
- * Courbe une ligne de texte au fil du defilement.
+ * Curves a line of text along with the scroll.
  *
  * @example
  * <WarpText as="h2" className="o-text-5xl o-font-bold">
- *   La ligne se plie
+ *   The line bends
  * </WarpText>
  *
  * @example
- * // Fleche marquee, lettres tres couchees, course courte.
- * <WarpText amplitude={64} inclinaison={14} course={0.5}>Elastique</WarpText>
+ * // Pronounced sag, heavily reclined letters, short run.
+ * <WarpText amplitude={64} tilt={14} travel={0.5}>Elastic</WarpText>
  */
 export function WarpText({
   children,
   as: Tag = 'span',
   amplitude = 28,
-  inclinaison = 6,
-  course = 1,
+  tilt = 6,
+  travel = 1,
   ...rest
 }: WarpTextProps): ReactElement {
   const { reduced } = useMotionState()
-  const hote = useRef<HTMLElement | null>(null)
+  const host = useRef<HTMLElement | null>(null)
 
   ensureWarpRule()
 
   useEffect(() => {
-    const element = hote.current
+    const element = host.current
     if (element === null || reduced) return
 
-    // L'ancetre est cherche une fois : il ne change pas pendant la vie du
-    // composant, et le chercher a chaque image couterait pour rien.
-    const defilant = ancetreDefilant(element)
+    // The ancestor is looked up once: it does not change during the life of
+    // the component, and looking it up on every frame would cost for nothing.
+    const scroller = scrollingAncestor(element)
 
-    const abonnement = clock.subscribe(
+    const subscription = clock.subscribe(
       () => {
-        const boite = element.getBoundingClientRect()
-        const vueHaut = defilant === null ? 0 : defilant.getBoundingClientRect().top
-        const vueHauteur = defilant === null ? window.innerHeight : defilant.clientHeight
+        const box = element.getBoundingClientRect()
+        const viewTop = scroller === null ? 0 : scroller.getBoundingClientRect().top
+        const viewHeight = scroller === null ? window.innerHeight : scroller.clientHeight
 
-        const centreBloc = boite.top + boite.height / 2
-        const centreVue = vueHaut + vueHauteur / 2
-        // Un demi-champ de course de chaque cote du centre : la ligne est
-        // droite au milieu, pliee a fond aux bords.
-        const portee = Math.max(1, (vueHauteur * course) / 2)
-        const brut = (centreBloc - centreVue) / portee
+        const blockCentre = box.top + box.height / 2
+        const viewCentre = viewTop + viewHeight / 2
+        // Half a viewport of run on each side of the centre: the line is
+        // straight in the middle, fully bent at the edges.
+        const reach = Math.max(1, (viewHeight * travel) / 2)
+        const raw = (blockCentre - viewCentre) / reach
 
-        element.style.setProperty('--o-wt-k', Math.min(1, Math.max(-1, brut)).toFixed(4))
+        element.style.setProperty('--o-wt-k', Math.min(1, Math.max(-1, raw)).toFixed(4))
       },
-      { name: 'deformation au defilement', priority: CLOCK_PRIORITY.input },
+      { name: 'scroll warp', priority: CLOCK_PRIORITY.input },
     )
 
     return () => {
-      abonnement.unsubscribe()
+      subscription.unsubscribe()
       element.style.removeProperty('--o-wt-k')
     }
-  }, [reduced, course, children])
+  }, [reduced, travel, children])
 
   const { className, style } = mergePresentation({}, rest)
 
-  // Mouvement reduit : le texte est la, droit, sans decoupage.
+  // Reduced motion: the text is there, straight, with no split.
   if (reduced) {
     return (
       <Tag {...rest} className={className} style={style}>
@@ -192,39 +190,39 @@ export function WarpText({
     )
   }
 
-  const lettres = [...children]
-  const dernier = Math.max(1, lettres.length - 1)
+  const letters = [...children]
+  const last = Math.max(1, letters.length - 1)
 
-  const styleRacine = {
+  const rootStyle = {
     ...style,
     '--o-wt-amp': `${String(amplitude)}px`,
-    '--o-wt-tilt': `${String(inclinaison)}deg`,
+    '--o-wt-tilt': `${String(tilt)}deg`,
   } as CSSProperties
 
   return (
-    <Tag {...rest} ref={hote} className={className} style={styleRacine} data-o-warp="">
-      {/* Le texte complet, d'un seul tenant, pour les lecteurs d'ecran. */}
+    <Tag {...rest} ref={host} className={className} style={rootStyle} data-o-warp="">
+      {/* The complete text, in one piece, for screen readers. */}
       <span className="o-sr-only">{children}</span>
       <span aria-hidden>
-        {lettres.map((lettre, index) => {
-          // Place de la lettre sur la ligne, de -1 a 1.
-          const u = lettres.length < 2 ? 0 : (index / dernier) * 2 - 1
+        {letters.map((letter, index) => {
+          // Place of the letter along the line, from -1 to 1.
+          const u = letters.length < 2 ? 0 : (index / last) * 2 - 1
           return (
             <span
-              key={`${lettre}-${String(index)}`}
+              key={`${letter}-${String(index)}`}
               data-o-warp-letter=""
               style={
                 {
-                  // Fleche de l'arc, nulle aux bouts ; pente de ce meme arc,
-                  // nulle au milieu. Voir l'en-tete du module.
+                  // Sag of the arc, zero at the tips; slope of that same arc,
+                  // zero in the middle. See the module header.
                   '--o-wt-b': (1 - u * u).toFixed(4),
                   '--o-wt-t': (-u).toFixed(4),
                 } as CSSProperties
               }
             >
-              {/* Une espace ordinaire s'ecrase dans un bloc en ligne :
-                  l'insecable garde sa largeur. */}
-              {lettre === ' ' ? NBSP : lettre}
+              {/* An ordinary space collapses inside an inline block: the
+                  no-break one keeps its width. */}
+              {letter === ' ' ? NBSP : letter}
             </span>
           )
         })}

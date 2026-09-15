@@ -1,30 +1,30 @@
 /**
- * Briques : dix briques se posent une a une, rangee par rangee et en
- * quinconce, jusqu'a former un mur qui s'efface et se rebatit.
+ * Bricks: ten bricks are laid one by one, row by row and staggered, until
+ * they form a wall that fades out and is built again.
  *
- * ## Le quinconce est un decalage de rangee, pas un calcul par brique
+ * ## The stagger is a row offset, not a per-brick computation
  *
- * Un mur se reconnait a ses joints decales. Plutot que de positionner chaque
- * brique, la rangee du milieu compte une brique de plus et se decale d'une
- * demi-brique vers la gauche ; le conteneur coupe ce qui depasse des deux
- * cotes. Trois rangees en flux normal, un seul decalage, et le motif est la.
+ * A wall is recognized by its offset joints. Rather than positioning each
+ * brick, the middle row counts one brick more and shifts half a brick to the
+ * left; the container clips whatever sticks out on either side. Three rows
+ * in normal flow, a single offset, and the pattern is there.
  *
- * ## Une fenetre par brique
+ * ## One window per brick
  *
- * La pose a un ordre — le bas d'abord, de gauche a droite — et une fin : le
- * mur tient un instant, puis s'efface d'un bloc. Chaque brique connait donc
- * sa fenetre dans le cycle, par une animation propre ecrite une fois dans la
- * feuille. Une brique arrive d'un peu au-dessus de sa place, en `ease-out` :
- * elle se pose, elle ne surgit pas.
+ * The laying has an order — the bottom first, from left to right — and an
+ * end: the wall holds for a moment, then fades out in one block. Each brick
+ * therefore knows its window in the cycle, through an animation of its own
+ * written once into the stylesheet. A brick arrives from a little above its
+ * place, in `ease-out`: it settles, it does not pop in.
  *
- * ## Un statut, pas un dessin
+ * ## A status, not a drawing
  *
- * L'element porte `role="status"` et un libelle pour les lecteurs d'ecran :
- * l'attente est une information, pas une decoration. Les briques sont
- * retirees de l'arbre d'accessibilite.
+ * The element carries `role="status"` and a label for screen readers: the
+ * wait is information, not decoration. The bricks are removed from the
+ * accessibility tree.
  *
- * Sous mouvement reduit, le mur reste complet : la figure se lit encore,
- * seule la pose s'arrete.
+ * Under reduced motion, the wall stays complete: the figure still reads,
+ * only the laying stops.
  *
  * @module
  */
@@ -32,31 +32,31 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Id of the injected stylesheet. */
 const STYLE_ID = 'o-bricks'
 
-/** Nombre de briques par rangee, du bas vers le haut. */
+/** Number of bricks per row, from the bottom up. */
 const ROWS: readonly number[] = [3, 4, 3]
 
-/** Nombre total de briques. */
+/** Total number of bricks. */
 const COUNT = ROWS.reduce((sum, row) => sum + row, 0)
 
-/** Largeur d'une brique, en hauteurs de brique. */
+/** Width of one brick, in brick heights. */
 const RATIO = 2.2
 
-/** Joint entre deux briques, en hauteurs de brique. */
+/** Joint between two bricks, in brick heights. */
 const JOINT = 0.25
 
-/** Part du cycle entre deux poses, en pour cent. */
+/** Share of the cycle between two layings, in per cent. */
 const STEP = 7.5
 
-/** Duree d'une pose, en pour cent du cycle. */
+/** Duration of one laying, in per cent of the cycle. */
 const SETTLE = 6
 
-/** Instant ou le mur complet commence a s'effacer, en pour cent. */
+/** Moment when the complete wall starts to fade out, in per cent. */
 const CLEAR_AT = 86
 
-/** Pose le mur et les fenetres de chaque brique, une fois par document. */
+/** Sets the wall and the window of each brick, once per document. */
 function ensureBricksRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -64,8 +64,8 @@ function ensureBricksRule(): void {
   const style = document.createElement('style')
   style.id = STYLE_ID
   style.textContent = [
-    // Largeur de trois briques et deux joints : la rangee decalee deborde et
-    // se fait couper, c'est ce qui dessine les demi-briques des bords.
+    // Width of three bricks and two joints: the offset row overflows and gets
+    // clipped, and that is what draws the half bricks at the edges.
     '[data-o-bricks]{',
     'display:inline-flex;flex-direction:column-reverse;overflow:hidden;',
     `gap:calc(var(--o-bricks-size) * ${String(JOINT)});`,
@@ -92,7 +92,7 @@ function ensureBricksRule(): void {
         '}',
       ].join('')
     }),
-    // Un mur complet : la figure est dite, sans pose.
+    // A complete wall: the figure is said, without the laying.
     '@media (prefers-reduced-motion:reduce){',
     '[data-o-brick]{animation:none;opacity:1;transform:none}',
     '}',
@@ -100,36 +100,36 @@ function ensureBricksRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** The component's own props. */
 export interface BricksOwnProps {
-  /** Hauteur d'une brique, en pixels. @defaultValue 6 */
+  /** Height of one brick, in pixels. @defaultValue 6 */
   size?: number
-  /** Duree d'un cycle complet, en millisecondes. @defaultValue 2400 */
+  /** Duration of one complete cycle, in milliseconds. @defaultValue 2400 */
   speed?: number
-  /** Couleur des briques. @defaultValue la couleur du texte */
+  /** Color of the bricks. @defaultValue the text color */
   color?: string
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */
+  /** Label announced to screen readers. @defaultValue 'Loading' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type BricksProps = Customisable<BricksOwnProps, 'span'>
 
 /**
- * Signale une attente par un mur de briques qui se batit et s'efface.
+ * Signals a wait with a brick wall that builds itself and fades out.
  *
  * @example
  * <Bricks />
  *
  * @example
- * // Plus grand, plus lent, dans la teinte de marque.
+ * // Bigger, slower, in the brand hue.
  * <Bricks size={10} speed={3600} color="var(--o-palette-brand-500)" />
  */
 export function Bricks({
   size = 6,
   speed = 2400,
   color = 'currentColor',
-  label = 'Chargement',
+  label = 'Loading',
   ...rest
 }: BricksProps): ReactElement {
   ensureBricksRule()
@@ -143,8 +143,8 @@ export function Bricks({
     '--o-bricks-color': color,
   } as CSSProperties
 
-  // L'ordre de pose suit l'ordre du DOM : la premiere rangee du DOM est en
-  // bas, grace a la colonne inversee.
+  // The laying order follows the DOM order: the first row in the DOM is at
+  // the bottom, thanks to the reversed column.
   let laid = 0
 
   return (

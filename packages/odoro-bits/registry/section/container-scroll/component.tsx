@@ -1,34 +1,34 @@
 /**
- * Conteneur qui se redresse et s'agrandit en entrant dans le champ.
+ * A container that straightens up and grows as it enters the view.
  *
- * ## Ce que la bascule raconte
+ * ## What the tilt says
  *
- * Le cadre arrive incline, vu de dessus, comme un objet pose sur une table ;
- * il se redresse a mesure qu'il monte, jusqu'a faire face. C'est une facon de
- * dire « voici la chose » sans l'ecrire, et elle ne tient qu'a une condition :
- * l'inclinaison doit **finir**. Un cadre qui reste de biais est une decoration ;
- * un cadre qui se redresse est une presentation.
+ * The frame arrives tilted, seen from above, like an object laid on a table ;
+ * it straightens up as it rises, until it faces us. It is a way of saying
+ * "here is the thing" without writing it, and it holds on one condition only :
+ * the tilt must **end**. A frame that stays askew is a decoration ; a frame
+ * that straightens up is a presentation.
  *
- * ## Une perspective sur le parent, jamais sur l'element
+ * ## A perspective on the parent, never on the element
  *
- * `perspective` posee sur l'element transforme lui-meme ne produit pas la meme
- * chose que sur son parent : le point de fuite suit alors l'element au lieu de
- * rester celui de la scene, et l'inclinaison se deforme quand l'element bouge.
- * C'est la cause la plus frequente d'une bascule qui « glisse » sans qu'on
- * sache pourquoi.
+ * `perspective` set on the transformed element itself does not produce the same
+ * thing as on its parent : the vanishing point then follows the element instead
+ * of staying the one of the scene, and the tilt warps when the element moves.
+ * This is the most frequent cause of a tilt that "slides" without anyone
+ * knowing why.
  *
- * ## Rien n'est rendu pendant la course
+ * ## Nothing is rendered during the run
  *
- * La progression est lue dans la boucle unique, a la priorite des mesures, et
- * ecrite dans une variable CSS. La rotation et l'echelle sont des
- * transformations : le compositeur les applique seul, sans recalcul de mise en
- * page ni rendu React.
+ * Progress is read in the single loop, at the measure priority, and
+ * written to a CSS variable. Rotation and scale are transforms : the
+ * compositor applies them alone, with no layout recalculation and no
+ * React render.
  *
- * ## Ce que le mouvement reduit donne
+ * ## What reduced motion gives
  *
- * Le cadre a plat, a sa taille pleine — l'etat d'arrivee. Fige incline, il
- * cacherait une partie de son contenu par la perspective, ce qui serait un
- * defaut et non une preference respectee.
+ * The frame flat, at its full size — the arrival state. Frozen tilted, it would
+ * hide part of its content through the perspective, which would be a defect and
+ * not a preference honoured.
  *
  * @module
  */
@@ -49,29 +49,29 @@ import {
   type ReactNode,
 } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface ContainerScrollOwnProps {
-  /** Ce que le cadre contient. */
+  /** What the frame contains. */
   children: ReactNode
-  /** Titre affiche au-dessus du cadre. */
+  /** Title displayed above the frame. */
   title?: ReactNode
-  /** Phrase sous le titre. */
+  /** Sentence under the title. */
   subtitle?: ReactNode
-  /** Inclinaison de depart, en degres. @defaultValue 22 */
+  /** Starting tilt, in degrees. @defaultValue 22 */
   rotation?: number
-  /** Echelle de depart, de 0 a 1. @defaultValue 0.86 */
+  /** Starting scale, from 0 to 1. @defaultValue 0.86 */
   scale?: number
-  /** Nom de la section, annonce aux technologies d'assistance. */
+  /** Name of the section, announced to assistive technologies. */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All the properties. */
 export type ContainerScrollProps = Customisable<ContainerScrollOwnProps, 'section'>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-container-scroll'
 
-/** Pose les regles du cadre, une fois par document. */
+/** Sets the rules of the frame, once per document. */
 function ensureContainerRules(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -80,8 +80,8 @@ function ensureContainerRules(): void {
   style.id = STYLE_ID
   style.textContent = [
     '[data-o-cscroll]{--o-cscroll-reste:1}',
-    // La perspective appartient a la scene, pas a l'objet : posee sur
-    // l'element transforme, le point de fuite le suivrait.
+    // The perspective belongs to the scene, not to the object : set on the
+    // transformed element, the vanishing point would follow it.
     '[data-o-cscroll-scene]{perspective:1000px}',
     '[data-o-cscroll-cadre]{',
     'transform:rotateX(calc(var(--o-cscroll-angle) * var(--o-cscroll-reste)))',
@@ -96,27 +96,27 @@ function ensureContainerRules(): void {
 }
 
 /**
- * Trouve le conteneur qui defile autour d'un element.
+ * Finds the scrolling container around an element.
  *
- * Cherche une seule fois, au montage : `getComputedStyle` force un calcul de
- * style, et le repeter par image couterait plus que la bascule elle-meme.
+ * Looks once only, on mount : `getComputedStyle` forces a style calculation,
+ * and repeating it per frame would cost more than the tilt itself.
  */
-function conteneurDefilant(element: Element): HTMLElement | null {
+function scrollingContainer(element: Element): HTMLElement | null {
   let parent = element.parentElement
   while (parent !== null) {
-    const debordement = getComputedStyle(parent).overflowY
-    if (debordement === 'auto' || debordement === 'scroll') return parent
+    const overflow = getComputedStyle(parent).overflowY
+    if (overflow === 'auto' || overflow === 'scroll') return parent
     parent = parent.parentElement
   }
   return null
 }
 
 /**
- * Un cadre qui se redresse au defilement.
+ * A frame that straightens up on scroll.
  *
  * @example
- * <ContainerScroll title="L atelier" subtitle="Chaque reglage est une prop.">
- *   <img src="/atelier.png" alt="" className="o-size-full o-object-cover" />
+ * <ContainerScroll title="The workshop" subtitle="Every setting is a prop.">
+ *   <img src="/workshop.png" alt="" className="o-size-full o-object-cover" />
  * </ContainerScroll>
  */
 export function ContainerScroll({
@@ -129,49 +129,49 @@ export function ContainerScroll({
   ...rest
 }: ContainerScrollProps): ReactElement {
   const { reduced } = useMotionState()
-  const [hote, setHote] = useState<HTMLElement | null>(null)
-  const dernier = useRef(-1)
+  const [host, setHost] = useState<HTMLElement | null>(null)
+  const last = useRef(-1)
 
   ensureContainerRules()
 
   useEffect(() => {
-    if (hote === null || reduced) return
+    if (host === null || reduced) return
 
-    const conteneur = conteneurDefilant(hote)
+    const container = scrollingContainer(host)
 
     const subscription = clock.subscribe(
       () => {
-        const boite = hote.getBoundingClientRect()
-        if (boite.height === 0) return
+        const box = host.getBoundingClientRect()
+        if (box.height === 0) return
 
-        const champ =
-          conteneur === null
-            ? { haut: 0, hauteur: window.innerHeight }
+        const view =
+          container === null
+            ? { top: 0, height: window.innerHeight }
             : {
-                haut: conteneur.getBoundingClientRect().top,
-                hauteur: conteneur.clientHeight,
+                top: container.getBoundingClientRect().top,
+                height: container.clientHeight,
               }
 
-        // Zero quand le haut de la section atteint le bas du champ, un quand la
-        // section y est entree tout entiere : la bascule finit donc au moment
-        // ou l'on regarde le cadre, et non apres.
+        // Zero when the top of the section reaches the bottom of the view, one
+        // when the section has entered it whole : the tilt therefore ends at
+        // the moment one looks at the frame, and not after.
         const p = Math.min(
           1,
-          Math.max(0, (champ.haut + champ.hauteur - boite.top) / boite.height),
+          Math.max(0, (view.top + view.height - box.top) / box.height),
         )
 
-        const centieme = Math.round(p * 100)
-        if (centieme === dernier.current) return
-        dernier.current = centieme
-        hote.style.setProperty('--o-cscroll-reste', (1 - centieme / 100).toFixed(2))
+        const hundredth = Math.round(p * 100)
+        if (hundredth === last.current) return
+        last.current = hundredth
+        host.style.setProperty('--o-cscroll-reste', (1 - hundredth / 100).toFixed(2))
       },
-      { name: 'cadre au defilement', priority: CLOCK_PRIORITY.layout },
+      { name: 'frame on scroll', priority: CLOCK_PRIORITY.layout },
     )
 
     return () => {
       subscription.unsubscribe()
     }
-  }, [hote, reduced])
+  }, [host, reduced])
 
   const { className, style } = mergePresentation(
     { className: 'o-flex o-flex-col o-gap-8 o-py-12' },
@@ -181,7 +181,7 @@ export function ContainerScroll({
   return (
     <section
       {...rest}
-      ref={setHote}
+      ref={setHost}
       aria-label={label}
       data-o-cscroll=""
       className={className}

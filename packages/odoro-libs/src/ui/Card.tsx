@@ -1,5 +1,5 @@
 /**
- * Carte de contenu.
+ * Content card.
  *
  * @module
  */
@@ -9,17 +9,17 @@ import { type HTMLAttributes, type ReactElement, type ReactNode, type Ref } from
 import { cx, variants } from '../styles/cx.js'
 
 /**
- * Classes de la carte, exposees pour habiller un autre conteneur (un `<a>`,
- * un `<article>`) sans dupliquer la table de variantes.
+ * Card classes, exposed to style another container (an `<a>`, an
+ * `<article>`) without duplicating the variant table.
  *
  * @example
- * <a href="/projets/1" className={cardClasses({ variant: 'elevated' })}>...</a>
+ * <a href="/projects/1" className={cardClasses({ variant: 'elevated' })}>...</a>
  */
 export const cardClasses = variants({
-  // `o-overflow-hidden` garantit qu'un media pleine largeur epouse les coins
-  // arrondis au lieu de les depasser. Le fond est porte par chaque variante :
-  // deux classes de fond concurrentes seraient departagees par l'ordre de la
-  // feuille, pas par l'ordre d'ecriture.
+  // `o-overflow-hidden` guarantees that a full-width media hugs the rounded
+  // corners instead of overflowing them. The background is carried by each
+  // variant: two competing background classes would be settled by the order of
+  // the stylesheet, not by the order they are written in.
   base: 'o-flex o-flex-col o-rounded-md o-overflow-hidden',
   variants: {
     variant: {
@@ -36,7 +36,7 @@ export const cardClasses = variants({
   defaults: { variant: 'outlined', interactive: 'false' },
 })
 
-/** Ecarts internes disponibles pour le corps de la carte. */
+/** Inner spacings available for the card body. */
 const PADDING_CLASSES: Readonly<Record<'none' | 'sm' | 'md' | 'lg', string>> = {
   none: '',
   sm: 'o-p-3',
@@ -44,47 +44,47 @@ const PADDING_CLASSES: Readonly<Record<'none' | 'sm' | 'md' | 'lg', string>> = {
   lg: 'o-p-6',
 }
 
-/** Proprietes de {@link Card}. */
+/** Properties of {@link Card}. */
 export interface CardProps extends Omit<
   HTMLAttributes<HTMLDivElement>,
   'className' | 'title'
 > {
-  /** Titre affiche en tete du corps. */
+  /** Title displayed at the top of the body. */
   title?: ReactNode
-  /** Sous-titre affiche sous le titre. */
+  /** Subtitle displayed under the title. */
   description?: ReactNode
   /**
-   * Media rendu pleine largeur au-dessus du corps, hors de tout padding
+   * Media rendered full width above the body, outside of any padding
    * (image, video, illustration).
    */
   media?: ReactNode
-  /** Zone de pied, sous le contenu. */
+  /** Footer area, under the content. */
   footer?: ReactNode
-  /** Contenu principal. */
+  /** Main content. */
   children?: ReactNode
-  /** Registre visuel. @defaultValue 'outlined' */
+  /** Visual register. @defaultValue 'outlined' */
   variant?: 'outlined' | 'elevated' | 'ghost'
-  /** Reagit au survol (elevation et curseur). @defaultValue false */
+  /** Reacts to hover (elevation and cursor). @defaultValue false */
   interactive?: boolean
-  /** Ecart interne du corps et du pied. @defaultValue 'md' */
+  /** Inner spacing of the body and the footer. @defaultValue 'md' */
   padding?: 'none' | 'sm' | 'md' | 'lg'
-  /** Classes additionnelles. */
+  /** Additional classes. */
   className?: string
-  /** Ref vers l'element natif. */
+  /** Ref to the native element. */
   ref?: Ref<HTMLDivElement>
 }
 
 /**
- * Carte composable : media, titre, description, contenu et pied optionnels.
+ * Composable card: optional media, title, description, content and footer.
  *
  * @example
  * <Card
  *   variant="elevated"
- *   title="Projet Odoro"
- *   description="Librairie front maison."
- *   footer={<Button size="sm">Ouvrir</Button>}
+ *   title="Odoro project"
+ *   description="In-house front-end library."
+ *   footer={<Button size="sm">Open</Button>}
  * >
- *   <p>Trois modules livres cette semaine.</p>
+ *   <p>Three modules delivered this week.</p>
  * </Card>
  */
 export function Card({

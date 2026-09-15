@@ -1,40 +1,40 @@
 /**
- * Avion en papier : un avion traverse la vue en piquant puis en remontant,
- * et laisse derriere lui la trace exacte de son passage.
+ * Paper plane: a plane crosses the view diving then climbing back up, and
+ * leaves behind it the exact trace of its passage.
  *
- * ## Une seule courbe, deux animations qui ne peuvent pas deriver
+ * ## One single curve, two animations that cannot drift apart
  *
- * L'avion suit une courbe ; la trainee est cette meme courbe qui se
- * dessine. Le piege est classique : l'avion avance en parametre — a pas
- * egaux sur `t` — tandis qu'un trace en tirets avance en longueur d'arc. Sur
- * une courbe qui change de vitesse, les deux se decalent, et l'avion finit
- * par voler devant ou derriere sa propre trace.
+ * The plane follows a curve; the trail is that same curve drawing itself.
+ * The trap is a classic one: the plane advances in parameter — in equal
+ * steps of `t` — while a dashed stroke advances in arc length. On a curve
+ * that changes speed, the two drift apart, and the plane ends up flying
+ * ahead of or behind its own trace.
  *
- * La courbe est donc echantillonnee une fois, au chargement du module, et
- * les deux animations sont ecrites depuis **la meme table** : a chaque
- * echantillon, la position et l'angle de l'avion d'un cote, la longueur
- * deja parcourue de l'autre. Les deux jeux d'images cles tombent aux memes
- * pourcentages ; il n'y a plus rien qui puisse deriver.
+ * The curve is therefore sampled once, when the module loads, and both
+ * animations are written from **the same table**: at each sample, the
+ * position and the angle of the plane on one side, the length already
+ * covered on the other. Both sets of keyframes land on the same
+ * percentages; there is nothing left that could drift.
  *
- * L'angle vient de la derivee de la courbe, pas d'une valeur choisie a la
- * main : le nez de l'avion pointe toujours exactement la ou il va, y
- * compris au creux du piquer.
+ * The angle comes from the derivative of the curve, not from a value picked
+ * by hand: the nose of the plane always points exactly where it is going,
+ * the bottom of the dive included.
  *
- * Le chemin declare une longueur de cent, ce qui laisse ecrire les
- * decalages de tirets en pour cent du parcours, sans mesurer quoi que ce
- * soit dans le document.
+ * The path declares a length of a hundred, which lets the dash offsets be
+ * written as a percentage of the run, without measuring anything at all in
+ * the document.
  *
- * Trois animations CSS sur des elements SVG, tenues par le compositeur,
- * aucun JavaScript apres le premier rendu.
+ * Three CSS animations on SVG elements, held by the compositor, no
+ * JavaScript after the first render.
  *
- * ## Un statut, pas un dessin
+ * ## A status, not a drawing
  *
- * L'element porte `role="status"` et un libelle pour les lecteurs d'ecran :
- * l'attente est une information, pas une decoration. Le dessin est retire
- * de l'arbre d'accessibilite.
+ * The element carries `role="status"` and a label for screen readers: the
+ * wait is information, not decoration. The drawing is removed from the
+ * accessibility tree.
  *
- * Sous mouvement reduit, l'avion est pose au bout de sa course, trainee
- * complete : le trajet est raconte par son resultat.
+ * Under reduced motion, the plane is set at the end of its run, trail
+ * complete: the journey is told by its result.
  *
  * @module
  */
@@ -42,52 +42,52 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Id of the injected stylesheet. */
 const STYLE_ID = 'o-paper-plane'
 
 /**
- * La courbe de vol, dans une vue de 100 unites : depart en bas a gauche,
- * creux au milieu, sortie en haut a droite.
+ * The flight curve, in a view of 100 units: start at the bottom left,
+ * trough in the middle, exit at the top right.
  */
 const P0 = { x: 10, y: 82 }
 const P1 = { x: 34, y: 90 }
 const P2 = { x: 54, y: 14 }
 const P3 = { x: 90, y: 30 }
 
-/** Le meme trace, pour la trainee : les deux viennent des memes points. */
+/** The same stroke, for the trail: both come from the same points. */
 const TRAIL = `M ${String(P0.x)} ${String(P0.y)} C ${String(P1.x)} ${String(P1.y)}, ${String(P2.x)} ${String(P2.y)}, ${String(P3.x)} ${String(P3.y)}`
 
 /**
- * L'avion, dessine autour de l'origine, nez vers la droite, en deux demi-
- * ailes : le pli central n'est pas un trait, c'est la limite entre une aile
- * pleine et une aile en retrait, comme sur une feuille pliee vue de biais.
+ * The plane, drawn around the origin, nose to the right, in two half
+ * wings: the central fold is not a stroke, it is the boundary between a full
+ * wing and a wing set back, as on a folded sheet seen at an angle.
  */
 const WING_NEAR = 'M 12 0 L -12 -8.5 L -6 0 Z'
 
-/** L'aile lointaine, dans l'ombre du pli. */
+/** The far wing, in the shadow of the fold. */
 const WING_FAR = 'M 12 0 L -12 8.5 L -6 0 Z'
 
-/** Nombre d'echantillons de la courbe. Assez pour que l'oeil ne voie pas les segments. */
+/** Number of samples of the curve. Enough that the eye does not see the segments. */
 const SAMPLES = 24
 
-/** Part du cycle occupee par le vol, en pour cent. Le reste est le fondu. */
+/** Share of the cycle taken by the flight, in per cent. The rest is the fade. */
 const FLIGHT = 76
 
-/** Un point du vol : ou est l'avion, comment il est oriente, ou en est la trainee. */
+/** One point of the flight: where the plane is, how it is oriented, where the trail stands. */
 interface Sample {
-  /** Instant dans le cycle, en pour cent. */
+  /** Moment in the cycle, in per cent. */
   readonly at: number
-  /** Abscisse, en unites de la vue. */
+  /** Abscissa, in view units. */
   readonly x: number
-  /** Ordonnee, en unites de la vue. */
+  /** Ordinate, in view units. */
   readonly y: number
-  /** Cap, en degres. */
+  /** Heading, in degrees. */
   readonly angle: number
-  /** Part du trace qui reste a dessiner, en pour cent. */
+  /** Share of the stroke still to draw, in per cent. */
   readonly left: number
 }
 
-/** Position et cap sur la courbe, a un parametre donne. */
+/** Position and heading on the curve, at a given parameter. */
 function sampleAt(t: number): { x: number; y: number; angle: number } {
   const u = 1 - t
   const x =
@@ -95,8 +95,8 @@ function sampleAt(t: number): { x: number; y: number; angle: number } {
   const y =
     u * u * u * P0.y + 3 * u * u * t * P1.y + 3 * u * t * t * P2.y + t * t * t * P3.y
 
-  // La derivee d'une cubique de Bezier : c'est elle qui donne le cap, et
-  // non une orientation posee a l'oeil image par image.
+  // The derivative of a cubic Bezier: it is what gives the heading, and
+  // not an orientation set by eye, frame after frame.
   const dx =
     3 * u * u * (P1.x - P0.x) + 6 * u * t * (P2.x - P1.x) + 3 * t * t * (P3.x - P2.x)
   const dy =
@@ -106,11 +106,11 @@ function sampleAt(t: number): { x: number; y: number; angle: number } {
 }
 
 /**
- * Echantillonne la courbe une fois pour toutes.
+ * Samples the curve once and for all.
  *
- * La longueur est cumulee sur la ligne brisee des echantillons : c'est la
- * meme approximation que celle que l'oeil voit, donc l'erreur entre l'avion
- * et sa trainee est celle du dessin lui-meme, pas une erreur de plus.
+ * The length is accumulated along the polyline of the samples: it is the
+ * same approximation as the one the eye sees, so the error between the plane
+ * and its trail is that of the drawing itself, not one error more.
  */
 function buildFlight(): readonly Sample[] {
   const points: { x: number; y: number; angle: number }[] = []
@@ -135,10 +135,10 @@ function buildFlight(): readonly Sample[] {
   }))
 }
 
-/** Le vol, calcule une fois au chargement du module. */
+/** The flight, computed once when the module loads. */
 const FLIGHT_PATH = buildFlight()
 
-/** Pose l'avion, sa trainee et leur fondu, une fois par document. */
+/** Sets the plane, its trail and their fade, once per document. */
 function ensurePlaneRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -166,8 +166,8 @@ function ensurePlaneRule(): void {
       (point) =>
         `${point.at.toFixed(2)}%{transform:translate(${point.x.toFixed(2)}px,${point.y.toFixed(2)}px) rotate(${point.angle.toFixed(1)}deg)}`,
     ),
-    // L'avion tient sa derniere pose pendant que tout s'efface : sans cette
-    // image cle, il reviendrait doucement a son point de depart.
+    // The plane holds its last pose while everything fades out: without this
+    // keyframe, it would drift gently back to its starting point.
     `100%{transform:translate(${end.x.toFixed(2)}px,${end.y.toFixed(2)}px) rotate(${end.angle.toFixed(1)}deg)}`,
     '}',
     '@keyframes o-paper-plane-trail{',
@@ -176,15 +176,15 @@ function ensurePlaneRule(): void {
     ),
     '100%{stroke-dashoffset:0}',
     '}',
-    // Le fondu porte sur l'ensemble : l'avion et sa trainee disparaissent
-    // ensemble, et le cycle repart d'une vue vide plutot que d'un saut.
+    // The fade covers the whole: the plane and its trail disappear together,
+    // and the cycle starts again from an empty view rather than from a jump.
     '@keyframes o-paper-plane-fade{',
     '0%{opacity:0;animation-timing-function:ease-out}',
     `6%,${String(FLIGHT)}%{opacity:1;animation-timing-function:ease-in}`,
     '92%,100%{opacity:0}',
     '}',
-    // Avion pose au bout de sa course, trainee complete : le trajet dit par
-    // son resultat.
+    // Plane set at the end of its run, trail complete: the journey told by
+    // its result.
     '@media (prefers-reduced-motion:reduce){',
     '[data-o-plane-fade]{animation:none;opacity:1}',
     '[data-o-plane-trail]{animation:none;stroke-dashoffset:0}',
@@ -194,36 +194,36 @@ function ensurePlaneRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** The component's own props. */
 export interface PaperPlaneOwnProps {
-  /** Cote du dessin, en pixels. @defaultValue 80 */
+  /** Side of the drawing, in pixels. @defaultValue 80 */
   size?: number
-  /** Duree d'un vol complet, fondu compris, en millisecondes. @defaultValue 2600 */
+  /** Duration of one complete flight, fade included, in milliseconds. @defaultValue 2600 */
   speed?: number
-  /** Couleur de l'avion et de sa trainee. @defaultValue la couleur du texte */
+  /** Color of the plane and its trail. @defaultValue the text color */
   color?: string
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */
+  /** Label announced to screen readers. @defaultValue 'Loading' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type PaperPlaneProps = Customisable<PaperPlaneOwnProps, 'span'>
 
 /**
- * Signale une attente par un avion en papier qui trace son passage.
+ * Signals a wait with a paper plane that traces its passage.
  *
  * @example
  * <PaperPlane />
  *
  * @example
- * // Plus grand, plus lent, dans la teinte de marque.
+ * // Bigger, slower, in the brand hue.
  * <PaperPlane size={120} speed={3600} color="var(--o-palette-brand-500)" />
  */
 export function PaperPlane({
   size = 80,
   speed = 2600,
   color = 'currentColor',
-  label = 'Chargement',
+  label = 'Loading',
   ...rest
 }: PaperPlaneProps): ReactElement {
   ensurePlaneRule()

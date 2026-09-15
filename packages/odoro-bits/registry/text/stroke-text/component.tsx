@@ -1,22 +1,22 @@
 /**
- * Contour : un texte en fil de fer dont le remplissage monte du bas.
+ * Outline: a wireframe text whose fill rises from the bottom.
  *
- * ## Deux copies superposees, aucune n'attend l'autre
+ * ## Two superimposed copies, neither waits for the other
  *
- * Le texte reel est rendu en contour — `-webkit-text-stroke`, remplissage
- * transparent. Une copie pleine, posee dessus et cachee a l'arbre
- * d'accessibilite, est revelee par un `clip-path` anime qui remonte : le
- * remplissage semble se verser dans les lettres.
+ * The real text is rendered as an outline — `-webkit-text-stroke`, transparent
+ * fill. A full copy, laid over it and hidden from the accessibility tree, is
+ * revealed by an animated `clip-path` that rises: the fill seems to pour into
+ * the letters.
  *
- * Le contour n'est qu'un habillage : pour un lecteur d'ecran, le texte de
- * base est un texte ordinaire, il n'y a rien a compenser.
+ * The outline is only a dressing: for a screen reader, the base text is an
+ * ordinary text, there is nothing to compensate for.
  *
- * ## L'etat cache n'est pose que si la revelation aura lieu
+ * ## The hidden state is only applied if the reveal will happen
  *
- * La copie pleine n'est clipee que par le code qui programme sa revelation.
- * Si ce code ne tourne jamais — erreur, environnement sans script — le texte
- * apparait rempli, c'est-a-dire dans son etat final : un effet qui ne joue
- * pas vaut toujours mieux qu'un titre ampute.
+ * The full copy is only clipped by the code that schedules its reveal. If that
+ * code never runs — an error, an environment without scripts — the text
+ * appears filled, that is, in its final state: an effect that does not play is
+ * always better than a truncated heading.
  *
  * @module
  */
@@ -30,47 +30,47 @@ import {
   type ReactElement,
 } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface StrokeTextOwnProps {
-  /** Texte a remplir. */
+  /** Text to fill. */
   children: string
-  /** Balise rendue. @defaultValue 'span' */
+  /** Rendered tag. @defaultValue 'span' */
   as?: ElementType
-  /** Epaisseur du contour, en pixels. @defaultValue 1.5 */
+  /** Thickness of the outline, in pixels. @defaultValue 1.5 */
   strokeWidth?: number
-  /** Duree de la montee, en millisecondes. @defaultValue 900 */
+  /** Duration of the rise, in milliseconds. @defaultValue 900 */
   duration?: number
-  /** Couleur du contour. @defaultValue brand-300 de la palette */
-  contour?: string
-  /** Couleur du remplissage. @defaultValue brand-500 de la palette */
-  remplissage?: string
+  /** Colour of the outline. @defaultValue brand-300 from the palette */
+  stroke?: string
+  /** Colour of the fill. @defaultValue brand-500 from the palette */
+  fill?: string
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type StrokeTextProps = Customisable<StrokeTextOwnProps, 'span'>
 
-/** Clip qui cache tout : l'inset du haut couvre la hauteur entiere. */
+/** Clip that hides everything: the top inset covers the whole height. */
 const HIDDEN_CLIP = 'inset(100% 0 0 0)'
 
 /**
- * Remplit un texte en contour, du bas vers le haut, a l'entree dans le champ.
+ * Fills an outlined text, from the bottom up, on entering the viewport.
  *
  * @example
  * <StrokeText as="h1" className="o-text-5xl o-font-extrabold">
- *   MASSIF
+ *   MASSIVE
  * </StrokeText>
  *
  * @example
- * // Contour epais, montee lente.
- * <StrokeText strokeWidth={3} duration={1800}>Grand titre</StrokeText>
+ * // Thick outline, slow rise.
+ * <StrokeText strokeWidth={3} duration={1800}>Big heading</StrokeText>
  */
 export function StrokeText({
   children,
   as: Tag = 'span',
   strokeWidth = 1.5,
   duration = 900,
-  contour = 'var(--o-palette-brand-300)',
-  remplissage = 'var(--o-palette-brand-500)',
+  stroke = 'var(--o-palette-brand-300)',
+  fill = 'var(--o-palette-brand-500)',
   ...rest
 }: StrokeTextProps): ReactElement {
   const { reduced } = useMotionState()
@@ -82,8 +82,8 @@ export function StrokeText({
     const copy = layer.current
     if (element === null || copy === null || reduced) return
 
-    // L'etat cache est pose ici, pas dans le rendu : sans ce code, le texte
-    // apparait rempli. Voir l'en-tete du module.
+    // The hidden state is applied here, not in the render: without this code,
+    // the text appears filled. See the module header.
     copy.style.clipPath = HIDDEN_CLIP
 
     let played = false
@@ -118,17 +118,17 @@ export function StrokeText({
 
   const { className, style } = mergePresentation({}, rest)
 
-  // Mouvement reduit : le texte est la, rempli — son etat final, sans copie.
+  // Reduced motion: the text is there, filled — its final state, with no copy.
   if (reduced) {
     return (
-      <Tag {...rest} className={className} style={{ color: remplissage, ...style }}>
+      <Tag {...rest} className={className} style={{ color: fill, ...style }}>
         {children}
       </Tag>
     )
   }
 
   const outlineStyle = {
-    WebkitTextStroke: `${String(strokeWidth)}px ${contour}`,
+    WebkitTextStroke: `${String(strokeWidth)}px ${stroke}`,
     WebkitTextFillColor: 'transparent',
   } as CSSProperties
 
@@ -140,15 +140,15 @@ export function StrokeText({
       style={{ position: 'relative', display: 'inline-block', ...style }}
     >
       <span style={outlineStyle}>{children}</span>
-      {/* La copie pleine, revelee par le clip. Cachee aux lecteurs d'ecran :
-          pour eux, il n'y a qu'un texte. */}
+      {/* The full copy, revealed by the clip. Hidden from screen readers: for
+          them, there is only one text. */}
       <span
         ref={layer}
         aria-hidden
         style={{
           position: 'absolute',
           inset: 0,
-          color: remplissage,
+          color: fill,
           pointerEvents: 'none',
           userSelect: 'none',
         }}

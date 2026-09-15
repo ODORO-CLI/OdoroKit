@@ -1,9 +1,8 @@
 /**
- * Entree en ligne de commande du moteur Odoro.
+ * Command line entry of the Odoro engine.
  *
- * L'analyse des arguments est ecrite a la main : elle tient en quarante
- * lignes, et le binaire est telecharge a chaque `npm create odoro`, donc son
- * poids compte.
+ * The argument parsing is written by hand: it fits in forty lines, and the
+ * binary is downloaded on every `npm create odoro`, so its weight counts.
  *
  * @module
  */
@@ -16,21 +15,21 @@ import colors from 'picocolors'
 import { loadConfig, type OdoroConfig } from './config.js'
 import * as log from './shared/logger.js'
 
-/** Arguments analyses. */
+/** Parsed arguments. */
 export interface ParsedArgs {
-  /** Sous-commande demandee. */
+  /** Subcommand requested. */
   command: string
-  /** Arguments positionnels restants. */
+  /** Remaining positional arguments. */
   positional: string[]
-  /** Options nommees. */
+  /** Named options. */
   flags: Record<string, string | boolean>
 }
 
 /**
- * Analyse une ligne de commande.
+ * Parses a command line.
  *
- * Reconnait `--option`, `--option=valeur`, `--option valeur`, `--no-option`
- * et les alias courts `-h` et `-v`.
+ * Recognises `--option`, `--option=value`, `--option value`, `--no-option` and
+ * the short aliases `-h` and `-v`.
  *
  * @example
  * parseArgs(['create', 'site', '--template=react-ts', '--no-git'])
@@ -84,71 +83,77 @@ export function parseArgs(argv: readonly string[]): ParsedArgs {
   return { command, positional, flags }
 }
 
-/** Texte d'aide. */
+/** Help text. */
 const HELP = `
-${colors.bold(colors.magenta('odoro'))} — moteur de developpement et echafaudage
+${colors.bold(colors.magenta('odoro'))} — development engine and scaffolder
 
-${colors.bold('Utilisation')}
-  odoro <commande> [options]
+${colors.bold('Usage')}
+  odoro <command> [options]
 
-${colors.bold('Commandes')}
-  create [nom]     Cree un projet a partir d'un template
-  dev              Demarre le serveur de developpement
-  build            Compile le projet pour la production
-  preview          Sert le resultat de la compilation
+${colors.bold('Commands')}
+  create [name]    Create a project from a template
+  dev              Start the development server
+  build            Build the project for production
+  preview          Serve the result of the build
 
-${colors.bold('Registre de composants')}
-  init             Prepare le projet a recevoir des composants
-  add <nom...>     Copie un composant et ses dependances
-  list             Affiche le catalogue
-  diff             Compare l'installe a ce que le registre sert
-  doctor           Verifie que le projet est en etat
+${colors.bold('Component registry')}
+  init             Prepare the project to receive components
+  add <name...>    Copy a component and its dependencies
+  list             Show the catalogue
+  diff             Compare what is installed to what the registry serves
+  doctor           Check that the project is in working order
 
-${colors.bold('Base de donnees')}
-  db:login         Enregistre un jeton de plateforme
-  db:status        Liste les bases du projet
-  db:create        Provisionne une base et ecrit .env
-  db:branch        Cree une previsualisation par branche
-  ${colors.dim('Ces commandes demandent @odoro-cli/cloud-sdk, installe a part :')}
-  ${colors.dim('il ne vient pas avec, ce binaire etant telecharge a chaque')}
-  ${colors.dim('creation de projet.')}
+${colors.bold('Database')}
+  db:login         Record a platform token
+  db:status        List the databases of the project
+  db:create        Provision a database and write .env
+  db:branch        Create a per-branch preview
+  ${colors.dim('These commands need @odoro-cli/cloud-sdk, installed separately:')}
+  ${colors.dim('it does not ship with this binary, which is downloaded on')}
+  ${colors.dim('every project creation.')}
 
-${colors.bold('Options du registre')}
-  --registry <src>   URL ou dossier local, au lieu de celui du projet
-  --yes              N'attend aucune confirmation
+${colors.bold('Registry options')}
+  --registry <src>   URL or local directory, instead of the project one
+  --yes              Waits for no confirmation
 
-${colors.bold('Options de create')}
-  --template <nom>   Template a utiliser
-  --modules <liste>  libs,router,icons,engine,registre — ou "aucun"
-  --pm <nom>         Gestionnaire de paquets (pnpm, npm, yarn, bun)
-  --no-git           N'initialise pas de depot git
-  --no-install       N'installe pas les dependances
-  --overwrite        Vide le dossier cible avant de creer
-  --merge            Ecrit par-dessus le contenu existant
-  --yes              Accepte toutes les valeurs par defaut
+${colors.bold('create options')}
+  --template <name>  Template to use
+  --modules <list>   libs,router,icons,engine,registre — or "none"
+  --pm <name>        Package manager (pnpm, npm, yarn, bun)
+  --no-git           Does not initialise a git repository
+  --no-install       Does not install the dependencies
+  --overwrite        Empties the target directory before creating
+  --merge            Writes over the existing content
+  --yes              Accepts every default value
 
-${colors.bold('Options de base de donnees')}
-  --env <nom>        Environnement vise (production, staging, preview-42)
-  --from <env>       Environnement dont brancher
-  --name <nom>       Nom de la branche
-  --api <url>        Racine de l'API, au lieu de celle par defaut
+${colors.bold('Database options')}
+  --env <name>       Target environment (production, staging, preview-42)
+  --from <env>       Environment to branch from
+  --name <name>      Name of the branch
+  --api <url>        Root of the API, instead of the default one
 
-${colors.bold('Options de dev et preview')}
-  --port <numero>    Port d'ecoute
-  --host <adresse>   Interface d'ecoute
+${colors.bold('dev and preview options')}
+  --port <number>    Port to listen on
+  --host <address>   Interface to listen on
+  --strict-port      Fails if the port is taken, instead of sliding
+  --open             Opens the browser on startup
 
-${colors.bold('Options de build')}
-  --outdir <chemin>  Dossier de sortie
-  --no-minify        Ne minifie pas
-  --no-sourcemap     N'emet pas de cartes de source
+${colors.bold('build options')}
+  --outdir <path>    Output directory
+  --no-minify        Does not minify
+  --no-sourcemap     Does not emit source maps
+  --no-manifest      Does not write manifest.json
+  --no-preload       Does not declare the chunks as modulepreload
+  --prerender [r,r]  Renders the routes to HTML (default: those of the entry)
 
-${colors.bold('Options generales')}
-  --root <chemin>    Racine du projet
-  -h, --help         Affiche cette aide
-  -v, --version      Affiche la version
+${colors.bold('General options')}
+  --root <path>      Project root
+  --mode <name>      Mode: chooses the .env files read and fills import.meta.env.MODE
+  -h, --help         Show this help
+  -v, --version      Show the version
 `
 
-/** Lit une option numerique. */
+/** Reads a numeric option. */
 function numberFlag(flags: ParsedArgs['flags'], name: string): number | undefined {
   const value = flags[name]
   if (typeof value !== 'string') return undefined
@@ -156,31 +161,50 @@ function numberFlag(flags: ParsedArgs['flags'], name: string): number | undefine
   return Number.isFinite(parsed) ? parsed : undefined
 }
 
-/** Construit les surcharges de configuration issues de la ligne de commande. */
+/** Builds the configuration overrides coming from the command line. */
 function overridesFrom(flags: ParsedArgs['flags']): OdoroConfig {
   const server: NonNullable<OdoroConfig['server']> = {}
   const port = numberFlag(flags, 'port')
   if (port !== undefined) server.port = port
   if (typeof flags['host'] === 'string') server.host = flags['host']
+  if (flags['strict-port'] === true) server.strictPort = true
+  if (flags['open'] === true) server.open = true
 
   const build: NonNullable<OdoroConfig['build']> = {}
   if (typeof flags['outdir'] === 'string') build.outDir = flags['outdir']
   if (flags['minify'] === false) build.minify = false
   if (flags['sourcemap'] === false) build.sourcemap = false
+  if (flags['manifest'] === false) build.manifest = false
+  if (flags['preload'] === false) build.preload = false
 
-  return { server, build }
+  // `--prerender` alone takes the routes of the entry point; followed by a
+  // list, it takes that one. Telling them apart here avoids having two options
+  // for the same intention.
+  const prerender = flags['prerender']
+  if (prerender === true) build.prerender = true
+  else if (typeof prerender === 'string') {
+    build.prerender = prerender
+      .split(',')
+      .map((route) => route.trim())
+      .filter((route) => route !== '')
+  }
+
+  const overrides: OdoroConfig = { server, build }
+  if (typeof flags['mode'] === 'string') overrides.mode = flags['mode']
+
+  return overrides
 }
 
-/** Racine du projet demandee. */
+/** Project root requested. */
 function rootFrom(flags: ParsedArgs['flags'], positional: readonly string[]): string {
   if (typeof flags['root'] === 'string') return flags['root']
   return positional[0] ?? process.cwd()
 }
 
 /**
- * Point d'entree du binaire.
+ * Entry point of the binary.
  *
- * @returns Le code de sortie du processus.
+ * @returns The exit code of the process.
  *
  * @example
  * const code = await run(['dev', '--port', '3000'])
@@ -220,9 +244,13 @@ export async function run(argv: readonly string[]): Promise<number> {
 
     case 'dev': {
       const { startDevServer } = await import('./dev/server.js')
-      const config = await loadConfig(rootFrom(flags, positional), overridesFrom(flags))
+      const config = await loadConfig(
+        rootFrom(flags, positional),
+        overridesFrom(flags),
+        'development',
+      )
       await startDevServer(config)
-      // Le serveur reste actif jusqu'a interruption : on ne rend pas la main.
+      // The server stays up until it is interrupted: we never hand back control.
       return new Promise<number>(() => undefined)
     }
 
@@ -230,8 +258,8 @@ export async function run(argv: readonly string[]): Promise<number> {
       const { buildProject, reportBuild } = await import('./build/build.js')
       const config = await loadConfig(rootFrom(flags, positional), overridesFrom(flags))
       const output = await buildProject(config)
-      // Les chemins sont affiches depuis le dossier ou la commande a ete
-      // lancee, pas depuis la racine du projet : c'est ce que l'utilisateur voit.
+      // The paths are printed from the directory the command was run in, not
+      // from the project root: that is what the user sees.
       reportBuild(output, process.cwd())
       return 0
     }
@@ -250,8 +278,8 @@ export async function run(argv: readonly string[]): Promise<number> {
     case 'diff':
     case 'doctor': {
       const registry = await import('./add/commands.js')
-      // La racine vient de `--root` seulement : les positionnels d'`add` sont
-      // les noms de composants, pas un chemin.
+      // The root comes from `--root` only: the positionals of `add` are
+      // component names, not a path.
       const options = {
         root: typeof flags['root'] === 'string' ? flags['root'] : process.cwd(),
         registry: typeof flags['registry'] === 'string' ? flags['registry'] : undefined,
@@ -269,10 +297,10 @@ export async function run(argv: readonly string[]): Promise<number> {
     case 'db:status':
     case 'db:create':
     case 'db:branch': {
-      // Le SDK de la plateforme n'est pas une dependance de ce binaire : il est
-      // telecharge a chaque creation de projet, et la plupart n'emploient pas
-      // la plateforme. L'import est donc dynamique, et son absence produit une
-      // phrase qui dit quoi installer — pas une trace sur un module introuvable.
+      // The platform SDK is not a dependency of this binary: it is downloaded
+      // on every project creation, and most projects do not use the platform.
+      // The import is therefore dynamic, and its absence produces a sentence
+      // that says what to install — not a trace about a missing module.
       const db = await import('./db/commands.js')
 
       const options = {
@@ -294,17 +322,17 @@ export async function run(argv: readonly string[]): Promise<number> {
     }
 
     default:
-      log.error(`Commande inconnue : "${command}". Essayez "odoro help".`)
+      log.error(`Unknown command: "${command}". Try "odoro help".`)
       return 1
   }
 }
 
 /**
- * Indique si ce module est le point d'entree du processus.
+ * Tells whether this module is the entry point of the process.
  *
- * Le fichier est aussi importe — par les tests, et par le paquet
- * `create-odoro` qui delegue ici : l'execution automatique ne doit avoir lieu
- * que lorsqu'il est reellement lance en ligne de commande.
+ * The file is also imported — by the tests, and by the `create-odoro` package
+ * which delegates here: the automatic run must only happen when it is really
+ * launched from the command line.
  */
 function isEntryPoint(): boolean {
   const entry = process.argv[1]
@@ -322,7 +350,7 @@ if (isEntryPoint()) {
       if (code !== 0) process.exitCode = code
     })
     .catch((cause: unknown) => {
-      log.error('echec de la commande', cause)
+      log.error('the command failed', cause)
       process.exitCode = 1
     })
 }

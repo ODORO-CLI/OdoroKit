@@ -1,26 +1,25 @@
 /**
- * Shader de l'hyperespace.
+ * Hyperspace shader.
  *
- * ## L'idee mathematique
+ * ## The mathematical idea
  *
- * En polaires, une etoile qui fonce vers l'observateur ne bouge que sur le
- * rayon : son cap angulaire est fixe. La grille est donc posee sur (angle,
- * 1/r) — l'inverse du rayon fait la perspective — et le temps ne fait que
- * glisser la coordonnee radiale. L'etirement est une queue de puissance le
- * long de cette meme coordonnee, et trois grilles decalees font les trois
- * profondeurs.
+ * In polar coordinates, a star rushing towards the observer only moves along
+ * the radius: its angular heading is fixed. The grid is therefore laid on
+ * (angle, 1/r) — the inverse of the radius makes the perspective — and time
+ * does nothing but slide the radial coordinate. The stretch is a power tail
+ * along that same coordinate, and three offset grids make the three depths.
  *
  * ## Uniforms
  *
- * - `uTime` — temps en secondes, fourni par le moteur.
- * - `uResolution` — taille du canevas en pixels, fournie par le moteur.
- * - `uColorA` — le fond.
- * - `uColorB` — la teinte des etoiles proches.
- * - `uColorC` — la teinte des etoiles lointaines.
- * - `uSpeed` — vitesse du defilement radial.
- * - `uDensity` — nombre de couloirs angulaires de la premiere couche.
- * - `uStretch` — longueur des trainees, de 0 a 1.
- * - `uLayers` — nombre de couches de profondeur, de 1 a 3.
+ * - `uTime` — time in seconds, supplied by the engine.
+ * - `uResolution` — canvas size in pixels, supplied by the engine.
+ * - `uColorA` — the background.
+ * - `uColorB` — the tint of the near stars.
+ * - `uColorC` — the tint of the distant stars.
+ * - `uSpeed` — speed of the radial scroll.
+ * - `uDensity` — number of angular lanes in the first layer.
+ * - `uStretch` — length of the trails, from 0 to 1.
+ * - `uLayers` — number of depth layers, from 1 to 3.
  */
 export const WARP_FRAGMENT = /* glsl */ `
 precision highp float;
@@ -37,8 +36,8 @@ uniform float uDensity;
 uniform float uStretch;
 uniform float uLayers;
 
-// Nombre pseudo-aleatoire : projection sur une direction arbitraire, sinus
-// amplifie, partie fractionnaire.
+// Pseudo-random number: projection onto an arbitrary direction, amplified
+// sine, fractional part.
 float warpHash(vec2 p) {
   return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
 }
@@ -52,42 +51,42 @@ void main() {
   float t = uTime * uSpeed;
 
   vec3 colour = uColorA;
-  float couches = clamp(uLayers, 1.0, 3.0);
+  float layers = clamp(uLayers, 1.0, 3.0);
 
   for (int i = 0; i < 3; i += 1) {
-    if (float(i) >= couches) break;
+    if (float(i) >= layers) break;
 
-    float profondeur = float(i);
+    float depth = float(i);
 
-    // Chaque couche a son propre nombre de couloirs, entier pour que le
-    // hachage se recolle a la couture angulaire, et sa propre vitesse : les
-    // couches proches defilent plus vite, c'est toute la parallaxe.
-    float couloirs = floor(max(uDensity, 4.0)) + profondeur * 7.0;
-    float vitesse = 1.0 - profondeur * 0.35;
+    // Each layer has its own number of lanes, an integer so that the hash
+    // joins up again at the angular seam, and its own speed: the near layers
+    // scroll faster, and that is the whole parallax.
+    float lanes = floor(max(uDensity, 4.0)) + depth * 7.0;
+    float speed = 1.0 - depth * 0.35;
 
-    // La perspective : 1/r envoie le bord de l'ecran pres de zero et le
-    // centre a l'infini. Avancer, c'est glisser cette coordonnee.
-    float sx = a * couloirs;
-    float q = (0.35 / (r + 0.08) - t * vitesse) * 3.0;
+    // The perspective: 1/r sends the edge of the screen close to zero and the
+    // centre to infinity. Moving forward is sliding that coordinate.
+    float sx = a * lanes;
+    float q = (0.35 / (r + 0.08) - t * speed) * 3.0;
 
-    vec2 cell = vec2(mod(floor(sx), couloirs), floor(q));
-    float graine = warpHash(cell + profondeur * 13.0);
+    vec2 cell = vec2(mod(floor(sx), lanes), floor(q));
+    float seed = warpHash(cell + depth * 13.0);
 
-    // Un couloir sur quatre environ porte une etoile : le seuil rarefie.
-    float presence = step(0.72, graine);
+    // Roughly one lane in four carries a star: the threshold thins them out.
+    float presence = step(0.72, seed);
 
-    // Trait fin en angle, queue de puissance le long du rayon : l'exposant
-    // decroit avec l'etirement, donc la trainee s'allonge.
+    // A thin stroke in angle, a power tail along the radius: the exponent
+    // decays with the stretch, so the trail lengthens.
     float fx = fract(sx) - 0.35 - 0.3 * warpHash(cell + 5.0);
-    float largeur = exp(-fx * fx * 320.0);
-    float trainee = pow(1.0 - fract(q), 1.0 / max(uStretch * (0.4 + 0.6 * min(uSpeed, 1.5)), 0.03));
+    float width = exp(-fx * fx * 320.0);
+    float trail = pow(1.0 - fract(q), 1.0 / max(uStretch * (0.4 + 0.6 * min(uSpeed, 1.5)), 0.03));
 
-    // Les etoiles naissent hors du centre : au point de fuite exact, tout se
-    // superpose et ne ferait qu'un pixel qui gresille.
-    float naissance = smoothstep(0.04, 0.35, r);
+    // The stars are born away from the centre: at the exact vanishing point,
+    // everything piles up and would only make one crackling pixel.
+    float birth = smoothstep(0.04, 0.35, r);
 
-    vec3 teinte = mix(uColorB, uColorC, profondeur * 0.5);
-    colour += teinte * presence * largeur * trainee * naissance * (1.0 - profondeur * 0.3);
+    vec3 tint = mix(uColorB, uColorC, depth * 0.5);
+    colour += tint * presence * width * trail * birth * (1.0 - depth * 0.3);
   }
 
   gl_FragColor = vec4(colour, 1.0);

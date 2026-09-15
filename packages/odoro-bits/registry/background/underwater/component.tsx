@@ -1,23 +1,23 @@
 /**
- * Sous l'eau : des rais de lumiere qui se balancent et des bulles qui montent.
+ * Underwater: rays of light that sway, and bubbles that rise.
  *
- * ## Le principe
+ * ## The principle
  *
- * Les rais convergent vers un point au-dessus du cadre — presque paralleles,
- * ils s'ouvrent en descendant — et s'eteignent avec la profondeur. Les
- * bulles montent par colonnes, anneau fin et point de reflet, sur deux
- * profondeurs. Distinct des caustiques, qui sont le reseau au fond du bassin,
- * et des bulles seules, qui fusionnent en col.
+ * The rays converge towards a point above the frame — nearly parallel, they
+ * open out on the way down — and die away with depth. The bubbles rise in
+ * columns, a thin ring and a highlight dot, over two depths. Distinct from
+ * the caustics, which are the net on the floor of the pool, and from the
+ * bubbles on their own, which merge at the neck.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur.
+ * It carries only what sets it apart: its shader, its settings and its
+ * fallback. Reading the tokens, converting them to floats and re-reading them
+ * when the theme changes all come from the engine.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface et sous
- * mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface and under reduced
+ * motion.
  *
  * @module
  */
@@ -34,46 +34,46 @@ import { type ReactElement } from 'react'
 
 import { UNDERWATER_FRAGMENT } from './underwater.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface UnderwaterControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to this component. */
 export interface UnderwaterOwnProps {
-  /** Vitesse du balancement et de la montee. @defaultValue 1 */
+  /** Speed of the sway and of the rise. @defaultValue 1 */
   speed?: number
-  /** Nombre de rais sur la largeur. @defaultValue 6 */
+  /** Number of rays over the width. @defaultValue 6 */
   rays?: number
-  /** Nombre de colonnes de bulles sur la hauteur. Zero les supprime. @defaultValue 8 */
+  /** Number of bubble columns over the height. Zero removes them. @defaultValue 8 */
   bubbles?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<UnderwaterControls>
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type UnderwaterProps = Customisable<UnderwaterOwnProps>
 
-/** Tokens employes par defaut : le fond, la lumiere, la profondeur. */
+/** Tokens used by default: the background, the light, the depth. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-cyan-300',
   '--o-palette-sky-600',
 ] as const
 
-/** Repli par defaut : un degrade fige, dans les memes tons. */
+/** Default fallback: a frozen gradient, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-b o-from-zinc-50 dark:o-from-zinc-950 o-to-sky-200 dark:o-to-sky-900'
 
 /**
- * Sous l'eau.
+ * Underwater.
  *
  * @example
  * <div className="o-relative o-min-h-screen">

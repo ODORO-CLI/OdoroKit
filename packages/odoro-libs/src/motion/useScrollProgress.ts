@@ -1,17 +1,17 @@
 /**
- * Progression de defilement, normalisee entre 0 et 1.
+ * Scroll progress, normalized between 0 and 1.
  *
- * ## La seule boucle de la librairie, et elle est cedable
+ * ## The only loop of the library, and it is yieldable
  *
- * Une progression de defilement se lit **a l'image**, pas a l'evenement : un
- * navigateur emet des dizaines d'evenements de defilement par seconde, et
- * mesurer a chacun recalcule la mise en page autant de fois.
+ * A scroll progress is read **per frame**, not per event: a
+ * browser emits dozens of scroll events per second, and
+ * measuring on each of them recomputes the layout as many times.
  *
- * C'est la seule chose dans `@odoro-cli/libs/motion` qui ouvre une boucle — tout
- * le reste passe par la Web Animations API, pilotee par le compositeur. Elle
- * passe donc par `onFrame`, l'ordonnanceur cedable de
- * `@odoro-cli/libs/motion-policy` : quand `@odoro-cli/engine` est present, il
- * l'installe sur son ticker et il n'y a plus qu'une boucle sur la page.
+ * This is the only thing in `@odoro-cli/libs/motion` that opens a loop — all
+ * the rest goes through the Web Animations API, driven by the compositor. It
+ * therefore goes through `onFrame`, the yieldable scheduler of
+ * `@odoro-cli/libs/motion-policy`: when `@odoro-cli/engine` is present, it
+ * installs it on its ticker and there is only one loop left on the page.
  *
  * @module
  */
@@ -20,29 +20,29 @@ import { type RefObject, useEffect, useRef, useState } from 'react'
 
 import { onFrame } from '../motion-policy/index.js'
 
-/** Options de {@link useScrollProgress}. */
+/** Options of {@link useScrollProgress}. */
 export interface ScrollProgressOptions {
   /**
-   * Nombre de decimales conservees. Chaque changement de valeur provoque un
-   * rendu : arrondir evite de re-rendre a chaque pixel defile.
+   * Number of decimals kept. Every value change triggers a
+   * render: rounding avoids re-rendering on every scrolled pixel.
    *
    * @defaultValue 3
    */
   precision?: number
 }
 
-/** Arrondit une progression a la precision demandee, bornee entre 0 et 1. */
+/** Rounds a progress to the requested precision, clamped between 0 and 1. */
 function clamp(value: number, precision: number): number {
   const factor = 10 ** precision
   return Math.round(Math.min(1, Math.max(0, value)) * factor) / factor
 }
 
 /**
- * Progression du defilement de la page : 0 en haut, 1 tout en bas.
+ * Progress of the page scroll: 0 at the top, 1 all the way down.
  *
- * La mesure est coalescee sur l'image : plusieurs evenements de defilement
- * dans la meme image ne provoquent qu'une lecture et au plus un rendu. Elle
- * passe par l'ordonnanceur cedable, non par `requestAnimationFrame` en dur.
+ * The measurement is coalesced on the frame: several scroll events
+ * within the same frame trigger only one read and at most one render. It
+ * goes through the yieldable scheduler, not through a hard-coded `requestAnimationFrame`.
  *
  * @example
  * const progress = useScrollProgress()
@@ -63,8 +63,8 @@ export function useScrollProgress(options: ScrollProgressOptions = {}): number {
       setProgress(max <= 0 ? 0 : clamp(root.scrollTop / max, precision))
     }
 
-    // Coalescant : plusieurs evenements dans la meme image ne provoquent
-    // qu'une lecture, et au plus un rendu.
+    // Coalescing: several events within the same frame trigger
+    // only one read, and at most one render.
     const schedule = (): void => {
       if (cancel.current !== undefined) return
       cancel.current = onFrame(measure)
@@ -85,8 +85,8 @@ export function useScrollProgress(options: ScrollProgressOptions = {}): number {
 }
 
 /**
- * Progression de la traversee d'un element par le viewport : 0 quand son haut
- * atteint le bas de l'ecran, 1 quand son bas quitte le haut de l'ecran.
+ * Progress of the viewport crossing an element: 0 when its top
+ * reaches the bottom of the screen, 1 when its bottom leaves the top of the screen.
  *
  * @example
  * const [ref, progress] = useElementScrollProgress<HTMLElement>()

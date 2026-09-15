@@ -7,7 +7,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
 import { type ModuleId } from './modules.js'
 import { scaffold } from './scaffold.js'
-import { VERSIONS_FAMILLE } from './versions-famille.generated.js'
+import { FAMILY_VERSIONS } from './family-versions.generated.js'
 import {
   availableTemplates,
   detectPackageManager,
@@ -26,19 +26,19 @@ describe('detectPackageManager', () => {
     ['npm/10.9.0 node/v22.14.0 win32 x64', 'npm'],
     ['yarn/4.5.0 npm/? node/v22.14.0', 'yarn'],
     ['bun/1.1.30 npm/? node/v22.14.0', 'bun'],
-  ])('reconnait %j', (agent, expected) => {
+  ])('recognises %j', (agent, expected) => {
     expect(detectPackageManager(agent)).toBe(expected)
   })
 
-  it('retombe sur npm face a un agent inconnu', () => {
-    expect(detectPackageManager('gestionnaire-inconnu/1.0.0')).toBe('npm')
+  it('falls back to npm on an unknown agent', () => {
+    expect(detectPackageManager('unknown-manager/1.0.0')).toBe('npm')
     expect(detectPackageManager('')).toBe('npm')
   })
 
-  it('retombe sur npm quand l environnement ne dit rien', () => {
-    // La valeur par defaut lit `npm_config_user_agent` : le test doit donc
-    // maitriser l'environnement, sans quoi il mesure le gestionnaire qui a
-    // lance la suite plutot que le comportement de la fonction.
+  it('falls back to npm when the environment says nothing', () => {
+    // The default value reads `npm_config_user_agent`: the test therefore has
+    // to control the environment, otherwise it measures the manager that
+    // launched the suite rather than the behaviour of the function.
     const previous = process.env['npm_config_user_agent']
     delete process.env['npm_config_user_agent']
     try {
@@ -49,13 +49,13 @@ describe('detectPackageManager', () => {
   })
 })
 
-describe('commandes des gestionnaires', () => {
-  it('produit la commande d installation', () => {
+describe('package manager commands', () => {
+  it('produces the install command', () => {
     expect(installCommand('pnpm')).toBe('pnpm install')
     expect(installCommand('yarn')).toBe('yarn')
   })
 
-  it('produit la commande d execution de script', () => {
+  it('produces the script run command', () => {
     expect(runCommand('npm', 'dev')).toBe('npm run dev')
     expect(runCommand('pnpm', 'dev')).toBe('pnpm dev')
   })
@@ -63,63 +63,63 @@ describe('commandes des gestionnaires', () => {
 
 describe('toPackageName', () => {
   it.each([
-    ['Mon Super Site !', 'mon-super-site'],
-    ['  Espaces  ', 'espaces'],
-    ['_prive', 'prive'],
-    ['deja-valide', 'deja-valide'],
+    ['My Great Site !', 'my-great-site'],
+    ['  Spaces  ', 'spaces'],
+    ['_private', 'private'],
+    ['already-valid', 'already-valid'],
     ['---', 'odoro-app'],
-  ])('transforme %j en %j', (input, expected) => {
+  ])('turns %j into %j', (input, expected) => {
     expect(toPackageName(input)).toBe(expected)
   })
 })
 
 describe('validatePackageName', () => {
-  it('accepte un nom valide', () => {
+  it('accepts a valid name', () => {
     expect(validatePackageName('mon-site')).toBeUndefined()
   })
 
   it.each([
-    ['', /vide/],
-    ['Mon Site', /minuscules/],
-    ['.cache', /commencer/],
-    ['_prive', /commencer/],
-  ])('refuse %j', (input, pattern) => {
+    ['', /empty/],
+    ['Mon Site', /lowercase/],
+    ['.cache', /start/],
+    ['_prive', /start/],
+  ])('refuses %j', (input, pattern) => {
     expect(validatePackageName(input)).toMatch(pattern)
   })
 
-  it('refuse un nom trop long', () => {
+  it('refuses a name that is too long', () => {
     expect(validatePackageName('a'.repeat(215))).toMatch(/214/)
   })
 })
 
 describe('targetFileName', () => {
-  it('restitue les fichiers pointes', () => {
-    // npm renomme `.gitignore` en `.npmignore` a la publication : le fichier
-    // est stocke sous `_gitignore` et restitue a la copie.
+  it('restores dotted file names', () => {
+    // npm renames `.gitignore` to `.npmignore` on publish: the file is
+    // therefore stored as `_gitignore` and restored on copy.
     expect(targetFileName('_gitignore')).toBe('.gitignore')
     expect(targetFileName('_env.example')).toBe('.env.example')
   })
 
-  it('laisse les autres noms intacts', () => {
+  it('leaves other names alone', () => {
     expect(targetFileName('package.json')).toBe('package.json')
   })
 })
 
 describe('templatesRoot', () => {
-  it('resout les templates depuis l emplacement du module, pas le dossier courant', () => {
+  it('resolves the templates from the module location, not the current directory', () => {
     const root = templatesRoot()
     expect(existsSync(root)).toBe(true)
     expect(availableTemplates(root).length).toBeGreaterThan(0)
   })
 
-  it('echoue clairement si les templates sont introuvables', () => {
+  it('fails clearly if the templates cannot be found', () => {
     expect(() => templatesRoot(join(tmpdir(), 'nulle-part', 'module.js'))).toThrow(
-      /introuvable/,
+      /not found/,
     )
   })
 })
 
-describe('echafaudage', () => {
+describe('scaffolding', () => {
   let workspace: string
   let templates: string
   let target: string
@@ -143,7 +143,7 @@ describe('echafaudage', () => {
     await rm(workspace, { recursive: true, force: true })
   })
 
-  it('copie l arborescence du template', async () => {
+  it('copies the template tree', async () => {
     const { files } = await scaffold({
       target,
       template: 'demo',
@@ -155,30 +155,30 @@ describe('echafaudage', () => {
     expect(existsSync(join(target, 'src', 'main.ts'))).toBe(true)
   })
 
-  it('restitue le nom des fichiers pointes', async () => {
+  it('restores the name of dotted files', async () => {
     await scaffold({ target, template: 'demo', packageName: 'mon-site', root: templates })
     expect(existsSync(join(target, '.gitignore'))).toBe(true)
     expect(existsSync(join(target, '_gitignore'))).toBe(false)
   })
 
-  it('reecrit le nom du paquet', async () => {
+  it('rewrites the package name', async () => {
     await scaffold({ target, template: 'demo', packageName: 'mon-site', root: templates })
     const manifest = JSON.parse(await readFile(join(target, 'package.json'), 'utf8')) as {
       name: string
       private: boolean
     }
     expect(manifest.name).toBe('mon-site')
-    // Le reste du manifeste est preserve.
+    // The rest of the manifest is preserved.
     expect(manifest.private).toBe(true)
   })
 
-  it('echoue sur un template inconnu', async () => {
+  it('fails on an unknown template', async () => {
     await expect(
       scaffold({ target, template: 'absent', packageName: 'x', root: templates }),
-    ).rejects.toThrow(/Template inconnu/)
+    ).rejects.toThrow(/Unknown template/)
   })
 
-  it('fusionne dans un dossier occupe', async () => {
+  it('merges into a non-empty directory', async () => {
     await mkdir(target, { recursive: true })
     await writeFile(join(target, 'NOTES.md'), 'a conserver\n', 'utf8')
 
@@ -194,7 +194,7 @@ describe('echafaudage', () => {
     expect(existsSync(join(target, 'package.json'))).toBe(true)
   })
 
-  it('vide le dossier avant de copier, en conservant le depot git', async () => {
+  it('empties the directory before copying, keeping the git repository', async () => {
     await mkdir(join(target, '.git'), { recursive: true })
     await writeFile(join(target, 'ancien.txt'), 'a supprimer\n', 'utf8')
 
@@ -223,423 +223,421 @@ describe('inspectTarget', () => {
     await rm(workspace, { recursive: true, force: true })
   })
 
-  it('signale un dossier absent', () => {
+  it('reports a missing directory', () => {
     expect(inspectTarget(join(workspace, 'nulle-part'))).toBe('absent')
   })
 
-  it('signale un dossier vide', () => {
-    expect(inspectTarget(workspace)).toBe('vide')
+  it('reports an empty directory', () => {
+    expect(inspectTarget(workspace)).toBe('empty')
   })
 
-  it('considere un dossier ne contenant qu un depot git comme vide', async () => {
+  it('treats a directory holding only a git repository as empty', async () => {
     await mkdir(join(workspace, '.git'), { recursive: true })
-    expect(inspectTarget(workspace)).toBe('vide')
+    expect(inspectTarget(workspace)).toBe('empty')
   })
 
-  it('signale un dossier occupe', async () => {
+  it('reports a non-empty directory', async () => {
     await writeFile(join(workspace, 'fichier.txt'), 'x', 'utf8')
-    expect(inspectTarget(workspace)).toBe('occupe')
+    expect(inspectTarget(workspace)).toBe('occupied')
   })
 })
 
-describe('aucune version inventee ne sort de l echafaudeur', () => {
-  it('ne demande que des versions relevees, quelle que soit celle de la CLI', async () => {
-    // Le defaut qui a motive ce releve : `odoro` en 1.0.3 demandait
-    // `@odoro-cli/libs@^1.0.3`, restee en 1.0.2. La version n'existait pas et
-    // `npm install` echouait a la premiere commande d'un projet neuf.
-    const cible = await mkdtemp(join(tmpdir(), 'odoro-inventee-'))
+describe('no invented version leaves the scaffolder', () => {
+  it('only asks for surveyed versions, whatever the version of the CLI', async () => {
+    // The bug that motivated the survey: `odoro` at 1.0.3 asked for
+    // `@odoro-cli/libs@^1.0.3`, which was still at 1.0.2. The version did not
+    // exist and `npm install` failed on the first command of a fresh project.
+    const target = await mkdtemp(join(tmpdir(), 'odoro-inventee-'))
     await scaffold({
-      target: cible,
+      target,
       template: 'react-ts',
       packageName: 'essai',
       modules: ['libs', 'router', 'icons', 'engine'],
       version: '42.0.0',
     })
 
-    const manifeste = JSON.parse(await readFile(join(cible, 'package.json'), 'utf8')) as {
+    const manifest = JSON.parse(await readFile(join(target, 'package.json'), 'utf8')) as {
       dependencies: Record<string, string>
       devDependencies: Record<string, string>
     }
 
-    for (const [nom, plage] of Object.entries({
-      ...manifeste.dependencies,
-      ...manifeste.devDependencies,
+    for (const [name, range] of Object.entries({
+      ...manifest.dependencies,
+      ...manifest.devDependencies,
     })) {
-      if (nom === 'odoro' || !nom.startsWith('@odoro-cli/')) continue
-      expect(plage, nom).toBe(`^${VERSIONS_FAMILLE[nom] ?? ''}`)
-      expect(plage, nom).not.toContain('42.0.0')
+      if (name === 'odoro' || !name.startsWith('@odoro-cli/')) continue
+      expect(range, name).toBe(`^${FAMILY_VERSIONS[name] ?? ''}`)
+      expect(range, name).not.toContain('42.0.0')
     }
   })
 })
 
-describe('les versions Odoro du manifeste', () => {
-  it('posent la version de la CLI sur odoro, et la version publiee sur les voisins', async () => {
-    // Les gabarits portaient `^0.0.0`, la version d'avant la premiere
-    // publication. Un caret sur `0.0.x` est le plus etroit de tous : `^0.0.0`
-    // ne correspond qu'a `0.0.0`. Chaque projet echafaude echouait donc a
-    // l'installation, sur une erreur de resolution que personne n'aurait
-    // rattachee au gabarit.
-    const cible = await mkdtemp(join(tmpdir(), 'odoro-versions-'))
+describe('the Odoro versions of the manifest', () => {
+  it('put the CLI version on odoro, and the published version on the neighbours', async () => {
+    // The templates carried `^0.0.0`, the version from before the first
+    // publish. A caret on `0.0.x` is the narrowest of all: `^0.0.0` matches
+    // only `0.0.0`. Every scaffolded project therefore failed to install, on a
+    // resolution error nobody would have traced back to the template.
+    const target = await mkdtemp(join(tmpdir(), 'odoro-versions-'))
 
     try {
       await scaffold({
-        target: cible,
+        target,
         template: 'react-ts',
         packageName: 'essai',
         version: '1.2.3',
       })
 
-      const manifeste = JSON.parse(
-        await readFile(join(cible, 'package.json'), 'utf8'),
+      const manifest = JSON.parse(
+        await readFile(join(target, 'package.json'), 'utf8'),
       ) as {
         dependencies: Record<string, string>
         devDependencies: Record<string, string>
       }
 
-      // `odoro` est le seul paquet dont la CLI connait la version : la sienne.
-      expect(manifeste.devDependencies['odoro']).toBe('^1.2.3')
+      // `odoro` is the only package whose version the CLI knows: its own.
+      expect(manifest.devDependencies['odoro']).toBe('^1.2.3')
 
-      // Les voisins prennent la version relevee a la compilation, et non celle
-      // de la CLI. Depuis la sortie du groupe `fixed`, les paquets avancent
-      // chacun a leur rythme : poser le numero de la CLI sur tous demandait une
-      // version qui n'existe pas, et l'installation echouait des la creation.
-      const libs = manifeste.dependencies['@odoro-cli/libs']
-      expect(libs).toBe(`^${VERSIONS_FAMILLE['@odoro-cli/libs'] ?? ''}`)
+      // The neighbours take the version surveyed at build time, and not that
+      // of the CLI. Since leaving the `fixed` group, the packages each move at
+      // their own pace: putting the CLI number on all of them asked for a
+      // version that does not exist, and the install failed at creation.
+      const libs = manifest.dependencies['@odoro-cli/libs']
+      expect(libs).toBe(`^${FAMILY_VERSIONS['@odoro-cli/libs'] ?? ''}`)
       expect(libs).not.toBe('^1.2.3')
 
-      // Ce qui n'est pas de la famille ne bouge pas.
-      expect(manifeste.dependencies['react']).not.toContain('1.2.3')
+      // What is not part of the family does not move.
+      expect(manifest.dependencies['react']).not.toContain('1.2.3')
     } finally {
-      await rm(cible, { recursive: true, force: true })
+      await rm(target, { recursive: true, force: true })
     }
   })
 })
 
-describe('la version par defaut', () => {
-  it('est celle de la CLI, et jamais le repli', async () => {
-    // Le repli `latest` existe pour qu'un echafaudage aboutisse malgre tout.
-    // S'il se declenche en temps normal, les projets recoivent `latest` — ce
-    // qui installerait une future version majeure sans que personne ne l'ait
-    // demande. C'est exactement ce qui arrivait quand le chemin du manifeste
-    // comptait des niveaux au lieu de les chercher.
-    const cible = await mkdtemp(join(tmpdir(), 'odoro-defaut-'))
+describe('the default version', () => {
+  it('is the one of the CLI, and never the fallback', async () => {
+    // The `latest` fallback exists so that a scaffold succeeds anyway. If it
+    // fires under normal conditions, projects receive `latest` — which would
+    // install a future major version without anyone asking for it. That is
+    // exactly what happened when the path to the manifest counted levels
+    // instead of searching for them.
+    const target = await mkdtemp(join(tmpdir(), 'odoro-defaut-'))
 
     try {
-      await scaffold({ target: cible, template: 'react-ts', packageName: 'essai' })
+      await scaffold({ target, template: 'react-ts', packageName: 'essai' })
 
-      const manifeste = JSON.parse(
-        await readFile(join(cible, 'package.json'), 'utf8'),
+      const manifest = JSON.parse(
+        await readFile(join(target, 'package.json'), 'utf8'),
       ) as { devDependencies: Record<string, string> }
 
-      expect(manifeste.devDependencies['odoro']).not.toBe('latest')
-      expect(manifeste.devDependencies['odoro']).toMatch(/^\^\d+\.\d+\.\d+/)
+      expect(manifest.devDependencies['odoro']).not.toBe('latest')
+      expect(manifest.devDependencies['odoro']).toMatch(/^\^\d+\.\d+\.\d+/)
     } finally {
-      await rm(cible, { recursive: true, force: true })
+      await rm(target, { recursive: true, force: true })
     }
   })
 })
 
-describe('les modules retenus changent le projet ecrit', () => {
-  /** Echafaude dans un dossier jetable et rend son contenu. */
-  async function creer(modules: readonly ModuleId[]): Promise<{
-    readonly dossier: string
-    readonly fichiers: readonly string[]
+describe('the modules picked change the project written', () => {
+  /** Scaffolds into a throwaway directory and returns its content. */
+  async function create(modules: readonly ModuleId[]): Promise<{
+    readonly directory: string
+    readonly files: readonly string[]
     readonly deps: Record<string, string>
     readonly app: string
   }> {
-    const dossier = await mkdtemp(join(tmpdir(), 'odoro-modules-'))
+    const directory = await mkdtemp(join(tmpdir(), 'odoro-modules-'))
     const { files } = await scaffold({
-      target: dossier,
+      target: directory,
       template: 'react-ts',
       packageName: 'essai',
       modules,
       version: '9.9.9',
     })
     const manifest = JSON.parse(
-      await readFile(join(dossier, 'package.json'), 'utf8'),
+      await readFile(join(directory, 'package.json'), 'utf8'),
     ) as { dependencies: Record<string, string> }
     return {
-      dossier,
-      fichiers: files,
+      directory,
+      files,
       deps: manifest.dependencies,
-      app: await readFile(join(dossier, 'src/App.tsx'), 'utf8'),
+      app: await readFile(join(directory, 'src/App.tsx'), 'utf8'),
     }
   }
 
-  it('ne livre jamais le dossier des variantes', async () => {
-    // Le copier poserait les trois versions de App.tsx dans le projet.
-    const { fichiers, dossier } = await creer(['libs', 'router', 'icons'])
-    expect(fichiers.some((f) => f.startsWith('_variantes'))).toBe(false)
-    expect(fichiers.some((f) => f.startsWith('.variantes'))).toBe(false)
-    expect(existsSync(join(dossier, '_variantes'))).toBe(false)
-    expect(existsSync(join(dossier, '.variantes'))).toBe(false)
+  it('never ships the variants directory', async () => {
+    // Copying it would drop all three versions of App.tsx into the project.
+    const { files, directory } = await create(['libs', 'router', 'icons'])
+    expect(files.some((f) => f.startsWith('_variants'))).toBe(false)
+    expect(files.some((f) => f.startsWith('.variantes'))).toBe(false)
+    expect(existsSync(join(directory, '_variants'))).toBe(false)
+    expect(existsSync(join(directory, '.variantes'))).toBe(false)
   })
 
-  it('ecrit les icones dans les dependances quand elles sont cochees', async () => {
-    const { deps } = await creer(['libs', 'router', 'icons'])
-    expect(deps['@odoro-cli/icons']).toBe(
-      `^${VERSIONS_FAMILLE['@odoro-cli/icons'] ?? ''}`,
-    )
-    expect(deps['@odoro-cli/libs']).toBe(`^${VERSIONS_FAMILLE['@odoro-cli/libs'] ?? ''}`)
+  it('writes the icons into the dependencies when they are ticked', async () => {
+    const { deps } = await create(['libs', 'router', 'icons'])
+    expect(deps['@odoro-cli/icons']).toBe(`^${FAMILY_VERSIONS['@odoro-cli/icons'] ?? ''}`)
+    expect(deps['@odoro-cli/libs']).toBe(`^${FAMILY_VERSIONS['@odoro-cli/libs'] ?? ''}`)
   })
 
-  it('retire des dependances ce qui n a pas ete coche', async () => {
-    const { deps } = await creer(['libs', 'router'])
+  it('removes from the dependencies what was not ticked', async () => {
+    const { deps } = await create(['libs', 'router'])
     expect(deps['@odoro-cli/icons']).toBeUndefined()
     expect(deps['@odoro-cli/engine']).toBeUndefined()
-    // React reste : il ne vient pas d'une case a cocher.
+    // React stays: it does not come from a checkbox.
     expect(deps['react']).toBeDefined()
   })
 
-  it('ajoute le moteur, que le gabarit ne declare pas', async () => {
-    const { deps } = await creer(['libs', 'router', 'engine'])
+  it('adds the engine, which the template does not declare', async () => {
+    const { deps } = await create(['libs', 'router', 'engine'])
     expect(deps['@odoro-cli/engine']).toBe(
-      `^${VERSIONS_FAMILLE['@odoro-cli/engine'] ?? ''}`,
+      `^${FAMILY_VERSIONS['@odoro-cli/engine'] ?? ''}`,
     )
   })
 
-  it('n ajoute aucune dependance pour le registre', async () => {
-    const { deps } = await creer(['libs', 'router', 'registre'])
+  it('adds no dependency for the registry', async () => {
+    const { deps } = await create(['libs', 'router', 'registre'])
     expect(Object.keys(deps).some((n) => n.includes('bits'))).toBe(false)
     expect(Object.keys(deps).some((n) => n.includes('registre'))).toBe(false)
   })
 
-  it('sans routeur, retire router.tsx et pose une page unique', async () => {
-    const { dossier, app, fichiers } = await creer(['libs', 'icons'])
+  it('without a router, removes router.tsx and lays down a single page', async () => {
+    const { directory, app, files } = await create(['libs', 'icons'])
 
-    // `router.tsx` est le seul fichier qui nomme la dependance de routage :
-    // sans routeur, il n'est importe par rien.
-    expect(existsSync(join(dossier, 'src/router.tsx'))).toBe(false)
-    expect(fichiers).not.toContain('src/router.tsx')
+    // `router.tsx` is the only file that names the routing dependency: without
+    // a router, nothing imports it.
+    expect(existsSync(join(directory, 'src/router.tsx'))).toBe(false)
+    expect(files).not.toContain('src/router.tsx')
     expect(app).not.toContain("from '@/router'")
 
-    // Les classes des bibliotheques restent : seul le routeur a ete retire.
+    // The library classes stay: only the router was removed.
     expect(app).toContain('o-flex')
 
-    // La page unique porte les memes sections que la version routee — c'est ce
-    // qui fait que les deux se ressemblent au lieu d'etre deux pages.
-    for (const section of ['function Hero', 'function Piliers', 'function Cloture']) {
+    // The single page carries the same sections as the routed version — that
+    // is what makes the two look alike instead of being two different pages.
+    for (const section of ['function Hero', 'function Pillars', 'function Closing']) {
       expect(app, section).toContain(section)
     }
   })
 
-  it('sans bibliotheques, pose une application nue et retire leur feuille', async () => {
-    const { dossier, app, deps } = await creer([])
+  it('without the libraries, lays down a bare application and removes their stylesheet', async () => {
+    const { directory, app, deps } = await create([])
     expect(deps['@odoro-cli/libs']).toBeUndefined()
     expect(app).not.toContain("from '@odoro-cli/libs")
     expect(app).not.toContain('o-flex')
 
-    const main = await readFile(join(dossier, 'src/main.tsx'), 'utf8')
+    const main = await readFile(join(directory, 'src/main.tsx'), 'utf8')
     expect(main).not.toContain('@odoro-cli/libs/styles.css')
 
-    // La feuille du projet doit alors porter les styles elle-meme : sans
-    // jetons ni utilitaires, une feuille vide rendrait une page nue.
-    const css = await readFile(join(dossier, 'src/styles.css'), 'utf8')
+    // The project stylesheet then has to carry the styles itself: with no
+    // tokens and no utilities, an empty sheet would render a bare page.
+    const css = await readFile(join(directory, 'src/styles.css'), 'utf8')
     expect(css).toContain('.app-shell')
     expect(css).toContain('prefers-color-scheme')
   })
 
-  it('sans bibliotheques, aucun fichier ne mentionne un import qui n existe plus', async () => {
-    const { dossier } = await creer([])
-    for (const relatif of ['src/App.tsx', 'src/main.tsx', 'src/styles.css']) {
-      const contenu = await readFile(join(dossier, relatif), 'utf8')
-      expect(contenu, relatif).not.toContain("from '@odoro-cli/libs")
-      expect(contenu, relatif).not.toContain("import '@odoro-cli/libs")
+  it('without the libraries, no file mentions an import that no longer exists', async () => {
+    const { directory } = await create([])
+    for (const relative of ['src/App.tsx', 'src/main.tsx', 'src/styles.css']) {
+      const content = await readFile(join(directory, relative), 'utf8')
+      expect(content, relative).not.toContain("from '@odoro-cli/libs")
+      expect(content, relative).not.toContain("import '@odoro-cli/libs")
     }
   })
 
-  it('rend le meme manifeste pour deux selections identiques', async () => {
-    const a = await creer(['icons', 'libs', 'router'])
-    const b = await creer(['libs', 'router', 'icons'])
+  it('yields the same manifest for two identical selections', async () => {
+    const a = await create(['icons', 'libs', 'router'])
+    const b = await create(['libs', 'router', 'icons'])
     expect(Object.keys(a.deps)).toEqual(Object.keys(b.deps))
   })
 
-  it('garde le gabarit complet quand rien n est precise', async () => {
-    const dossier = await mkdtemp(join(tmpdir(), 'odoro-defaut-'))
+  it('keeps the complete template when nothing is specified', async () => {
+    const directory = await mkdtemp(join(tmpdir(), 'odoro-defaut-'))
     await scaffold({
-      target: dossier,
+      target: directory,
       template: 'react-ts',
       packageName: 'essai',
       version: '9.9.9',
     })
-    const app = await readFile(join(dossier, 'src/App.tsx'), 'utf8')
-    // Le routeur est importe en une ligne, depuis le fichier qui le porte.
+    const app = await readFile(join(directory, 'src/App.tsx'), 'utf8')
+    // The router is imported in one line, from the file that carries it.
     expect(app).toContain("from '@/router'")
-    expect(existsSync(join(dossier, 'src/router.tsx'))).toBe(true)
+    expect(existsSync(join(directory, 'src/router.tsx'))).toBe(true)
   })
 })
 
-describe('le tsconfig genere ne masque pas les paquets', () => {
+describe('the generated tsconfig does not hide the packages', () => {
   /**
-   * `baseUrl` fait resoudre les imports nus depuis la racine du projet. Un
-   * fichier `odoro.json` — celui que `odoro init` ecrit pour le registre — y
-   * est alors trouve avant le paquet `odoro`, et `odoro.config.ts` echoue a la
-   * compilation sur un `defineConfig` introuvable.
+   * `baseUrl` makes bare imports resolve from the project root. An `odoro.json`
+   * file — the one `odoro init` writes for the registry — is then found before
+   * the `odoro` package, and `odoro.config.ts` fails to compile on a
+   * `defineConfig` it cannot find.
    *
-   * La compilation d'un vrai projet l'a montre, pas ce test : il est ici pour
-   * que le piege ne revienne pas.
+   * Building a real project showed this, not this test: it is here so that the
+   * trap does not come back.
    */
   it.each(['react-ts', 'react-ts-server'])(
-    'le gabarit %s ne declare pas baseUrl',
+    'the %s template does not declare baseUrl',
     async (template) => {
-      const dossier = await mkdtemp(join(tmpdir(), 'odoro-tsconfig-'))
+      const directory = await mkdtemp(join(tmpdir(), 'odoro-tsconfig-'))
       await scaffold({
-        target: dossier,
+        target: directory,
         template,
         packageName: 'essai',
         version: '9.9.9',
       })
 
-      const brut = await readFile(join(dossier, 'tsconfig.json'), 'utf8')
-      expect(brut).not.toContain('baseUrl')
+      const raw = await readFile(join(directory, 'tsconfig.json'), 'utf8')
+      expect(raw).not.toContain('baseUrl')
 
-      // Les alias doivent survivre a son retrait : depuis TypeScript 4.1, les
-      // chemins de `paths` se resolvent contre le tsconfig lui-meme.
-      expect(brut).toContain('"@/*"')
+      // The aliases must survive its removal: since TypeScript 4.1, the paths
+      // in `paths` resolve against the tsconfig itself.
+      expect(raw).toContain('"@/*"')
     },
   )
 })
 
-describe('la page d accueil suit le dessin de la landing', () => {
-  /** Echafaude et rend le contenu d'un fichier du projet. */
-  async function lire(modules: readonly ModuleId[], relatif: string): Promise<string> {
-    const dossier = await mkdtemp(join(tmpdir(), 'odoro-page-'))
+describe('the home page follows the design of the landing', () => {
+  /** Scaffolds and returns the content of one file of the project. */
+  async function read(modules: readonly ModuleId[], relative: string): Promise<string> {
+    const directory = await mkdtemp(join(tmpdir(), 'odoro-page-'))
     await scaffold({
-      target: dossier,
+      target: directory,
       template: 'react-ts',
       packageName: 'essai',
       modules,
       version: '9.9.9',
     })
-    return readFile(join(dossier, relatif), 'utf8')
+    return readFile(join(directory, relative), 'utf8')
   }
 
-  it('pose un fond statique quand le moteur n est pas retenu', async () => {
-    const fond = await lire(['libs', 'router', 'icons'], 'src/fond.tsx')
-    expect(fond).not.toContain('useShaderSurface')
-    expect(fond).toContain('radial-gradient')
+  it('lays down a static background when the engine is not picked', async () => {
+    const background = await read(['libs', 'router', 'icons'], 'src/background.tsx')
+    expect(background).not.toContain('useShaderSurface')
+    expect(background).toContain('radial-gradient')
   })
 
-  it('pose un fond en surface WebGL quand le moteur est retenu', async () => {
-    const fond = await lire(['libs', 'router', 'engine'], 'src/fond.tsx')
-    expect(fond).toContain('useShaderSurface')
-    // Le repli reste : une surface refusee ne doit pas laisser un trou.
-    expect(fond).toContain('radial-gradient')
+  it('lays down a WebGL surface background when the engine is picked', async () => {
+    const background = await read(['libs', 'router', 'engine'], 'src/background.tsx')
+    expect(background).toContain('useShaderSurface')
+    // The fallback stays: a refused surface must not leave a hole.
+    expect(background).toContain('radial-gradient')
   })
 
-  it('le fond du moteur ne depend d aucune classe utilitaire', async () => {
-    // Il est pose meme sans les bibliotheques, ou les classes `o-*` n'existent
-    // pas : une classe absente ne peint rien, et le fond serait invisible.
-    const fond = await lire(['engine'], 'src/fond.tsx')
-    expect(fond).toContain('useShaderSurface')
-    expect(fond).not.toMatch(/className="[^"]*\bo-/)
+  it('the engine background depends on no utility class', async () => {
+    // It is laid down even without the libraries, where the `o-*` classes do
+    // not exist: a missing class paints nothing, and the background would be
+    // invisible.
+    const background = await read(['engine'], 'src/background.tsx')
+    expect(background).toContain('useShaderSurface')
+    expect(background).not.toMatch(/className="[^"]*\bo-/)
   })
 
-  it('donne le signe de la marque une taille, et non une classe arbitraire', async () => {
-    // Une classe utilitaire a valeur arbitraire n'est emise que si le
-    // compilateur l'a vue passer : absente, elle laisserait un SVG sans
-    // dimensions, donc invisible.
-    const app = await lire(['libs', 'router'], 'src/App.tsx')
-    expect(app).toContain('width: taille')
+  it('gives the brand mark a size, and not an arbitrary class', async () => {
+    // An arbitrary-value utility class is only emitted if the compiler saw it
+    // go by: missing, it would leave an SVG with no dimensions, so invisible.
+    const app = await read(['libs', 'router'], 'src/App.tsx')
+    expect(app).toContain('width: size')
     expect(app).not.toContain('o-size-[')
   })
 
-  it('n ecrit aucun lien souligne parmi les boutons', async () => {
-    const app = await lire(['libs', 'router'], 'src/App.tsx')
-    for (const appel of app.match(/<a[^>]*buttonClasses\([^)]*\)[^>]*>/g) ?? []) {
-      expect(app, appel).toContain('o-no-underline')
+  it('writes no underlined link among the buttons', async () => {
+    const app = await read(['libs', 'router'], 'src/App.tsx')
+    for (const call of app.match(/<a[^>]*buttonClasses\([^)]*\)[^>]*>/g) ?? []) {
+      expect(app, call).toContain('o-no-underline')
     }
   })
 
-  it('importe le routeur en une seule ligne', async () => {
-    // C'est la forme demandee : `App.tsx` porte la page, `router.tsx` porte le
-    // routage, et le lien entre les deux tient sur une ligne.
-    const app = await lire(['libs', 'router'], 'src/App.tsx')
-    const lignes = app.split('\n').filter((l) => l.includes("from '@/router'"))
-    expect(lignes).toHaveLength(1)
+  it('imports the router in a single line', async () => {
+    // That is the shape asked for: `App.tsx` carries the page, `router.tsx`
+    // carries the routing, and the link between the two fits on one line.
+    const app = await read(['libs', 'router'], 'src/App.tsx')
+    const lines = app.split('\n').filter((l) => l.includes("from '@/router'"))
+    expect(lines).toHaveLength(1)
   })
 
-  it('ne laisse aucun dossier de sections', async () => {
-    // Tout s'ecrit dans `App.tsx` : un dossier `sections/` serait la structure
-    // que cette forme remplace.
-    const dossier = await mkdtemp(join(tmpdir(), 'odoro-plat-'))
+  it('leaves no sections directory', async () => {
+    // Everything is written in `App.tsx`: a `sections/` directory would be the
+    // structure that this shape replaces.
+    const directory = await mkdtemp(join(tmpdir(), 'odoro-plat-'))
     await scaffold({
-      target: dossier,
+      target: directory,
       template: 'react-ts',
       packageName: 'essai',
       modules: ['libs', 'router', 'engine'],
       version: '9.9.9',
     })
-    expect(existsSync(join(dossier, 'src/sections'))).toBe(false)
-    expect(existsSync(join(dossier, 'src/composants'))).toBe(false)
-    expect(existsSync(join(dossier, 'src/routes'))).toBe(false)
+    expect(existsSync(join(directory, 'src/sections'))).toBe(false)
+    expect(existsSync(join(directory, 'src/composants'))).toBe(false)
+    expect(existsSync(join(directory, 'src/routes'))).toBe(false)
   })
 
-  it('garde le meme dessin sans les bibliotheques', async () => {
-    // Meme structure, meme marque, meme teinte — en CSS ordinaire.
-    const css = await lire([], 'src/styles.css')
-    expect(css).toContain('--marque: #3b82f6')
-    expect(css).toContain('.fenetre')
-    expect(css).toContain('.carte')
-    // Sur l'import : le fichier dit en commentaire ce que les bibliotheques
-    // auraient apporte, et cette phrase a sa place.
-    const app = await lire([], 'src/App.tsx')
+  it('keeps the same design without the libraries', async () => {
+    // Same structure, same brand, same hue — in plain CSS.
+    const css = await read([], 'src/styles.css')
+    expect(css).toContain('--brand: #3b82f6')
+    expect(css).toContain('.window')
+    expect(css).toContain('.card')
+    // About the import: the file says in a comment what the libraries would
+    // have brought, and that sentence has its place.
+    const app = await read([], 'src/App.tsx')
     expect(app).not.toContain("from '@odoro-cli/libs")
   })
 })
 
-describe('les gabarits n emploient que des classes qui existent', () => {
+describe('the templates only use classes that exist', () => {
   /**
-   * Le systeme de style n emet pas de classe a valeur arbitraire.
+   * The style system emits no arbitrary-value class.
    *
-   * `o-h-[42rem]` ne produit aucune regle, et une classe absente ne peint rien.
-   * Le fond decoratif du gabarit en portait six : son conteneur mesurait zero
-   * pixel de haut, ses deux nappes aussi, et il ne se voyait pas — sans que
-   * rien ne le signale, ni a la compilation ni a l execution.
+   * `o-h-[42rem]` produces no rule at all, and a missing class paints nothing.
+   * The decorative background of the template carried six of them: its
+   * container measured zero pixels tall, so did both its glows, and it was
+   * nowhere to be seen — with nothing to report it, neither at build time nor
+   * at runtime.
    *
-   * Ce qui sort de l echelle s ecrit en style, ou il est sur.
+   * What falls off the scale is written as a style, where it is safe.
    */
   it.each(['react-ts', 'react-ts-server'])(
-    'le gabarit %s n invente aucune classe',
+    'the %s template invents no class',
     async (template) => {
-      const dossier = await mkdtemp(join(tmpdir(), 'odoro-classes-'))
+      const directory = await mkdtemp(join(tmpdir(), 'odoro-classes-'))
       await scaffold({
-        target: dossier,
+        target: directory,
         template,
         packageName: 'essai',
         modules: ['libs', 'router', 'icons', 'engine'],
         version: '9.9.9',
       })
 
-      const trouvees: string[] = []
-      const parcourir = async (racine: string): Promise<void> => {
-        for (const entree of await readdir(racine, { withFileTypes: true })) {
-          const chemin = join(racine, entree.name)
-          if (entree.isDirectory()) {
-            if (entree.name === 'node_modules') continue
-            await parcourir(chemin)
+      const found: string[] = []
+      const walk = async (root: string): Promise<void> => {
+        for (const entry of await readdir(root, { withFileTypes: true })) {
+          const path = join(root, entry.name)
+          if (entry.isDirectory()) {
+            if (entry.name === 'node_modules') continue
+            await walk(path)
             continue
           }
-          if (!/\.tsx?$/.test(entree.name)) continue
+          if (!/\.tsx?$/.test(entry.name)) continue
 
-          // Les commentaires sont retires avant la recherche : plusieurs citent
-          // la forme interdite pour expliquer pourquoi elle l'est, et les
-          // signaler ferait echouer le test sur la documentation de sa regle.
-          const source = (await readFile(chemin, 'utf8')).replace(
+          // The comments are stripped before the search: several of them quote
+          // the forbidden form to explain why it is forbidden, and reporting
+          // them would fail the test on the documentation of its own rule.
+          const source = (await readFile(path, 'utf8')).replace(
             /\/\*[\s\S]*?\*\/|\/\/.*/g,
             '',
           )
 
-          for (const classe of source.match(/o-[a-z0-9-]+\[[^\]"' ]+\]/g) ?? []) {
-            trouvees.push(`${entree.name} : ${classe}`)
+          for (const klass of source.match(/o-[a-z0-9-]+\[[^\]"' ]+\]/g) ?? []) {
+            found.push(`${entry.name} : ${klass}`)
           }
         }
       }
-      // Toute l'arborescence : le gabarit serveur range son application sous
-      // `client/`, et ne scruter que `src/` l'aurait laissee de cote.
-      await parcourir(dossier)
+      // The whole tree: the server template puts its application under
+      // `client/`, and scanning only `src/` would have left it out.
+      await walk(directory)
 
-      expect(trouvees).toEqual([])
+      expect(found).toEqual([])
     },
   )
 })

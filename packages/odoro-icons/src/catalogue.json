@@ -1,8 +1,8 @@
 {
-  "filaire": {
-    "title": "Filaire",
-    "summary": "Trace au trait de deux unites sur une grille de vingt-quatre. Le plus regulier des quatre : toutes les icones partagent la meme epaisseur et les memes terminaisons arrondies.",
-    "mode": "trait",
+  "outline": {
+    "title": "Outline",
+    "summary": "Two-unit stroke on a twenty-four grid. The most regular of the four: every icon shares the same weight and the same rounded caps.",
+    "mode": "outline",
     "stroke": 2,
     "credit": "ISC",
     "names": [
@@ -2058,8 +2058,8 @@
   },
   "compact": {
     "title": "Compact",
-    "summary": "Glyphes pleins sur une grille de seize. Dessines pour de petites tailles : ils restent lisibles a seize pixels, la ou un trace au trait se brouille.",
-    "mode": "plein",
+    "summary": "Solid glyphs on a sixteen grid. Drawn for small sizes: they stay legible at sixteen pixels, where a stroked drawing blurs.",
+    "mode": "solid",
     "credit": "MIT",
     "names": [
       "0-circle-fill",
@@ -4142,10 +4142,10 @@
       "zoom-out"
     ]
   },
-  "classique": {
-    "title": "Classique",
-    "summary": "Glyphes pleins sur une grille de cinq cent douze. Le dessin le plus dense des quatre, et le plus reconnaissable — c est le vocabulaire graphique du web depuis quinze ans.",
-    "mode": "plein",
+  "classic": {
+    "title": "Classic",
+    "summary": "Solid glyphs on a five hundred and twelve grid. The densest drawing of the four, and the most recognisable — it is the graphic vocabulary of the web of the last fifteen years.",
+    "mode": "solid",
     "credit": "CC BY 4.0",
     "names": [
       "0",
@@ -6151,10 +6151,10 @@
       "zap"
     ]
   },
-  "etendu": {
-    "title": "Etendu",
-    "summary": "Contour fin sur une grille de neuf cent soixante. De loin le plus vaste : il couvre des domaines que les autres ignorent, au prix d une couverture inegale en qualite.",
-    "mode": "plein",
+  "extended": {
+    "title": "Extended",
+    "summary": "Thin outline on a nine hundred and sixty grid. By far the widest: it covers domains that the others ignore, at the cost of coverage that is uneven in quality.",
+    "mode": "solid",
     "credit": "Apache-2.0",
     "names": [
       "10k",
@@ -10062,11 +10062,11 @@
       "zoom_out_map"
     ]
   },
-  "marques": {
-    "title": "Marques",
-    "summary": "Logos de services et de plateformes. Contrairement aux autres jeux, ceux-ci sont des marques deposees : leur licence ne dit rien de leur usage, ce sont les regles de chaque proprietaire qui s appliquent.",
-    "mode": "plein",
-    "credit": "marques deposees de leurs proprietaires respectifs",
+  "brands": {
+    "title": "Brands",
+    "summary": "Logos of services and platforms. Unlike the other packs, these are registered trademarks: their licence says nothing about their use, the rules of each owner are what apply.",
+    "mode": "solid",
+    "credit": "registered trademarks of their respective owners",
     "names": [
       "11ty",
       "42-group",

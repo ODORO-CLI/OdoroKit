@@ -24,14 +24,14 @@
 
 import { CLOCK_PRIORITY, clock } from '@odoro-cli/engine'
 import { Icon } from '@odoro-cli/icons'
-import { MousePointer } from '@odoro-cli/icons/filaire'
+import { MousePointer } from '@odoro-cli/icons/outline'
 import { useEffect, useRef, useState, type ReactElement } from 'react'
 
 import { useInView } from '@/odoro/hooks/useInView.js'
 import { usePointerDamped } from '@/odoro/hooks/usePointerDamped.js'
 import { usePoster } from '@/odoro/hooks/usePoster.js'
 
-import { Check, Copy } from '@odoro-cli/icons/filaire'
+import { Check, Copy } from '@odoro-cli/icons/outline'
 
 import { useCopy } from '@/odoro/hooks/useCopy.js'
 import { useIntervalClock } from '@/odoro/hooks/useIntervalClock.js'

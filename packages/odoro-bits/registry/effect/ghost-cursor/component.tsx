@@ -1,36 +1,36 @@
 /**
- * Trainee fantome : le chemin parcouru, garde quelques images de plus.
+ * Ghost trail: the path travelled, kept a few frames longer.
  *
- * ## Une memoire, pas une chaine de ressorts
+ * ## A memory, not a chain of springs
  *
- * Le curseur gluant accroche chaque boule a la precedente : la trainee coupe
- * les virages, parce qu'un ressort tire toujours en ligne droite. Ici rien ne
- * tire : la position brute du pointeur est **enregistree** a chaque image dans
- * un anneau, et chaque fantome relit une case plus ancienne. La trainee epouse
- * donc le trace exact, boucles comprises.
+ * The gooey cursor hooks each ball to the one before it: the trail cuts the
+ * corners, because a spring always pulls in a straight line. Here nothing
+ * pulls: the raw position of the pointer is **recorded** on every frame into a
+ * ring, and each ghost reads back an older slot. The trail therefore hugs the
+ * exact path, loops included.
  *
- * L'anneau a une longueur fixe — `count x gap + 1` cases — et l'ecriture
- * ecrase la plus vieille. Aucune allocation par image, aucun tableau qui
- * grandit : la memoire du composant est connue des sa creation.
+ * The ring has a fixed length — `count x gap + 1` slots — and writing
+ * overwrites the oldest. No allocation per frame, no array that grows: the
+ * memory of the component is known from its creation.
  *
- * ## L'ecart se regle en images, pas en secondes
+ * ## The spacing is set in frames, not in seconds
  *
- * `gap` est un nombre d'images entre deux fantomes. C'est volontaire : la
- * trainee est un echantillonnage du geste, et ce qu'on veut regler c'est la
- * densite des echantillons. Une duree donnerait une trainee plus courte sur un
- * ecran rapide, pour le meme reglage.
+ * `gap` is a number of frames between two ghosts. This is deliberate: the
+ * trail is a sampling of the gesture, and what one wants to set is the density
+ * of the samples. A duration would give a shorter trail on a fast screen, for
+ * the same setting.
  *
- * ## Seule la transformation change
+ * ## Only the transform changes
  *
- * L'opacite et la taille de chaque fantome sont posees une fois, a la
- * creation : elles ne dependent que de son rang. La boucle n'ecrit qu'un
- * `translate3d` par fantome — rien qui declenche une mise en page.
+ * The opacity and the size of each ghost are applied once, at creation: they
+ * depend only on its rank. The loop writes nothing but a `translate3d` per
+ * ghost — nothing that triggers a layout.
  *
- * ## Ou il ne se montre pas
+ * ## Where it does not show itself
  *
- * Sans pointeur fin, aucun fantome n'existe. Sous mouvement reduit non plus :
- * une trainee est un mouvement pur, sans etat final a poser. Le curseur du
- * systeme reste en place.
+ * Without a fine pointer, no ghost exists. Nor under reduced motion: a trail
+ * is pure movement, with no final state to apply. The system cursor stays in
+ * place.
  *
  * @module
  */
@@ -50,40 +50,40 @@ import {
   type ReactNode,
 } from 'react'
 
-/** Forme d'un fantome. */
-export type GhostShape = 'point' | 'anneau' | 'carre'
+/** Shape of a ghost. */
+export type GhostShape = 'point' | 'ring' | 'square'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface GhostCursorOwnProps {
   /**
-   * Zone ou la trainee vit.
+   * Area where the trail lives.
    *
-   * Fournie, elle n'ecoute que cette zone et y est coupee. Absente, elle prend
-   * la page entiere, en couche fixe qui n'intercepte rien.
+   * Provided, it listens only to that area and is clipped to it. Absent, it
+   * takes the whole page, as a fixed layer that intercepts nothing.
    */
   children?: ReactNode
-  /** Nombre de fantomes. @defaultValue 10 */
+  /** Number of ghosts. @defaultValue 10 */
   count?: number
-  /** Taille du premier fantome, en pixels. @defaultValue 14 */
+  /** Size of the first ghost, in pixels. @defaultValue 14 */
   size?: number
-  /** Images d'ecart entre deux fantomes. @defaultValue 3 */
+  /** Frames of spacing between two ghosts. @defaultValue 3 */
   gap?: number
-  /** Forme des fantomes. @defaultValue 'point' */
+  /** Shape of the ghosts. @defaultValue 'point' */
   shape?: GhostShape
-  /** Couleur des fantomes. Une valeur, pas un role. @defaultValue la couleur du texte */
+  /** Colour of the ghosts. A value, not a role. @defaultValue the text colour */
   color?: string
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type GhostCursorProps = Customisable<GhostCursorOwnProps>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-ghost-cursor'
 
-/** Au-dela, la trainee devient une flaque et l'anneau pese pour rien. */
+/** Beyond this, the trail becomes a puddle and the ring weighs for nothing. */
 const MAX_GHOSTS = 24
 
-/** Pose les regles de la trainee, une fois par document. */
+/** Sets the trail rules, once per document. */
 function ensureGhostCursorRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -91,9 +91,9 @@ function ensureGhostCursorRule(): void {
   const style = document.createElement('style')
   style.id = STYLE_ID
   style.textContent = [
-    // La position de la zone vit dans une regle sans specificite : une
-    // classe de l appelant — `o-absolute` pour la poser dans un cadre —
-    // doit pouvoir la remplacer, ce qu'un style en ligne interdirait.
+    // The positioning of the area lives in a rule with no specificity: a
+    // class from the caller — `o-absolute` to place it inside a frame —
+    // must be able to replace it, which an inline style would forbid.
     ':where([data-o-ghost-host="zone"]){position:relative;overflow:hidden}',
     ':where([data-o-ghost-host="page"]){position:fixed;inset:0;z-index:9998;pointer-events:none}',
     '[data-o-ghost-layer]{',
@@ -106,15 +106,15 @@ function ensureGhostCursorRule(): void {
 }
 
 /**
- * Laisse une trainee de fantomes derriere le pointeur.
+ * Leaves a trail of ghosts behind the pointer.
  *
  * @example
- * // Sur la page entiere.
+ * // Over the whole page.
  * <GhostCursor />
  *
  * @example
- * // Trainee longue et clairsemee, en anneaux.
- * <GhostCursor count={16} gap={4} shape="anneau">
+ * // Long and sparse trail, made of rings.
+ * <GhostCursor count={16} gap={4} shape="ring">
  *   <section className="o-p-16">…</section>
  * </GhostCursor>
  */
@@ -136,7 +136,7 @@ export function GhostCursor({
   useEffect(() => {
     if (host === null || reduced) return
     if (typeof window === 'undefined') return
-    // Pointeur grossier : pas de trace a garder, rien n'est cree.
+    // Coarse pointer: no path to keep, nothing is created.
     if (!window.matchMedia('(pointer: fine)').matches) return
 
     const total = Math.max(2, Math.min(MAX_GHOSTS, Math.round(count)))
@@ -158,9 +158,9 @@ export function GhostCursor({
       node.style.height = `${side.toFixed(1)}px`
       node.style.margin = `${(-side / 2).toFixed(1)}px`
       node.style.opacity = (0.85 * (1 - rank)).toFixed(3)
-      if (shape === 'carre') node.style.borderRadius = '2px'
+      if (shape === 'square') node.style.borderRadius = '2px'
       else node.style.borderRadius = '50%'
-      if (shape === 'anneau') {
+      if (shape === 'ring') {
         node.style.border = `1.5px solid ${color}`
       } else {
         node.style.background = color
@@ -169,7 +169,7 @@ export function GhostCursor({
       ghosts.push({ node, back: index * stride })
     }
 
-    // L'anneau : une case par image gardee, la plus vieille ecrasee.
+    // The ring: one slot per kept frame, the oldest overwritten.
     const length = total * stride + 1
     const trail: { x: number; y: number }[] = []
     for (let index = 0; index < length; index += 1) trail.push({ x: away, y: away })
@@ -190,8 +190,8 @@ export function GhostCursor({
       x = pointer.clientX - box.left
       y = pointer.clientY - box.top
       if (!seen) {
-        // Sans ce remplissage, la trainee se deroule depuis le coin au premier
-        // mouvement, comme si le pointeur en venait.
+        // Without this filling, the trail unrolls from the corner on the first
+        // movement, as if the pointer came from there.
         for (const slot of trail) {
           slot.x = x
           slot.y = y
@@ -227,7 +227,7 @@ export function GhostCursor({
           ghost.node.style.transform = `translate3d(${past.x.toFixed(1)}px,${past.y.toFixed(1)}px,0)`
         }
       },
-      { name: 'ghost-cursor : trainee', priority: CLOCK_PRIORITY.default },
+      { name: 'ghost-cursor : trail', priority: CLOCK_PRIORITY.default },
     )
 
     return () => {

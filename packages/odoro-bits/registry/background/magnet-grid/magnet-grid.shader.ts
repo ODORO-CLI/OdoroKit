@@ -1,26 +1,26 @@
 /**
- * Shader de la grille magnetique.
+ * Shader of the magnetic grid.
  *
- * ## L'idee mathematique
+ * ## The mathematical idea
  *
- * Une grille de points dont chaque point est repousse par le pointeur : le
- * decalage est la direction fois une force en exponentielle de la distance —
- * ou attire, quand le sens est inverse. Le point s'ecarte dans le shader,
- * aucune geometrie : chaque fragment evalue les neuf cellules qui l'entourent,
- * si bien qu'un point peut glisser hors de sa cellule sans etre rogne.
+ * A grid of dots, each dot pushed away by the pointer: the offset is the
+ * direction times a strength exponential in the distance — or pulled in, when
+ * the sense is reversed. The dot moves aside inside the shader, no geometry:
+ * every fragment evaluates the nine cells around it, so that a dot can slide
+ * out of its cell without being clipped.
  *
  * ## Uniforms
  *
- * - `uTime` — temps en secondes, fourni par le moteur.
- * - `uResolution` — taille du canevas en pixels, fournie par le moteur.
- * - `uColorA` — le fond.
- * - `uColorB` — les points au repos.
- * - `uColorC` — les points sous influence.
- * - `uPointer` — position amortie du pointeur, en coordonnees de texture.
- * - `uDensity` — nombre de points par hauteur de cadre.
- * - `uRadius` — portee de l'aimant.
- * - `uForce` — amplitude du decalage.
- * - `uAttract` — 1 pour attirer, 0 pour repousser.
+ * - `uTime` — time in seconds, supplied by the engine.
+ * - `uResolution` — canvas size in pixels, supplied by the engine.
+ * - `uColorA` — the background.
+ * - `uColorB` — the dots at rest.
+ * - `uColorC` — the dots under influence.
+ * - `uPointer` — damped pointer position, in texture coordinates.
+ * - `uDensity` — number of dots per frame height.
+ * - `uRadius` — reach of the magnet.
+ * - `uForce` — amplitude of the offset.
+ * - `uAttract` — 1 to attract, 0 to repel.
  */
 export const MAGNET_GRID_FRAGMENT = /* glsl */ `
 precision highp float;
@@ -46,15 +46,15 @@ void main() {
   float density = max(uDensity, 2.0);
   vec2 base = floor(p * density);
 
-  // Repousser par defaut, attirer quand le sens est inverse.
-  float sens = 1.0 - 2.0 * step(0.5, uAttract);
+  // Repel by default, attract when the sense is reversed.
+  float polarity = 1.0 - 2.0 * step(0.5, uAttract);
 
   float point = 0.0;
-  float energie = 0.0;
+  float energy = 0.0;
 
-  // Neuf cellules par fragment, a bornes constantes : un point deplace peut
-  // venir d'une cellule voisine, et ne l'evaluer que dans la sienne le
-  // rognerait au bord des qu'il s'ecarte.
+  // Nine cells per fragment, at constant bounds: a displaced dot can come from
+  // a neighbouring cell, and evaluating it only within its own would clip it at
+  // the edge as soon as it moves aside.
   for (int dx = -1; dx <= 1; dx += 1) {
     for (int dy = -1; dy <= 1; dy += 1) {
       vec2 cell = base + vec2(float(dx), float(dy));
@@ -64,27 +64,27 @@ void main() {
       float dist = length(away);
       vec2 dir = away / max(dist, 0.0001);
 
-      // La force decroit en exponentielle de la distance : proche du curseur
-      // le champ est net, loin de lui la grille redevient parfaitement sage.
+      // The force decays exponentially with the distance: close to the cursor
+      // the field is crisp, far from it the grid goes back to perfect order.
       float strength = uForce * exp(-dist / max(uRadius, 0.01));
-      vec2 pos = centre + dir * sens * strength * (0.9 / density);
+      vec2 pos = centre + dir * polarity * strength * (0.9 / density);
 
       float d = length(p - pos);
-      float rayon = 0.11 / density;
-      point = max(point, 1.0 - smoothstep(rayon * 0.5, rayon, d));
-      energie = max(energie, strength * (1.0 - smoothstep(rayon * 0.5, rayon * 1.4, d)));
+      float radius = 0.11 / density;
+      point = max(point, 1.0 - smoothstep(radius * 0.5, radius, d));
+      energy = max(energy, strength * (1.0 - smoothstep(radius * 0.5, radius * 1.4, d)));
     }
   }
 
   vec3 colour = mix(uColorA, uColorB, point * 0.85);
 
-  // Les points sous influence changent de teinte : le champ se voit aussi par
-  // la couleur, pas seulement par le deplacement.
-  colour = mix(colour, uColorC, clamp(energie * 1.6, 0.0, 1.0));
+  // The dots under influence change hue: the field also shows through the
+  // colour, not only through the displacement.
+  colour = mix(colour, uColorC, clamp(energy * 1.6, 0.0, 1.0));
 
-  // Vignette discrete, pour que la nappe ne soit pas un papier peint.
-  float ecart = length((vUv - 0.5) * vec2(aspect, 1.0));
-  colour *= 1.0 - smoothstep(0.5, 1.1, ecart) * 0.35;
+  // Discreet vignette, so the sheet is not a wallpaper.
+  float fromCentre = length((vUv - 0.5) * vec2(aspect, 1.0));
+  colour *= 1.0 - smoothstep(0.5, 1.1, fromCentre) * 0.35;
 
   gl_FragColor = vec4(colour, 1.0);
 }

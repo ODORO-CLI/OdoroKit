@@ -1,23 +1,22 @@
 /**
- * Texte en cercle : une phrase posee sur un anneau qui tourne sans fin.
+ * Circular text: a sentence laid on a ring that turns endlessly.
  *
- * ## Un `textPath`, pas des lettres placees une a une
+ * ## A `textPath`, not letters placed one by one
  *
- * Poser chaque lettre soi-meme — un element par caractere, une rotation par
- * element — refait a la main ce que SVG sait faire nativement : `textPath`
- * suit le trace, gere l'espacement, et ne coute qu'un noeud. La rotation est
- * une animation CSS sur le SVG entier, tenue par le compositeur ; apres le
- * premier rendu, plus rien ne s'execute.
+ * Placing each letter by hand — one element per character, one rotation per
+ * element — redoes by hand what SVG does natively: `textPath` follows the
+ * path, handles the spacing, and costs a single node. The rotation is a CSS
+ * animation on the whole SVG, held by the compositor; after the first render,
+ * nothing runs any more.
  *
- * ## Le cercle est une image, le texte est ailleurs
+ * ## The circle is a picture, the text is elsewhere
  *
- * Un texte enroule se lit mal a l'oeil et pas du tout a l'oreille : un
- * lecteur d'ecran qui plonge dans le SVG en sortirait une bouillie. Le SVG
- * entier est donc `aria-hidden`, et le texte complet vit en parallele dans un
- * element visuellement masque.
+ * Wrapped text reads poorly to the eye and not at all to the ear: a screen
+ * reader diving into the SVG would come out with mush. The whole SVG is
+ * therefore `aria-hidden`, and the complete text lives alongside it in a
+ * visually hidden element.
  *
- * Sous mouvement reduit, l'anneau reste — c'est de la mise en page — mais ne
- * tourne plus.
+ * Under reduced motion, the ring stays — it is layout — but no longer turns.
  *
  * @module
  */
@@ -25,27 +24,27 @@
 import { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'
 import { useId, type CSSProperties, type ElementType, type ReactElement } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface CircularTextOwnProps {
-  /** Texte a enrouler. */
+  /** Text to wrap. */
   children: string
-  /** Balise rendue. @defaultValue 'span' */
+  /** Rendered tag. @defaultValue 'span' */
   as?: ElementType
-  /** Diametre de l'anneau, en pixels. @defaultValue 160 */
+  /** Diameter of the ring, in pixels. @defaultValue 160 */
   size?: number
-  /** Duree d'un tour complet, en secondes. @defaultValue 12 */
+  /** Duration of one full turn, in seconds. @defaultValue 12 */
   speed?: number
-  /** Tourner dans le sens inverse. @defaultValue false */
+  /** Turn the other way. @defaultValue false */
   reverse?: boolean
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type CircularTextProps = Customisable<CircularTextOwnProps, 'span'>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-circular-text'
 
-/** Pose la rotation, une fois par document. */
+/** Sets the rotation, once per document. */
 function ensureCircularRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -59,25 +58,25 @@ function ensureCircularRule(): void {
     'animation:o-circular-spin var(--o-circular-speed) linear infinite;',
     'animation-direction:var(--o-circular-direction);',
     '}',
-    // La preference du systeme est respectee meme si l'etat du moteur n'a pas
-    // encore ete lu : la feuille sait l'arreter toute seule.
+    // The system preference is honoured even if the engine state has not been
+    // read yet: the stylesheet knows how to stop it on its own.
     '@media (prefers-reduced-motion:reduce){[data-o-circular]{animation:none}}',
   ].join('')
   document.head.append(style)
 }
 
 /**
- * Enroule un texte sur un cercle qui tourne en continu.
+ * Wraps a text on a circle that turns continuously.
  *
  * @example
  * <CircularText size={180}>
- *   DEPUIS 2012 · FAIT MAIN · DEPUIS 2012 · FAIT MAIN ·
+ *   SINCE 2012 · HANDMADE · SINCE 2012 · HANDMADE ·
  * </CircularText>
  *
  * @example
- * // Petit badge, rotation lente en sens inverse.
+ * // Small badge, slow rotation the other way.
  * <CircularText size={110} speed={24} reverse>
- *   OUVERT TOUS LES JOURS ·
+ *   OPEN EVERY DAY ·
  * </CircularText>
  */
 export function CircularText({
@@ -110,21 +109,21 @@ export function CircularText({
         ...style,
       }}
     >
-      {/* Le texte, d'un seul tenant, pour les lecteurs d'ecran. */}
+      {/* The text, in one piece, for screen readers. */}
       <span className="o-sr-only">{children}</span>
       <svg
         aria-hidden
         viewBox="0 0 100 100"
         width="100%"
         height="100%"
-        // Sous mouvement reduit l'attribut n'est pas pose : l'anneau est la,
-        // immobile, et la feuille n'a rien a animer.
+        // Under reduced motion the attribute is not set: the ring is there,
+        // motionless, and the stylesheet has nothing to animate.
         {...(reduced ? {} : { 'data-o-circular': '' })}
         style={reduced ? undefined : svgStyle}
       >
         <defs>
-          {/* Un cercle de rayon 38 : assez de marge pour que les lettres ne
-              sortent pas de la boite quand la police deborde du trace. */}
+          {/* A circle of radius 38: enough margin for the letters not to leave
+              the box when the font overflows the path. */}
           <path id={pathId} d="M 50 12 a 38 38 0 1 1 -0.01 0" fill="none" />
         </defs>
         <text fill="currentColor" fontSize="11" letterSpacing="1.5">

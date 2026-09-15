@@ -34,7 +34,7 @@
  */
 
 import { Icon } from '@odoro-cli/icons'
-import { ArrowRight, ArrowUpRight, Search } from '@odoro-cli/icons/filaire'
+import { ArrowRight, ArrowUpRight, Search } from '@odoro-cli/icons/outline'
 import { Select, Slider } from '@odoro-cli/libs/ui'
 import { useState, type CSSProperties, type ReactElement, type ReactNode } from 'react'
 

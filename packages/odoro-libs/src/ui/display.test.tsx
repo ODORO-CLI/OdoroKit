@@ -12,7 +12,7 @@ import { Skeleton } from './Skeleton.jsx'
 import { Spinner } from './Spinner.jsx'
 
 describe('Card', () => {
-  it('rend le titre, la description, le contenu et le pied', () => {
+  it('renders the title, the description, the content and the footer', () => {
     render(
       <Card title="Projet" description="Librairie maison" footer={<p>Pied</p>}>
         <p>Corps</p>
@@ -24,14 +24,14 @@ describe('Card', () => {
     expect(screen.getByText('Pied')).toBeDefined()
   })
 
-  it('est bordee par defaut', () => {
+  it('is outlined by default', () => {
     const { container } = render(<Card>Corps</Card>)
     const root = container.firstElementChild
     expect(root?.className).toContain('o-border-w-1')
     expect(root?.className).toContain('o-border-zinc-200 dark:o-border-zinc-800')
   })
 
-  it('applique les variantes elevated et ghost', () => {
+  it('applies the elevated and ghost variants', () => {
     const { container: elevated } = render(<Card variant="elevated">Corps</Card>)
     expect(elevated.firstElementChild?.className).toContain('o-shadow-md')
     expect(elevated.firstElementChild?.className).not.toContain('o-border-w-1')
@@ -43,19 +43,19 @@ describe('Card', () => {
     expect(ghost.firstElementChild?.className).not.toContain('o-shadow-md')
   })
 
-  it('devient interactive a la demande', () => {
+  it('becomes interactive on demand', () => {
     const { container } = render(<Card interactive>Corps</Card>)
     const className = container.firstElementChild?.className ?? ''
     expect(className).toContain('o-cursor-pointer')
     expect(className).toContain('hover:o-lift-sm')
   })
 
-  it('supprime le padding avec padding=none', () => {
+  it('removes the padding with padding=none', () => {
     render(<Card padding="none">Corps</Card>)
     expect(screen.getByText('Corps').className).not.toContain('o-p-4')
   })
 
-  it('rend le media pleine largeur au-dessus du corps', () => {
+  it('renders the media full width above the body', () => {
     render(
       <Card media={<img src="visuel.png" alt="Visuel" />} title="Projet">
         Corps
@@ -66,12 +66,12 @@ describe('Card', () => {
     expect(media?.className).toContain('o-overflow-hidden')
   })
 
-  it('expose sa table de classes', () => {
+  it('exposes its class table', () => {
     expect(cardClasses({ variant: 'ghost' })).toContain('o-bg-zinc-50 dark:o-bg-zinc-900')
     expect(cardClasses({ interactive: 'true' })).toContain('o-cursor-pointer')
   })
 
-  it('transmet la ref', () => {
+  it('forwards the ref', () => {
     let node: HTMLDivElement | null = null
     render(
       <Card
@@ -87,19 +87,19 @@ describe('Card', () => {
 })
 
 describe('Badge', () => {
-  it('rend le libelle', () => {
+  it('renders the label', () => {
     render(<Badge>Publie</Badge>)
     expect(screen.getByText('Publie')).toBeDefined()
   })
 
-  it('utilise le rendu soft par defaut', () => {
+  it('uses the soft rendering by default', () => {
     render(<Badge tone="success">Publie</Badge>)
     const className = screen.getByText('Publie').className
     expect(className).toContain('o-bg-emerald-50 dark:o-bg-emerald-950')
     expect(className).toContain('o-text-emerald-600 dark:o-text-emerald-400')
   })
 
-  it('applique les rendus solid et outline', () => {
+  it('applies the solid and outline renderings', () => {
     render(
       <Badge tone="danger" variant="solid">
         Rejete
@@ -122,14 +122,14 @@ describe('Badge', () => {
     )
   })
 
-  it('affiche un point colore avec dot', () => {
+  it('displays a colored dot with dot', () => {
     render(<Badge dot>Actif</Badge>)
-    const point = screen.getByText('Actif').querySelector('[aria-hidden="true"]')
-    expect(point).not.toBeNull()
-    expect(point?.className).toContain('o-bg-current')
+    const dot = screen.getByText('Actif').querySelector('[aria-hidden="true"]')
+    expect(dot).not.toBeNull()
+    expect(dot?.className).toContain('o-bg-current')
   })
 
-  it('expose sa fonction de classes', () => {
+  it('exposes its class function', () => {
     expect(badgeClasses({ tone: 'warning', variant: 'solid' })).toContain(
       'o-bg-amber-600 dark:o-bg-amber-400',
     )
@@ -138,35 +138,35 @@ describe('Badge', () => {
 })
 
 describe('Avatar', () => {
-  it('affiche l image quand elle est fournie', () => {
+  it('displays the image when it is provided', () => {
     render(<Avatar src="jean.png" alt="Photo de Jean" name="Jean Dupont" />)
     expect(screen.getByAltText('Photo de Jean')).toBeDefined()
     expect(screen.queryByText('JD')).toBeNull()
   })
 
-  it('affiche les initiales sans image', () => {
+  it('displays the initials without an image', () => {
     render(<Avatar alt="Photo de Jean" name="Jean Dupont" />)
     expect(screen.getByText('JD')).toBeDefined()
     expect(screen.getByRole('img', { name: 'Photo de Jean' })).toBeDefined()
   })
 
-  it('bascule sur les initiales quand l image echoue', async () => {
+  it('falls back to the initials when the image fails', async () => {
     render(<Avatar src="cassee.png" alt="Photo de Jean" name="Jean Dupont" />)
     fireEvent.error(screen.getByAltText('Photo de Jean'))
     await waitFor(() => expect(screen.getByText('JD')).toBeDefined())
   })
 
-  it('tire les initiales des deux premiers mots seulement', () => {
+  it('takes the initials from the first two words only', () => {
     render(<Avatar alt="Photo" name="anne marie de la tour" />)
     expect(screen.getByText('AM')).toBeDefined()
   })
 
-  it('applique la forme carree', () => {
+  it('applies the square shape', () => {
     render(<Avatar alt="Photo" name="Jean Dupont" shape="square" />)
     expect(screen.getByRole('img', { name: 'Photo' }).className).toContain('o-rounded-md')
   })
 
-  it('limite le groupe et resume le reste en +N', () => {
+  it('limits the group and sums up the rest as +N', () => {
     render(
       <AvatarGroup max={2}>
         <Avatar alt="Ana" name="Ana Ruiz" />
@@ -181,7 +181,7 @@ describe('Avatar', () => {
     expect(screen.getByText('+2')).toBeDefined()
   })
 
-  it('superpose les avatars par une marge negative', () => {
+  it('overlaps the avatars with a negative margin', () => {
     render(
       <AvatarGroup>
         <Avatar alt="Ana" name="Ana Ruiz" />
@@ -194,30 +194,30 @@ describe('Avatar', () => {
 })
 
 describe('Alert', () => {
-  it('utilise role=status pour les registres non critiques', () => {
+  it('uses role=status for the non critical registers', () => {
     render(<Alert tone="info">Message</Alert>)
     expect(screen.getByRole('status')).toBeDefined()
   })
 
-  it('utilise role=alert pour le registre danger', () => {
+  it('uses role=alert for the danger register', () => {
     render(<Alert tone="danger">Message</Alert>)
     expect(screen.getByRole('alert')).toBeDefined()
   })
 
-  it('rend le titre et le corps', () => {
+  it('renders the title and the body', () => {
     render(<Alert title="Attention">Verifiez la saisie.</Alert>)
     expect(screen.getByText('Attention')).toBeDefined()
     expect(screen.getByText('Verifiez la saisie.')).toBeDefined()
   })
 
-  it('applique les couleurs du ton', () => {
+  it('applies the colors of the tone', () => {
     render(<Alert tone="warning">Message</Alert>)
     const className = screen.getByRole('status').className
     expect(className).toContain('o-bg-amber-50 dark:o-bg-amber-950')
     expect(className).toContain('o-border-amber-200 dark:o-border-amber-800')
   })
 
-  it('affiche une icone par defaut, remplacable ou supprimable', () => {
+  it('displays a default icon, replaceable or removable', () => {
     render(<Alert>Message</Alert>)
     expect(screen.getByRole('status').querySelector('svg')).not.toBeNull()
 
@@ -226,48 +226,48 @@ describe('Alert', () => {
     expect(bare?.querySelector('svg')).toBeNull()
   })
 
-  it('ne propose pas de fermeture sans onClose', () => {
+  it('offers no dismissal without onClose', () => {
     render(<Alert>Message</Alert>)
     expect(screen.queryByRole('button')).toBeNull()
   })
 
-  it('ferme avec une sortie animee puis previent l appelant', async () => {
+  it('closes with an animated exit then warns the caller', async () => {
     const onClose = vi.fn()
     render(<Alert onClose={onClose}>Message</Alert>)
 
-    screen.getByRole('button', { name: 'Fermer le message' }).click()
+    screen.getByRole('button', { name: 'Close the message' }).click()
     await waitFor(() => expect(onClose).toHaveBeenCalledTimes(1))
     expect(screen.queryByText('Message')).toBeNull()
   })
 
-  it('expose sa table de classes', () => {
+  it('exposes its class table', () => {
     expect(alertClasses({ tone: 'danger' })).toContain('o-bg-red-50 dark:o-bg-red-950')
   })
 })
 
 describe('Separator', () => {
-  it('est decoratif par defaut', () => {
+  it('is decorative by default', () => {
     const { container } = render(<Separator />)
     const root = container.firstElementChild
     expect(root?.getAttribute('aria-hidden')).toBe('true')
     expect(root?.getAttribute('role')).toBeNull()
   })
 
-  it('porte role=separator quand il est semantique', () => {
+  it('carries role=separator when it is semantic', () => {
     render(<Separator decorative={false} />)
     const separator = screen.getByRole('separator')
-    // L'orientation horizontale est implicite en ARIA.
+    // The horizontal orientation is implicit in ARIA.
     expect(separator.getAttribute('aria-orientation')).toBeNull()
   })
 
-  it('declare l orientation verticale', () => {
+  it('declares the vertical orientation', () => {
     render(<Separator decorative={false} orientation="vertical" />)
     expect(screen.getByRole('separator').getAttribute('aria-orientation')).toBe(
       'vertical',
     )
   })
 
-  it('rend un libelle centre entre deux filets', () => {
+  it('renders a label centered between two rules', () => {
     const { container } = render(<Separator label="ou" />)
     expect(screen.getByText('ou')).toBeDefined()
     expect(container.querySelectorAll('.o-h-px')).toHaveLength(2)
@@ -275,22 +275,22 @@ describe('Separator', () => {
 })
 
 describe('Skeleton', () => {
-  it('est retire de l arbre d accessibilite', () => {
+  it('is removed from the accessibility tree', () => {
     const { container } = render(<Skeleton />)
     expect(container.firstElementChild?.getAttribute('aria-hidden')).toBe('true')
   })
 
-  it('anime la silhouette', () => {
+  it('animates the skeleton', () => {
     const { container } = render(<Skeleton variant="rect" />)
     expect(container.firstElementChild?.className).toContain('o-animate-shimmer')
   })
 
-  it('arrondit completement la variante circle', () => {
+  it('fully rounds the circle variant', () => {
     const { container } = render(<Skeleton variant="circle" width={40} height={40} />)
     expect(container.firstElementChild?.className).toContain('o-rounded-full')
   })
 
-  it('rend n lignes dont la derniere a 60 pour cent', () => {
+  it('renders n lines whose last one is at 60 percent', () => {
     const { container } = render(<Skeleton lines={3} />)
     const rows = container.querySelectorAll('span')
     expect(rows).toHaveLength(3)
@@ -298,7 +298,7 @@ describe('Skeleton', () => {
     expect((rows[0] as HTMLElement).style.width).toBe('')
   })
 
-  it('accepte des dimensions explicites', () => {
+  it('accepts explicit dimensions', () => {
     const { container } = render(<Skeleton variant="rect" width="10rem" height={8} />)
     const root = container.firstElementChild as HTMLElement
     expect(root.style.width).toBe('10rem')
@@ -307,19 +307,19 @@ describe('Skeleton', () => {
 })
 
 describe('Spinner', () => {
-  it('s annonce comme un statut avec son libelle par defaut', () => {
+  it('announces itself as a status with its default label', () => {
     render(<Spinner />)
     const status = screen.getByRole('status')
-    expect(status.textContent).toBe('Chargement')
+    expect(status.textContent).toBe('Loading')
   })
 
-  it('accepte un libelle personnalise, masque visuellement', () => {
+  it('accepts a custom label, visually hidden', () => {
     render(<Spinner label="Envoi en cours" />)
     const label = screen.getByText('Envoi en cours')
     expect(label.className).toContain('o-sr-only')
   })
 
-  it('garde son dessin decoratif', () => {
+  it('keeps its decorative drawing', () => {
     render(<Spinner />)
     const svg = screen.getByRole('status').querySelector('svg')
     expect(svg?.getAttribute('aria-hidden')).toBe('true')
@@ -327,7 +327,7 @@ describe('Spinner', () => {
 })
 
 describe('Progress', () => {
-  it('expose sa valeur en ARIA', () => {
+  it('exposes its value in ARIA', () => {
     render(<Progress value={40} label="Import" />)
     const bar = screen.getByRole('progressbar', { name: 'Import' })
     expect(bar.getAttribute('aria-valuenow')).toBe('40')
@@ -335,18 +335,18 @@ describe('Progress', () => {
     expect(bar.getAttribute('aria-valuemax')).toBe('100')
   })
 
-  it('borne la valeur entre 0 et max', () => {
+  it('clamps the value between 0 and max', () => {
     render(<Progress value={150} max={100} />)
     expect(screen.getByRole('progressbar').getAttribute('aria-valuenow')).toBe('100')
   })
 
-  it('remplit la piste au pourcentage de la valeur', () => {
+  it('fills the track at the percentage of the value', () => {
     render(<Progress value={30} max={60} />)
     const fill = screen.getByRole('progressbar').firstElementChild as HTMLElement
     expect(fill.style.width).toBe('50%')
   })
 
-  it('omet aria-valuenow en mode indetermine', () => {
+  it('omits aria-valuenow in indeterminate mode', () => {
     render(<Progress indeterminate />)
     const bar = screen.getByRole('progressbar')
     expect(bar.getAttribute('aria-valuenow')).toBeNull()
@@ -355,12 +355,12 @@ describe('Progress', () => {
     )
   })
 
-  it('affiche le pourcentage avec showValue', () => {
+  it('displays the percentage with showValue', () => {
     render(<Progress value={25} showValue />)
     expect(screen.getByText('25%').className).toContain('o-tabular-nums')
   })
 
-  it('colore le remplissage suivant le ton', () => {
+  it('colors the fill according to the tone', () => {
     render(<Progress value={10} tone="success" />)
     const fill = screen.getByRole('progressbar').firstElementChild as HTMLElement
     expect(fill.className).toContain('o-bg-emerald-600 dark:o-bg-emerald-400')
@@ -368,14 +368,14 @@ describe('Progress', () => {
 })
 
 describe('Kbd', () => {
-  it('rend une touche unique', () => {
+  it('renders a single key', () => {
     render(<Kbd>Echap</Kbd>)
     const key = screen.getByText('Echap')
     expect(key.tagName).toBe('KBD')
     expect(key.className).toContain('o-font-mono')
   })
 
-  it('rend une combinaison separee par des +', () => {
+  it('renders a combination separated by +', () => {
     const { container } = render(<Kbd keys={['Ctrl', 'Maj', 'K']} />)
     const keys = container.querySelectorAll('kbd kbd')
     expect(keys).toHaveLength(3)
@@ -384,7 +384,7 @@ describe('Kbd', () => {
     expect(screen.getByText('K')).toBeDefined()
   })
 
-  it('masque les separateurs aux lecteurs d ecran', () => {
+  it('hides the separators from screen readers', () => {
     render(<Kbd keys={['Ctrl', 'K']} />)
     expect(screen.getByText('+').getAttribute('aria-hidden')).toBe('true')
   })

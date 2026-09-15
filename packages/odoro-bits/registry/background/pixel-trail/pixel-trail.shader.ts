@@ -1,32 +1,32 @@
 /**
- * Shader de la trainee de pixels.
+ * Shader of the pixel trail.
  *
- * ## L'idee mathematique
+ * ## The mathematical idea
  *
- * Le fragment ne se demande jamais s'il est eclaire : c'est **le centre de
- * son pixel** qui est teste contre les quatorze depots du tampon. Toute la
- * cellule recoit donc la meme valeur, et la trainee sort crenelee au lieu
- * de sortir floue — ce qui est exactement la difference entre une trainee
- * de pixels et une trainee lumineuse.
+ * The fragment never asks whether it is lit: it is **the centre of its
+ * pixel** that is tested against the fourteen deposits of the buffer. The
+ * whole cell therefore receives the same value, and the trail comes out
+ * stepped instead of coming out blurred — which is exactly the difference
+ * between a pixel trail and a luminous trail.
  *
- * L'extinction n'est pas continue non plus : la valeur retenue est arrondie
- * au palier superieur d'une echelle reglable. Un pixel d'ecran descend d'un
- * cran, il ne se fane pas.
+ * The decay is not continuous either: the value kept is rounded up to the
+ * next step of an adjustable scale. A screen pixel comes down a notch, it
+ * does not fade.
  *
- * Un depot a -1000 donne un age enorme, donc une contribution nulle : les
- * emplacements vides du tampon sont inertes d'office.
+ * A deposit at -1000 gives an enormous age, hence a nil contribution: the
+ * empty slots of the buffer are inert from the outset.
  *
  * ## Uniforms
  *
- * - `uTime` — temps en secondes, fourni par le moteur.
- * - `uResolution` — taille du canevas en pixels, fournie par le moteur.
- * - `uColorA` — le fond.
- * - `uColorB` — les pixels froids, en fin de trainee.
- * - `uColorC` — les pixels frais, sous le curseur.
- * - `uTrail` — quatorze depots (x, y, date de depot), tampon circulaire.
- * - `uPixel` — nombre de pixels sur la hauteur.
- * - `uLife` — duree de vie d un pixel allume, en secondes.
- * - `uLevels` — nombre de paliers d extinction.
+ * - `uTime` — time in seconds, supplied by the engine.
+ * - `uResolution` — canvas size in pixels, supplied by the engine.
+ * - `uColorA` — the background.
+ * - `uColorB` — the cold pixels, at the end of the trail.
+ * - `uColorC` — the fresh pixels, under the cursor.
+ * - `uTrail` — fourteen deposits (x, y, deposit time), ring buffer.
+ * - `uPixel` — number of pixels over the height.
+ * - `uLife` — lifetime of a lit pixel, in seconds.
+ * - `uLevels` — number of decay steps.
  */
 export const PIXEL_TRAIL_FRAGMENT = /* glsl */ `
 precision highp float;
@@ -51,35 +51,35 @@ void main() {
   vec2 cell = floor(uv * scale);
   vec2 local = fract(uv * scale) - 0.5;
 
-  // Le centre du pixel, et le rayon dans lequel un depot l'allume : un peu
-  // plus d'une demi-cellule, pour qu'un geste rapide ne laisse pas de trou.
+  // The centre of the pixel, and the radius within which a deposit lights it:
+  // a little over half a cell, so that a fast gesture leaves no hole.
   vec2 centre = (cell + 0.5) / scale;
   float reach = 0.85 / scale;
 
   float best = 0.0;
 
-  // Borne constante : la specification du langage l'exige.
+  // Constant bound: the language specification demands it.
   for (int i = 0; i < 14; i += 1) {
-    vec3 depot = uTrail[i];
-    vec2 d = abs(centre - depot.xy * vec2(aspect, 1.0));
-    float age = max(uTime - depot.z, 0.0);
+    vec3 deposit = uTrail[i];
+    vec2 d = abs(centre - deposit.xy * vec2(aspect, 1.0));
+    float age = max(uTime - deposit.z, 0.0);
 
     float touched = step(max(d.x, d.y), reach);
     float alive = clamp(1.0 - age / max(uLife, 0.05), 0.0, 1.0);
     best = max(best, touched * alive);
   }
 
-  // L'extinction par paliers : l'arrondi superieur garde le premier cran
-  // entier tant que le pixel n'est pas eteint pour de bon.
+  // The decay in steps: rounding up keeps the first notch whole for as long
+  // as the pixel is not fully out.
   float levels = max(floor(uLevels), 1.0);
   float steps = ceil(best * levels) / levels;
 
-  // La fraicheur decroit plus vite que la valeur : la teinte vive reste
-  // pres du curseur, la trainee retombe sur la teinte froide.
+  // The freshness decays faster than the value: the vivid hue stays near the
+  // cursor, the trail falls back onto the cold hue.
   float fresh = best * best * best;
 
-  // Un filet de fond entre les pixels : sans lui, deux pixels voisins
-  // allumes forment un aplat et la trame disparait.
+  // A thread of background between the pixels: without it, two neighbouring
+  // lit pixels form a flat area and the grid disappears.
   float gap = smoothstep(0.0, 0.06, 0.5 - max(abs(local.x), abs(local.y)) - 0.03);
 
   vec3 lit = mix(uColorB, uColorC, fresh);

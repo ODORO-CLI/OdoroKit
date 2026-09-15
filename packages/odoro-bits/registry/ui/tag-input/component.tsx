@@ -1,33 +1,33 @@
 /**
- * Champ a etiquettes : Entree ou virgule pose une etiquette, Retour sur un
- * champ vide arme puis retire la derniere.
+ * Tag field: Enter or a comma lays down a tag, Backspace on an empty field
+ * arms then removes the last one.
  *
- * ## Retour efface en deux temps
+ * ## Backspace deletes in two beats
  *
- * Effacer une etiquette d'un seul Retour, c'est perdre un mot que l'on
- * n'avait pas l'intention de perdre — le geste est le meme que celui qui
- * corrige une faute de frappe. Le premier Retour sur un champ vide marque
- * donc la derniere etiquette ; le second la retire. Ecrire une lettre, ou
- * quitter le champ, desarme.
+ * Deleting a tag with a single Backspace means losing a word one had no
+ * intention of losing — the gesture is the same as the one that fixes a
+ * typo. So the first Backspace on an empty field marks the last tag; the
+ * second one removes it. Typing a letter, or leaving the field,
+ * disarms it.
  *
- * ## Les etiquettes sont dans l'ordre de tabulation par leur croix
+ * ## The tags sit in the tab order through their cross
  *
- * Chaque etiquette porte un bouton de retrait, nomme d'apres elle. C'est lui
- * qui recoit le focus, par Tab ou par les fleches depuis le champ, et Retour
- * ou Suppr le declenchent. L'etiquette elle-meme n'est pas interactive : il
- * n'y a rien a lui faire d'autre que la retirer.
+ * Each tag carries a remove button, named after it. That button is what takes
+ * focus, through Tab or through the arrows from the field, and Backspace or
+ * Delete fire it. The tag itself is not interactive: there is nothing to do
+ * to it other than remove it.
  *
- * ## Le brouillon est un etat local, les etiquettes un etat controlable
+ * ## The draft is local state, the tags a controllable state
  *
- * Ce que l'on tape n'interesse personne avant Entree : le brouillon reste
- * dans le composant. Les etiquettes, elles, sont la valeur — controlable par
- * `value` et `onChange`, ou laissee au composant avec `defaultValue`.
+ * What one types interests nobody before Enter: the draft stays inside the
+ * component. The tags, on the other hand, are the value — controllable
+ * through `value` and `onChange`, or left to the component with `defaultValue`.
  *
- * ## L'entree d'une etiquette est un rebond
+ * ## A tag comes in with a bounce
  *
- * Une animation d'images cles au montage, sur `transform` et `opacity` :
- * l'etiquette nait un peu petite et depasse legerement sa taille avant de
- * s'y poser. Sous mouvement reduit elle apparait en place.
+ * A keyframe animation on mount, on `transform` and `opacity`: the tag is
+ * born slightly small and overshoots its size a little before settling into
+ * it. Under reduced motion it appears in place.
  *
  * @module
  */
@@ -41,36 +41,36 @@ import {
   type ReactElement,
 } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface TagInputOwnProps {
-  /** Nom du champ pour les lecteurs d'ecran. */
+  /** Name of the field for screen readers. */
   label: string
-  /** Les etiquettes, en mode controle. */
+  /** The tags, in controlled mode. */
   value?: readonly string[]
-  /** Etiquettes au montage, en mode non controle. @defaultValue [] */
+  /** Tags on mount, in uncontrolled mode. @defaultValue [] */
   defaultValue?: readonly string[]
-  /** Appele a chaque ajout ou retrait. */
+  /** Called on every addition or removal. */
   onChange?: (tags: readonly string[]) => void
-  /** Texte d'attente, affiche quand le champ est vide. @defaultValue 'Ajouter...' */
+  /** Waiting text, displayed when the field is empty. @defaultValue 'Add...' */
   placeholder?: string
-  /** Nombre maximal d'etiquettes. Atteint, le champ se ferme. @defaultValue 8 */
+  /** Maximum number of tags. Once reached, the field closes. @defaultValue 8 */
   max?: number
-  /** Accepte deux fois la meme etiquette. @defaultValue false */
+  /** Accepts the same tag twice. @defaultValue false */
   duplicates?: boolean
-  /** Neutralise le champ. @defaultValue false */
+  /** Neutralises the field. @defaultValue false */
   disabled?: boolean
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type TagInputProps = Customisable<TagInputOwnProps>
 
-/** Etiquettes par defaut : aucune. */
+/** Default tags: none. */
 const NONE: readonly string[] = []
 
-/** Identifiant de la feuille injectee. */
+/** Id of the injected stylesheet. */
 const STYLE_ID = 'o-tag-input'
 
-/** Pose le champ, les etiquettes et leur rebond, une fois par document. */
+/** Sets up the field, the tags and their bounce, once per document. */
 function ensureTagRules(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -96,7 +96,7 @@ function ensureTagRules(): void {
     'transition:background-color var(--o-duration-base) linear,border-color var(--o-duration-base) linear;',
     'animation:o-tag-in var(--o-duration-slow) cubic-bezier(0.2,0,0,1.3) both;',
     '}',
-    // Armee : la prochaine touche Retour la retire.
+    // Armed: the next Backspace removes it.
     '[data-o-tag][data-o-tag-armed]{',
     'background:color-mix(in oklab,var(--o-tags-accent) 18%,transparent);',
     'border-color:var(--o-tags-accent)}',
@@ -119,21 +119,21 @@ function ensureTagRules(): void {
 }
 
 /**
- * Champ qui transforme ce que l'on tape en etiquettes.
+ * Field that turns what one types into tags.
  *
  * @example
- * <TagInput label="Mots-cles" defaultValue={['design', 'motion']} />
+ * <TagInput label="Keywords" defaultValue={['design', 'motion']} />
  *
  * @example
- * // Mode controle, cinq etiquettes au plus.
- * <TagInput label="Destinataires" value={tags} onChange={setTags} max={5} placeholder="Ajouter un nom" />
+ * // Controlled mode, five tags at most.
+ * <TagInput label="Recipients" value={tags} onChange={setTags} max={5} placeholder="Add a name" />
  */
 export function TagInput({
   label,
   value,
   defaultValue = NONE,
   onChange,
-  placeholder = 'Ajouter...',
+  placeholder = 'Add...',
   max = 8,
   duplicates = false,
   disabled = false,
@@ -154,7 +154,7 @@ export function TagInput({
     onChange?.(next)
   }
 
-  /** Pose le brouillon comme etiquette, s'il en vaut une. */
+  /** Lays the draft down as a tag, if it is worth one. */
   const add = (): void => {
     const text = draft.trim()
     setDraft('')
@@ -191,7 +191,7 @@ export function TagInput({
       removeButtons().at(-1)?.focus()
       return
     }
-    // Toute autre touche desarme : on ne retire pas ce que l'on ecrit.
+    // Any other key disarms: what one is writing does not get removed.
     if (armed) setArmed(false)
   }
 
@@ -229,7 +229,7 @@ export function TagInput({
         { '--o-tags-accent': 'var(--o-palette-brand-500)', ...style } as CSSProperties
       }
       onClick={(event) => {
-        // Cliquer dans la marge du champ, c'est vouloir y ecrire.
+        // Clicking in the margin of the field means wanting to write in it.
         if (event.target === event.currentTarget) inputRef.current?.focus()
         rest.onClick?.(event)
       }}
@@ -244,7 +244,7 @@ export function TagInput({
             {tag}
             <button
               type="button"
-              aria-label={`Retirer ${tag}`}
+              aria-label={`Remove ${tag}`}
               disabled={disabled}
               onClick={() => remove(index)}
               onKeyDown={(event) => {
@@ -270,7 +270,7 @@ export function TagInput({
           }}
           onKeyDown={onInputKeyDown}
           onBlur={() => {
-            // Quitter le champ pose le brouillon et desarme.
+            // Leaving the field lays the draft down and disarms.
             add()
             setArmed(false)
           }}

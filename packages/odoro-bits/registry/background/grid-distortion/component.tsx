@@ -1,28 +1,27 @@
 /**
- * Grille sous lentille : un quadrillage qu'une loupe grossit la ou le
- * pointeur passe.
+ * Grid under a lens: a grid that a magnifier enlarges wherever the pointer
+ * passes.
  *
- * ## A quoi ce fond reagit
+ * ## What this background reacts to
  *
- * Au deplacement du pointeur, avec amortissement : la lentille rattrape le
- * curseur en douceur, et la grille se dilate sous elle. A la sortie du
- * cadre, le hook ramene la cible au centre et la lentille y revient.
+ * To pointer movement, with damping: the lens catches up with the cursor
+ * smoothly, and the grid dilates beneath it. On leaving the frame, the hook
+ * brings the target back to the centre and the lens returns to it.
  *
- * Ce qui distingue cette entree de `magnet-grid` : celle-ci deplace des
- * points ; ici ce sont des lignes continues, et elles se courbent comme
- * sous un verre. Et de `ripple-grid` : l'onde y est radiale et temporelle,
- * sans pointeur.
+ * What sets this entry apart from `magnet-grid`: that one moves points; here
+ * they are continuous lines, and they bend as though under glass. And from
+ * `ripple-grid`: there the wave is radial and temporal, with no pointer.
  *
- * ## Le pont pointeur → shader
+ * ## The pointer → shader bridge
  *
- * Aucun rendu React par image : le composant mute en place un tableau stable
- * passe en uniform, et la surface relit ses uniforms a chaque image. La
- * recopie se fait dans la boucle du moteur, en priorite d'entree.
+ * No React render per frame: the component mutates a stable array in place
+ * passed as a uniform, and the surface re-reads its uniforms every frame. The
+ * copy happens inside the engine loop, at input priority.
  *
- * ## Sous mouvement reduit
+ * ## Under reduced motion
  *
- * La surface est refusee par le moteur et le repli statique s'affiche : le
- * suivi du pointeur est un agrement, pas un contenu.
+ * The surface is refused by the engine and the static fallback shows: the
+ * pointer tracking is a nicety, not content.
  *
  * @module
  */
@@ -43,45 +42,45 @@ import { usePointerDamped } from '@registre/hooks/usePointerDamped'
 
 import { GRID_DISTORTION_FRAGMENT } from './grid-distortion.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface GridDistortionControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to this component. */
 export interface GridDistortionOwnProps {
-  /** Nombre de cellules sur la hauteur. Borne a soixante par le shader. @defaultValue 16 */
+  /** Number of cells across the height. Capped at sixty by the shader. @defaultValue 16 */
   cells?: number
-  /** Force du grossissement, entre zero et un. @defaultValue 0.55 */
+  /** Magnification strength, between zero and one. @defaultValue 0.55 */
   strength?: number
-  /** Rayon de la lentille, en hauteurs de cadre. @defaultValue 0.3 */
+  /** Lens radius, in frame heights. @defaultValue 0.3 */
   radius?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<GridDistortionControls>
 }
 
-/** Toutes les proprietes. */
+/** Every property. */
 export type GridDistortionProps = Customisable<GridDistortionOwnProps>
 
-/** Tokens employes par defaut : le fond, les lignes, le bord de la lentille. */
+/** Tokens used by default: the background, the lines, the lens rim. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-theme-line',
   '--o-palette-brand-500',
 ] as const
 
-/** Repli par defaut : une teinte figee, dans les memes tons. */
+/** Default fallback: a frozen hue, in the same tones. */
 const DEFAULT_FALLBACK = 'o-bg-zinc-50 dark:o-bg-zinc-950'
 
 /**
- * Grille sous lentille.
+ * Grid under a lens.
  *
  * @example
  * <div className="o-relative o-min-h-screen">
@@ -100,25 +99,25 @@ export function GridDistortion({
 }: GridDistortionProps): ReactElement {
   const [host, setHost] = useState<HTMLDivElement | null>(null)
 
-  // Tableau stable, mute en place : la surface relit les uniforms a chaque
-  // image, l'identite ne change pas, la mutation suffit — aucun setState.
+  // Stable array, mutated in place: the surface re-reads the uniforms every
+  // frame, the identity never changes, mutating is enough — no setState.
   const uPointer = useRef<number[]>([0.5, 0.5]).current
 
   const pointer = usePointerDamped({
     host,
     speed: 4,
-    name: 'grille sous lentille : pointeur',
+    name: 'grid under lens : pointer',
   })
 
   useEffect(() => {
     const subscription = clock.subscribe(
       () => {
-        // Du repere du hook (centre, y vers le bas) vers celui de la texture
-        // (coin bas-gauche, y vers le haut).
+        // From the hook's frame (centred, y downwards) to the texture's frame
+        // (bottom-left corner, y upwards).
         uPointer[0] = (pointer.current.x + 1) / 2
         uPointer[1] = 1 - (pointer.current.y + 1) / 2
       },
-      { priority: CLOCK_PRIORITY.input, name: 'grille sous lentille : pont' },
+      { priority: CLOCK_PRIORITY.input, name: 'grid under lens : bridge' },
     )
     return () => subscription.unsubscribe()
   }, [pointer, uPointer])
@@ -134,8 +133,8 @@ export function GridDistortion({
     colors,
     uniforms: { uPointer, uCells: cells, uStrength: strength, uRadius: radius },
     name: 'grid-distortion',
-    // Une grille serree scintille sur ses lignes a densite de pixels
-    // reduite : en qualite basse, les cellules s'elargissent.
+    // A tight grid shimmers along its lines at reduced pixel density: at
+    // low quality, the cells widen.
     degrade: (quality) => ({
       uCells: quality === 'low' ? Math.min(cells, 10) : cells,
     }),

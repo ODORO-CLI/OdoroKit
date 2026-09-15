@@ -1,33 +1,33 @@
 /**
- * Champ de saisie qui se déplie, avec pièces jointes et dictée.
+ * Input field that unfolds, with attachments and dictation.
  *
- * ## Ce qui a été retiré, et pourquoi
+ * ## What was removed, and why
  *
- * L'implémentation d'origine, faute de micro, **simulait la dictée** : elle
- * écrivait mot à mot une phrase d'exemple, avec un visualiseur nourri de
- * nombres au hasard. C'est acceptable dans une démonstration ; dans un
- * composant qu'on installe, c'est un champ qui se remplit tout seul d'un texte
- * que personne n'a dit. Sans micro, le bouton est simplement absent.
+ * The original implementation, lacking a microphone, **simulated the
+ * dictation**: it wrote an example sentence word by word, with a visualizer
+ * fed by random numbers. That is acceptable in a demonstration; in a component
+ * that gets installed, it is a field that fills itself with a text nobody
+ * said. Without a microphone, the button is simply absent.
  *
- * Ses icônes de modèles venaient aussi d'un CDN. Un composant du registre ne
- * fait pas dépendre une page d'une adresse qu'elle ne contrôle pas : le
- * sélecteur est un **emplacement**, et l'application y met ce qu'elle veut.
+ * Its model icons also came from a CDN. A registry component does not make a
+ * page depend on an address it does not control: the picker is a **slot**, and
+ * the application puts in it whatever it wants.
  *
- * ## La hauteur est mesurée, jamais devinée
+ * ## The height is measured, never guessed
  *
- * Un `textarea` qui grandit demande de lire `scrollHeight`, et `scrollHeight`
- * ne veut rien dire tant que la hauteur courante est posée : elle est donc
- * remise à zéro le temps de la mesure, puis rétablie. Sans cette remise à zéro,
- * le champ ne redescend jamais quand on efface — il ne fait que grandir.
+ * A `textarea` that grows requires reading `scrollHeight`, and `scrollHeight`
+ * means nothing as long as the current height is set: it is therefore reset to
+ * zero for the duration of the measure, then restored. Without that reset, the
+ * field never comes back down when text is deleted — it only grows.
  *
- * La transition est coupée pendant la mesure, sinon chaque frappe déclenche une
- * animation vers une valeur qu'on va aussitôt remplacer.
+ * The transition is cut during the measure, otherwise every keystroke triggers
+ * an animation towards a value that is about to be replaced.
  *
- * ## Les URL d'objet sont révoquées
+ * ## The object URLs are revoked
  *
- * Chaque vignette tient une `blob:` créée pour elle. Ne pas la révoquer garde
- * l'image en mémoire pour toute la vie de l'onglet — un défaut qui ne se voit
- * qu'après une heure d'usage, et jamais en développement.
+ * Every thumbnail holds a `blob:` created for it. Not revoking it keeps the
+ * image in memory for the whole life of the tab — a defect that only shows
+ * after an hour of use, and never in development.
  *
  * @module
  */
@@ -44,48 +44,49 @@ import {
   type ReactNode,
 } from 'react'
 
-/** Une piece jointe. */
+/** An attachment. */
 export interface PromptAttachment {
-  /** Identifiant, unique dans la liste. */
+  /** Id, unique within the list. */
   readonly id: string
-  /** Le fichier lui-meme. */
+  /** The file itself. */
   readonly file: File
-  /** URL d'objet, revoquee au retrait. */
+  /** Object URL, revoked on removal. */
   readonly url: string
-  /** Nom affiche. */
+  /** Displayed name. */
   readonly name: string
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to the component. */
 export interface PromptInputOwnProps {
-  /** Texte d'invite du champ. @defaultValue 'Posez votre question' */
+  /** Prompt text of the field. @defaultValue 'Ask your question' */
   placeholder?: string
-  /** Nombre maximum de pieces jointes. @defaultValue 6 */
+  /** Maximum number of attachments. @defaultValue 6 */
   maxAttachments?: number
-  /** Types acceptes par le selecteur de fichiers. @defaultValue 'image/*' */
+  /** Types accepted by the file picker. @defaultValue 'image/*' */
   accept?: string
   /**
-   * Reglages rendus dans la barre basse — modele, effort, ce que l'application
-   * veut. Emplacement : le registre ne connait ni les modeles ni leurs marques.
+   * Settings rendered in the bottom bar — model, effort, whatever the
+   * application wants. A slot: the registry knows neither the models nor their
+   * brands.
    */
   controls?: ReactNode
-  /** Appele a l'envoi. */
+  /** Called on submit. */
   onSubmit?: (value: string, attachments: readonly File[]) => void
-  /** Appele quand une vignette est ouverte. */
+  /** Called when a thumbnail is opened. */
   onPreview?: (attachment: PromptAttachment) => void
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type PromptInputProps = Customisable<PromptInputOwnProps>
 
-/** Identifiant de la feuille injectee. */
+/** Id of the injected stylesheet. */
 const STYLE_ID = 'o-prompt-input'
 
-/** Hauteurs du champ, en pixels. */
+/** Heights of the field, in pixels. */
 const MIN_HEIGHT = 68
 const MAX_HEIGHT = 160
 
-/** Pose les regles du champ, une fois par document. */
+/** Applies the rules of the field, once per document. */
 function ensurePromptRules(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -105,11 +106,11 @@ function ensurePromptRules(): void {
 }
 
 /**
- * La reconnaissance vocale du navigateur, si elle existe.
+ * The speech recognition of the browser, if it exists.
  *
- * Decrite ici plutot qu'importee d'un type global : elle n'est pas standard,
- * les deux noms coexistent, et la declarer globalement obligerait chaque projet
- * d'accueil a en faire autant.
+ * Described here rather than imported from a global type: it is not standard,
+ * the two names coexist, and declaring it globally would force every host
+ * project to do the same.
  */
 interface SpeechLike {
   continuous: boolean
@@ -126,7 +127,7 @@ interface SpeechLike {
   onerror: (() => void) | null
 }
 
-/** Rend le constructeur de reconnaissance vocale, s'il y en a un. */
+/** Returns the speech recognition constructor, if there is one. */
 function speechFactory(): (new () => SpeechLike) | undefined {
   if (typeof window === 'undefined') return undefined
   const scope = window as unknown as Record<string, unknown>
@@ -135,17 +136,17 @@ function speechFactory(): (new () => SpeechLike) | undefined {
 }
 
 /**
- * Champ de saisie qui se deplie.
+ * Input field that unfolds.
  *
  * @example
- * <PromptInput onSubmit={(texte, fichiers) => envoyer(texte, fichiers)} />
+ * <PromptInput onSubmit={(text, files) => send(text, files)} />
  *
  * @example
- * // Les reglages sont un emplacement : modele, effort, ce que la page veut.
- * <PromptInput controls={<SelecteurDeModele />} />
+ * // The settings are a slot: model, effort, whatever the page wants.
+ * <PromptInput controls={<ModelPicker />} />
  */
 export function PromptInput({
-  placeholder = 'Posez votre question',
+  placeholder = 'Ask your question',
   maxAttachments = 6,
   accept = 'image/*',
   controls,
@@ -166,31 +167,31 @@ export function PromptInput({
 
   const hasContent = value.trim() !== '' || attachments.length > 0
 
-  // La hauteur du champ, mesuree a chaque frappe.
+  // The height of the field, measured on every keystroke.
   useEffect(() => {
     const element = field.current
     if (element === null) return
 
-    // La mesure exige une hauteur nulle : `scrollHeight` ne descend jamais
-    // en dessous de la hauteur posee, et le champ ne se refermerait pas.
+    // The measure requires a null height: `scrollHeight` never goes below the
+    // height that is set, and the field would not close back.
     const previous = element.style.height
     element.style.transition = 'none'
     element.style.height = '0px'
     const needed = element.scrollHeight
     element.style.height = previous
-    // Une lecture forcee, pour que la remise a zero ne soit pas fondue avec la
-    // valeur suivante par le navigateur.
+    // A forced read, so that the reset is not merged with the next value by
+    // the browser.
     void element.offsetHeight
     element.style.transition = ''
     element.style.height = `${String(Math.max(MIN_HEIGHT, Math.min(needed, MAX_HEIGHT)))}px`
   }, [value, open])
 
-  // Les URL d'objet meurent avec le composant, et seulement avec lui.
+  // The object URLs die with the component, and only with it.
   //
-  // Le nettoyage passe par une ref, pas par la liste : depend-il de la liste,
-  // il s'execute a chaque ajout et revoque les URL des vignettes encore
-  // affichees. Elles deviennent alors des images cassees, et seulement a
-  // partir de la deuxieme — ce qui ne se voit pas en essayant une seule fois.
+  // The cleanup goes through a ref, not through the list: were it to depend on
+  // the list, it would run on every addition and revoke the URLs of the
+  // thumbnails still displayed. They would then become broken images, and only
+  // from the second one onwards — which does not show when trying it once.
   const liveRef = useRef(attachments)
   liveRef.current = attachments
 
@@ -215,8 +216,8 @@ export function PromptInput({
   }, [hasContent, onSubmit, value, attachments])
 
   const keyDown = (event: KeyboardEvent<HTMLTextAreaElement>): void => {
-    // Entrée envoie, Maj+Entrée passe à la ligne : c'est la convention d'un
-    // champ de conversation, et l'inverse surprend tout le monde.
+    // Enter sends, Shift+Enter breaks the line: it is the convention of a
+    // conversation field, and the opposite surprises everyone.
     if (event.key !== 'Enter' || event.shiftKey) return
     event.preventDefault()
     send()
@@ -224,8 +225,8 @@ export function PromptInput({
 
   const choose = (event: ChangeEvent<HTMLInputElement>): void => {
     const files = [...(event.target.files ?? [])]
-    // Le champ est vide pour que choisir deux fois le meme fichier declenche
-    // bien un second evenement.
+    // The input is emptied so that picking the same file twice does trigger a
+    // second event.
     event.target.value = ''
     if (files.length === 0) return
 
@@ -315,7 +316,7 @@ export function PromptInput({
         aria-hidden
       />
 
-      {/* L'etagere des vignettes, qui monte de derriere le champ. */}
+      {/* The shelf of thumbnails, which rises from behind the field. */}
       <div
         data-o-prompt-shelf
         style={{ height: attachments.length > 0 && open ? 68 : 0 }}
@@ -341,7 +342,7 @@ export function PromptInput({
                 onClick={() => drop(item.id)}
                 className="o-absolute o-right-0 o-top-0 o-flex o-h-4 o-w-4 o-items-center o-justify-center o-rounded-full o-bg-zinc-950 o-text-xs o-text-zinc-50"
               >
-                <span className="o-sr-only">Retirer {item.name}</span>
+                <span className="o-sr-only">Remove {item.name}</span>
                 <span aria-hidden>&times;</span>
               </button>
             </li>
@@ -374,7 +375,7 @@ export function PromptInput({
             disabled={attachments.length >= maxAttachments}
             className="o-flex o-h-8 o-w-8 o-items-center o-justify-center o-rounded-full o-border-w-1 o-border-zinc-200 o-text-zinc-600 disabled:o-opacity-50 dark:o-border-zinc-700 dark:o-text-zinc-300"
           >
-            <span className="o-sr-only">Joindre un fichier</span>
+            <span className="o-sr-only">Attach a file</span>
             <span aria-hidden>+</span>
           </button>
 
@@ -382,8 +383,8 @@ export function PromptInput({
 
           <span className="o-flex-1" />
 
-          {/* Un seul bouton, trois etats : envoyer, dicter, arreter. Trois
-              boutons cote a cote demanderaient de lire lequel est actif. */}
+          {/* A single button, three states: send, dictate, stop. Three buttons
+              side by side would require reading which one is active. */}
           {hasContent || !canDictate ? (
             <button
               type="button"
@@ -391,7 +392,7 @@ export function PromptInput({
               disabled={!hasContent}
               className="o-flex o-h-8 o-w-8 o-items-center o-justify-center o-rounded-full o-bg-zinc-950 o-text-zinc-50 disabled:o-opacity-40 dark:o-bg-zinc-50 dark:o-text-zinc-950"
             >
-              <span className="o-sr-only">Envoyer</span>
+              <span className="o-sr-only">Send</span>
               <span aria-hidden>&uarr;</span>
             </button>
           ) : (
@@ -402,7 +403,7 @@ export function PromptInput({
               className="o-flex o-h-8 o-w-8 o-items-center o-justify-center o-rounded-full o-border-w-1 o-border-zinc-200 o-text-zinc-600 dark:o-border-zinc-700 dark:o-text-zinc-300"
             >
               <span className="o-sr-only">
-                {listening ? 'Arreter la dictee' : 'Dicter'}
+                {listening ? 'Stop dictation' : 'Dictate'}
               </span>
               <span aria-hidden>{listening ? '■' : '●'}</span>
             </button>
@@ -410,10 +411,11 @@ export function PromptInput({
         </div>
       </div>
 
-      {/* L'etat de la dictee est annonce : sans cela, rien ne dit que le micro
-          ecoute a qui ne voit pas le bouton changer. */}
+      {/* The state of the dictation is announced: without it, nothing tells
+          that the microphone is listening to whoever does not see the button
+          change. */}
       <p role="status" aria-live="polite" className="o-sr-only">
-        {listening ? 'Dictee en cours.' : ''}
+        {listening ? 'Dictation in progress.' : ''}
       </p>
     </div>
   )

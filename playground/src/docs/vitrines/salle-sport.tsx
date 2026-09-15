@@ -57,7 +57,7 @@ import {
   Dumbbell,
   MapPin,
   Timer,
-} from '@odoro-cli/icons/filaire'
+} from '@odoro-cli/icons/outline'
 import { useInView } from '@odoro-cli/libs/motion'
 import { useEffect, useState, type CSSProperties, type ReactElement } from 'react'
 

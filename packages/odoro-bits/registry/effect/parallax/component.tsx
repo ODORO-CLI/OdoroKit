@@ -1,21 +1,20 @@
 /**
- * Parallaxe : un element qui se deplace moins vite que la page.
+ * Parallax: an element that moves more slowly than the page.
  *
- * ## Pourquoi la boucle unique et pas un ecouteur de defilement
+ * ## Why the single loop and not a scroll listener
  *
- * Un ecouteur de `scroll` se declenche a un rythme decide par le navigateur,
- * qui n'est pas celui du rafraichissement de l'ecran. Ecrire une transformation
- * depuis cet ecouteur produit un decalage d'une image sur deux : l'element
- * traine derriere le contenu, puis le rattrape. C'est le tremblement
- * caracteristique des parallaxes faites a la main.
+ * A `scroll` listener fires at a rhythm decided by the browser, which is not
+ * that of the screen refresh. Writing a transform from that listener produces
+ * a one-frame-in-two lag: the element trails behind the content, then catches
+ * up with it. This is the characteristic judder of hand-made parallaxes.
  *
- * La lecture passe donc par la boucle unique du moteur, qui la place avant le
- * rendu de la meme image.
+ * The read therefore goes through the engine's single loop, which places it
+ * before the render of the same frame.
  *
- * ## Sous mouvement reduit
+ * ## Under reduced motion
  *
- * L'element reste a sa place. Une parallaxe n'a pas d'etat final a preserver :
- * elle n'apporte rien d'autre que son mouvement.
+ * The element stays where it is. A parallax has no final state to preserve:
+ * it brings nothing other than its movement.
  *
  * @module
  */
@@ -28,23 +27,23 @@ import {
 } from '@odoro-cli/engine'
 import { useCallback, useRef, type ReactElement, type ReactNode } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface ParallaxOwnProps {
-  /** Contenu deplace. */
+  /** Moved content. */
   children: ReactNode
-  /** Amplitude du deplacement sur toute la traversee, en pixels. @defaultValue 80 */
+  /** Amplitude of the movement over the whole crossing, in pixels. @defaultValue 80 */
   distance?: number
-  /** Axe du deplacement. @defaultValue 'y' */
+  /** Axis of the movement. @defaultValue 'y' */
   axis?: 'x' | 'y'
-  /** Agrandissement additionnel, de 0 a 1. @defaultValue 0 */
+  /** Additional enlargement, from 0 to 1. @defaultValue 0 */
   scale?: number
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type ParallaxProps = Customisable<ParallaxOwnProps>
 
 /**
- * Deplace un contenu au fil du defilement.
+ * Moves a content along with the scroll.
  *
  * @example
  * <div className="o-relative o-h-96 o-overflow-hidden">
@@ -68,8 +67,9 @@ export function Parallax({
       const target = inner.current
       if (target === null) return
 
-      // La progression va de 0 a 1 sur la traversee ; on la ramene a [-1, 1]
-      // pour que l'element soit a sa place quand il est au centre du champ.
+      // The progress goes from 0 to 1 over the crossing; we bring it back to
+      // [-1, 1] so that the element is in place when it sits at the centre of
+      // the viewport.
       const centred = progress * 2 - 1
       const shift = (-centred * distance) / 2
       const zoom = 1 + scale * (1 - Math.abs(centred))
@@ -83,7 +83,7 @@ export function Parallax({
   )
 
   const { ref } = useScrollScrub<HTMLDivElement>(onProgress, {
-    name: 'parallaxe',
+    name: 'parallax',
   })
 
   const { className, style } = mergePresentation(

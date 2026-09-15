@@ -37,7 +37,7 @@
 
 import { useMotionState } from '@odoro-cli/engine'
 import { Icon } from '@odoro-cli/icons'
-import { ArrowDown, Disc, Music } from '@odoro-cli/icons/filaire'
+import { ArrowDown, Disc, Music } from '@odoro-cli/icons/outline'
 import {
   useCallback,
   useEffect,

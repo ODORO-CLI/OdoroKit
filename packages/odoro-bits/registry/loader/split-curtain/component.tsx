@@ -1,40 +1,38 @@
 /**
- * Rideau en deux pans qui s'ecartent depuis la couture centrale.
+ * Two-panel curtain that parts from the central seam.
  *
- * ## Deux pans, parce qu'un rideau se tire
+ * ## Two panels, because a curtain is drawn
  *
- * `curtain-wipe` perce sa plaque, `counter-gate` la souleve d'un bloc. Ici le
- * plan est coupe en deux des le depart, et la couture se voit : un filet d'un
- * pixel au milieu de l'ecran annonce ou l'ouverture va se produire. Le geste
- * est donc lisible **avant** de commencer, ce qui est exactement ce qu'un
- * rideau de theatre fait.
+ * `curtain-wipe` pierces its plate, `counter-gate` lifts it in one block. Here
+ * the plane is cut in two from the start, and the seam shows: a one-pixel line
+ * in the middle of the screen announces where the opening is going to happen.
+ * The gesture is therefore readable **before** it begins, which is exactly what
+ * a theatre curtain does.
  *
- * Les deux pans sortent par des cotes opposes. Rien ne les traverse, rien ne
- * se fond : la page apparait dans l'ecart qui grandit entre eux.
+ * The two panels leave through opposite sides. Nothing crosses them, nothing
+ * fades: the page appears in the gap that grows between them.
  *
- * ## Un demi-pour-cent de recouvrement
+ * ## Half a per cent of overlap
  *
- * Chaque pan mesure `50.5 %`, pas `50 %`. Sur une largeur impaire, deux moities
- * arrondies laissent un lisere d'un pixel au milieu par lequel la page
- * transparait avant l'heure. Le recouvrement coute un demi-pour-cent de
- * translation supplementaire et supprime le defaut.
+ * Each panel measures `50.5 %`, not `50 %`. On an odd width, two rounded halves
+ * leave a one-pixel sliver in the middle through which the page shows early.
+ * The overlap costs half a per cent of extra translation and removes the flaw.
  *
- * ## La sortie part au DEBUT, pas apres
+ * ## The exit starts at the BEGINNING, not after
  *
- * `onDone` est appele quand les pans **commencent** a s'ecarter, jamais a leur
- * arrivee. Le contenu doit entrer a travers l'ouverture pendant qu'elle se
- * fait : attendre la fin donnerait deux gestes qui se suivent — un rideau qui
- * s'ecarte, un temps mort, puis une page qui s'anime — la ou l'on en voulait
- * un seul qui se deploie.
+ * `onDone` is called when the panels **start** to part, never when they
+ * arrive. The content must enter through the opening while it is being made:
+ * waiting for the end would give two gestures one after the other — a curtain
+ * that parts, a dead moment, then a page that animates — where only one that
+ * unfolds was wanted.
  *
- * ## Contenu ou plein ecran
+ * ## Contained or fullscreen
  *
- * Par defaut le rideau est `fixed` et couvre la fenetre ; il verrouille alors
- * le defilement du document, puisque rien de ce qui est dessous n'est
- * atteignable. Avec `contained`, il devient `absolute` et se resout contre le
- * premier ancetre positionne — une maquette, une carte — et ne touche plus au
- * defilement : ce serait verrouiller la page pour un cadre de trois cents
- * pixels.
+ * By default the curtain is `fixed` and covers the window; it then locks the
+ * document's scrolling, since nothing underneath is reachable. With
+ * `contained`, it becomes `absolute` and resolves against the first positioned
+ * ancestor — a mockup, a card — and no longer touches scrolling: that would
+ * mean locking the page for a three-hundred-pixel frame.
  *
  * @module
  */
@@ -49,45 +47,44 @@ import {
   type ReactNode,
 } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface SplitCurtainOwnProps {
-  /** Le fond des pans. @defaultValue le fond du theme */
+  /** The panel background. @defaultValue the theme background */
   background?: string
-  /** L'encre du rideau : couture et libelle. @defaultValue l'encre du theme */
+  /** The curtain ink: seam and label. @defaultValue the theme ink */
   ink?: string
-  /** Ce qui s'affiche au centre pendant l'attente : un nom, une marque. */
+  /** What shows in the centre during the wait: a name, a brand. */
   label?: ReactNode
   /**
-   * Ce que les lecteurs d'ecran annoncent. Chaine vide pour n'annoncer que le
-   * libelle.
+   * What screen readers announce. Empty string to announce only the label.
    *
-   * @defaultValue 'Chargement'
+   * @defaultValue 'Loading'
    */
   status?: string
-  /** Sens de l'ecartement. @defaultValue 'horizontal' */
+  /** Direction of the parting. @defaultValue 'horizontal' */
   axis?: 'horizontal' | 'vertical'
-  /** Combien de temps le rideau reste ferme, en millisecondes. @defaultValue 1200 */
+  /** How long the curtain stays closed, in milliseconds. @defaultValue 1200 */
   holdMs?: number
-  /** Duree de l'ecartement, en millisecondes. @defaultValue 900 */
+  /** Duration of the parting, in milliseconds. @defaultValue 900 */
   exitMs?: number
   /**
-   * Etat controle : le rideau couvre tant que c'est `true`, et sort au premier
-   * `false`. Renseigne, il remplace `holdMs`.
+   * Controlled state: the curtain covers as long as this is `true`, and exits
+   * on the first `false`. When it is given, it replaces `holdMs`.
    */
   open?: boolean
-  /** Couvre le parent positionne plutot que la fenetre. @defaultValue false */
+  /** Covers the positioned parent rather than the window. @defaultValue false */
   contained?: boolean
-  /** Appele au **debut** de la sortie. Voir l'en-tete du module. */
+  /** Called at the **start** of the exit. See the module header. */
   onDone?: () => void
 }
 
-/** Toutes les proprietes. */
+/** All the properties. */
 export type SplitCurtainProps = Customisable<SplitCurtainOwnProps, 'div'>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-split-curtain'
 
-/** Pose les regles des deux pans, une fois par document. */
+/** Sets the rules of the two panels, once per document. */
 function ensureSplitCurtainRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -100,8 +97,8 @@ function ensureSplitCurtainRule(): void {
     'color:var(--o-splc-ink);',
     '}',
     '[data-o-splc][data-o-splc-contained]{position:absolute}',
-    // Pendant la sortie le rideau ne doit plus rien intercepter : la page est
-    // deja la, et un clic dans l'ecart doit l'atteindre.
+    // During the exit the curtain must no longer intercept anything: the page
+    // is already there, and a click in the gap must reach it.
     '[data-o-splc][data-o-splc-out]{pointer-events:none}',
     '[data-o-splc-pan]{',
     'position:absolute;background:var(--o-splc-bg);',
@@ -131,20 +128,20 @@ function ensureSplitCurtainRule(): void {
 }
 
 /**
- * Couvre la page de deux pans, puis les ecarte.
+ * Covers the page with two panels, then parts them.
  *
  * @example
- * <SplitCurtain label="Odoro" onDone={ouvrir} />
+ * <SplitCurtain label="Odoro" onDone={reveal} />
  *
  * @example
- * // Controle par l'appelant : les pans partent quand la scene est dessinee.
- * <SplitCurtain open={!sceneDessinee} axis="vertical" onDone={ouvrir} />
+ * // Controlled by the caller: the panels leave when the scene is drawn.
+ * <SplitCurtain open={!sceneDrawn} axis="vertical" onDone={reveal} />
  */
 export function SplitCurtain({
   background = 'var(--o-theme-bg)',
   ink = 'var(--o-theme-fg)',
   label,
-  status = 'Chargement',
+  status = 'Loading',
   axis = 'horizontal',
   holdMs = 1200,
   exitMs = 900,
@@ -154,111 +151,111 @@ export function SplitCurtain({
   ...rest
 }: SplitCurtainProps): ReactElement | null {
   const { reduced } = useMotionState()
-  const [sortant, setSortant] = useState(false)
-  const [parti, setParti] = useState(false)
+  const [exiting, setExiting] = useState(false)
+  const [gone, setGone] = useState(false)
 
-  // Dans une ref : la sortie ne s'annonce qu'une fois, et un rendu de plus ne
-  // doit pas rejouer le rappel.
-  const annonce = useRef(false)
-  const rappel = useRef(onDone)
-  rappel.current = onDone
+  // In a ref: the exit announces itself only once, and one more render must
+  // not replay the callback.
+  const announced = useRef(false)
+  const callback = useRef(onDone)
+  callback.current = onDone
 
   ensureSplitCurtainRule()
 
   useEffect(() => {
-    const annoncer = (): void => {
-      if (annonce.current) return
-      annonce.current = true
-      rappel.current?.()
+    const announce = (): void => {
+      if (announced.current) return
+      announced.current = true
+      callback.current?.()
     }
 
-    // Mouvement reduit : la sortie est immediate. Ce que le rideau apportait
-    // etait le geste ; ce qu'il couterait ici serait une attente sans
-    // contrepartie.
+    // Reduced motion: the exit is immediate. What the curtain brought was the
+    // gesture; what it would cost here would be a wait with nothing in
+    // return.
     if (reduced) {
-      annoncer()
-      setParti(true)
+      announce()
+      setGone(true)
       return
     }
 
     if (open !== undefined) {
       if (!open) {
-        setSortant(true)
-        annoncer()
+        setExiting(true)
+        announce()
       }
       return
     }
 
-    const minuteur = window.setTimeout(() => {
-      setSortant(true)
-      annoncer()
+    const timer = window.setTimeout(() => {
+      setExiting(true)
+      announce()
     }, holdMs)
 
     return () => {
-      window.clearTimeout(minuteur)
+      window.clearTimeout(timer)
     }
   }, [reduced, open, holdMs])
 
-  // Le retrait du DOM, une fois le geste fini. Un minuteur plutot que
-  // `transitionend` : l'evenement remonte depuis n'importe quel enfant, et
-  // celui du libelle — plus court que la translation — arriverait le premier.
+  // The removal from the DOM, once the gesture is over. A timer rather than
+  // `transitionend`: the event bubbles up from any child, and the label's one
+  // — shorter than the translation — would arrive first.
   useEffect(() => {
-    if (!sortant) return
+    if (!exiting) return
 
-    const minuteur = window.setTimeout(() => {
-      setParti(true)
+    const timer = window.setTimeout(() => {
+      setGone(true)
     }, exitMs + 40)
 
     return () => {
-      window.clearTimeout(minuteur)
+      window.clearTimeout(timer)
     }
-  }, [sortant, exitMs])
+  }, [exiting, exitMs])
 
-  // Le verrou de defilement, seulement quand le rideau couvre la fenetre. Dans
-  // un cadre, il n'y a rien a verrouiller : la page autour reste utilisable.
+  // The scroll lock, only when the curtain covers the window. Inside a frame
+  // there is nothing to lock: the page around it stays usable.
   useEffect(() => {
-    if (contained || parti || reduced) return
+    if (contained || gone || reduced) return
 
-    // Un verrou COMPTE, et non memorise. Deux rideaux peuvent se chevaucher
-    // — rechargement a chaud, navigation, rendu concurrent — et le second
-    // memoriserait alors la valeur posee par le premier, « hidden », pour la
-    // restaurer en sortant : la page resterait bloquee sans erreur ni trace.
-    const racine = document.documentElement
-    const verrous = Number(racine.dataset['oPorteVerrous'] ?? '0')
-    if (verrous === 0) racine.dataset['oPorteAvant'] = racine.style.overflow
-    racine.dataset['oPorteVerrous'] = String(verrous + 1)
-    racine.style.overflow = 'hidden'
+    // A COUNTING lock, not a memorising one. Two curtains can overlap — hot
+    // reload, navigation, concurrent rendering — and the second would then
+    // memorise the value set by the first, "hidden", to restore it on the way
+    // out: the page would stay stuck with no error and no trace.
+    const root = document.documentElement
+    const locks = Number(root.dataset['oGateLocks'] ?? '0')
+    if (locks === 0) root.dataset['oGatePrevious'] = root.style.overflow
+    root.dataset['oGateLocks'] = String(locks + 1)
+    root.style.overflow = 'hidden'
 
-    let rendu = false
-    const rendreLaMain = (): void => {
-      if (rendu) return
-      rendu = true
-      const reste = Number(racine.dataset['oPorteVerrous'] ?? '1') - 1
-      if (reste > 0) {
-        racine.dataset['oPorteVerrous'] = String(reste)
+    let released = false
+    const release = (): void => {
+      if (released) return
+      released = true
+      const remaining = Number(root.dataset['oGateLocks'] ?? '1') - 1
+      if (remaining > 0) {
+        root.dataset['oGateLocks'] = String(remaining)
         return
       }
-      racine.style.overflow = racine.dataset['oPorteAvant'] ?? ''
-      delete racine.dataset['oPorteVerrous']
-      delete racine.dataset['oPorteAvant']
+      root.style.overflow = root.dataset['oGatePrevious'] ?? ''
+      delete root.dataset['oGateLocks']
+      delete root.dataset['oGatePrevious']
     }
 
-    // Le garde-fou. Plus long que le plafond de n importe quel rideau, donc
-    // invisible en marche normale : il n existe que pour qu un retard ne
-    // puisse jamais laisser la page sans defilement.
-    const secours = window.setTimeout(rendreLaMain, 8000)
+    // The safety net. Longer than the ceiling of any curtain, so invisible in
+    // normal operation: it only exists so that a delay can never leave the
+    // page without scrolling.
+    const safety = window.setTimeout(release, 8000)
 
     return () => {
-      window.clearTimeout(secours)
-      rendreLaMain()
+      window.clearTimeout(safety)
+      release()
     }
-  }, [contained, parti, reduced])
+  }, [contained, gone, reduced])
 
-  if (parti) return null
+  if (gone) return null
 
   const { className, style } = mergePresentation({}, rest)
 
-  const styleRideau = {
+  const curtainStyle = {
     ...style,
     '--o-splc-bg': background,
     '--o-splc-ink': ink,
@@ -269,13 +266,13 @@ export function SplitCurtain({
     <div
       {...rest}
       className={className}
-      style={styleRideau}
+      style={curtainStyle}
       data-o-splc=""
       data-o-splc-axis={axis === 'vertical' ? 'v' : 'h'}
-      {...(sortant ? { 'data-o-splc-out': '' } : {})}
+      {...(exiting ? { 'data-o-splc-out': '' } : {})}
       {...(contained ? { 'data-o-splc-contained': '' } : {})}
     >
-      {/* Le decor n'est pas du contenu : il ne doit pas etre lu. */}
+      {/* Decoration is not content: it must not be read. */}
       <div aria-hidden="true">
         <div data-o-splc-pan="a" />
         <div data-o-splc-pan="b" />

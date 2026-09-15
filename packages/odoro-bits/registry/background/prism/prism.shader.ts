@@ -1,31 +1,31 @@
 /**
- * Shader du prisme.
+ * Shader of the prism.
  *
- * ## L'idee mathematique
+ * ## The mathematical idea
  *
- * Trois pieces, dans l'ordre ou la lumiere les traverse. Un faisceau entrant :
- * la distance a un segment, avec un coeur gaussien et une aureole. Un prisme :
- * un triangle equilateral par sa distance signee, dont seule l'arete brille.
- * Une dispersion : un eventail d'angles a la sortie, ou la teinte tourne d'un
- * token a l'autre selon la position dans l'eventail — un spectre entre deux
- * couleurs du projet, pas un arc-en-ciel ecrit en dur — et ou un cosinus
- * dessine des raies, comme les raies d'un vrai spectre.
+ * Three pieces, in the order in which the light crosses them. An incoming
+ * beam: the distance to a segment, with a gaussian core and a halo. A prism:
+ * an equilateral triangle by its signed distance, of which only the edge
+ * shines. A dispersion: a fan of angles at the exit, where the hue turns from
+ * one token to the other according to the position within the fan — a
+ * spectrum between two colours of the project, not a hard-coded rainbow — and
+ * where a cosine draws lines, like the lines of a real spectrum.
  *
- * L'ouverture de l'eventail respire lentement, et un scintillement glisse
- * le long des rais, pour que la scene ne soit pas une image fixe.
+ * The aperture of the fan breathes slowly, and a shimmer slides along the
+ * rays, so that the scene is not a still image.
  *
  * ## Uniforms
  *
- * - `uTime` — temps en secondes, fourni par le moteur.
- * - `uResolution` — taille du canevas en pixels, fournie par le moteur.
- * - `uColorA` — le fond.
- * - `uColorB` — le debut du spectre.
- * - `uColorC` — la fin du spectre.
- * - `uX`, `uY` — position du prisme, en fraction du cadre.
- * - `uSpread` — ouverture de l'eventail, en radians.
- * - `uBands` — nombre de raies dans le spectre.
- * - `uSpeed` — vitesse de la respiration et du scintillement.
- * - `uDetail` — pieces dessinees : 1 l'eventail seul, 3 tout.
+ * - `uTime` — time in seconds, supplied by the engine.
+ * - `uResolution` — canvas size in pixels, supplied by the engine.
+ * - `uColorA` — the background.
+ * - `uColorB` — the start of the spectrum.
+ * - `uColorC` — the end of the spectrum.
+ * - `uX`, `uY` — position of the prism, as a fraction of the frame.
+ * - `uSpread` — aperture of the fan, in radians.
+ * - `uBands` — number of lines in the spectrum.
+ * - `uSpeed` — speed of the breathing and of the shimmer.
+ * - `uDetail` — pieces drawn: 1 the fan alone, 3 everything.
  */
 export const PRISM_FRAGMENT = /* glsl */ `
 precision highp float;
@@ -44,22 +44,22 @@ uniform float uBands;
 uniform float uSpeed;
 uniform float uDetail;
 
-// Distance a un segment.
-float prismeSegment(vec2 p, vec2 a, vec2 b) {
+// Distance to a segment.
+float prismSegment(vec2 p, vec2 a, vec2 b) {
   vec2 pa = p - a;
   vec2 ba = b - a;
   float h = clamp(dot(pa, ba) / dot(ba, ba), 0.0, 1.0);
   return length(pa - ba * h);
 }
 
-// Distance signee a un triangle equilateral de demi-cote donne, pointe en
-// haut : negative dedans, positive dehors.
-float prismeTriangle(vec2 p, float cote) {
+// Signed distance to an equilateral triangle of the given half-side, point
+// upwards: negative inside, positive outside.
+float prismTriangle(vec2 p, float side) {
   const float k = 1.7320508;
-  p.x = abs(p.x) - cote;
-  p.y = p.y + cote / k;
+  p.x = abs(p.x) - side;
+  p.y = p.y + side / k;
   if (p.x + k * p.y > 0.0) p = vec2(p.x - k * p.y, -k * p.x - p.y) * 0.5;
-  p.x -= clamp(p.x, -2.0 * cote, 0.0);
+  p.x -= clamp(p.x, -2.0 * side, 0.0);
   return -length(p) * sign(p.y);
 }
 
@@ -70,52 +70,52 @@ void main() {
   float t = uTime * uSpeed;
   int pieces = int(clamp(uDetail, 1.0, 3.0));
 
-  float cote = 0.13;
-  vec2 entree = centre + vec2(-cote * 0.55, cote * 0.1);
-  vec2 sortie = centre + vec2(cote * 0.55, -cote * 0.05);
-  vec3 blanc = mix(uColorB, uColorC, 0.5);
+  float side = 0.13;
+  vec2 entry = centre + vec2(-side * 0.55, side * 0.1);
+  vec2 exitPoint = centre + vec2(side * 0.55, -side * 0.05);
+  vec3 white = mix(uColorB, uColorC, 0.5);
 
   vec3 colour = uColorA;
 
-  // Le faisceau entrant : il vient de la gauche, en descendant un peu.
+  // The incoming beam: it comes from the left, dropping a little.
   if (pieces >= 2) {
-    float d = prismeSegment(p, vec2(-1.0, uY + 0.45), entree);
-    float coeur = exp(-(d * d) / 0.00004);
-    float aureole = exp(-d / 0.035) * 0.35;
-    colour = mix(colour, blanc, clamp(aureole + coeur, 0.0, 1.0));
-    colour += blanc * coeur * 0.3;
+    float d = prismSegment(p, vec2(-1.0, uY + 0.45), entry);
+    float core = exp(-(d * d) / 0.00004);
+    float halo = exp(-d / 0.035) * 0.35;
+    colour = mix(colour, white, clamp(halo + core, 0.0, 1.0));
+    colour += white * core * 0.3;
   }
 
-  // Le prisme : l'interieur a peine teinte, l'arete qui brille.
+  // The prism: the interior barely tinted, the edge that shines.
   if (pieces >= 3) {
-    float sd = prismeTriangle(p - centre, cote);
-    float interieur = 1.0 - smoothstep(-0.004, 0.004, sd);
-    float arete = exp(-abs(sd) / 0.004);
-    colour = mix(colour, blanc, interieur * 0.08);
-    colour = mix(colour, uColorC, arete * 0.6);
+    float sd = prismTriangle(p - centre, side);
+    float interior = 1.0 - smoothstep(-0.004, 0.004, sd);
+    float edge = exp(-abs(sd) / 0.004);
+    colour = mix(colour, white, interior * 0.08);
+    colour = mix(colour, uColorC, edge * 0.6);
   }
 
-  // L'eventail : l'angle depuis la sortie, rapporte a l'ouverture.
-  vec2 ecart = p - sortie;
-  float rayon = length(ecart);
-  float angle = atan(ecart.y, ecart.x);
-  float ouverture = max(uSpread, 0.05) * (1.0 + 0.12 * sin(t * 0.7));
-  float bas = -0.12 - ouverture * 0.5;
-  float frac = (angle - bas) / ouverture;
+  // The fan: the angle from the exit, related to the aperture.
+  vec2 offset = p - exitPoint;
+  float radius = length(offset);
+  float angle = atan(offset.y, offset.x);
+  float aperture = max(uSpread, 0.05) * (1.0 + 0.12 * sin(t * 0.7));
+  float bottom = -0.12 - aperture * 0.5;
+  float frac = (angle - bottom) / aperture;
 
-  float dedans = smoothstep(-0.03, 0.06, frac) * smoothstep(1.03, 0.94, frac);
-  float devant = smoothstep(0.0, 0.03, ecart.x);
-  float attenuation = exp(-rayon * 1.1);
-  float scintillement = 0.85 + 0.15 * sin(rayon * 24.0 - t * 3.0 + frac * 6.0);
+  float inside = smoothstep(-0.03, 0.06, frac) * smoothstep(1.03, 0.94, frac);
+  float front = smoothstep(0.0, 0.03, offset.x);
+  float falloff = exp(-radius * 1.1);
+  float shimmer = 0.85 + 0.15 * sin(radius * 24.0 - t * 3.0 + frac * 6.0);
 
-  // Le spectre : la teinte tourne d'un token a l'autre ; le cosinus dessine
-  // les raies qui le rendent lisible comme un spectre.
-  vec3 teinte = mix(uColorB, uColorC, clamp(frac, 0.0, 1.0));
-  float raies = 0.6 + 0.4 * cos(frac * uBands * 6.2831853);
+  // The spectrum: the hue turns from one token to the other; the cosine draws
+  // the lines that make it read as a spectrum.
+  vec3 tint = mix(uColorB, uColorC, clamp(frac, 0.0, 1.0));
+  float lines = 0.6 + 0.4 * cos(frac * uBands * 6.2831853);
 
-  float eventail = dedans * devant * attenuation * raies * scintillement;
-  colour = mix(colour, teinte, clamp(eventail, 0.0, 1.0));
-  colour += teinte * eventail * 0.2;
+  float fan = inside * front * falloff * lines * shimmer;
+  colour = mix(colour, tint, clamp(fan, 0.0, 1.0));
+  colour += tint * fan * 0.2;
 
   gl_FragColor = vec4(clamp(colour, 0.0, 1.0), 1.0);
 }

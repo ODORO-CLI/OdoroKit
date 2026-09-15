@@ -1,33 +1,32 @@
 /**
- * Battage : les lettres partent des places les unes des autres, puis rentrent.
+ * Shuffle: the letters start from one another's places, then come home.
  *
- * ## Ce sont les places qui sont melangees, pas les caracteres
+ * ## It is the places that are shuffled, not the characters
  *
- * `decode-text` remplace des caracteres par d'autres : le mot est faux, ses
- * lettres sont a leur place. Ici c'est l'inverse — les lettres sont les
- * bonnes, mais chacune commence a la place d'une autre, puis rejoint la
- * sienne. On ne lit jamais un mot faux : on voit un jeu de cartes se ranger.
+ * `decode-text` replaces characters with others: the word is wrong, its
+ * letters are in their place. Here it is the reverse — the letters are the
+ * right ones, but each starts in the place of another, then joins its own. One
+ * never reads a wrong word: one watches a deck of cards being sorted.
  *
- * ## Les places sont mesurees, jamais calculees
+ * ## The places are measured, never computed
  *
- * Un decalage devine a partir de la largeur moyenne d'un caractere se voit
- * tout de suite : le `i` et le `m` n'occupent pas la meme place, et les
- * lettres n'atterrissent pas. Les positions rendues sont donc relevees juste
- * avant de partir, et le decalage de depart est la difference entre deux
- * d'entre elles. Le battage reste juste quelle que soit la police, la casse
- * ou la cesure.
+ * An offset guessed from the average width of a character shows immediately:
+ * `i` and `m` do not occupy the same place, and the letters do not land. The
+ * rendered positions are therefore read just before starting, and the initial
+ * offset is the difference between two of them. The shuffle stays correct
+ * whatever the font, the case or the line break.
  *
- * ## L'etat melange n'est pose que si l'effet aura lieu
+ * ## The shuffled state is only applied if the effect will happen
  *
- * Comme pour toute revelation du registre : cacher en CSS et montrer en
- * JavaScript laisserait un titre absent le jour ou le JavaScript ne vient
- * pas. L'etat de depart est ecrit par le meme code qui programme le retour —
- * et, au survol, il est porte par le retard de l'animation elle-meme.
+ * As for every reveal in this registry: hiding in CSS and showing in
+ * JavaScript would leave an absent heading the day the JavaScript does not
+ * come. The starting state is written by the very code that schedules the
+ * return — and, on hover, it is carried by the delay of the animation itself.
  *
- * ## Le decoupage est un artifice d'affichage
+ * ## The split is a display device
  *
- * Le texte complet figure une fois, d'un seul tenant ; les lettres sont
- * retirees de l'arbre d'accessibilite.
+ * The complete text appears once, in one piece; the letters are removed from
+ * the accessibility tree.
  *
  * @module
  */
@@ -37,42 +36,42 @@ import { useEffect, type ElementType, type ReactElement } from 'react'
 
 import { useInView } from '@registre/hooks/useInView'
 
-/** Ce qui declenche le battage. */
-export type ShuffleDeclenchement = 'montage' | 'vue' | 'survol'
+/** What triggers the shuffle. */
+export type ShuffleTrigger = 'mount' | 'view' | 'hover'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface ShuffleOwnProps {
-  /** Texte a battre. */
+  /** Text to shuffle. */
   children: string
-  /** Balise rendue. @defaultValue 'span' */
+  /** Rendered tag. @defaultValue 'span' */
   as?: ElementType
-  /** Duree du retour d'une lettre, en millisecondes. @defaultValue 800 */
+  /** Duration of the return of one letter, in milliseconds. @defaultValue 800 */
   duration?: number
-  /** Retard entre deux lettres, en millisecondes. @defaultValue 35 */
+  /** Delay between two letters, in milliseconds. @defaultValue 35 */
   step?: number
-  /** Inclinaison maximale au depart, en degres. @defaultValue 20 */
+  /** Maximum tilt at the start, in degrees. @defaultValue 20 */
   tilt?: number
   /**
-   * Quand battre.
+   * When to shuffle.
    *
-   * @defaultValue 'vue'
+   * @defaultValue 'view'
    */
-  declenchement?: ShuffleDeclenchement
+  trigger?: ShuffleTrigger
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type ShuffleProps = Customisable<ShuffleOwnProps, 'span'>
 
-/** Espace insecable : une espace ordinaire s'ecrase dans un bloc en ligne. */
+/** No-break space: an ordinary space collapses inside an inline block. */
 const NBSP = '\u00A0'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-shuffle'
 
-/** Sortie franche puis amortie : la lettre se range, elle ne freine pas. */
-const COURBE = 'cubic-bezier(0.16, 1, 0.3, 1)'
+/** Sharp then damped ease out: the letter files in, it does not brake. */
+const CURVE = 'cubic-bezier(0.16, 1, 0.3, 1)'
 
-/** Pose les regles du battage, une fois par document. */
+/** Sets the shuffle rules, once per document. */
 function ensureShuffleRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -87,34 +86,33 @@ function ensureShuffleRule(): void {
 }
 
 /**
- * Rend une permutation des indices, par melange de Fisher-Yates.
+ * Returns a permutation of the indices, by a Fisher-Yates shuffle.
  *
- * Une permutation quelconque, pas un derangement : qu'une lettre ou deux
- * restent en place rend le battage plus credible qu'un deplacement force de
- * chacune.
+ * Any permutation, not a derangement: having one or two letters stay in place
+ * makes the shuffle more credible than forcing every one of them to move.
  */
-function permutation(taille: number): number[] {
-  const ordre = Array.from({ length: taille }, (_, index) => index)
-  for (let index = taille - 1; index > 0; index -= 1) {
-    const tire = Math.floor(Math.random() * (index + 1))
-    const garde = ordre[index] ?? index
-    ordre[index] = ordre[tire] ?? tire
-    ordre[tire] = garde
+function permutation(size: number): number[] {
+  const order = Array.from({ length: size }, (_, index) => index)
+  for (let index = size - 1; index > 0; index -= 1) {
+    const pick = Math.floor(Math.random() * (index + 1))
+    const kept = order[index] ?? index
+    order[index] = order[pick] ?? pick
+    order[pick] = kept
   }
-  return ordre
+  return order
 }
 
 /**
- * Fait rentrer les lettres d'un texte depuis les places les unes des autres.
+ * Brings the letters of a text home from one another's places.
  *
  * @example
  * <Shuffle as="h1" className="o-text-5xl o-font-bold">
- *   Tout se range
+ *   Everything falls into place
  * </Shuffle>
  *
  * @example
- * // Rejoue a chaque survol, sans inclinaison.
- * <Shuffle declenchement="survol" tilt={0} duration={520}>Encore</Shuffle>
+ * // Replayed on every hover, with no tilt.
+ * <Shuffle trigger="hover" tilt={0} duration={520}>Again</Shuffle>
  */
 export function Shuffle({
   children,
@@ -122,12 +120,12 @@ export function Shuffle({
   duration = 800,
   step = 35,
   tilt = 20,
-  declenchement = 'vue',
+  trigger = 'view',
   ...rest
 }: ShuffleProps): ReactElement {
   const { reduced } = useMotionState()
-  const { ref, vu } = useInView<HTMLElement>({
-    immediat: declenchement === 'montage',
+  const { ref, inView } = useInView<HTMLElement>({
+    immediate: trigger === 'mount',
   })
 
   ensureShuffleRule()
@@ -136,79 +134,79 @@ export function Shuffle({
     const element = ref.current
     if (element === null || reduced) return
 
-    const lettres = [...element.querySelectorAll<HTMLElement>('[data-o-shuffle-letter]')]
-    if (lettres.length === 0) return
+    const letters = [...element.querySelectorAll<HTMLElement>('[data-o-shuffle-letter]')]
+    if (letters.length === 0) return
 
     let animations: Animation[] = []
 
-    const arreter = (): void => {
+    const stop = (): void => {
       for (const animation of animations) animation.cancel()
       animations = []
     }
 
-    const jouer = (): void => {
-      arreter()
+    const play = (): void => {
+      stop()
 
-      // Les places sont relevees maintenant : une police chargee entre-temps,
-      // une largeur qui a change, et les anciennes seraient fausses.
-      const places = lettres.map((lettre) => ({
-        x: lettre.offsetLeft,
-        y: lettre.offsetTop,
+      // The places are read now: a font loaded in the meantime, a width that
+      // has changed, and the old ones would be wrong.
+      const places = letters.map((letter) => ({
+        x: letter.offsetLeft,
+        y: letter.offsetTop,
       }))
-      const ordre = permutation(lettres.length)
+      const order = permutation(letters.length)
 
-      lettres.forEach((lettre, index) => {
-        const ici = places[index]
-        const ailleurs = places[ordre[index] ?? index]
-        if (ici === undefined || ailleurs === undefined) return
+      letters.forEach((letter, index) => {
+        const here = places[index]
+        const elsewhere = places[order[index] ?? index]
+        if (here === undefined || elsewhere === undefined) return
 
         const angle = (Math.random() * 2 - 1) * tilt
 
-        lettre.style.opacity = ''
+        letter.style.opacity = ''
         animations.push(
-          lettre.animate(
+          letter.animate(
             [
               {
-                transform: `translate(${String(ailleurs.x - ici.x)}px, ${String(ailleurs.y - ici.y)}px) rotate(${String(angle)}deg)`,
+                transform: `translate(${String(elsewhere.x - here.x)}px, ${String(elsewhere.y - here.y)}px) rotate(${String(angle)}deg)`,
                 opacity: 0.25,
               },
               { transform: 'translate(0px, 0px) rotate(0deg)', opacity: 1 },
             ],
-            { duration, delay: index * step, easing: COURBE, fill: 'both' },
+            { duration, delay: index * step, easing: CURVE, fill: 'both' },
           ),
         )
       })
     }
 
-    if (declenchement === 'survol') {
-      // Rien n'est cache d'avance : le retard de chaque animation porte
-      // l'etat melange, et un titre jamais survole reste lisible.
-      const entrer = (): void => {
-        jouer()
+    if (trigger === 'hover') {
+      // Nothing is hidden in advance: the delay of each animation carries the
+      // shuffled state, and a heading that is never hovered stays readable.
+      const onEnter = (): void => {
+        play()
       }
-      element.addEventListener('pointerenter', entrer)
+      element.addEventListener('pointerenter', onEnter)
       return () => {
-        element.removeEventListener('pointerenter', entrer)
-        arreter()
+        element.removeEventListener('pointerenter', onEnter)
+        stop()
       }
     }
 
-    if (!vu) {
-      // L'etat de depart est ecrit ici, pas dans le rendu : voir l'en-tete.
-      for (const lettre of lettres) lettre.style.opacity = '0'
+    if (!inView) {
+      // The starting state is written here, not in the render: see the header.
+      for (const letter of letters) letter.style.opacity = '0'
       return
     }
 
-    jouer()
+    play()
     return () => {
-      arreter()
-      for (const lettre of lettres) lettre.style.opacity = ''
+      stop()
+      for (const letter of letters) letter.style.opacity = ''
     }
-  }, [ref, reduced, vu, children, duration, step, tilt, declenchement])
+  }, [ref, reduced, inView, children, duration, step, tilt, trigger])
 
   const { className, style } = mergePresentation({}, rest)
 
-  // Mouvement reduit : le texte est la, range, sans decoupage.
+  // Reduced motion: the text is there, in order, with no split.
   if (reduced) {
     return (
       <Tag {...rest} className={className} style={style}>
@@ -217,18 +215,18 @@ export function Shuffle({
     )
   }
 
-  const lettres = [...children]
+  const letters = [...children]
 
   return (
     <Tag {...rest} ref={ref} className={className} style={style} data-o-shuffle="">
-      {/* Le texte complet, d'un seul tenant, pour les lecteurs d'ecran. */}
+      {/* The complete text, in one piece, for screen readers. */}
       <span className="o-sr-only">{children}</span>
       <span aria-hidden>
-        {lettres.map((lettre, index) => (
-          <span key={`${lettre}-${String(index)}`} data-o-shuffle-letter="">
-            {/* Une espace ordinaire s'ecrase dans un bloc en ligne :
-                l'insecable garde sa largeur. */}
-            {lettre === ' ' ? NBSP : lettre}
+        {letters.map((letter, index) => (
+          <span key={`${letter}-${String(index)}`} data-o-shuffle-letter="">
+            {/* An ordinary space collapses inside an inline block: the
+                no-break one keeps its width. */}
+            {letter === ' ' ? NBSP : letter}
           </span>
         ))}
       </span>

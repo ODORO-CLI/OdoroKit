@@ -1,38 +1,38 @@
 /**
- * Carte a degradation : l'image se tord et se delave quand le pointeur la
- * traverse, d'autant plus qu'il va vite, puis se repare quand il s'arrete.
+ * Decay card: the image warps and washes out when the pointer crosses it, all
+ * the more as it moves fast, then repairs itself when the pointer stops.
  *
- * ## Un filtre SVG pilote par la vitesse, pas par la position
+ * ## An SVG filter driven by speed, not by position
  *
- * Une distorsion qui suit la position du pointeur est une loupe. Ce qui fait
- * lire une **degradation**, c'est qu'elle suive le geste lui-meme : un
- * passage lent effleure l'image, un passage vif la dechire. La grandeur
- * mesuree est donc la vitesse du pointeur, et rien d'autre.
+ * A distortion that follows the pointer position is a magnifying glass. What
+ * makes a **decay** read as one is that it follows the gesture itself: a slow
+ * pass brushes the image, a sharp pass tears it. The measured quantity is
+ * therefore the pointer speed, and nothing else.
  *
- * Le filtre est un bruit de turbulence qui deplace les pixels de l'image
- * (`feDisplacementMap`). Son amplitude est le seul attribut ecrit par image,
- * directement sur le noeud du filtre : ni React ni le style ne sont
- * traverses. Un second noeud desature l'image a mesure qu'elle se tord — une
- * image qui se degrade perd aussi ses couleurs.
+ * The filter is a turbulence noise that displaces the pixels of the image
+ * (`feDisplacementMap`). Its amplitude is the only attribute written per
+ * frame, straight on the filter node: neither React nor the style is gone
+ * through. A second node desaturates the image as it warps — an image that
+ * decays also loses its colors.
  *
- * ## Deux amortissements
+ * ## Two dampings
  *
- * La vitesse mesuree retombe d'elle-meme quand les evenements cessent — sans
- * cela l'image resterait tordue au dernier geste, le pointeur immobile
- * dessus. Et l'amplitude affichee rattrape cette cible avec un retard
- * independant de la cadence, pour que la reparation ait une duree et non un
- * saut.
+ * The measured speed falls back on its own when the events stop — without
+ * that the image would stay warped at the last gesture, the pointer standing
+ * still on it. And the displayed amplitude catches up with that target with a
+ * lag independent of the frame rate, so that the repair has a duration and not
+ * a jump.
  *
- * ## L'image deborde un peu de sa fenetre
+ * ## The image overflows its window a little
  *
- * Un deplacement de pixels tire du transparent depuis les bords. L'image est
- * donc rendue un peu plus grande que sa fenetre, qui la rogne : les bords
- * tordus restent couverts.
+ * A pixel displacement pulls transparency in from the edges. The image is
+ * therefore rendered a little larger than its window, which crops it: the
+ * warped edges stay covered.
  *
- * ## Ce qui reste au doigt et sous mouvement reduit
+ * ## What is left on touch and under reduced motion
  *
- * L'image intacte, avec sa legende. La degradation est transitoire par
- * nature ; son etat final est une image reparee.
+ * The intact image, with its caption. Decay is transient by nature; its final
+ * state is a repaired image.
  *
  * @module
  */
@@ -54,31 +54,31 @@ import {
   type ReactNode,
 } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface DecayCardOwnProps {
-  /** Source de l'image. */
+  /** Source of the image. */
   src: string
-  /** Texte de remplacement. Chaine vide si l'image est purement decorative. */
+  /** Alternative text. Empty string if the image is purely decorative. */
   alt: string
-  /** Rapport largeur sur hauteur de l'image. @defaultValue 1.5 */
+  /** Width to height ratio of the image. @defaultValue 1.5 */
   ratio?: number
-  /** Deplacement maximal des pixels, en pixels. @defaultValue 48 */
+  /** Maximum pixel displacement, in pixels. @defaultValue 48 */
   strength?: number
-  /** Vitesse de reparation. Plus haut, plus l'image se repare vite. @defaultValue 5 */
+  /** Repair speed. The higher, the faster the image repairs itself. @defaultValue 5 */
   speed?: number
-  /** Finesse du bruit. Plus bas, plus les vagues sont larges. @defaultValue 0.012 */
+  /** Fineness of the noise. The lower, the wider the waves. @defaultValue 0.012 */
   grain?: number
-  /** Legende ou contenu sous l'image. */
+  /** Caption or content below the image. */
   children?: ReactNode
 }
 
-/** Toutes les proprietes. */
+/** All the properties. */
 export type DecayCardProps = Customisable<DecayCardOwnProps>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-decay-card'
 
-/** Pose la carte et sa fenetre d'image, une fois par document. */
+/** Places the card and its image window, once per document. */
 function ensureDecayRules(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -94,7 +94,7 @@ function ensureDecayRules(): void {
     'position:relative;overflow:hidden;aspect-ratio:var(--o-decay-ratio);',
     'border-bottom:1px solid var(--o-theme-line);',
     '}',
-    // Un peu plus grande que sa fenetre : les bords tordus restent couverts.
+    // A little larger than its window: the warped edges stay covered.
     '[data-o-decay-window] img{',
     'display:block;width:100%;height:100%;object-fit:cover;',
     'transform:scale(1.08);',
@@ -105,15 +105,15 @@ function ensureDecayRules(): void {
 }
 
 /**
- * Une carte dont l'image se degrade sous un pointeur rapide.
+ * A card whose image decays under a fast pointer.
  *
  * @example
- * <DecayCard src="/photo.jpg" alt="Vue de l atelier" className="o-rounded-xl">
- *   <p className="o-p-4">Une legende</p>
+ * <DecayCard src="/photo.jpg" alt="View of the workshop" className="o-rounded-xl">
+ *   <p className="o-p-4">A caption</p>
  * </DecayCard>
  *
  * @example
- * // Plus violente, vagues plus larges.
+ * // Harsher, wider waves.
  * <DecayCard src="/photo.jpg" alt="" strength={90} grain={0.006} />
  */
 export function DecayCard({
@@ -131,7 +131,7 @@ export function DecayCard({
   const displacement = useRef<SVGFEDisplacementMapElement | null>(null)
   const saturation = useRef<SVGFEColorMatrixElement | null>(null)
   const image = useRef<HTMLImageElement | null>(null)
-  // Les deux-points de l'identifiant de React ne passent pas dans `url(#...)`.
+  // The colons of the React identifier do not go through `url(#...)`.
   const filterId = `o-decay-${useId().replace(/:/g, '')}`
   ensureDecayRules()
 
@@ -141,7 +141,7 @@ export function DecayCard({
     const picture = image.current
     if (host === null || map === null || matrix === null || picture === null || reduced)
       return
-    if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return
+    if (!window.matchMedia('(hover) and (pointer: fine)').matches) return
 
     let lastX = 0
     let lastY = 0
@@ -155,8 +155,8 @@ export function DecayCard({
       if (lastTime !== 0) {
         const dt = Math.max(now - lastTime, 1)
         const velocity = Math.hypot(event.clientX - lastX, event.clientY - lastY) / dt
-        // Un pixel par milliseconde est un geste vif : il vaut l'amplitude
-        // entiere. Le maximum garde la cible le temps que l'ecriture suive.
+        // One pixel per millisecond is a sharp gesture: it is worth the whole
+        // amplitude. The maximum holds the target until the writing catches up.
         target = Math.max(target, Math.min(strength, velocity * strength))
       }
       lastX = event.clientX
@@ -170,7 +170,7 @@ export function DecayCard({
 
     const subscription = clock.subscribe(
       ({ delta }) => {
-        // La cible retombe d'elle-meme : voir l'en-tete.
+        // The target falls back on its own: see the header.
         target *= Math.exp(-4 * delta)
         current += (target - current) * (1 - Math.exp(-speed * delta))
 
@@ -192,7 +192,7 @@ export function DecayCard({
           (1 - Math.min(1, current / strength) * 0.8).toFixed(3),
         )
       },
-      { priority: CLOCK_PRIORITY.render, name: 'degradation' },
+      { priority: CLOCK_PRIORITY.render, name: 'decay' },
     )
 
     host.addEventListener('pointermove', onMove, { passive: true })
@@ -223,18 +223,18 @@ export function DecayCard({
             baseFrequency={String(grain)}
             numOctaves={2}
             seed={7}
-            result="bruit"
+            result="noise"
           />
           <feDisplacementMap
             ref={displacement}
             in="SourceGraphic"
-            in2="bruit"
+            in2="noise"
             scale={0}
             xChannelSelector="R"
             yChannelSelector="G"
-            result="tordu"
+            result="warped"
           />
-          <feColorMatrix ref={saturation} in="tordu" type="saturate" values="1" />
+          <feColorMatrix ref={saturation} in="warped" type="saturate" values="1" />
         </filter>
       </svg>
       <div data-o-decay-window="">

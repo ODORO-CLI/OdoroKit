@@ -1,35 +1,35 @@
 /**
- * Lecture au defilement : une tete de lecture allume les mots un a un.
+ * Reading by scrolling: a playhead lights the words one by one.
  *
- * ## Une revelation qui suit le doigt, pas un declencheur
+ * ## A reveal that follows the finger, not a trigger
  *
- * `blur-reveal` part une fois, a l'entree dans le champ, et se joue jusqu'au
- * bout quoi qu'il arrive ensuite. Ici l'avancement **est** la position de
- * defilement : remonter d'un cran eteint les derniers mots, redescendre les
- * rallume. Le texte est une jauge autant qu'une animation, et c'est ce qui en
- * fait un bloc de citation ou de manifeste plutot qu'un titre.
+ * `blur-reveal` starts once, on entering the viewport, and plays to the end
+ * whatever happens next. Here the progress **is** the scroll position:
+ * scrolling back one notch puts the last words out, scrolling down lights them
+ * again. The text is a gauge as much as an animation, and that is what makes
+ * it a pull quote or a manifesto block rather than a heading.
  *
- * ## Une seule variable ecrite par image
+ * ## A single variable written per frame
  *
- * La boucle du moteur ecrit `--o-srv-p` sur le conteneur. Chaque mot en
- * deduit son propre avancement par `calc` et `clamp` : la tete de lecture
- * n'est pas une position calculee en JavaScript et distribuee mot par mot,
- * c'est la meme valeur lue avec un decalage different par chacun.
+ * The engine loop writes `--o-srv-p` on the container. Each word derives its
+ * own progress from it by `calc` and `clamp`: the playhead is not a position
+ * computed in JavaScript and distributed word by word, it is the same value
+ * read with a different offset by each of them.
  *
- * Consequence directe : un paragraphe de deux cents mots coute exactement le
- * meme travail par image qu'un de cinq.
+ * Direct consequence: a paragraph of two hundred words costs exactly the same
+ * work per frame as one of five.
  *
- * ## La progression se mesure contre ce qui defile vraiment
+ * ## The progress is measured against what really scrolls
  *
- * Contre la fenetre par defaut, contre le premier ancetre a defilement
- * interne s'il y en a un. Un ecouteur de `scroll` aurait donne un rythme
- * different du rafraichissement, et le tremblement qui va avec.
+ * Against the window by default, against the first ancestor with internal
+ * scrolling if there is one. A `scroll` listener would have given a rhythm
+ * different from the refresh, and the judder that goes with it.
  *
- * ## Le texte allume est la valeur par defaut
+ * ## Lit text is the default value
  *
- * `--o-srv-p` vaut 1 dans la feuille : sans JavaScript, sans boucle, le
- * paragraphe est entierement lisible. Un texte qui ne s'allume qu'a
- * l'execution est un texte qui manque.
+ * `--o-srv-p` is 1 in the stylesheet: with no JavaScript, with no loop, the
+ * paragraph is entirely readable. A text that only lights up at runtime is a
+ * text that is missing.
  *
  * @module
  */
@@ -49,33 +49,33 @@ import {
   type ReactElement,
 } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface ScrollRevealOwnProps {
-  /** Texte a reveler. Une chaine : elle est decoupee en mots. */
+  /** Text to reveal. A string: it is split into words. */
   children: string
-  /** Balise rendue. @defaultValue 'p' */
+  /** Rendered tag. @defaultValue 'p' */
   as?: ElementType
-  /** Opacite d'un mot pas encore atteint, de 0 a 1. @defaultValue 0.18 */
+  /** Opacity of a word not yet reached, from 0 to 1. @defaultValue 0.18 */
   dim?: number
-  /** Flou d'un mot pas encore atteint, en pixels. @defaultValue 4 */
+  /** Blur of a word not yet reached, in pixels. @defaultValue 4 */
   blur?: number
   /**
-   * Course du reglage, en hauteurs de fenetre.
+   * Run of the control, in window heights.
    *
-   * Plus haut, plus il faut defiler pour allumer le dernier mot.
+   * The higher, the more scrolling is needed to light the last word.
    *
    * @defaultValue 0.7
    */
-  course?: number
+  travel?: number
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type ScrollRevealProps = Customisable<ScrollRevealOwnProps, 'p'>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-scroll-reveal'
 
-/** Pose les regles de la tete de lecture, une fois par document. */
+/** Sets the playhead rules, once per document. */
 function ensureScrollRevealRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -83,17 +83,17 @@ function ensureScrollRevealRule(): void {
   const style = document.createElement('style')
   style.id = STYLE_ID
   style.textContent = [
-    // Un au repos : sans boucle, tout le texte est allume. Voir l'en-tete.
+    // One at rest: with no loop, the whole text is lit. See the header.
     '[data-o-scroll-reveal]{--o-srv-p:1}',
     '[data-o-scroll-reveal-word]{',
     'display:inline-block;',
-    // La tete de lecture avance de `span` crans quand la progression va de
-    // zero a un ; chaque mot ne retient que le cran qui le concerne.
+    // The playhead advances by `span` notches as the progress goes from zero
+    // to one; each word keeps only the notch that concerns it.
     '--o-srv-t:clamp(0,calc(var(--o-srv-p) * var(--o-srv-span) - var(--o-srv-i)),1);',
     'opacity:calc(var(--o-srv-dim) + (1 - var(--o-srv-dim)) * var(--o-srv-t));',
     'filter:blur(calc((1 - var(--o-srv-t)) * var(--o-srv-blur)));',
     '}',
-    // Sans mouvement, le paragraphe est allume d'un bloc : l'etat d'arrivee.
+    // With no motion, the paragraph is lit in one block: the arrival state.
     '@media (prefers-reduced-motion:reduce){',
     '[data-o-scroll-reveal-word]{opacity:1;filter:none}',
     '}',
@@ -101,112 +101,112 @@ function ensureScrollRevealRule(): void {
   document.head.append(style)
 }
 
-/** Premier ancetre dont le contenu defile reellement, ou rien : la page sert. */
-function ancetreDefilant(element: HTMLElement): HTMLElement | null {
-  let noeud = element.parentElement
-  while (noeud !== null) {
-    const debord = getComputedStyle(noeud).overflowY
+/** First ancestor whose content really scrolls, or nothing: the page will do. */
+function scrollingAncestor(element: HTMLElement): HTMLElement | null {
+  let node = element.parentElement
+  while (node !== null) {
+    const overflow = getComputedStyle(node).overflowY
     if (
-      (debord === 'auto' || debord === 'scroll') &&
-      noeud.scrollHeight > noeud.clientHeight
+      (overflow === 'auto' || overflow === 'scroll') &&
+      node.scrollHeight > node.clientHeight
     ) {
-      return noeud
+      return node
     }
-    noeud = noeud.parentElement
+    node = node.parentElement
   }
   return null
 }
 
 /**
- * Allume les mots d'un texte au fil du defilement.
+ * Lights the words of a text along with the scroll.
  *
  * @example
  * <ScrollReveal as="p" className="o-text-2xl">
- *   Un composant qu on ne peut pas modifier n est pas a vous.
+ *   A component you cannot modify is not yours.
  * </ScrollReveal>
  *
  * @example
- * // Presque eteint au depart, sans flou, sur une longue course.
- * <ScrollReveal dim={0.05} blur={0} course={1.4}>Lentement</ScrollReveal>
+ * // Almost out at the start, with no blur, over a long run.
+ * <ScrollReveal dim={0.05} blur={0} travel={1.4}>Slowly</ScrollReveal>
  */
 export function ScrollReveal({
   children,
   as: Tag = 'p',
   dim = 0.18,
   blur = 4,
-  course = 0.7,
+  travel = 0.7,
   ...rest
 }: ScrollRevealProps): ReactElement {
   const { reduced } = useMotionState()
-  const hote = useRef<HTMLElement | null>(null)
+  const host = useRef<HTMLElement | null>(null)
 
   ensureScrollRevealRule()
 
   useEffect(() => {
-    const element = hote.current
+    const element = host.current
     if (element === null || reduced) return
 
-    // L'ancetre est cherche une fois : il ne change pas pendant la vie du
-    // composant, et le chercher a chaque image couterait pour rien.
-    const defilant = ancetreDefilant(element)
+    // The ancestor is looked up once: it does not change during the life of
+    // the component, and looking it up on every frame would cost for nothing.
+    const scroller = scrollingAncestor(element)
 
-    const abonnement = clock.subscribe(
+    const subscription = clock.subscribe(
       () => {
-        const boite = element.getBoundingClientRect()
-        const vueHaut = defilant === null ? 0 : defilant.getBoundingClientRect().top
-        const vueHauteur = defilant === null ? window.innerHeight : defilant.clientHeight
-        const vueBas = vueHaut + vueHauteur
+        const box = element.getBoundingClientRect()
+        const viewTop = scroller === null ? 0 : scroller.getBoundingClientRect().top
+        const viewHeight = scroller === null ? window.innerHeight : scroller.clientHeight
+        const viewBottom = viewTop + viewHeight
 
-        // Zero quand le haut du bloc touche le bas du champ ; un quand il a
-        // remonte de sa propre hauteur plus la course demandee.
-        const parcouru = vueBas - boite.top
-        const total = Math.max(1, vueHauteur * course + boite.height)
-        const avance = Math.min(1, Math.max(0, parcouru / total))
+        // Zero when the top of the block touches the bottom of the viewport;
+        // one when it has risen by its own height plus the requested run.
+        const travelled = viewBottom - box.top
+        const total = Math.max(1, viewHeight * travel + box.height)
+        const progress = Math.min(1, Math.max(0, travelled / total))
 
-        element.style.setProperty('--o-srv-p', avance.toFixed(4))
+        element.style.setProperty('--o-srv-p', progress.toFixed(4))
       },
-      { name: 'revelation au defilement', priority: CLOCK_PRIORITY.input },
+      { name: 'scroll reveal', priority: CLOCK_PRIORITY.input },
     )
 
     return () => {
-      abonnement.unsubscribe()
+      subscription.unsubscribe()
       element.style.removeProperty('--o-srv-p')
     }
-  }, [reduced, course, children])
+  }, [reduced, travel, children])
 
   const { className, style } = mergePresentation({}, rest)
 
-  const mots = children.split(' ').filter((mot) => mot.length > 0)
+  const words = children.split(' ').filter((word) => word.length > 0)
 
-  const styleRacine = {
+  const rootStyle = {
     ...style,
     '--o-srv-dim': Math.min(1, Math.max(0, dim)),
     '--o-srv-blur': `${String(blur)}px`,
-    // Un cran de plus que de mots : le dernier finit d'arriver avant que la
-    // progression atteigne un, plutot qu'exactement dessus.
-    '--o-srv-span': mots.length + 1,
+    // One notch more than there are words: the last one finishes arriving
+    // before the progress reaches one, rather than exactly on it.
+    '--o-srv-span': words.length + 1,
   } as CSSProperties
 
   return (
     <Tag
       {...rest}
-      ref={hote}
+      ref={host}
       className={className}
-      style={styleRacine}
+      style={rootStyle}
       data-o-scroll-reveal=""
     >
-      {/* Le texte complet, d'un seul tenant, pour les lecteurs d'ecran. */}
+      {/* The complete text, in one piece, for screen readers. */}
       <span className="o-sr-only">{children}</span>
       <span aria-hidden>
-        {mots.map((mot, index) => (
-          <span key={`${mot}-${String(index)}`}>
+        {words.map((word, index) => (
+          <span key={`${word}-${String(index)}`}>
             <span
               data-o-scroll-reveal-word=""
               style={{ '--o-srv-i': index } as CSSProperties}
             >
-              {mot}
+              {word}
             </span>
-            {index < mots.length - 1 ? ' ' : null}
+            {index < words.length - 1 ? ' ' : null}
           </span>
         ))}
       </span>

@@ -35,7 +35,7 @@
       "options": ["verticale", "horizontale"]
     },
     {
-      "name": "boucle",
+      "name": "wrap",
       "type": "boolean",
       "default": true,
       "description": "Repartir au debut apres le dernier element."
@@ -50,7 +50,7 @@
       "step": 1
     },
     {
-      "name": "onValider",
+      "name": "onSelect",
       "type": "(index: number) => void",
       "description": "Appelee sur Entree ou Espace, avec l index actif."
     }

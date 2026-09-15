@@ -1,5 +1,5 @@
 /**
- * Zone de saisie multiligne avec libelle, aide et message d'erreur.
+ * Multiline text area with label, hint and error message.
  *
  * @module
  */
@@ -19,8 +19,8 @@ import { cx } from '../styles/cx.js'
 import { inputClasses } from './Input.jsx'
 
 /**
- * Padding vertical par taille. Le champ texte n'herite pas du centrage d'un
- * `<input>` a hauteur fixe : la respiration verticale vient du padding.
+ * Vertical padding per size. The text area does not inherit the centering of
+ * an `<input>` with a fixed height: the vertical breathing comes from padding.
  */
 const SIZE_PADDING: Readonly<Record<'sm' | 'md' | 'lg', string>> = {
   sm: 'o-py-1',
@@ -29,8 +29,8 @@ const SIZE_PADDING: Readonly<Record<'sm' | 'md' | 'lg', string>> = {
 }
 
 /**
- * Hauteur minimale par taille. La feuille de base n'expose pas d'utilitaires
- * `o-min-h-*` a valeur fixe : la contrainte passe par le style en ligne.
+ * Minimum height per size. The base stylesheet does not expose `o-min-h-*`
+ * utilities with a fixed value: the constraint goes through the inline style.
  */
 const SIZE_MIN_HEIGHT: Readonly<Record<'sm' | 'md' | 'lg', string>> = {
   sm: '4rem',
@@ -38,50 +38,50 @@ const SIZE_MIN_HEIGHT: Readonly<Record<'sm' | 'md' | 'lg', string>> = {
   lg: '7rem',
 }
 
-/** Proprietes de {@link Textarea}. */
+/** Properties of {@link Textarea}. */
 export interface TextareaProps extends Omit<
   TextareaHTMLAttributes<HTMLTextAreaElement>,
   'className'
 > {
-  /** Libelle du champ. Obligatoire : un champ sans libelle est inutilisable. */
+  /** Field label. Required: a field without a label is unusable. */
   label: ReactNode
-  /** Masque visuellement le libelle sans le retirer de l'arbre d'accessibilite. */
+  /** Visually hides the label without removing it from the accessibility tree. */
   hideLabel?: boolean
-  /** Texte d'aide affiche sous le champ. */
+  /** Hint text displayed under the field. */
   hint?: ReactNode
   /**
-   * Message d'erreur. Sa presence met le champ en etat invalide et remplace
-   * l'aide dans la description annoncee.
+   * Error message. Its presence puts the field in an invalid state and
+   * replaces the hint in the announced description.
    */
   error?: ReactNode
-  /** Taille. @defaultValue 'md' */
+  /** Size. @defaultValue 'md' */
   size?: 'sm' | 'md' | 'lg'
   /**
-   * Ajuste la hauteur au contenu a chaque saisie. La hauteur minimale de la
-   * taille choisie reste le plancher.
+   * Fits the height to the content on every keystroke. The minimum height of
+   * the chosen size stays the floor.
    *
    * @defaultValue false
    */
   autoResize?: boolean
-  /** Classes additionnelles appliquees a l'element `<textarea>`. */
+  /** Additional classes applied to the `<textarea>` element. */
   className?: string
-  /** Classes additionnelles appliquees au conteneur. */
+  /** Additional classes applied to the container. */
   wrapperClassName?: string
-  /** Ref vers l'element natif. */
+  /** Ref to the native element. */
   ref?: Ref<HTMLTextAreaElement>
 }
 
 /**
- * Zone de saisie multiligne.
+ * Multiline text area.
  *
- * Reprend l'habillage d'{@link Input} (via `inputClasses`), mais remplace la
- * hauteur fixe des tailles par une hauteur minimale : un texte long doit
- * pouvoir grandir, a la poignee de redimensionnement ou via `autoResize`.
+ * Reuses the styling of {@link Input} (through `inputClasses`), but replaces
+ * the fixed height of the sizes by a minimum height: a long text must be able
+ * to grow, through the resize handle or through `autoResize`.
  *
  * @example
  * <Textarea
  *   label="Message"
- *   hint="Markdown accepte."
+ *   hint="Markdown accepted."
  *   autoResize
  * />
  */
@@ -110,8 +110,8 @@ export function Textarea({
     (event: InputEvent<HTMLTextAreaElement>) => {
       if (autoResize) {
         const node = event.currentTarget
-        // Repasser a 'auto' avant de mesurer : sans cela, scrollHeight ne
-        // redescend jamais quand du texte est supprime.
+        // Go back to 'auto' before measuring: without this, scrollHeight never
+        // comes back down when text is deleted.
         node.style.height = 'auto'
         node.style.height = `${node.scrollHeight}px`
       }
@@ -120,9 +120,9 @@ export function Textarea({
     [autoResize, onInput],
   )
 
-  // `inputClasses` pose une hauteur fixe (o-h-*) que l'ordre des classes dans
-  // l'attribut ne permet pas de surcharger de facon fiable : le style en ligne
-  // tranche la cascade de maniere deterministe.
+  // `inputClasses` applies a fixed height (o-h-*) that the order of the classes
+  // in the attribute cannot reliably override: the inline style settles the
+  // cascade in a deterministic way.
   const sizeStyle: CSSProperties = {
     height: 'auto',
     minHeight: SIZE_MIN_HEIGHT[size],

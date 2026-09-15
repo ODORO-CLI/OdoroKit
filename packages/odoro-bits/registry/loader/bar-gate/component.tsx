@@ -1,59 +1,59 @@
 /**
- * Rideau a barre segmentee, qui se resorbe dans la ligne qui l'a mesure.
+ * Segmented bar curtain, which folds back into the line that measured it.
  *
- * ## Une barre qui mesure le temps, et le dit
+ * ## A bar that measures time, and says so
  *
- * `counter-gate` affiche un pourcentage, et prend donc sur lui de ne jamais
- * mentir : son compteur suit une disponibilite reelle. Cette barre-ci ne
- * pretend rien de tel — elle n'affiche **aucun chiffre**, et c'est delibere :
- * ce qu'elle remplit est une duree, pas un chargement.
+ * `counter-gate` shows a percentage, and therefore takes it upon itself never
+ * to lie: its counter follows a real availability. This bar claims nothing of
+ * the sort — it shows **no figure at all**, and that is deliberate: what it
+ * fills is a duration, not a load.
  *
- * La distinction n'est pas cosmetique. Un pourcentage est une affirmation
- * verifiable ; une barre sans chiffre est un signe de patience. Retirer les
- * chiffres est la facon honnete d'avoir une barre quand on n'a rien a mesurer,
- * et c'est le cas de la plupart des rideaux d'entree.
+ * The distinction is not cosmetic. A percentage is a verifiable claim; a bar
+ * without a figure is a sign of patience. Dropping the figures is the honest
+ * way to have a bar when there is nothing to measure, and that is the case for
+ * most entrance curtains.
  *
- * Les segments disent la meme chose : une barre continue se lit comme une
- * mesure fine, une barre en vingt cases se lit comme un decompte. Le dernier
- * segment s'allume progressivement — l'opacite d'une case vaut sa part remplie
- * — ce qui evite le sursaut d'une case qui apparait d'un coup.
+ * The segments say the same thing: a continuous bar reads as a fine
+ * measurement, a bar in twenty cells reads as a countdown. The last segment
+ * lights up progressively — a cell's opacity is its filled share — which
+ * avoids the jolt of a cell appearing all at once.
  *
- * ## L'horloge du moteur, pas un `setInterval`
+ * ## The engine clock, not a `setInterval`
  *
- * L'avancement vient de la boucle unique du moteur. Un intervalle bat contre la
- * cadence de l'ecran et produit une barre qui avance par a-coups ; et deux
- * boucles concurrentes dans une page rendent dans un ordre indetermine.
+ * The progress comes from the engine's single loop. An interval beats against
+ * the screen's refresh rate and produces a bar that advances in fits and
+ * starts; and two competing loops in one page render in an undetermined order.
  *
- * La valeur est ecrite dans une variable CSS du noeud, pas dans l'etat React :
- * une barre a soixante images par seconde ferait soixante rendus par seconde
- * pour une valeur dont React n'a aucun besoin.
+ * The value is written into a CSS variable on the node, not into React state:
+ * a bar at sixty frames per second would mean sixty renders per second for a
+ * value React has no need of.
  *
- * ## Un plafond, quand l'appelant controle
+ * ## A ceiling, when the caller is in control
  *
- * En mode controle, la barre se **gare** sous un plafond au lieu de le
- * franchir, et y reste tant que `open` est vrai. Une barre qui arriverait au
- * bout puis attendrait dirait que c'est fini alors que ca ne l'est pas. Une
- * fois liberee, elle finit sa course a la meme vitesse : la derniere fraction
- * prend le temps qu'elle aurait pris.
+ * In controlled mode, the bar **parks** below a ceiling instead of crossing
+ * it, and stays there as long as `open` is true. A bar that reached the end
+ * and then waited would say it was over when it is not. Once released, it
+ * finishes its run at the same speed: the last fraction takes the time it
+ * would have taken.
  *
- * ## La sortie : le rideau rentre dans sa propre ligne
+ * ## The exit: the curtain retreats into its own line
  *
- * La plaque ne glisse pas et ne s'efface pas : elle **s'aplatit sur la barre**,
- * en s'ecrasant vers la ligne mediane. Le rideau disparait dans l'objet qui l'a
- * mesure ; la barre s'efface en dernier, une fois qu'il n'y a plus rien autour
- * d'elle.
+ * The plate does not slide and does not fade out: it **flattens onto the
+ * bar**, squashing towards the median line. The curtain vanishes into the
+ * object that measured it; the bar fades last, once there is nothing left
+ * around it.
  *
- * ## La sortie part au DEBUT, pas apres
+ * ## The exit starts at the BEGINNING, not after
  *
- * `onDone` est appele au moment ou la plaque **commence** a s'aplatir. Le
- * contenu entre pendant l'ecrasement ; attendre la fin donnerait deux gestes
- * qui se suivent la ou l'on en voulait un seul.
+ * `onDone` is called the moment the plate **starts** to flatten. The content
+ * enters during the squash; waiting for the end would give two gestures one
+ * after the other where only one was wanted.
  *
- * ## Contenu ou plein ecran
+ * ## Contained or fullscreen
  *
- * Par defaut le rideau est `fixed`, couvre la fenetre et verrouille le
- * defilement du document. Avec `contained`, il devient `absolute`, se resout
- * contre le premier ancetre positionne et ne touche plus au defilement.
+ * By default the curtain is `fixed`, covers the window and locks the
+ * document's scrolling. With `contained`, it becomes `absolute`, resolves
+ * against the first positioned ancestor and no longer touches scrolling.
  *
  * @module
  */
@@ -73,52 +73,52 @@ import {
   type ReactNode,
 } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface BarGateOwnProps {
-  /** Le fond de la plaque. @defaultValue le fond du theme */
+  /** The plate background. @defaultValue the theme background */
   background?: string
-  /** L'encre : la barre et le libelle. @defaultValue l'encre du theme */
+  /** The ink: the bar and the label. @defaultValue the theme ink */
   ink?: string
-  /** Ce qui s'affiche au-dessus de la barre : un nom, une marque. */
+  /** What shows above the bar: a name, a brand. */
   label?: ReactNode
   /**
-   * Ce que les lecteurs d'ecran annoncent. Chaine vide pour n'annoncer que le
-   * libelle.
+   * What screen readers announce. Empty string to announce only the label.
    *
-   * @defaultValue 'Chargement'
+   * @defaultValue 'Loading'
    */
   status?: string
-  /** Nombre de segments de la barre. @defaultValue 20 */
+  /** Number of segments in the bar. @defaultValue 20 */
   segments?: number
-  /** Duree du remplissage, en millisecondes. @defaultValue 1600 */
+  /** Fill duration, in milliseconds. @defaultValue 1600 */
   holdMs?: number
-  /** Duree de l'ecrasement, en millisecondes. @defaultValue 850 */
+  /** Squash duration, in milliseconds. @defaultValue 850 */
   exitMs?: number
   /**
-   * Ou la barre se gare en mode controle, en pourcentage. Sans effet quand
-   * `open` n'est pas renseigne.
+   * Where the bar parks in controlled mode, as a percentage. No effect when
+   * `open` is not given.
    *
    * @defaultValue 92
    */
   ceiling?: number
   /**
-   * Etat controle : le rideau couvre tant que c'est `true`, et sort au premier
-   * `false`. Renseigne, la barre se gare sous `ceiling` en attendant.
+   * Controlled state: the curtain covers as long as this is `true`, and exits
+   * on the first `false`. When it is given, the bar parks below `ceiling`
+   * while it waits.
    */
   open?: boolean
-  /** Couvre le parent positionne plutot que la fenetre. @defaultValue false */
+  /** Covers the positioned parent rather than the window. @defaultValue false */
   contained?: boolean
-  /** Appele au **debut** de la sortie. Voir l'en-tete du module. */
+  /** Called at the **start** of the exit. See the module header. */
   onDone?: () => void
 }
 
-/** Toutes les proprietes. */
+/** All the properties. */
 export type BarGateProps = Customisable<BarGateOwnProps, 'div'>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-bar-gate'
 
-/** Pose les regles de la barre et de la plaque, une fois par document. */
+/** Sets the bar and plate rules, once per document. */
 function ensureBarGateRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -132,7 +132,7 @@ function ensureBarGateRule(): void {
     '}',
     '[data-o-barg][data-o-barg-contained]{position:absolute}',
     '[data-o-barg][data-o-barg-out]{pointer-events:none}',
-    // La plaque s'ecrase vers sa ligne mediane, la ou se trouve la barre.
+    // The plate squashes towards its median line, where the bar sits.
     '[data-o-barg-plate]{',
     'position:absolute;inset:0;background:var(--o-barg-bg);',
     'transform-origin:50% 50%;transform:scaleY(1);',
@@ -145,15 +145,16 @@ function ensureBarGateRule(): void {
     'transition:opacity calc(var(--o-barg-exit) * 0.45) ease calc(var(--o-barg-exit) * 0.55);',
     '}',
     '[data-o-barg-out] [data-o-barg-bar]{opacity:0}',
-    // La part remplie d'un segment devient son opacite : la case en cours
-    // s'allume au lieu d'apparaitre.
+    // A segment's filled share becomes its opacity: the cell in progress
+    // lights up instead of appearing.
     '[data-o-barg-seg]{',
     'flex:1;height:3px;background:currentColor;',
     'opacity:clamp(0.12,calc(var(--o-barg-p) * var(--o-barg-n) - var(--o-barg-i)),1);',
     '}',
-    // A la sortie, la barre est pleine par regle et non par variable : le
-    // rendu de React qui accompagne le passage en sortie reecrit le style en
-    // ligne du noeud, et remettrait la variable a sa valeur initiale.
+    // On the way out, the bar is full by rule and not by variable: the React
+    // render that accompanies the switch to the exit state rewrites the
+    // node's inline style, and would put the variable back to its initial
+    // value.
     '[data-o-barg-out] [data-o-barg-seg]{opacity:1}',
     '[data-o-barg-mark]{',
     'position:absolute;left:0;right:0;bottom:calc(50% + 2.2rem);text-align:center;',
@@ -165,20 +166,20 @@ function ensureBarGateRule(): void {
 }
 
 /**
- * Couvre la page, remplit une barre, puis s'ecrase dedans.
+ * Covers the page, fills a bar, then squashes into it.
  *
  * @example
- * <BarGate label="Odoro" onDone={ouvrir} />
+ * <BarGate label="Odoro" onDone={reveal} />
  *
  * @example
- * // Controle : la barre se gare a 92 % tant que la scene n'est pas dessinee.
- * <BarGate open={!sceneDessinee} segments={32} onDone={ouvrir} />
+ * // Controlled: the bar parks at 92 % until the scene is drawn.
+ * <BarGate open={!sceneDrawn} segments={32} onDone={reveal} />
  */
 export function BarGate({
   background = 'var(--o-theme-bg)',
   ink = 'var(--o-theme-fg)',
   label,
-  status = 'Chargement',
+  status = 'Loading',
   segments = 20,
   holdMs = 1600,
   exitMs = 850,
@@ -189,156 +190,156 @@ export function BarGate({
   ...rest
 }: BarGateProps): ReactElement | null {
   const { reduced } = useMotionState()
-  const [sortant, setSortant] = useState(false)
-  const [parti, setParti] = useState(false)
-  const hote = useRef<HTMLDivElement>(null)
+  const [exiting, setExiting] = useState(false)
+  const [gone, setGone] = useState(false)
+  const host = useRef<HTMLDivElement>(null)
 
-  // Dans une ref : la sortie ne s'annonce qu'une fois, et un rendu de plus ne
-  // doit pas rejouer le rappel.
-  const annonce = useRef(false)
-  const rappel = useRef(onDone)
-  rappel.current = onDone
+  // In a ref: the exit announces itself only once, and one more render must
+  // not replay the callback.
+  const announced = useRef(false)
+  const callback = useRef(onDone)
+  callback.current = onDone
 
-  // `open` vit dans une ref parce que la boucle le lit a chaque image. Le
-  // mettre en dependance de l'effet remonterait la barre a zero chaque fois
-  // que l'appelant change d'avis.
-  const ouvert = useRef(open)
-  ouvert.current = open
+  // `open` lives in a ref because the loop reads it on every frame. Making it
+  // a dependency of the effect would take the bar back to zero every time the
+  // caller changes its mind.
+  const openRef = useRef(open)
+  openRef.current = open
 
   ensureBarGateRule()
 
-  const cases = Math.max(4, Math.round(segments))
+  const cells = Math.max(4, Math.round(segments))
 
   useEffect(() => {
-    const annoncer = (): void => {
-      if (annonce.current) return
-      annonce.current = true
-      rappel.current?.()
+    const announce = (): void => {
+      if (announced.current) return
+      announced.current = true
+      callback.current?.()
     }
 
-    // Mouvement reduit : la sortie est immediate. Une barre qui se remplit est
-    // precisement le mouvement que la preference demande d'omettre, et sans
-    // elle le rideau n'a plus rien a dire.
+    // Reduced motion: the exit is immediate. A bar that fills up is precisely
+    // the motion the preference asks to leave out, and without it the curtain
+    // has nothing left to say.
     if (reduced) {
-      annoncer()
-      setParti(true)
+      announce()
+      setGone(true)
       return
     }
 
-    const noeud = hote.current
-    let ecoule = 0
+    const node = host.current
+    let elapsed = 0
 
-    const abonnement = clock.subscribe(
+    const subscription = clock.subscribe(
       ({ delta }) => {
-        // Le plafond ne s'applique qu'en mode controle : sans `open`, la barre
-        // mesure une duree et va jusqu'au bout.
-        const libre = ouvert.current !== true
-        const plafond = libre ? 1 : Math.min(0.99, ceiling / 100)
+        // The ceiling only applies in controlled mode: without `open`, the bar
+        // measures a duration and goes all the way.
+        const free = openRef.current !== true
+        const cap = free ? 1 : Math.min(0.99, ceiling / 100)
 
-        // On borne l'ecoule, pas seulement la part affichee : sinon la barre
-        // garee accumulerait du temps en silence et sauterait a cent des
-        // qu'on la libere.
-        ecoule = Math.min(ecoule + delta * 1000, plafond * holdMs)
-        const part = holdMs > 0 ? Math.min(1, ecoule / holdMs) : 1
+        // We bound the elapsed time, not just the displayed share: otherwise
+        // the parked bar would pile up time in silence and jump to a hundred
+        // as soon as it is released.
+        elapsed = Math.min(elapsed + delta * 1000, cap * holdMs)
+        const ratio = holdMs > 0 ? Math.min(1, elapsed / holdMs) : 1
 
-        noeud?.style.setProperty('--o-barg-p', part.toFixed(4))
+        node?.style.setProperty('--o-barg-p', ratio.toFixed(4))
 
-        if (part < 1) return
+        if (ratio < 1) return
 
-        abonnement.unsubscribe()
-        setSortant(true)
-        annoncer()
+        subscription.unsubscribe()
+        setExiting(true)
+        announce()
       },
       { name: 'bar-gate' },
     )
 
     return () => {
-      abonnement.unsubscribe()
+      subscription.unsubscribe()
     }
   }, [reduced, holdMs, ceiling])
 
-  // Un minuteur plutot que `transitionend` : trois transitions de durees
-  // differentes partent ensemble, et la plus courte remonterait ici en
-  // premier.
+  // A timer rather than `transitionend`: three transitions of different
+  // durations start together, and the shortest one would report back here
+  // first.
   useEffect(() => {
-    if (!sortant) return
+    if (!exiting) return
 
-    const minuteur = window.setTimeout(() => {
-      setParti(true)
+    const timer = window.setTimeout(() => {
+      setGone(true)
     }, exitMs + 40)
 
     return () => {
-      window.clearTimeout(minuteur)
+      window.clearTimeout(timer)
     }
-  }, [sortant, exitMs])
+  }, [exiting, exitMs])
 
-  // Le verrou de defilement, seulement quand le rideau couvre la fenetre.
+  // The scroll lock, only when the curtain covers the window.
   useEffect(() => {
-    if (contained || parti || reduced) return
+    if (contained || gone || reduced) return
 
-    // Un verrou COMPTE, et non memorise. Deux rideaux peuvent se chevaucher
-    // — rechargement a chaud, navigation, rendu concurrent — et le second
-    // memoriserait alors la valeur posee par le premier, « hidden », pour la
-    // restaurer en sortant : la page resterait bloquee sans erreur ni trace.
-    const racine = document.documentElement
-    const verrous = Number(racine.dataset['oPorteVerrous'] ?? '0')
-    if (verrous === 0) racine.dataset['oPorteAvant'] = racine.style.overflow
-    racine.dataset['oPorteVerrous'] = String(verrous + 1)
-    racine.style.overflow = 'hidden'
+    // A COUNTING lock, not a memorising one. Two curtains can overlap — hot
+    // reload, navigation, concurrent rendering — and the second would then
+    // memorise the value set by the first, "hidden", to restore it on the way
+    // out: the page would stay stuck with no error and no trace.
+    const root = document.documentElement
+    const locks = Number(root.dataset['oGateLocks'] ?? '0')
+    if (locks === 0) root.dataset['oGatePrevious'] = root.style.overflow
+    root.dataset['oGateLocks'] = String(locks + 1)
+    root.style.overflow = 'hidden'
 
-    let rendu = false
-    const rendreLaMain = (): void => {
-      if (rendu) return
-      rendu = true
-      const reste = Number(racine.dataset['oPorteVerrous'] ?? '1') - 1
-      if (reste > 0) {
-        racine.dataset['oPorteVerrous'] = String(reste)
+    let released = false
+    const release = (): void => {
+      if (released) return
+      released = true
+      const remaining = Number(root.dataset['oGateLocks'] ?? '1') - 1
+      if (remaining > 0) {
+        root.dataset['oGateLocks'] = String(remaining)
         return
       }
-      racine.style.overflow = racine.dataset['oPorteAvant'] ?? ''
-      delete racine.dataset['oPorteVerrous']
-      delete racine.dataset['oPorteAvant']
+      root.style.overflow = root.dataset['oGatePrevious'] ?? ''
+      delete root.dataset['oGateLocks']
+      delete root.dataset['oGatePrevious']
     }
 
-    // Le garde-fou. Plus long que le plafond de n importe quel rideau, donc
-    // invisible en marche normale : il n existe que pour qu un retard ne
-    // puisse jamais laisser la page sans defilement.
-    const secours = window.setTimeout(rendreLaMain, 8000)
+    // The safety net. Longer than the ceiling of any curtain, so invisible in
+    // normal operation: it only exists so that a delay can never leave the
+    // page without scrolling.
+    const safety = window.setTimeout(release, 8000)
 
     return () => {
-      window.clearTimeout(secours)
-      rendreLaMain()
+      window.clearTimeout(safety)
+      release()
     }
-  }, [contained, parti, reduced])
+  }, [contained, gone, reduced])
 
-  if (parti) return null
+  if (gone) return null
 
   const { className, style } = mergePresentation({}, rest)
 
-  const styleRideau = {
+  const gateStyle = {
     ...style,
     '--o-barg-bg': background,
     '--o-barg-ink': ink,
     '--o-barg-exit': `${String(exitMs)}ms`,
-    '--o-barg-n': String(cases),
+    '--o-barg-n': String(cells),
     '--o-barg-p': '0',
   } as CSSProperties
 
   return (
     <div
       {...rest}
-      ref={hote}
+      ref={host}
       className={className}
-      style={styleRideau}
+      style={gateStyle}
       data-o-barg=""
-      {...(sortant ? { 'data-o-barg-out': '' } : {})}
+      {...(exiting ? { 'data-o-barg-out': '' } : {})}
       {...(contained ? { 'data-o-barg-contained': '' } : {})}
     >
-      {/* La plaque et la barre sont du decor : l'etat est dit par la region de
-          statut, et une barre lue segment par segment ne dirait rien. */}
+      {/* The plate and the bar are decoration: the state is spoken by the
+          status region, and a bar read segment by segment would say nothing. */}
       <div data-o-barg-plate="" aria-hidden="true" />
       <div data-o-barg-bar="" aria-hidden="true">
-        {Array.from({ length: cases }, (_, index) => (
+        {Array.from({ length: cells }, (_, index) => (
           <div
             key={index}
             data-o-barg-seg=""

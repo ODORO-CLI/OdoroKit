@@ -1,40 +1,40 @@
 /**
- * Tableau comparatif.
+ * Comparison table.
  *
- * ## Une zone qui defile doit pouvoir recevoir le focus
+ * ## A scrolling area must be able to receive the focus
  *
- * C'est la regle la moins connue de l'accessibilite des tableaux larges : un
- * conteneur a debordement n'est atteignable qu'a la souris ou au doigt tant
- * qu'il ne peut pas recevoir le focus. Quelqu'un qui navigue au clavier ne peut
- * alors pas voir les colonnes de droite — le contenu existe et lui reste
- * inaccessible.
+ * This is the least known rule of the accessibility of wide tables: an
+ * overflow container is only reachable with the mouse or the finger as long as
+ * it cannot receive the focus. Someone navigating with the keyboard then
+ * cannot see the right-hand columns — the content exists and stays out of
+ * reach.
  *
- * L'enveloppe porte donc `tabindex`, un role de region et un nom. Une fois
- * dedans, les fleches font defiler, comme partout ailleurs.
+ * The wrapper therefore carries `tabindex`, a region role and a name. Once
+ * inside, the arrows scroll, as everywhere else.
  *
- * ## Ce qui colle, et pourquoi deux fois
+ * ## What sticks, and why twice
  *
- * L'en-tete colle en haut : sans lui, on lit une coche sans savoir de quelle
- * offre elle parle. La premiere colonne colle a gauche : sans elle, on lit une
- * coche sans savoir de quel critere il s'agit. Les deux defauts sont
- * symetriques, et un tableau comparatif large a besoin des deux.
+ * The header sticks to the top: without it, a check is read without knowing
+ * which plan it talks about. The first column sticks to the left: without it,
+ * a check is read without knowing which criterion it is about. The two flaws
+ * are symmetrical, and a wide comparison table needs both.
  *
- * La cellule du coin colle dans les deux sens, faute de quoi elle passerait
- * sous ses voisines a la premiere diagonale.
+ * The corner cell sticks in both directions, failing which it would pass under
+ * its neighbors at the first diagonal.
  *
- * ## Une coche est un mot, pas un dessin
+ * ## A check is a word, not a drawing
  *
- * Un « ✓ » lu par une synthese vocale donne « coche », ou rien du tout selon la
- * police et le reglage. Le signe est donc decoratif, et un texte cache dit
- * « compris » ou « non compris ». C'est ce texte qui est annonce, et c'est lui
- * qu'une recherche dans la page trouvera.
+ * A "✓" read by a speech synthesis gives "check", or nothing at all depending
+ * on the font and the setting. The sign is therefore decorative, and a hidden
+ * text says "included" or "not included". It is that text that is announced,
+ * and it is that one a search in the page will find.
  *
- * ## La cascade est par rangee
+ * ## The cascade is per row
  *
- * Une revelation par cellule ferait scintiller le tableau ; par colonne, elle
- * demanderait un delai sur chaque cellule d'une meme colonne, donc une valeur
- * ecrite autant de fois qu'il y a de lignes. La rangee est la seule unite qui
- * se lit et qui se decale a peu de frais.
+ * A reveal per cell would make the table flicker; per column, it would ask for
+ * a delay on every cell of a same column, hence a value written as many times
+ * as there are lines. The row is the only unit that reads and that offsets at
+ * little cost.
  *
  * @module
  */
@@ -44,54 +44,54 @@ import { Fragment, useId, type CSSProperties, type ReactElement } from 'react'
 
 import { useInView } from '@registre/hooks/useInView'
 
-/** Une colonne comparee. */
+/** One compared column. */
 export interface ComparisonColumn {
-  /** Ce que la colonne designe : une offre, un produit, une version. */
+  /** What the column designates: a plan, a product, a version. */
   readonly name: string
-  /** Une precision sous le nom. */
+  /** A detail under the name. */
   readonly note?: string
-  /** Met la colonne en avant. Une seule le devrait. */
+  /** Puts the column forward. Only one should. */
   readonly featured?: boolean
 }
 
-/** Une ligne comparee. */
+/** One compared row. */
 export interface ComparisonRow {
-  /** Le critere compare. */
+  /** The compared criterion. */
   readonly label: string
   /**
-   * Une valeur par colonne, dans le meme ordre.
+   * One value per column, in the same order.
    *
-   * Un booleen devient une coche ou un tiret accompagnes de leur texte ; tout
-   * le reste est affiche tel quel.
+   * A boolean becomes a check or a dash along with their text; everything else
+   * is displayed as is.
    */
   readonly values: readonly (boolean | string)[]
-  /** Groupe auquel la ligne appartient. Les lignes d'un meme groupe se suivent. */
+  /** Group the row belongs to. The rows of a same group follow each other. */
   readonly group?: string
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to the component. */
 export interface ComparisonTableOwnProps {
-  /** Les colonnes comparees. */
+  /** The compared columns. */
   columns: readonly ComparisonColumn[]
-  /** Les lignes, dans l'ordre d'affichage. */
+  /** The rows, in display order. */
   rows: readonly ComparisonRow[]
-  /** Legende du tableau. Elle est affichee, et elle nomme la zone qui defile. */
+  /** Caption of the table. It is displayed, and it names the scrolling area. */
   caption: string
-  /** Hauteur maximale de la zone qui defile, en pixels. @defaultValue 480 */
+  /** Maximum height of the scrolling area, in pixels. @defaultValue 480 */
   maxHeight?: number
-  /** Ce qui est dit d'une valeur vraie. @defaultValue 'Compris' */
+  /** What is said of a true value. @defaultValue 'Included' */
   yesLabel?: string
-  /** Ce qui est dit d'une valeur fausse. @defaultValue 'Non compris' */
+  /** What is said of a false value. @defaultValue 'Not included' */
   noLabel?: string
 }
 
-/** Toutes les proprietes. */
+/** All the props. */
 export type ComparisonTableProps = Customisable<ComparisonTableOwnProps, 'section'>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-comparison-table'
 
-/** Pose les regles du tableau, une fois par document. */
+/** Sets the table rules, once per document. */
 function ensureComparisonRules(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -99,7 +99,7 @@ function ensureComparisonRules(): void {
   const style = document.createElement('style')
   style.id = STYLE_ID
   style.textContent = [
-    '[data-o-cmp-zone]{overflow:auto;max-height:var(--o-cmp-hauteur);border-radius:0.75rem;',
+    '[data-o-cmp-zone]{overflow:auto;max-height:var(--o-cmp-height);border-radius:0.75rem;',
     'border:1px solid var(--o-theme-line)}',
     '[data-o-cmp-zone]:focus-visible{outline:2px solid var(--o-palette-brand-500);outline-offset:2px}',
 
@@ -108,13 +108,13 @@ function ensureComparisonRules(): void {
     'padding:0.7rem 1rem;text-align:left;font-size:0.8125rem;',
     'border-bottom:1px solid var(--o-theme-line);background-color:var(--o-theme-surface)}',
 
-    // L'en-tete colle en haut, la premiere colonne a gauche. Les deux manques
-    // sont symetriques : sans l'un on ignore de quelle offre il s'agit, sans
-    // l'autre de quel critere.
+    // The header sticks to the top, the first column to the left. The two gaps
+    // are symmetrical: without one there is no telling which plan it is about,
+    // without the other which criterion.
     '[data-o-cmp] thead th{position:sticky;top:0;z-index:2;font-weight:600}',
     '[data-o-cmp] [data-o-cmp-critere]{position:sticky;left:0;z-index:1;font-weight:500}',
-    // Le coin colle dans les deux sens : sinon il passe sous ses voisines a la
-    // premiere diagonale.
+    // The corner sticks in both directions: otherwise it passes under its
+    // neighbors at the first diagonal.
     '[data-o-cmp] thead [data-o-cmp-critere]{z-index:3}',
 
     '[data-o-cmp] [data-o-cmp-groupe]{',
@@ -125,8 +125,8 @@ function ensureComparisonRules(): void {
     'opacity:0;transform:translateY(8px);',
     'transition:opacity var(--o-duration-slow) var(--o-ease-entrance),',
     'transform var(--o-duration-slow) var(--o-ease-entrance);',
-    'transition-delay:var(--o-cmp-delai)}',
-    '[data-o-cmp-vu] tbody tr{opacity:1;transform:none}',
+    'transition-delay:var(--o-cmp-delay)}',
+    '[data-o-cmp-seen] tbody tr{opacity:1;transform:none}',
 
     '@media (prefers-reduced-motion:reduce){',
     '[data-o-cmp-cache] tbody tr{opacity:1;transform:none;transition:none}}',
@@ -134,50 +134,51 @@ function ensureComparisonRules(): void {
   document.head.append(style)
 }
 
-/** Rend une valeur de cellule, signe et texte compris. */
-function Valeur({
-  valeur,
-  oui,
-  non,
+/** Renders a cell value, sign and text included. */
+function Value({
+  value,
+  yes,
+  no,
 }: {
-  valeur: boolean | string
-  oui: string
-  non: string
+  value: boolean | string
+  yes: string
+  no: string
 }): ReactElement {
-  if (typeof valeur === 'string') return <>{valeur}</>
+  if (typeof value === 'string') return <>{value}</>
 
   return (
     <>
       {/*
-        Le signe est decoratif : selon la police et le reglage, une synthese
-        vocale dit « coche », « check mark » ou rien. C'est le texte cache qui
-        porte le sens, et c'est lui que la recherche dans la page trouve.
+        The sign is decorative: depending on the font and the setting, a speech
+        synthesis says "check", "check mark" or nothing. It is the hidden text
+        that carries the meaning, and it is the one the search in the page
+        finds.
       */}
       <span
         aria-hidden
         style={{
-          color: valeur
+          color: value
             ? 'var(--o-palette-emerald-600)'
             : 'color-mix(in oklab, var(--o-theme-muted) 70%, transparent)',
         }}
       >
-        {valeur ? '✓' : '—'}
+        {value ? '✓' : '—'}
       </span>
-      <span className="o-sr-only">{valeur ? oui : non}</span>
+      <span className="o-sr-only">{value ? yes : no}</span>
     </>
   )
 }
 
 /**
- * Un tableau comparatif a en-tete colle et defilement au clavier.
+ * A comparison table with a sticky header and keyboard scrolling.
  *
  * @example
  * <ComparisonTable
- *   caption="Ce que chaque offre comprend"
- *   columns={[{ name: 'Depart' }, { name: 'Studio', featured: true }, { name: 'Agence' }]}
+ *   caption="What each plan includes"
+ *   columns={[{ name: 'Starter' }, { name: 'Studio', featured: true }, { name: 'Agency' }]}
  *   rows={[
- *     { label: 'Projets', values: ['1', '10', 'Illimite'] },
- *     { label: 'Registre prive', values: [false, false, true] },
+ *     { label: 'Projects', values: ['1', '10', 'Unlimited'] },
+ *     { label: 'Private registry', values: [false, false, true] },
  *   ]}
  * />
  */
@@ -186,23 +187,23 @@ export function ComparisonTable({
   rows,
   caption,
   maxHeight = 480,
-  yesLabel = 'Compris',
-  noLabel = 'Non compris',
+  yesLabel = 'Included',
+  noLabel = 'Not included',
   ...rest
 }: ComparisonTableProps): ReactElement {
   const { reduced } = useMotionState()
-  const { ref, vu } = useInView<HTMLElement>({ amount: 0.1 })
-  const titre = `${useId().replace(/[^a-zA-Z0-9]/g, '')}-titre`
+  const { ref, inView } = useInView<HTMLElement>({ amount: 0.1 })
+  const title = `${useId().replace(/[^a-zA-Z0-9]/g, '')}-title`
 
   ensureComparisonRules()
 
-  /** Fond d'une cellule, teinte si sa colonne est mise en avant. */
-  const fond = (index: number): string =>
+  /** Background of a cell, tinted if its column is put forward. */
+  const background = (index: number): string =>
     columns[index]?.featured === true
       ? 'color-mix(in oklab, var(--o-palette-brand-500) 8%, var(--o-theme-surface))'
       : 'var(--o-theme-surface)'
 
-  let groupeCourant: string | undefined
+  let currentGroup: string | undefined
 
   const { className, style } = mergePresentation(
     { className: 'o-flex o-flex-col o-gap-4' },
@@ -212,12 +213,12 @@ export function ComparisonTable({
   return (
     <section {...rest} ref={ref} className={className} style={style as CSSProperties}>
       {/*
-        Une seule phrase nomme les deux objets : la zone qu'on peut faire
-        defiler et le tableau qu'elle contient. Une `caption` cachee en plus
-        ferait entendre le meme texte deux fois de suite.
+        A single sentence names both objects: the area that can be scrolled and
+        the table it contains. An extra hidden `caption` would make the same
+        text be heard twice in a row.
       */}
       <p
-        id={titre}
+        id={title}
         className="o-text-sm o-font-medium"
         style={{ color: 'var(--o-theme-fg)' }}
       >
@@ -225,21 +226,21 @@ export function ComparisonTable({
       </p>
 
       {/*
-        La zone recoit le focus : sans cela, les colonnes de droite sont hors
-        d'atteinte pour qui navigue au clavier.
+        The area receives the focus: without that, the right-hand columns are
+        out of reach for whoever navigates with the keyboard.
       */}
       <div
         data-o-cmp-zone=""
         role="region"
-        aria-labelledby={titre}
+        aria-labelledby={title}
         tabIndex={0}
-        style={{ '--o-cmp-hauteur': `${String(maxHeight)}px` } as CSSProperties}
+        style={{ '--o-cmp-height': `${String(maxHeight)}px` } as CSSProperties}
       >
         <table
           data-o-cmp=""
-          aria-labelledby={titre}
+          aria-labelledby={title}
           data-o-cmp-cache={reduced ? undefined : ''}
-          data-o-cmp-vu={vu && !reduced ? '' : undefined}
+          data-o-cmp-seen={inView && !reduced ? '' : undefined}
         >
           <thead>
             <tr>
@@ -248,21 +249,24 @@ export function ComparisonTable({
                 data-o-cmp-critere=""
                 style={{ color: 'var(--o-theme-muted)' }}
               >
-                Critere
+                Criterion
               </th>
-              {columns.map((colonne, index) => (
+              {columns.map((column, index) => (
                 <th
-                  key={colonne.name}
+                  key={column.name}
                   scope="col"
-                  style={{ backgroundColor: fond(index), color: 'var(--o-theme-fg)' }}
+                  style={{
+                    backgroundColor: background(index),
+                    color: 'var(--o-theme-fg)',
+                  }}
                 >
-                  {colonne.name}
-                  {colonne.note !== undefined && (
+                  {column.name}
+                  {column.note !== undefined && (
                     <span
                       className="o-block o-text-xs o-font-normal"
                       style={{ color: 'var(--o-theme-muted)' }}
                     >
-                      {colonne.note}
+                      {column.note}
                     </span>
                   )}
                 </th>
@@ -271,17 +275,16 @@ export function ComparisonTable({
           </thead>
 
           <tbody>
-            {rows.map((ligne, rang) => {
-              const ouvreGroupe =
-                ligne.group !== undefined && ligne.group !== groupeCourant
-              if (ligne.group !== undefined) groupeCourant = ligne.group
+            {rows.map((row, rank) => {
+              const opensGroup = row.group !== undefined && row.group !== currentGroup
+              if (row.group !== undefined) currentGroup = row.group
 
               return (
-                <Fragment key={ligne.label}>
-                  {ouvreGroupe && (
+                <Fragment key={row.label}>
+                  {opensGroup && (
                     <tr
                       style={
-                        { '--o-cmp-delai': `${String(rang * 40)}ms` } as CSSProperties
+                        { '--o-cmp-delay': `${String(rank * 40)}ms` } as CSSProperties
                       }
                     >
                       <th
@@ -290,32 +293,32 @@ export function ComparisonTable({
                         data-o-cmp-groupe=""
                         style={{ color: 'var(--o-theme-muted)' }}
                       >
-                        {ligne.group}
+                        {row.group}
                       </th>
                     </tr>
                   )}
                   <tr
-                    style={{ '--o-cmp-delai': `${String(rang * 40)}ms` } as CSSProperties}
+                    style={{ '--o-cmp-delay': `${String(rank * 40)}ms` } as CSSProperties}
                   >
                     <th
                       scope="row"
                       data-o-cmp-critere=""
                       style={{ color: 'var(--o-theme-fg)' }}
                     >
-                      {ligne.label}
+                      {row.label}
                     </th>
-                    {columns.map((colonne, index) => (
+                    {columns.map((column, index) => (
                       <td
-                        key={colonne.name}
+                        key={column.name}
                         style={{
-                          backgroundColor: fond(index),
+                          backgroundColor: background(index),
                           color: 'var(--o-theme-fg)',
                         }}
                       >
-                        <Valeur
-                          valeur={ligne.values[index] ?? false}
-                          oui={yesLabel}
-                          non={noLabel}
+                        <Value
+                          value={row.values[index] ?? false}
+                          yes={yesLabel}
+                          no={noLabel}
                         />
                       </td>
                     ))}

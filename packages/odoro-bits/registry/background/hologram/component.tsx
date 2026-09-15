@@ -1,33 +1,32 @@
 /**
- * Hologramme : une sphere en lignes de latitude et de longitude, projetee
- * au-dessus d'un socle, qui tourne, scintille et se fait balayer.
+ * Hologram: a sphere of latitude and longitude lines, projected above a
+ * base, that turns, flickers and gets swept.
  *
- * ## Pourquoi des lignes, et un programme a part
+ * ## Why lines, and a program of its own
  *
- * Une sphere en lignes est une geometrie fixe : des cercles, construits une
- * fois. Ce qui la fait hologramme n'est pas dans la geometrie mais dans la
- * facon de la peindre — la face arriere qui s'efface, la bande qui monte,
- * les stries — et cela tient dans un programme de fragment de dix lignes,
- * nourri par la hauteur et l'orientation de chaque point. Un materiau
- * ordinaire n'en donnerait qu'une couleur plate.
+ * A sphere of lines is a fixed geometry: circles, built once. What makes it
+ * a hologram is not in the geometry but in the way it is painted — the back
+ * face fading out, the band travelling up, the stripes — and that fits in a
+ * ten-line fragment program, fed by the height and the orientation of each
+ * point. An ordinary material would give it nothing but a flat colour.
  *
- * ## Le scintillement
+ * ## The flicker
  *
- * Il est hache par paliers, jamais continu : a chaque palier, un tirage
- * fixe la luminance, et pendant les rafales — un palier lent sur quatre —
- * l'image entiere saute de quelques millimetres de cote. Un hologramme de
- * cinema tremble, il ne respire pas.
+ * It is chopped into steps, never continuous: at each step, a draw sets the
+ * luminance, and during the bursts — one slow step in four — the whole
+ * image jumps a few millimetres sideways. A cinema hologram trembles, it
+ * does not breathe.
  *
- * Ce qui distingue cette entree de `globe-mesh` : pas de nuage de points,
- * pas de cage d'icosaedre, pas de pointeur — des meridiens et des
- * paralleles, un socle, et une bande qui balaie ; et de `orbital-sphere` :
- * une sphere vide, pas un nuage ceint d'anneaux.
+ * What sets this entry apart from `globe-mesh`: no point cloud, no
+ * icosahedron cage, no pointer — meridians and parallels, a base, and a
+ * band that sweeps; and from `orbital-sphere`: a hollow sphere, not a
+ * cloud girdled with rings.
  *
- * ## Ce que ce composant ne fait pas
+ * ## What this component does not do
  *
- * Il n'ouvre ni boucle d'animation, ni observateur : `useScene` les porte.
- * Il n'ecrit aucune couleur : le fond, les lignes et la bande sont lus dans
- * les tokens, et repeints en place quand le theme bascule.
+ * It opens neither an animation loop nor an observer: `useScene` carries
+ * them. It writes no colour: the background, the lines and the band are
+ * read from the tokens, and repainted in place when the theme flips.
  *
  * @module
  */
@@ -45,47 +44,47 @@ import { usePoster } from '@registre/hooks/usePoster'
 
 import { HOLOGRAM_FRAGMENT, HOLOGRAM_VERTEX } from './hologram.shader.js'
 
-/** Proprietes propres au composant. */
+/** Properties specific to this component. */
 export interface HologramOwnProps {
-  /** Nombre de meridiens. @defaultValue 12 */
+  /** Number of meridians. @defaultValue 12 */
   meridians?: number
-  /** Nombre de paralleles. @defaultValue 7 */
+  /** Number of parallels. @defaultValue 7 */
   parallels?: number
-  /** Vitesse de rotation, en tours par minute. @defaultValue 4 */
+  /** Rotation speed, in turns per minute. @defaultValue 4 */
   rpm?: number
-  /** Force du scintillement et des sauts. Zero les coupe. @defaultValue 0.5 */
+  /** Strength of the flicker and the jumps. Zero cuts them. @defaultValue 0.5 */
   flicker?: number
-  /** Tokens : le fond, les lignes, la bande de balayage. */
+  /** Tokens: the background, the lines, the scan band. */
   colors?: readonly [string, string, string]
-  /** Classes du repli. */
+  /** Fallback classes. */
   poster?: string
 }
 
-/** Toutes les proprietes. */
+/** Every property. */
 export type HologramProps = Customisable<HologramOwnProps>
 
-/** Tokens employes par defaut. */
+/** Tokens used by default. */
 const DEFAULT_TOKENS = ['--o-theme-bg', '--o-palette-cyan-500', '--o-theme-fg'] as const
 
-/** Repli par defaut : un halo fige, dans les memes tons. */
+/** Default fallback: a frozen halo, in the same tones. */
 const DEFAULT_POSTER =
   'o-bg-gradient-to-b o-from-zinc-50 dark:o-from-zinc-950 o-via-cyan-100 dark:o-via-cyan-950 o-to-zinc-50 dark:o-to-zinc-950'
 
-/** Rayon de la sphere, en unites de scene. */
+/** Sphere radius, in scene units. */
 const RADIUS = 1.25
 
-/** Hauteur du socle sous le centre de la sphere. */
+/** Depth of the base below the centre of the sphere. */
 const BASE_DEPTH = 1.75
 
 /**
- * Segments par cercle, selon la qualite.
+ * Segments per circle, by quality.
  *
- * Chaque segment est deux sommets : le cout croit lineairement avec leur
- * nombre, et c'est le seul levier qui compte ici.
+ * Each segment is two vertices: the cost grows linearly with their count,
+ * and that is the only lever that counts here.
  */
 const SEGMENTS = { high: 96, medium: 72, low: 40 } as const
 
-/** Nombre pseudo-aleatoire, stable par palier. */
+/** Pseudo-random number, stable within a step. */
 function hash(step: number): number {
   const x = Math.sin(step * 12.9898) * 43758.5453
   return x - Math.floor(x)
@@ -97,24 +96,24 @@ type ShaderMaterial = InstanceType<Three['ShaderMaterial']>
 type LineMaterial = InstanceType<Three['LineBasicMaterial']>
 type PointsMaterial = InstanceType<Three['PointsMaterial']>
 
-/** Ce que la boucle touche : le groupe, et les materiaux a repeindre. */
+/** What the loop touches: the group, and the materials to repaint. */
 interface Living {
   readonly group: Group
   readonly sphere: Group
   readonly lines: ShaderMaterial
   readonly base: LineMaterial
   readonly dots: PointsMaterial
-  /** Vitesse angulaire, en radians par seconde. */
+  /** Angular velocity, in radians per second. */
   readonly rate: number
-  /** Dernier palier de scintillement applique. */
+  /** Last flicker step applied. */
   step: number
 }
 
 /**
- * Un cercle de rayon donne, dans un plan, en paires de sommets.
+ * A circle of a given radius, in a plane, as pairs of vertices.
  *
- * @param push Recoit chaque sommet.
- * @param place Position d'un angle sur le cercle.
+ * @param push Receives each vertex.
+ * @param place Position of an angle on the circle.
  */
 function circle(
   segments: number,
@@ -130,7 +129,7 @@ function circle(
 }
 
 /**
- * Hologramme.
+ * Hologram.
  *
  * @example
  * <div className="o-relative o-h-96 o-overflow-hidden">
@@ -165,8 +164,8 @@ export function Hologram({
         1,
       )
 
-      // La camera est un peu au-dessus du socle : de face, le socle ne
-      // serait qu'un trait.
+      // The camera sits a little above the base: seen head on, the base
+      // would be no more than a stroke.
       camera.position.set(0, 0.7, 4.4)
       camera.lookAt(0, -0.2, 0)
 
@@ -174,9 +173,9 @@ export function Hologram({
       const meridianCount = Math.max(Math.round(meridians), 2)
       const parallelCount = Math.max(Math.round(parallels), 1)
 
-      // Les meridiens : des cercles complets dans des plans tournes autour
-      // de l'axe vertical. Les paralleles : des cercles horizontaux, a
-      // latitudes regulieres.
+      // The meridians: complete circles in planes turned around the
+      // vertical axis. The parallels: horizontal circles, at regular
+      // latitudes.
       const positions: number[] = []
       const push = (x: number, y: number, z: number): void => {
         positions.push(x, y, z)
@@ -223,9 +222,9 @@ export function Hologram({
         },
       })
 
-      // Les noeuds : un point a chaque croisement d'un meridien et d'un
-      // parallele. Ce sont eux qui donnent la sphere a lire quand les
-      // lignes de dos s'effacent.
+      // The knots: one dot at each crossing of a meridian and a
+      // parallel. They are what keeps the sphere readable when the lines
+      // at the back fade out.
       const dotPositions: number[] = []
       for (let m = 0; m < meridianCount * 2; m += 1) {
         const phi = (m / meridianCount) * Math.PI
@@ -255,8 +254,8 @@ export function Hologram({
       sphere.add(new three.LineSegments(geometry, lines))
       sphere.add(new three.Points(dotGeometry, dots))
 
-      // Le socle : trois anneaux concentriques a plat, sous la sphere. Ils
-      // ne tournent pas — c'est le projecteur, pas la projection.
+      // The base: three concentric rings lying flat, under the sphere.
+      // They do not turn — this is the projector, not the projection.
       const basePositions: number[] = []
       const pushBase = (x: number, y: number, z: number): void => {
         basePositions.push(x, y, z)
@@ -315,13 +314,13 @@ export function Hologram({
       const flickUniform = uniforms['uFlick']
       if (timeUniform !== undefined) timeUniform.value = time
       if (scanUniform !== undefined) {
-        // La bande monte a travers la sphere et la depasse aux deux bouts,
-        // pour ne pas sembler rebondir.
+        // The band travels up through the sphere and overshoots it at
+        // both ends, so that it does not seem to bounce.
         scanUniform.value = (-1.3 + 2.6 * ((time * 0.3) % 1)) * RADIUS
       }
 
-      // Le scintillement, par paliers : un tirage fixe la luminance, et
-      // pendant les rafales l'image saute de cote.
+      // The flicker, in steps: a draw sets the luminance, and during the
+      // bursts the image jumps sideways.
       const step = Math.floor(time * 20)
       if (step !== live.step) {
         live.step = step
@@ -334,8 +333,8 @@ export function Hologram({
     },
   })
 
-  // Le theme a bascule : les tokens sont relus et les couleurs repeintes en
-  // place. La scene n'est pas reconstruite.
+  // The theme has flipped: the tokens are re-read and the colours repainted in
+  // place. The scene is not rebuilt.
   useEffect(() => {
     const scene = context.current
     const live = living.current

@@ -1,25 +1,25 @@
 /**
- * Formes flottantes : des solides simples qui derivent, tournent sur eux-memes
- * et se decalent en parallaxe sous le pointeur.
+ * Floating shapes: simple solids that drift, spin on themselves and shift
+ * in parallax under the pointer.
  *
- * ## Pourquoi la parallaxe est repartie sur la profondeur
+ * ## Why the parallax is spread over the depth
  *
- * Faire pivoter la scene entiere sous le pointeur donne un mouvement de
- * camera, pas une profondeur : tout se deplace du meme angle, et l'oeil n'en
- * tire aucune information. Ici chaque solide se decale d'une fraction qui
- * depend de sa distance a la camera — les proches beaucoup, les lointains a
- * peine. C'est le seul indice qui separe reellement les plans.
+ * Pivoting the whole scene under the pointer gives a camera movement, not a
+ * depth: everything moves by the same angle, and the eye draws no
+ * information from it. Here each solid shifts by a fraction that depends on
+ * its distance to the camera — the near ones a great deal, the far ones
+ * barely. It is the only cue that really separates the planes.
  *
- * ## Cinq geometries, deux materiaux, autant de solides qu'on veut
+ * ## Five geometries, two materials, as many solids as one likes
  *
- * Les geometries et les materiaux sont construits une fois et partages : un
- * solide de plus ne coute qu'un appel de dessin, pas une allocation. La
- * moitie des solides est en fil de fer, ce qui donne au groupe deux registres
- * au lieu d'un et evite la soupe de volumes pleins.
+ * The geometries and the materials are built once and shared: one more solid
+ * costs no more than a draw call, not an allocation. Half of the solids are
+ * wireframe, which gives the group two registers instead of one and avoids
+ * a soup of solid volumes.
  *
- * ## Sous mouvement reduit
+ * ## Under reduced motion
  *
- * La scene est refusee par le moteur et le repli statique s'affiche.
+ * The scene is refused by the engine and the static fallback shows.
  *
  * @module
  */
@@ -37,35 +37,35 @@ import { useEffect, useRef, useState, type ReactElement } from 'react'
 import { usePointerDamped } from '@registre/hooks/usePointerDamped'
 import { usePoster } from '@registre/hooks/usePoster'
 
-/** Proprietes propres au composant. */
+/** Properties specific to this component. */
 export interface FloatingShapesOwnProps {
-  /** Nombre de solides. @defaultValue 18 */
+  /** Number of solids. @defaultValue 18 */
   shapes?: number
-  /** Vitesse de derive et de rotation. @defaultValue 1 */
+  /** Speed of drift and of rotation. @defaultValue 1 */
   speed?: number
-  /** Amplitude de la parallaxe sous le pointeur. @defaultValue 1 */
+  /** Amplitude of the parallax under the pointer. @defaultValue 1 */
   parallax?: number
-  /** Tokens : le fond, les solides pleins, les solides en fil de fer. */
+  /** Tokens: the background, the solid shapes, the wireframe shapes. */
   colors?: readonly [string, string, string]
-  /** Classes du repli. */
+  /** Fallback classes. */
   poster?: string
 }
 
-/** Toutes les proprietes. */
+/** Every property. */
 export type FloatingShapesProps = Customisable<FloatingShapesOwnProps>
 
-/** Tokens employes par defaut. */
+/** Tokens used by default. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-brand-500',
   '--o-palette-purple-400',
 ] as const
 
-/** Repli par defaut : une teinte figee, dans les memes tons. */
+/** Default fallback: a frozen hue, in the same tones. */
 const DEFAULT_POSTER =
   'o-bg-gradient-to-br o-from-zinc-50 dark:o-from-zinc-950 o-to-purple-100 dark:o-to-purple-950'
 
-/** Nombre de solides en qualite basse. */
+/** Number of solids at low quality. */
 const LOW_SHAPES = 9
 
 type Three = SceneContext['three']
@@ -73,20 +73,20 @@ type Object3D = InstanceType<Three['Object3D']>
 type Group = InstanceType<Three['Group']>
 type Material = InstanceType<Three['MeshLambertMaterial']>
 
-/** Ce qu'un solide garde entre les images. */
+/** What a solid keeps between frames. */
 interface Floater {
   readonly mesh: Object3D
-  /** Position de repos, avant parallaxe. */
+  /** Rest position, before parallax. */
   readonly home: readonly [number, number, number]
-  /** Vitesse de rotation propre, en radians par seconde. */
+  /** Its own rotation speed, in radians per second. */
   readonly spin: readonly [number, number]
-  /** Phase et amplitude du flottement vertical. */
+  /** Phase and amplitude of the vertical bobbing. */
   readonly bob: readonly [number, number]
-  /** Part de parallaxe, deduite de la profondeur. */
+  /** Share of parallax, derived from the depth. */
   readonly depth: number
 }
 
-/** Ce que la scene garde entre la construction et les images. */
+/** What the scene keeps between construction and frames. */
 interface Floating {
   readonly group: Group
   readonly items: readonly Floater[]
@@ -94,14 +94,14 @@ interface Floating {
   readonly wire: Material
 }
 
-/** Nombre pseudo-aleatoire deterministe : la composition est la meme a chaque montage. */
+/** Deterministic pseudo-random number: the composition is the same on every mount. */
 function hash(seed: number): number {
   const value = Math.sin(seed * 12.9898 + 78.233) * 43758.5453
   return value - Math.floor(value)
 }
 
 /**
- * Formes flottantes.
+ * Floating shapes.
  *
  * @example
  * <div className="o-relative o-h-96 o-overflow-hidden o-rounded-xl">
@@ -129,20 +129,20 @@ export function FloatingShapes({
   const pointer = usePointerDamped({
     host,
     speed: 2.5,
-    name: 'floating-shapes : pointeur',
+    name: 'floating-shapes : pointer',
   })
 
   const { ref, ready, refused } = useScene<HTMLDivElement>({
-    name: 'formes-flottantes',
+    name: 'floating-shapes',
     setup: (scene: SceneContext) => {
       context.current = scene
       const { three, renderer, camera, quality } = scene
 
       const [bg, full, wired] = colors.map((token) => readTokenColour(token, ref.current))
 
-      // Le fond de la scene est le fond de la page. Le token est en sRGB et
-      // le moteur encode sa couleur d'effacement du lineaire vers le sRGB :
-      // sans la conversion inverse, le fond ressort un cran plus clair.
+      // The scene's background is the page's background. The token is in sRGB and
+      // the engine encodes its clear colour from linear to sRGB:
+      // without the inverse conversion, the background comes out a shade lighter.
       renderer.setClearColor(
         new three.Color(bg?.[0] ?? 0, bg?.[1] ?? 0, bg?.[2] ?? 0).convertSRGBToLinear(),
         1,
@@ -153,8 +153,8 @@ export function FloatingShapes({
 
       const count = quality === 'low' ? Math.min(shapes, LOW_SHAPES) : Math.max(shapes, 1)
 
-      // Les geometries sont construites une fois et partagees : un solide de
-      // plus ne coute qu'un appel de dessin.
+      // The geometries are built once and shared: one more solid costs no more
+      // than a draw call.
       const library = [
         new three.BoxGeometry(0.6, 0.6, 0.6),
         new three.TetrahedronGeometry(0.45),
@@ -172,8 +172,8 @@ export function FloatingShapes({
       })
       wire.color.setRGB(wired?.[0] ?? 0, wired?.[1] ?? 0, wired?.[2] ?? 0)
 
-      // Deux lumieres sans couleur propre : une ambiante pour que l'ombre ne
-      // soit pas noire, une directionnelle pour que les faces se distinguent.
+      // Two lights with no colour of their own: an ambient one so the shadow is
+      // not black, a directional one so the faces can be told apart.
       const group = new three.Group()
       group.name = 'formes'
       group.add(new three.AmbientLight(undefined, 0.7))
@@ -188,8 +188,8 @@ export function FloatingShapes({
 
         const mesh = new three.Mesh(geometry, index % 2 === 0 ? solid : wire)
 
-        // La profondeur est tiree d'abord : elle commande la taille apparente,
-        // la part de parallaxe, et l'ecartement lateral.
+        // The depth is drawn first: it governs the apparent size, the share of
+        // parallax, and the lateral spread.
         const depth = hash(index + 0.5)
         const z = -4.5 + depth * 5.5
         const spread = 4.2 - depth * 1.4
@@ -210,7 +210,7 @@ export function FloatingShapes({
             (hash(index + 4.5) - 0.5) * 0.7,
           ] as const,
           bob: [hash(index + 5.5) * 6.283, 0.1 + hash(index + 6.5) * 0.22] as const,
-          // Un solide proche se decale beaucoup, un lointain a peine.
+          // A near solid shifts a great deal, a far one barely.
           depth,
         })
         group.add(mesh)
@@ -230,7 +230,7 @@ export function FloatingShapes({
       if (live === null) return
       const { speed: rate, parallax: shift } = settings.current
 
-      // Le pointeur, du repere du hook vers celui de la scene.
+      // The pointer, from the hook's frame to the scene's.
       const px = pointer.current.x
       const py = -pointer.current.y
 
@@ -240,7 +240,7 @@ export function FloatingShapes({
         mesh.rotation.x += (spin[0] ?? 0) * rate * delta
         mesh.rotation.y += (spin[1] ?? 0) * rate * delta
 
-        // La parallaxe : la part depend de la profondeur, pas de l'objet.
+        // The parallax: the share depends on the depth, not on the object.
         const share = (0.15 + depth * 0.85) * shift
         mesh.position.x = (home[0] ?? 0) + px * share * 0.7
         mesh.position.y =
@@ -251,8 +251,8 @@ export function FloatingShapes({
     },
   })
 
-  // Le theme a bascule : les tokens sont relus et les materiaux repeints en
-  // place. La scene n'est pas reconstruite.
+  // The theme has flipped: the tokens are re-read and the materials repainted in
+  // place. The scene is not rebuilt.
   useEffect(() => {
     const scene = context.current
     const live = floating.current

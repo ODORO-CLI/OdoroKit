@@ -1,23 +1,22 @@
 /**
- * Carrousel : un rail de diapositives.
+ * Carousel: a rail of slides.
  *
- * ## Le defilement natif fait le travail
+ * ## Native scrolling does the work
  *
- * Un carrousel pilote a la main — transformations calculees, gestes captes,
- * inertie simulee — represente plusieurs centaines de lignes, et il est
- * toujours moins bon que celui du navigateur. Il ne connait pas l'inertie du
- * systeme, ignore le defilement horizontal d'un pave tactile, et se comporte
- * differemment sur chaque appareil.
+ * A carousel driven by hand — transforms computed, gestures captured, inertia
+ * simulated — amounts to several hundred lines, and it is always worse than
+ * the browser's. It does not know the inertia of the system, ignores the
+ * horizontal scroll of a trackpad, and behaves differently on every device.
  *
- * Le rail est donc un conteneur a defilement, avec accrochage. Le navigateur
- * apporte gratuitement le geste, l'inertie, la molette, le clavier, et le
- * respect des reglages systeme.
+ * The rail is therefore a scroll container, with snapping. The browser brings
+ * the gesture, the inertia, the wheel, the keyboard, and the respect of system
+ * settings, all for free.
  *
- * ## Ce qui reste a notre charge
+ * ## What is left to us
  *
- * L'accessibilite, qu'aucun defilement ne donne : un role de groupe, un nom,
- * des diapositives numerotees, et des commandes qui disent ou elles menent.
- * C'est precisement ce que la plupart des carrousels oublient.
+ * Accessibility, which no scrolling provides: a group role, a name, numbered
+ * slides, and controls that say where they lead. Which is precisely what most
+ * carousels forget.
  *
  * @module
  */
@@ -33,24 +32,24 @@ import {
   type ReactNode,
 } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface CarouselOwnProps {
-  /** Les diapositives. */
+  /** The slides. */
   children: ReactNode
-  /** Nom du carrousel, annonce aux technologies d'assistance. */
+  /** Name of the carousel, announced to assistive technologies. */
   label: string
-  /** Diapositives visibles a la fois. @defaultValue 1 */
+  /** Slides visible at once. @defaultValue 1 */
   perView?: number
-  /** Ecart entre deux diapositives, en pixels. @defaultValue 16 */
+  /** Gap between two slides, in pixels. @defaultValue 16 */
   gap?: number
-  /** Revient au debut apres la derniere. @defaultValue false */
+  /** Comes back to the start after the last one. @defaultValue false */
   loop?: boolean
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type CarouselProps = Customisable<CarouselOwnProps>
 
-/** Un bouton de commande, place hors du rail. */
+/** A control button, placed outside the rail. */
 function Control({
   label,
   disabled,
@@ -76,12 +75,12 @@ function Control({
 }
 
 /**
- * Rail de diapositives, au geste comme au clavier.
+ * Rail of slides, by gesture as well as by keyboard.
  *
  * @example
- * <Carousel label="Nos realisations" perView={3}>
- *   {projets.map((projet) => (
- *     <article key={projet.id}>…</article>
+ * <Carousel label="Our work" perView={3}>
+ *   {projects.map((project) => (
+ *     <article key={project.id}>…</article>
  *   ))}
  * </Carousel>
  */
@@ -102,9 +101,9 @@ export function Carousel({
   useEffect(() => {
     if (rail === null) return
 
-    // L'index suit le defilement reel plutot que l'inverse : c'est le
-    // navigateur qui fait autorite, y compris quand l'utilisateur fait glisser
-    // le rail a la main.
+    // The index follows the real scroll rather than the other way round: the
+    // browser is the authority, including when the user drags the rail by
+    // hand.
     const onScroll = (): void => {
       const step = rail.scrollWidth / Math.max(slides.length, 1)
       setIndex(Math.round(rail.scrollLeft / Math.max(step, 1)))
@@ -136,7 +135,7 @@ export function Carousel({
       <div
         ref={setRail}
         role="group"
-        aria-roledescription="carrousel"
+        aria-roledescription="carousel"
         aria-label={label}
         tabIndex={0}
         className="o-flex o-snap-x o-snap-mandatory o-overflow-x-auto o-scroll-smooth"
@@ -146,8 +145,8 @@ export function Carousel({
           <div
             key={position}
             role="group"
-            aria-roledescription="diapositive"
-            aria-label={`${String(position + 1)} sur ${String(slides.length)}`}
+            aria-roledescription="slide"
+            aria-label={`${String(position + 1)} of ${String(slides.length)}`}
             className="o-snap-start o-shrink-0"
             style={{
               width: `calc((100% - ${String(gap * (perView - 1))}px) / ${String(perView)})`,
@@ -160,14 +159,14 @@ export function Carousel({
 
       <div className="o-flex o-items-center o-gap-2">
         <Control
-          label="Diapositive precedente"
+          label="Previous slide"
           disabled={!loop && index === 0}
           onClick={() => goTo(index - 1)}
         >
           <span aria-hidden>&#8249;</span>
         </Control>
         <Control
-          label="Diapositive suivante"
+          label="Next slide"
           disabled={!loop && index >= pages - 1}
           onClick={() => goTo(index + 1)}
         >

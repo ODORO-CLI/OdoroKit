@@ -1,63 +1,63 @@
 /**
- * Le contrat d'une icone.
+ * The contract of an icon.
  *
- * ## Pourquoi une donnee et non un composant par icone
+ * ## Why data and not one component per icon
  *
- * Un composant par icone est la solution la plus repandue, et la plus couteuse
- * : onze mille composants, c'est onze mille fermetures, onze mille entrees
- * dans le graphe du bundler, et un temps de compilation qui se mesure en
- * dizaines de secondes meme quand on n'en emploie que trois.
+ * One component per icon is the most widespread solution, and the most
+ * expensive: eleven thousand components means eleven thousand closures, eleven
+ * thousand entries in the bundler graph, and a compilation time measured in
+ * tens of seconds even when only three of them are used.
  *
- * Une icone est ici une **donnee** : sa boite, son mode, ses noeuds. Un seul
- * composant les rend toutes. L'elagage fonctionne aussi bien — un export
- * constant non reference disparait exactement comme un composant non
- * reference — et le cout de compilation s'effondre.
+ * An icon is a **piece of data** here: its box, its mode, its nodes. A single
+ * component renders them all. Pruning works just as well — an unreferenced
+ * constant export disappears exactly like an unreferenced component — and the
+ * compilation cost collapses.
  *
  * @module
  */
 
-/** Un noeud du trace : une balise SVG et ses attributs. */
+/** A node of the drawing: an SVG tag and its attributes. */
 export type IconNode = readonly [string, Readonly<Record<string, string>>]
 
-/** Une icone. */
+/** An icon. */
 export interface IconData {
   /**
-   * Boite du dessin, telle que le jeu d'origine la definit.
+   * Box of the drawing, as the original pack defines it.
    *
-   * Elle n'est pas ramenee a une grille commune : redessiner un trace pour le
-   * faire tenir ailleurs, c'est le deformer. La taille demandee vaut pour
-   * toutes les icones, quelle que soit leur boite.
+   * It is not brought back to a common grid: redrawing a shape to make it fit
+   * elsewhere is deforming it. The requested size holds for every icon,
+   * whatever its box.
    */
   readonly box: string
   /**
-   * Mode de rendu.
+   * Render mode.
    *
-   * - `trait` — le trace est une ligne : la couleur va au contour, le
-   *   remplissage reste vide.
-   * - `plein` — le trace est une surface : la couleur va au remplissage.
+   * - `outline` — the drawing is a line: the color goes to the stroke, the
+   *   fill stays empty.
+   * - `solid` — the drawing is a surface: the color goes to the fill.
    *
-   * Confondre les deux ne produit pas une icone laide mais une icone
-   * invisible, ou une tache noire.
+   * Confusing the two does not produce an ugly icon but an invisible one, or a
+   * black blot.
    */
-  readonly mode: 'trait' | 'plein'
-  /** Epaisseur du trait, dans les unites de la boite. Absente en mode plein. */
+  readonly mode: 'outline' | 'solid'
+  /** Stroke weight, in the units of the box. Absent in solid mode. */
   readonly stroke?: number
-  /** Noeuds du trace. */
+  /** Nodes of the drawing. */
   readonly nodes: readonly IconNode[]
 }
 
-/** Ce qu'un module de jeu declare sur lui-meme. */
+/** What a pack module declares about itself. */
 export interface PackInfo {
-  /** Nom du sous-module. */
+  /** Name of the submodule. */
   readonly module: string
-  /** Intitule affiche. */
+  /** Displayed title. */
   readonly title: string
-  /** Une phrase sur le caractere du dessin. */
+  /** One sentence on the character of the drawing. */
   readonly summary: string
-  /** Mode de rendu commun a tout le jeu. */
-  readonly mode: 'trait' | 'plein'
-  /** Epaisseur du trait, si le jeu est au trait. */
+  /** Render mode shared by the whole pack. */
+  readonly mode: 'outline' | 'solid'
+  /** Stroke weight, if the pack is stroked. */
   readonly stroke?: number
-  /** Nombre d'icones. */
+  /** Number of icons. */
   readonly count: number
 }

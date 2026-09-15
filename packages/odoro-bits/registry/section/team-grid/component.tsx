@@ -1,31 +1,31 @@
 /**
- * Grille d'equipe.
+ * Team grid.
  *
- * ## Un portrait n'a pas de texte de remplacement
+ * ## A portrait has no alternative text
  *
- * Le nom est ecrit juste dessous. Decrire l'image par « portrait de Camille
- * Roy » ferait entendre le nom deux fois de suite, ce qui est le bruit le plus
- * courant de ce motif. L'image est donc marquee comme decorative, et la
- * `<figcaption>` porte l'information.
+ * The name is written right below it. Describing the image as "portrait of
+ * Camille Roy" would make the name heard twice in a row, which is the most
+ * common noise of this pattern. The image is therefore marked as decorative,
+ * and the `<figcaption>` carries the information.
  *
- * ## Le rapport de forme est fixe, la photo ne l'est pas
+ * ## The aspect ratio is fixed, the photo is not
  *
- * Des portraits fournis par plusieurs personnes n'ont jamais la meme taille.
- * Sans rapport de forme impose, la grille prend une allure differente a chaque
- * ligne. Le cadre est donc carre et la photo recadree dedans : c'est la seule
- * facon d'obtenir une grille reguliere sans demander a chacun de recadrer.
+ * Portraits supplied by several people never have the same size. Without an
+ * imposed aspect ratio, the grid takes on a different look on every row. The
+ * frame is therefore square and the photo cropped inside it: that is the only
+ * way to get a regular grid without asking everyone to crop.
  *
- * ## Les liens sont toujours dans le document
+ * ## The links are always in the document
  *
- * Ils s'estompent au repos et se revelent au survol, mais ils ne sont jamais
- * retires ni masques : un lien qui n'apparait qu'au survol est inatteignable
- * au doigt comme au clavier. Le focus les revele aussi, par `:focus-within`.
+ * They fade at rest and reveal on hover, but they are never removed nor
+ * hidden: a link that only appears on hover is unreachable by finger as by
+ * keyboard. Focus reveals them too, through `:focus-within`.
  *
- * ## La cascade est une transition, pas une animation
+ * ## The cascade is a transition, not an animation
  *
- * Chaque carte fait le meme trajet avec un delai. Le compositeur s'en charge
- * seul, et sous mouvement reduit l'etat de depart n'est jamais pose : les
- * cartes sont simplement la.
+ * Every card makes the same trip with a delay. The compositor handles it on
+ * its own, and under reduced motion the starting state is never applied: the
+ * cards are simply there.
  *
  * @module
  */
@@ -35,49 +35,49 @@ import { type CSSProperties, type ReactElement, type ReactNode } from 'react'
 
 import { useInView } from '@registre/hooks/useInView'
 
-/** Un lien porte par une fiche. */
+/** A link carried by a card. */
 export interface MemberLink {
-  /** Ce qui est affiche. */
+  /** What is displayed. */
   readonly label: string
-  /** Adresse. */
+  /** URL. */
   readonly href: string
 }
 
-/** Une personne de l'equipe. */
+/** A person on the team. */
 export interface Member {
-  /** Nom affiche. */
+  /** Displayed name. */
   readonly name: string
-  /** Fonction. */
+  /** Role. */
   readonly role: string
-  /** Adresse du portrait. Sans elle, les initiales tiennent lieu de vignette. */
+  /** URL of the portrait. Without it, the initials stand in as the thumbnail. */
   readonly photo?: string
-  /** Une phrase de presentation. */
+  /** A one-sentence introduction. */
   readonly bio?: ReactNode
-  /** Liens de la fiche : profil, site, courriel. */
+  /** Links on the card: profile, website, email. */
   readonly links?: readonly MemberLink[]
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to the component. */
 export interface TeamGridOwnProps {
-  /** Les personnes, dans l'ordre d'affichage. */
+  /** The people, in display order. */
   members: readonly Member[]
-  /** Colonnes au-dela du palier moyen. @defaultValue 4 */
+  /** Columns beyond the medium breakpoint. @defaultValue 4 */
   columns?: number
-  /** Decalage entre deux fiches a la revelation, en millisecondes. @defaultValue 70 */
+  /** Delay between two cards on reveal, in milliseconds. @defaultValue 70 */
   stagger?: number
-  /** Nom de la section, annonce aux technologies d'assistance. */
+  /** Name of the section, announced to assistive technology. */
   label?: string
-  /** Intitule affiche au-dessus de la grille. */
+  /** Heading displayed above the grid. */
   title?: ReactNode
 }
 
-/** Toutes les proprietes. */
+/** Every prop. */
 export type TeamGridProps = Customisable<TeamGridOwnProps, 'section'>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-team-grid'
 
-/** Pose les regles de la grille, une fois par document. */
+/** Applies the grid rules, once per document. */
 function ensureTeamRules(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -88,14 +88,14 @@ function ensureTeamRules(): void {
     '[data-o-team]{display:grid;gap:1.25rem;list-style:none;margin:0;padding:0;',
     'grid-template-columns:repeat(auto-fit,minmax(12rem,1fr))}',
     '@media (min-width:64rem){[data-o-team]{',
-    'grid-template-columns:repeat(var(--o-team-colonnes),minmax(0,1fr))}}',
+    'grid-template-columns:repeat(var(--o-team-columns),minmax(0,1fr))}}',
 
     '[data-o-team-fiche]{transition:transform var(--o-duration-base) var(--o-ease-standard)}',
     '[data-o-team-fiche]:hover,[data-o-team-fiche]:focus-within{transform:translateY(-4px)}',
 
-    // Les liens restent dans le document : ils changent d'opacite, ils ne
-    // disparaissent pas. Un lien revele au seul survol n'existe ni au doigt ni
-    // au clavier.
+    // The links stay in the document: they change opacity, they do not
+    // disappear. A link revealed by hover alone exists neither by finger nor
+    // by keyboard.
     '[data-o-team-liens]{opacity:0.55;transition:opacity var(--o-duration-base) var(--o-ease-standard)}',
     '[data-o-team-fiche]:hover [data-o-team-liens],',
     '[data-o-team-fiche]:focus-within [data-o-team-liens]{opacity:1}',
@@ -104,8 +104,8 @@ function ensureTeamRules(): void {
     'opacity:0;transform:translateY(16px);',
     'transition:opacity var(--o-duration-slower) var(--o-ease-entrance),',
     'transform var(--o-duration-slower) var(--o-ease-entrance);',
-    'transition-delay:var(--o-team-delai)}',
-    '[data-o-team-vu]>li{opacity:1;transform:none}',
+    'transition-delay:var(--o-team-delay)}',
+    '[data-o-team-seen]>li{opacity:1;transform:none}',
 
     '@media (prefers-reduced-motion:reduce){',
     '[data-o-team-cache]>li{opacity:1;transform:none;transition:none}',
@@ -115,24 +115,24 @@ function ensureTeamRules(): void {
   document.head.append(style)
 }
 
-/** Initiales d'un nom, pour la vignette de repli. */
-function initiales(nom: string): string {
-  return nom
+/** Initials of a name, for the fallback thumbnail. */
+function initials(name: string): string {
+  return name
     .split(/\s+/)
     .slice(0, 2)
-    .map((mot) => mot.charAt(0).toUpperCase())
+    .map((word) => word.charAt(0).toUpperCase())
     .join('')
 }
 
 /**
- * Une grille de fiches d'equipe.
+ * A grid of team cards.
  *
  * @example
  * <TeamGrid
- *   title="L equipe"
+ *   title="The team"
  *   members={[
- *     { name: 'Camille Roy', role: 'Direction artistique', bio: 'Dessine les entrees du registre.' },
- *     { name: 'Sami Belkacem', role: 'Moteur', links: [{ label: 'Profil', href: '/sami' }] },
+ *     { name: 'Camille Roy', role: 'Art direction', bio: 'Draws the registry entries.' },
+ *     { name: 'Sami Belkacem', role: 'Engine', links: [{ label: 'Profile', href: '/sami' }] },
  *   ]}
  * />
  */
@@ -145,7 +145,7 @@ export function TeamGrid({
   ...rest
 }: TeamGridProps): ReactElement {
   const { reduced } = useMotionState()
-  const { ref, vu } = useInView<HTMLElement>({ amount: 0.15 })
+  const { ref, inView } = useInView<HTMLElement>({ amount: 0.15 })
   ensureTeamRules()
 
   const { className, style } = mergePresentation(
@@ -173,17 +173,17 @@ export function TeamGrid({
       <ul
         data-o-team=""
         data-o-team-cache={reduced ? undefined : ''}
-        data-o-team-vu={vu && !reduced ? '' : undefined}
+        data-o-team-seen={inView && !reduced ? '' : undefined}
         style={
           {
-            '--o-team-colonnes': String(Math.max(1, Math.round(columns))),
+            '--o-team-columns': String(Math.max(1, Math.round(columns))),
           } as CSSProperties
         }
       >
         {members.map((member, index) => (
           <li
             key={member.name}
-            style={{ '--o-team-delai': `${String(index * stagger)}ms` } as CSSProperties}
+            style={{ '--o-team-delay': `${String(index * stagger)}ms` } as CSSProperties}
           >
             <figure
               data-o-team-fiche=""
@@ -206,11 +206,11 @@ export function TeamGrid({
                     className="o-flex o-size-full o-items-center o-justify-center o-text-2xl o-font-semibold"
                     style={{ color: 'var(--o-theme-muted)' }}
                   >
-                    {initiales(member.name)}
+                    {initials(member.name)}
                   </span>
                 ) : (
-                  // Decorative : le nom est ecrit juste dessous, et le decrire
-                  // le ferait entendre deux fois.
+                  // Decorative: the name is written right below it, and
+                  // describing it would make it heard twice.
                   <img src={member.photo} alt="" className="o-size-full o-object-cover" />
                 )}
               </div>
@@ -224,14 +224,15 @@ export function TeamGrid({
                 </span>
                 <span
                   className="o-text-xs"
-                  // Une nuance fixe ne tient pas sur les deux fonds : posee sur
-                  // du sombre, une teinte de marque foncee descend sous le
-                  // seuil. L accent est donc tire vers l encre du theme, ce qui
-                  // l eclaircit sur fond sombre et le fonce sur fond clair.
-                  // Une page qui reteinte la marque avec une couleur libre peut
-                  // tomber sur un extreme — un accent noir sur fond sombre — que
-                  // ce melange ne rattrape pas. Elle pose alors sa propre encre
-                  // par la variable ; sans elle, le melange reste la regle.
+                  // A fixed shade does not hold on both backgrounds: laid on a
+                  // dark one, a deep brand hue drops below the threshold. The
+                  // accent is therefore pulled toward the theme ink, which
+                  // lightens it on a dark background and darkens it on a light
+                  // one. A page that retints the brand with a free colour may
+                  // land on an extreme — a black accent on a dark background —
+                  // that this mix does not make up for. It then sets its own
+                  // ink through the variable; without it, the mix stays the
+                  // rule.
                   style={{
                     color:
                       'var(--o-team-role, color-mix(in oklab, var(--o-palette-brand-600) 70%, var(--o-theme-fg)))',
@@ -254,14 +255,14 @@ export function TeamGrid({
                   data-o-team-liens=""
                   className="o-flex o-flex-wrap o-gap-3 o-list-none o-m-0 o-p-0"
                 >
-                  {member.links.map((lien) => (
-                    <li key={lien.href}>
+                  {member.links.map((link) => (
+                    <li key={link.href}>
                       <a
-                        href={lien.href}
+                        href={link.href}
                         className="o-text-xs o-underline o-underline-offset-2 focus:o-ring"
                         style={{ color: 'var(--o-theme-fg)' }}
                       >
-                        {lien.label}
+                        {link.label}
                       </a>
                     </li>
                   ))}

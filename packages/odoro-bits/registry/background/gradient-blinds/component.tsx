@@ -1,24 +1,24 @@
 /**
- * Stores de degrade : des lamelles devant un degrade, dont l ouverture suit une vague qui traverse le store d un bord a l autre.
+ * Gradient blinds: slats in front of a gradient, whose opening follows a wave that crosses the blind from one edge to the other.
  *
- * ## Le principe
+ * ## The principle
  *
- * Chaque lamelle est une cellule d'une grille en x ; son ouverture est
- * une fraction de la cellule qui suit une onde traversant les lamelles,
- * inclinee par une seconde onde en y. Derriere, un degrade entre deux
- * tokens le long d'une diagonale qui derive ; devant, la lamelle fermee
- * est le fond lui-meme, a peine teinte.
+ * Each slat is a cell of a grid in x; its opening is a fraction of the cell
+ * that follows a wave crossing the slats, tilted by a second wave in y.
+ * Behind, a gradient between two tokens along a diagonal that drifts; in
+ * front, the closed slat is the background itself, barely
+ * tinted.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur — les recopier ici en ferait autant
- * de versions a maintenir qu'il y a de fonds.
+ * It carries only what sets it apart: its shader, its settings and its fallback.
+ * Reading the tokens, converting them to floats and re-reading them when the
+ * theme changes all come from the engine — copying them here would leave as
+ * many versions to maintain as there are backgrounds.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en
- * accorde qu'une par backend — et sous mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface — it grants only one
+ * per backend — and under reduced motion.
  *
  * @module
  */
@@ -35,59 +35,59 @@ import { type ReactElement } from 'react'
 
 import { GRADIENT_BLINDS_FRAGMENT } from './gradient-blinds.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface GradientBlindsControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to this component. */
 export interface GradientBlindsOwnProps {
-  /** Nombre de lamelles sur la largeur. @defaultValue 14 */
+  /** Number of slats across the width. @defaultValue 14 */
   count?: number
-  /** Vitesse de la vague d ouverture. @defaultValue 0.5 */
+  /** Speed of the opening wave. @defaultValue 0.5 */
   speed?: number
-  /** Ouverture moyenne, entre ferme et ouvert. @defaultValue 0.55 */
+  /** Average opening, between shut and open. @defaultValue 0.55 */
   open?: number
-  /** Inclinaison des lamelles. @defaultValue 0.3 */
+  /** Tilt of the slats. @defaultValue 0.3 */
   tilt?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<GradientBlindsControls>
 }
 
-/** Toutes les proprietes. */
+/** Every property. */
 export type GradientBlindsProps = Customisable<GradientBlindsOwnProps>
 
-/** Tokens employes par defaut : les lamelles, les deux teintes du degrade. */
+/** Tokens used by default: the slats, the two hues of the gradient. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-orange-400',
   '--o-palette-rose-500',
 ] as const
 
-/** Repli par defaut : un degrade fige, dans les memes tons. */
+/** Default fallback: a frozen gradient, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-r o-from-orange-200 dark:o-from-orange-900 o-to-rose-200 dark:o-to-rose-900'
 
 /**
- * Detail hors qualite basse.
+ * Detail outside low quality.
  *
- * Le store lui-meme est une partie fractionnaire ; ce sont le liseret
- * et l'ombre, deux exponentielles, qui tombent en qualite basse.
+ * The blind itself is a fractional part; it is the edging and the shadow,
+ * two exponentials, that drop out at low quality.
  */
 const DETAIL = 1
 
-/** Detail en qualite basse. */
+/** Detail at low quality. */
 const LOW_DETAIL = 0
 
 /**
- * Stores de degrade.
+ * Gradient blinds.
  *
  * @example
  * <div className="o-relative o-min-h-screen">

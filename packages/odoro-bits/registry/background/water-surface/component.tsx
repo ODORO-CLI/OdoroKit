@@ -1,29 +1,29 @@
 /**
- * Surface d'eau : une nappe de vagues de Gerstner vue en rasant, qui
- * reflete le ciel et fait scintiller le soleil.
+ * Water surface: a sheet of Gerstner waves seen at a grazing angle, which
+ * reflects the sky and makes the sun sparkle.
  *
- * ## Pourquoi une scene, et pas un shader plein ecran
+ * ## Why a scene, and not a fullscreen shader
  *
- * Un reflet rasant est une affaire d'angle entre la surface et l'oeil : il
- * faut une vraie surface, une vraie camera, et une normale qui change d'un
- * point a l'autre. Un fragment plein ecran ne connait ni l'une ni l'autre.
+ * A grazing reflection is a matter of the angle between the surface and the
+ * eye: it needs a real surface, a real camera, and a normal that changes from
+ * one point to the next. A fullscreen fragment knows neither of those.
  *
- * Ce qui distingue cette entree de `hero/tide` : la maree est une houle de
- * bruit, eclairee comme un relief et teintee par la hauteur ; ici les vagues
- * sont des vagues — des sinusoides qui se pincent aux cretes — et la couleur
- * vient du fresnel, de face l'eau, au ras le ciel.
+ * What sets this entry apart from `hero/tide`: the tide is a swell of noise,
+ * lit like a relief map and tinted by height; here the waves are waves —
+ * sinusoids that pinch at the crests — and the colour comes from the Fresnel
+ * term, head on the water, edge on the sky.
  *
- * ## Ce que le pointeur fait
+ * ## What the pointer does
  *
- * La camera glisse lateralement en suivant le curseur, avec amortissement :
- * le reflet se deplace sur l'eau comme quand on penche la tete. Le reglage
- * `parallax` dose ce glissement ; a zero, la camera ne bouge pas.
+ * The camera slides sideways following the cursor, with damping: the
+ * reflection moves across the water as it does when you tilt your head. The
+ * `parallax` setting doses that slide; at zero, the camera does not move.
  *
- * ## Le repli
+ * ## The fallback
  *
- * Pendant le chargement de la scene, sans WebGL, sous mouvement reduit, ou si
- * l'arbitre refuse une seconde scene, un degrade flou prend la place — dans
- * les memes tons, sans bord dur.
+ * While the scene loads, without WebGL, under reduced motion, or if the
+ * arbiter refuses a second scene, a blurred gradient takes its place — in the
+ * same tones, with no hard edge.
  *
  * @module
  */
@@ -47,62 +47,62 @@ import { usePoster } from '@registre/hooks/usePoster'
 
 import { WATER_SURFACE_FRAGMENT, WATER_SURFACE_VERTEX } from './water-surface.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface WaterSurfaceControls {
-  /** Contexte de la scene : objets, camera, moteur de rendu, module. */
+  /** Scene context: objects, camera, renderer, module. */
   readonly scene: SceneContext
-  /** Uniformes vivants : les modifier change le rendu a l'image suivante. */
+  /** Live uniforms: changing them changes the render on the next frame. */
   readonly uniforms: Record<string, { value: unknown }>
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to this component. */
 export interface WaterSurfaceOwnProps {
-  /** Hauteur de la vague principale, en unites de scene. @defaultValue 0.12 */
+  /** Height of the main wave, in scene units. @defaultValue 0.12 */
   amplitude?: number
-  /** Longueur de la vague principale, en unites de scene. @defaultValue 1.6 */
+  /** Length of the main wave, in scene units. @defaultValue 1.6 */
   wavelength?: number
-  /** Pincement des cretes, entre zero et un. @defaultValue 0.6 */
+  /** Pinching of the crests, between zero and one. @defaultValue 0.6 */
   choppiness?: number
-  /** Vitesse des vagues. @defaultValue 1 */
+  /** Speed of the waves. @defaultValue 1 */
   speed?: number
-  /** Intensite du soleil sur l'eau. @defaultValue 1 */
+  /** Intensity of the sun on the water. @defaultValue 1 */
   sun?: number
-  /** Glissement de la camera sous le pointeur. @defaultValue 0.15 */
+  /** Slide of the camera under the pointer. @defaultValue 0.15 */
   parallax?: number
-  /** Tokens : le fond et la brume, l'eau, le ciel reflechi. */
+  /** Tokens: the background and the haze, the water, the reflected sky. */
   colors?: readonly [string, string, string]
-  /** Classes du repli. */
+  /** Fallback classes. */
   poster?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<WaterSurfaceControls>
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type WaterSurfaceProps = Customisable<WaterSurfaceOwnProps>
 
-/** Tokens employes par defaut. */
+/** Tokens used by default. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-sky-600',
   '--o-palette-sky-200',
 ] as const
 
-/** Repli par defaut : l'eau figee en degrade flou, dans les memes tons. */
+/** Default fallback: the water frozen into a blurred gradient, in the same tones. */
 const DEFAULT_POSTER =
   'o-bg-gradient-to-t o-from-sky-600 o-via-sky-300 dark:o-via-sky-900 o-to-zinc-50 dark:o-to-zinc-950 o-blur-2xl o-scale-110'
 
-/** Subdivision de la nappe par palier de qualite. */
+/** Subdivision of the sheet per quality step. */
 const SEGMENTS: Readonly<Record<QualityLevel, number>> = {
   low: 90,
   medium: 160,
   high: 220,
 }
 
-/** Distance de la camera au-dessus de l'eau et en retrait. */
+/** How far the camera sits above the water and behind it. */
 const CAMERA = { height: 0.55, back: 3.2 } as const
 
 /**
- * Surface d'eau.
+ * Water surface.
  *
  * @example
  * <section className="o-relative o-min-h-screen">
@@ -125,14 +125,14 @@ export function WaterSurface({
   const { theme } = useMotionState()
   const [host, setHost] = useState<HTMLElement | null>(null)
 
-  const pointer = usePointerDamped({ host, speed: 2, name: 'water-surface : pointeur' })
+  const pointer = usePointerDamped({ host, speed: 2, name: 'water-surface : pointer' })
 
-  /** Uniformes vivants, partages entre la construction et la boucle. */
+  /** Live uniforms, shared between the construction and the loop. */
   const uniforms = useRef<Record<string, { value: unknown }>>({})
   const context = useRef<SceneContext | null>(null)
 
-  // Les reglages sont lus par ref dans la boucle : un changement de curseur
-  // dans l'atelier prend effet a l'image suivante sans reconstruire la scene.
+  // The settings are read by ref inside the loop: moving a slider in the
+  // workshop takes effect on the next frame without rebuilding the scene.
   const settings = useRef({ amplitude, wavelength, choppiness, speed, sun, parallax })
   settings.current = { amplitude, wavelength, choppiness, speed, sun, parallax }
 
@@ -146,10 +146,10 @@ export function WaterSurface({
         new three.Color(value[0], value[1], value[2])
       const [deep, water, sky] = colors.map((token) => readTokenColour(token, host))
 
-      // Le fond de la scene est la couleur de brume. Le token est en sRGB et
-      // le moteur de rendu encode sa couleur d'effacement du lineaire vers le
-      // sRGB : sans la conversion inverse, le fond ressort un cran plus
-      // clair que la page qui l'entoure.
+      // The background of the scene is the haze colour. The token is in sRGB
+      // and the renderer encodes its clear colour from linear to sRGB:
+      // without the inverse conversion, the background comes out one notch
+      // lighter than the page around it.
       const deepColour = paint(deep ?? [0, 0, 0])
       renderer.setClearColor(deepColour.clone().convertSRGBToLinear(), 1)
 
@@ -165,7 +165,7 @@ export function WaterSurface({
         uSky: { value: paint(sky ?? [0, 0, 0]) },
       }
 
-      // Un plan large et profond : la brume l'efface bien avant ses bords.
+      // A wide, deep plane: the haze erases it well before its edges.
       const segments = SEGMENTS[scene.quality]
       const geometry = new three.PlaneGeometry(
         24,
@@ -179,7 +179,8 @@ export function WaterSurface({
         uniforms: uniforms.current,
       })
       const mesh = new three.Mesh(geometry, material)
-      // Le plan est couche : on le voit en rasant, ce qui fait tout le reflet.
+      // The plane lies flat: it is seen at a grazing angle, and that is the
+      // whole reflection.
       mesh.rotation.x = -Math.PI / 2
       mesh.position.y = -0.6
       mesh.position.z = -6
@@ -217,8 +218,8 @@ export function WaterSurface({
       set('uSpeed', s)
       set('uSun', brightness)
 
-      // La camera glisse avec le pointeur : lue ici, jamais par un rendu
-      // React — la valeur change a chaque image.
+      // The camera slides with the pointer: read here, never through a React
+      // render — the value changes on every frame.
       const targetX = pointer.current.x * lean * 2
       const targetY = CAMERA.height - pointer.current.y * lean * 0.6
       camera.position.x += (targetX - camera.position.x) * Math.min(1, delta * 3)
@@ -227,8 +228,8 @@ export function WaterSurface({
     },
   })
 
-  // Le theme a bascule : les tokens sont relus et les uniformes mis a jour en
-  // place. La scene n'est pas reconstruite — seules ses couleurs changent.
+  // The theme has toggled: the tokens are read again and the uniforms updated
+  // in place. The scene is not rebuilt — only its colours change.
   useEffect(() => {
     const scene = context.current
     const live = uniforms.current

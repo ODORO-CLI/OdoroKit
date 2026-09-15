@@ -32,7 +32,7 @@
  */
 
 import { Icon } from '@odoro-cli/icons'
-import { ArrowDown, ArrowUpRight } from '@odoro-cli/icons/filaire'
+import { ArrowDown, ArrowUpRight } from '@odoro-cli/icons/outline'
 import { useMotionState } from '@odoro-cli/engine'
 import {
   useEffect,

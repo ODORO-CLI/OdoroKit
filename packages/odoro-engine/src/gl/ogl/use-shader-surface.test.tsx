@@ -10,15 +10,15 @@ import { AURORA_FRAGMENT } from './shaders.js'
 import { useShaderSurface } from './use-shader-surface.js'
 
 /**
- * Ce que ces tests couvrent, et ce qu'ils ne couvrent pas.
+ * What these tests cover, and what they do not.
  *
- * jsdom n'a pas de contexte graphique : le rendu lui-meme ne peut pas etre
- * verifie ici. Ce qui est verifiable — et qui constitue le contrat vis-a-vis
- * de l'appelant — c'est le chemin de refus, l'arbitrage des surfaces et la
- * liberation. Le rendu est verifie dans un vrai navigateur, ailleurs.
+ * jsdom has no graphics context: the rendering itself cannot be checked here.
+ * What is checkable — and what constitutes the contract towards the caller —
+ * is the refusal path, the arbitration of surfaces and the release. The
+ * rendering is checked in a real browser, elsewhere.
  */
 
-/** Installe un contexte graphique factice. */
+/** Installs a fake graphics context. */
 function installWebGl(available = true): void {
   HTMLCanvasElement.prototype.getContext = vi.fn(function (
     this: HTMLCanvasElement,
@@ -33,7 +33,7 @@ function installWebGl(available = true): void {
   }) as unknown as HTMLCanvasElement['getContext']
 }
 
-/** Force la reponse du systeme pour `prefers-reduced-motion`. */
+/** Forces the system answer for `prefers-reduced-motion`. */
 function setSystemReduced(reduced: boolean): void {
   window.matchMedia = ((query: string) => ({
     matches: query.includes('prefers-reduced-motion') ? reduced : false,
@@ -47,7 +47,7 @@ function setSystemReduced(reduced: boolean): void {
   })) as typeof window.matchMedia
 }
 
-function Fond({ name = 'aurora' }): ReactElement {
+function Background({ name = 'aurora' }): ReactElement {
   const { ref, refused } = useShaderSurface<HTMLDivElement>({
     fragment: AURORA_FRAGMENT,
     uniforms: { uSpeed: 0.4, uScale: 3, uOctaves: 4 },
@@ -70,22 +70,22 @@ afterEach(() => {
 })
 
 describe('allocation', () => {
-  it('alloue une surface au montage', () => {
-    render(<Fond />)
+  it('allocates a surface on mount', () => {
+    render(<Background />)
     expect(surfaceManager.count('ogl')).toBe(1)
   })
 
-  it('libere la surface au demontage', () => {
-    const { unmount } = render(<Fond />)
+  it('releases the surface on unmount', () => {
+    const { unmount } = render(<Background />)
     expect(surfaceManager.count('ogl')).toBe(1)
     unmount()
     expect(surfaceManager.count('ogl')).toBe(0)
   })
 
-  it('ne laisse aucune surface apres cinquante cycles', async () => {
-    // Un emplacement de contexte non rendu est perdu pour la page entiere.
+  it('leaves no surface after fifty cycles', async () => {
+    // A context slot that is not given back is lost for the whole page.
     for (let i = 0; i < 50; i += 1) {
-      const { unmount } = render(<Fond name={`cycle-${i}`} />)
+      const { unmount } = render(<Background name={`cycle-${i}`} />)
       unmount()
     }
     await new Promise((resolve) => setTimeout(resolve, 50))
@@ -96,58 +96,58 @@ describe('allocation', () => {
   })
 })
 
-describe('refus', () => {
-  it('refuse une seconde surface et le signale a l appelant', async () => {
+describe('refusal', () => {
+  it('refuses a second surface and reports it to the caller', async () => {
     const { getByTestId } = render(
       <>
-        <Fond name="premier" />
-        <Fond name="second" />
+        <Background name="first" />
+        <Background name="second" />
       </>,
     )
 
     await waitFor(() =>
-      expect(getByTestId('second').dataset['refused']).toBe('plafond-backend'),
+      expect(getByTestId('second').dataset['refused']).toBe('max-per-backend'),
     )
-    // Un refus est une reponse exploitable : l'appelant affiche son repli.
+    // A refusal is an actionable answer: the caller displays its fallback.
     expect(surfaceManager.count('ogl')).toBe(1)
   })
 
-  it('refuse sans WebGL', async () => {
+  it('refuses without WebGL', async () => {
     installWebGl(false)
-    const { getByTestId } = render(<Fond />)
+    const { getByTestId } = render(<Background />)
 
     await waitFor(() =>
-      expect(getByTestId('aurora').dataset['refused']).toBe('webgl-indisponible'),
+      expect(getByTestId('aurora').dataset['refused']).toBe('webgl-unavailable'),
     )
   })
 
-  it('refuse sous mouvement reduit, sans allouer', async () => {
-    // Un fond anime n'a pas d'etat final a preserver : il n'apporte rien
-    // d'autre que son mouvement.
+  it('refuses under reduced motion, without allocating', async () => {
+    // An animated background has no final state to preserve: it brings nothing
+    // other than its motion.
     motionPolicy.dispose()
     setSystemReduced(true)
     motionPolicy.configure({ reducedMotion: 'respect' })
 
-    const { getByTestId } = render(<Fond />)
+    const { getByTestId } = render(<Background />)
 
     await waitFor(() =>
-      expect(getByTestId('aurora').dataset['refused']).toBe('mouvement-reduit'),
+      expect(getByTestId('aurora').dataset['refused']).toBe('reduced-motion'),
     )
     expect(surfaceManager.count()).toBe(0)
   })
 })
 
 describe('shaders', () => {
-  it('declarent les uniforms qu ils utilisent', () => {
+  it('declare the uniforms they use', () => {
     for (const uniform of ['uTime', 'uResolution', 'uColorA', 'uSpeed', 'uScale']) {
       expect(AURORA_FRAGMENT).toContain(`uniform`)
       expect(AURORA_FRAGMENT).toContain(uniform)
     }
   })
 
-  it('bornent la boucle d octaves', () => {
-    // Une boucle non bornee ne compile pas sur les plateformes qui exigent un
-    // nombre d'iterations connu a la compilation.
+  it('bound the octave loop', () => {
+    // An unbounded loop does not compile on the platforms that require a number
+    // of iterations known at compile time.
     expect(AURORA_FRAGMENT).toMatch(/for \(int i = 0; i < \d+; i\+\+\)/)
   })
 })

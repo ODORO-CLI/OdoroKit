@@ -32,7 +32,7 @@ export default defineConfig({
     minify: true,
     sourcemap: true,
     target: 'es2022',
-    elaguer: true, // retire les classes utilitaires inemployées
+    prune: true, // retire les classes utilitaires inemployées
     safelist: [], // celles à garder malgré tout
   },
 })
@@ -171,12 +171,12 @@ emploie une fraction. Mesure faite sur un vrai tableau de bord :
 | sans élagage | 1,65 Mo   | 121 Ko      |
 | avec élagage | **65 Ko** | **12,6 Ko** |
 
-Actif par défaut. `build.elaguer: false` le désactive.
+Actif par défaut. `build.prune: false` le désactive.
 
 ### Deux chemins
 
 **Générer**, quand le projet fournit un générateur — c’est le cas dès que
-`@odoro-cli/libs` est installé : le moteur résout `@odoro-cli/libs/generateur`
+`@odoro-cli/libs` est installé : le moteur résout `@odoro-cli/libs/generator`
 dans les dépendances **du projet**, et produit exactement les règles employées.
 
 **Élaguer**, sinon : partir de la feuille livrée et en retirer ce que rien

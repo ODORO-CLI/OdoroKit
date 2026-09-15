@@ -34,7 +34,7 @@
  */
 
 import { Icon } from '@odoro-cli/icons'
-import { ArrowRight, ArrowUpRight } from '@odoro-cli/icons/filaire'
+import { ArrowRight, ArrowUpRight } from '@odoro-cli/icons/outline'
 import { Fragment, type CSSProperties, type ReactElement, type ReactNode } from 'react'
 
 import { GraphPaper } from '@/odoro/background/GraphPaper.jsx'

@@ -1,26 +1,26 @@
 /**
- * Shader des courants.
+ * Currents shader.
  *
- * ## L'idee mathematique
+ * ## The mathematical idea
  *
- * Des lignes de courant : un premier bruit a grande echelle donne en chaque
- * point un angle d'ecoulement ; le point de lecture est advecte le long de
- * cet angle, puis tourne dans le repere local du courant et etire — l'echelle
- * varie vite en travers du flot, lentement le long. Le second bruit, lu dans
- * ce repere anisotrope, s'allonge donc en filaments qui suivent le champ,
- * sans qu'aucune ligne ne soit tracee.
+ * Streamlines: a first noise at large scale gives, at every point, a flow
+ * angle; the lookup point is advected along that angle, then rotated into
+ * the current's local frame and stretched — the scale varies fast across
+ * the flow, slowly along it. The second noise, read in that anisotropic
+ * frame, therefore stretches into filaments that follow the field, without
+ * a single line being drawn.
  *
  * ## Uniforms
  *
- * - `uTime` — temps en secondes, fourni par le moteur.
- * - `uResolution` — taille du canevas en pixels, fournie par le moteur.
- * - `uColorA` — l'eau profonde.
- * - `uColorB` — la teinte des courants.
- * - `uColorC` — la teinte des filaments rapides.
- * - `uSpeed` — vitesse d'advection.
- * - `uScale` — echelle du bruit ; plus haut, plus fin.
- * - `uStretch` — anisotropie ; plus haut, filaments plus longs.
- * - `uDetail` — nombre d'octaves du bruit fin, et donc son cout.
+ * - `uTime` — time in seconds, supplied by the engine.
+ * - `uResolution` — canvas size in pixels, supplied by the engine.
+ * - `uColorA` — the deep water.
+ * - `uColorB` — the hue of the currents.
+ * - `uColorC` — the hue of the fast filaments.
+ * - `uSpeed` — advection speed.
+ * - `uScale` — noise scale; higher is finer.
+ * - `uStretch` — anisotropy; higher means longer filaments.
+ * - `uDetail` — number of octaves of the fine noise, and so its cost.
  */
 export const CURRENTS_FRAGMENT = /* glsl */ `
 precision highp float;
@@ -37,35 +37,35 @@ uniform float uScale;
 uniform float uStretch;
 uniform float uDetail;
 
-// Nombre pseudo-aleatoire : projection sur une direction arbitraire, sinus
-// amplifie, partie fractionnaire.
-float courantHash(vec2 p) {
+// Pseudo-random number: projection onto an arbitrary direction, amplified
+// sine, fractional part.
+float currentHash(vec2 p) {
   return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
 }
 
-// Bruit de valeur : interpolation lissee entre les quatre coins de la cellule.
-float courantNoise(vec2 p) {
+// Value noise: smoothed interpolation between the cell's four corners.
+float currentNoise(vec2 p) {
   vec2 cell = floor(p);
   vec2 local = fract(p);
   vec2 smoothed = local * local * (3.0 - 2.0 * local);
 
-  float a = courantHash(cell);
-  float b = courantHash(cell + vec2(1.0, 0.0));
-  float c = courantHash(cell + vec2(0.0, 1.0));
-  float d = courantHash(cell + vec2(1.0, 1.0));
+  float a = currentHash(cell);
+  float b = currentHash(cell + vec2(1.0, 0.0));
+  float c = currentHash(cell + vec2(0.0, 1.0));
+  float d = currentHash(cell + vec2(1.0, 1.0));
 
   return mix(mix(a, b, smoothed.x), mix(c, d, smoothed.x), smoothed.y);
 }
 
-// Somme d'octaves : chaque passe deux fois plus fine et deux fois plus faible.
-float courantFbm(vec2 p, int octaves) {
+// Sum of octaves: each pass twice as fine and twice as faint.
+float currentFbm(vec2 p, int octaves) {
   float total = 0.0;
   float amplitude = 0.5;
   float normalisation = 0.0;
 
   for (int i = 0; i < 5; i += 1) {
     if (i >= octaves) break;
-    total += courantNoise(p) * amplitude;
+    total += currentNoise(p) * amplitude;
     normalisation += amplitude;
     p *= 2.0;
     amplitude *= 0.5;
@@ -80,23 +80,23 @@ void main() {
   float t = uTime * uSpeed;
   int octaves = int(clamp(uDetail, 1.0, 5.0));
 
-  // Le champ d'ecoulement : un bruit a grande echelle, trois octaves
-  // suffisent — il ne porte que la direction, pas le detail.
-  float champ = courantFbm(p * 0.35 + vec2(t * 0.5, -t * 0.3), 3);
-  float angle = (champ - 0.5) * 9.42477;
+  // The flow field: a large-scale noise, three octaves are enough — it
+  // carries only the direction, not the detail.
+  float field = currentFbm(p * 0.35 + vec2(t * 0.5, -t * 0.3), 3);
+  float angle = (field - 0.5) * 9.42477;
   float c = cos(angle);
   float s = sin(angle);
 
-  // Advection : le point de lecture remonte le courant, donc le motif
-  // descend le long du champ au lieu de defiler tout droit.
+  // Advection: the lookup point runs back up the current, so the pattern
+  // travels down the field instead of scrolling straight.
   vec2 q = p - t * vec2(c, s) * 0.6;
 
-  // Rotation dans le repere local, puis anisotropie : la coordonnee en
-  // travers du flot est dilatee, le bruit y varie donc vite et s'allonge en
-  // filaments le long du courant.
-  vec2 repere = vec2(c * q.x + s * q.y, (-s * q.x + c * q.y) * max(uStretch, 1.0));
+  // Rotation into the local frame, then anisotropy: the coordinate across
+  // the flow is dilated, so the noise varies fast there and stretches into
+  // filaments along the current.
+  vec2 frame = vec2(c * q.x + s * q.y, (-s * q.x + c * q.y) * max(uStretch, 1.0));
 
-  float filament = courantFbm(repere, octaves);
+  float filament = currentFbm(frame, octaves);
 
   vec3 colour = mix(uColorA, uColorB, smoothstep(0.3, 0.68, filament));
   colour = mix(colour, uColorC, pow(smoothstep(0.5, 0.88, filament), 3.0));

@@ -1,40 +1,40 @@
 /**
- * Graphe des modules servis.
+ * Graph of the served modules.
  *
- * Il repond a une seule question, mais la plus importante du developpement a
- * chaud : quand ce fichier change, que faut-il recharger ?
+ * It answers a single question, but the most important one in hot development:
+ * when this file changes, what has to be reloaded?
  *
  * @module
  */
 
-/** Un module connu du serveur. */
+/** A module known to the server. */
 export interface ModuleNode {
-  /** Chemin absolu du fichier. */
+  /** Absolute path of the file. */
   readonly file: string
-  /** URL sous laquelle le module est servi. */
+  /** URL the module is served under. */
   readonly url: string
-  /** Modules qui importent celui-ci. */
+  /** Modules that import this one. */
   readonly importers: Set<string>
-  /** Modules importes par celui-ci. */
+  /** Modules imported by this one. */
   readonly imported: Set<string>
   /**
-   * `true` si le module declare accepter ses propres mises a jour via
+   * `true` when the module declares that it accepts its own updates through
    * `import.meta.hot.accept()`.
    */
   selfAccepting: boolean
-  /** Code transforme, ou `undefined` si le module doit etre recompile. */
+  /** Transformed code, or `undefined` when the module must be rebuilt. */
   code: string | undefined
-  /** Horodatage de la derniere invalidation, servant a casser le cache. */
+  /** Timestamp of the last invalidation, used to break the cache. */
   timestamp: number
 }
 
 /**
- * Detecte si une source declare accepter ses propres mises a jour.
+ * Detects whether a source declares that it accepts its own updates.
  *
- * L'analyse est volontairement textuelle. Une analyse syntaxique complete
- * serait plus sure, mais `import.meta.hot.accept` est une formule trop
- * distinctive pour apparaitre par accident, et le cout d'un faux positif se
- * limite a une mise a jour la ou un rechargement aurait suffi.
+ * The analysis is deliberately textual. A full syntactic analysis would be
+ * safer, but `import.meta.hot.accept` is too distinctive a formula to appear by
+ * accident, and the cost of a false positive is limited to an update where a
+ * reload would have been enough.
  *
  * @example
  * detectSelfAccepting('import.meta.hot?.accept()') // true
@@ -43,11 +43,11 @@ export function detectSelfAccepting(source: string): boolean {
   return /import\s*\.\s*meta\s*\.\s*hot\s*\??\s*\.\s*accept\s*\(/.test(source)
 }
 
-/** Graphe des modules et de leurs relations d'import. */
+/** Graph of the modules and of their import relations. */
 export class ModuleGraph {
   private readonly nodes = new Map<string, ModuleNode>()
 
-  /** Recupere un module, ou le cree s'il est inconnu. */
+  /** Gets a module, or creates it when it is unknown. */
   public ensure(file: string, url: string): ModuleNode {
     const existing = this.nodes.get(file)
     if (existing !== undefined) return existing
@@ -65,19 +65,19 @@ export class ModuleGraph {
     return node
   }
 
-  /** Recupere un module deja connu. */
+  /** Gets a module already known. */
   public get(file: string): ModuleNode | undefined {
     return this.nodes.get(file)
   }
 
-  /** Nombre de modules connus. */
+  /** Number of known modules. */
   public get size(): number {
     return this.nodes.size
   }
 
   /**
-   * Remplace la liste des dependances d'un module, en tenant a jour les
-   * relations inverses.
+   * Replaces the dependency list of a module, keeping the reverse relations up
+   * to date.
    */
   public setDependencies(file: string, dependencies: readonly string[]): void {
     const node = this.nodes.get(file)
@@ -98,14 +98,14 @@ export class ModuleGraph {
   }
 
   /**
-   * Invalide un module et remonte la chaine de ses importateurs jusqu'a
-   * trouver, sur chaque branche, un module qui accepte les mises a jour.
+   * Invalidates a module and climbs the chain of its importers until it finds,
+   * on every branch, a module that accepts updates.
    *
-   * @returns Les modules a recharger cote client. Un tableau vide signifie
-   *   qu'aucune frontiere n'accepte la mise a jour : il faut recharger la page.
+   * @returns The modules to reload on the client side. An empty array means
+   *   that no boundary accepts the update: the page must be reloaded.
    *
    * @example
-   * const boundaries = graph.invalidate('/projet/src/App.css')
+   * const boundaries = graph.invalidate('/project/src/App.css')
    */
   public invalidate(file: string): ModuleNode[] {
     const boundaries: ModuleNode[] = []
@@ -127,8 +127,8 @@ export class ModuleGraph {
         return true
       }
 
-      // Un module que personne n'importe et qui n'accepte rien est une racine :
-      // seule une page rechargee peut refleter son changement.
+      // A module nobody imports and that accepts nothing is a root: only a
+      // reloaded page can reflect its change.
       if (node.importers.size === 0) return false
 
       let handled = true
@@ -141,7 +141,7 @@ export class ModuleGraph {
     return walk(file) ? boundaries : []
   }
 
-  /** Oublie tous les modules. */
+  /** Forgets every module. */
   public clear(): void {
     this.nodes.clear()
   }

@@ -1,5 +1,5 @@
 /**
- * Pagination a fenetre glissante.
+ * Pagination with a sliding window.
  *
  * @module
  */
@@ -8,33 +8,32 @@ import { type ReactElement } from 'react'
 
 import { cx } from '../styles/cx.js'
 
-/** Proprietes de {@link Pagination}. */
+/** Properties of {@link Pagination}. */
 export interface PaginationProps {
-  /** Page courante, 1-indexee. */
+  /** Current page, 1-indexed. */
   page: number
-  /** Nombre total de pages. */
+  /** Total number of pages. */
   pageCount: number
-  /** Appele avec la page demandee. */
+  /** Called with the requested page. */
   onPageChange: (page: number) => void
   /**
-   * Nombre de pages affichees de chaque cote de la page courante.
+   * Number of pages displayed on each side of the current page.
    *
    * @defaultValue 1
    */
   siblingCount?: number
-  /** Libelle accessible de la navigation. @defaultValue 'Pagination' */
+  /** Accessible label of the navigation. @defaultValue 'Pagination' */
   label?: string
-  /** Classes additionnelles pour la navigation. */
+  /** Additional classes for the navigation. */
   className?: string
 }
 
-/** Marqueurs d'ellipse, distincts pour que chaque cote garde une cle stable. */
+/** Ellipsis markers, distinct so that each side keeps a stable key. */
 type Ellipsis = 'start-ellipsis' | 'end-ellipsis'
 
 /**
- * Numeros a afficher : la premiere et la derniere page sont toujours
- * presentes, une fenetre entoure la page courante, une ellipse marque chaque
- * saut.
+ * Numbers to display: the first and the last page are always present, a
+ * window surrounds the current page, an ellipsis marks each jump.
  */
 function pageWindow(
   page: number,
@@ -53,13 +52,13 @@ function pageWindow(
   return result
 }
 
-/** Classes communes aux boutons de la barre. */
+/** Classes shared by the buttons of the bar. */
 const BUTTON_CLASSES = cx(
   'o-inline-flex o-items-center o-justify-center o-size-9',
   'o-rounded-md o-text-sm o-font-medium o-transition',
 )
 
-/** Chevron des boutons precedent et suivant. */
+/** Chevron of the previous and next buttons. */
 function Chevron({ direction }: { direction: 'left' | 'right' }): ReactElement {
   return (
     <svg
@@ -83,11 +82,11 @@ function Chevron({ direction }: { direction: 'left' | 'right' }): ReactElement {
 }
 
 /**
- * Pagination accessible.
+ * Accessible pagination.
  *
- * La page courante est signalee par `aria-current="page"` ; les boutons
- * precedent et suivant portent un libelle masque visuellement, le chevron
- * seul ne dit rien aux lecteurs d'ecran.
+ * The current page is flagged by `aria-current="page"`; the previous and next
+ * buttons carry a visually hidden label, the chevron alone says nothing to
+ * screen readers.
  *
  * @example
  * <Pagination page={page} pageCount={42} onPageChange={setPage} />
@@ -118,7 +117,7 @@ export function Pagination({
             )}
           >
             <Chevron direction="left" />
-            <span className="o-sr-only">Page precedente</span>
+            <span className="o-sr-only">Previous page</span>
           </button>
         </li>
 
@@ -167,7 +166,7 @@ export function Pagination({
             )}
           >
             <Chevron direction="right" />
-            <span className="o-sr-only">Page suivante</span>
+            <span className="o-sr-only">Next page</span>
           </button>
         </li>
       </ul>

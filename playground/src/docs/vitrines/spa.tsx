@@ -43,7 +43,7 @@ import {
   Gift,
   MapPin,
   Minus,
-} from '@odoro-cli/icons/filaire'
+} from '@odoro-cli/icons/outline'
 import { useState, type CSSProperties, type ReactElement } from 'react'
 
 import { WaterSurface } from '@/odoro/background/WaterSurface.js'

@@ -1,5 +1,5 @@
 /**
- * Routeur client d'Odoro.
+ * Odoro client router.
  *
  * @example
  * import { Router, Routes, Route, Link, Outlet } from '@odoro-cli/libs/router'

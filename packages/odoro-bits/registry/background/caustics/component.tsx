@@ -1,22 +1,22 @@
 /**
- * Caustiques : le reseau de lumiere au fond d un bassin, imite par replis successifs.
+ * Caustics: the web of light on the floor of a pool, imitated by successive folds.
  *
- * ## Le principe
+ * ## The principle
  *
- * Cinq replis de l espace par le sinus de ses propres coordonnees. La distance accumulee dessine des filaments la ou les rayons se concentreraient.
+ * Five folds of space by the sine of its own coordinates. The accumulated distance draws filaments where the rays would converge.
  *
- * L exposant applique a la fin est ce qui separe un filament net d un halo de brouillard.
+ * The exponent applied at the end is what separates a crisp filament from a halo of fog.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur — les recopier ici en ferait autant
- * de versions a maintenir qu'il y a de fonds.
+ * It carries only what sets it apart: its shader, its settings and its fallback.
+ * Reading the tokens, converting them to floats and re-reading them when the
+ * theme changes all come from the engine — copying them here would leave as
+ * many versions to maintain as there are backgrounds.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en
- * accorde qu'une par backend — et sous mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface — it grants only one
+ * per backend — and under reduced motion.
  *
  * @module
  */
@@ -32,42 +32,42 @@ import {
 } from '@odoro-cli/engine'
 import { type ReactElement } from 'react'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface CausticsControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to this component. */
 export interface CausticsOwnProps {
-  /** Vitesse du reseau. @defaultValue 0.5 */
+  /** Web speed. @defaultValue 0.5 */
   speed?: number
-  /** Echelle du reseau. @defaultValue 4 */
+  /** Web scale. @defaultValue 4 */
   scale?: number
-  /** Force de la lumiere. @defaultValue 1 */
+  /** Light strength. @defaultValue 1 */
   intensity?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<CausticsControls>
 }
 
-/** Toutes les proprietes. */
+/** Every property. */
 export type CausticsProps = Customisable<CausticsOwnProps>
 
-/** Tokens employes par defaut. */
+/** Tokens used by default. */
 const DEFAULT_TOKENS = ['--o-theme-bg', '--o-palette-sky-200'] as const
 
-/** Repli par defaut : une teinte figee, dans les memes tons. */
+/** Default fallback: a frozen hue, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-b o-from-zinc-50 dark:o-from-sky-950 o-to-zinc-200 dark:o-to-sky-800'
 
 /**
- * Caustiques.
+ * Caustics.
  *
  * @example
  * <div className="o-relative o-min-h-screen">

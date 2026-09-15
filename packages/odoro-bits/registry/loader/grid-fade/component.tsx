@@ -1,27 +1,27 @@
 /**
- * Grille en fondu : neuf points s'eteignent et se rallument en ondes
- * concentriques, du centre vers les coins.
+ * Grid fade: nine dots go out and come back on in concentric waves, from
+ * the center toward the corners.
  *
- * ## Trois anneaux, pas neuf delais
+ * ## Three rings, not nine delays
  *
- * Dans un carre de trois par trois, chaque point est a l'une de trois
- * distances du centre : le centre lui-meme, les quatre milieux de cote, les
- * quatre coins. Le delai de chaque point est celui de son anneau, pas de sa
- * position : l'onde part du centre et atteint les coins en dernier, comme un
- * caillou dans l'eau. Un delai par position, de gauche a droite, ferait une
- * lecture — c'est le sujet de `grid-wave`, pas celui-ci.
+ * In a three by three square, each dot sits at one of three distances from
+ * the center: the center itself, the four side midpoints, the four corners.
+ * The delay of each dot is the delay of its ring, not of its position: the
+ * wave leaves the center and reaches the corners last, like a pebble in
+ * water. A delay per position, from left to right, would make a reading —
+ * that is the subject of `grid-wave`, not of this one.
  *
- * Les delais sont negatifs, et c'est le centre qui a le plus d'avance :
- * l'onde est deja en route a la premiere image, sans point qui attend.
+ * The delays are negative, and it is the center that has the most lead: the
+ * wave is already on its way at the first frame, with no dot left waiting.
  *
- * ## Un statut, pas un dessin
+ * ## A status, not a drawing
  *
- * L'element porte `role="status"` et un libelle pour les lecteurs d'ecran :
- * l'attente est une information, pas une decoration. Les points sont retires
- * de l'arbre d'accessibilite.
+ * The element carries `role="status"` and a label for screen readers: the
+ * wait is information, not decoration. The dots are removed from the
+ * accessibility tree.
  *
- * Sous mouvement reduit, les neuf points restent pleins : la grille se lit
- * encore comme un chargeur, seule l'onde s'arrete.
+ * Under reduced motion, the nine dots stay full: the grid still reads as a
+ * loader, only the wave stops.
  *
  * @module
  */
@@ -29,10 +29,10 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Id of the injected stylesheet. */
 const STYLE_ID = 'o-grid-fade'
 
-/** Pose la grille et son fondu, une fois par document. */
+/** Sets the grid and its fade, once per document. */
 function ensureGridFadeRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -54,7 +54,7 @@ function ensureGridFadeRule(): void {
     '0%,100%{opacity:1;transform:scale(1)}',
     '50%{opacity:0.15;transform:scale(0.6)}',
     '}',
-    // Neuf points pleins : la grille dit encore « attente », sans onde.
+    // Nine full dots: the grid still says "wait", without the wave.
     '@media (prefers-reduced-motion:reduce){',
     '[data-o-grid-fade-dot]{animation:none;opacity:1;transform:none}',
     '}',
@@ -62,26 +62,26 @@ function ensureGridFadeRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** The component's own props. */
 export interface GridFadeOwnProps {
-  /** Diametre d'un point, en pixels. @defaultValue 8 */
+  /** Diameter of one dot, in pixels. @defaultValue 8 */
   size?: number
-  /** Duree d'un cycle complet, en millisecondes. @defaultValue 1200 */
+  /** Duration of one complete cycle, in milliseconds. @defaultValue 1200 */
   speed?: number
-  /** Couleur des points. @defaultValue la couleur du texte */
+  /** Color of the dots. @defaultValue the text color */
   color?: string
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */
+  /** Label announced to screen readers. @defaultValue 'Loading' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type GridFadeProps = Customisable<GridFadeOwnProps, 'span'>
 
 /**
- * Distance en anneaux depuis le centre d'un carre de trois par trois.
+ * Distance in rings from the center of a three by three square.
  *
- * Le centre vaut zero, les milieux de cote un, les coins deux : c'est la
- * distance de Tchebychev, celle ou une diagonale coute autant qu'un pas.
+ * The center is zero, the side midpoints one, the corners two: it is the
+ * Chebyshev distance, the one where a diagonal costs as much as a step.
  */
 function ring(index: number): number {
   const row = Math.floor(index / 3) - 1
@@ -90,20 +90,20 @@ function ring(index: number): number {
 }
 
 /**
- * Signale une attente par une grille de points en ondes concentriques.
+ * Signals a wait with a grid of dots in concentric waves.
  *
  * @example
  * <GridFade />
  *
  * @example
- * // Plus gros, plus lent, dans la teinte de marque.
+ * // Bigger, slower, in the brand hue.
  * <GridFade size={12} speed={1800} color="var(--o-palette-brand-500)" />
  */
 export function GridFade({
   size = 8,
   speed = 1200,
   color = 'currentColor',
-  label = 'Chargement',
+  label = 'Loading',
   ...rest
 }: GridFadeProps): ReactElement {
   ensureGridFadeRule()
@@ -133,8 +133,9 @@ export function GridFade({
           data-o-grid-fade-dot=""
           style={
             {
-              // Le centre a deux quarts de cycle d'avance sur les coins :
-              // l'onde part du milieu, en negatif pour etre deja en route.
+              // The center has two quarters of a cycle of lead over the
+              // corners: the wave starts in the middle, negative so as to be
+              // already on its way.
               '--o-gfade-delay': `${String(Math.round((-speed * (2 - ring(index))) / 4))}ms`,
             } as CSSProperties
           }

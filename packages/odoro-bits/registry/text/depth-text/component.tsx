@@ -1,38 +1,38 @@
 /**
- * Profondeur : le titre est extrude en couches, et le bloc tourne sur lui-meme.
+ * Depth: the heading is extruded into layers, and the block turns on itself.
  *
- * ## Une extrusion, pas une ombre portee
+ * ## An extrusion, not a drop shadow
  *
- * Une ombre portee est plate : elle ne revele rien quand l'objet tourne. Ici
- * chaque copie est reculee **en profondeur** — `translate3d` sur l'axe Z, dans
- * un contexte `preserve-3d` — de sorte que la rotation lente decouvre la
- * tranche du bloc, puis la referme. C'est la rotation qui rend l'epaisseur
- * credible ; sans elle, on ne verrait qu'un decalage.
+ * A drop shadow is flat: it reveals nothing when the object turns. Here each
+ * copy is pushed back **in depth** — `translate3d` on the Z axis, inside a
+ * `preserve-3d` context — so that the slow rotation uncovers the side of the
+ * block, then closes it again. It is the rotation that makes the thickness
+ * credible; without it, one would only see an offset.
  *
- * ## Rien ne s'execute
+ * ## Nothing runs
  *
- * Les copies sont posees au rendu, leur decalage vient d'une variable
- * multipliee par leur rang, et la rotation est une animation CSS. Le
- * compositeur anime **un seul** element — la pile — et les copies suivent
- * parce qu'elles vivent dans son espace 3D. Un JavaScript par image serait du
- * gaspillage pour un mouvement qui ne depend de rien.
+ * The copies are laid down at render, their offset comes from a variable
+ * multiplied by their rank, and the rotation is a CSS animation. The
+ * compositor animates **a single** element — the stack — and the copies follow
+ * because they live in its 3D space. One JavaScript per frame would be waste
+ * for a movement that depends on nothing.
  *
- * ## L'ordre du document sert de repli
+ * ## The document order serves as the fallback
  *
- * Les copies sont ecrites de la plus lointaine a la plus proche, la face
- * veritable en dernier. La ou `preserve-3d` n'existe pas, l'ordre de peinture
- * donne deja le bon empilement : le titre reste au-dessus de son extrusion.
+ * The copies are written from the furthest to the nearest, the real face last.
+ * Where `preserve-3d` does not exist, the paint order already gives the right
+ * stacking: the heading stays above its extrusion.
  *
  * ## Distinction
  *
- * `echo-text` pose lui aussi des copies, mais attenuees, en deux dimensions,
- * et elles suivent le pointeur avec du retard : c'est une trainee. Ici les
- * copies sont solides, soudees au titre, et rien ne suit le pointeur.
+ * `echo-text` also lays down copies, but faded, in two dimensions, and they
+ * follow the pointer with a lag: that is a trail. Here the copies are solid,
+ * welded to the heading, and nothing follows the pointer.
  *
- * ## Mouvement reduit
+ * ## Reduced motion
  *
- * La rotation s'arrete, l'extrusion reste. C'est bien l'etat d'arrivee :
- * l'epaisseur est la forme du titre, pas son animation.
+ * The rotation stops, the extrusion stays. That really is the arrival state:
+ * the thickness is the shape of the heading, not its animation.
  *
  * @module
  */
@@ -40,43 +40,43 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import { type CSSProperties, type ElementType, type ReactElement } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface DepthTextOwnProps {
-  /** Texte a extruder. Une chaine : elle est copiee couche par couche. */
+  /** Text to extrude. A string: it is copied layer by layer. */
   children: string
-  /** Balise rendue. @defaultValue 'span' */
+  /** Rendered tag. @defaultValue 'span' */
   as?: ElementType
-  /** Nombre de couches d'extrusion. @defaultValue 8 */
+  /** Number of extrusion layers. @defaultValue 8 */
   depth?: number
-  /** Decalage d'une couche a la suivante, en pixels. @defaultValue 2 */
+  /** Offset from one layer to the next, in pixels. @defaultValue 2 */
   step?: number
   /**
-   * Couleur de la tranche.
+   * Colour of the side.
    *
-   * Une valeur, pas un role : l'epaisseur est un parti pris graphique, et la
-   * lier a l'encre du theme la rendrait invisible.
+   * A value, not a role: the thickness is a graphic decision, and tying it to
+   * the ink of the theme would make it invisible.
    *
-   * @defaultValue une teinte de la palette de marque
+   * @defaultValue a hue from the brand palette
    */
-  couleur?: string
-  /** Amplitude de la rotation, en degres. @defaultValue 16 */
+  color?: string
+  /** Amplitude of the rotation, in degrees. @defaultValue 16 */
   angle?: number
-  /** Duree d'un aller-retour complet, en millisecondes. @defaultValue 6000 */
+  /** Duration of one full round trip, in milliseconds. @defaultValue 6000 */
   speed?: number
-  /** Distance de fuite, en pixels. Plus bas, plus marque. @defaultValue 600 */
+  /** Vanishing distance, in pixels. The lower, the more pronounced. @defaultValue 600 */
   perspective?: number
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type DepthTextProps = Customisable<DepthTextOwnProps, 'span'>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-depth-text'
 
-/** Plafond de couches : au-dela, l'epaisseur ne se lit plus, elle empate. */
-const COUCHES_MAX = 32
+/** Ceiling on layers: beyond it, the thickness no longer reads, it clogs. */
+const MAX_LAYERS = 32
 
-/** Pose les regles de l'extrusion, une fois par document. */
+/** Sets the extrusion rules, once per document. */
 function ensureDepthRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -84,34 +84,35 @@ function ensureDepthRule(): void {
   const style = document.createElement('style')
   style.id = STYLE_ID
   style.textContent = [
-    '[data-o-depth]{display:inline-block;perspective:var(--o-depth-fuite)}',
+    '[data-o-depth]{display:inline-block;perspective:var(--o-depth-vanish)}',
     '[data-o-depth-stack]{',
     'position:relative;display:inline-block;transform-style:preserve-3d;',
     'animation:o-depth-turn var(--o-depth-speed) ease-in-out infinite;',
     '}',
-    // Les copies occupent exactement la boite de la face : meme largeur, donc
-    // meme composition des lignes.
+    // The copies occupy exactly the box of the face: same width, hence the
+    // same line composition.
     '[data-o-depth-layer]{',
     'position:absolute;left:0;top:0;width:100%;',
     'color:var(--o-depth-colour);pointer-events:none;',
     'transform:translate3d(',
-    'calc(var(--o-depth-rang) * var(--o-depth-step)),',
-    'calc(var(--o-depth-rang) * var(--o-depth-step)),',
-    'calc(var(--o-depth-rang) * var(--o-depth-step) * -1));',
+    'calc(var(--o-depth-row) * var(--o-depth-step)),',
+    'calc(var(--o-depth-row) * var(--o-depth-step)),',
+    'calc(var(--o-depth-row) * var(--o-depth-step) * -1));',
     '}',
     '[data-o-depth-face]{position:relative;display:inline-block}',
     '@keyframes o-depth-turn{',
     '0%,100%{transform:rotateY(calc(var(--o-depth-angle) * -1)) rotateX(calc(var(--o-depth-angle) / 3))}',
     '50%{transform:rotateY(var(--o-depth-angle)) rotateX(calc(var(--o-depth-angle) / -3))}',
     '}',
-    // Sans mouvement, le bloc s'immobilise de face : l'epaisseur reste.
+    // With no motion, the block comes to rest facing forward: the thickness
+    // remains.
     '@media (prefers-reduced-motion:reduce){[data-o-depth-stack]{animation:none}}',
   ].join('')
   document.head.append(style)
 }
 
 /**
- * Extrude un titre en couches et le fait tourner lentement.
+ * Extrudes a heading into layers and turns it slowly.
  *
  * @example
  * <DepthText as="h1" className="o-text-5xl o-font-extrabold">
@@ -119,8 +120,8 @@ function ensureDepthRule(): void {
  * </DepthText>
  *
  * @example
- * // Une epaisseur profonde et sombre, presque immobile.
- * <DepthText depth={18} step={3} angle={6} speed={12000} couleur="var(--o-palette-indigo-700)">
+ * // A deep and dark thickness, almost motionless.
+ * <DepthText depth={18} step={3} angle={6} speed={12000} color="var(--o-palette-indigo-700)">
  *   Relief
  * </DepthText>
  */
@@ -129,7 +130,7 @@ export function DepthText({
   as: Tag = 'span',
   depth = 8,
   step = 2,
-  couleur = 'var(--o-palette-brand-500)',
+  color = 'var(--o-palette-brand-500)',
   angle = 16,
   speed = 6000,
   perspective = 600,
@@ -139,35 +140,35 @@ export function DepthText({
 
   const { className, style } = mergePresentation({}, rest)
 
-  const couches = Math.max(0, Math.min(COUCHES_MAX, Math.round(depth)))
+  const layers = Math.max(0, Math.min(MAX_LAYERS, Math.round(depth)))
 
-  const styleRacine = {
+  const rootStyle = {
     ...style,
-    '--o-depth-fuite': `${String(perspective)}px`,
+    '--o-depth-vanish': `${String(perspective)}px`,
     '--o-depth-step': `${String(step)}px`,
-    '--o-depth-colour': couleur,
+    '--o-depth-colour': color,
     '--o-depth-angle': `${String(angle)}deg`,
     '--o-depth-speed': `${String(speed)}ms`,
   } as CSSProperties
 
-  // De la plus lointaine a la plus proche : voir l'en-tete, l'ordre du
-  // document sert de repli la ou la profondeur n'est pas composee.
-  const rangs = Array.from({ length: couches }, (_, index) => couches - index)
+  // From the furthest to the nearest: see the header, the document order
+  // serves as the fallback where depth is not composited.
+  const ranks = Array.from({ length: layers }, (_, index) => layers - index)
 
   return (
-    <Tag {...rest} className={className} style={styleRacine} data-o-depth="">
+    <Tag {...rest} className={className} style={rootStyle} data-o-depth="">
       <span data-o-depth-stack="">
-        {rangs.map((rang) => (
+        {ranks.map((rank) => (
           <span
-            key={rang}
+            key={rank}
             aria-hidden
             data-o-depth-layer=""
-            style={{ '--o-depth-rang': rang } as CSSProperties}
+            style={{ '--o-depth-row': rank } as CSSProperties}
           >
             {children}
           </span>
         ))}
-        {/* La face : le texte veritable, expose une seule fois. */}
+        {/* The face: the real text, exposed once only. */}
         <span data-o-depth-face="">{children}</span>
       </span>
     </Tag>

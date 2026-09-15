@@ -1,18 +1,18 @@
 /**
- * Damier : une alternance de cases, en un seul degrade conique repete.
+ * Checker: alternating squares, from a single repeated conic gradient.
  *
- * ## Pourquoi un degrade conique
+ * ## Why a conic gradient
  *
- * Un damier se decrit d'habitude avec deux degrades lineaires decales — la
- * recette d'avant `conic-gradient`. Le conique fait mieux : quatre quarts de
- * tour autour du centre d'une tuile donnent exactement deux cases pleines et
- * deux cases vides, en une seule image de fond. Moins de couches, meme motif.
+ * A checkerboard is usually described with two offset linear gradients — the
+ * recipe from before `conic-gradient`. The conic does better: four quarter
+ * turns around a tile's centre give exactly two filled squares and two empty
+ * ones, in a single background image. Fewer layers, same pattern.
  *
- * ## Pourquoi la force est un reglage et pas la couleur seule
+ * ## Why the strength is a setting and not the colour alone
  *
- * Un damier plein attire l'oeil comme un plateau de jeu. En fond, il ne doit
- * etre qu'une texture : la force melange la couleur au transparent, et le
- * reglage par defaut le laisse a peine visible.
+ * A full checkerboard draws the eye like a game board. As a background it
+ * must be no more than a texture: the strength mixes the colour with
+ * transparent, and the default setting leaves it barely visible.
  *
  * @module
  */
@@ -20,21 +20,21 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import { type CSSProperties, type ReactElement } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to this component. */
 export interface CheckerOwnProps {
-  /** Cote d'une case, en pixels. @defaultValue 24 */
+  /** Side of one square, in pixels. @defaultValue 24 */
   size?: number
-  /** Opacite des cases pleines, entre 0 et 1. @defaultValue 0.06 */
+  /** Opacity of the filled squares, between 0 and 1. @defaultValue 0.06 */
   strength?: number
-  /** Couleur des cases pleines. */
+  /** Colour of the filled squares. */
   color?: string
 }
 
-/** Toutes les proprietes. */
+/** Every property. */
 export type CheckerProps = Customisable<CheckerOwnProps>
 
 /**
- * Damier de fond.
+ * Background checker.
  *
  * @example
  * <div className="o-relative o-min-h-screen">
@@ -49,7 +49,7 @@ export function Checker({
   ...rest
 }: CheckerProps): ReactElement {
   const tile = `color-mix(in oklab, ${color} ${String(Math.round(strength * 100))}%, transparent)`
-  // La tuile fait deux cases de cote : le conique y decoupe ses quatre quarts.
+  // The tile is two squares on a side: the conic cuts its four quarters there.
   const period = `${String(size * 2)}px`
 
   const { className, style } = mergePresentation({}, rest)

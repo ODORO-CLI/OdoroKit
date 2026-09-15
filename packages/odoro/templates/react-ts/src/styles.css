@@ -1,9 +1,9 @@
-/* Styles propres a l'application.
+/* Styles that belong to the application.
 
-   Tout le reste vient des jetons Odoro : surcharger une variable ci-dessous
-   retheme l'ensemble, composants de la librairie compris. La teinte de marque
-   est `--o-palette-brand-500` ; la remplacer suffit a changer la couleur de la
-   page, du signe et des boutons d'un seul coup. */
+   Everything else comes from the Odoro tokens: overriding a variable below
+   rethemes the whole thing, library components included. The brand hue is
+   `--o-palette-brand-500`; replacing it is enough to change the colour of the
+   page, of the mark and of the buttons in one go. */
 
 .app-shell {
   min-height: 100dvh;

@@ -1,29 +1,29 @@
 /**
- * Ferrofluide : une flaque magnetique dont les pics se dressent sous le
- * pointeur.
+ * Ferrofluid: a magnetic pool whose spikes rise under the
+ * pointer.
  *
- * ## Le principe
+ * ## The principle
  *
- * Un reseau hexagonal de cones, tire de trois cosinus a cent vingt degres,
- * dont l'exposant croit avec la proximite de l'aimant : bosses molles au
- * loin, aiguilles dessous. Le relief est evalue trois fois et son gradient
- * sert de normale — un fluide noir ne se voit que par ses reflets.
+ * A hexagonal lattice of cones, drawn from three cosines at a hundred and
+ * twenty degrees, whose exponent grows with the nearness of the magnet:
+ * soft mounds far off, needles beneath. The relief is evaluated three times
+ * and its gradient serves as the normal — a black fluid is seen only by its highlights.
  *
- * ## A quoi ce fond reagit
+ * ## What this background reacts to
  *
- * Au deplacement du pointeur, avec amortissement : l'aimant le suit, la
- * flaque s'y deplace et les pics s'y dressent. A la sortie du cadre, le hook
- * ramene la cible au centre — le fluide y revient d'elle-meme.
+ * To pointer movement, with damping: the magnet follows it, the pool moves
+ * with it and the spikes rise under it. On leaving the frame, the hook
+ * brings the target back to the centre — the fluid returns there on its own.
  *
- * ## Le pont pointeur → shader
+ * ## The pointer → shader bridge
  *
- * Aucun rendu React par image : le composant mute en place un tableau stable
- * passe en uniform, et la surface relit ses uniforms a chaque image. La
- * recopie se fait dans la boucle du moteur, en priorite d'entree.
+ * No React render per frame: the component mutates a stable array in place
+ * passed as a uniform, and the surface re-reads its uniforms every frame. The
+ * copy happens inside the engine loop, at input priority.
  *
- * ## Sous mouvement reduit
+ * ## Under reduced motion
  *
- * La surface est refusee par le moteur et le repli statique s'affiche.
+ * The surface is refused by the engine and the static fallback shows.
  *
  * @module
  */
@@ -44,61 +44,61 @@ import { usePointerDamped } from '@registre/hooks/usePointerDamped'
 
 import { FERROFLUID_FRAGMENT } from './ferrofluid.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface FerrofluidControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to this component. */
 export interface FerrofluidOwnProps {
-  /** Nombre de pics par hauteur de cadre. @defaultValue 14 */
+  /** Number of spikes per frame height. @defaultValue 14 */
   spikes?: number
-  /** Portee de l'aimant, en hauteurs de cadre. @defaultValue 0.35 */
+  /** Reach of the magnet, in frame heights. @defaultValue 0.35 */
   reach?: number
-  /** Hauteur des pics sous l'aimant. @defaultValue 0.8 */
+  /** Height of the spikes under the magnet. @defaultValue 0.8 */
   height?: number
-  /** Force du reflet. @defaultValue 0.7 */
+  /** Strength of the highlight. @defaultValue 0.7 */
   gloss?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<FerrofluidControls>
 }
 
-/** Toutes les proprietes. */
+/** Every property. */
 export type FerrofluidProps = Customisable<FerrofluidOwnProps>
 
 /**
- * Tokens employes par defaut : le plateau, le fluide, le reflet.
+ * Tokens used by default: the tray, the fluid, the highlight.
  *
- * Le fluide prend l'encre du theme : sombre sur fond clair, clair sur fond
- * sombre. C'est le contraste qui compte, pas le noir.
+ * The fluid takes the theme's ink: dark on a light background, light on a
+ * dark one. It is the contrast that counts, not the black.
  */
 const DEFAULT_TOKENS = ['--o-theme-bg', '--o-theme-fg', '--o-palette-brand-500'] as const
 
-/** Repli par defaut : une flaque figee au centre, dans les memes tons. */
+/** Default fallback: a pool frozen at the centre, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-br o-from-zinc-50 dark:o-from-zinc-950 o-via-zinc-800 dark:o-via-zinc-200 o-to-zinc-50 dark:o-to-zinc-950'
 
 /**
- * Bruit du bord de la flaque, retire en qualite basse.
+ * Noise on the pool's edge, removed at low quality.
  *
- * Le bord est le seul bruit du shader, et il est lu trois fois — une par
- * evaluation du relief. Le retirer rend le bord circulaire, ce qui se voit
- * peu ; le garder coute trois bruits par fragment.
+ * The edge is the shader's only noise, and it is read three times — once
+ * per evaluation of the relief. Removing it makes the edge circular, which
+ * barely shows; keeping it costs three noises per fragment.
  */
 const DETAIL = 1
 
-/** Bruit du bord en qualite basse. */
+/** Edge noise at low quality. */
 const LOW_DETAIL = 0
 
 /**
- * Ferrofluide.
+ * Ferrofluid.
  *
  * @example
  * <div className="o-relative o-min-h-screen">
@@ -118,22 +118,22 @@ export function Ferrofluid({
 }: FerrofluidProps): ReactElement {
   const [host, setHost] = useState<HTMLDivElement | null>(null)
 
-  // Tableau stable, mute en place : la surface relit les uniforms a chaque
-  // image, l'identite ne change pas, la mutation suffit — aucun setState.
+  // Stable array, mutated in place: the surface re-reads the uniforms every
+  // frame, the identity never changes, mutating is enough — no setState.
   const uPointer = useRef<number[]>([0.5, 0.5]).current
 
-  // Un rattrapage lent : le fluide a de l'inertie, il ne saute pas.
-  const pointer = usePointerDamped({ host, speed: 2.5, name: 'ferrofluid : pointeur' })
+  // A slow catch-up: the fluid has inertia, it does not jump.
+  const pointer = usePointerDamped({ host, speed: 2.5, name: 'ferrofluid : pointer' })
 
   useEffect(() => {
     const subscription = clock.subscribe(
       () => {
-        // Du repere du hook (centre, y vers le bas) vers celui de la texture
-        // (coin bas-gauche, y vers le haut).
+        // From the hook's frame (centred, y downwards) to the texture's frame
+        // (bottom-left corner, y upwards).
         uPointer[0] = (pointer.current.x + 1) / 2
         uPointer[1] = 1 - (pointer.current.y + 1) / 2
       },
-      { priority: CLOCK_PRIORITY.input, name: 'ferrofluid : pont' },
+      { priority: CLOCK_PRIORITY.input, name: 'ferrofluid : bridge' },
     )
     return () => subscription.unsubscribe()
   }, [pointer, uPointer])

@@ -1,27 +1,27 @@
 /**
- * Triangulation : un pavage de facettes triangulaires dont l'eclairage
- * bouge, comme une lumiere qui glisse sur un cristal.
+ * Triangulation: a tiling of triangular facets whose lighting moves, like a
+ * light sliding over a crystal.
  *
- * ## Le principe
+ * ## The principle
  *
- * Chaque case de la grille est coupee par une diagonale, alternee en damier
- * pour que le pavage n'ait pas de sens dominant. L'eclairage d'une facette
- * compose une respiration qui lui est propre et un balayage diagonal qui
- * traverse tout le pavage ; les plus vives prennent une teinte.
+ * Every cell of the grid is cut by a diagonal, alternating in a chequerboard
+ * so that the tiling has no dominant direction. The lighting of a facet
+ * combines a breathing of its own and a diagonal sweep that crosses the whole
+ * tiling; the brightest ones take on a tint.
  *
- * Ce qui distingue cette entree de `mosaic` et de `cells` : les facettes
- * sont des triangles fixes, et c'est la lumiere qui bouge, pas le pavage.
+ * What sets this entry apart from `mosaic` and from `cells`: the facets are
+ * fixed triangles, and it is the light that moves, not the tiling.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur — les recopier ici en ferait autant
- * de versions a maintenir qu'il y a de fonds.
+ * It carries only what sets it apart: its shader, its settings and its
+ * fallback. Reading the tokens, converting them to floats and re-reading them
+ * when the theme changes all come from the engine — copying that here would
+ * leave as many versions to maintain as there are backgrounds.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en
- * accorde qu'une par backend — et sous mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface — it grants only one
+ * per backend — and under reduced motion.
  *
  * @module
  */
@@ -38,43 +38,43 @@ import { type ReactElement } from 'react'
 
 import { TRIANGLES_FRAGMENT } from './triangles.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface TrianglesControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to this component. */
 export interface TrianglesOwnProps {
-  /** Nombre de cases sur la hauteur. Borne a quarante par le shader. @defaultValue 7 */
+  /** Number of cells over the height. Capped at forty by the shader. @defaultValue 7 */
   size?: number
-  /** Vitesse de l'eclairage. @defaultValue 0.5 */
+  /** Speed of the lighting. @defaultValue 0.5 */
   speed?: number
-  /** Ecart entre facettes sombres et claires. @defaultValue 0.8 */
+  /** Gap between dark and light facets. @defaultValue 0.8 */
   contrast?: number
-  /** Poids de la teinte sur les facettes les plus vives. @defaultValue 0.6 */
+  /** Weight of the tint on the brightest facets. @defaultValue 0.6 */
   tint?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<TrianglesControls>
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type TrianglesProps = Customisable<TrianglesOwnProps>
 
-/** Tokens employes par defaut : le fond, les facettes, la teinte des plus vives. */
+/** Tokens used by default: the background, the facets, the tint of the brightest. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-theme-line',
   '--o-palette-violet-500',
 ] as const
 
-/** Repli par defaut : une teinte figee, dans les memes tons. */
+/** Default fallback: a frozen tint, in the same tones. */
 const DEFAULT_FALLBACK = 'o-bg-zinc-50 dark:o-bg-zinc-950'
 
 /**
@@ -101,8 +101,8 @@ export function Triangles({
     colors,
     uniforms: { uSize: size, uSpeed: speed, uContrast: contrast, uTint: tint },
     name: 'triangles',
-    // Des joints fins entre des facettes petites scintillent a densite de
-    // pixels reduite : en qualite basse, les cases s'elargissent.
+    // Thin joints between small facets shimmer at a reduced pixel density: at
+    // low quality, the cells widen.
     degrade: (quality) => ({
       uSize: quality === 'low' ? Math.min(size, 6) : size,
     }),

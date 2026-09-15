@@ -1,35 +1,35 @@
 /**
- * Boucle infinie : un trait court parcourt un huit couche, lent aux bouts
- * des boucles, rapide au croisement.
+ * Infinite loop: a short stroke travels a lying figure eight, slow at the
+ * ends of the loops, fast at the crossing.
  *
- * ## Un huit qui se croise, pas deux ronds qui se touchent
+ * ## A figure eight that crosses, not two rings that touch
  *
- * Le trace est une seule courbe fermee, en quatre segments cubiques, dont
- * les tangentes se raccordent au centre : le trait y passe en ligne droite
- * d'une boucle a l'autre, comme sur un vrai symbole d'infini. Deux cercles
- * accoles donneraient un point anguleux au milieu, ou le trait ferait un
- * demi-tour sur place.
+ * The path is a single closed curve, in four cubic segments, whose tangents
+ * join at the centre: the stroke passes through it in a straight line from
+ * one loop to the other, as on a real infinity symbol. Two circles set side
+ * by side would give an angular point in the middle, where the stroke would
+ * turn back on itself.
  *
- * Le trait est un tiret sur ce chemin, deplace par son decalage. Le chemin
- * declare une longueur de cent : le tiret et son decalage se lisent alors
- * en pour cent du trace, quelle que soit sa longueur reelle, et les images
- * cles tombent juste. Le decalage avance par demi-tours en `ease-in-out`,
- * cales pour que le ralenti tombe au bout de chaque boucle et la pointe de
- * vitesse au croisement : c'est le mouvement d'une bille sur un rail en
- * huit, qui remonte en freinant et redescend en accelerant. Un decalage
- * lineaire — le choix par defaut — donnerait un trait sans poids.
+ * The stroke is a dash on that path, moved by its offset. The path declares a
+ * length of a hundred: the dash and its offset then read as a percentage of
+ * the path, whatever its real length, and the keyframes land right. The
+ * offset advances by half turns in `ease-in-out`, timed so that the slow
+ * moment falls at the end of each loop and the peak of speed at the crossing:
+ * it is the movement of a bead on a figure-eight rail, which climbs while
+ * braking and comes down accelerating. A linear offset — the default choice —
+ * would give a stroke with no weight.
  *
- * Une animation sur un element SVG, tenue par le compositeur, aucun
- * JavaScript apres le premier rendu.
+ * One animation on an SVG element, held by the compositor, no JavaScript
+ * after the first render.
  *
- * ## Un statut, pas un dessin
+ * ## A status, not a drawing
  *
- * L'element porte `role="status"` et un libelle pour les lecteurs d'ecran :
- * l'attente est une information, pas une decoration. Le trace est retire de
- * l'arbre d'accessibilite.
+ * The element carries `role="status"` and a label for screen readers: the
+ * wait is information, not decoration. The path is removed from the
+ * accessibility tree.
  *
- * Sous mouvement reduit, le trait est pose au bout d'une boucle, sur son
- * rail en trait clair : la figure se lit encore, seul le parcours s'arrete.
+ * Under reduced motion, the stroke is set at the end of a loop, on its rail
+ * in a light stroke: the figure still reads, only the travel stops.
  *
  * @module
  */
@@ -37,31 +37,31 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Id of the injected stylesheet. */
 const STYLE_ID = 'o-infinity-loop'
 
 /**
- * Le huit, dans une vue de 100 sur 56.
+ * The figure eight, in a 100 by 56 view.
  *
- * Il part du centre vers la boucle droite, la parcourt, repasse au centre
- * dans le meme sens, parcourt la boucle gauche, et revient.
+ * It leaves the centre towards the right loop, travels it, passes the centre
+ * again in the same direction, travels the left loop, and comes back.
  */
 const EIGHT =
   'M 50 28 C 64 0, 92 0, 92 28 C 92 56, 64 56, 50 28 C 36 0, 8 0, 8 28 C 8 56, 36 56, 50 28'
 
-/** Longueur du tiret, en pour cent du trace. */
+/** Length of the dash, as a percentage of the path. */
 const DASH = 24
 
 /**
- * Decalage de depart, en pour cent du trace.
+ * Starting offset, as a percentage of the path.
  *
- * Le bout de la boucle droite est au quart du trace ; le tiret y est
- * centre a l'instant le plus lent, et le centre du tiret est a la moitie de
- * sa longueur derriere sa tete.
+ * The end of the right loop is at a quarter of the path; the dash is centred
+ * there at the slowest moment, and the centre of the dash is half its length
+ * behind its head.
  */
 const START = 25 - DASH / 2
 
-/** Pose le rail, le tiret et son parcours, une fois par document. */
+/** Sets the rail, the dash and its travel, once per document. */
 function ensureInfinityRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -76,14 +76,14 @@ function ensureInfinityRule(): void {
     `stroke-dashoffset:${String(-START)};`,
     'animation:o-infinity-loop-run var(--o-infinity-speed) infinite;',
     '}',
-    // Deux demi-tours par cycle : ralenti au bout de chaque boucle, pointe
-    // de vitesse au croisement.
+    // Two half turns per cycle: slow at the end of each loop, peak of speed
+    // at the crossing.
     '@keyframes o-infinity-loop-run{',
     `0%{stroke-dashoffset:${String(-START)};animation-timing-function:ease-in-out}`,
     `50%{stroke-dashoffset:${String(-START - 50)};animation-timing-function:ease-in-out}`,
     `100%{stroke-dashoffset:${String(-START - 100)}}`,
     '}',
-    // Le tiret pose au bout d'une boucle : la figure est dite, a l'arret.
+    // The dash set at the end of a loop: the figure is said, standing still.
     '@media (prefers-reduced-motion:reduce){',
     '[data-o-infinity-dash]{animation:none}',
     '}',
@@ -91,31 +91,31 @@ function ensureInfinityRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to the component. */
 export interface InfinityLoopOwnProps {
-  /** Largeur du huit, en pixels. @defaultValue 64 */
+  /** Width of the figure eight, in pixels. @defaultValue 64 */
   size?: number
-  /** Epaisseur du trait, en pixels. @defaultValue 4 */
+  /** Thickness of the stroke, in pixels. @defaultValue 4 */
   thickness?: number
-  /** Duree d'un tour complet du huit, en millisecondes. @defaultValue 2000 */
+  /** Duration of one complete turn of the figure eight, in milliseconds. @defaultValue 2000 */
   speed?: number
-  /** Couleur du trait et du rail. @defaultValue la couleur du texte */
+  /** Colour of the stroke and of the rail. @defaultValue the text colour */
   color?: string
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */
+  /** Label announced to screen readers. @defaultValue 'Loading' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type InfinityLoopProps = Customisable<InfinityLoopOwnProps, 'span'>
 
 /**
- * Signale une attente par un trait qui parcourt un huit couche.
+ * Signals a wait with a stroke travelling a lying figure eight.
  *
  * @example
  * <InfinityLoop />
  *
  * @example
- * // Plus large, plus fin, plus lent, dans la teinte de marque.
+ * // Wider, thinner, slower, in the brand hue.
  * <InfinityLoop size={96} thickness={3} speed={3000} color="var(--o-palette-brand-500)" />
  */
 export function InfinityLoop({
@@ -123,17 +123,17 @@ export function InfinityLoop({
   thickness = 4,
   speed = 2000,
   color = 'currentColor',
-  label = 'Chargement',
+  label = 'Loading',
   ...rest
 }: InfinityLoopProps): ReactElement {
   ensureInfinityRule()
 
   const { className, style } = mergePresentation({}, rest)
 
-  // Le dessin vit dans une vue de 100 unites de large : l'epaisseur
-  // demandee en pixels est convertie pour que le trait garde sa mesure a
-  // toute taille. Le huit laisse huit unites de marge sur les cotes, ce qui
-  // borne l'epaisseur.
+  // The drawing lives in a view 100 units wide: the thickness asked for in
+  // pixels is converted so that the stroke keeps its measure at any size.
+  // The figure eight leaves eight units of margin on the sides, which bounds
+  // the thickness.
   const stroke = Math.min((thickness / size) * 100, 14)
 
   const loaderStyle = {

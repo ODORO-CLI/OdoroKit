@@ -1,24 +1,24 @@
 /**
- * Timelines liees au cycle de vie d'un composant.
+ * Timelines tied to the life cycle of a component.
  *
- * ## Le contexte, et pourquoi il est obligatoire
+ * ## The context, and why it is mandatory
  *
- * Chaque hook cree un contexte d'animation porte par la ref fournie, et le
- * revoque au demontage. Toute animation creee a l'interieur — y compris par du
- * code appele indirectement — appartient a ce contexte et disparait avec lui.
+ * Every hook creates an animation context carried by the supplied ref, and
+ * reverts it on unmount. Any animation created inside — including by code
+ * called indirectly — belongs to that context and disappears with it.
  *
- * Sans cela, une animation continue de tourner apres le demontage de son
- * composant : elle ecrit dans un noeud detache, retient une reference sur
- * l'arbre React, et le seul symptome est une consommation memoire qui monte au
- * fil des navigations. C'est la fuite la plus courante d'une application
- * animee, et elle est invisible tant qu'on ne la cherche pas.
+ * Without it, an animation keeps running after its component unmounts: it
+ * writes into a detached node, holds a reference on the React tree, and the
+ * only symptom is a memory usage that climbs over the course of navigations.
+ * It is the most common leak of an animated application, and it is invisible
+ * as long as you do not look for it.
  *
- * ## Mouvement reduit
+ * ## Reduced motion
  *
- * Quand la politique neutralise le mouvement, la timeline est construite puis
- * **avancee immediatement a son etat final**. Elle n'est pas annulee : un
- * element qui devait apparaitre apparait, sans transition. C'est la regle du
- * moteur, appliquee ici plutot que dans chaque appelant.
+ * When the policy neutralises motion, the timeline is built then **advanced
+ * immediately to its final state**. It is not cancelled: an element that was
+ * to appear appears, without a transition. This is the rule of the engine,
+ * applied here rather than in every caller.
  *
  * @module
  */
@@ -29,55 +29,55 @@ import { type DependencyList, type RefObject, useEffect, useRef } from 'react'
 import { motionPolicy } from '../core/motion-policy.js'
 import { registry } from '../core/registry.js'
 
-/** Ce que recoit la fonction de construction. */
+/** What the build function receives. */
 export interface TimelineSetup {
-  /** Timeline a peupler. */
+  /** Timeline to populate. */
   readonly timeline: gsap.core.Timeline
-  /** Contexte, pour enregistrer des animations hors timeline. */
+  /** Context, to register animations outside the timeline. */
   readonly context: gsap.Context
-  /** Element racine, tel que fourni. */
+  /** Root element, as supplied. */
   readonly element: Element
-  /** `true` si le mouvement est neutralise. */
+  /** `true` if motion is neutralised. */
   readonly reduced: boolean
 }
 
-/** Options de {@link useTimeline}. */
+/** Options of {@link useTimeline}. */
 export interface TimelineOptions {
-  /** Nom affiche dans le panneau de diagnostic. */
+  /** Name shown in the diagnostics panel. */
   name?: string
-  /** Reglages transmis a la timeline. */
+  /** Settings passed to the timeline. */
   vars?: gsap.TimelineVars
   /**
-   * Joue la timeline des sa construction.
+   * Plays the timeline as soon as it is built.
    *
    * @defaultValue true
    */
   autoplay?: boolean
 }
 
-/** Ce que rend {@link useTimeline}. */
+/** What {@link useTimeline} returns. */
 export interface TimelineHandle<T extends Element> {
-  /** Ref a poser sur l'element racine. */
+  /** Ref to set on the root element. */
   readonly ref: RefObject<T | null>
-  /** Timeline courante, ou `null` avant le montage. */
+  /** Current timeline, or `null` before mounting. */
   readonly timeline: RefObject<gsap.core.Timeline | null>
 }
 
 /**
- * Cree une timeline dont la duree de vie suit celle du composant.
+ * Creates a timeline whose lifetime follows that of the component.
  *
- * @param build Construit l'animation. Appelee a chaque changement des
- *   dependances, apres revocation de la precedente.
- * @param deps Dependances, comme pour un effet.
+ * @param build Builds the animation. Called on every change of the
+ *   dependencies, after reverting the previous one.
+ * @param deps Dependencies, as for an effect.
  *
  * @example
  * const { ref } = useTimeline(
  *   ({ timeline }) => {
- *     timeline.from('.titre', { y: 24, opacity: 0 })
- *     timeline.from('.ligne', { scaleX: 0, stagger: 0.08 }, '-=0.2')
+ *     timeline.from('.title', { y: 24, opacity: 0 })
+ *     timeline.from('.line', { scaleX: 0, stagger: 0.08 }, '-=0.2')
  *   },
  *   [],
- *   { name: 'entete' },
+ *   { name: 'header' },
  * )
  *
  * return <header ref={ref}>...</header>
@@ -100,10 +100,10 @@ export function useTimeline<T extends Element = HTMLElement>(
 
     const reduced = motionPolicy.state.reduced
 
-    // Le contexte capture tout ce qui est cree pendant l'appel, y compris par
-    // du code qui ne sait rien de lui. Il est passe en argument : le lire depuis
-    // la variable en cours d'affectation reviendrait a y acceder avant son
-    // initialisation, la fonction de construction s'executant pendant l'appel.
+    // The context captures everything created during the call, including by
+    // code that knows nothing about it. It is passed as an argument: reading it
+    // from the variable being assigned would amount to accessing it before its
+    // initialisation, since the build function runs during the call.
     const context = gsap.context((self) => {
       const created = gsap.timeline({ paused: true, ...vars })
       timeline.current = created
@@ -111,8 +111,8 @@ export function useTimeline<T extends Element = HTMLElement>(
       buildRef.current({ timeline: created, context: self, element, reduced })
 
       if (reduced) {
-        // L'etat final, immediatement : neutraliser ne doit jamais faire
-        // disparaitre un contenu.
+        // The final state, immediately: neutralising must never make content
+        // disappear.
         created.progress(1, true).pause()
         return
       }
@@ -132,27 +132,27 @@ export function useTimeline<T extends Element = HTMLElement>(
       context.revert()
       timeline.current = null
     }
-    // Les dependances sont celles de l'appelant ; `build` est lu par ref pour
-    // ne pas reconstruire l'animation a chaque rendu.
+    // The dependencies are the caller's; `build` is read through a ref so as
+    // not to rebuild the animation on every render.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [...deps, name, autoplay])
 
   return { ref, timeline }
 }
 
-/** Options de {@link useTween}. */
+/** Options of {@link useTween}. */
 export interface TweenOptions {
-  /** Nom affiche dans le panneau de diagnostic. */
+  /** Name shown in the diagnostics panel. */
   name?: string
-  /** Rejoue l'animation a chaque changement de cette valeur. */
+  /** Replays the animation on every change of this value. */
   trigger?: unknown
 }
 
 /**
- * Anime un element unique, sans timeline.
+ * Animates a single element, without a timeline.
  *
- * Raccourci pour le cas le plus frequent. La revocation au demontage et la
- * neutralisation sous mouvement reduit sont identiques a {@link useTimeline}.
+ * A shortcut for the most frequent case. The reverting on unmount and the
+ * neutralisation under reduced motion are identical to {@link useTimeline}.
  *
  * @example
  * const ref = useTween<HTMLDivElement>({ rotate: 360, duration: 2, repeat: -1 })

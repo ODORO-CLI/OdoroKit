@@ -1,119 +1,118 @@
 /**
- * Reponse d'une requete de media, suivie dans le temps.
+ * Answer of a media query, followed over time.
  *
- * ## Pourquoi pas une mesure de largeur
+ * ## Why not a width measurement
  *
- * La facon courante — un ecouteur `resize` qui range `window.innerWidth` dans
- * un etat — est fausse a trois titres. Elle provoque un rendu React par cran
- * de redimensionnement, la ou la reponse ne change qu'une fois sur tout le
- * trajet. Elle ignore tout ce qui n'est pas une largeur : l'orientation, le
- * pointeur grossier, le mouvement reduit, le mode sombre. Et elle duplique les
- * points de rupture de la feuille de style dans le JavaScript, ou ils
- * divergeront des la premiere retouche.
+ * The common way — a `resize` listener that stores `window.innerWidth` in
+ * state — is wrong on three counts. It triggers a React render on every notch
+ * of the resize, where the answer only changes once over the whole trip. It
+ * ignores everything that is not a width: orientation, coarse pointer, reduced
+ * motion, dark mode. And it duplicates the stylesheet breakpoints into the
+ * JavaScript, where they will diverge from the very first touch-up.
  *
- * `matchMedia` repond a la meme question que le CSS, avec la meme grammaire,
- * et ne previent que lorsque la reponse bascule.
+ * `matchMedia` answers the same question as the CSS, with the same grammar,
+ * and only warns when the answer flips.
  *
- * ## Pourquoi `useSyncExternalStore`
+ * ## Why `useSyncExternalStore`
  *
- * Parce que la source est exterieure a React et peut changer **entre** le
- * rendu et l'effet qui s'abonnerait. Un `useState` plus `useEffect` laisse
- * cette fenetre ouverte : on peint une mise en page mobile sur un ecran large,
- * puis on la corrige a l'image suivante. React sait fermer cette fenetre, a
- * condition qu'on lui declare la source telle qu'elle est.
+ * Because the source is external to React and can change **between** the
+ * render and the effect that would subscribe. A `useState` plus `useEffect`
+ * leaves that window open: one paints a mobile layout on a wide screen, then
+ * corrects it on the next frame. React knows how to close that window,
+ * provided the source is declared to it as it really is.
  *
- * C'est aussi ce qui rend le crochet sur au rendu serveur : la troisieme
- * fonction dit quoi repondre quand il n'y a pas de fenetre, plutot que de
- * laisser `matchMedia` lever au milieu du rendu.
+ * That is also what makes the hook safe during server rendering: the third
+ * function says what to answer when there is no window, rather than letting
+ * `matchMedia` throw in the middle of the render.
  *
- * ## Pourquoi les listes sont mises en cache
+ * ## Why the lists are cached
  *
- * `getSnapshot` est appele plusieurs fois par rendu. Fabriquer un
- * `MediaQueryList` a chaque appel en creerait autant d'objets, et surtout
- * l'abonnement porterait sur une liste differente de celle qu'on interroge.
- * Une liste par requete, gardee pour la duree de la page : le navigateur les
- * partage de toute facon.
+ * `getSnapshot` is called several times per render. Building a
+ * `MediaQueryList` on every call would create as many objects, and above all
+ * the subscription would be on a different list from the one being queried.
+ * One list per query, kept for the lifetime of the page: the browser shares
+ * them anyway.
  *
  * @module
  */
 
 import { useCallback, useSyncExternalStore } from 'react'
 
-/** Options de `useMediaQuery`. */
+/** Options of `useMediaQuery`. */
 export interface MediaQueryOptions {
   /**
-   * Reponse rendue la ou `matchMedia` n'existe pas : rendu serveur, ancien
-   * navigateur, environnement de test.
+   * Answer returned where `matchMedia` does not exist: server rendering, old
+   * browser, test environment.
    *
-   * Le defaut est `false`, ce qui revient a dire « la requete ne s'applique
-   * pas ». C'est le choix prudent tant que les requetes sont ecrites en
-   * ajout — `(min-width: 60rem)` decrit ce qu'on ajoute sur grand ecran — et
-   * il faut le renverser pour une requete ecrite en retrait.
+   * The default is `false`, which amounts to saying "the query does not
+   * apply". That is the careful choice as long as queries are written
+   * additively — `(min-width: 60rem)` describes what is added on a large
+   * screen — and it has to be flipped for a query written subtractively.
    *
    * @defaultValue false
    */
-  serveur?: boolean
+  serverValue?: boolean
 }
 
-/** Listes partagees, une par requete. */
-const listes = new Map<string, MediaQueryList>()
+/** Shared lists, one per query. */
+const lists = new Map<string, MediaQueryList>()
 
-/** Liste d'une requete, ou `null` si le navigateur ne sait pas repondre. */
-function liste(query: string): MediaQueryList | null {
+/** List of a query, or `null` when the browser cannot answer. */
+function listFor(query: string): MediaQueryList | null {
   if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
     return null
   }
-  const connue = listes.get(query)
-  if (connue !== undefined) return connue
-  const creee = window.matchMedia(query)
-  listes.set(query, creee)
-  return creee
+  const known = lists.get(query)
+  if (known !== undefined) return known
+  const created = window.matchMedia(query)
+  lists.set(query, created)
+  return created
 }
 
 /**
- * Dit si une requete de media s'applique, et le redit quand cela change.
+ * Says whether a media query applies, and says it again when that changes.
  *
- * @param query Requete, dans la grammaire du CSS.
+ * @param query Query, in the CSS grammar.
  *
  * @example
  * const large = useMediaQuery('(min-width: 60rem)')
  * return large ? <Colonnes /> : <Pile />
  *
  * @example
- * // Une requete ecrite en retrait : le repli serveur doit etre renverse.
- * const grossier = useMediaQuery('(pointer: coarse)', { serveur: true })
+ * // A query written subtractively: the server fallback has to be flipped.
+ * const grossier = useMediaQuery('(pointer: coarse)', { serverValue: true })
  */
 export function useMediaQuery(query: string, options: MediaQueryOptions = {}): boolean {
-  const { serveur = false } = options
+  const { serverValue = false } = options
 
   const subscribe = useCallback(
-    (notifier: () => void): (() => void) => {
-      const cible = liste(query)
-      if (cible === null) return () => undefined
+    (notify: () => void): (() => void) => {
+      const target = listFor(query)
+      if (target === null) return () => undefined
 
-      // `addEventListener` sur une liste de media est recent a l'echelle du
-      // navigateur ; l'ancienne forme reste la seule disponible sur les
-      // Safari encore en circulation.
-      if (typeof cible.addEventListener === 'function') {
-        cible.addEventListener('change', notifier)
+      // `addEventListener` on a media query list is recent on the browser
+      // timescale; the older form stays the only one available on the Safari
+      // versions still in circulation.
+      if (typeof target.addEventListener === 'function') {
+        target.addEventListener('change', notify)
         return () => {
-          cible.removeEventListener('change', notifier)
+          target.removeEventListener('change', notify)
         }
       }
 
-      cible.addListener(notifier)
+      target.addListener(notify)
       return () => {
-        cible.removeListener(notifier)
+        target.removeListener(notify)
       }
     },
     [query],
   )
 
-  const lire = useCallback(
-    (): boolean => liste(query)?.matches ?? serveur,
-    [query, serveur],
+  const read = useCallback(
+    (): boolean => listFor(query)?.matches ?? serverValue,
+    [query, serverValue],
   )
-  const lireServeur = useCallback((): boolean => serveur, [serveur])
+  const readServer = useCallback((): boolean => serverValue, [serverValue])
 
-  return useSyncExternalStore(subscribe, lire, lireServeur)
+  return useSyncExternalStore(subscribe, read, readServer)
 }

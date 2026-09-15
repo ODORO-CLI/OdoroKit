@@ -1,18 +1,17 @@
 /**
- * Polyfills de test.
+ * Test polyfills.
  *
- * jsdom n'implemente ni l'API Web Animations ni `IntersectionObserver`. Ce
- * fichier fournit des doublures suffisamment fideles pour verifier le
- * comportement du moteur d'animation : les animations progressent en temps
- * reel sur des durees courtes, et l'intersection est declenchee explicitement
- * par les tests.
+ * jsdom implements neither the Web Animations API nor `IntersectionObserver`.
+ * This file provides stand-ins faithful enough to check the behavior of the
+ * animation engine: the animations progress in real time over short
+ * durations, and the intersection is triggered explicitly by the tests.
  *
  * @module
  */
 
 import { afterEach } from 'vitest'
 
-/** Doublure minimale d'`Animation`, conforme a ce que la librairie utilise. */
+/** Minimal stand-in for `Animation`, matching what the library uses. */
 class TestAnimation {
   public playState: AnimationPlayState = 'running'
   public readonly finished: Promise<TestAnimation>
@@ -32,8 +31,9 @@ class TestAnimation {
       this.resolve = resolve
       this.reject = reject
     })
-    // Le rejet est toujours traite par la librairie ; sans ce garde-fou, Node
-    // signalerait un rejet non gere pour les animations annulees.
+    // The rejection is always handled by the library; without this guard
+    // rail, Node would report an unhandled rejection for canceled
+    // animations.
     this.finished.catch(() => undefined)
 
     const total = Number(options.duration ?? 0) + Number(options.delay ?? 0)
@@ -41,7 +41,7 @@ class TestAnimation {
     ACTIVE.add(this)
   }
 
-  /** Duree totale demandee, exposee pour les assertions de test. */
+  /** Total requested duration, exposed for the test assertions. */
   public get requestedTiming(): KeyframeAnimationOptions {
     return this.options
   }
@@ -84,7 +84,7 @@ Element.prototype.animate = function animate(
   return new TestAnimation(keyframes ?? [], resolved) as unknown as Animation
 }
 
-/** Observateurs actifs, pour que les tests puissent declencher l'intersection. */
+/** Active observers, so that the tests can trigger the intersection. */
 const OBSERVERS = new Map<IntersectionObserverCallback, Set<Element>>()
 
 class TestIntersectionObserver implements IntersectionObserver {
@@ -120,8 +120,8 @@ globalThis.IntersectionObserver =
   TestIntersectionObserver as unknown as typeof IntersectionObserver
 
 /**
- * Signale a tous les observateurs actifs que leurs elements sont — ou ne sont
- * plus — visibles.
+ * Reports to every active observer that its elements are — or are no longer —
+ * visible.
  *
  * @example
  * triggerIntersection(true)
@@ -138,7 +138,7 @@ export function triggerIntersection(isIntersecting: boolean): void {
 }
 
 /**
- * Force `prefers-reduced-motion` a une valeur donnee pour le test en cours.
+ * Forces `prefers-reduced-motion` to a given value for the current test.
  *
  * @example
  * setReducedMotion(true)

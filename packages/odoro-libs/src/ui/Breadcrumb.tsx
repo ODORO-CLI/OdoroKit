@@ -1,5 +1,5 @@
 /**
- * Fil d'Ariane.
+ * Breadcrumb.
  *
  * @module
  */
@@ -8,27 +8,27 @@ import { Fragment, type ReactElement, type ReactNode } from 'react'
 
 import { cx } from '../styles/cx.js'
 
-/** Une etape du fil d'Ariane. */
+/** One step of the breadcrumb. */
 export interface BreadcrumbItem {
-  /** Libelle affiche. */
+  /** Displayed label. */
   readonly label: ReactNode
-  /** Destination. Sans lien, l'etape est rendue en texte simple. */
+  /** Destination. Without a link, the step is rendered as plain text. */
   readonly href?: string
 }
 
-/** Proprietes de {@link Breadcrumb}. */
+/** Properties of {@link Breadcrumb}. */
 export interface BreadcrumbProps {
-  /** Etapes, de la racine a la page courante. */
+  /** Steps, from the root to the current page. */
   items: readonly BreadcrumbItem[]
-  /** Libelle accessible de la navigation. @defaultValue "Fil d'Ariane" */
+  /** Accessible label of the navigation. @defaultValue 'Breadcrumb' */
   label?: string
-  /** Separateur entre les etapes. @defaultValue un chevron */
+  /** Separator between steps. @defaultValue a chevron */
   separator?: ReactNode
-  /** Classes additionnelles pour la navigation. */
+  /** Additional classes for the navigation. */
   className?: string
 }
 
-/** Chevron separateur par defaut. */
+/** Default separator chevron. */
 function Chevron(): ReactElement {
   return (
     <svg
@@ -52,24 +52,24 @@ function Chevron(): ReactElement {
 }
 
 /**
- * Fil d'Ariane semantique.
+ * Semantic breadcrumb.
  *
- * La derniere etape represente la page courante : elle porte
- * `aria-current="page"` et n'est jamais un lien. Les separateurs sont hors du
- * flux accessible, la structure `ol`/`li` suffit aux lecteurs d'ecran.
+ * The last step represents the current page: it carries `aria-current="page"`
+ * and is never a link. Separators are out of the accessible flow, the
+ * `ol`/`li` structure is enough for screen readers.
  *
  * @example
  * <Breadcrumb
  *   items={[
- *     { label: 'Accueil', href: '/' },
- *     { label: 'Projets', href: '/projets' },
+ *     { label: 'Home', href: '/' },
+ *     { label: 'Projects', href: '/projects' },
  *     { label: 'OdoroKit' },
  *   ]}
  * />
  */
 export function Breadcrumb({
   items,
-  label = "Fil d'Ariane",
+  label = 'Breadcrumb',
   separator,
   className,
 }: BreadcrumbProps): ReactElement {
@@ -79,7 +79,7 @@ export function Breadcrumb({
         {items.map((item, index) => {
           const isLast = index === items.length - 1
           return (
-            // Une etape n'a pas d'identifiant : sa position suffit.
+            // A step has no identifier: its position is enough.
             <Fragment key={index}>
               {index === 0 ? null : (
                 <li aria-hidden="true" className="o-flex o-items-center">

@@ -1,23 +1,23 @@
 /**
- * Forme organique : une seule forme qui respire au centre, bord frange.
+ * Organic shape: a single form breathing at the centre, with a fringed edge.
  *
- * ## Le principe
+ * ## The principle
  *
- * Un rayon module par trois harmoniques impaires de l'angle, chacune tournant
- * a sa vitesse : la forme ne se repete jamais et ne parait jamais
- * geometrique. Le bord est perturbe par un bruit fin avant le seuil, et un
- * halo s'en echappe.
+ * A radius modulated by three odd harmonics of the angle, each one turning
+ * at its own speed: the shape never repeats itself and never looks
+ * geometric. The edge is disturbed by a fine noise before the threshold,
+ * and a halo escapes from it.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur — les recopier ici en ferait autant
- * de versions a maintenir qu'il y a de fonds.
+ * It carries only what sets it apart: its shader, its settings and its
+ * fallback. Reading the tokens, turning them into floats and reading them
+ * again when the theme changes all come from the engine — copying them out
+ * here would make as many versions to maintain as there are backgrounds.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en
- * accorde qu'une par backend — et sous mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads,
+ * when WebGL is missing, when the arbiter refuses the surface — it grants
+ * only one per backend — and under reduced motion.
  *
  * @module
  */
@@ -34,59 +34,59 @@ import { type ReactElement } from 'react'
 
 import { BLOB_MORPH_FRAGMENT } from './blob-morph.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface BlobMorphControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Props belonging to the component itself. */
 export interface BlobMorphOwnProps {
-  /** Rayon moyen, en hauteurs de cadre. @defaultValue 0.28 */
+  /** Mean radius, in frame heights. @defaultValue 0.28 */
   size?: number
-  /** Vitesse de la respiration. @defaultValue 0.4 */
+  /** Speed of the breathing. @defaultValue 0.4 */
   speed?: number
-  /** Amplitude des harmoniques du contour. @defaultValue 0.35 */
+  /** Amplitude of the harmonics of the outline. @defaultValue 0.35 */
   wobble?: number
-  /** Largeur de la frange, force du halo. @defaultValue 0.5 */
+  /** Width of the fringe, strength of the halo. @defaultValue 0.5 */
   fringe?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Classes of the fallback. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<BlobMorphControls>
 }
 
-/** Toutes les proprietes. */
+/** All the props. */
 export type BlobMorphProps = Customisable<BlobMorphOwnProps>
 
-/** Tokens employes par defaut : le fond, le corps, la frange. */
+/** Tokens used by default: the background, the body, the fringe. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-brand-500',
   '--o-palette-fuchsia-300',
 ] as const
 
-/** Repli par defaut : un halo fige au centre, dans les memes tons. */
+/** Default fallback: a halo frozen at the centre, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-br o-from-zinc-50 dark:o-from-zinc-950 o-via-brand-400 o-to-zinc-50 dark:o-to-zinc-950'
 
 /**
- * Octaves de la frange hors qualite basse.
+ * Octaves of the fringe outside low quality.
  *
- * La frange est le seul bruit somme du shader : c'est le seul levier de cout,
- * et il n'a pas besoin d'etre une prop pour etre retrograde.
+ * The fringe is the only summed noise in the shader: it is the only cost
+ * lever, and it does not need to be a prop in order to be stepped down.
  */
 const DETAIL = 2
 
-/** Octaves de la frange en qualite basse. */
+/** Octaves of the fringe at low quality. */
 const LOW_DETAIL = 1
 
 /**
- * Forme organique.
+ * Organic shape.
  *
  * @example
  * <div className="o-relative o-min-h-screen">

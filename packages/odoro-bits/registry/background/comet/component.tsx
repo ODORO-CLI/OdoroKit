@@ -1,25 +1,25 @@
 /**
- * Comete : une tete vive qui suit le curseur avec retard, queue au vent.
+ * Comet: a bright head trailing the cursor at a lag, tail to the wind.
  *
- * ## A quoi ce fond reagit
+ * ## What this background reacts to
  *
- * Au deplacement du pointeur, avec un amortissement volontairement lent : la
- * comete rattrape le curseur, et sa queue s'oriente a l'oppose de la vitesse
- * de rattrapage — le composant derive cette vitesse du point amorti et la
- * transmet en uniform. Comete arrivee, vitesse nulle, queue eteinte : il ne
- * reste que la tete qui scintille.
+ * To pointer movement, with a deliberately slow damping: the comet catches
+ * up with the cursor, and its tail points opposite the catch-up velocity —
+ * the component derives that velocity from the damped point and hands it
+ * over as a uniform. Comet arrived, velocity zero, tail out: nothing is
+ * left but the flickering head.
  *
- * ## Le pont pointeur → shader
+ * ## The pointer → shader bridge
  *
- * Aucun rendu React par image : position et vitesse sont recopiees dans deux
- * tableaux stables par une souscription a l'horloge du moteur, et la surface
- * relit ses uniforms a chaque image — la mutation suffit. La vitesse est
- * elle-meme lissee d'un cran, sans quoi la queue tremblerait au moindre bruit
- * d'echantillonnage.
+ * No React render per frame: position and velocity are copied into two
+ * stable arrays by a subscription to the engine clock, and the surface
+ * re-reads its uniforms every frame — mutating is enough. The velocity is
+ * itself smoothed by one notch, without which the tail would shiver at the
+ * least sampling noise.
  *
- * ## Sous mouvement reduit
+ * ## Under reduced motion
  *
- * La surface est refusee par le moteur et le repli statique s'affiche.
+ * The surface is refused by the engine and the static fallback shows.
  *
  * @module
  */
@@ -40,46 +40,46 @@ import { usePointerDamped } from '@registre/hooks/usePointerDamped'
 
 import { COMET_FRAGMENT } from './comet.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface CometControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to this component. */
 export interface CometOwnProps {
-  /** Rayon de la tete. @defaultValue 0.07 */
+  /** Radius of the head. @defaultValue 0.07 */
   size?: number
-  /** Longueur de la queue. @defaultValue 0.45 */
+  /** Length of the tail. @defaultValue 0.45 */
   tail?: number
-  /** Retard de la comete : plus haut, plus elle traine. @defaultValue 1 */
+  /** Lag of the comet: higher means more trailing. @defaultValue 1 */
   lag?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<CometControls>
 }
 
-/** Toutes les proprietes. */
+/** Every property. */
 export type CometProps = Customisable<CometOwnProps>
 
-/** Tokens employes par defaut : le ciel, la queue, la tete. */
+/** Tokens used by default: the sky, the tail, the head. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-violet-400',
   '--o-palette-amber-200',
 ] as const
 
-/** Repli par defaut : un degrade fige, dans les memes tons. */
+/** Default fallback: a frozen gradient, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-b o-from-zinc-50 dark:o-from-indigo-950 o-to-violet-950'
 
 /**
- * Comete.
+ * Comet.
  *
  * @example
  * <div className="o-relative o-min-h-screen">
@@ -98,16 +98,16 @@ export function Comet({
 }: CometProps): ReactElement {
   const [host, setHost] = useState<HTMLDivElement | null>(null)
 
-  // Tableaux stables, mutes en place dans la boucle : aucun setState par image.
+  // Stable arrays, mutated in place in the loop: no setState per frame.
   const uPointer = useRef<number[]>([0.5, 0.5]).current
   const uVelocity = useRef<number[]>([0, 0]).current
 
-  // Le retard est une vitesse d'amortissement inversee : lag 1 donne le
-  // rattrapage lent (vitesse 2) qui fait exister la queue.
+  // The lag is an inverted damping speed: lag 1 gives the slow catch-up
+  // (speed 2) that makes the tail exist at all.
   const pointer = usePointerDamped({
     host,
     speed: 2 / Math.max(lag, 0.1),
-    name: 'comet : pointeur',
+    name: 'comet : pointer',
   })
 
   useEffect(() => {
@@ -116,12 +116,12 @@ export function Comet({
 
     const subscription = clock.subscribe(
       ({ delta }) => {
-        // Du repere du hook (centre, y vers le bas) vers celui de la texture.
+        // From the hook's frame (centred, y downwards) to the texture's frame.
         const x = (pointer.current.x + 1) / 2
         const y = 1 - (pointer.current.y + 1) / 2
 
-        // Vitesse du point amorti, lissee d'un cran : brute, elle porterait le
-        // bruit d'echantillonnage et la queue tremblerait.
+        // Velocity of the damped point, smoothed by one notch: raw, it would
+        // carry the sampling noise and the tail would shiver.
         const dt = Math.max(delta, 1 / 240)
         const vx = uVelocity[0] ?? 0
         const vy = uVelocity[1] ?? 0
@@ -133,7 +133,7 @@ export function Comet({
         previousX = x
         previousY = y
       },
-      { priority: CLOCK_PRIORITY.input, name: 'comet : pont' },
+      { priority: CLOCK_PRIORITY.input, name: 'comet : bridge' },
     )
     return () => subscription.unsubscribe()
   }, [pointer, uPointer, uVelocity])

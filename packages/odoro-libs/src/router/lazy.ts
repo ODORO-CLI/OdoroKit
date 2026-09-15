@@ -1,11 +1,10 @@
 /**
- * Chargement paresseux des composants de route.
+ * Lazy loading of the route components.
  *
- * Chaque chargeur est associe, une fois pour toutes, a un composant
- * `React.lazy` et a une promesse de prechargement memorisee. Le prechargement
- * permet au routeur de garantir que le module est disponible **avant** de
- * declencher une View Transition : sans cela, la transition capturerait le
- * fallback de Suspense au lieu de la page.
+ * Each loader is tied, once and for all, to a `React.lazy` component and to a
+ * memoized preloading promise. Preloading lets the router guarantee that the
+ * module is available **before** starting a View Transition: without that,
+ * the transition would capture the Suspense fallback instead of the page.
  *
  * @module
  */
@@ -15,20 +14,20 @@ import { type ComponentType, type LazyExoticComponent, lazy } from 'react'
 import { matchRoutes } from './matchRoutes.js'
 import type { RouteLazyLoader, RouteObject } from './types.js'
 
-/** Entree du registre pour un chargeur donne. */
+/** Registry entry for a given loader. */
 interface LazyEntry {
-  /** Composant `React.lazy` stable, utilisable dans un arbre Suspense. */
+  /** Stable `React.lazy` component, usable inside a Suspense tree. */
   readonly Component: LazyExoticComponent<ComponentType>
-  /** Declenche (ou reutilise) le chargement du module. */
+  /** Starts (or reuses) the loading of the module. */
   readonly preload: () => Promise<unknown>
-  /** `true` une fois le module resolu. */
+  /** `true` once the module has resolved. */
   isLoaded: boolean
 }
 
 const REGISTRY = new WeakMap<RouteLazyLoader, LazyEntry>()
 
 /**
- * Retourne l'entree de registre d'un chargeur, en la creant au besoin.
+ * Returns the registry entry of a loader, creating it when needed.
  *
  * @example
  * const { Component, preload } = getLazyEntry(() => import('./About'))
@@ -56,11 +55,11 @@ export function getLazyEntry(loader: RouteLazyLoader): LazyEntry {
 }
 
 /**
- * Precharge tous les modules paresseux necessaires a l'affichage d'un chemin.
+ * Preloads every lazy module needed to display a path.
  *
- * @returns `null` si tout est deja charge — le cas courant, qui permet a
- *   l'appelant de rester entierement synchrone — sinon une promesse resolue
- *   quand tous les modules manquants sont disponibles.
+ * @returns `null` when everything is already loaded — the common case, which
+ *   lets the caller stay entirely synchronous — otherwise a promise resolved
+ *   when all the missing modules are available.
  *
  * @example
  * const pending = preloadRoutes(routes, '/about')

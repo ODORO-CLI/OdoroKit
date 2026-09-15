@@ -1,5 +1,5 @@
 /**
- * Onglets avec indicateur glissant.
+ * Tabs with a sliding indicator.
  *
  * @module
  */
@@ -20,35 +20,35 @@ import { usePrefersReducedMotion } from '../shared/motionPreference.js'
 import { motionDuration, motionEasing } from '../motion/tokens.js'
 import { cx } from '../styles/cx.js'
 
-/** Un onglet. */
+/** One tab. */
 export interface TabItem {
-  /** Identifiant unique de l'onglet. */
+  /** Unique identifier of the tab. */
   readonly id: string
-  /** Libelle affiche. */
+  /** Displayed label. */
   readonly label: ReactNode
-  /** Contenu du panneau associe. */
+  /** Content of the associated panel. */
   readonly content: ReactNode
-  /** Rend l'onglet inactivable. */
+  /** Makes the tab impossible to activate. */
   readonly disabled?: boolean
 }
 
-/** Proprietes de {@link Tabs}. */
+/** Properties of {@link Tabs}. */
 export interface TabsProps {
-  /** Onglets, dans l'ordre d'affichage. */
+  /** Tabs, in display order. */
   items: readonly TabItem[]
-  /** Onglet actif en mode controle. */
+  /** Active tab in controlled mode. */
   value?: string
-  /** Onglet actif initial en mode non controle. @defaultValue le premier */
+  /** Initial active tab in uncontrolled mode. @defaultValue the first one */
   defaultValue?: string
-  /** Appele au changement d'onglet. */
+  /** Called on a tab change. */
   onValueChange?: (id: string) => void
-  /** Libelle accessible de la barre d'onglets. */
+  /** Accessible label of the tab bar. */
   label: string
-  /** Classes additionnelles pour le conteneur. */
+  /** Additional classes for the container. */
   className?: string
 }
 
-/** Indice de l'onglet actif suivant, en sautant les onglets desactives. */
+/** Index of the next active tab, skipping the disabled tabs. */
 function nextEnabled(items: readonly TabItem[], from: number, direction: 1 | -1): number {
   const count = items.length
   for (let step = 1; step <= count; step += 1) {
@@ -59,20 +59,20 @@ function nextEnabled(items: readonly TabItem[], from: number, direction: 1 | -1)
 }
 
 /**
- * Onglets accessibles.
+ * Accessible tabs.
  *
- * La navigation clavier suit le motif ARIA : fleches pour changer d'onglet,
- * Home et End pour aller aux extremites, un seul onglet dans l'ordre de
- * tabulation. L'indicateur est anime par le moteur du navigateur, a partir de
- * la position mesuree — jamais par une transition sur `left` et `width`, qui
- * declencherait une recomposition a chaque image.
+ * The keyboard navigation follows the ARIA pattern: arrows to change tab,
+ * Home and End to go to the ends, a single tab in the tabbing order. The
+ * indicator is animated by the engine of the browser, from the measured
+ * position — never by a transition on `left` and `width`, which would
+ * trigger a recomposition on every frame.
  *
  * @example
  * <Tabs
- *   label="Sections du projet"
+ *   label="Sections of the project"
  *   items={[
- *     { id: 'apercu', label: 'Apercu', content: <Overview /> },
- *     { id: 'reglages', label: 'Reglages', content: <Settings /> },
+ *     { id: 'overview', label: 'Overview', content: <Overview /> },
+ *     { id: 'settings', label: 'Settings', content: <Settings /> },
  *   ]}
  * />
  */
@@ -129,8 +129,8 @@ export function Tabs({
     [activeIndex, items, select],
   )
 
-  // L'indicateur est place par transformation, puis anime depuis sa position
-  // precedente : une seule propriete composee, aucune recomposition.
+  // The indicator is placed by transform, then animated from its previous
+  // position: a single composited property, no recomposition.
   useLayoutEffect(() => {
     const list = listRef.current
     const indicator = indicatorRef.current
@@ -162,7 +162,7 @@ export function Tabs({
     )
   }, [activeIndex, reduced, items])
 
-  // Une liste dont les onglets changent invalide la position memorisee.
+  // A list whose tabs change invalidates the memorized position.
   useEffect(() => {
     previousRect.current = null
   }, [items])

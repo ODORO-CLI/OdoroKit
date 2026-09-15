@@ -1,37 +1,37 @@
 /**
- * Flou vibrant : le texte reste hors de mise au point et tremble.
+ * Vibrating blur: the text stays out of focus and shivers.
  *
- * ## Un etat, pas une transition
+ * ## A state, not a transition
  *
- * `blur-reveal` part du flou et arrive au net : c'est une revelation, elle a
- * un debut et une fin. Ici le flou est l'apparence meme du texte — il ne se
- * resout jamais de lui-meme. Ce qui bouge est un tremblement de faible
- * amplitude et de haute frequence, qui empeche l'oeil de se poser.
+ * `blur-reveal` starts blurred and arrives crisp: it is a reveal, it has a
+ * beginning and an end. Here the blur is the very appearance of the text — it
+ * never resolves on its own. What moves is a shiver of low amplitude and high
+ * frequency, which stops the eye from settling.
  *
- * ## Le tremblement est discret, pas continu
+ * ## The shiver is discrete, not continuous
  *
- * Une interpolation douce entre deux positions donne un glissement, pas une
- * vibration. La courbe est donc `steps(1)` : chaque etape tient sa position
- * puis saute a la suivante. C'est ce saut qui fait le grain nerveux, et il ne
- * coute rien de plus qu'une animation composee ordinaire.
+ * A smooth interpolation between two positions gives a slide, not a vibration.
+ * The curve is therefore `steps(1)`: each stage holds its position then jumps
+ * to the next. It is that jump that makes the nervous grain, and it costs
+ * nothing more than an ordinary composited animation.
  *
- * ## La doublure fabrique le flou, pas le filtre seul
+ * ## The understudy makes the blur, not the filter alone
  *
- * Un seul calque floute reste une forme lisse. Une copie decalee d'une phase
- * differente, posee par-dessus, produit des bords qui se battent : c'est ce
- * desaccord entre les deux calques qui donne l'impression de grain, bien plus
- * que le rayon de flou lui-meme.
+ * A single blurred layer stays a smooth shape. A copy offset by a different
+ * phase, laid over it, produces edges that fight each other: it is that
+ * disagreement between the two layers that gives the impression of grain, far
+ * more than the blur radius itself.
  *
- * ## Le survol remet au point
+ * ## Hovering brings it back into focus
  *
- * Le texte redevient net et s'immobilise tant que le pointeur est dessus : la
- * lecture reste possible a qui la demande. C'est aussi ce qui distingue cet
- * effet d'un texte simplement decoratif — il se laisse lire.
+ * The text becomes crisp again and comes to a stop while the pointer is over
+ * it: reading stays possible for whoever asks for it. It is also what sets
+ * this effect apart from a merely decorative text — it lets itself be read.
  *
- * ## Mouvement reduit
+ * ## Reduced motion
  *
- * Le tremblement s'arrete, le flou reste. Le flou est l'etat d'arrivee, pas
- * un etat de depart : le retirer changerait le composant, pas son animation.
+ * The shiver stops, the blur stays. The blur is the arrival state, not a
+ * starting one: removing it would change the component, not its animation.
  *
  * @module
  */
@@ -39,34 +39,34 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import { type CSSProperties, type ElementType, type ReactElement } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface FuzzyTextOwnProps {
-  /** Texte a rendre flou. Une chaine : la doublure en est une copie. */
+  /** Text to blur. A string: the understudy is a copy of it. */
   children: string
-  /** Balise rendue. @defaultValue 'span' */
+  /** Rendered tag. @defaultValue 'span' */
   as?: ElementType
-  /** Rayon du flou, en pixels. @defaultValue 1.4 */
+  /** Blur radius, in pixels. @defaultValue 1.4 */
   blur?: number
-  /** Amplitude du tremblement, en pixels. @defaultValue 1.6 */
+  /** Amplitude of the shiver, in pixels. @defaultValue 1.6 */
   amplitude?: number
-  /** Duree d'un cycle de tremblement, en millisecondes. @defaultValue 160 */
+  /** Duration of one shiver cycle, in milliseconds. @defaultValue 160 */
   period?: number
-  /** Poser la copie dephasee qui fabrique le grain. @defaultValue true */
-  doublure?: boolean
-  /** Remettre au point tant que le pointeur est dessus. @defaultValue true */
-  netAuSurvol?: boolean
+  /** Lay down the phase-shifted copy that makes the grain. @defaultValue true */
+  ghost?: boolean
+  /** Bring back into focus while the pointer is over it. @defaultValue true */
+  sharpOnHover?: boolean
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type FuzzyTextProps = Customisable<FuzzyTextOwnProps, 'span'>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-fuzzy-text'
 
-/** Duree de la remise au point au survol, en millisecondes. */
-const MISE_AU_POINT_MS = 220
+/** Duration of the refocusing on hover, in milliseconds. */
+const FOCUS_MS = 220
 
-/** Pose les regles du flou vibrant, une fois par document. */
+/** Sets the vibrating blur rules, once per document. */
 function ensureFuzzyRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -78,9 +78,9 @@ function ensureFuzzyRule(): void {
     '[data-o-fuzzy-layer]{',
     'display:block;',
     'filter:blur(var(--o-fuzzy-blur));',
-    'transition:filter var(--o-fuzzy-net-ms) ease-out;',
-    // `translate` plutot que `transform` : la propriete independante laisse le
-    // transform libre pour qui veut poser le sien par-dessus.
+    'transition:filter var(--o-fuzzy-sharp-ms) ease-out;',
+    // `translate` rather than `transform`: the independent property leaves the
+    // transform free for anyone who wants to set their own on top.
     'animation:o-fuzzy-shake var(--o-fuzzy-period) steps(1,end) infinite;',
     'animation-delay:var(--o-fuzzy-phase,0ms);',
     '}',
@@ -96,29 +96,29 @@ function ensureFuzzyRule(): void {
     '80%{translate:calc(var(--o-fuzzy-amp) * -0.5) calc(var(--o-fuzzy-amp) * -0.4)}',
     '100%{translate:0 0}',
     '}',
-    // Le survol remet au point et fige : la lecture reste possible.
-    '[data-o-fuzzy-net]:hover [data-o-fuzzy-layer]{',
+    // The hover refocuses and freezes: reading stays possible.
+    '[data-o-fuzzy-sharp]:hover [data-o-fuzzy-layer]{',
     'filter:blur(0px);animation-play-state:paused;',
     '}',
-    '[data-o-fuzzy-net]:hover [data-o-fuzzy-ghost]{opacity:0}',
-    // Sans mouvement, le flou reste : c'est l'apparence du texte, pas son
-    // animation.
+    '[data-o-fuzzy-sharp]:hover [data-o-fuzzy-ghost]{opacity:0}',
+    // With no motion, the blur stays: it is the appearance of the text, not
+    // its animation.
     '@media (prefers-reduced-motion:reduce){[data-o-fuzzy-layer]{animation:none}}',
   ].join('')
   document.head.append(style)
 }
 
 /**
- * Rend un texte flou et vibrant, net au survol.
+ * Renders a text blurred and vibrating, crisp on hover.
  *
  * @example
  * <FuzzyText as="h1" className="o-text-6xl o-font-black">
- *   Hors champ
+ *   Out of focus
  * </FuzzyText>
  *
  * @example
- * // Tres flou, tres lent, sans doublure : une brume plutot qu'un grain.
- * <FuzzyText blur={4} period={520} doublure={false}>Brouillard</FuzzyText>
+ * // Very blurred, very slow, with no understudy: a mist rather than a grain.
+ * <FuzzyText blur={4} period={520} ghost={false}>Fog</FuzzyText>
  */
 export function FuzzyText({
   children,
@@ -126,41 +126,41 @@ export function FuzzyText({
   blur = 1.4,
   amplitude = 1.6,
   period = 160,
-  doublure = true,
-  netAuSurvol = true,
+  ghost = true,
+  sharpOnHover = true,
   ...rest
 }: FuzzyTextProps): ReactElement {
   ensureFuzzyRule()
 
   const { className, style } = mergePresentation({}, rest)
 
-  const styleRacine = {
+  const rootStyle = {
     ...style,
     '--o-fuzzy-blur': `${String(blur)}px`,
     '--o-fuzzy-amp': `${String(amplitude)}px`,
     '--o-fuzzy-period': `${String(period)}ms`,
-    '--o-fuzzy-net-ms': `${String(MISE_AU_POINT_MS)}ms`,
+    '--o-fuzzy-sharp-ms': `${String(FOCUS_MS)}ms`,
   } as CSSProperties
 
   return (
     <Tag
       {...rest}
       className={className}
-      style={styleRacine}
+      style={rootStyle}
       data-o-fuzzy=""
-      {...(netAuSurvol ? { 'data-o-fuzzy-net': '' } : {})}
+      {...(sharpOnHover ? { 'data-o-fuzzy-sharp': '' } : {})}
     >
-      {/* Le texte veritable : un seul noeud, ni decoupe ni duplique pour
-          l'arbre d'accessibilite. */}
+      {/* The real text: a single node, neither split nor duplicated for the
+          accessibility tree. */}
       <span data-o-fuzzy-layer="">{children}</span>
 
-      {doublure ? (
+      {ghost ? (
         <span
           aria-hidden
           data-o-fuzzy-layer=""
           data-o-fuzzy-ghost=""
-          // Une demi-periode de retard : les deux calques ne sont jamais au
-          // meme endroit, et c'est leur desaccord qui fait le grain.
+          // Half a period of delay: the two layers are never in the same
+          // place, and it is their disagreement that makes the grain.
           style={{ '--o-fuzzy-phase': `${String(-period / 2)}ms` } as CSSProperties}
         >
           {children}

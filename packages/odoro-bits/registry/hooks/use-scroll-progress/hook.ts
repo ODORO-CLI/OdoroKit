@@ -1,49 +1,48 @@
 /**
- * Avancee d'un element, ou d'une page, dans le champ visible.
+ * Progress of an element, or of a page, through the viewport.
  *
- * ## Pourquoi ce crochet plutot que ScrollTrigger
+ * ## Why this hook rather than ScrollTrigger
  *
- * Le moteur sait deja suivre le defilement, mais par GSAP et son plugin
- * `ScrollTrigger` — trente kilo-octets de plus, et un plugin a enregistrer,
- * pour une soustraction entre deux rectangles. Le prix est justifie quand on
- * epingle une section ou qu'on synchronise une timeline complete ; il ne l'est
- * pas quand on veut simplement savoir « ou en est cet element ».
+ * The engine already knows how to follow scrolling, but through GSAP and its
+ * `ScrollTrigger` plugin — thirty more kilobytes, and a plugin to register,
+ * for a subtraction between two rectangles. The price is justified when one
+ * pins a section or synchronises a whole timeline; it is not when one simply
+ * wants to know "where is this element at".
  *
- * Ce crochet fait cette soustraction, et rien d'autre.
+ * This hook does that subtraction, and nothing else.
  *
- * ## Pourquoi la mesure passe par l'horloge, et pas par un ecouteur `scroll`
+ * ## Why the measurement goes through the clock, and not a `scroll` listener
  *
- * Un ecouteur par element parait plus economique — il ne travaille que pendant
- * le defilement. En pratique c'est l'inverse. Les evenements de defilement
- * arrivent plus souvent qu'une image sur les pilotes tactiles, et chacun
- * declenche une lecture de rectangle : on mesure plusieurs fois pour la meme
- * image affichee. Dix elements observes font dix ecouteurs qui se reveillent
- * tous a chaque cran de molette.
+ * One listener per element looks cheaper — it only works while scrolling. In
+ * practice it is the opposite. Scroll events arrive more often than a frame on
+ * touch drivers, and each one triggers a rectangle read: we measure several
+ * times for the same displayed frame. Ten watched elements make ten listeners
+ * that all wake up on every wheel notch.
  *
- * En passant par l'horloge, la mesure a lieu **une fois par image**, quel que
- * soit le nombre d'elements, et en priorite `layout` : toutes les lectures de
- * mise en page se groupent avant les ecritures de la frame, ce qui evite
- * l'aller-retour ou l'on lit, on ecrit, et on relit un calcul que le
- * navigateur vient de jeter.
+ * By going through the clock, the measurement happens **once per frame**,
+ * whatever the number of elements, and at `layout` priority: every layout read
+ * of the frame is grouped before the writes, which avoids the round trip where
+ * one reads, writes, and reads back a computation the browser has just thrown
+ * away.
  *
- * ## Pourquoi une ref et un abonnement, plutot qu'un etat
+ * ## Why a ref and a subscription, rather than state
  *
- * La valeur change a chaque image pendant tout un defilement. La rendre comme
- * etat, ce sont soixante rendus React par seconde pour deplacer un rectangle
- * que le compositeur anime seul.
+ * The value changes on every frame throughout a whole scroll. Returning it as
+ * state means sixty React renders a second to move a rectangle the compositor
+ * animates on its own.
  *
- * `progress.current` est donc la valeur exacte, lue dans la boucle par ceux
- * qui y sont deja. `subscribe` existe pour l'autre besoin, reel : afficher un
- * pourcentage en chiffres, franchir une etape. Il ne publie qu'aux paliers —
- * voir {@link PALIERS} — parce qu'un affichage arrondi au pour cent n'a rien a
- * faire d'un centieme de decimale.
+ * `progress.current` is therefore the exact value, read inside the loop by
+ * those who are already there. `subscribe` exists for the other, real need:
+ * displaying a percentage in figures, crossing a step. It only publishes at
+ * the steps — see {@link STEPS} — because a display rounded to the percent has
+ * no use for a hundredth of a decimal.
  *
- * ## Un seul axe
+ * ## A single axis
  *
- * La verticale. Un defilement horizontal se mesure autrement — c'est la
- * position d'un conteneur, pas la traversee d'un champ — et pretendre couvrir
- * les deux avec les memes options donnerait un crochet ou la moitie des
- * reglages ne s'applique jamais.
+ * The vertical one. Horizontal scrolling is measured differently — it is the
+ * position of a container, not the crossing of a viewport — and claiming to
+ * cover both with the same options would give a hook where half the settings
+ * never apply.
  *
  * @module
  */
@@ -52,80 +51,80 @@ import { CLOCK_PRIORITY, clock, motionPolicy } from '@odoro-cli/engine'
 import { useCallback, useEffect, useMemo, useRef, type RefObject } from 'react'
 
 /**
- * Ce que la course de 0 a 1 recouvre.
+ * What the run from 0 to 1 covers.
  *
- * - `traversee` — 0 quand le haut de l'element touche le bas du champ, 1 quand
- *   son bas en touche le haut. C'est la course d'une revelation : l'element
- *   entre, passe, sort.
- * - `ancrage` — 0 quand le haut de l'element atteint le haut du champ, 1 quand
- *   son bas en atteint le bas. C'est la course d'une section haute qu'on
- *   parcourt de l'interieur : une frise, un recit en etapes.
+ * - `through` — 0 when the top of the element touches the bottom of the
+ *   viewport, 1 when its bottom touches the top of it. This is the run of a
+ *   reveal: the element enters, passes, leaves.
+ * - `anchored` — 0 when the top of the element reaches the top of the viewport,
+ *   1 when its bottom reaches the bottom of it. This is the run of a tall
+ *   section walked from the inside: a timeline, a story in steps.
  */
-export type ScrollRange = 'traversee' | 'ancrage'
+export type ScrollRange = 'through' | 'anchored'
 
-/** Conduite a tenir sous mouvement reduit. */
-export type ScrollReduced = 'final' | 'suivre'
+/** What to do under reduced motion. */
+export type ScrollReduced = 'final' | 'follow'
 
-/** Options de `useScrollProgress`. */
+/** Options of `useScrollProgress`. */
 export interface ScrollProgressOptions {
   /**
-   * Element mesure. Sans lui, c'est l'avancee du document — ou du conteneur —
-   * qui est rendue.
+   * Measured element. Without it, the progress of the document — or of the
+   * container — is what gets returned.
    */
   target?: HTMLElement | null
   /**
-   * Conteneur qui defile, quand ce n'est pas la fenetre : un panneau, une
-   * boite de dialogue. Il definit le champ dans lequel l'element est situe.
+   * Container that scrolls, when it is not the window: a panel, a dialog. It
+   * defines the viewport the element sits in.
    */
   scroller?: HTMLElement | null
-  /** Ce que la course recouvre. @defaultValue 'traversee' */
+  /** What the run covers. @defaultValue 'through' */
   range?: ScrollRange
   /**
-   * Sous mouvement reduit, `final` publie 1 une fois pour toutes et ne mesure
-   * plus rien : un texte revele par la progression doit etre lu, pas fige a
-   * son etat initial. `suivre` mesure quand meme, pour ce dont la valeur est
-   * le contenu — une barre de lecture dit ou l'on en est, ce n'est pas une
+   * Under reduced motion, `final` publishes 1 once and for all and measures
+   * nothing more: a text revealed by progress has to be read, not frozen at
+   * its initial state. `follow` measures anyway, for the cases where the value
+   * is the content — a reading bar says where one is at, it is not an
    * animation.
    *
    * @defaultValue 'final'
    */
   reduced?: ScrollReduced
-  /** Nom affiche dans le panneau de diagnostic. */
+  /** Name displayed in the diagnostics panel. */
   name?: string
 }
 
-/** Ce que le crochet rend. */
+/** What the hook returns. */
 export interface ScrollProgressHandle {
-  /** Progression courante, de 0 a 1. A lire dans la boucle. */
+  /** Current progress, from 0 to 1. To be read inside the loop. */
   readonly progress: RefObject<number>
   /**
-   * S'abonne aux paliers de la progression. Le nouvel abonne recoit tout de
-   * suite la valeur courante — sans quoi il resterait a zero jusqu'au premier
-   * mouvement, ce qui est faux des qu'on arrive au milieu d'une page.
+   * Subscribes to the steps of the progress. A new subscriber receives the
+   * current value straight away — without that it would sit at zero until the
+   * first movement, which is wrong as soon as one lands mid-page.
    *
-   * @returns De quoi se desabonner.
+   * @returns What is needed to unsubscribe.
    */
   subscribe(listener: (value: number) => void): () => void
 }
 
 /**
- * Nombre de paliers de publication.
+ * Number of publication steps.
  *
- * Cent : plus fin que ce qu'un pourcentage affiche, et deux ordres de grandeur
- * en dessous du nombre d'images d'un defilement complet.
+ * A hundred: finer than what a percentage displays, and two orders of
+ * magnitude below the number of frames of a complete scroll.
  */
-const PALIERS = 100
+const STEPS = 100
 
 /**
- * Suit l'avancee d'un element, ou de la page, dans le champ.
+ * Follows the progress of an element, or of the page, through the viewport.
  *
  * @example
- * // Une revelation : la valeur est lue dans la boucle, sans rendu React.
+ * // A reveal: the value is read inside the loop, without a React render.
  * const [cible, setCible] = useState<HTMLElement | null>(null)
  * const { progress } = useScrollProgress({ target: cible })
  *
  * @example
- * // Un pourcentage affiche : l'abonnement, borne aux paliers.
+ * // A displayed percentage: the subscription, capped to the steps.
  * const { subscribe } = useScrollProgress()
  * const [part, setPart] = useState(0)
  * useEffect(() => subscribe(setPart), [subscribe])
@@ -136,13 +135,13 @@ export function useScrollProgress(
   const {
     target = null,
     scroller = null,
-    range = 'traversee',
+    range = 'through',
     reduced = 'final',
-    name = 'progression-defilement',
+    name = 'scroll-progress',
   } = options
 
   const progress = useRef(0)
-  const publie = useRef(-1)
+  const published = useRef(-1)
   const listeners = useRef<Set<(value: number) => void>>(new Set())
 
   const subscribe = useCallback((listener: (value: number) => void): (() => void) => {
@@ -154,64 +153,64 @@ export function useScrollProgress(
   }, [])
 
   useEffect(() => {
-    const ecrire = (valeur: number): void => {
-      const borne = valeur < 0 ? 0 : valeur > 1 ? 1 : valeur
-      progress.current = borne
+    const write = (value: number): void => {
+      const bounded = value < 0 ? 0 : value > 1 ? 1 : value
+      progress.current = bounded
 
-      const palier = Math.round(borne * PALIERS)
-      if (palier === publie.current) return
-      publie.current = palier
-      // Une copie : un abonne qui se retire depuis sa propre notification est
-      // le cas courant d'une etape qui ne doit se franchir qu'une fois.
-      for (const listener of [...listeners.current]) listener(borne)
+      const step = Math.round(bounded * STEPS)
+      if (step === published.current) return
+      published.current = step
+      // A copy: a subscriber removing itself from its own notification is the
+      // common case of a step that must only be crossed once.
+      for (const listener of [...listeners.current]) listener(bounded)
     }
 
-    // Voir les options : sous mouvement reduit, l'etat final, pas l'initial.
+    // See the options: under reduced motion, the final state, not the initial.
     if (reduced === 'final' && motionPolicy.state.reduced) {
-      ecrire(1)
+      write(1)
       return
     }
 
-    const mesurer = (): number => {
+    const measure = (): number => {
       if (target === null) {
         if (scroller !== null) {
-          const course = scroller.scrollHeight - scroller.clientHeight
-          return course <= 0 ? 0 : scroller.scrollTop / course
+          const travel = scroller.scrollHeight - scroller.clientHeight
+          return travel <= 0 ? 0 : scroller.scrollTop / travel
         }
-        const racine = document.documentElement
-        const course = racine.scrollHeight - window.innerHeight
-        return course <= 0 ? 0 : window.scrollY / course
+        const root = document.documentElement
+        const travel = root.scrollHeight - window.innerHeight
+        return travel <= 0 ? 0 : window.scrollY / travel
       }
 
-      const champ =
+      const field =
         scroller === null
-          ? { haut: 0, hauteur: window.innerHeight }
+          ? { top: 0, height: window.innerHeight }
           : {
-              haut: scroller.getBoundingClientRect().top,
-              hauteur: scroller.clientHeight,
+              top: scroller.getBoundingClientRect().top,
+              height: scroller.clientHeight,
             }
 
       const rect = target.getBoundingClientRect()
-      const haut = rect.top - champ.haut
+      const top = rect.top - field.top
 
-      if (range === 'ancrage') {
-        const course = rect.height - champ.hauteur
-        // Un element plus court que le champ ne se parcourt pas de
-        // l'interieur : la course est nulle, et la reponse binaire.
-        if (course <= 0) return haut <= 0 ? 1 : 0
-        return -haut / course
+      if (range === 'anchored') {
+        const travel = rect.height - field.height
+        // An element shorter than the viewport is not walked from the inside:
+        // the run is nil, and the answer binary.
+        if (travel <= 0) return top <= 0 ? 1 : 0
+        return -top / travel
       }
 
-      const course = champ.hauteur + rect.height
-      return course <= 0 ? 0 : (champ.hauteur - haut) / course
+      const travel = field.height + rect.height
+      return travel <= 0 ? 0 : (field.height - top) / travel
     }
 
     const subscription = clock.subscribe(
       () => {
-        ecrire(mesurer())
+        write(measure())
       },
-      // Priorite `layout` : les lectures de mise en page de toute la frame se
-      // groupent ici, avant que quiconque ecrive.
+      // `layout` priority: the layout reads of the whole frame group up here,
+      // before anyone writes.
       { priority: CLOCK_PRIORITY.layout, name },
     )
 

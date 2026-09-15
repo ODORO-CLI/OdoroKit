@@ -1,15 +1,15 @@
 /**
- * Bibliotheque de presets d'animation.
+ * Library of animation presets.
  *
- * Un preset est un jeu d'images-cles pret a jouer, accompagne d'une duree et
- * d'une courbe par defaut adaptees a son registre : les entrees decelerent,
- * les sorties accelerent, les animations d'attention ponctuent. Les presets
- * s'utilisent par nom dans {@link Animate} et {@link Reveal}, ou directement
- * avec {@link useAnimate} via {@link getMotionPreset}.
+ * A preset is a set of keyframes ready to play, together with a default
+ * duration and curve suited to its register: entrances decelerate,
+ * exits accelerate, attention animations punctuate. Presets
+ * are used by name in {@link Animate} and {@link Reveal}, or directly
+ * with {@link useAnimate} through {@link getMotionPreset}.
  *
- * Les memes mouvements existent en classes CSS (`o-animate-*`) pour les cas
- * sans JavaScript ; ici, ils sont pilotables — declenchement, interruption,
- * enchainement.
+ * The same movements exist as CSS classes (`o-animate-*`) for the cases
+ * without JavaScript; here, they are drivable — triggering, interruption,
+ * chaining.
  *
  * @module
  */
@@ -17,17 +17,17 @@
 import type { MotionKeyframe } from './keyframes.js'
 import type { DurationInput, EasingInput } from './tokens.js'
 
-/** Un preset : des images-cles et le reglage temporel qui lui va. */
+/** A preset: keyframes and the timing that suits them. */
 export interface MotionPreset {
-  /** Etapes de l'animation. */
+  /** Steps of the animation. */
   readonly keyframes: readonly Keyframe[]
-  /** Duree par defaut. */
+  /** Default duration. */
   readonly duration: DurationInput
-  /** Courbe par defaut. */
+  /** Default curve. */
   readonly easing: EasingInput
 }
 
-/** Construit un preset d'entree : depart fourni, arrivee naturelle. */
+/** Builds an entrance preset: given start, natural end. */
 function entrance(
   from: Keyframe,
   duration: DurationInput = 'slow',
@@ -40,7 +40,7 @@ function entrance(
   }
 }
 
-/** Construit un preset de sortie : depart naturel, arrivee fournie. */
+/** Builds an exit preset: natural start, given end. */
 function exit(
   to: Keyframe,
   duration: DurationInput = 'fast',
@@ -53,7 +53,7 @@ function exit(
   }
 }
 
-/** Construit un preset d'attention : plusieurs etapes, retour a l'etat naturel. */
+/** Builds an attention preset: several steps, back to the natural state. */
 function attention(
   keyframes: readonly Keyframe[],
   duration: DurationInput = 700,
@@ -63,16 +63,16 @@ function attention(
 }
 
 /**
- * Tous les presets, par nom.
+ * All the presets, by name.
  *
- * Trois registres :
- * - **entrees** (`*-in`) : faire apparaitre un element ;
- * - **sorties** (`*-out`) : le faire disparaitre — a jouer avant demontage,
- *   typiquement via `usePresence` ;
- * - **attention** : ponctuer un evenement sur un element deja visible.
+ * Three registers:
+ * - **entrances** (`*-in`): make an element appear;
+ * - **exits** (`*-out`): make it disappear — to play before unmounting,
+ *   typically through `usePresence`;
+ * - **attention**: punctuate an event on an already visible element.
  */
 export const motionPresets = {
-  // Entrees.
+  // Entrances.
   'fade-in': entrance({ opacity: 0 }, 'base'),
   'fade-in-up': entrance({ opacity: 0, transform: 'translateY(1rem)' }),
   'fade-in-down': entrance({ opacity: 0, transform: 'translateY(-1rem)' }),
@@ -102,7 +102,7 @@ export const motionPresets = {
     duration: 'slow',
     easing: 'standard',
   },
-  // Sorties.
+  // Exits.
   'fade-out': exit({ opacity: 0 }),
   'fade-out-up': exit({ opacity: 0, transform: 'translateY(-1rem)' }),
   'fade-out-down': exit({ opacity: 0, transform: 'translateY(1rem)' }),
@@ -227,14 +227,14 @@ export const motionPresets = {
   ),
 } as const satisfies Record<string, MotionPreset>
 
-/** Nom d'un preset. */
+/** Name of a preset. */
 export type MotionPresetName = keyof typeof motionPresets
 
 /**
- * Retourne un preset par son nom.
+ * Returns a preset by its name.
  *
- * @throws {Error} Si le nom est inconnu : une faute de frappe ne doit pas
- *   produire silencieusement une absence d'animation.
+ * @throws {Error} If the name is unknown: a typo must not
+ *   silently produce an absence of animation.
  *
  * @example
  * const [ref, controls] = useAnimate()
@@ -244,14 +244,14 @@ export type MotionPresetName = keyof typeof motionPresets
 export function getMotionPreset(name: MotionPresetName): MotionPreset {
   const preset = motionPresets[name]
   if (preset === undefined) {
-    throw new Error(`[odoro/motion] Preset inconnu : "${String(name)}".`)
+    throw new Error(`[odoro/motion] Unknown preset: "${String(name)}".`)
   }
   return preset
 }
 
 /**
- * Etats de depart nommes pour {@link Reveal} : le mouvement d'une revelation
- * est defini par son point de depart, l'arrivee etant toujours l'etat naturel.
+ * Named starting states for {@link Reveal}: the movement of a reveal
+ * is defined by its starting point, the end always being the natural state.
  */
 export const revealPresets = {
   'fade-up': { opacity: 0, transform: 'translateY(1rem)' },
@@ -266,5 +266,5 @@ export const revealPresets = {
   'flip-y': { opacity: 0, transform: 'perspective(800px) rotateY(-45deg)' },
 } as const satisfies Record<string, MotionKeyframe>
 
-/** Nom d'un etat de depart de revelation. */
+/** Name of a reveal starting state. */
 export type RevealPresetName = keyof typeof revealPresets

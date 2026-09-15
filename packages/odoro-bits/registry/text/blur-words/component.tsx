@@ -1,51 +1,49 @@
 /**
- * Nettoyage : le bloc est flou, et ses mots redeviennent nets un a un, dans
- * un ordre tire au sort, jusqu'a ce que tout se lise.
+ * Clearing up: the block is blurred, and its words become crisp again one by
+ * one, in a random order, until everything reads.
  *
- * ## Ce que ce composant fait et que `blur-reveal` ne fait pas
+ * ## What this component does that `blur-reveal` does not
  *
- * `blur-reveal` va du flou au net dans l'ordre de lecture, une fois, a
- * l'entree dans le champ : c'est une arrivee. Ici l'ordre est tire au sort et
- * le cycle se rejoue, si bien qu'on ne devine jamais quel mot va sortir du
- * flou. L'effet ne raconte pas un texte qui arrive, il raconte un texte qu'on
- * essaie de dechiffrer.
+ * `blur-reveal` goes from blurred to crisp in reading order, once, on entering
+ * the viewport: it is an arrival. Here the order is drawn at random and the
+ * cycle plays again, so that one never guesses which word will come out of the
+ * blur. The effect does not tell of a text arriving, it tells of a text one is
+ * trying to decipher.
  *
- * ## Un cycle entier tient dans une seule animation par mot
+ * ## A whole cycle fits into a single animation per word
  *
- * L'ordre du tirage n'est pas joue par une suite de minuteurs : il est cuit
- * dans les images cles. Chaque mot recoit une animation de la duree du cycle
- * complet, dont les instants sont calcules a partir de son rang de tirage —
- * flou jusqu'a son tour, net apres, et le retour au flou pour tout le monde a
- * la fin.
+ * The order of the draw is not played by a series of timers: it is baked into
+ * the keyframes. Each word is given an animation lasting the whole cycle,
+ * whose instants are computed from its rank in the draw — blurred until its
+ * turn, crisp afterwards, and the return to blur for everybody at the end.
  *
- * Le cycle se repete alors tout seul, sans une ligne de JavaScript pendant
- * qu'il tourne, et le compositeur tient les opacites et les flous. Le tirage
- * est fait une fois au depart : le rejouer a chaque tour demanderait de
- * reconstruire toutes les animations, et le cout du hasard depasserait
- * largement ce qu'il apporte.
+ * The cycle then repeats on its own, without a line of JavaScript while it
+ * runs, and the compositor holds the opacities and the blurs. The draw is made
+ * once at the start: replaying it on every turn would require rebuilding every
+ * animation, and the cost of the randomness would far exceed what it brings.
  *
- * ## Toutes les animations partent au meme instant
+ * ## Every animation starts at the same instant
  *
- * Leur date de depart est posee a la main sur la meme valeur de timeline.
- * Sans cela, deux mots crees dans la meme image peuvent commencer a des
- * instants differents, et le tirage se decale d'un cycle a l'autre.
+ * Their start time is set by hand to the same timeline value. Without that,
+ * two words created in the same frame can begin at different instants, and the
+ * draw drifts from one cycle to the next.
  *
- * ## Le flou n'est pose que si le nettoyage aura lieu
+ * ## The blur is only applied if the clearing will happen
  *
- * Le piege de toutes les revelations : cacher en CSS, montrer en JavaScript.
- * Le flou de depart est porte par la premiere image cle de l'animation
- * elle-meme — sans elle, le texte est simplement la, net.
+ * The trap of every reveal: hide in CSS, show in JavaScript. The starting blur
+ * is carried by the first keyframe of the animation itself — without it, the
+ * text is simply there, crisp.
  *
- * ## Le decoupage est un artifice d'affichage
+ * ## The split is a display device
  *
- * Le texte complet figure une fois, d'un seul tenant ; les mots sont retires
- * de l'arbre d'accessibilite. Les espaces restent des espaces, hors des blocs
- * en ligne : c'est ce qui permet au paragraphe d'aller a la ligne.
+ * The complete text appears once, in one piece; the words are removed from the
+ * accessibility tree. The spaces stay spaces, outside the inline blocks: that
+ * is what lets the paragraph wrap.
  *
- * ## Mouvement reduit
+ * ## Reduced motion
  *
- * Aucun decoupage, aucun flou : le texte est rendu tel quel. C'est l'etat ou
- * tout se lit, et c'est bien la fin de chaque cycle.
+ * No split, no blur: the text is rendered as it is. It is the state where
+ * everything reads, and that is indeed the end of every cycle.
  *
  * @module
  */
@@ -55,36 +53,36 @@ import { useEffect, type ElementType, type ReactElement } from 'react'
 
 import { useInView } from '@registre/hooks/useInView'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface BlurWordsOwnProps {
-  /** Texte a nettoyer. Une chaine : elle est decoupee en mots. */
+  /** Text to clear up. A string: it is split into words. */
   children: string
-  /** Balise rendue. @defaultValue 'p' */
+  /** Rendered tag. @defaultValue 'p' */
   as?: ElementType
-  /** Flou d'un mot pas encore nettoye, en pixels. @defaultValue 6 */
+  /** Blur of a word not yet cleared, in pixels. @defaultValue 6 */
   blur?: number
-  /** Opacite d'un mot pas encore nettoye, de 0 a 1. @defaultValue 0.25 */
+  /** Opacity of a word not yet cleared, from 0 to 1. @defaultValue 0.25 */
   dim?: number
-  /** Duree du nettoyage d'un mot, en millisecondes. @defaultValue 520 */
+  /** Duration of the clearing of one word, in milliseconds. @defaultValue 520 */
   duration?: number
-  /** Retard entre deux mots du tirage, en millisecondes. @defaultValue 200 */
+  /** Delay between two words of the draw, in milliseconds. @defaultValue 200 */
   step?: number
-  /** Temps de lecture avant que tout redevienne flou, en millisecondes. @defaultValue 1600 */
+  /** Reading time before everything blurs again, in milliseconds. @defaultValue 1600 */
   pause?: number
-  /** Rejouer le cycle sans fin. @defaultValue true */
-  boucle?: boolean
+  /** Replay the cycle endlessly. @defaultValue true */
+  loop?: boolean
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type BlurWordsProps = Customisable<BlurWordsOwnProps, 'p'>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-blur-words'
 
-/** Part de la pause consacree a la lecture ; le reste retourne au flou. */
-const LECTURE = 0.6
+/** Share of the pause devoted to reading; the rest goes back to blur. */
+const READING = 0.6
 
-/** Pose les regles du nettoyage, une fois par document. */
+/** Sets the clearing rules, once per document. */
 function ensureBlurWordsRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -96,33 +94,33 @@ function ensureBlurWordsRule(): void {
 }
 
 /**
- * Rend une permutation des indices, par melange de Fisher-Yates.
+ * Returns a permutation of the indices, by a Fisher-Yates shuffle.
  *
- * Une permutation quelconque : que deux mots voisins sortent l'un apres
- * l'autre arrive, et c'est ce qui rend le tirage credible.
+ * Any permutation: two neighbouring words coming out one after the other does
+ * happen, and that is what makes the draw credible.
  */
-function permutation(taille: number): number[] {
-  const ordre = Array.from({ length: taille }, (_, index) => index)
-  for (let index = taille - 1; index > 0; index -= 1) {
-    const tire = Math.floor(Math.random() * (index + 1))
-    const garde = ordre[index] ?? index
-    ordre[index] = ordre[tire] ?? tire
-    ordre[tire] = garde
+function permutation(size: number): number[] {
+  const order = Array.from({ length: size }, (_, index) => index)
+  for (let index = size - 1; index > 0; index -= 1) {
+    const pick = Math.floor(Math.random() * (index + 1))
+    const kept = order[index] ?? index
+    order[index] = order[pick] ?? pick
+    order[pick] = kept
   }
-  return ordre
+  return order
 }
 
 /**
- * Nettoie les mots d'un texte un a un, dans un ordre tire au sort.
+ * Clears the words of a text one by one, in a random order.
  *
  * @example
  * <BlurWords as="p" className="o-text-2xl">
- *   Un composant qu on ne peut pas modifier n est pas a vous.
+ *   A component you cannot modify is not yours.
  * </BlurWords>
  *
  * @example
- * // Un seul passage, tres flou, sans retour en arriere.
- * <BlurWords boucle={false} blur={12} step={90}>Une seule fois</BlurWords>
+ * // A single pass, heavily blurred, with no going back.
+ * <BlurWords loop={false} blur={12} step={90}>Only once</BlurWords>
  */
 export function BlurWords({
   children,
@@ -132,75 +130,75 @@ export function BlurWords({
   duration = 520,
   step = 200,
   pause = 1600,
-  boucle = true,
+  loop = true,
   ...rest
 }: BlurWordsProps): ReactElement {
   const { reduced } = useMotionState()
-  const { ref, vu } = useInView<HTMLElement>()
+  const { ref, inView } = useInView<HTMLElement>()
 
   ensureBlurWordsRule()
 
   useEffect(() => {
     const element = ref.current
-    if (element === null || reduced || !vu) return
+    if (element === null || reduced || !inView) return
 
-    const mots = [...element.querySelectorAll<HTMLElement>('[data-o-blur-words-word]')]
-    if (mots.length === 0) return
+    const words = [...element.querySelectorAll<HTMLElement>('[data-o-blur-words-word]')]
+    if (words.length === 0) return
 
-    const total = mots.length
-    const ordre = permutation(total)
+    const total = words.length
+    const order = permutation(total)
     const cycle = total * step + duration + pause
 
-    const trouble = {
+    const murky = {
       opacity: Math.min(1, Math.max(0, dim)),
       filter: `blur(${String(blur)}px)`,
     }
-    const net = { opacity: 1, filter: 'blur(0px)' }
+    const clear = { opacity: 1, filter: 'blur(0px)' }
 
-    const animations = mots.map((mot, index) => {
-      const rang = ordre[index] ?? index
-      const debut = (rang * step) / cycle
-      const fin = (rang * step + duration) / cycle
-      const lecture = (total * step + duration + pause * LECTURE) / cycle
+    const animations = words.map((word, index) => {
+      const rank = order[index] ?? index
+      const start = (rank * step) / cycle
+      const end = (rank * step + duration) / cycle
+      const reading = (total * step + duration + pause * READING) / cycle
 
-      const images = boucle
+      const frames = loop
         ? [
-            { ...trouble, offset: 0 },
-            { ...trouble, offset: debut },
-            { ...net, offset: fin },
-            { ...net, offset: Math.max(fin, lecture) },
-            // Tout le monde retourne au flou ensemble : c'est la fin du
-            // cycle, et le tour suivant repart du meme point.
-            { ...trouble, offset: 1 },
+            { ...murky, offset: 0 },
+            { ...murky, offset: start },
+            { ...clear, offset: end },
+            { ...clear, offset: Math.max(end, reading) },
+            // Everybody goes back to blur together: it is the end of the
+            // cycle, and the next turn starts again from the same point.
+            { ...murky, offset: 1 },
           ]
         : [
-            { ...trouble, offset: 0 },
-            { ...trouble, offset: debut },
-            { ...net, offset: fin },
-            { ...net, offset: 1 },
+            { ...murky, offset: 0 },
+            { ...murky, offset: start },
+            { ...clear, offset: end },
+            { ...clear, offset: 1 },
           ]
 
-      return mot.animate(images, {
+      return word.animate(frames, {
         duration: cycle,
-        iterations: boucle ? Number.POSITIVE_INFINITY : 1,
+        iterations: loop ? Number.POSITIVE_INFINITY : 1,
         easing: 'linear',
         fill: 'both',
       })
     })
 
-    // Meme instant de depart pour tout le monde : sans cela, le tirage se
-    // decale d'un cycle a l'autre. Voir l'en-tete du module.
-    const depart = document.timeline.currentTime
-    for (const animation of animations) animation.startTime = depart
+    // The same start instant for everybody: without that, the draw drifts from
+    // one cycle to the next. See the module header.
+    const startAt = document.timeline.currentTime
+    for (const animation of animations) animation.startTime = startAt
 
     return () => {
       for (const animation of animations) animation.cancel()
     }
-  }, [ref, reduced, vu, children, blur, dim, duration, step, pause, boucle])
+  }, [ref, reduced, inView, children, blur, dim, duration, step, pause, loop])
 
   const { className, style } = mergePresentation({}, rest)
 
-  // Mouvement reduit : le texte est la, net, sans decoupage.
+  // Reduced motion: the text is there, crisp, with no split.
   if (reduced) {
     return (
       <Tag {...rest} className={className} style={style}>
@@ -209,17 +207,17 @@ export function BlurWords({
     )
   }
 
-  const mots = children.split(' ').filter((mot) => mot.length > 0)
+  const words = children.split(' ').filter((word) => word.length > 0)
 
   return (
     <Tag {...rest} ref={ref} className={className} style={style}>
-      {/* Le texte complet, d'un seul tenant, pour les lecteurs d'ecran. */}
+      {/* The complete text, in one piece, for screen readers. */}
       <span className="o-sr-only">{children}</span>
       <span aria-hidden>
-        {mots.map((mot, index) => (
-          <span key={`${mot}-${String(index)}`}>
-            <span data-o-blur-words-word="">{mot}</span>
-            {index < mots.length - 1 ? ' ' : null}
+        {words.map((word, index) => (
+          <span key={`${word}-${String(index)}`}>
+            <span data-o-blur-words-word="">{word}</span>
+            {index < words.length - 1 ? ' ' : null}
           </span>
         ))}
       </span>

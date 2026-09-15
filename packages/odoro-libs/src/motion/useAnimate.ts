@@ -1,10 +1,10 @@
 /**
- * Pilotage imperatif d'une animation.
+ * Imperative control of an animation.
  *
- * Couche mince au-dessus de `Element.animate()` : c'est le navigateur qui
- * interpole, sur son propre fil de composition. Aucune boucle
- * `requestAnimationFrame` n'est ouverte cote JavaScript, ce qui rend les
- * animations insensibles a la charge du fil principal.
+ * Thin layer on top of `Element.animate()`: the browser is the one that
+ * interpolates, on its own compositor thread. No
+ * `requestAnimationFrame` loop is opened on the JavaScript side, which makes
+ * animations insensitive to the load of the main thread.
  *
  * @module
  */
@@ -19,52 +19,52 @@ import {
   resolveEasing,
 } from './tokens.js'
 
-/** Options d'animation, exprimees avec les tokens d'Odoro. */
+/** Animation options, expressed with the Odoro tokens. */
 export interface MotionOptions extends Omit<
   KeyframeAnimationOptions,
   'duration' | 'easing' | 'delay' | 'endDelay'
 > {
-  /** Duree : nom de token ou millisecondes. */
+  /** Duration: token name or milliseconds. */
   duration?: DurationInput
-  /** Courbe : nom de token ou valeur CSS. */
+  /** Curve: token name or CSS value. */
   easing?: EasingInput
-  /** Retard avant demarrage, en millisecondes. */
+  /** Delay before start, in milliseconds. */
   delay?: number
-  /** Retard apres la fin, en millisecondes. */
+  /** Delay after the end, in milliseconds. */
   endDelay?: number
 }
 
-/** Controles retournes par {@link useAnimate}. */
+/** Controls returned by {@link useAnimate}. */
 export interface AnimateControls {
   /**
-   * Lance une animation sur l'element reference.
+   * Starts an animation on the referenced element.
    *
-   * @returns Une promesse resolue a la fin de l'animation. Elle se resout
-   *   aussi — immediatement — si l'animation est annulee : un appelant n'a
-   *   jamais a gerer de rejet.
+   * @returns A promise resolved at the end of the animation. It also resolves
+   *   — immediately — if the animation is cancelled: a caller never
+   *   has to handle a rejection.
    */
   play(
     keyframes: Keyframe[] | PropertyIndexedKeyframes,
     options?: MotionOptions,
   ): Promise<void>
-  /** Interrompt l'animation en cours et revient a l'etat initial. */
+  /** Interrupts the running animation and returns to the initial state. */
   cancel(): void
-  /** Saute a l'etat final. */
+  /** Jumps to the final state. */
   finish(): void
-  /** Suspend l'animation en cours. */
+  /** Suspends the running animation. */
   pause(): void
-  /** Reprend une animation suspendue. */
+  /** Resumes a suspended animation. */
   resume(): void
-  /** Animation en cours, ou `null`. */
+  /** Running animation, or `null`. */
   readonly animation: Animation | null
 }
 
 /**
- * Retourne une ref a poser sur un element, et des controles pour l'animer.
+ * Returns a ref to place on an element, and controls to animate it.
  *
- * Sous `prefers-reduced-motion`, la duree est ramenee a zero : l'animation est
- * neutralisee mais **l'etat final est bien applique**. Une revelation ne doit
- * jamais laisser un contenu invisible.
+ * Under `prefers-reduced-motion`, the duration is brought down to zero: the animation is
+ * neutralized but **the final state is indeed applied**. A reveal must
+ * never leave content invisible.
  *
  * @example
  * const [ref, controls] = useAnimate<HTMLDivElement>()
@@ -98,8 +98,8 @@ export function useAnimate<T extends Element = HTMLElement>(): [
       ...rest,
       duration: reducedRef.current ? 0 : resolveDuration(duration),
       easing: resolveEasing(easing),
-      // Sans cela, l'element revient a son style calcule des la fin de
-      // l'animation : ce n'est presque jamais ce que l'on veut.
+      // Without this, the element goes back to its computed style as soon as the
+      // animation ends: that is almost never what one wants.
       fill: rest.fill ?? 'both',
     })
 
@@ -107,7 +107,7 @@ export function useAnimate<T extends Element = HTMLElement>(): [
 
     return animation.finished.then(
       () => undefined,
-      // `finished` rejette sur `cancel()`, cas nominal et non une erreur.
+      // `finished` rejects on `cancel()`, a nominal case and not an error.
       () => undefined,
     )
   }, [])

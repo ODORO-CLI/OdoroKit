@@ -38,7 +38,7 @@
 
 import { useMotionState } from '@odoro-cli/engine'
 import { Icon } from '@odoro-cli/icons'
-import { ArrowRight, ArrowUpRight } from '@odoro-cli/icons/filaire'
+import { ArrowRight, ArrowUpRight } from '@odoro-cli/icons/outline'
 import { Reveal } from '@odoro-cli/libs/motion'
 import { useMemo, useState, type FormEvent, type ReactElement } from 'react'
 

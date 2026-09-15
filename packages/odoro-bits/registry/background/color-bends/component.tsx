@@ -1,24 +1,24 @@
 /**
- * Nappes pliees : des nappes de couleur epaisses, chacune dans son repere tourne, qui se plient et se croisent en s eclairant la ou elles se recouvrent.
+ * Bending sheets: thick sheets of colour, each in its own rotated frame, bending and crossing and brightening where they overlap.
  *
- * ## Le principe
+ * ## The principle
  *
- * Chaque nappe est une bande epaisse autour d'une courbe de deux sinus,
- * dans un repere tourne qui lui est propre : c'est pourquoi les nappes se
- * croisent au lieu de rester paralleles. La ou elles se recouvrent, la
- * somme des couvertures depasse un, et cet exces devient un eclat ajoute
- * et borne — les nappes sont translucides, pas decoupees.
+ * Each sheet is a thick band around a curve of two sines, in a rotated
+ * frame of its own: that is why the sheets cross instead of staying
+ * parallel. Where they overlap, the sum of the coverages exceeds one, and
+ * that excess becomes an added, capped glint — the sheets are translucent,
+ * not cut out.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur — les recopier ici en ferait autant
- * de versions a maintenir qu'il y a de fonds.
+ * It carries only what sets it apart: its shader, its settings and its fallback.
+ * Reading the tokens, converting them to floats and re-reading them when the
+ * theme changes all come from the engine — copying them here would leave as
+ * many versions to maintain as there are backgrounds.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en
- * accorde qu'une par backend — et sous mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface — it grants only one
+ * per backend — and under reduced motion.
  *
  * @module
  */
@@ -35,56 +35,56 @@ import { type ReactElement } from 'react'
 
 import { COLOR_BENDS_FRAGMENT } from './color-bends.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface ColorBendsControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to this component. */
 export interface ColorBendsOwnProps {
-  /** Nombre de nappes. @defaultValue 3 */
+  /** Number of sheets. @defaultValue 3 */
   sheets?: number
-  /** Epaisseur des nappes, en fraction du cadre. @defaultValue 0.16 */
+  /** Thickness of the sheets, as a fraction of the frame. @defaultValue 0.16 */
   thickness?: number
-  /** Amplitude des pliures. @defaultValue 0.7 */
+  /** Amplitude of the bends. @defaultValue 0.7 */
   bend?: number
-  /** Vitesse du mouvement. @defaultValue 0.3 */
+  /** Speed of the movement. @defaultValue 0.3 */
   speed?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<ColorBendsControls>
 }
 
-/** Toutes les proprietes. */
+/** Every property. */
 export type ColorBendsProps = Customisable<ColorBendsOwnProps>
 
-/** Tokens employes par defaut : le fond, la premiere et la derniere nappe. */
+/** Tokens used by default: the background, the first and the last sheet. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-brand-500',
   '--o-palette-violet-500',
 ] as const
 
-/** Repli par defaut : un degrade fige, dans les memes tons. */
+/** Default fallback: a frozen gradient, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-tr o-from-brand-200 dark:o-from-brand-900 o-via-zinc-50 dark:o-via-zinc-950 o-to-violet-200 dark:o-to-violet-900'
 
 /**
- * Plafond en qualite basse.
+ * Ceiling at low quality.
  *
- * Chaque nappe est une rotation et deux sinus : c'est le seul levier de
- * cout. En qualite basse, deux nappes au plus, quel que soit le reglage.
+ * Each sheet is a rotation and two sines: that is the only lever on cost.
+ * At low quality, two sheets at most, whatever the setting.
  */
 const LOW_CAP = 2
 
 /**
- * Nappes pliees.
+ * Bending sheets.
  *
  * @example
  * <div className="o-relative o-min-h-screen">

@@ -1,31 +1,31 @@
 /**
- * Double helice : deux brins de points opposes, relies par des barreaux, qui
- * tournent autour de leur axe.
+ * Double helix: two strands of opposed points, joined by rungs, turning
+ * about their axis.
  *
- * ## Pourquoi des points, et deux nuages plutot qu'un
+ * ## Why points, and two clouds rather than one
  *
- * Un tube plein cacherait le brin de derriere et l'helice se lirait comme un
- * ruban. Des points laissent voir a travers, ce qui est la seule facon de
- * comprendre qu'il y a deux brins et non un. Et les deux nuages sont separes
- * pour que chacun porte sa couleur : un seul nuage a couleurs par sommet
- * couterait un attribut de plus pour la meme image.
+ * A solid tube would hide the strand behind and the helix would read as a
+ * ribbon. Points let the eye see through, which is the only way to grasp
+ * that there are two strands and not one. And the two clouds are kept
+ * apart so that each carries its own colour: a single cloud with per-vertex
+ * colours would cost one more attribute for the same picture.
  *
- * ## Le pas de l'helice
+ * ## The pitch of the helix
  *
- * Le rayon est fixe ; ce qui change avec le nombre de tours, c'est le pas —
- * la hauteur gagnee par tour. Peu de tours donnent un ressort etire, beaucoup
- * une torsade serree. Les barreaux relient les deux brins a la meme hauteur,
- * un point sur `n` : tous les relier ferait un mur.
+ * The radius is fixed; what changes with the number of turns is the pitch —
+ * the height gained per turn. Few turns give a stretched spring, many a
+ * tight twist. The rungs join the two strands at the same height, one point
+ * in `n`: joining them all would make a wall.
  *
- * ## Ce que ce composant ne fait pas
+ * ## What this component does not do
  *
- * Il n'ouvre ni boucle d'animation, ni observateur : `useScene` les porte.
- * La geometrie est construite une fois — la rotation est celle du groupe, pas
- * une reecriture des sommets.
+ * It opens neither an animation loop nor an observer: `useScene` carries
+ * them. The geometry is built once — the rotation is the group's, not a
+ * rewriting of the vertices.
  *
- * ## Sous mouvement reduit
+ * ## Under reduced motion
  *
- * La scene est refusee par le moteur et le repli statique s'affiche.
+ * The scene is refused by the engine and the static fallback shows.
  *
  * @module
  */
@@ -42,43 +42,43 @@ import { useEffect, useRef, useState, type ReactElement } from 'react'
 
 import { usePoster } from '@registre/hooks/usePoster'
 
-/** Proprietes propres au composant. */
+/** Properties specific to this component. */
 export interface DnaHelixOwnProps {
-  /** Nombre de tours de l'helice sur toute sa hauteur. @defaultValue 4 */
+  /** Number of turns of the helix over its whole height. @defaultValue 4 */
   turns?: number
-  /** Points par brin. Retrograde en qualite basse. @defaultValue 220 */
+  /** Points per strand. Degraded at low quality. @defaultValue 220 */
   points?: number
-  /** Vitesse de rotation, en tours par minute. @defaultValue 3 */
+  /** Rotation speed, in turns per minute. @defaultValue 3 */
   rpm?: number
-  /** Un barreau tous les combien de points. Zero les supprime. @defaultValue 6 */
+  /** One rung every so many points. Zero removes them. @defaultValue 6 */
   rungs?: number
-  /** Tokens : le fond, le premier brin, le second brin. */
+  /** Tokens: the background, the first strand, the second strand. */
   colors?: readonly [string, string, string]
-  /** Classes du repli. */
+  /** Fallback classes. */
   poster?: string
 }
 
-/** Toutes les proprietes. */
+/** Every property. */
 export type DnaHelixProps = Customisable<DnaHelixOwnProps>
 
-/** Tokens employes par defaut. */
+/** Tokens used by default. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-sky-400',
   '--o-palette-rose-400',
 ] as const
 
-/** Repli par defaut : une teinte figee, dans les memes tons. */
+/** Default fallback: a frozen hue, in the same tones. */
 const DEFAULT_POSTER =
   'o-bg-gradient-to-b o-from-zinc-50 dark:o-from-zinc-950 o-via-sky-100 dark:o-via-sky-950 o-to-rose-100 dark:o-to-rose-950'
 
-/** Points par brin en qualite basse. */
+/** Points per strand at low quality. */
 const LOW_POINTS = 90
 
-/** Rayon de l'helice, en unites de scene. */
+/** Radius of the helix, in scene units. */
 const RADIUS = 0.95
 
-/** Hauteur de l'helice, en unites de scene. */
+/** Height of the helix, in scene units. */
 const HEIGHT = 3.0
 
 type Three = SceneContext['three']
@@ -86,17 +86,17 @@ type Group = InstanceType<Three['Group']>
 type PointsMaterial = InstanceType<Three['PointsMaterial']>
 type LineMaterial = InstanceType<Three['LineBasicMaterial']>
 
-/** Ce que la scene garde entre la construction et les images. */
+/** What the scene keeps between construction and frames. */
 interface Helix {
   readonly group: Group
   readonly first: PointsMaterial
   readonly second: PointsMaterial
   readonly bars: LineMaterial
-  /** Vitesse angulaire, en radians par seconde. */
+  /** Angular velocity, in radians per second. */
   readonly rate: number
 }
 
-/** Moyenne de deux teintes, employee pour les barreaux. */
+/** Average of two hues, used for the rungs. */
 function blend(
   one: ShaderColour | undefined,
   other: ShaderColour | undefined,
@@ -109,7 +109,7 @@ function blend(
 }
 
 /**
- * Double helice.
+ * Double helix.
  *
  * @example
  * <div className="o-relative o-h-96 o-overflow-hidden o-rounded-xl">
@@ -133,16 +133,16 @@ export function DnaHelix({
   const context = useRef<SceneContext | null>(null)
 
   const { ref, ready, refused } = useScene<HTMLDivElement>({
-    name: 'double-helice',
+    name: 'double-helix',
     setup: (scene: SceneContext) => {
       context.current = scene
       const { three, renderer, camera, quality } = scene
 
       const [bg, one, other] = colors.map((token) => readTokenColour(token, ref.current))
 
-      // Le fond de la scene est le fond de la page. Le token est en sRGB et
-      // le moteur encode sa couleur d'effacement du lineaire vers le sRGB :
-      // sans la conversion inverse, le fond ressort un cran plus clair.
+      // The scene's background is the page's background. The token is in sRGB and
+      // the engine encodes its clear colour from linear to sRGB:
+      // without the inverse conversion, the background comes out a shade lighter.
       renderer.setClearColor(
         new three.Color(bg?.[0] ?? 0, bg?.[1] ?? 0, bg?.[2] ?? 0).convertSRGBToLinear(),
         1,
@@ -171,8 +171,8 @@ export function DnaHelix({
         firstPositions[index * 3 + 1] = y
         firstPositions[index * 3 + 2] = az
 
-        // Le second brin est le premier tourne d'un demi-tour : c'est ce qui
-        // fait une double helice plutot que deux helices independantes.
+        // The second strand is the first turned by half a turn: that is what
+        // makes a double helix rather than two independent helices.
         secondPositions[index * 3] = -ax
         secondPositions[index * 3 + 1] = y
         secondPositions[index * 3 + 2] = -az
@@ -211,12 +211,12 @@ export function DnaHelix({
       bars.color.setRGB(mixed[0], mixed[1], mixed[2])
 
       const group = new three.Group()
-      group.name = 'helice'
+      group.name = 'helix'
       group.add(first.cloud)
       group.add(second.cloud)
       group.add(new three.LineSegments(barGeometry, bars))
-      // L'axe est legerement incline : parfaitement vertical, la rotation ne
-      // se lirait qu'aux barreaux.
+      // The axis is slightly tilted: perfectly vertical, the rotation would
+      // read only on the rungs.
       group.rotation.z = 0.18
       scene.scene.add(group)
 
@@ -237,15 +237,15 @@ export function DnaHelix({
     frame: (_, { time, delta }) => {
       const live = helix.current
       if (live === null) return
-      // La rotation est exprimee en fonction du temps ecoule : le meme
-      // reglage donne la meme vitesse apparente a toute cadence.
+      // The rotation is expressed as a function of elapsed time: the same
+      // setting gives the same apparent speed at any frame rate.
       live.group.rotation.y += live.rate * delta
       live.group.rotation.z = 0.18 + Math.sin(time * 0.25) * 0.06
     },
   })
 
-  // Le theme a bascule : les tokens sont relus et les materiaux repeints en
-  // place. La scene n'est pas reconstruite.
+  // The theme has flipped: the tokens are re-read and the materials repainted in
+  // place. The scene is not rebuilt.
   useEffect(() => {
     const scene = context.current
     const live = helix.current

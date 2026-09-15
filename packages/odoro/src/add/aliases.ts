@@ -1,25 +1,25 @@
 /**
- * Deduction du prefixe d'import d'un projet.
+ * Inference of the import prefix of a project.
  *
- * ## Le probleme
+ * ## The problem
  *
- * Un composant copie dans `src/components/odoro/` doit pouvoir importer son
- * voisin. Ecrire `../hooks/usePoster.js` marcherait, mais casse des que
- * l'utilisateur deplace le dossier — ce qu'il fera, puisque le code lui
- * appartient. Le prefixe d'alias, lui, survit au deplacement tant que le
- * `tsconfig.json` suit.
+ * A component copied into `src/components/odoro/` must be able to import its
+ * neighbour. Writing `../hooks/usePoster.js` would work, but breaks as soon as
+ * the user moves the directory — which they will, since the code belongs to
+ * them. The alias prefix survives the move as long as the `tsconfig.json`
+ * follows.
  *
- * Encore faut-il le connaitre. La convention `@/` est repandue mais pas
- * universelle : `~/`, `#/`, `src/` existent aussi, et un projet peut n'avoir
- * aucun alias. Il est donc **lu** dans le `tsconfig.json` plutot que suppose.
+ * It still has to be known. The `@/` convention is widespread but not
+ * universal: `~/`, `#/`, `src/` exist too, and a project may have no alias at
+ * all. It is therefore **read** from the `tsconfig.json` rather than assumed.
  *
- * ## Pourquoi ce n'est pas un vrai analyseur de tsconfig
+ * ## Why this is not a real tsconfig parser
  *
- * Les `extends` en chaine, les `references` de projet, la resolution
- * `bundler` : tout cela existe, et rien de tout cela ne change la reponse a la
- * seule question posee ici — quel prefixe designe le dossier des sources. Le
- * cas ou la deduction echoue est prevu : la CLI demande, et note la reponse
- * dans `odoro.json`. Une fois notee, elle n'est plus jamais redemandee.
+ * Chained `extends`, project `references`, `bundler` resolution: all of that
+ * exists, and none of it changes the answer to the only question asked here —
+ * which prefix designates the sources directory. The case where the inference
+ * fails is provided for: the CLI asks, and records the answer in `odoro.json`.
+ * Once recorded, it is never asked again.
  *
  * @module
  */
@@ -27,23 +27,22 @@
 import { readFile } from 'node:fs/promises'
 import { join, posix } from 'node:path'
 
-/** Un alias deduit d'un `tsconfig.json`. */
+/** An alias inferred from a `tsconfig.json`. */
 export interface AliasGuess {
-  /** Prefixe d'import, sans barre finale. Par exemple `@`. */
+  /** Import prefix, without a trailing slash. For example `@`. */
   readonly prefix: string
-  /** Dossier vise, relatif a la racine. Par exemple `src`. */
+  /** Target directory, relative to the root. For example `src`. */
   readonly directory: string
 }
 
 /**
- * Retire les commentaires et les virgules finales d'un JSON avec commentaires.
+ * Removes the comments and the trailing commas of a JSON with comments.
  *
- * Les `tsconfig.json` en contiennent presque toujours — c'est meme le format
- * que TypeScript documente. `JSON.parse` les refuse.
+ * `tsconfig.json` files almost always hold them — it is even the format
+ * TypeScript documents. `JSON.parse` refuses them.
  *
- * Le decoupage suit l'etat de la chaine plutot qu'une expression reguliere :
- * une barre oblique dans un litteral de chaine (`"https://…"`) ne doit pas
- * ouvrir un commentaire.
+ * The scan follows the state of the string rather than a regular expression: a
+ * slash inside a string literal (`"https://…"`) must not open a comment.
  */
 export function stripJsonComments(source: string): string {
   let output = ''
@@ -73,7 +72,7 @@ export function stripJsonComments(source: string): string {
 
     if (inString) {
       output += char
-      // Un caractere echappe ne peut pas fermer la chaine.
+      // An escaped character cannot close the string.
       if (char === '\\') {
         output += next
         index += 1
@@ -102,11 +101,11 @@ export function stripJsonComments(source: string): string {
     output += char
   }
 
-  // Une virgule suivie d'une fermeture : legale en JSONC, refusee par JSON.
+  // A comma followed by a closing brace: legal in JSONC, refused by JSON.
   return output.replace(/,(\s*[}\]])/g, '$1')
 }
 
-/** Forme minimale de ce qui nous interesse dans un `tsconfig.json`. */
+/** Minimal shape of what interests us in a `tsconfig.json`. */
 interface TsConfigShape {
   compilerOptions?: {
     baseUrl?: string
@@ -115,11 +114,11 @@ interface TsConfigShape {
 }
 
 /**
- * Normalise une cible de `paths` en dossier relatif a la racine.
+ * Normalises a `paths` target into a directory relative to the root.
  *
- * `./src/*` et `src/*` designent le meme dossier ; `baseUrl` peut deplacer
- * l'ancrage. La sortie est toujours en barres obliques : elle finira dans un
- * `odoro.json` que deux systemes differents doivent lire pareil.
+ * `./src/*` and `src/*` designate the same directory; `baseUrl` can move the
+ * anchor. The output is always in forward slashes: it will end up in an
+ * `odoro.json` that two different systems must read the same way.
  */
 function toDirectory(target: string, baseUrl: string | undefined): string {
   const withoutStar = target.replace(/\/?\*+$/, '')
@@ -130,14 +129,14 @@ function toDirectory(target: string, baseUrl: string | undefined): string {
 }
 
 /**
- * Deduit le prefixe d'import d'un projet depuis son `tsconfig.json`.
+ * Infers the import prefix of a project from its `tsconfig.json`.
  *
- * Le candidat retenu est celui dont la cible est la moins profonde : un projet
- * qui declare a la fois `@/*` vers `src/*` et `@ui/*` vers
- * `src/components/ui/*` veut le premier comme prefixe general.
+ * The candidate kept is the one whose target is the shallowest: a project
+ * declaring both `@/*` towards `src/*` and `@ui/*` towards
+ * `src/components/ui/*` wants the first as its general prefix.
  *
- * @param root Racine du projet.
- * @returns L'alias deduit, ou `null` si le projet n'en declare aucun.
+ * @param root Project root.
+ * @returns The inferred alias, or `null` when the project declares none.
  *
  * @example
  * await guessAlias('.') // { prefix: '@', directory: 'src' }
@@ -162,8 +161,8 @@ export async function guessAlias(root: string): Promise<AliasGuess | null> {
 
   const candidates: AliasGuess[] = []
   for (const [pattern, targets] of Object.entries(paths)) {
-    // Seuls les motifs generiques designent un dossier ; `"react": [...]` est
-    // une redirection de paquet, pas un alias de sources.
+    // Only wildcard patterns designate a directory; `"react": [...]` is a
+    // package redirection, not a sources alias.
     if (!pattern.endsWith('/*')) continue
     const target = targets[0]
     if (target === undefined) continue
@@ -179,9 +178,9 @@ export async function guessAlias(root: string): Promise<AliasGuess | null> {
 }
 
 /**
- * Construit les emplacements par defaut d'un projet.
+ * Builds the default locations of a project.
  *
- * @param guess Alias deduit, ou `null` pour un projet sans alias.
+ * @param guess Inferred alias, or `null` for a project without an alias.
  *
  * @example
  * defaultAliases({ prefix: '@', directory: 'src' })
@@ -192,10 +191,9 @@ export function defaultAliases(guess: AliasGuess | null): {
   directory: string
 } {
   if (guess === null) {
-    // Sans alias, le prefixe reste le chemin lui-meme — il nomme la
-    // destination — mais les imports entre composants seront ecrits en
-    // relatif : un chemin nu ne resout pas. Voir `estUnAlias` dans
-    // `rewrite.ts`.
+    // Without an alias, the prefix stays the path itself — it names the
+    // destination — but the imports between components will be written
+    // relative: a bare path does not resolve. See `isAlias` in `rewrite.ts`.
     return { import: 'src/odoro', directory: 'src/odoro' }
   }
   return {
@@ -205,18 +203,17 @@ export function defaultAliases(guess: AliasGuess | null): {
 }
 
 /**
- * Lit tous les alias generiques d'un `tsconfig.json`, sous la forme attendue
- * par la configuration du moteur.
+ * Reads every wildcard alias of a `tsconfig.json`, in the shape the engine
+ * configuration expects.
  *
- * `guessAlias` cherche **le** prefixe des sources, pour ecrire dedans.
- * Celle-ci les rend **tous**, pour les resoudre. Un projet qui declare a la
- * fois `@/*` et `@ui/*` a besoin des deux au moment de l'import, alors qu'il
- * n'a qu'une destination d'ecriture.
+ * `guessAlias` looks for **the** prefix of the sources, to write into it. This
+ * one returns them **all**, to resolve them. A project declaring both `@/*` and
+ * `@ui/*` needs both at import time, while it has a single write destination.
  *
- * @param root Racine du projet.
- * @returns Prefixe sans barre finale vers dossier relatif. Vide si le projet
- * ne declare rien, ou si son `tsconfig.json` est illisible : un alias est un
- * confort, pas une condition de demarrage.
+ * @param root Project root.
+ * @returns Prefix without a trailing slash towards a relative directory. Empty
+ * when the project declares nothing, or when its `tsconfig.json` is unreadable:
+ * an alias is a convenience, not a condition to start.
  *
  * @example
  * await guessAliasPaths('.') // { '@': 'src' }

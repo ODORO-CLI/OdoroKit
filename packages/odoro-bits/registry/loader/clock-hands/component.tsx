@@ -1,36 +1,34 @@
 /**
- * Aiguilles : une horloge dont la grande aiguille avance par a-coups, et
- * dont la petite prend un cran a chaque tour de la grande.
+ * Hands: a clock whose minute hand advances in jerks, and whose hour hand
+ * takes one notch on every turn of the minute hand.
  *
- * ## Une aiguille qui saute, puis tremble
+ * ## A hand that jumps, then quivers
  *
- * Une aiguille mecanique ne glisse pas : elle saute d'un cran, depasse
- * legerement, et se pose. Le saut est une animation en `steps`, douze par
- * tour, sur un groupe exterieur ; le tremblement est une seconde animation,
- * sur un groupe interieur, d'une duree d'un cran exactement : elle part
- * d'un leger depassement et revient a zero en `ease-out`. Les deux se
- * synchronisent d'elles-memes, puisque la premiere saute a la fin de
- * chaque periode de la seconde. Une seule animation ne saurait pas faire
- * les deux : `steps` ne connait pas le depassement, et une courbe continue
- * ne connait pas le saut.
+ * A mechanical hand does not glide: it jumps by one notch, slightly
+ * overshoots, and settles. The jump is a `steps` animation, twelve per turn,
+ * on an outer group; the quiver is a second animation, on an inner group,
+ * lasting exactly one notch: it starts from a slight overshoot and comes back
+ * to zero in `ease-out`. The two synchronise on their own, since the first
+ * jumps at the end of every period of the second. A single animation could
+ * not do both: `steps` knows nothing of overshoot, and a continuous curve
+ * knows nothing of the jump.
  *
- * La petite aiguille avance d'un cran — un douzieme de tour — chaque fois
- * que la grande boucle un tour : c'est le rapport d'une horloge, et c'est
- * ce qui la fait lire comme une horloge plutot que comme deux rayons qui
- * tournent. Les douze reperes du cadran sont calcules une fois au
- * chargement du module.
+ * The hour hand advances by one notch — a twelfth of a turn — every time the
+ * minute hand loops once: that is the ratio of a clock, and that is what
+ * makes it read as a clock rather than as two spokes turning. The twelve
+ * marks of the dial are computed once when the module loads.
  *
- * Trois animations sur des groupes SVG, tenues par le compositeur, aucun
- * JavaScript apres le premier rendu.
+ * Three animations on SVG groups, held by the compositor, no JavaScript after
+ * the first render.
  *
- * ## Un statut, pas un dessin
+ * ## A status, not a drawing
  *
- * L'element porte `role="status"` et un libelle pour les lecteurs d'ecran :
- * l'attente est une information, pas une decoration. Le cadran est retire
- * de l'arbre d'accessibilite.
+ * The element carries `role="status"` and a label for screen readers: the
+ * wait is information, not decoration. The dial is removed from the
+ * accessibility tree.
  *
- * Sous mouvement reduit, les deux aiguilles sont a midi, immobiles : la
- * figure se lit encore comme une horloge, seul le temps s'arrete.
+ * Under reduced motion, both hands sit at noon, still: the figure still reads
+ * as a clock, only time stops.
  *
  * @module
  */
@@ -38,13 +36,13 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-clock-hands'
 
-/** Crans par tour de la grande aiguille. */
+/** Notches per turn of the minute hand. */
 const TICKS = 12
 
-/** Un repere du cadran : un trait, plus long aux quarts. */
+/** One mark of the dial: a stroke, longer at the quarters. */
 interface Mark {
   readonly x1: number
   readonly y1: number
@@ -53,7 +51,7 @@ interface Mark {
   readonly major: boolean
 }
 
-/** Les douze reperes, du rayon exterieur vers l'interieur. */
+/** The twelve marks, from the outer radius inwards. */
 const MARKS: readonly Mark[] = Array.from({ length: TICKS }, (_, index) => {
   const angle = (2 * Math.PI * index) / TICKS - Math.PI / 2
   const major = index % 3 === 0
@@ -68,7 +66,7 @@ const MARKS: readonly Mark[] = Array.from({ length: TICKS }, (_, index) => {
   }
 })
 
-/** Pose le cadran, les sauts et le tremblement, une fois par document. */
+/** Applies the dial, the jumps and the quiver, once per document. */
 function ensureClockRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -81,26 +79,26 @@ function ensureClockRule(): void {
     '[data-o-clock-hand],[data-o-clock-settle]{',
     'transform-box:view-box;transform-origin:50px 50px;',
     '}',
-    // Douze sauts par tour, a la fin de chaque cran.
+    // Twelve jumps per turn, at the end of each notch.
     '[data-o-clock-hand="minute"]{',
     `animation:o-clock-hands-turn var(--o-clock-speed) steps(${String(TICKS)},end) infinite;`,
     '}',
-    // Un cran par tour de la grande : douze fois plus lent.
+    // One notch per turn of the minute hand: twelve times slower.
     '[data-o-clock-hand="hour"]{',
     `animation:o-clock-hands-turn calc(var(--o-clock-speed) * ${String(TICKS)}) steps(${String(TICKS)},end) infinite;`,
     '}',
-    // Le tremblement dure un cran : il repart a chaque saut.
+    // The quiver lasts one notch: it restarts on every jump.
     '[data-o-clock-settle]{',
     `animation:o-clock-hands-settle calc(var(--o-clock-speed) / ${String(TICKS)}) ease-out infinite;`,
     '}',
     '@keyframes o-clock-hands-turn{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}',
-    // Depassement, leger retour, repos : la mecanique se pose.
+    // Overshoot, slight return, rest: the mechanism settles.
     '@keyframes o-clock-hands-settle{',
     '0%{transform:rotate(4deg)}',
     '35%{transform:rotate(-1.2deg)}',
     '60%,100%{transform:rotate(0deg)}',
     '}',
-    // Midi, immobile : la figure est dite, sans que le temps passe.
+    // Noon, still: the figure is stated, without time passing.
     '@media (prefers-reduced-motion:reduce){',
     '[data-o-clock-hand],[data-o-clock-settle]{animation:none;transform:none}',
     '}',
@@ -108,37 +106,36 @@ function ensureClockRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface ClockHandsOwnProps {
-  /** Diametre du cadran, en pixels. @defaultValue 48 */
+  /** Diameter of the dial, in pixels. @defaultValue 48 */
   size?: number
-  /** Duree d'un tour de la grande aiguille, en millisecondes. @defaultValue 3000 */
+  /** Duration of one turn of the minute hand, in milliseconds. @defaultValue 3000 */
   speed?: number
-  /** Couleur du cadran et des aiguilles. @defaultValue la couleur du texte */
+  /** Colour of the dial and of the hands. @defaultValue the text colour */
   color?: string
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */
+  /** Label announced to screen readers. @defaultValue 'Loading' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All the properties. */
 export type ClockHandsProps = Customisable<ClockHandsOwnProps, 'span'>
 
 /**
- * Signale une attente par une horloge dont les aiguilles avancent par
- * crans.
+ * Signals a wait with a clock whose hands advance notch by notch.
  *
  * @example
  * <ClockHands />
  *
  * @example
- * // Plus grand, plus lent, dans la teinte de marque.
+ * // Bigger, slower, in the brand hue.
  * <ClockHands size={80} speed={6000} color="var(--o-palette-brand-500)" />
  */
 export function ClockHands({
   size = 48,
   speed = 3000,
   color = 'currentColor',
-  label = 'Chargement',
+  label = 'Loading',
   ...rest
 }: ClockHandsProps): ReactElement {
   ensureClockRule()

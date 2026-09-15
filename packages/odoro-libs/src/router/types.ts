@@ -1,5 +1,5 @@
 /**
- * Types partages du routeur.
+ * Shared router types.
  *
  * @module
  */
@@ -7,92 +7,92 @@
 import type { ComponentType, ReactNode } from 'react'
 
 /**
- * Chargeur d'une route paresseuse. Le module doit exporter le composant de
- * page en `default`.
+ * Loader of a lazy route. The module must export the page component as
+ * `default`.
  */
 export type RouteLazyLoader = () => Promise<{ default: ComponentType }>
 
 /**
- * Description declarative d'une route.
+ * Declarative description of a route.
  *
- * C'est la forme normalisee produite a partir des elements `<Route>` ; elle
- * peut aussi etre fournie directement a {@link matchRoutes} pour des tests ou
- * un rendu serveur.
+ * This is the normalized shape produced from `<Route>` elements; it can also
+ * be supplied directly to {@link matchRoutes} for tests or for server-side
+ * rendering.
  */
 export interface RouteObject {
   /**
-   * Chemin de la route, **relatif a son parent**. Un `/` initial est tolere et
-   * ignore : il n'y a pas de chemin absolu dans un arbre imbrique.
+   * Path of the route, **relative to its parent**. A leading `/` is tolerated
+   * and ignored: there is no absolute path inside a nested tree.
    */
   path?: string
   /**
-   * Route index : rendue lorsque le chemin du parent est atteint exactement.
-   * Une route index ne peut avoir ni `path` ni `children`.
+   * Index route: rendered when the parent path is reached exactly.
+   * An index route can have neither `path` nor `children`.
    */
   index?: boolean
   /**
-   * Element rendu pour cette route. Une route sans `element` ni `lazy` est un
-   * layout transparent : elle rend directement son `<Outlet />`.
+   * Element rendered for this route. A route without `element` nor `lazy` is a
+   * transparent layout: it renders its `<Outlet />` directly.
    */
   element?: ReactNode
   /**
-   * Chargement paresseux du composant de page. Le module n'est demande qu'a la
-   * premiere resolution de la route, puis conserve.
+   * Lazy loading of the page component. The module is only requested on the
+   * first resolution of the route, then kept.
    *
-   * Prefere `lazy` a un `element` contenant un `React.lazy` construit a la
-   * main : le routeur peut precharger le module avant de declencher une View
-   * Transition, ce qui evite de capturer le fallback de Suspense.
+   * Prefer `lazy` over an `element` holding a hand-built `React.lazy`: the
+   * router can preload the module before starting a View Transition, which
+   * avoids capturing the Suspense fallback.
    */
   lazy?: RouteLazyLoader
-  /** Routes filles, rendues a l'emplacement de `<Outlet />`. */
+  /** Child routes, rendered at the location of `<Outlet />`. */
   children?: RouteObject[]
 }
 
-/** Parametres extraits de l'URL. */
+/** Parameters extracted from the URL. */
 export type RouteParams = Readonly<Record<string, string | undefined>>
 
-/** Une route de l'arbre confrontee avec succes au pathname courant. */
+/** A route of the tree successfully matched against the current pathname. */
 export interface RouteMatch {
-  /** Route concernee. */
+  /** Route concerned. */
   readonly route: RouteObject
-  /** Pattern cumule depuis la racine, par exemple `/users/:id`. */
+  /** Pattern accumulated from the root, for example `/users/:id`. */
   readonly pattern: string
-  /** Portion du pathname consommee jusqu'a cette route incluse. */
+  /** Portion of the pathname consumed up to and including this route. */
   readonly pathname: string
   /**
-   * Comme `pathname`, mais sans la portion capturee par un catch-all. C'est la
-   * base a utiliser pour resoudre les liens relatifs.
+   * Like `pathname`, but without the portion captured by a catch-all. This is
+   * the base to use when resolving relative links.
    */
   readonly pathnameBase: string
-  /** Parametres accumules depuis la racine. */
+  /** Parameters accumulated from the root. */
   readonly params: RouteParams
 }
 
-/** Emplacement courant, equivalent minimal de `window.location`. */
+/** Current location, minimal equivalent of `window.location`. */
 export interface Location {
-  /** Chemin, toujours prefixe par `/`. */
+  /** Path, always prefixed by `/`. */
   readonly pathname: string
-  /** Chaine de requete, prefixee par `?` si non vide. */
+  /** Query string, prefixed by `?` when not empty. */
   readonly search: string
-  /** Fragment, prefixe par `#` si non vide. */
+  /** Fragment, prefixed by `#` when not empty. */
   readonly hash: string
-  /** Donnees arbitraires attachees a l'entree d'historique. */
+  /** Arbitrary data attached to the history entry. */
   readonly state: unknown
-  /** Cle unique de l'entree d'historique, stable au retour arriere. */
+  /** Unique key of the history entry, stable when going back. */
   readonly key: string
 }
 
-/** Cible de navigation : une URL relative, ou un delta d'historique. */
+/** Navigation target: a relative URL, or a history delta. */
 export type To = string | Partial<Pick<Location, 'pathname' | 'search' | 'hash'>>
 
-/** Options de navigation programmatique. */
+/** Options of a programmatic navigation. */
 export interface NavigateOptions {
-  /** Remplace l'entree courante au lieu d'en empiler une nouvelle. */
+  /** Replaces the current entry instead of pushing a new one. */
   replace?: boolean
-  /** Donnees attachees a l'entree d'historique. */
+  /** Data attached to the history entry. */
   state?: unknown
-  /** Force ou desactive la View Transition pour cette navigation. */
+  /** Forces or disables the View Transition for this navigation. */
   viewTransition?: boolean
-  /** Empeche la restauration/reinitialisation du scroll pour cette navigation. */
+  /** Prevents the scroll restoration/reset for this navigation. */
   preventScrollReset?: boolean
 }

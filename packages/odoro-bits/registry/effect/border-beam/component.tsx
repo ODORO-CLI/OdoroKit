@@ -1,23 +1,23 @@
 /**
- * Trait lumineux parcourant une bordure.
+ * Luminous stroke travelling along a border.
  *
- * ## Un degrade conique, pas un element qui tourne
+ * ## A conic gradient, not an element that rotates
  *
- * L'approche naive consiste a faire tourner un petit rectangle autour du
- * contour. Elle demande de connaitre la geometrie, casse des que l'element
- * change de proportions, et coince dans les angles arrondis.
+ * The naive approach consists in spinning a small rectangle around the
+ * outline. It requires knowing the geometry, breaks as soon as the element
+ * changes proportions, and gets stuck in the rounded corners.
  *
- * Un degrade conique tourne, lui, autour du centre : la bande claire balaie
- * naturellement tout le contour, quelle que soit la forme. Il ne reste qu'a
- * n'en garder que la bordure, ce que fait un masque en deux couches dont on
- * soustrait l'interieur.
+ * A conic gradient, on the other hand, rotates around the centre: the bright
+ * band naturally sweeps the whole outline, whatever the shape. All that is
+ * left is to keep only the border, which a two-layer mask does by subtracting
+ * the interior.
  *
- * ## Aucun JavaScript par image
+ * ## No JavaScript per frame
  *
- * La rotation est une animation CSS d'une propriete personnalisee enregistree
- * en angle. Sans cet enregistrement, un navigateur interpolerait la valeur
- * comme une chaine de caracteres — c'est-a-dire pas du tout : le trait
- * sauterait d'un tour a l'autre au lieu de tourner.
+ * The rotation is a CSS animation on a custom property registered as an angle.
+ * Without that registration, a browser would interpolate the value as a
+ * string — that is, not at all: the stroke would jump from one turn to the
+ * next instead of rotating.
  *
  * @module
  */
@@ -25,27 +25,27 @@
 import { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'
 import { type CSSProperties, type ReactElement, type ReactNode } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface BorderBeamOwnProps {
-  /** Contenu encadre. */
+  /** Framed content. */
   children: ReactNode
-  /** Duree d'un tour complet, en millisecondes. @defaultValue 4000 */
+  /** Duration of one full turn, in milliseconds. @defaultValue 4000 */
   duration?: number
-  /** Epaisseur du trait, en pixels. @defaultValue 2 */
+  /** Thickness of the stroke, in pixels. @defaultValue 2 */
   width?: number
-  /** Couleur du trait. */
+  /** Colour of the stroke. */
   color?: string
-  /** Longueur de la trainee, en pourcentage du contour. @defaultValue 25 */
+  /** Length of the trail, as a percentage of the outline. @defaultValue 25 */
   trail?: number
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type BorderBeamProps = Customisable<BorderBeamOwnProps>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-border-beam'
 
-/** Pose l'animation et l'enregistrement d'angle, une fois par document. */
+/** Sets the animation and the angle registration, once per document. */
 function ensureBeamRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -71,11 +71,11 @@ function ensureBeamRule(): void {
 }
 
 /**
- * Fait courir un trait le long du contour.
+ * Runs a stroke along the outline.
  *
  * @example
  * <BorderBeam className="o-rounded-xl o-border-w-1 o-p-6" duration={6000}>
- *   <p>Une carte mise en avant</p>
+ *   <p>A highlighted card</p>
  * </BorderBeam>
  */
 export function BorderBeam({

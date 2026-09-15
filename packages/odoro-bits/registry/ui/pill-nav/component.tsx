@@ -1,29 +1,28 @@
 /**
- * Navigation a pilule : une pilule de surface suit le lien survole, et
- * revient se poser sous la page courante quand le pointeur s'en va.
+ * Pill navigation: a surface pill follows the hovered link, and comes back to
+ * rest under the current page when the pointer leaves.
  *
- * ## Ce qui la distingue des onglets a pastille
+ * ## What sets it apart from the pill tabs
  *
- * Les onglets a pastille marquent une selection : la pastille est pleine, de
- * la teinte de marque, et ne bouge qu'au clic. Ici la pilule est une lueur
- * de surface qui suit le survol et le focus — elle dit « voici ou tu vas »
- * avant le clic — et la page courante est dite autrement, par l'encre de
- * marque et par `aria-current`. Un onglet change de vue et reste un bouton ;
- * un element de navigation change de page et reste un lien.
+ * Pill tabs mark a selection: the pill is solid, in the brand hue, and only
+ * moves on click. Here the pill is a surface glow that follows hover and
+ * focus — it says "here is where you are going" before the click — and the
+ * current page is told otherwise, by the brand ink and by `aria-current`. A
+ * tab switches a view and stays a button; a navigation item switches a page
+ * and stays a link.
  *
- * ## La pilule est mesuree sur l'element vise
+ * ## The pill is measured on the targeted element
  *
- * Position et largeur viennent d'`offsetLeft` et d'`offsetWidth` du lien,
- * lues au moment ou il est vise. Une transition CSS fait le trajet : si le
- * pointeur change de cible en cours de route, la transition repart de la
- * position ou la pilule se trouve reellement, sans qu'il y ait rien a
- * memoriser.
+ * Position and width come from the link's `offsetLeft` and `offsetWidth`,
+ * read at the moment it is targeted. A CSS transition makes the trip: if the
+ * pointer changes target along the way, the transition restarts from the
+ * position where the pill actually is, with nothing to remember.
  *
- * ## Tous les liens sont dans l'ordre de tabulation
+ * ## Every link is in the tab order
  *
- * Ce ne sont pas des onglets : ce sont des liens, et un lien se tabule. Les
- * fleches sont un raccourci en plus — elles deplacent le focus dans la barre,
- * Home et End vont aux extremites — jamais un remplacement.
+ * These are not tabs: they are links, and a link is tabbed to. The arrows are
+ * an extra shortcut — they move the focus inside the bar, Home and End go to
+ * the ends — never a replacement.
  *
  * @module
  */
@@ -39,37 +38,37 @@ import {
   type ReactNode,
 } from 'react'
 
-/** Un element de navigation. */
+/** A navigation item. */
 export interface NavItem {
-  /** Libelle affiche. */
+  /** Displayed label. */
   readonly label: string
-  /** Cible du lien. Sans cible, l'element est un bouton. */
+  /** Target of the link. Without a target, the item is a button. */
   readonly href?: string
-  /** Icone placee avant le libelle. */
+  /** Icon placed before the label. */
   readonly icon?: ReactNode
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to the component. */
 export interface PillNavOwnProps {
-  /** Les liens, dans l'ordre d'affichage. */
+  /** The links, in display order. */
   items: readonly NavItem[]
-  /** Index de la page courante, en mode controle. */
+  /** Index of the current page, in controlled mode. */
   active?: number
-  /** Page courante au montage, en mode non controle. @defaultValue 0 */
+  /** Current page on mount, in uncontrolled mode. @defaultValue 0 */
   defaultActive?: number
-  /** Appele quand l'utilisateur choisit un lien. */
+  /** Called when the user chooses a link. */
   onActiveChange?: (index: number) => void
-  /** Nom du bloc pour les lecteurs d'ecran. @defaultValue 'Navigation' */
+  /** Name of the block for screen readers. @defaultValue 'Navigation' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type PillNavProps = Customisable<PillNavOwnProps, 'nav'>
 
-/** Identifiant de la feuille injectee. */
+/** Id of the injected stylesheet. */
 const STYLE_ID = 'o-pill-nav'
 
-/** Pose la barre et sa pilule, une fois par document. */
+/** Applies the bar and its pill, once per document. */
 function ensurePillNavRules(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -107,21 +106,21 @@ function ensurePillNavRules(): void {
 }
 
 /**
- * Barre de navigation dont la pilule suit le lien vise.
+ * Navigation bar whose pill follows the targeted link.
  *
  * @example
  * <PillNav
  *   items={[
- *     { label: 'Accueil', href: '/' },
- *     { label: 'Travaux', href: '/travaux' },
+ *     { label: 'Home', href: '/' },
+ *     { label: 'Work', href: '/work' },
  *     { label: 'Contact', href: '/contact' },
  *   ]}
  *   defaultActive={0}
  * />
  *
  * @example
- * // Mode controle : la page decide.
- * <PillNav items={liens} active={page} onActiveChange={setPage} label="Principale" />
+ * // Controlled mode: the page decides.
+ * <PillNav items={links} active={page} onActiveChange={setPage} label="Main" />
  */
 export function PillNav({
   items,
@@ -146,7 +145,7 @@ export function PillNav({
   const links = (): HTMLElement[] =>
     Array.from(hostRef.current?.querySelectorAll<HTMLElement>('[data-o-pill-link]') ?? [])
 
-  /** Pose la pilule sous un lien. Sans lien, elle se replie a largeur nulle. */
+  /** Places the pill under a link. Without a link, it folds back to zero width. */
   const place = (target: HTMLElement | undefined): void => {
     const pill = pillRef.current
     if (pill === null) return
@@ -158,12 +157,12 @@ export function PillNav({
     pill.style.transform = `translateX(${String(target.offsetLeft)}px)`
   }
 
-  /** Retour sous la page courante. */
+  /** Back under the current page. */
   const settle = (): void => place(links()[current])
 
-  // La pilule se pose sous la page courante au montage et a chaque changement,
-  // et se remesure si la barre change de taille : une police qui arrive tard
-  // deplace tous les liens.
+  // The pill settles under the current page on mount and on every change, and
+  // measures itself again if the bar changes size: a font arriving late moves
+  // every link.
   useEffect(() => {
     settle()
     const host = hostRef.current

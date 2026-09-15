@@ -144,13 +144,13 @@ Conformement a la regle de nommage du projet, les modules portent le caractere
 du dessin et non sa provenance. La correspondance est ici, et nulle part
 ailleurs.
 
-| Module                       | Jeu d'origine                    | Licence         | Icones |
-| ---------------------------- | -------------------------------- | --------------- | ------ |
-| `@odoro-cli/icons/filaire`   | Lucide                           | ISC             | 2048   |
-| `@odoro-cli/icons/compact`   | Bootstrap Icons                  | MIT             | 2078   |
-| `@odoro-cli/icons/classique` | Font Awesome Free (solid)        | CC BY 4.0       | 2001   |
-| `@odoro-cli/icons/etendu`    | Material Symbols (outlined, 400) | Apache-2.0      | 3903   |
-| `@odoro-cli/icons/marques`   | Font Awesome Free (brands)       | voir ci-dessous | 609    |
+| Module                      | Jeu d'origine                    | Licence         | Icones |
+| --------------------------- | -------------------------------- | --------------- | ------ |
+| `@odoro-cli/icons/outline`  | Lucide                           | ISC             | 2048   |
+| `@odoro-cli/icons/compact`  | Bootstrap Icons                  | MIT             | 2078   |
+| `@odoro-cli/icons/classic`  | Font Awesome Free (solid)        | CC BY 4.0       | 2001   |
+| `@odoro-cli/icons/extended` | Material Symbols (outlined, 400) | Apache-2.0      | 3903   |
+| `@odoro-cli/icons/brands`   | Font Awesome Free (brands)       | voir ci-dessous | 609    |
 
 ### Lucide
 
@@ -189,7 +189,7 @@ Les polices ne sont pas employees : seuls les traces SVG le sont.
 
 ### Marques : une question de droit des marques, pas de licence
 
-`@odoro-cli/icons/marques` contient 609 logos de services et de plateformes. Ils
+`@odoro-cli/icons/brands` contient 609 logos de services et de plateformes. Ils
 sont distribues par Font Awesome au sein du jeu gratuit, mais la licence CC BY
 **ne les couvre pas** : ce sont des marques deposees, et leur emploi releve des
 regles de chaque proprietaire, pas de celles de Font Awesome.

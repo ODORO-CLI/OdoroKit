@@ -33,7 +33,7 @@
  */
 
 import { Icon } from '@odoro-cli/icons'
-import { ArrowRight, Check, X } from '@odoro-cli/icons/filaire'
+import { ArrowRight, Check, X } from '@odoro-cli/icons/outline'
 import {
   useEffect,
   useMemo,

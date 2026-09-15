@@ -1,5 +1,5 @@
 /**
- * Copie et adaptation d'un template vers le dossier du nouveau projet.
+ * Copy and adaptation of a template into the directory of the new project.
  *
  * @module
  */
@@ -9,104 +9,108 @@ import { mkdir, readFile, readdir, rm, writeFile, copyFile } from 'node:fs/promi
 import { dirname, join } from 'node:path'
 
 import {
-  MODULES_PAR_DEFAUT,
-  gardeLesRoutes,
-  paquetsDe,
-  variantesDe,
+  DEFAULT_MODULES,
+  keepsRoutes,
+  packagesFor,
+  variantsFor,
   type ModuleId,
 } from './modules.js'
 import { targetFileName, templatesRoot } from './utils.js'
-import { VERSIONS_FAMILLE } from './versions-famille.generated.js'
+import { FAMILY_VERSIONS } from './family-versions.generated.js'
 
 /**
- * Le dossier des variantes, a la racine d'un gabarit.
+ * The variants directory, at the root of a template.
  *
- * Il n'est jamais copie : ses fichiers sont poses **par-dessus** le projet une
- * fois le gabarit ecrit, et seulement ceux de la variante retenue. Le copier
- * livrerait les trois versions de `App.tsx` dans le projet genere.
+ * It is never copied: its files are laid **over** the project once the template
+ * is written, and only those of the chosen variant. Copying it would deliver
+ * the three versions of `App.tsx` into the generated project.
  *
- * Le nom commence par un tiret bas comme les autres fichiers pointes du
- * gabarit, mais pour une raison differente : ici il signale au copieur qu'il
- * faut passer son chemin.
+ * The name starts with an underscore like the other dotted files of the
+ * template, but for a different reason: here it tells the copier to walk past.
  */
-const DOSSIER_VARIANTES = '_variantes'
+const VARIANTS_DIRECTORY = '_variants'
 
-/** Les paquets de la famille que le createur sait poser ou retirer. */
-const PAQUETS_OPTIONNELS = ['@odoro-cli/libs', '@odoro-cli/icons', '@odoro-cli/engine']
+/** The packages of the family the creator knows how to add or remove. */
+const OPTIONAL_PACKAGES = ['@odoro-cli/libs', '@odoro-cli/icons', '@odoro-cli/engine']
 
 /**
- * La version de la CLI qui tourne.
+ * The version of the CLI that is running.
  *
- * Lue depuis son propre manifeste plutot que figee : une constante recopiee
- * serait juste le jour ou on l'ecrit, et fausse au premier changement de
- * version — c'est-a-dire des la publication suivante.
+ * Read from its own manifest rather than frozen: a copied constant would be
+ * right the day it is written, and wrong at the first version change — that is,
+ * at the very next publication.
  *
- * ## Le chemin se cherche, il ne se compte pas
+ * ## The path is searched for, not counted
  *
- * `../../package.json` depuis `import.meta.url` est juste depuis les sources
- * et faux une fois empaquete : le module vit alors dans `dist/`, un niveau
- * plus haut. Le repli se declenchait donc systematiquement, et les projets
- * echafaudes recevaient `latest` — ce qui fonctionne aujourd'hui et
- * installerait une future version majeure demain.
+ * `../../package.json` from `import.meta.url` is right from the sources and
+ * wrong once packed: the module then lives in `dist/`, one level higher. The
+ * fallback therefore fired systematically, and scaffolded projects received
+ * `latest` — which works today and would install a future major version
+ * tomorrow.
  *
- * Le dossier des gabarits est a la racine du paquet, et `templatesRoot`
- * sait deja le trouver depuis les deux emplacements. Son parent est donc la
- * racine cherchee, sans compter de niveaux.
+ * The templates directory sits at the root of the package, and `templatesRoot`
+ * already knows how to find it from both locations. Its parent is therefore the
+ * root we are after, without counting levels.
  */
 function cliVersion(): string {
   try {
-    const manifeste = join(dirname(templatesRoot()), 'package.json')
-    const { version } = JSON.parse(readFileSync(manifeste, 'utf8')) as { version: string }
+    const manifest = join(dirname(templatesRoot()), 'package.json')
+    const { version } = JSON.parse(readFileSync(manifest, 'utf8')) as { version: string }
     return version
   } catch {
-    // Un echafaudage doit aboutir meme si le manifeste est introuvable.
-    // `latest` est plus honnete qu'une version inventee : npm resoudra ce qui
-    // existe. Ce repli ne doit plus se declencher, et un essai le verifie.
+    // A scaffolding must succeed even when the manifest cannot be found.
+    // `latest` is more honest than an invented version: npm will resolve what
+    // exists. This fallback must no longer fire, and a test checks it.
     return 'latest'
   }
 }
 
-/** Ce qu'il faut faire d'un dossier cible deja occupe. */
+/**
+ * What to do with an already occupied target directory.
+ *
+ * The values keep their French spelling: the scaffolding test of the templates
+ * names them.
+ */
 export type OverwriteMode = 'ecraser' | 'fusionner'
 
-/** Options de l'echafaudage. */
+/** Scaffolding options. */
 export interface ScaffoldOptions {
-  /** Dossier de destination, absolu. */
+  /** Destination directory, absolute. */
   target: string
-  /** Nom du template a copier. */
+  /** Name of the template to copy. */
   template: string
-  /** Nom du paquet ecrit dans le `package.json` genere. */
+  /** Package name written into the generated `package.json`. */
   packageName: string
-  /** Conduite a tenir si le dossier cible n'est pas vide. */
+  /** What to do when the target directory is not empty. */
   overwrite?: OverwriteMode
-  /** Racine des templates. Injectable pour les tests. */
+  /** Root of the templates. Injectable for the tests. */
   root?: string
   /**
-   * Version a poser sur les paquets Odoro du manifeste.
+   * Version to set on the Odoro packages of the manifest.
    *
-   * Par defaut celle de la CLI qui echafaude — c'est ce qui garantit que le
-   * projet genere demande exactement ce qui vient d'etre publie.
+   * By default the one of the scaffolding CLI — that is what guarantees that
+   * the generated project asks for exactly what has just been published.
    */
   version?: string
   /**
-   * Les modules retenus a la creation.
+   * The modules kept at creation time.
    *
-   * La selection doit avoir ete passee par `resoudre` : l'echafaudeur applique
-   * ce qu'on lui donne et ne corrige rien, pour qu'un refus soit explique la ou
-   * il est decide plutot qu'ici, en silence.
+   * The selection must have gone through `resolveModules`: the scaffolder
+   * applies what it is given and corrects nothing, so that a refusal is
+   * explained where it is decided rather than here, in silence.
    *
-   * Par defaut, ceux que le catalogue coche.
+   * By default, those the catalogue ticks.
    */
   modules?: readonly ModuleId[]
 }
 
-/** Resultat d'un echafaudage. */
+/** Result of a scaffolding run. */
 export interface ScaffoldResult {
-  /** Chemins relatifs des fichiers ecrits. */
+  /** Relative paths of the written files. */
   readonly files: readonly string[]
 }
 
-/** Copie recursivement un dossier de template, en renommant les fichiers pointes. */
+/** Recursively copies a template directory, renaming the dotted files. */
 async function copyDirectory(
   from: string,
   to: string,
@@ -116,9 +120,9 @@ async function copyDirectory(
   await mkdir(to, { recursive: true })
 
   for (const entry of await readdir(from, { withFileTypes: true })) {
-    // A la racine du gabarit seulement : un projet a parfaitement le droit
-    // d'avoir un dossier de ce nom plus bas dans son arborescence.
-    if (prefix === '' && entry.name === DOSSIER_VARIANTES) continue
+    // At the root of the template only: a project is perfectly entitled to have
+    // a directory of that name further down its tree.
+    if (prefix === '' && entry.name === VARIANTS_DIRECTORY) continue
 
     const source = join(from, entry.name)
     const name = targetFileName(entry.name)
@@ -135,53 +139,54 @@ async function copyDirectory(
   }
 }
 
-/** Les paquets de la famille. */
+/** The packages of the family. */
 function isOdoroPackage(name: string): boolean {
   return name === 'odoro' || name.startsWith('@odoro-cli/')
 }
 
 /**
- * La version a demander pour un paquet de la famille.
+ * The version to ask for, for a package of the family.
  *
- * ## Pourquoi ce n'est plus celle de la CLI pour tous
+ * ## Why it is no longer the CLI one for all
  *
- * Elle l'etait, et c'etait juste tant que la configuration tenait les six
- * paquets en groupe `fixed` : ils avancaient ensemble, donc le numero de l'un
- * valait pour tous.
+ * It was, and that was right as long as the configuration kept the six
+ * packages in a `fixed` group: they moved together, so the number of one was
+ * good for all.
  *
- * Ce groupe a ete retire — un mineur sur les bibliotheques emmenait le moteur
- * en majeur. `odoro` en 1.0.3 s'est alors mis a demander
- * `@odoro-cli/libs@^1.0.3`, restee en 1.0.2 : une version qui n'existe pas, et
- * un `npm install` qui echoue des la creation du projet.
+ * That group was removed — a minor on the libraries dragged the engine into a
+ * major. `odoro` at 1.0.3 then started asking for `@odoro-cli/libs@^1.0.3`,
+ * still at 1.0.2: a version that does not exist, and an `npm install` that
+ * fails as soon as the project is created.
  *
- * Les numeros des voisins sont donc releves a la compilation, la ou les six
- * manifestes sont cote a cote — voir `scripts/versions-famille.mjs`. Celui de
- * la CLI reste lu dans son propre manifeste : il est le seul a etre connu a
- * l'execution, et le seul a pouvoir servir de repli.
+ * The numbers of the neighbours are therefore collected at build time, where
+ * the six manifests sit side by side — see `scripts/family-versions.mjs`. The
+ * CLI one is still read from its own manifest: it is the only one known at
+ * runtime, and the only one that can serve as a fallback.
  */
-function versionDemandee(nom: string, versionCli: string): string {
-  if (versionCli === 'latest') return 'latest'
-  if (nom === 'odoro') return `^${versionCli}`
+function requestedVersion(name: string, cli: string): string {
+  if (cli === 'latest') return 'latest'
+  if (name === 'odoro') return `^${cli}`
 
-  const relevee = VERSIONS_FAMILLE[nom]
-  // Un paquet absent du releve n'est pas des notres, ou vient d'etre ajoute
-  // sans recompiler. `latest` resout ce qui existe, la ou une version inventee
-  // ne resoudrait rien.
-  return relevee === undefined ? 'latest' : `^${relevee}`
+  const collected = FAMILY_VERSIONS[name]
+  // A package missing from the collection is not one of ours, or has just been
+  // added without rebuilding. `latest` resolves what exists, where an invented
+  // version would resolve nothing.
+  return collected === undefined ? 'latest' : `^${collected}`
 }
 
 /**
- * Aligne les paquets Odoro du manifeste sur une version donnee.
+ * Aligns the Odoro packages of the manifest on a given version.
  *
- * ## Pourquoi ce n'est pas ecrit dans le gabarit
+ * ## Why this is not written in the template
  *
- * Les gabarits portaient `^0.0.0`, la version d'avant la premiere publication.
- * Un caret sur `0.0.x` est le plus etroit de tous — `^0.0.0` ne correspond
- * qu'a `0.0.0` — donc **chaque projet echafaude echouait a l'installation**,
- * avec une erreur de resolution que personne n'aurait rattachee au gabarit.
+ * The templates carried `^0.0.0`, the version from before the first
+ * publication. A caret on `0.0.x` is the narrowest of all — `^0.0.0` matches
+ * only `0.0.0` — so **every scaffolded project failed at install**, with a
+ * resolution error nobody would have connected to the template.
  *
- * La version se **deduit** donc de celle de la CLI qui echafaude. Elle ne peut
- * plus deriver : c'est le meme paquet qui ecrit et qui sera installe.
+ * The version is therefore **derived** from the one of the scaffolding CLI. It
+ * can no longer drift: it is the same package that writes and that will be
+ * installed.
  */
 function alignOdoroVersions(
   manifest: Record<string, unknown>,
@@ -195,7 +200,7 @@ function alignOdoroVersions(
 
     const next: Record<string, string> = {}
     for (const [name, range] of Object.entries(deps as Record<string, string>)) {
-      next[name] = isOdoroPackage(name) ? versionDemandee(name, version) : range
+      next[name] = isOdoroPackage(name) ? requestedVersion(name, version) : range
     }
     aligned[field] = next
   }
@@ -204,31 +209,32 @@ function alignOdoroVersions(
 }
 
 /**
- * Ajuste les dependances du manifeste sur les modules retenus.
+ * Adjusts the dependencies of the manifest to the modules kept.
  *
- * Les gabarits declarent le cas complet ; ce qui n'a pas ete coche en est
- * **retire**, et ce qui l'a ete y est **ajoute** s'il manquait. Les deux sens
- * comptent : un gabarit ne peut pas porter d'avance toutes les combinaisons, et
- * n'en porter aucune obligerait a reecrire la liste entiere ici.
+ * The templates declare the complete case; what was not ticked is **removed**
+ * from it, and what was ticked is **added** when it was missing. Both
+ * directions count: a template cannot carry every combination up front, and
+ * carrying none would force rewriting the whole list here.
  *
- * `@odoro-cli/server` n'est jamais touche : il ne vient pas d'une case a
- * cocher mais du gabarit choisi, et le retirer laisserait un serveur sans son
- * socle.
+ * `@odoro-cli/server` is never touched: it does not come from a tick box but
+ * from the chosen template, and removing it would leave a server without its
+ * base.
  */
-function ajusterModules(
+function adjustModules(
   manifest: Record<string, unknown>,
   modules: readonly ModuleId[],
 ): Record<string, unknown> {
-  const voulus = new Set(paquetsDe(modules))
+  const wanted = new Set(packagesFor(modules))
   const deps = { ...((manifest['dependencies'] ?? {}) as Record<string, string>) }
 
-  for (const paquet of PAQUETS_OPTIONNELS) {
-    if (voulus.has(paquet)) deps[paquet] ??= 'latest'
-    else delete deps[paquet]
+  for (const packageName of OPTIONAL_PACKAGES) {
+    if (wanted.has(packageName)) deps[packageName] ??= 'latest'
+    else delete deps[packageName]
   }
 
-  // Les cles sont triees : sans cela l'ajout d'un paquet le poserait en fin de
-  // liste, et deux projets aux memes modules auraient des manifestes differents.
+  // The keys are sorted: without that, adding a package would put it at the end
+  // of the list, and two projects with the same modules would have different
+  // manifests.
   return {
     ...manifest,
     dependencies: Object.fromEntries(
@@ -238,34 +244,34 @@ function ajusterModules(
 }
 
 /**
- * Pose les fichiers d'une variante par-dessus le projet.
+ * Lays the files of a variant over the project.
  *
- * Ils portent deja le chemin ou ils doivent atterrir — `src/App.tsx` pour le
- * gabarit simple, `client/src/App.tsx` pour celui du serveur — si bien qu'il
- * n'y a rien a traduire : on copie a l'identique.
+ * They already carry the path they must land at — `src/App.tsx` for the simple
+ * template, `client/src/App.tsx` for the server one — so there is nothing to
+ * translate: we copy them as they are.
  *
- * @throws {Error} Si la variante demandee n'existe pas dans le gabarit.
+ * @throws {Error} When the requested variant does not exist in the template.
  */
-async function poserVariante(
+async function layVariant(
   source: string,
   target: string,
-  nom: string,
+  name: string,
 ): Promise<readonly string[]> {
-  const racine = join(source, DOSSIER_VARIANTES, nom)
-  if (!existsSync(racine)) {
-    throw new Error(`[odoro] Variante de gabarit introuvable : "${nom}".`)
+  const root = join(source, VARIANTS_DIRECTORY, name)
+  if (!existsSync(root)) {
+    throw new Error(`[odoro] Template variant not found: "${name}".`)
   }
 
-  const poses: string[] = []
-  await copyDirectory(racine, target, poses)
-  return poses
+  const laid: string[] = []
+  await copyDirectory(root, target, laid)
+  return laid
 }
 
 /**
- * Reecrit le manifeste genere : le nom du projet, et les versions Odoro.
+ * Rewrites the generated manifest: the project name, and the Odoro versions.
  *
- * La mise en forme du reste du fichier est preservee — les cles existent deja
- * dans le gabarit, et les reaffecter conserve leur position.
+ * The formatting of the rest of the file is preserved — the keys already exist
+ * in the template, and reassigning them keeps their position.
  */
 async function renamePackage(
   target: string,
@@ -277,24 +283,24 @@ async function renamePackage(
   if (!existsSync(file)) return
 
   const manifest = JSON.parse(await readFile(file, 'utf8')) as Record<string, unknown>
-  // Les modules d'abord, les versions ensuite : un paquet qu'on vient
-  // d'ajouter doit recevoir la version de la CLI comme les autres, plutot que
-  // de rester sur le `latest` qui lui sert de valeur de depart.
-  const ajuste = ajusterModules({ ...manifest, name: packageName }, modules)
-  const renamed = alignOdoroVersions(ajuste, version)
+  // The modules first, the versions next: a package that has just been added
+  // must receive the CLI version like the others, rather than staying on the
+  // `latest` that serves as its starting value.
+  const adjusted = adjustModules({ ...manifest, name: packageName }, modules)
+  const renamed = alignOdoroVersions(adjusted, version)
   await writeFile(file, `${JSON.stringify(renamed, null, 2)}\n`, 'utf8')
 }
 
 /**
- * Copie un template vers le dossier cible et l'adapte au projet.
+ * Copies a template into the target directory and adapts it to the project.
  *
- * @throws {Error} Si le template demande n'existe pas.
+ * @throws {Error} When the requested template does not exist.
  *
  * @example
  * await scaffold({
- *   target: '/tmp/mon-site',
+ *   target: '/tmp/my-site',
  *   template: 'react-ts',
- *   packageName: 'mon-site',
+ *   packageName: 'my-site',
  * })
  */
 export async function scaffold(options: ScaffoldOptions): Promise<ScaffoldResult> {
@@ -302,37 +308,37 @@ export async function scaffold(options: ScaffoldOptions): Promise<ScaffoldResult
   const source = join(root, options.template)
 
   if (!existsSync(source)) {
-    throw new Error(`[odoro] Template inconnu : "${options.template}".`)
+    throw new Error(`[odoro] Unknown template: "${options.template}".`)
   }
 
   if (options.overwrite === 'ecraser' && existsSync(options.target)) {
-    // Le dossier lui-meme est conserve : l'utilisateur peut s'y trouver, et
-    // le supprimer sous ses pieds laisserait son terminal dans un dossier mort.
+    // The directory itself is kept: the user may be sitting in it, and deleting
+    // it under their feet would leave their terminal in a dead directory.
     for (const entry of await readdir(options.target)) {
       if (entry === '.git') continue
       await rm(join(options.target, entry), { recursive: true, force: true })
     }
   }
 
-  const modules = options.modules ?? MODULES_PAR_DEFAUT
+  const modules = options.modules ?? DEFAULT_MODULES
 
   const files: string[] = []
   await copyDirectory(source, options.target, files)
 
-  // `router.tsx` est le seul fichier qui nomme la dependance de routage.
-  // Sans routeur il n'est importe par rien, et son propre import ne
-  // resoudrait pas : il part avec.
-  if (!gardeLesRoutes(modules)) {
-    for (const fichier of ['src/router.tsx', 'client/src/router.tsx']) {
-      await rm(join(options.target, fichier), { force: true })
+  // `router.tsx` is the only file that names the routing dependency. Without
+  // the router nothing imports it, and its own import would not resolve: it
+  // goes with it.
+  if (!keepsRoutes(modules)) {
+    for (const file of ['src/router.tsx', 'client/src/router.tsx']) {
+      await rm(join(options.target, file), { force: true })
     }
   }
 
-  // Dans l'ordre rendu : une variante posee plus tard ecrase ce qu'une
-  // precedente aurait ecrit au meme chemin.
-  const poses: string[] = []
-  for (const variante of variantesDe(modules)) {
-    poses.push(...(await poserVariante(source, options.target, variante)))
+  // In the returned order: a variant laid later overwrites what a previous one
+  // would have written at the same path.
+  const laid: string[] = []
+  for (const variant of variantsFor(modules)) {
+    laid.push(...(await layVariant(source, options.target, variant)))
   }
 
   await renamePackage(
@@ -342,13 +348,13 @@ export async function scaffold(options: ScaffoldOptions): Promise<ScaffoldResult
     modules,
   )
 
-  // Ce que la variante a pose remplace un fichier deja compte : l'annoncer
-  // deux fois gonflerait le nombre affiche a la fin de la creation.
-  const retires = new Set(['src/router.tsx', 'client/src/router.tsx'])
-  const listes = new Set([
-    ...files.filter((f) => gardeLesRoutes(modules) || !retires.has(f)),
-    ...poses,
+  // What the variant laid replaces a file already counted: announcing it twice
+  // would inflate the number shown at the end of the creation.
+  const removed = new Set(['src/router.tsx', 'client/src/router.tsx'])
+  const listed = new Set([
+    ...files.filter((file) => keepsRoutes(modules) || !removed.has(file)),
+    ...laid,
   ])
 
-  return { files: [...listes].sort() }
+  return { files: [...listed].sort() }
 }

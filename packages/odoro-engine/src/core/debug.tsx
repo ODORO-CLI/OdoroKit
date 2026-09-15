@@ -1,16 +1,16 @@
 /**
- * Panneau de diagnostic.
+ * Diagnostics panel.
  *
- * Activable par `?odoro-debug` dans l'URL. Sans cet outil, comprendre pourquoi
- * une scene rame sur un portable releve de la divination : on voit que c'est
- * lent, on ne voit ni combien de surfaces sont ouvertes, ni si la qualite a
- * deja retrograde, ni combien d'abonnes tournent a chaque image.
+ * Enabled by `?odoro-debug` in the URL. Without this tool, understanding why a
+ * scene struggles on a laptop is guesswork: you can see that it is slow, but
+ * not how many surfaces are open, nor whether the quality has already been
+ * downgraded, nor how many subscribers run on every frame.
  *
- * Le panneau est en **lecture seule**. Il n'offre aucun moyen de composer une
- * animation : c'est un instrument de mesure, pas un editeur.
+ * The panel is **read only**. It offers no way to compose an animation: it is
+ * a measuring instrument, not an editor.
  *
- * Il ne se monte que sur demande explicite, et son cout est nul quand il est
- * absent : le composant rend `null` avant tout abonnement.
+ * It only mounts on explicit request, and its cost is nil when it is absent:
+ * the component returns `null` before any subscription.
  *
  * @module
  */
@@ -21,11 +21,11 @@ import { clock } from './clock.js'
 import { useEngine, useMotionState } from './context.jsx'
 import { type Resource, registry } from './registry.js'
 
-/** Parametre d'URL qui active le panneau. */
+/** URL parameter that enables the panel. */
 export const DEBUG_PARAM = 'odoro-debug'
 
 /**
- * Indique si le diagnostic est demande dans l'URL courante.
+ * Tells whether the diagnostics are requested in the current URL.
  *
  * @example
  * isDebugRequested('https://site.fr/?odoro-debug') // true
@@ -41,19 +41,19 @@ export function isDebugRequested(href?: string): boolean {
   }
 }
 
-/** Instantane affiche par le panneau. */
+/** Snapshot shown by the panel. */
 export interface DebugSnapshot {
-  /** Images par seconde, mesurees en continu. */
+  /** Frames per second, measured continuously. */
   readonly fps: number
-  /** Numero de l'image courante. */
+  /** Number of the current frame. */
   readonly frame: number
-  /** Abonnes a la boucle, du plus prioritaire au moins prioritaire. */
+  /** Subscribers to the loop, from the highest priority to the lowest. */
   readonly subscribers: readonly { name: string; priority: number; active: boolean }[]
-  /** Ressources vivantes. */
+  /** Live resources. */
   readonly resources: readonly Resource[]
 }
 
-/** Releve l'etat courant du moteur. */
+/** Takes a reading of the current engine state. */
 export function readDebugSnapshot(): DebugSnapshot {
   return {
     fps: clock.fps,
@@ -102,7 +102,7 @@ const SECTION: CSSProperties = {
   borderTop: '1px solid rgba(255,255,255,0.12)',
 }
 
-/** Une ligne clef / valeur. */
+/** A key / value row. */
 function Row({ label, value }: { label: string; value: string | number }): ReactElement {
   return (
     <div style={ROW}>
@@ -112,22 +112,22 @@ function Row({ label, value }: { label: string; value: string | number }): React
   )
 }
 
-/** Proprietes de {@link OdoroDebugPanel}. */
+/** Properties of {@link OdoroDebugPanel}. */
 export interface OdoroDebugPanelProps {
   /**
-   * Force l'affichage, sans passer par l'URL. Utile pour une capture ou une
-   * page de documentation.
+   * Forces the display, without going through the URL. Useful for a
+   * screenshot or a documentation page.
    */
   force?: boolean
-  /** Periode de rafraichissement, en millisecondes. @defaultValue 500 */
+  /** Refresh period, in milliseconds. @defaultValue 500 */
   interval?: number
 }
 
 /**
- * Affiche l'etat du moteur.
+ * Displays the state of the engine.
  *
- * Le panneau se rafraichit deux fois par seconde plutot qu'a chaque image :
- * un instrument de mesure qui pese sur ce qu'il mesure ne mesure plus rien.
+ * The panel refreshes twice per second rather than on every frame: a measuring
+ * instrument that weighs on what it measures no longer measures anything.
  *
  * @example
  * <OdoroEngine>
@@ -159,27 +159,27 @@ export function OdoroDebugPanel({
     <aside style={PANEL} aria-hidden="true" data-odoro-debug="">
       <p style={TITLE}>odoro</p>
 
-      <Row label="images par seconde" value={snapshot.fps} />
-      <Row label="image" value={snapshot.frame} />
-      <Row label="abonnes" value={snapshot.subscribers.length} />
-      <Row label="boucle" value={clock.isPaused ? 'suspendue' : 'active'} />
+      <Row label="frames per second" value={snapshot.fps} />
+      <Row label="frame" value={snapshot.frame} />
+      <Row label="subscribers" value={snapshot.subscribers.length} />
+      <Row label="loop" value={clock.isPaused ? 'suspended' : 'active'} />
 
       <div style={SECTION}>
-        <Row label="qualite" value={motion.quality} />
-        <Row label="mouvement" value={motion.reduced ? 'reduit' : 'complet'} />
-        <Row label="onglet" value={motion.visible ? 'visible' : 'masque'} />
-        <Row label="motif" value={motion.reason} />
+        <Row label="quality" value={motion.quality} />
+        <Row label="motion" value={motion.reduced ? 'reduced' : 'full'} />
+        <Row label="tab" value={motion.visible ? 'visible' : 'hidden'} />
+        <Row label="reason" value={motion.reason} />
       </div>
 
       <div style={SECTION}>
         <Row label="surfaces" value={`${surfaces.length} / ${engine.maxSurfaces}`} />
         <Row label="timelines" value={registry.count('timeline')} />
-        <Row label="declencheurs" value={registry.count('scroll-trigger')} />
+        <Row label="triggers" value={registry.count('scroll-trigger')} />
       </div>
 
       {snapshot.subscribers.length === 0 ? null : (
         <div style={SECTION}>
-          <p style={TITLE}>boucle</p>
+          <p style={TITLE}>loop</p>
           {snapshot.subscribers.map((entry) => (
             <div key={`${entry.name}-${entry.priority}`} style={ROW}>
               <span style={entry.active ? undefined : MUTED}>{entry.name}</span>
@@ -191,7 +191,7 @@ export function OdoroDebugPanel({
 
       {snapshot.resources.length === 0 ? null : (
         <div style={SECTION}>
-          <p style={TITLE}>ressources</p>
+          <p style={TITLE}>resources</p>
           {snapshot.resources.map((entry) => (
             <div key={entry.id} style={ROW}>
               <span>{entry.name}</span>

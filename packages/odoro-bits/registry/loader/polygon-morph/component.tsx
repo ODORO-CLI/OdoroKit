@@ -1,36 +1,35 @@
 /**
- * Polygone qui gagne des cotes : un polygone en trait passe du triangle a
- * l'hexagone un cote a la fois, puis les reperd.
+ * Polygon gaining sides: an outlined polygon goes from triangle to hexagon one
+ * side at a time, then loses them again.
  *
- * ## Soixante points pour quatre polygones
+ * ## Sixty points for four polygons
  *
- * Un navigateur n'interpole deux traces que s'ils ont le meme nombre de
- * points. Un triangle en a trois, un hexagone six : pour passer de l'un a
- * l'autre, chaque polygone est reecrit avec soixante points repartis a
- * distance egale le long de son perimetre. Soixante parce que c'est le plus
- * petit multiple commun de trois, quatre, cinq et six : chaque vrai sommet
- * tombe alors exactement sur un point, et les cotes restent droits a
- * chaque palier au lieu de bomber.
+ * A browser only interpolates two paths if they have the same number of
+ * points. A triangle has three, a hexagon six: to go from one to the other,
+ * each polygon is rewritten with sixty points spread at equal distance along
+ * its perimeter. Sixty because it is the lowest common multiple of three,
+ * four, five and six: every real vertex then falls exactly on a point, and the
+ * sides stay straight at every plateau instead of bulging.
  *
- * Entre deux paliers, les points glissent chacun vers leur nouvelle place
- * et un sommet nait au milieu d'un cote. C'est cela que l'oeil suit : non
- * une forme qui tourne, mais une forme qui se complique, puis se simplifie.
- * L'aller-retour evite le saut de l'hexagone au triangle qu'imposerait une
- * boucle a sens unique.
+ * Between two plateaus, the points each slide towards their new place and a
+ * vertex is born in the middle of a side. That is what the eye follows: not a
+ * shape turning, but a shape growing more complex, then simpler again. The
+ * round trip avoids the jump from hexagon to triangle a one-way loop would
+ * impose.
  *
- * L'interpolation est confiee a SMIL, natif dans le SVG : aucun JavaScript
- * apres le premier rendu, et pas de filtre. Les points sont calcules une
- * fois au chargement du module.
+ * The interpolation is handed to SMIL, native in SVG: no JavaScript after the
+ * first render, and no filter. The points are computed once when the module
+ * loads.
  *
- * ## Un statut, pas un dessin
+ * ## A status, not a drawing
  *
- * L'element porte `role="status"` et un libelle pour les lecteurs d'ecran :
- * l'attente est une information, pas une decoration. Le dessin est retire
- * de l'arbre d'accessibilite.
+ * The element carries `role="status"` and a label for screen readers: waiting
+ * is information, not decoration. The drawing is removed from the
+ * accessibility tree.
  *
- * SMIL ignore la preference de mouvement reduit : c'est donc le composant
- * qui la lit, et qui n'insere pas l'animation quand elle est active. Il
- * reste l'hexagone, la forme la plus aboutie du cycle.
+ * SMIL ignores the reduced motion preference: so it is the component that
+ * reads it, and that does not insert the animation when it is on. What remains
+ * is the hexagon, the most complete shape of the cycle.
  *
  * @module
  */
@@ -38,18 +37,18 @@
 import { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-polygon-morph'
 
-/** Points par trace : le plus petit multiple commun de 3, 4, 5 et 6. */
+/** Points per path: the lowest common multiple of 3, 4, 5 and 6. */
 const SAMPLES = 60
 
-/** Rayon du cercle circonscrit, dans une vue de 100 unites. */
+/** Radius of the circumscribed circle, in a view of 100 units. */
 const RADIUS = 42
 
 /**
- * Trace d'un polygone regulier a `sides` cotes, pointe en haut, ecrit avec
- * `SAMPLES` points repartis le long de son perimetre.
+ * Path of a regular polygon with `sides` sides, apex up, written with
+ * `SAMPLES` points spread along its perimeter.
  */
 function polygon(sides: number): string {
   const vertices = Array.from({ length: sides }, (_, index) => {
@@ -74,12 +73,12 @@ const SQUARE = polygon(4)
 const PENTAGON = polygon(5)
 const HEXAGON = polygon(6)
 
-/** L'aller-retour, avec un palier sur chaque forme. */
+/** The round trip, with a plateau on every shape. */
 const SEQUENCE = [TRIANGLE, SQUARE, PENTAGON, HEXAGON, PENTAGON, SQUARE]
 const VALUES = [...SEQUENCE.flatMap((shape) => [shape, shape]), TRIANGLE].join(';')
 const KEY_TIMES = Array.from({ length: SEQUENCE.length * 2 + 1 }, (_, index) => {
-  // Chaque forme tient un peu plus longtemps qu'elle ne met a changer :
-  // les paliers sont ce que l'on reconnait, les transitions ce qui bouge.
+  // Each shape holds a little longer than it takes to change: the plateaus are
+  // what one recognises, the transitions what moves.
   const step = Math.floor(index / 2)
   const hold = index % 2 === 1 ? 0.55 : 0
   return ((step + hold) / SEQUENCE.length).toFixed(4)
@@ -88,7 +87,7 @@ const KEY_SPLINES = Array.from({ length: SEQUENCE.length * 2 }, () => '0.4 0 0.2
   ';',
 )
 
-/** Pose le cadre, une fois par document. */
+/** Sets up the frame, once per document. */
 function ensurePolygonMorphRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -102,31 +101,31 @@ function ensurePolygonMorphRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** Props of the component itself. */
 export interface PolygonMorphOwnProps {
-  /** Cote de la zone de dessin, en pixels. @defaultValue 44 */
+  /** Side of the drawing area, in pixels. @defaultValue 44 */
   size?: number
-  /** Epaisseur du trait, en pixels. @defaultValue 3 */
+  /** Thickness of the stroke, in pixels. @defaultValue 3 */
   thickness?: number
-  /** Duree d'un aller-retour complet, en millisecondes. @defaultValue 3000 */
+  /** Duration of a complete round trip, in milliseconds. @defaultValue 3000 */
   speed?: number
-  /** Couleur du trait. @defaultValue la couleur du texte */
+  /** Colour of the stroke. @defaultValue the text colour */
   color?: string
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */
+  /** Label announced to screen readers. @defaultValue 'Loading' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All the props. */
 export type PolygonMorphProps = Customisable<PolygonMorphOwnProps, 'span'>
 
 /**
- * Signale une attente par un polygone qui gagne et perd des cotes.
+ * Signals a wait through a polygon gaining and losing sides.
  *
  * @example
  * <PolygonMorph />
  *
  * @example
- * // Plus grand, plus lent, dans la teinte de marque.
+ * // Bigger, slower, in the brand hue.
  * <PolygonMorph size={72} speed={4800} color="var(--o-palette-brand-500)" />
  */
 export function PolygonMorph({
@@ -134,7 +133,7 @@ export function PolygonMorph({
   thickness = 3,
   speed = 3000,
   color = 'currentColor',
-  label = 'Chargement',
+  label = 'Loading',
   ...rest
 }: PolygonMorphProps): ReactElement {
   ensurePolygonMorphRule()
@@ -142,8 +141,8 @@ export function PolygonMorph({
 
   const { className, style } = mergePresentation({}, rest)
 
-  // Le dessin vit dans une vue de 100 unites : l'epaisseur demandee en
-  // pixels est convertie pour que le trait garde sa mesure a toute taille.
+  // The drawing lives in a view of 100 units: the thickness asked for in
+  // pixels is converted so that the stroke keeps its measure at any size.
   const stroke = Math.min((thickness / size) * 100, 16)
 
   const loaderStyle = {

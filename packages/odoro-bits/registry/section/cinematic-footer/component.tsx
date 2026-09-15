@@ -1,37 +1,36 @@
 /**
- * Pied de page en rideau : la page glisse par-dessus, il se decouvre dessous.
+ * Curtain footer: the page slides over it, it is uncovered underneath.
  *
- * ## Comment le rideau tient
+ * ## How the curtain holds
  *
- * Le pied de page est en `fixed`, et son enveloppe porte un `clip-path`. C'est
- * la seule piece du montage : un element decoupe devient bloc conteneur pour
- * ses descendants fixes, si bien que le pied de page ne se colle pas a la
- * fenetre mais reste borne a l'enveloppe. Il apparait donc a mesure que
- * l'enveloppe entre dans le champ, sans qu'aucun JavaScript ne le deplace.
+ * The footer is `fixed`, and its wrapper carries a `clip-path`. That is the
+ * only piece of the assembly: a clipped element becomes a containing block for
+ * its fixed descendants, so that the footer does not stick to the window but
+ * stays bounded to the wrapper. It therefore appears as the wrapper enters the
+ * view, without any JavaScript moving it.
  *
- * Retirer le `clip-path` casse l'effet en silence : le pied de page se colle
- * alors a la fenetre et reste visible sur toute la page.
+ * Removing the `clip-path` breaks the effect silently: the footer then sticks
+ * to the window and stays visible over the whole page.
  *
- * ## Ce qui est confie au defilement, et ce qui ne l'est pas
+ * ## What is entrusted to the scroll, and what is not
  *
- * Le mot de fond et le bloc central sont asservis a la progression du
- * defilement. Rien d'autre. Le rideau, lui, est de la mise en page : le confier
- * a une animation le ferait dependre d'une mesure, alors qu'il decoule de la
- * geometrie.
+ * The background word and the center block are driven by the progress of the
+ * scroll. Nothing else. The curtain is layout: entrusting it to an animation
+ * would make it depend on a measurement, when it follows from the geometry.
  *
- * Sous mouvement reduit, `useScrollScrub` applique l'etat **final** une fois :
- * le contenu est en place, sans course. Le rideau continue de fonctionner,
- * puisqu'il n'anime rien — c'est la page qui defile.
+ * Under reduced motion, `useScrollScrub` applies the **final** state once: the
+ * content is in place, without travel. The curtain keeps working, since it
+ * animates nothing — it is the page that scrolls.
  *
- * ## Pourquoi les couleurs passent par deux variables
+ * ## Why the colors go through two variables
  *
- * Le systeme n'a pas de couche semantique : il n'existe ni `--foreground` ni
- * `--background` a interroger. Les degrades, le masque de grille et le verre
- * en ont pourtant besoin, et les ecrire en dur les figerait dans un theme.
+ * The system has no semantic layer: there is neither `--foreground` nor
+ * `--background` to query. The gradients, the grid mask and the glass need one
+ * nonetheless, and writing them hard-coded would freeze them in one theme.
  *
- * L'enveloppe declare donc deux variables privees, definies dans les deux
- * themes a partir de la palette. Ce sont les seules du composant, et elles ne
- * sortent pas de lui.
+ * The wrapper therefore declares two private variables, defined in both themes
+ * from the palette. They are the only ones of the component, and they do not
+ * leave it.
  *
  * @module
  */
@@ -47,38 +46,38 @@ import { useRef, type ReactElement, type ReactNode } from 'react'
 import { Magnetic } from '@registre/effect/Magnetic'
 import { Marquee } from '@registre/effect/Marquee'
 
-/** Proprietes propres au composant. */
+/** Props specific to the component. */
 export interface CinematicFooterOwnProps {
-  /** Titre du bloc central. */
+  /** Title of the center block. */
   heading?: ReactNode
-  /** Mot pose en fond, derriere tout le reste. */
+  /** Word set in the background, behind everything else. */
   word?: string
-  /** Contenu du bandeau defilant. Rien n'est affiche s'il est absent. */
+  /** Content of the scrolling banner. Nothing is displayed if it is absent. */
   banner?: ReactNode
-  /** Actions principales, rendues en pastilles magnetiques. */
+  /** Main actions, rendered as magnetic pills. */
   actions?: ReactNode
-  /** Liens secondaires, rendus en pastilles plus petites. */
+  /** Secondary links, rendered as smaller pills. */
   links?: ReactNode
-  /** Mention de bas de page, a gauche. */
+  /** Footer notice, on the left. */
   copyright?: ReactNode
-  /** Signature, au centre de la barre basse. */
+  /** Signature, in the center of the bottom bar. */
   signature?: ReactNode
-  /** Libelle du bouton de remontee. @defaultValue 'Revenir en haut' */
+  /** Label of the back-to-top button. @defaultValue 'Back to top' */
   topLabel?: string
 }
 
-/** Toutes les proprietes. */
+/** All the props. */
 export type CinematicFooterProps = Customisable<CinematicFooterOwnProps>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-cinematic-footer'
 
 /**
- * Pose les regles du pied de page, une fois par document.
+ * Sets the footer rules, once per document.
  *
- * Tout ce qui est ici est hors de portee des utilitaires : un contour de
- * texte, un masque de degrade, un fond de grille, une teinte melangee. Le
- * reste de l'habillage reste en classes.
+ * Everything here is out of reach of the utilities: a text stroke, a gradient
+ * mask, a grid background, a mixed hue. The rest of the dressing stays in
+ * classes.
  */
 function ensureFooterRules(): void {
   if (typeof document === 'undefined') return
@@ -105,27 +104,27 @@ function ensureFooterRules(): void {
     `:root[data-theme="dark"] ${dark}`,
     `@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) ${dark}}`,
 
-    // Halo : une nappe radiale qui respire lentement.
+    // Halo: a radial glow that breathes slowly.
     '[data-o-footer-glow]{background:radial-gradient(circle at 50% 50%,',
     'color-mix(in oklch,var(--o-footer-glow-a) 18%,transparent) 0%,',
     'color-mix(in oklch,var(--o-footer-glow-b) 18%,transparent) 40%,transparent 70%);',
     'animation:o-footer-breathe 8s var(--o-ease-standard) infinite alternate}',
     '@keyframes o-footer-breathe{to{transform:translate(-50%,-50%) scale(1.1)}}',
 
-    // Grille de fond, estompee aux deux extremites.
+    // Background grid, faded out at both ends.
     '[data-o-footer-grid]{background-size:60px 60px;background-image:',
     'linear-gradient(to right,color-mix(in oklch,var(--o-footer-ink) 6%,transparent) 1px,transparent 1px),',
     'linear-gradient(to bottom,color-mix(in oklch,var(--o-footer-ink) 6%,transparent) 1px,transparent 1px);',
     '-webkit-mask:linear-gradient(to bottom,transparent,black 30%,black 70%,transparent);',
     'mask:linear-gradient(to bottom,transparent,black 30%,black 70%,transparent)}',
 
-    // Mot de fond : un contour, et un degrade qui s'eteint vers le bas.
+    // Background word: a stroke, and a gradient that fades out downwards.
     '[data-o-footer-word]{font-size:26vw;line-height:0.75;letter-spacing:-0.05em;',
     'color:transparent;-webkit-text-stroke:1px color-mix(in oklch,var(--o-footer-ink) 10%,transparent);',
     'background:linear-gradient(180deg,color-mix(in oklch,var(--o-footer-ink) 14%,transparent) 0%,transparent 60%);',
     '-webkit-background-clip:text;background-clip:text}',
 
-    // Verre : un fond melange, un liseré, et un flou d'arriere-plan.
+    // Glass: a mixed background, a hairline, and a backdrop blur.
     '[data-o-footer-pill]{background:linear-gradient(145deg,',
     'color-mix(in oklch,var(--o-footer-ink) 5%,transparent) 0%,',
     'color-mix(in oklch,var(--o-footer-ink) 2%,transparent) 100%);',
@@ -140,7 +139,7 @@ function ensureFooterRules(): void {
     'color-mix(in oklch,var(--o-footer-ink) 4%,transparent) 100%);',
     'border-color:color-mix(in oklch,var(--o-footer-ink) 22%,transparent)}',
 
-    // Battement : la couleur vient du texte, donc d'une classe, donc d'un token.
+    // Beat: the color comes from the text, so from a class, so from a token.
     '[data-o-footer-beat]{animation:o-footer-beat 2s var(--o-ease-standard) infinite}',
     '@keyframes o-footer-beat{0%,100%{transform:scale(1)}15%,45%{transform:scale(1.18)}30%{transform:scale(1)}}',
 
@@ -151,59 +150,59 @@ function ensureFooterRules(): void {
 }
 
 /**
- * Pied de page decouvert par le defilement.
+ * Footer uncovered by the scroll.
  *
  * @example
  * <CinematicFooter
- *   heading="On commence ?"
+ *   heading="Shall we start?"
  *   word="ODORO"
- *   actions={<a href="/contact">Nous ecrire</a>}
+ *   actions={<a href="/contact">Write to us</a>}
  *   copyright="© 2026 Odoro"
  * />
  *
  * @example
- * // Le bandeau est un emplacement : il recoit ce que la page a a dire.
- * <CinematicFooter banner={<span className="o-px-8">Disponible en mars</span>} />
+ * // The banner is a slot: it receives what the page has to say.
+ * <CinematicFooter banner={<span className="o-px-8">Available in March</span>} />
  */
 export function CinematicFooter({
-  heading = 'On commence ?',
+  heading = 'Shall we start?',
   word,
   banner,
   actions,
   links,
   copyright,
   signature,
-  topLabel = 'Revenir en haut',
+  topLabel = 'Back to top',
   ...rest
 }: CinematicFooterProps): ReactElement {
   const { reduced } = useMotionState()
   const wordRef = useRef<HTMLDivElement | null>(null)
-  const centreRef = useRef<HTMLDivElement | null>(null)
+  const centerRef = useRef<HTMLDivElement | null>(null)
 
   ensureFooterRules()
 
-  // Une seule mesure pour les deux mouvements : deux declencheurs sur la meme
-  // plage produiraient deux lectures de la meme progression.
+  // A single measurement for both movements: two triggers over the same range
+  // would produce two readings of the same progress.
   const { ref } = useScrollScrub<HTMLDivElement>(
     (progress) => {
-      // Le nom evite celui de la prop : la fermeture la capture, et deux
-      // « word » a deux lignes d'ecart se relisent mal.
+      // The name avoids the one of the prop: the closure captures it, and two
+      // "word" two lines apart read back badly.
       const backdrop = wordRef.current
       if (backdrop !== null) {
         backdrop.style.transform = `translate3d(-50%,${String((1 - progress) * 10)}vh,0) scale(${String(0.86 + progress * 0.14)})`
         backdrop.style.opacity = progress.toFixed(3)
       }
 
-      const centre = centreRef.current
-      if (centre !== null) {
-        // Le bloc central arrive plus tard que le mot : la moitie basse de la
-        // course lui suffit, et il finit en place avant la barre du bas.
+      const center = centerRef.current
+      if (center !== null) {
+        // The center block arrives later than the word: the lower half of the
+        // travel is enough for it, and it lands in place before the bottom bar.
         const own = Math.max(0, Math.min(1, (progress - 0.35) / 0.45))
-        centre.style.transform = `translate3d(0,${String((1 - own) * 50)}px,0)`
-        centre.style.opacity = own.toFixed(3)
+        center.style.transform = `translate3d(0,${String((1 - own) * 50)}px,0)`
+        center.style.opacity = own.toFixed(3)
       }
     },
-    { start: 'top bottom', end: 'bottom bottom', name: 'pied-de-page' },
+    { start: 'top bottom', end: 'bottom bottom', name: 'footer' },
   )
 
   const { className, style } = mergePresentation(
@@ -218,8 +217,8 @@ export function CinematicFooter({
       data-o-footer
       className={className}
       style={{
-        // La decoupe est ce qui borne le pied de page fixe a cette enveloppe.
-        // Sans elle, il se collerait a la fenetre sur toute la page.
+        // The clip is what bounds the fixed footer to this wrapper. Without
+        // it, it would stick to the window over the whole page.
         clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)',
         ...style,
       }}
@@ -237,9 +236,9 @@ export function CinematicFooter({
           className="o-pointer-events-none o-absolute o-inset-0"
         />
 
-        {/* Le recentrage est pose des le depart : la mesure du defilement
-            n'arrive qu'apres la premiere peinture, et le mot sauterait d'une
-            demi-largeur entre les deux. */}
+        {/* The recentering is set from the start: the scroll measurement only
+            arrives after the first paint, and the word would jump by half a
+            width between the two. */}
         {word === undefined ? null : (
           <div
             aria-hidden
@@ -262,7 +261,7 @@ export function CinematicFooter({
         )}
 
         <div
-          ref={centreRef}
+          ref={centerRef}
           className="o-relative o-mx-auto o-flex o-flex-1 o-w-full o-max-w-5xl o-flex-col o-items-center o-justify-center o-gap-10 o-px-6"
         >
           <h2 className="o-text-center o-text-5xl o-font-bold o-tracking-tight md:o-text-7xl">
@@ -280,9 +279,9 @@ export function CinematicFooter({
 
         <div className="o-relative o-flex o-flex-col o-items-center o-justify-between o-gap-6 o-px-6 o-pb-8 md:o-flex-row md:o-px-12">
           {copyright === undefined ? (
-            // Un paragraphe vide occupe quand meme sa ligne : la barre du bas
-            // se retrouverait decentree pour la seule raison qu'une mention
-            // n'a pas ete fournie.
+            // An empty paragraph still takes its line: the bottom bar would
+            // end up off-center for the sole reason that a notice was not
+            // provided.
             <span />
           ) : (
             <p className="o-text-xs o-uppercase o-tracking-widest o-text-zinc-500">

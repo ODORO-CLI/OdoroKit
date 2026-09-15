@@ -69,7 +69,7 @@ import {
   TriangleAlert,
   Wallet,
   Zap,
-} from '@odoro-cli/icons/filaire'
+} from '@odoro-cli/icons/outline'
 import { useState, type CSSProperties, type ReactElement, type ReactNode } from 'react'
 
 import { DataStream } from '@/odoro/background/DataStream.jsx'

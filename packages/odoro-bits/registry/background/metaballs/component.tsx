@@ -1,28 +1,28 @@
 /**
- * Metaballs : des boules de gel qui fusionnent, dont une suit le pointeur.
+ * Metaballs: gel balls merging, one of which follows the pointer.
  *
- * ## Le principe
+ * ## The principle
  *
- * Une somme de champs en r2/d2, seuillee : deux boules qui s'approchent se
- * rejoignent par un col avant de fusionner. Ce qui fait le gel plutot que
- * l'aplat, c'est le gradient du champ pris pour normale — un diffus, un
- * reflet, une lisiere claire la ou la surface se couche.
+ * A sum of fields in r2/d2, thresholded: two balls drawing near join through a
+ * neck before merging. What makes the gel rather than the flat wash is the
+ * gradient of the field taken as the normal — a diffuse, a highlight, a light
+ * rim where the surface lies down.
  *
- * ## A quoi ce fond reagit
+ * ## What this background reacts to
  *
- * Au deplacement du pointeur, avec amortissement : une boule supplementaire
- * le suit et fusionne avec celles qu'elle croise. A la sortie du cadre, le
- * hook ramene la cible au centre — la boule y revient d'elle-meme.
+ * To the pointer moving, with damping: one extra ball follows it and merges
+ * with those it crosses. On leaving the frame, the hook brings the target back
+ * to the centre — the ball returns there on its own.
  *
- * ## Le pont pointeur → shader
+ * ## The pointer → shader bridge
  *
- * Aucun rendu React par image : le composant mute en place un tableau stable
- * passe en uniform, et la surface relit ses uniforms a chaque image. La
- * recopie se fait dans la boucle du moteur, en priorite d'entree.
+ * No React render per frame: the component mutates in place a stable array
+ * passed as a uniform, and the surface re-reads its uniforms every frame. The
+ * copy happens in the engine loop, at input priority.
  *
- * ## Sous mouvement reduit
+ * ## Under reduced motion
  *
- * La surface est refusee par le moteur et le repli statique s'affiche.
+ * The surface is refused by the engine and the static fallback is shown.
  *
  * @module
  */
@@ -43,47 +43,47 @@ import { usePointerDamped } from '@registre/hooks/usePointerDamped'
 
 import { METABALLS_FRAGMENT } from './metaballs.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface MetaballsControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to this component. */
 export interface MetaballsOwnProps {
-  /** Vitesse de derive des boules. @defaultValue 0.3 */
+  /** Speed at which the balls drift. @defaultValue 0.3 */
   speed?: number
-  /** Nombre de boules libres. @defaultValue 7 */
+  /** Number of free balls. @defaultValue 7 */
   count?: number
-  /** Seuil du champ. Plus bas, plus de matiere. @defaultValue 1 */
+  /** Threshold of the field. Lower means more matter. @defaultValue 1 */
   threshold?: number
-  /** Force du reflet. @defaultValue 0.7 */
+  /** Strength of the highlight. @defaultValue 0.7 */
   gloss?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<MetaballsControls>
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type MetaballsProps = Customisable<MetaballsOwnProps>
 
-/** Tokens employes par defaut : le fond, le gel, le reflet. */
+/** Tokens used by default: the background, the gel, the highlight. */
 const DEFAULT_TOKENS = ['--o-theme-bg', '--o-palette-brand-500', '--o-theme-fg'] as const
 
-/** Repli par defaut : un degrade fige, dans les memes tons. */
+/** Default fallback: a frozen gradient, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-br o-from-zinc-50 dark:o-from-zinc-950 o-via-brand-200 dark:o-via-brand-900 o-to-zinc-50 dark:o-to-zinc-950'
 
 /**
- * Nombre de boules en qualite basse.
+ * Number of balls at low quality.
  *
- * Chaque boule se paie trois fois — une somme pour la matiere, deux pour la
- * normale. C'est le seul levier de cout du shader.
+ * Every ball is paid for three times — one sum for the matter, two for the
+ * normal. It is the only cost lever of the shader.
  */
 const LOW_COUNT = 4
 
@@ -108,21 +108,21 @@ export function Metaballs({
 }: MetaballsProps): ReactElement {
   const [host, setHost] = useState<HTMLDivElement | null>(null)
 
-  // Tableau stable, mute en place : la surface relit les uniforms a chaque
-  // image, l'identite ne change pas, la mutation suffit — aucun setState.
+  // Stable array, mutated in place: the surface re-reads the uniforms every
+  // frame, the identity does not change, the mutation is enough — no setState.
   const uPointer = useRef<number[]>([0.5, 0.5]).current
 
-  const pointer = usePointerDamped({ host, speed: 3, name: 'metaballs : pointeur' })
+  const pointer = usePointerDamped({ host, speed: 3, name: 'metaballs : pointer' })
 
   useEffect(() => {
     const subscription = clock.subscribe(
       () => {
-        // Du repere du hook (centre, y vers le bas) vers celui de la texture
-        // (coin bas-gauche, y vers le haut).
+        // From the hook's frame (centred, y downwards) to the texture's
+        // (bottom-left corner, y upwards).
         uPointer[0] = (pointer.current.x + 1) / 2
         uPointer[1] = 1 - (pointer.current.y + 1) / 2
       },
-      { priority: CLOCK_PRIORITY.input, name: 'metaballs : pont' },
+      { priority: CLOCK_PRIORITY.input, name: 'metaballs : bridge' },
     )
     return () => subscription.unsubscribe()
   }, [pointer, uPointer])
@@ -144,7 +144,7 @@ export function Metaballs({
       uGloss: gloss,
     },
     name: 'metaballs',
-    // Le nombre de boules est le seul reglage qui pese : c'est le seul borne.
+    // The number of balls is the only setting that weighs: it is the only bound.
     degrade: (quality) => ({
       uCount: quality === 'low' ? Math.min(count, LOW_COUNT) : count,
     }),

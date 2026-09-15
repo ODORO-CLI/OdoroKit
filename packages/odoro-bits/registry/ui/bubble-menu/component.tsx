@@ -1,29 +1,28 @@
 /**
- * Menu a bulles : un bouton rond dont les liens jaillissent en bulles sur un
- * arc, une a une, et rentrent dans l'ordre inverse.
+ * Bubble menu: a round button whose links burst out as bubbles along an arc,
+ * one by one, and come back in the reverse order.
  *
- * ## Chaque bulle connait sa place, et son tour
+ * ## Every bubble knows its place, and its turn
  *
- * La position d'une bulle est un angle sur un arc, converti en deux
- * variables CSS ; son tour est un index, converti en retard de transition.
- * L'ouverture n'est qu'un attribut pose sur l'hote : a partir de la, la
- * feuille fait sortir les bulles l'une apres l'autre, avec un leger
- * depassement qui les fait « atterrir ». La fermeture inverse les retards,
- * pour que la derniere sortie soit la premiere rentree — comme des bulles
- * qui se resorbent vers leur source.
+ * A bubble's position is an angle on an arc, converted into two CSS
+ * variables; its turn is an index, converted into a transition delay. Opening
+ * is nothing but an attribute set on the host: from there, the stylesheet
+ * sends the bubbles out one after the other, with a slight overshoot that
+ * makes them "land". Closing reverses the delays, so that the last one out is
+ * the first one back — like bubbles being reabsorbed towards their source.
  *
- * ## Fermees, les bulles sont vraiment absentes
+ * ## Closed, the bubbles are genuinely absent
  *
- * Une bulle a echelle nulle reste focalisable et reste annoncee. Elle est
- * donc rendue invisible par `visibility`, avec un retard egal a la duree de
- * la rentree : le trajet se voit, puis l'element quitte l'arbre
- * d'accessibilite.
+ * A bubble at zero scale stays focusable and stays announced. It is therefore
+ * made invisible through `visibility`, with a delay equal to the duration of
+ * the return trip: the travel is seen, then the element leaves the
+ * accessibility tree.
  *
- * ## Le bouton dit son etat, et le focus lui revient
+ * ## The button states its state, and the focus comes back to it
  *
- * `aria-expanded` sur le bouton, Echap pour fermer, le focus rendu au bouton
- * a la fermeture. A l'ouverture, le focus va a la premiere bulle des qu'elle
- * est visible ; les fleches passent de l'une a l'autre.
+ * `aria-expanded` on the button, Escape to close, focus returned to the
+ * button on closing. On opening, focus goes to the first bubble as soon as it
+ * is visible; the arrows move from one to the next.
  *
  * @module
  */
@@ -40,47 +39,47 @@ import {
   type ReactNode,
 } from 'react'
 
-/** Un element de navigation. */
+/** One navigation item. */
 export interface NavItem {
-  /** Libelle affiche. */
+  /** Displayed label. */
   readonly label: string
-  /** Cible du lien. Sans cible, l'element est un bouton. */
+  /** Target of the link. With no target, the item is a button. */
   readonly href?: string
-  /** Icone placee avant le libelle. */
+  /** Icon placed before the label. */
   readonly icon?: ReactNode
 }
 
-/** Cote vers lequel l'arc se deploie. */
+/** Side towards which the arc unfolds. */
 export type BubbleDirection = 'up' | 'right' | 'down' | 'left'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface BubbleMenuOwnProps {
-  /** Les liens, dans l'ordre de sortie. */
+  /** The links, in the order they come out. */
   items: readonly NavItem[]
-  /** Cote vers lequel l'arc se deploie. @defaultValue 'up' */
+  /** Side towards which the arc unfolds. @defaultValue 'up' */
   direction?: BubbleDirection
-  /** Distance entre le bouton et les bulles, en pixels. @defaultValue 110 */
+  /** Distance between the button and the bubbles, in pixels. @defaultValue 110 */
   radius?: number
-  /** Ouverture de l'arc, en degres. @defaultValue 120 */
+  /** Opening of the arc, in degrees. @defaultValue 120 */
   spread?: number
-  /** Decalage entre deux bulles, en millisecondes. @defaultValue 50 */
+  /** Offset between two bubbles, in milliseconds. @defaultValue 50 */
   stagger?: number
-  /** Etat ouvert, en mode controle. */
+  /** Open state, in controlled mode. */
   open?: boolean
-  /** Appele quand l'utilisateur ouvre ou ferme. */
+  /** Called when the user opens or closes. */
   onOpenChange?: (open: boolean) => void
-  /** Index de la page courante. */
+  /** Index of the current page. */
   active?: number
-  /** Appele quand l'utilisateur choisit un lien. */
+  /** Called when the user picks a link. */
   onActiveChange?: (index: number) => void
-  /** Intitule du bouton pour les lecteurs d'ecran. @defaultValue 'Menu' */
+  /** Name of the button for screen readers. @defaultValue 'Menu' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type BubbleMenuProps = Customisable<BubbleMenuOwnProps>
 
-/** Angle de depart de chaque direction, en degres, sens horaire depuis la droite. */
+/** Starting angle of each direction, in degrees, clockwise from the right. */
 const BASE_ANGLE: Readonly<Record<BubbleDirection, number>> = {
   right: 0,
   down: 90,
@@ -88,10 +87,10 @@ const BASE_ANGLE: Readonly<Record<BubbleDirection, number>> = {
   up: 270,
 }
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-bubble-menu'
 
-/** Pose le bouton, l'arc et les bulles, une fois par document. */
+/** Applies the button, the arc and the bubbles, once per document. */
 function ensureBubbleRules(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -109,8 +108,8 @@ function ensureBubbleRules(): void {
     '}',
     '[data-o-bubble-trigger]:focus-visible{outline:2px solid currentColor;outline-offset:2px}',
     '[data-o-bubble][data-o-bubble-open] [data-o-bubble-trigger]{transform:rotate(45deg)}',
-    // La croix : deux barres en encre courante, qui font un plus ferme et une
-    // croix ouverte par la rotation du bouton.
+    // The cross: two bars in the current ink, which make a plus when closed and
+    // a cross when open, through the rotation of the button.
     '[data-o-bubble-cross]{position:relative;width:1rem;height:1rem;display:block}',
     '[data-o-bubble-cross]::before,[data-o-bubble-cross]::after{',
     'content:"";position:absolute;background:currentColor;border-radius:1px;',
@@ -148,20 +147,20 @@ function ensureBubbleRules(): void {
 }
 
 /**
- * Bouton rond dont les liens jaillissent en bulles.
+ * Round button whose links burst out as bubbles.
  *
  * @example
  * <BubbleMenu
  *   items={[
- *     { label: 'Accueil', href: '/' },
- *     { label: 'Galerie', href: '/galerie' },
+ *     { label: 'Home', href: '/' },
+ *     { label: 'Gallery', href: '/gallery' },
  *     { label: 'Contact', href: '/contact' },
  *   ]}
  * />
  *
  * @example
- * // Vers la droite, sur un arc serre.
- * <BubbleMenu items={liens} direction="right" spread={70} radius={140} />
+ * // Towards the right, on a tighter arc.
+ * <BubbleMenu items={links} direction="right" spread={70} radius={140} />
  */
 export function BubbleMenu({
   items,
@@ -195,9 +194,9 @@ export function BubbleMenu({
       hostRef.current?.querySelectorAll<HTMLElement>('[data-o-bubble-item]') ?? [],
     )
 
-  // Ouvert : le focus va a la premiere bulle des qu'elle est visible. Un clic
-  // hors du menu le referme. Ferme : le focus revient au bouton s'il etait
-  // dans le menu, pour ne pas le laisser tomber sur le corps du document.
+  // Open: focus goes to the first bubble as soon as it is visible. A click
+  // outside the menu closes it again. Closed: focus returns to the button if it
+  // was inside the menu, so as not to drop it on the document body.
   useEffect(() => {
     const host = hostRef.current
     if (host === null) return

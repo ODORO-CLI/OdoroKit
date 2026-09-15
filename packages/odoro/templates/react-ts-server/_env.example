@@ -1,78 +1,76 @@
-# Copier ce fichier en `.env` et ajuster les valeurs.
+# Copy this file to `.env` and adjust the values.
 #
-# Toute variable manquante ou invalide arrete le serveur au demarrage, avec un
-# message qui les liste toutes d'un coup : mieux vaut un echec immediat qu'une
-# panne a la centieme requete.
+# Any missing or invalid variable stops the server at startup, with a message
+# listing them all at once: an immediate failure beats an outage on the
+# hundredth request.
 #
-# Ce fichier est versionne. `.env` ne l'est jamais.
+# This file is committed. `.env` never is.
 
 # ---------------------------------------------------------------------------
-# Base de donnees
+# Database
 # ---------------------------------------------------------------------------
 
-# PostgreSQL, et rien d'autre. Aucune base locale : l'URL pointe sur une base
-# hebergee, la votre ou celle provisionnee par `odoro db:create`.
+# PostgreSQL, and nothing else. No local database: the URL points at a hosted
+# one, yours or the one provisioned by `odoro db:create`.
 #
-#   postgres://utilisateur:motdepasse@hote:5432/base?sslmode=require
+#   postgres://user:password@host:5432/database?sslmode=require
 #
-# Tant qu'elle est absente, le client demarre et le serveur repond 503 sur
-# /api/ready en disant ce qui manque.
+# While it is missing, the client starts and the server answers 503 on
+# /api/ready saying what is absent.
 DATABASE_URL=
 
-# Replica de lecture, optionnel. Le routage vers lui reste explicite : jamais
-# de bascule automatique, le decalage de replication produit des defauts
-# incomprehensibles.
+# Read replica, optional. Routing to it stays explicit: never an automatic
+# switch, replication lag produces bugs nobody can make sense of.
 # DATABASE_REPLICA_URL=
 
-# Taille du pool de connexions. Laisser vide pour le defaut de l'environnement.
+# Connection pool size. Leave empty for the environment default.
 # DATABASE_POOL_MAX=
 
-# Desactive TLS. A ne poser que sur une base strictement locale a la machine,
-# jamais sur une base joignable par le reseau.
+# Disables TLS. Only ever set this for a database strictly local to the
+# machine, never for one reachable over the network.
 # DATABASE_TLS_DISABLED=false
 
 # ---------------------------------------------------------------------------
 # Session
 # ---------------------------------------------------------------------------
 
-# Au moins 32 caracteres. Un secret court se retrouve par force brute, et le
-# jour ou c'est arrive, toutes les sessions emises depuis le premier jour sont
-# forgeables.
+# At least 32 characters. A short secret falls to brute force, and the day that
+# happens, every session issued since day one can be forged.
 #
 #   node -e "console.log(require('node:crypto').randomBytes(32).toString('hex'))"
 SESSION_SECRET=
 
 # ---------------------------------------------------------------------------
-# Serveur
+# Server
 # ---------------------------------------------------------------------------
 
-# Environnement : development | test | production
+# Environment: development | test | production
 NODE_ENV=development
 
-# Port d'ecoute de l'API. Le client de developpement ecoute sur 5180 et lui
-# transmet les appels commencant par /api.
+# Listening port of the API. The development client listens on 5180 and
+# forwards the calls starting with /api to it.
 PORT=3001
 
-# URL publique du serveur, employee dans les liens des courriels.
+# Public URL of the server, used in the links of outgoing emails.
 APP_URL=http://localhost:3001
 
-# Origines autorisees, separees par des virgules. Vide = aucune origine
-# tierce. Jamais `*` avec des identifiants.
+# Allowed origins, comma separated. Empty = no third-party origin. Never `*`
+# together with credentials.
 ALLOWED_ORIGINS=
 
-# Plafond de la taille des corps de requete.
+# Cap on the size of request bodies.
 BODY_LIMIT=1mb
 
-# Delai au-dela duquel l'arret propre cesse d'attendre les requetes en cours.
+# Delay after which the graceful shutdown stops waiting for in-flight requests.
 SHUTDOWN_TIMEOUT=15s
 
-# Niveau de journalisation : fatal | error | warn | info | debug | trace
+# Log level: fatal | error | warn | info | debug | trace
 LOG_LEVEL=info
 
 # ---------------------------------------------------------------------------
-# Files d'attente et cache
+# Queues and cache
 # ---------------------------------------------------------------------------
 
-# Optionnel. Absente, le cache vit en memoire et les taches s'executent en
-# ligne — ce qui convient a une instance unique, et pas au-dela.
+# Optional. Absent, the cache lives in memory and the jobs run inline — which
+# suits a single instance, and nothing beyond.
 # REDIS_URL=

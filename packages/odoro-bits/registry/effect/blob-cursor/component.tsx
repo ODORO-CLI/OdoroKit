@@ -1,36 +1,36 @@
 /**
- * Blob gluant : quelques boules qui n'en font qu'une.
+ * Gooey blob: a few balls that read as one.
  *
- * ## Ce qui distingue ce curseur d'un rond qui suit
+ * ## What sets this cursor apart from a dot that follows
  *
- * Une seule boule amortie donne un rond en retard — c'est deja le curseur a
- * halo. Ici il y en a plusieurs, chacune accrochee a la precedente, et un
- * filtre SVG les recolle : la trainee se pince, s'etire, puis se fond dans la
- * tete des que le pointeur s'arrete. La matiere ne vient pas des boules, elle
- * vient du filtre.
+ * A single damped ball gives a lagging dot — that is already the halo cursor.
+ * Here there are several, each hooked to the one before it, and an SVG filter
+ * glues them back together: the trail pinches, stretches, then melts into the
+ * head as soon as the pointer stops. The substance does not come from the
+ * balls, it comes from the filter.
  *
- * Le filtre est un flou suivi d'un contraste violent sur la couche alpha :
- * tout ce qui est a demi transparent bascule d'un cote ou de l'autre, et deux
- * bords flous voisins se soudent. C'est l'astuce dite « gluante », et elle ne
- * coute qu'un filtre, jamais un calcul par image.
+ * The filter is a blur followed by a violent contrast on the alpha channel:
+ * anything half transparent tips one way or the other, and two neighbouring
+ * blurred edges weld together. This is the so-called "gooey" trick, and it
+ * costs only a filter, never a computation per frame.
  *
- * ## Une chaine, pas un ressort unique
+ * ## A chain, not a single spring
  *
- * Chaque boule vise la position de celle qui la precede, et la premiere vise
- * le pointeur. La vitesse de rattrapage decroit le long de la chaine : la
- * queue traine plus que la tete, ce qui suffit a produire l'etirement sans
- * simuler quoi que ce soit.
+ * Each ball aims at the position of the one before it, and the first aims at
+ * the pointer. The catch-up speed decreases along the chain: the tail trails
+ * more than the head, which is enough to produce the stretch without
+ * simulating anything.
  *
- * L'amortissement est exponentiel en fonction du temps ecoule — la meme
- * matiere a soixante et a cent vingt images par seconde.
+ * The damping is exponential in the elapsed time — the same substance at
+ * sixty and at a hundred and twenty frames per second.
  *
- * ## Ou il ne se montre pas
+ * ## Where it does not show itself
  *
- * Sans pointeur fin, il n'y a rien a suivre : le composant ne cree aucun
- * element et ne s'abonne a rien. Sous mouvement reduit non plus — une trainee
- * est un mouvement decoratif entier, il n'en reste pas d'etat final a poser.
- * Le curseur du systeme n'est jamais masque : il porte des signaux — texte,
- * lien, redimensionnement — que ce blob ne reprend pas.
+ * Without a fine pointer, there is nothing to follow: the component creates no
+ * element and subscribes to nothing. Nor under reduced motion — a trail is an
+ * entirely decorative movement, no final state is left to apply. The system
+ * cursor is never hidden: it carries signals — text, link, resize — that this
+ * blob does not take over.
  *
  * @module
  */
@@ -51,35 +51,36 @@ import {
   type ReactNode,
 } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface BlobCursorOwnProps {
   /**
-   * Zone ou le blob vit.
+   * Area where the blob lives.
    *
-   * Fournie, le blob n'ecoute que cette zone et y est coupe. Absente, il se
-   * pose sur la page entiere, en couche fixe qui n'intercepte rien.
+   * Provided, the blob listens only to that area and is clipped to it.
+   * Absent, it lies over the whole page, as a fixed layer that intercepts
+   * nothing.
    */
   children?: ReactNode
-  /** Nombre de boules de la chaine. @defaultValue 4 */
+  /** Number of balls in the chain. @defaultValue 4 */
   count?: number
-  /** Diametre de la tete, en pixels. @defaultValue 48 */
+  /** Diameter of the head, in pixels. @defaultValue 48 */
   size?: number
-  /** Vitesse de rattrapage de la tete. Plus haut, plus sec. @defaultValue 14 */
+  /** Catch-up speed of the head. Higher is snappier. @defaultValue 14 */
   speed?: number
-  /** Couleur de la matiere. Une valeur, pas un role. @defaultValue la couleur du texte */
+  /** Colour of the substance. A value, not a role. @defaultValue the text colour */
   color?: string
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type BlobCursorProps = Customisable<BlobCursorOwnProps>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-blob-cursor'
 
-/** Au-dela, la chaine ne se lit plus et le filtre coute pour rien. */
+/** Beyond this, the chain no longer reads and the filter costs for nothing. */
 const MAX_BLOBS = 8
 
-/** Pose les regles du blob, une fois par document. */
+/** Sets the blob rules, once per document. */
 function ensureBlobCursorRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -87,9 +88,9 @@ function ensureBlobCursorRule(): void {
   const style = document.createElement('style')
   style.id = STYLE_ID
   style.textContent = [
-    // La position de la zone vit dans une regle sans specificite : une
-    // classe de l appelant — `o-absolute` pour la poser dans un cadre —
-    // doit pouvoir la remplacer, ce qu'un style en ligne interdirait.
+    // The positioning of the area lives in a rule with no specificity: a
+    // class from the caller — `o-absolute` to place it inside a frame —
+    // must be able to replace it, which an inline style would forbid.
     ':where([data-o-blob-host="zone"]){position:relative;overflow:hidden}',
     ':where([data-o-blob-host="page"]){position:fixed;inset:0;z-index:9998;pointer-events:none}',
     '[data-o-blob-layer]{',
@@ -98,8 +99,8 @@ function ensureBlobCursorRule(): void {
     '}',
     '[data-o-blob]{',
     'position:absolute;left:0;top:0;border-radius:50%;',
-    // Les boules bougent a chaque image : sans cette annonce, le navigateur
-    // les repromeut a chaque fois au lieu de les garder sur leur couche.
+    // The balls move on every frame: without this hint, the browser
+    // re-promotes them each time instead of keeping them on their layer.
     'will-change:transform;',
     '}',
   ].join('')
@@ -107,14 +108,14 @@ function ensureBlobCursorRule(): void {
 }
 
 /**
- * Suit le pointeur d'une matiere gluante.
+ * Follows the pointer with a gooey substance.
  *
  * @example
- * // Sur la page entiere.
+ * // Over the whole page.
  * <BlobCursor />
  *
  * @example
- * // Limite a un heros, plus longue et plus lente.
+ * // Confined to a hero, longer and slower.
  * <BlobCursor count={6} speed={9}>
  *   <section className="o-p-16">…</section>
  * </BlobCursor>
@@ -130,9 +131,9 @@ export function BlobCursor({
   const { reduced } = useMotionState()
   const [host, setHost] = useState<HTMLElement | null>(null)
 
-  // Le filtre porte la taille du blob : deux instances de tailles differentes
-  // ne peuvent pas partager le meme, d'ou un identifiant par instance. Les
-  // deux-points de `useId` ne passent pas dans une reference `url(#…)`.
+  // The filter carries the size of the blob: two instances of different sizes
+  // cannot share the same one, hence one identifier per instance. The colons
+  // of `useId` do not survive inside a `url(#…)` reference.
   const gooId = `o-blob-goo-${useId().replaceAll(':', '')}`
   const wrapping = children !== undefined
 
@@ -141,7 +142,8 @@ export function BlobCursor({
   useEffect(() => {
     if (host === null || reduced) return
     if (typeof window === 'undefined') return
-    // Pointeur grossier : rien a suivre, et rien ne sera cree. Voir l'en-tete.
+    // Coarse pointer: nothing to follow, and nothing will be created. See the
+    // module header.
     if (!window.matchMedia('(pointer: fine)').matches) return
 
     const total = Math.max(2, Math.min(MAX_BLOBS, Math.round(count)))
@@ -163,14 +165,14 @@ export function BlobCursor({
       node.style.margin = `${(-diameter / 2).toFixed(1)}px`
       node.style.background = color
       layer.append(node)
-      // La prise se relache le long de la chaine : la queue traine, la tete
-      // colle. C'est tout l'etirement.
+      // The grip loosens along the chain: the tail trails, the head sticks.
+      // That is the whole stretch.
       chain.push({ node, x: away, y: away, grip: speed * (1 - (index / total) * 0.6) })
     }
 
-    // Le cadre est releve a l'installation, puis aux seuls evenements qui le
-    // deplacent. Le relire a chaque mouvement forcerait une mise en page des
-    // dizaines de fois par seconde pour une valeur qui n'a pas bouge.
+    // The frame is read at install time, then only on the events that move it.
+    // Reading it again on every movement would force a layout dozens of times
+    // per second for a value that has not changed.
     let box = host.getBoundingClientRect()
     const onFrameChange = (): void => {
       box = host.getBoundingClientRect()
@@ -186,8 +188,8 @@ export function BlobCursor({
       targetX = pointer.clientX - box.left
       targetY = pointer.clientY - box.top
       if (!seen) {
-        // Sans ce recalage, la chaine traverserait la zone en diagonale depuis
-        // sa position de depart au premier mouvement.
+        // Without this reset, the chain would cross the area diagonally from
+        // its starting position on the first movement.
         for (const link of chain) {
           link.x = targetX
           link.y = targetY
@@ -223,7 +225,7 @@ export function BlobCursor({
           aheadY = link.y
         }
       },
-      { name: 'blob-cursor : chaine', priority: CLOCK_PRIORITY.default },
+      { name: 'blob-cursor : chain', priority: CLOCK_PRIORITY.default },
     )
 
     return () => {
@@ -247,8 +249,8 @@ export function BlobCursor({
       data-o-blob-host={wrapping ? 'zone' : 'page'}
     >
       {children}
-      {/* Le filtre gluant. Surface nulle : il n'est la que pour etre reference
-          par la couche, jamais pour etre vu. */}
+      {/* The gooey filter. Zero surface: it is only there to be referenced by
+          the layer, never to be seen. */}
       <svg
         aria-hidden
         width="0"
@@ -261,10 +263,10 @@ export function BlobCursor({
             <feGaussianBlur
               in="SourceGraphic"
               stdDeviation={Math.max(4, size * 0.16)}
-              result="flou"
+              result="blur"
             />
             <feColorMatrix
-              in="flou"
+              in="blur"
               type="matrix"
               values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 22 -11"
             />

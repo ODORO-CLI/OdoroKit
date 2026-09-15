@@ -1,24 +1,24 @@
 /**
- * Shader du bokeh.
+ * Bokeh shader.
  *
- * ## L'idee mathematique
+ * ## The mathematical idea
  *
- * Trois couches de disques flous, un disque par cellule d'une grille hachee.
- * La profondeur est simulee par la couche : plus elle est proche, plus ses
- * disques sont grands, flous et lents — c'est l'inverse d'une parallaxe de
- * paysage, parce qu'un objectif rend flou ce qui est hors du plan de nettete,
- * pas ce qui est loin. Le bord de chaque disque est un smoothstep dont la
- * largeur est le reglage de flou.
+ * Three layers of blurred discs, one disc per cell of a hashed grid.
+ * Depth is simulated by the layer: the closer it is, the larger, blurrier
+ * and slower its discs are — the reverse of a landscape parallax, because a
+ * lens blurs what lies outside the plane of focus, not what lies far away.
+ * The edge of each disc is a smoothstep whose width is the blur
+ * setting.
  *
  * ## Uniforms
  *
- * - `uTime` — temps en secondes, fourni par le moteur.
- * - `uResolution` — taille du canevas en pixels, fournie par le moteur.
- * - `uColorA` — l'obscurite du fond.
- * - `uColorB`, `uColorC` — les deux teintes de disques, reparties par graine.
- * - `uSpeed` — vitesse de derive laterale.
- * - `uDensity` — nombre de cellules sur le plus petit cote.
- * - `uBlur` — largeur du bord flou des disques.
+ * - `uTime` — time in seconds, supplied by the engine.
+ * - `uResolution` — canvas size in pixels, supplied by the engine.
+ * - `uColorA` — the darkness of the background.
+ * - `uColorB`, `uColorC` — the two disc hues, spread by seed.
+ * - `uSpeed` — lateral drift speed.
+ * - `uDensity` — number of cells across the shorter side.
+ * - `uBlur` — width of the discs' blurred edge.
  */
 export const BOKEH_FRAGMENT = /* glsl */ `
 precision highp float;
@@ -34,60 +34,60 @@ uniform float uSpeed;
 uniform float uDensity;
 uniform float uBlur;
 
-// Nombre pseudo-aleatoire : projection sur une direction arbitraire, sinus
-// amplifie, partie fractionnaire.
+// Pseudo-random number: projection onto an arbitrary direction, amplified
+// sine, fractional part.
 float bokehHash(vec2 p) {
   return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
 }
 
-// Deux nombres decorreles pour une meme cellule : le second est hache depuis
-// un point decale, sans quoi x et y seraient lies.
+// Two decorrelated numbers for the same cell: the second is hashed from a
+// shifted point, without which x and y would be tied together.
 vec2 bokehHash2(vec2 p) {
   return vec2(bokehHash(p), bokehHash(p + vec2(37.3, 17.7)));
 }
 
-// Une couche de disques : la grille est decalee lateralement par le temps,
-// et chaque pixel somme les neuf cellules voisines — un disque depasse de sa
-// cellule, et sans ce parcours il serait tranche a chaque bord de maille.
-vec3 bokehCouche(vec2 uv, float aspect, float t, float profondeur, vec3 teinteA, vec3 teinteB) {
-  // Plus la couche est proche, moins elle a de cellules : ses disques sont
-  // plus grands, plus flous, plus lents — le rendu d'un objectif, pas d'un
-  // paysage.
-  float maille = max(uDensity, 1.0) * (1.0 - 0.26 * profondeur);
-  float derive = t * (0.5 - 0.14 * profondeur) * (mod(profondeur, 2.0) * 2.0 - 1.0);
+// One layer of discs: the grid is shifted sideways by time, and each pixel
+// sums the nine neighbouring cells — a disc overflows its cell, and without
+// that sweep it would be sliced at every mesh edge.
+vec3 bokehLayer(vec2 uv, float aspect, float t, float depth, vec3 tintA, vec3 tintB) {
+  // The closer the layer, the fewer cells it has: its discs are larger,
+  // blurrier and slower — the rendering of a lens, not of a
+  // landscape.
+  float mesh = max(uDensity, 1.0) * (1.0 - 0.26 * depth);
+  float drift = t * (0.5 - 0.14 * depth) * (mod(depth, 2.0) * 2.0 - 1.0);
 
-  vec2 p = vec2(uv.x * aspect + derive, uv.y + profondeur * 7.31) * maille;
+  vec2 p = vec2(uv.x * aspect + drift, uv.y + depth * 7.31) * mesh;
   vec2 cell = floor(p);
-  vec3 somme = vec3(0.0);
+  vec3 sum = vec3(0.0);
 
-  float rayon = 0.22 + 0.14 * profondeur;
-  float flou = clamp(uBlur, 0.05, 1.0) * (0.28 + 0.3 * profondeur);
-  float voile = 0.55 - 0.12 * profondeur;
+  float radius = 0.22 + 0.14 * depth;
+  float blur = clamp(uBlur, 0.05, 1.0) * (0.28 + 0.3 * depth);
+  float veil = 0.55 - 0.12 * depth;
 
   for (int dx = -1; dx <= 1; dx += 1) {
     for (int dy = -1; dy <= 1; dy += 1) {
-      vec2 voisine = cell + vec2(float(dx), float(dy));
-      vec2 graine = bokehHash2(voisine);
+      vec2 neighbour = cell + vec2(float(dx), float(dy));
+      vec2 seed = bokehHash2(neighbour);
 
-      // Le disque flotte dans sa cellule, a un point hache : la grille ne se
-      // lit plus comme une grille.
-      vec2 centre = voisine + 0.5 + (graine - 0.5) * 0.6;
+      // The disc floats inside its cell, at a hashed point: the grid no longer
+      // reads as a grid.
+      vec2 centre = neighbour + 0.5 + (seed - 0.5) * 0.6;
       float d = length(p - centre);
 
-      // Le bord flou : un smoothstep dont la largeur est le reglage. C'est le
-      // cercle de confusion d'un objectif, pas un degrade decoratif.
-      float disque = smoothstep(rayon, rayon - max(flou * rayon, 0.02), d);
+      // The blurred edge: a smoothstep whose width is the setting. It is a lens'
+      // circle of confusion, not a decorative gradient.
+      float disc = smoothstep(radius, radius - max(blur * radius, 0.02), d);
 
-      // Certaines cellules restent vides : un bokeh plein a craquer se lit
-      // comme une texture, pas comme des lumieres.
-      float presence = step(0.35, bokehHash(voisine + 5.0));
+      // Some cells stay empty: a bokeh packed to bursting reads as a texture,
+      // not as lights.
+      float presence = step(0.35, bokehHash(neighbour + 5.0));
 
-      vec3 teinte = mix(teinteA, teinteB, bokehHash(voisine + 11.0));
-      somme += teinte * disque * presence * voile;
+      vec3 tint = mix(tintA, tintB, bokehHash(neighbour + 11.0));
+      sum += tint * disc * presence * veil;
     }
   }
 
-  return somme;
+  return sum;
 }
 
 void main() {
@@ -95,9 +95,9 @@ void main() {
   float t = uTime * uSpeed;
 
   vec3 colour = uColorA;
-  colour += bokehCouche(vUv, aspect, t, 0.0, uColorB, uColorC);
-  colour += bokehCouche(vUv, aspect, t, 1.0, uColorB, uColorC);
-  colour += bokehCouche(vUv, aspect, t, 2.0, uColorC, uColorB);
+  colour += bokehLayer(vUv, aspect, t, 0.0, uColorB, uColorC);
+  colour += bokehLayer(vUv, aspect, t, 1.0, uColorB, uColorC);
+  colour += bokehLayer(vUv, aspect, t, 2.0, uColorC, uColorB);
 
   gl_FragColor = vec4(colour, 1.0);
 }

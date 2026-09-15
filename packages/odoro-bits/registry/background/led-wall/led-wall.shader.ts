@@ -1,32 +1,32 @@
 /**
- * Shader du mur de LED.
+ * LED wall shader.
  *
- * ## L'idee mathematique
+ * ## The mathematical idea
  *
- * Deux images superposees. La premiere est ce que le mur affiche : un
- * degrade lent, somme de quelques sinus du temps et de la position. Elle
- * n'est jamais lue au pixel — elle est echantillonnee au centre de chaque
- * pastille, si bien qu'une pastille est d'une seule couleur, comme une
- * vraie diode. C'est cet echantillonnage qui fait le mur : la meme image
- * lue en continu serait un simple degrade.
+ * Two superposed images. The first is what the wall displays: a slow
+ * gradient, the sum of a few sines of time and position. It is never read
+ * per pixel — it is sampled at the centre of every dot, so that a dot has a
+ * single colour, like a real diode. That sampling is what makes the wall:
+ * the same image read continuously would be a plain gradient.
  *
- * La seconde est la pastille elle-meme : un carre arrondi lu par sa distance
- * signee, avec un espace autour ou le fond — le boitier — reste visible. Un
- * halo court deborde de la pastille sans atteindre ses voisines : une diode
- * eclaire un peu son entourage. Chaque pastille a une luminance un peu
- * inegale, tiree une fois, parce qu'un mur reel n'est jamais uniforme.
+ * The second is the dot itself: a rounded square read through its signed
+ * distance, with a gap around it where the background — the casing — stays
+ * visible. A short halo spills out of the dot without reaching its
+ * neighbours: a diode lights its surroundings a little. Every dot has a
+ * slightly uneven luminance, drawn once, because a real wall is never
+ * uniform.
  *
  * ## Uniforms
  *
- * - `uTime` — temps en secondes, fourni par le moteur.
- * - `uResolution` — taille du canevas en pixels, fournie par le moteur.
- * - `uColorA` — le fond, entre les pastilles.
- * - `uColorB` — la premiere couleur du degrade affiche.
- * - `uColorC` — la seconde.
- * - `uPixels` — nombre de pastilles sur la hauteur.
- * - `uSpeed` — vitesse du degrade.
- * - `uGap` — espace entre les pastilles, en fraction de pastille.
- * - `uBloom` — poids du halo autour de chaque pastille.
+ * - `uTime` — time in seconds, supplied by the engine.
+ * - `uResolution` — canvas size in pixels, supplied by the engine.
+ * - `uColorA` — the background, between the dots.
+ * - `uColorB` — the first colour of the displayed gradient.
+ * - `uColorC` — the second.
+ * - `uPixels` — number of dots across the height.
+ * - `uSpeed` — speed of the gradient.
+ * - `uGap` — gap between the dots, as a fraction of a dot.
+ * - `uBloom` — weight of the halo around every dot.
  */
 export const LED_WALL_FRAGMENT = /* glsl */ `
 precision highp float;
@@ -43,12 +43,12 @@ uniform float uSpeed;
 uniform float uGap;
 uniform float uBloom;
 
-// Nombre pseudo-aleatoire, stable par pastille.
+// Pseudo-random number, stable per dot.
 float hash(vec2 cell) {
   return fract(sin(dot(cell, vec2(127.1, 311.7))) * 43758.5453);
 }
 
-// Distance signee a un carre arrondi centre sur l'origine.
+// Signed distance to a rounded square centred on the origin.
 float roundedBox(vec2 point, float extent, float radius) {
   vec2 d = abs(point) - extent + radius;
   return length(max(d, 0.0)) + min(max(d.x, d.y), 0.0) - radius;
@@ -59,13 +59,13 @@ void main() {
   float pixels = clamp(uPixels, 4.0, 120.0);
   vec2 p = vUv * vec2(aspect, 1.0) * pixels;
 
-  // Un pixel d'ecran, en unites de pastille.
+  // One screen pixel, in dot units.
   float px = pixels / max(uResolution.y, 1.0);
 
   vec2 id = floor(p);
   vec2 f = fract(p) - 0.5;
 
-  // L'image affichee, echantillonnee au centre de la pastille.
+  // The displayed image, sampled at the centre of the dot.
   vec2 c = (id + 0.5) / pixels;
   float t = uTime * uSpeed;
   float v = sin(c.x * 2.2 + t)
@@ -74,16 +74,16 @@ void main() {
     + sin(length(c - vec2(aspect * 0.5, 0.5)) * 5.0 - t);
   vec3 image = mix(uColorB, uColorC, smoothstep(0.15, 0.85, v * 0.125 + 0.5));
 
-  // La pastille : un carre arrondi, et l'espace autour.
+  // The dot: a rounded square, and the gap around it.
   float gap = clamp(uGap, 0.05, 0.6);
   float extent = 0.5 - gap * 0.5;
   float dist = roundedBox(f, extent, extent * 0.45);
   float led = 1.0 - smoothstep(-px, px, dist);
 
-  // Le halo : il deborde de la pastille sans atteindre ses voisines.
+  // The halo: it spills out of the dot without reaching its neighbours.
   float bloom = exp(-max(dist, 0.0) * 6.0) * clamp(uBloom, 0.0, 1.0);
 
-  // Une luminance inegale d'une pastille a l'autre, tiree une fois.
+  // A luminance uneven from one dot to the next, drawn once.
   float wear = 0.82 + 0.18 * hash(id);
 
   vec3 colour = mix(uColorA, image, (led + bloom * (1.0 - led)) * wear);

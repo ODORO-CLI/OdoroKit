@@ -1,29 +1,28 @@
 /**
- * Curseur double : un point net, un anneau qui rattrape.
+ * Double cursor: a crisp dot, a ring that catches up.
  *
- * ## Le point suit l'evenement, l'anneau suit la boucle
+ * ## The dot follows the event, the ring follows the loop
  *
- * Le point remplace le curseur natif : tout retard se verrait comme un
- * decalage, il est donc ecrit directement au deplacement du pointeur — deux
- * variables CSS, aucun rendu React. L'anneau, lui, est tout entier dans son
- * retard : c'est l'ecart entre le point et lui qui fait l'effet. Il lit la
- * position amortie du crochet `usePointerDamped` dans une souscription a la
- * boucle, et la recopie dans deux autres variables.
+ * The dot replaces the native cursor: any lag would show as an offset, so it
+ * is written directly on pointer movement — two CSS variables, no React
+ * render. The ring, on the other hand, lives entirely in its lag: the gap
+ * between the dot and itself is what makes the effect. It reads the damped
+ * position from the `usePointerDamped` hook inside a subscription to the loop,
+ * and copies it into two other variables.
  *
- * ## L'anneau annonce l'interactif
+ * ## The ring announces the interactive
  *
- * Au survol d'un lien ou d'un bouton — detecte par `closest()` sur
- * `pointerover`, ce qui couvre aussi les enfants de l'element interactif —
- * l'anneau grossit. La croissance passe par la meme boucle que la position :
- * une transition CSS sur le transform casserait le suivi, qui ecrit ce
- * transform a chaque image.
+ * When hovering a link or a button — detected by `closest()` on `pointerover`,
+ * which also covers the children of the interactive element — the ring grows.
+ * The growth goes through the same loop as the position: a CSS transition on
+ * the transform would break the tracking, which writes that transform on every
+ * frame.
  *
- * ## Ou l'effet s'efface
+ * ## Where the effect fades out
  *
- * Au toucher, il n'y a pas de curseur a remplacer : rien ne s'affiche, rien
- * n'est masque. Sous mouvement reduit, un anneau qui traine est exactement le
- * mouvement qu'on nous demande d'omettre : le curseur natif est conserve tel
- * quel.
+ * On touch, there is no cursor to replace: nothing is shown, nothing is
+ * hidden. Under reduced motion, a ring that trails is exactly the movement we
+ * are asked to leave out: the native cursor is kept as it is.
  *
  * @module
  */
@@ -45,30 +44,30 @@ import {
 
 import { usePointerDamped } from '@registre/hooks/usePointerDamped'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface CursorRingOwnProps {
-  /** Contenu de la zone ou le curseur est remplace. */
+  /** Content of the area where the cursor is replaced. */
   children: ReactNode
-  /** Diametre de l'anneau, en pixels. @defaultValue 36 */
+  /** Diameter of the ring, in pixels. @defaultValue 36 */
   size?: number
-  /** Retard de l'anneau : plus haut, plus il traine. @defaultValue 1 */
+  /** Lag of the ring: the higher, the more it trails. @defaultValue 1 */
   lag?: number
-  /** Facteur de grossissement sur les elements interactifs. @defaultValue 1.8 */
+  /** Growth factor over interactive elements. @defaultValue 1.8 */
   grow?: number
-  /** Couleur du point et de l'anneau. @defaultValue la couleur du texte */
+  /** Colour of the dot and of the ring. @defaultValue the text colour */
   color?: string
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type CursorRingProps = Customisable<CursorRingOwnProps>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-cursor-ring'
 
-/** Ce que l'anneau considere comme interactif. */
+/** What the ring considers interactive. */
 const INTERACTIVE = 'a,button,[role=button]'
 
-/** Pose le point et l'anneau, une fois par document. */
+/** Sets the dot and the ring, once per document. */
 function ensureCursorRingRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -77,8 +76,8 @@ function ensureCursorRingRule(): void {
   style.id = STYLE_ID
   style.textContent = [
     '[data-o-cursor-ring]{position:relative;overflow:hidden}',
-    // Le curseur natif ne disparait que lorsque le remplacant est la : avant
-    // le premier mouvement de souris, rien n'est masque.
+    // The native cursor only disappears once the replacement is there: before
+    // the first mouse movement, nothing is hidden.
     '[data-o-cursor-ring][data-o-cursor-ring-on]{cursor:none}',
     '[data-o-cursor-ring][data-o-cursor-ring-on] *{cursor:none}',
     '[data-o-ring-dot],[data-o-ring-halo]{',
@@ -87,8 +86,8 @@ function ensureCursorRingRule(): void {
     '}',
     '[data-o-ring-dot]{',
     'width:6px;height:6px;margin:-3px;background:var(--o-ring-color);',
-    // Hors champ par defaut : un point pose en (0,0) avant tout mouvement
-    // se verrait dans le coin de la zone.
+    // Off screen by default: a dot placed at (0,0) before any movement would
+    // show in the corner of the area.
     'transform:translate3d(var(--o-ring-dot-x,-100px),var(--o-ring-dot-y,-100px),0);',
     '}',
     '[data-o-ring-halo]{',
@@ -103,15 +102,15 @@ function ensureCursorRingRule(): void {
 }
 
 /**
- * Remplace le curseur natif de sa zone par un point et un anneau retardataire.
+ * Replaces the native cursor of its area with a dot and a lagging ring.
  *
  * @example
  * <CursorRing className="o-rounded-xl o-p-8">
- *   <a href="/tarifs">L anneau grossit sur ce lien</a>
+ *   <a href="/pricing">The ring grows over this link</a>
  * </CursorRing>
  *
  * @example
- * // Un anneau large et paresseux.
+ * // A wide and lazy ring.
  * <CursorRing size={56} lag={2} grow={1.5}>
  *   <nav>…</nav>
  * </CursorRing>
@@ -128,25 +127,25 @@ export function CursorRing({
   const [host, setHost] = useState<HTMLElement | null>(null)
   ensureCursorRingRule()
 
-  // Le retard est une vitesse d'amortissement inversee : lag 1 donne le
-  // rattrapage visible qui fait exister l'anneau.
+  // The lag is an inverted damping speed: lag 1 gives the visible catch-up
+  // that makes the ring exist.
   const pointer = usePointerDamped({
     host,
     speed: 8 / Math.max(lag, 0.1),
-    name: 'cursor-ring : pointeur',
+    name: 'cursor-ring : pointer',
   })
 
   useEffect(() => {
     if (host === null || reduced) return
 
-    // La taille de la zone est relevee au mouvement, pas a chaque image :
-    // interroger la geometrie dans la boucle forcerait une mise en page.
+    // The size of the area is read on movement, not on every frame: querying
+    // the geometry inside the loop would force a layout.
     const bounds = { width: 0, height: 0 }
     let targetScale = 1
     let scale = 1
 
     const onMove = (event: PointerEvent): void => {
-      // Au toucher, il n'y a pas de curseur a remplacer : voir l'en-tete.
+      // On touch, there is no cursor to replace: see the header.
       if (event.pointerType !== 'mouse') return
       const box = host.getBoundingClientRect()
       bounds.width = box.width
@@ -179,7 +178,8 @@ export function CursorRing({
     const subscription = clock.subscribe(
       ({ delta }) => {
         if (bounds.width === 0) return
-        // Du repere du crochet (centre, [-1, 1]) vers les pixels de la zone.
+        // From the hook's frame of reference (centred, [-1, 1]) to the pixels
+        // of the area.
         const x = ((pointer.current.x + 1) / 2) * bounds.width
         const y = ((pointer.current.y + 1) / 2) * bounds.height
         const factor = 1 - Math.exp(-12 * delta)
@@ -188,7 +188,7 @@ export function CursorRing({
         host.style.setProperty('--o-ring-y', `${y.toFixed(1)}px`)
         host.style.setProperty('--o-ring-grow', scale.toFixed(3))
       },
-      { name: 'cursor-ring : anneau', priority: CLOCK_PRIORITY.default },
+      { name: 'cursor-ring : ring', priority: CLOCK_PRIORITY.default },
     )
 
     return () => {
@@ -217,8 +217,8 @@ export function CursorRing({
       data-o-cursor-ring=""
     >
       {children}
-      {/* Sous mouvement reduit, le remplacant n'existe pas du tout : le
-          curseur natif reste, et rien ne traine derriere lui. */}
+      {/* Under reduced motion, the replacement does not exist at all: the
+          native cursor stays, and nothing trails behind it. */}
       {reduced ? null : (
         <>
           <span aria-hidden data-o-ring-dot="" />

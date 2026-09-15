@@ -22,11 +22,11 @@ import { Callout, PageHeader, PropsTable, Section } from '../components/DocBlock
 
 /** Phrase expliquant un refus, du point de vue de qui le subit. */
 const REFUSAL_TEXT: Record<string, string> = {
-  'plafond-global': 'Le plafond de surfaces simultanees est atteint.',
-  'plafond-backend': 'Ce backend a deja sa surface.',
-  'webgl-indisponible': 'Ce navigateur ne fournit pas de contexte WebGL.',
-  'hors-navigateur': 'Aucun document : rendu cote serveur.',
-  'mouvement-reduit': 'Mouvement reduit : le fond anime n est pas rendu.',
+  'max-surfaces': 'Le plafond de surfaces simultanees est atteint.',
+  'max-per-backend': 'Ce backend a deja sa surface.',
+  'webgl-unavailable': 'Ce navigateur ne fournit pas de contexte WebGL.',
+  'outside-browser': 'Aucun document : rendu cote serveur.',
+  'reduced-motion': 'Mouvement reduit : le fond anime n est pas rendu.',
 }
 
 /** Les deux effets proposes, avec leur repli. */
@@ -250,23 +250,23 @@ function Aurore(): ReactElement {
         <PropsTable
           rows={[
             {
-              name: 'plafond-global',
+              name: 'max-surfaces',
               type: 'refus',
               description: 'Le nombre total de surfaces vivantes est atteint.',
             },
             {
-              name: 'plafond-backend',
+              name: 'max-per-backend',
               type: 'refus',
               description:
                 'Ce backend a déjà la sienne. Deux backends ne partagent jamais un contexte : leurs états se marcheraient dessus.',
             },
             {
-              name: 'webgl-indisponible',
+              name: 'webgl-unavailable',
               type: 'refus',
               description: 'Materiel ou réglage : le contexte n’a pas pu être crée.',
             },
             {
-              name: 'hors-navigateur',
+              name: 'outside-browser',
               type: 'refus',
               description: 'Rendu côté serveur : il n’y a pas de document.',
             },

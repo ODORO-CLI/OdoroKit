@@ -1,35 +1,35 @@
 /**
- * Sortie console du moteur.
+ * Console output of the engine.
  *
  * @module
  */
 
 import colors from 'picocolors'
 
-/** Etiquette commune a toutes les lignes. */
+/** Label common to every line. */
 const TAG = colors.bold(colors.magenta('odoro'))
 
-/** Horodatage court, pour suivre le rythme des rechargements. */
+/** Short timestamp, to follow the pace of reloads. */
 function stamp(): string {
-  return colors.dim(new Date().toLocaleTimeString('fr-FR', { hour12: false }))
+  return colors.dim(new Date().toLocaleTimeString('en-GB', { hour12: false }))
 }
 
-/** Affiche une information. */
+/** Prints an information line. */
 export function info(message: string): void {
   console.log(`${stamp()} ${TAG} ${message}`)
 }
 
-/** Affiche un succes. */
+/** Prints a success line. */
 export function success(message: string): void {
   console.log(`${stamp()} ${TAG} ${colors.green(message)}`)
 }
 
-/** Affiche un avertissement. */
+/** Prints a warning. */
 export function warn(message: string): void {
   console.warn(`${stamp()} ${TAG} ${colors.yellow(message)}`)
 }
 
-/** Affiche une erreur. */
+/** Prints an error. */
 export function error(message: string, cause?: unknown): void {
   console.error(`${stamp()} ${TAG} ${colors.red(message)}`)
   if (cause instanceof Error && cause.stack !== undefined) {
@@ -39,18 +39,18 @@ export function error(message: string, cause?: unknown): void {
   }
 }
 
-/** Formate une duree en millisecondes de facon lisible. */
+/** Formats a duration in milliseconds in a readable way. */
 export function duration(milliseconds: number): string {
   return milliseconds < 1000
     ? `${Math.round(milliseconds)} ms`
     : `${(milliseconds / 1000).toFixed(2)} s`
 }
 
-/** Formate une taille d'octets de facon lisible. */
+/** Formats a byte size in a readable way. */
 export function size(bytes: number): string {
-  if (bytes < 1024) return `${bytes} o`
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} Ko`
-  return `${(bytes / (1024 * 1024)).toFixed(2)} Mo`
+  if (bytes < 1024) return `${bytes} B`
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} kB`
+  return `${(bytes / (1024 * 1024)).toFixed(2)} MB`
 }
 
 export { colors }

@@ -1,35 +1,35 @@
 /**
- * Shader de la vague hexagonale.
+ * Hexagonal wave shader.
  *
- * ## L'idee mathematique
+ * ## The mathematical idea
  *
- * Un pavage hexagonal se lit avec deux grilles rectangulaires decalees
- * d'une demi-maille : pour chaque point, on prend celle des deux dont le
- * centre est le plus proche. Le centre retenu identifie l'alveole ; la
- * distance hexagonale au centre — le maximum entre la projection sur l'axe
- * incline et l'abscisse — vaut un demi sur les aretes, ce qui donne le
- * filet et l'interieur.
+ * A hexagonal tiling reads as two rectangular grids offset by half a cell:
+ * for each point, take whichever of the two has the nearer centre. The
+ * centre thus retained identifies the cell; the hexagonal distance to that
+ * centre — the maximum of the projection onto the slanted axis and of the
+ * abscissa — is one half on the edges, which gives the line and the
+ * interior.
  *
- * La vague n'est pas evaluee au pixel : elle est evaluee au centre de
- * l'alveole. C'est ce qui fait que chaque alveole s'allume d'un bloc, comme
- * une touche, au lieu de laisser une onde continue la traverser. Un sinus
- * de la distance au pointeur, decale du temps, s'eloigne du pointeur ; une
- * exponentielle l'eteint avec la distance.
+ * The wave is not evaluated per pixel: it is evaluated at the centre of the
+ * cell. That is what makes each cell light up as one block, like a key,
+ * instead of letting a continuous ripple travel across it. A sine of the
+ * distance to the pointer, offset by time, moves away from the pointer; an
+ * exponential extinguishes it with distance.
  *
- * Le centre est le pointeur, amorti par le composant.
+ * The centre is the pointer, damped by the component.
  *
  * ## Uniforms
  *
- * - `uTime` — temps en secondes, fourni par le moteur.
- * - `uResolution` — taille du canevas en pixels, fournie par le moteur.
- * - `uColorA` — le fond.
- * - `uColorB` — les aretes.
- * - `uColorC` — les alveoles allumees.
- * - `uPointer` — position de la source, en coordonnees de texture.
- * - `uSize` — alveoles par hauteur de cadre.
- * - `uSpeed` — vitesse de la vague.
- * - `uSpacing` — vagues par hauteur de cadre.
- * - `uFade` — vitesse d'extinction avec la distance.
+ * - `uTime` — time in seconds, supplied by the engine.
+ * - `uResolution` — canvas size in pixels, supplied by the engine.
+ * - `uColorA` — the background.
+ * - `uColorB` — the edges.
+ * - `uColorC` — the lit cells.
+ * - `uPointer` — the source position, in texture coordinates.
+ * - `uSize` — cells per frame height.
+ * - `uSpeed` — wave speed.
+ * - `uSpacing` — waves per frame height.
+ * - `uFade` — fade-out speed with distance.
  */
 export const HEX_WAVE_FRAGMENT = /* glsl */ `
 precision highp float;
@@ -47,16 +47,16 @@ uniform float uSpeed;
 uniform float uSpacing;
 uniform float uFade;
 
-// Pas du pavage : une maille de large, racine de trois de haut.
+// Tiling step: one cell wide, root three tall.
 const vec2 HEX = vec2(1.0, 1.7320508);
 
-// Distance hexagonale au centre : un demi sur les aretes.
+// Hexagonal distance to the centre: one half on the edges.
 float hexDist(vec2 p) {
   p = abs(p);
   return max(dot(p, normalize(HEX)), p.x);
 }
 
-// Coordonnees d'une alveole : le point local (xy) et le centre (zw).
+// Cell coordinates: the local point (xy) and the centre (zw).
 vec4 hexCoords(vec2 p) {
   vec2 h = HEX * 0.5;
   vec2 a = mod(p, HEX) - h;
@@ -71,22 +71,22 @@ void main() {
   vec2 p = vUv * vec2(aspect, 1.0) * size;
   vec2 centre = uPointer * vec2(aspect, 1.0) * size;
 
-  // Un pixel, en unites de maille.
+  // One pixel, in cell units.
   float px = size / max(uResolution.y, 1.0);
 
   vec4 hex = hexCoords(p);
   float edge = hexDist(hex.xy);
 
-  // La vague est evaluee au centre de l'alveole : elle s'allume d'un bloc.
+  // The wave is evaluated at the cell centre: it lights up as one block.
   float d = length(hex.zw - centre) / size;
   float wave = 0.5 + 0.5 * sin(d * 6.2832 * max(uSpacing, 0.5) - uTime * uSpeed * 3.0);
   float reach = exp(-d * uFade);
   float lit = smoothstep(0.35, 0.95, wave) * reach;
 
-  // L'alveole sous le pointeur reste pleine.
+  // The cell under the pointer stays filled.
   float core = 1.0 - smoothstep(0.0, 0.12, d);
 
-  // Les aretes : un filet fin ; l'interieur, legerement en retrait.
+  // The edges: a thin line; the interior, slightly set back.
   float border = smoothstep(0.5 - px * 1.8, 0.5 - px * 0.4, edge);
   float fill = 1.0 - smoothstep(0.5 - px * 3.0, 0.5 - px * 1.8, edge);
 

@@ -6,23 +6,23 @@ import { describe, expect, it } from 'vitest'
 import { inspectDependency, renderInteropProxy } from './interop.js'
 import { depFileName } from './transform.js'
 
-/** Racine du monorepo, ou react et esbuild sont reellement installes. */
+/** Root of the monorepo, where react and esbuild are really installed. */
 const MONOREPO = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..', '..', '..')
 
 describe('depFileName', () => {
-  it('aplatit les sous-chemins', () => {
-    // C'est ce qui rend l'URL servie exempte de segment de dossier : un module
-    // servi sous `/@deps/react-dom/client` resoudrait son propre
-    // `import './chunk-X.js'` en `/@deps/react-dom/chunk-X.js`, alors que le
-    // fragment vit a la racine du cache.
+  it('flattens the subpaths', () => {
+    // That is what makes the served URL free of any directory segment: a module
+    // served under `/@deps/react-dom/client` would resolve its own
+    // `import './chunk-X.js'` to `/@deps/react-dom/chunk-X.js`, whereas the
+    // chunk lives at the root of the cache.
     expect(depFileName('react-dom/client')).toBe('react-dom_client.js')
     expect(depFileName('react/jsx-dev-runtime')).toBe('react_jsx-dev-runtime.js')
   })
 
-  it('ne laisse aucun separateur dans le nom produit', () => {
+  it('leaves no separator in the produced name', () => {
     for (const specifier of [
       'react',
-      '@scope/paquet',
+      '@scope/package',
       'a/b/c',
       '@odoro-cli/libs/router',
     ]) {
@@ -32,43 +32,43 @@ describe('depFileName', () => {
 })
 
 describe('inspectDependency', () => {
-  it('detecte un paquet CommonJS et enumere ses exports nommes', () => {
+  it('detects a CommonJS package and enumerates its named exports', () => {
     const info = inspectDependency('react', MONOREPO)
 
     expect(info.needsInterop).toBe(true)
-    // Sans ces noms declares a la frontiere du module, le navigateur refuse de
-    // lier `import { useState } from '/@deps/react.js'`.
+    // Without those names declared at the module boundary, the browser refuses
+    // to link `import { useState } from '/@deps/react.js'`.
     expect(info.namedExports).toContain('useState')
     expect(info.namedExports).toContain('useEffect')
     expect(info.namedExports).toContain('createElement')
   })
 
-  it('n exige aucun intermediaire pour un module natif', () => {
+  it('requires no intermediate for a native module', () => {
     const info = inspectDependency('@odoro-cli/libs/router', MONOREPO)
     expect(info.needsInterop).toBe(false)
     expect(info.namedExports).toEqual([])
   })
 
-  it('absorbe un specificateur introuvable', () => {
-    const info = inspectDependency('paquet-qui-n-existe-pas', MONOREPO)
+  it('absorbs a specifier that cannot be found', () => {
+    const info = inspectDependency('package-that-does-not-exist', MONOREPO)
     expect(info.needsInterop).toBe(false)
   })
 
-  it('remonte l arborescence comme le fait Node', () => {
-    // La resolution ne s'arrete pas a la racine indiquee : elle remonte
-    // jusqu'a trouver un `node_modules`. Un sous-dossier inexistant du
-    // monorepo trouve donc quand meme react, et c'est bien le comportement
-    // attendu — un projet imbrique herite des dependances de son parent.
-    const info = inspectDependency('react', join(MONOREPO, 'sous-dossier', 'absent'))
+  it('climbs the tree the way Node does', () => {
+    // Resolution does not stop at the given root: it climbs until it finds a
+    // `node_modules`. A non-existent subdirectory of the monorepo therefore
+    // still finds react, and that is indeed the expected behaviour — a nested
+    // project inherits the dependencies of its parent.
+    const info = inspectDependency('react', join(MONOREPO, 'subdirectory', 'missing'))
     expect(info.needsInterop).toBe(true)
   })
 
-  it('absorbe un sous-chemin non expose par le paquet', () => {
-    const info = inspectDependency('react/interne-non-expose', MONOREPO)
+  it('absorbs a subpath the package does not expose', () => {
+    const info = inspectDependency('react/internal-not-exposed', MONOREPO)
     expect(info.needsInterop).toBe(false)
   })
 
-  it('ecarte les cles qui ne sont pas des identifiants valides', () => {
+  it('rejects the keys that are not valid identifiers', () => {
     const info = inspectDependency('react', MONOREPO)
     for (const name of info.namedExports) {
       expect(name).toMatch(/^[A-Za-z_$][A-Za-z0-9_$]*$/)
@@ -78,7 +78,7 @@ describe('inspectDependency', () => {
 })
 
 describe('renderInteropProxy', () => {
-  it('re-exporte le defaut et les noms detectes', () => {
+  it('re-exports the default and the detected names', () => {
     const proxy = renderInteropProxy({
       specifier: 'react',
       needsInterop: true,
@@ -90,9 +90,9 @@ describe('renderInteropProxy', () => {
     expect(proxy).toContain('export const { useState, useEffect } = cjs')
   })
 
-  it('omet la destructuration quand aucun nom n est detecte', () => {
+  it('omits the destructuring when no name is detected', () => {
     const proxy = renderInteropProxy({
-      specifier: 'muet',
+      specifier: 'silent',
       needsInterop: true,
       namedExports: [],
     })
@@ -101,7 +101,7 @@ describe('renderInteropProxy', () => {
     expect(proxy).not.toContain('export const {')
   })
 
-  it('echappe correctement un specificateur a sous-chemin', () => {
+  it('escapes a subpath specifier correctly', () => {
     const proxy = renderInteropProxy({
       specifier: 'react-dom/client',
       needsInterop: true,

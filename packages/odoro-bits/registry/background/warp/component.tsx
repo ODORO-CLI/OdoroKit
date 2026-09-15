@@ -1,22 +1,22 @@
 /**
- * Hyperespace : des etoiles etirees radialement, sur trois profondeurs.
+ * Hyperspace: stars stretched radially, over three depths.
  *
- * ## Le principe
+ * ## The principle
  *
- * En polaires, une etoile qui fonce ne bouge que sur le rayon : la grille est posee sur (angle, 1/r), et le temps ne fait que glisser la coordonnee radiale.
+ * In polar coordinates, a rushing star only moves along the radius: the grid is laid on (angle, 1/r), and time does nothing but slide the radial coordinate.
  *
- * Trois grilles decalees, aux vitesses distinctes, font les trois profondeurs — c est toute la parallaxe.
+ * Three offset grids, at distinct speeds, make the three depths — that is the whole parallax.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur — les recopier ici en ferait autant
- * de versions a maintenir qu'il y a de fonds.
+ * It carries only what sets it apart: its shader, its settings and its
+ * fallback. Reading the tokens, converting them to floats and re-reading them
+ * when the theme changes all come from the engine — copying that here would
+ * leave as many versions to maintain as there are backgrounds.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en
- * accorde qu'une par backend — et sous mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface — it grants only one
+ * per backend — and under reduced motion.
  *
  * @module
  */
@@ -33,51 +33,51 @@ import { type ReactElement } from 'react'
 
 import { WARP_FRAGMENT } from './warp.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface WarpControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to this component. */
 export interface WarpOwnProps {
-  /** Vitesse du defilement radial. @defaultValue 0.8 */
+  /** Speed of the radial scroll. @defaultValue 0.8 */
   speed?: number
-  /** Nombre de couloirs angulaires de la premiere couche. @defaultValue 24 */
+  /** Number of angular lanes in the first layer. @defaultValue 24 */
   density?: number
-  /** Longueur des trainees, de 0 a 1. @defaultValue 0.35 */
+  /** Length of the trails, from 0 to 1. @defaultValue 0.35 */
   stretch?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<WarpControls>
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type WarpProps = Customisable<WarpOwnProps>
 
-/** Tokens employes par defaut : le fond, les etoiles proches, les lointaines. */
+/** Tokens used by default: the background, the near stars, the distant ones. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-blue-300',
   '--o-palette-violet-400',
 ] as const
 
-/** Repli par defaut : une teinte figee, dans les memes tons. */
+/** Default fallback: a frozen tint, in the same tones. */
 const DEFAULT_FALLBACK = 'o-bg-zinc-50 dark:o-bg-zinc-950'
 
-/** Nombre de couches de profondeur hors qualite basse. */
+/** Depth layers outside low quality. */
 const LAYERS = 3
 
-/** Nombre de couches en qualite basse. */
+/** Layers at low quality. */
 const LOW_LAYERS = 2
 
 /**
- * Hyperespace.
+ * Hyperspace.
  *
  * @example
  * <div className="o-relative o-min-h-screen">
@@ -99,9 +99,9 @@ export function Warp({
     colors,
     uniforms: { uSpeed: speed, uDensity: density, uStretch: stretch, uLayers: LAYERS },
     name: 'warp',
-    // Chaque couche refait tout le travail — hachage, trait, trainee — par
-    // fragment : c'est le reglage qui pese, donc celui qui est retire. La
-    // couche lointaine part la premiere, elle est la moins lisible.
+    // Each layer redoes all the work — hash, stroke, trail — per fragment:
+    // it is the setting that weighs, so it is the one that is taken away. The
+    // distant layer goes first, it is the least legible.
     degrade: (quality) => ({
       uLayers: quality === 'low' ? LOW_LAYERS : LAYERS,
     }),

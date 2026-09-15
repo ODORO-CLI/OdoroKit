@@ -17288,7 +17288,7 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
     "tokens": [],
     "props": [
       {
-        "name": "delai",
+        "name": "delay",
         "type": "number",
         "required": false,
         "default": 1600,
@@ -17351,7 +17351,7 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "description": "Marge autour de la zone d observation, syntaxe de rootMargin."
       },
       {
-        "name": "immediat",
+        "name": "immediate",
         "type": "boolean",
         "required": false,
         "default": false,
@@ -17401,14 +17401,14 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "step": 100
       },
       {
-        "name": "actif",
+        "name": "active",
         "type": "boolean",
         "required": false,
         "default": true,
         "description": "Battre ou non. C est par la que passe le mouvement reduit."
       },
       {
-        "name": "immediat",
+        "name": "immediate",
         "type": "boolean",
         "required": false,
         "default": false,
@@ -17472,7 +17472,7 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         ]
       },
       {
-        "name": "boucle",
+        "name": "wrap",
         "type": "boolean",
         "required": false,
         "default": true,
@@ -17489,7 +17489,7 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "step": 1
       },
       {
-        "name": "onValider",
+        "name": "onSelect",
         "type": "(index: number) => void",
         "required": false,
         "description": "Appelee sur Entree ou Espace, avec l index actif."
@@ -17524,7 +17524,7 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
     "tokens": [],
     "props": [
       {
-        "name": "arrondi",
+        "name": "round",
         "type": "boolean",
         "required": false,
         "default": true,
@@ -17567,7 +17567,7 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "description": "Requete, dans la grammaire du CSS."
       },
       {
-        "name": "serveur",
+        "name": "serverValue",
         "type": "boolean",
         "required": false,
         "default": false,
@@ -20237,14 +20237,14 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "description": "Libelle annonce pendant l attente."
       },
       {
-        "name": "labelSucces",
+        "name": "successLabel",
         "type": "string",
         "required": false,
         "default": "Termine",
         "description": "Libelle annonce au succes."
       },
       {
-        "name": "labelEchec",
+        "name": "errorLabel",
         "type": "string",
         "required": false,
         "default": "Echec",
@@ -26262,14 +26262,14 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "description": "Libelle annonce pendant l attente."
       },
       {
-        "name": "labelSucces",
+        "name": "successLabel",
         "type": "string",
         "required": false,
         "default": "Termine",
         "description": "Libelle annonce au succes."
       },
       {
-        "name": "labelEchec",
+        "name": "errorLabel",
         "type": "string",
         "required": false,
         "default": "Echec",
@@ -29662,7 +29662,7 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "step": 100
       },
       {
-        "name": "boucle",
+        "name": "loop",
         "type": "boolean",
         "required": false,
         "default": true,
@@ -29837,7 +29837,7 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "description": "Texte colle apres le nombre."
       },
       {
-        "name": "declenchement",
+        "name": "trigger",
         "type": "'vue' | 'montage'",
         "required": false,
         "default": "vue",
@@ -29954,14 +29954,14 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "description": "Balise rendue."
       },
       {
-        "name": "separateur",
+        "name": "separator",
         "type": "string",
         "required": false,
         "default": " — ",
         "description": "Separateur insere entre deux repetitions."
       },
       {
-        "name": "courbure",
+        "name": "curve",
         "type": "number",
         "required": false,
         "default": 0.5,
@@ -29971,7 +29971,7 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "step": 0.05
       },
       {
-        "name": "taille",
+        "name": "size",
         "type": "number",
         "required": false,
         "default": 96,
@@ -29991,7 +29991,7 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "step": 5
       },
       {
-        "name": "sens",
+        "name": "direction",
         "type": "'gauche' | 'droite'",
         "required": false,
         "default": "gauche",
@@ -30134,7 +30134,7 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "step": 0.5
       },
       {
-        "name": "couleur",
+        "name": "color",
         "type": "string",
         "required": false,
         "description": "Couleur de la tranche."
@@ -30380,7 +30380,7 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "step": 20
       },
       {
-        "name": "declenchement",
+        "name": "trigger",
         "type": "'montage' | 'vue' | 'survol'",
         "required": false,
         "default": "vue",
@@ -30462,14 +30462,14 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "step": 20
       },
       {
-        "name": "doublure",
+        "name": "ghost",
         "type": "boolean",
         "required": false,
         "default": true,
         "description": "Poser la copie dephasee qui fabrique le grain."
       },
       {
-        "name": "netAuSurvol",
+        "name": "sharpOnHover",
         "type": "boolean",
         "required": false,
         "default": true,
@@ -30715,7 +30715,7 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "description": "Couleur de l encre."
       },
       {
-        "name": "declenchement",
+        "name": "trigger",
         "type": "'montage' | 'vue' | 'survol'",
         "required": false,
         "default": "vue",
@@ -30806,7 +30806,7 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "step": 50
       },
       {
-        "name": "declenchement",
+        "name": "trigger",
         "type": "'vue' | 'montage'",
         "required": false,
         "default": "vue",
@@ -30967,7 +30967,7 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
     "tokens": [],
     "props": [
       {
-        "name": "mots",
+        "name": "words",
         "type": "readonly string[]",
         "required": true,
         "description": "Mots fondus l un dans l autre, en boucle. Au moins deux."
@@ -30995,7 +30995,7 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "step": 50
       },
       {
-        "name": "flou",
+        "name": "blur",
         "type": "number",
         "required": false,
         "default": 12,
@@ -31006,7 +31006,7 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "step": 1
       },
       {
-        "name": "fusion",
+        "name": "weld",
         "type": "number",
         "required": false,
         "default": 4,
@@ -31089,7 +31089,7 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "step": 50
       },
       {
-        "name": "declenchement",
+        "name": "trigger",
         "type": "'montage' | 'vue' | 'survol'",
         "required": false,
         "default": "vue",
@@ -31168,7 +31168,7 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "step": 20
       },
       {
-        "name": "sens",
+        "name": "direction",
         "type": "'haut' | 'bas'",
         "required": false,
         "default": "haut",
@@ -31234,7 +31234,7 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "step": 100
       },
       {
-        "name": "course",
+        "name": "travel",
         "type": "number",
         "required": false,
         "default": 0.6,
@@ -31302,7 +31302,7 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "step": 0.5
       },
       {
-        "name": "course",
+        "name": "travel",
         "type": "number",
         "required": false,
         "default": 0.7,
@@ -31454,7 +31454,7 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "step": 5
       },
       {
-        "name": "declenchement",
+        "name": "trigger",
         "type": "'montage' | 'vue' | 'survol'",
         "required": false,
         "default": "vue",
@@ -31533,7 +31533,7 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "step": 10
       },
       {
-        "name": "largeur",
+        "name": "width",
         "type": "number",
         "required": false,
         "default": 0.72,
@@ -31544,7 +31544,7 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "step": 0.02
       },
       {
-        "name": "declenchement",
+        "name": "trigger",
         "type": "'montage' | 'vue' | 'survol'",
         "required": false,
         "default": "vue",
@@ -31628,7 +31628,7 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "step": 50
       },
       {
-        "name": "declenchement",
+        "name": "trigger",
         "type": "'vue' | 'montage'",
         "required": false,
         "default": "vue",
@@ -31846,13 +31846,13 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "step": 50
       },
       {
-        "name": "contour",
+        "name": "stroke",
         "type": "string",
         "required": false,
         "description": "Couleur du contour."
       },
       {
-        "name": "remplissage",
+        "name": "fill",
         "type": "string",
         "required": false,
         "description": "Couleur du remplissage."
@@ -31908,7 +31908,7 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "step": 2
       },
       {
-        "name": "raideur",
+        "name": "stiffness",
         "type": "number",
         "required": false,
         "default": 9,
@@ -31918,7 +31918,7 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "step": 0.5
       },
       {
-        "name": "inclinaison",
+        "name": "tilt",
         "type": "number",
         "required": false,
         "default": 0.4,
@@ -32045,7 +32045,7 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "description": "Balise rendue."
       },
       {
-        "name": "graisseBasse",
+        "name": "minWeight",
         "type": "number",
         "required": false,
         "default": 200,
@@ -32055,7 +32055,7 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "step": 25
       },
       {
-        "name": "graisseHaute",
+        "name": "maxWeight",
         "type": "number",
         "required": false,
         "default": 900,
@@ -32065,7 +32065,7 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "step": 25
       },
       {
-        "name": "chasse",
+        "name": "stretch",
         "type": "number",
         "required": false,
         "default": 25,
@@ -32075,7 +32075,7 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "step": 1
       },
       {
-        "name": "rayon",
+        "name": "radius",
         "type": "number",
         "required": false,
         "default": 260,
@@ -32146,7 +32146,7 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "step": 0.5
       },
       {
-        "name": "attenue",
+        "name": "dimmed",
         "type": "number",
         "required": false,
         "default": 0.55,
@@ -32167,7 +32167,7 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "step": 100
       },
       {
-        "name": "course",
+        "name": "travel",
         "type": "number",
         "required": false,
         "default": 600,
@@ -32178,7 +32178,7 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "step": 20
       },
       {
-        "name": "couleur",
+        "name": "color",
         "type": "string",
         "required": false,
         "description": "Couleur du cadre."
@@ -32375,7 +32375,7 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "description": "Balise rendue."
       },
       {
-        "name": "rayon",
+        "name": "radius",
         "type": "number",
         "required": false,
         "default": 180,
@@ -32386,7 +32386,7 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "step": 10
       },
       {
-        "name": "graisseBasse",
+        "name": "minWeight",
         "type": "number",
         "required": false,
         "default": 300,
@@ -32396,7 +32396,7 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "step": 25
       },
       {
-        "name": "graisseHaute",
+        "name": "maxWeight",
         "type": "number",
         "required": false,
         "default": 800,
@@ -32464,7 +32464,7 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "step": 2
       },
       {
-        "name": "inclinaison",
+        "name": "tilt",
         "type": "number",
         "required": false,
         "default": 6,
@@ -32475,7 +32475,7 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "step": 0.5
       },
       {
-        "name": "course",
+        "name": "travel",
         "type": "number",
         "required": false,
         "default": 1,

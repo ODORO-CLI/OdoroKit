@@ -1,26 +1,26 @@
 /**
- * Lignes en houle : des lignes horizontales fines qui ondulent en phase decalee.
+ * Line waves: thin horizontal lines rippling with an offset phase.
  *
- * ## Le principe
+ * ## The principle
  *
- * Une ligne par bande horizontale, chacune deplacee par la meme houle avec un
- * dephasage propre a son rang. Aucune ligne n'est tracee : le fragment mesure
- * sa distance a la courbe de sa bande et de ses deux voisines.
+ * One line per horizontal band, each displaced by the same swell with a phase
+ * offset of its own rank. No line is ever stroked: the fragment measures its
+ * distance to the curve of its own band and of its two neighbours.
  *
- * Ce qui distingue cette entree de ses cousines : le trait est fin, le rythme
- * est lent, et le mouvement est horizontal — la houle court de gauche a
- * droite, et le dephasage entre lignes dessine une nappe diagonale.
+ * What sets this entry apart from its cousins: the stroke is thin, the rhythm
+ * is slow, and the motion is horizontal — the swell runs from left to right,
+ * and the phase offset between lines draws a diagonal sheet.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur — les recopier ici en ferait autant
- * de versions a maintenir qu'il y a de fonds.
+ * It carries only what sets it apart: its shader, its settings and its
+ * fallback. Reading the tokens, converting them to floats and re-reading them
+ * when the theme changes all come from the engine — copying that here would
+ * leave as many versions to maintain as there are backgrounds.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en
- * accorde qu'une par backend — et sous mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface — it grants only one
+ * per backend — and under reduced motion.
  *
  * @module
  */
@@ -37,53 +37,53 @@ import { type ReactElement } from 'react'
 
 import { LINE_WAVES_FRAGMENT } from './line-waves.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface LineWavesControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to this component. */
 export interface LineWavesOwnProps {
-  /** Nombre de lignes. Borne a quarante-huit par le shader. @defaultValue 24 */
+  /** Number of lines. Clamped to forty-eight by the shader. @defaultValue 24 */
   count?: number
-  /** Hauteur de la houle, en hauteurs de bande. @defaultValue 0.6 */
+  /** Height of the swell, in band heights. @defaultValue 0.6 */
   amplitude?: number
-  /** Vitesse de la houle. @defaultValue 0.4 */
+  /** Speed of the swell. @defaultValue 0.4 */
   speed?: number
-  /** Epaisseur du trait, en fraction de la hauteur. @defaultValue 0.0025 */
+  /** Thickness of the stroke, as a fraction of the height. @defaultValue 0.0025 */
   thickness?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<LineWavesControls>
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type LineWavesProps = Customisable<LineWavesOwnProps>
 
-/** Tokens employes par defaut : le fond, l'encre, l'eclat des cretes. */
+/** Tokens used by default: the background, the ink, the glint of the crests. */
 const DEFAULT_TOKENS = ['--o-theme-bg', '--o-theme-fg', '--o-palette-brand-500'] as const
 
-/** Repli par defaut : une teinte figee, dans les memes tons. */
+/** Default fallback: a frozen tint, in the same tones. */
 const DEFAULT_FALLBACK = 'o-bg-zinc-50 dark:o-bg-zinc-950'
 
 /**
- * Nombre de lignes en qualite basse.
+ * Number of lines at low quality.
  *
- * Le cout par fragment ne depend pas du nombre de lignes — trois bandes sont
- * evaluees quoi qu'il arrive. Ce qui coute, c'est le crenelage : des lignes
- * serrees a densite de pixels reduite scintillent. Moins de lignes, plus
- * d'espace entre elles, et le trait reste net.
+ * The per-fragment cost does not depend on the number of lines — three bands
+ * are evaluated whatever happens. What costs is aliasing: tightly packed lines
+ * at a reduced pixel density shimmer. Fewer lines, more space between them, and
+ * the stroke stays crisp.
  */
 const LOW_COUNT = 12
 
 /**
- * Lignes en houle.
+ * Line waves.
  *
  * @example
  * <div className="o-relative o-min-h-screen">

@@ -6,7 +6,7 @@ import { clock } from './clock.js'
 import { OdoroEngine, useEngine, useMotionState } from './context.jsx'
 import { motionPolicy } from './motion-policy.js'
 
-/** Force la reponse du systeme pour `prefers-reduced-motion`. */
+/** Forces the system answer for `prefers-reduced-motion`. */
 function setSystemReduced(reduced: boolean): void {
   window.matchMedia = ((query: string) => ({
     matches: query.includes('prefers-reduced-motion') ? reduced : false,
@@ -20,16 +20,16 @@ function setSystemReduced(reduced: boolean): void {
   })) as typeof window.matchMedia
 }
 
-/** Affiche l'etat du moteur, pour observer ce qu'un composant en recoit. */
-function Sonde(): ReactElement {
-  const engine = useEngine('Sonde')
+/** Displays the engine state, to observe what a component receives from it. */
+function Probe(): ReactElement {
+  const engine = useEngine('Probe')
   const state = useMotionState()
   return (
     <div>
-      <span data-testid="fourni">{String(engine.provided)}</span>
+      <span data-testid="provided">{String(engine.provided)}</span>
       <span data-testid="surfaces">{engine.maxSurfaces}</span>
-      <span data-testid="qualite">{state.quality}</span>
-      <span data-testid="reduit">{String(state.reduced)}</span>
+      <span data-testid="quality">{state.quality}</span>
+      <span data-testid="reduced">{String(state.reduced)}</span>
     </div>
   )
 }
@@ -43,41 +43,41 @@ afterEach(() => {
   clock.dispose()
 })
 
-describe('hors fournisseur', () => {
-  it('fonctionne avec les reglages par defaut', () => {
-    // Un composant copie depuis le registre atterrit dans un projet qui n'a
-    // peut-etre pas encore monte le fournisseur : le faire echouer ferait
-    // croire que le composant est casse.
-    const avertissement = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+describe('outside a provider', () => {
+  it('works with the default settings', () => {
+    // A component copied from the registry lands in a project that may not
+    // have mounted the provider yet: making it fail would suggest that the
+    // component is broken.
+    const warning = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
 
-    render(<Sonde />)
+    render(<Probe />)
 
-    expect(screen.getByTestId('fourni').textContent).toBe('false')
+    expect(screen.getByTestId('provided').textContent).toBe('false')
     expect(screen.getByTestId('surfaces').textContent).toBe('2')
-    expect(avertissement).toHaveBeenCalled()
+    expect(warning).toHaveBeenCalled()
   })
 
-  it('n avertit qu une fois par appelant', () => {
-    const avertissement = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+  it('warns only once per caller', () => {
+    const warning = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
 
-    function Repete(): ReactElement {
-      useEngine('MemeAppelant')
+    function Repeated(): ReactElement {
+      useEngine('SameCaller')
       return <span>ok</span>
     }
 
     render(
       <>
-        <Repete />
-        <Repete />
-        <Repete />
+        <Repeated />
+        <Repeated />
+        <Repeated />
       </>,
     )
 
-    expect(avertissement).toHaveBeenCalledTimes(1)
+    expect(warning).toHaveBeenCalledTimes(1)
   })
 
-  it('cite l appelant dans l avertissement', () => {
-    const avertissement = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+  it('quotes the caller in the warning', () => {
+    const warning = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
 
     function Aurora(): ReactElement {
       useEngine('Aurora')
@@ -85,99 +85,99 @@ describe('hors fournisseur', () => {
     }
     render(<Aurora />)
 
-    expect(String(avertissement.mock.calls[0]?.[0])).toContain('Aurora')
+    expect(String(warning.mock.calls[0]?.[0])).toContain('Aurora')
   })
 })
 
-describe('sous fournisseur', () => {
-  it('signale sa presence et applique les reglages', async () => {
+describe('under a provider', () => {
+  it('reports its presence and applies the settings', async () => {
     render(
       <OdoroEngine quality="low" maxSurfaces={3}>
-        <Sonde />
+        <Probe />
       </OdoroEngine>,
     )
 
-    expect(screen.getByTestId('fourni').textContent).toBe('true')
+    expect(screen.getByTestId('provided').textContent).toBe('true')
     expect(screen.getByTestId('surfaces').textContent).toBe('3')
-    await waitFor(() => expect(screen.getByTestId('qualite').textContent).toBe('low'))
+    await waitFor(() => expect(screen.getByTestId('quality').textContent).toBe('low'))
   })
 
-  it('n emet aucun avertissement', () => {
-    const avertissement = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+  it('emits no warning', () => {
+    const warning = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
 
     render(
       <OdoroEngine>
-        <Sonde />
+        <Probe />
       </OdoroEngine>,
     )
 
-    expect(avertissement).not.toHaveBeenCalled()
+    expect(warning).not.toHaveBeenCalled()
   })
 
-  it('impose la neutralisation demandee', async () => {
+  it('forces the requested neutralisation', async () => {
     render(
       <OdoroEngine reducedMotion="force">
-        <Sonde />
+        <Probe />
       </OdoroEngine>,
     )
 
-    await waitFor(() => expect(screen.getByTestId('reduit').textContent).toBe('true'))
+    await waitFor(() => expect(screen.getByTestId('reduced').textContent).toBe('true'))
   })
 
-  it('passe outre la preference systeme sur demande', async () => {
+  it('overrides the system preference on request', async () => {
     setSystemReduced(true)
 
     render(
       <OdoroEngine reducedMotion="ignore">
-        <Sonde />
+        <Probe />
       </OdoroEngine>,
     )
 
-    await waitFor(() => expect(screen.getByTestId('reduit').textContent).toBe('false'))
+    await waitFor(() => expect(screen.getByTestId('reduced').textContent).toBe('false'))
   })
 
-  it('partage la meme horloge que hors fournisseur', () => {
-    // L'unicite de la boucle est la garantie centrale du moteur : deux
-    // fournisseurs imbriques ne doivent pas produire deux boucles.
-    function Comparateur(): ReactElement {
+  it('shares the same clock as outside a provider', () => {
+    // The uniqueness of the loop is the central guarantee of the engine: two
+    // nested providers must not produce two loops.
+    function Comparator(): ReactElement {
       const inner = useEngine()
-      return <span data-testid="meme">{String(inner.clock === clock)}</span>
+      return <span data-testid="same">{String(inner.clock === clock)}</span>
     }
 
     render(
       <OdoroEngine>
         <OdoroEngine>
-          <Comparateur />
+          <Comparator />
         </OdoroEngine>
       </OdoroEngine>,
     )
 
-    expect(screen.getByTestId('meme').textContent).toBe('true')
+    expect(screen.getByTestId('same').textContent).toBe('true')
   })
 })
 
 describe('useMotionState', () => {
-  it('se re-rend au changement de politique', async () => {
+  it('re-renders on a policy change', async () => {
     render(
       <OdoroEngine quality="high">
-        <Sonde />
+        <Probe />
       </OdoroEngine>,
     )
 
-    await waitFor(() => expect(screen.getByTestId('qualite').textContent).toBe('high'))
+    await waitFor(() => expect(screen.getByTestId('quality').textContent).toBe('high'))
 
     motionPolicy.configure({ quality: 'low' })
 
-    await waitFor(() => expect(screen.getByTestId('qualite').textContent).toBe('low'))
+    await waitFor(() => expect(screen.getByTestId('quality').textContent).toBe('low'))
   })
 
-  it('ne boucle pas sur un instantane instable', () => {
-    // Un instantane reconstruit a chaque lecture ferait boucler React sans
-    // fin : le rendu doit simplement aboutir.
+  it('does not loop on an unstable snapshot', () => {
+    // A snapshot rebuilt on every read would make React loop endlessly: the
+    // render must simply succeed.
     expect(() =>
       render(
         <OdoroEngine>
-          <Sonde />
+          <Probe />
         </OdoroEngine>,
       ),
     ).not.toThrow()

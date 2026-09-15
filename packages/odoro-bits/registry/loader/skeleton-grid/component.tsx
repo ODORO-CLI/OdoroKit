@@ -1,29 +1,29 @@
 /**
- * Grille en attente : des vignettes au meme rapport, chacune avec sa
- * legende, balayees en diagonale.
+ * A grid in waiting: thumbnails all at the same ratio, each with its caption,
+ * swept diagonally.
  *
- * ## Le rapport avant tout
+ * ## The ratio above all
  *
- * Une galerie qui charge sans reserver la hauteur de ses vignettes fait
- * sauter la page entiere a chaque image arrivee. C'est le seul vrai travail
- * de ce squelette : `ratio` fixe le rapport de chaque case, et la grille
- * occupe des maintenant la place exacte que les images occuperont.
+ * A gallery that loads without reserving the height of its thumbnails makes
+ * the whole page jump every time an image arrives. That is the only real job
+ * of this skeleton: `ratio` fixes the ratio of each cell, and the grid takes
+ * up right now the exact room the images will take.
  *
- * La legende sous chaque vignette est plus courte que la case : c'est ce
- * decalage qui distingue une galerie d'un damier.
+ * The caption under each thumbnail is shorter than the cell: it is that
+ * offset which tells a gallery apart from a chessboard.
  *
- * ## Une diagonale, pas une ligne
+ * ## A diagonal, not a line
  *
- * Le retard du reflet suit la somme de la ligne et de la colonne : l'onde
- * traverse la grille en biais. Un retard par colonne seule ferait defiler
- * des bandes verticales, et l'oeil suivrait la bande au lieu de lire la
- * grille ; en diagonale, le mouvement reste une respiration d'ensemble.
+ * The delay of the sheen follows the sum of the row and the column: the wave
+ * crosses the grid at an angle. A delay by column alone would scroll vertical
+ * bands past, and the eye would follow the band instead of reading the grid;
+ * on the diagonal, the movement stays a breathing of the whole.
  *
- * ## Un statut, pas un dessin
+ * ## A status, not a drawing
  *
- * L'element porte `role="status"` et un libelle ; les vignettes sont
- * retirees de l'arbre d'accessibilite. Sous mouvement reduit, elles restent
- * pleines et immobiles : la grille vide reste visible, elle ne s'efface pas.
+ * The element carries `role="status"` and a label; the thumbnails are removed
+ * from the accessibility tree. Under reduced motion, they stay full and
+ * still: the empty grid remains visible, it does not fade away.
  *
  * @module
  */
@@ -31,16 +31,16 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Id of the injected stylesheet. */
 const STYLE_ID = 'o-skeleton-grid'
 
-/** Rapports acceptes pour une vignette. */
+/** Ratios accepted for a thumbnail. */
 const RATIOS = ['16/9', '4/3', '3/2', '1/1'] as const
 
-/** Longueurs de legende, en pourcentage de la vignette. */
+/** Caption lengths, as a percentage of the thumbnail. */
 const CAPTIONS = [72, 54, 84, 62] as const
 
-/** Pose la grille, ses vignettes et leur animation, une fois par document. */
+/** Sets the grid, its thumbnails and their animation, once per document. */
 function ensureSkeletonGridRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -58,8 +58,8 @@ function ensureSkeletonGridRule(): void {
     'position:relative;display:block;overflow:hidden;',
     'background:color-mix(in oklab,var(--o-theme-line) 72%,var(--o-theme-surface));',
     '}',
-    // Le rapport reserve la hauteur : c'est ce qui empeche la page de
-    // sauter quand les images arrivent.
+    // The ratio reserves the height: that is what keeps the page from
+    // jumping when the images arrive.
     '[data-o-skgrid-tile]{',
     'width:100%;aspect-ratio:var(--o-skgrid-ratio);',
     'border-radius:var(--o-skgrid-radius);',
@@ -88,39 +88,39 @@ function ensureSkeletonGridRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to the component. */
 export interface SkeletonGridOwnProps {
-  /** Nombre de rangees. @defaultValue 2 */
+  /** Number of rows. @defaultValue 2 */
   rows?: number
-  /** Nombre de colonnes. @defaultValue 3 */
+  /** Number of columns. @defaultValue 3 */
   columns?: number
-  /** Rapport largeur sur hauteur d'une vignette. @defaultValue '4/3' */
+  /** Width to height ratio of a thumbnail. @defaultValue '4/3' */
   ratio?: string
-  /** Reserver la place d'une legende sous chaque vignette. @defaultValue true */
+  /** Reserve the room for a caption under each thumbnail. @defaultValue true */
   caption?: boolean
-  /** Ecart entre les vignettes, en pixels. @defaultValue 14 */
+  /** Gap between the thumbnails, in pixels. @defaultValue 14 */
   gap?: number
-  /** Rayon des angles d'une vignette, en pixels. @defaultValue 10 */
+  /** Corner radius of a thumbnail, in pixels. @defaultValue 10 */
   radius?: number
-  /** Reflet qui traverse plutot qu'une pulsation d'ensemble. @defaultValue true */
+  /** A sheen that crosses rather than a pulse of the whole. @defaultValue true */
   shimmer?: boolean
-  /** Duree d'un passage du reflet ou d'une pulsation, en millisecondes. @defaultValue 1600 */
+  /** Duration of one pass of the sheen or of one pulse, in milliseconds. @defaultValue 1600 */
   speed?: number
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement de la galerie' */
+  /** Label announced to screen readers. @defaultValue 'Loading gallery' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type SkeletonGridProps = Customisable<SkeletonGridOwnProps, 'div'>
 
 /**
- * Reserve la place d'une galerie de vignettes.
+ * Reserves the room for a gallery of thumbnails.
  *
  * @example
  * <SkeletonGrid />
  *
  * @example
- * // Quatre colonnes carrees, sans legende.
+ * // Four square columns, without a caption.
  * <SkeletonGrid rows={2} columns={4} ratio="1/1" caption={false} />
  */
 export function SkeletonGrid({
@@ -132,15 +132,15 @@ export function SkeletonGrid({
   radius = 10,
   shimmer = true,
   speed = 1600,
-  label = 'Chargement de la galerie',
+  label = 'Loading gallery',
   ...rest
 }: SkeletonGridProps): ReactElement {
   ensureSkeletonGridRule()
 
   const rowCount = Math.max(1, Math.round(rows))
   const columnCount = Math.max(1, Math.round(columns))
-  // Un rapport inconnu casserait la grille sans rien dire : on retombe sur
-  // celui par defaut plutot que d'ecrire une valeur invalide.
+  // An unknown ratio would break the grid without saying anything: we fall
+  // back to the default one rather than writing an invalid value.
   const safeRatio = (RATIOS as readonly string[]).includes(ratio) ? ratio : '4/3'
 
   const { className, style } = mergePresentation({}, rest)
@@ -168,7 +168,7 @@ export function SkeletonGrid({
       {Array.from({ length: rowCount * columnCount }, (_, index) => {
         const row = Math.floor(index / columnCount)
         const column = index % columnCount
-        // La somme ligne plus colonne : l'onde traverse en biais.
+        // The sum of row plus column: the wave crosses at an angle.
         const delay = {
           '--o-skgrid-delay': `${String(Math.round((speed / 12) * (row + column)))}ms`,
         } as CSSProperties

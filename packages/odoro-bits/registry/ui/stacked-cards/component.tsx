@@ -1,25 +1,25 @@
 /**
- * Cartes en eventail : un paquet empile qui s'ouvre au survol.
+ * Fanned cards: a stacked deck that opens on hover.
  *
- * ## La premiere carte donne sa taille au paquet
+ * ## The first card gives the deck its size
  *
- * Comme pour la carte a retournement, une seule carte reste dans le flux :
- * la premiere. Les autres se posent dessus en absolu. Le paquet occupe donc
- * exactement la place d'une carte, et l'eventail deborde autour — c'est le
- * comportement attendu d'un paquet, pas celui d'une grille.
+ * As with the flip card, a single card stays in the flow: the first one.
+ * The others sit on top of it in absolute position. The deck therefore takes
+ * exactly the room of one card, and the fan overflows around it — that is the
+ * expected behavior of a deck, not that of a grid.
  *
- * ## Deux transformations par carte, calculees une fois
+ * ## Two transforms per card, computed once
  *
- * Chaque carte recoit sa position de repos et sa position eventee en
- * variables CSS, calculees au rendu a partir de son rang. La transition
- * fait le trajet entre les deux : interrompre le geste au milieu repart de
- * l'angle courant, sans saut. Aucune boucle, aucun calcul par frame.
+ * Each card receives its rest position and its fanned position as CSS
+ * variables, computed at render time from its rank. The transition travels
+ * between the two: interrupting the gesture midway resumes from the current
+ * angle, without a jump. No loop, no per-frame computation.
  *
- * ## `focus-within` ouvre l'eventail au clavier
+ * ## `focus-within` opens the fan from the keyboard
  *
- * Le paquet est focusable, et une carte qui contient un lien ou un bouton
- * ouvre l'eventail des que ce lien prend le focus : le contenu range sous
- * la pile reste atteignable sans souris.
+ * The deck is focusable, and a card that contains a link or a button opens the
+ * fan as soon as that link takes focus: the content tucked under the stack
+ * stays reachable without a mouse.
  *
  * @module
  */
@@ -27,23 +27,23 @@
 import { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'
 import { Children, type CSSProperties, type ReactElement, type ReactNode } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface StackedCardsOwnProps {
-  /** Les cartes, jusqu'a quatre. La premiere donne sa taille au paquet. */
+  /** The cards, up to four. The first gives the deck its size. */
   children: ReactNode
-  /** Angle entre deux cartes une fois eventees, en degres. @defaultValue 10 */
+  /** Angle between two cards once fanned, in degrees. @defaultValue 10 */
   spread?: number
-  /** Ecart horizontal entre deux cartes une fois eventees, en pixels. @defaultValue 36 */
+  /** Horizontal gap between two cards once fanned, in pixels. @defaultValue 36 */
   lift?: number
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type StackedCardsProps = Customisable<StackedCardsOwnProps>
 
-/** Identifiant de la feuille injectee. */
+/** Id of the injected stylesheet. */
 const STYLE_ID = 'o-stacked-cards'
 
-/** Pose le paquet et ses deux etats, une fois par document. */
+/** Sets up the deck and its two states, once per document. */
 function ensureStackedRules(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -58,12 +58,12 @@ function ensureStackedRules(): void {
     'transform-origin:50% 120%;',
     'transition:transform var(--o-duration-slow) var(--o-ease-emphasized);',
     '}',
-    // La premiere carte reste dans le flux : elle donne sa taille au paquet.
+    // The first card stays in the flow: it gives the deck its size.
     '[data-o-stacked-item]:first-child{position:relative}',
     '[data-o-stacked]:is(:hover,:focus-visible,:focus-within) [data-o-stacked-item]{',
     'transform:var(--o-stacked-fan);',
     '}',
-    // Mouvement reduit : l eventail s ouvre, sans trajet.
+    // Reduced motion: the fan opens, with no travel.
     '@media (prefers-reduced-motion:reduce){',
     '[data-o-stacked-item]{transition:none}',
     '}',
@@ -72,18 +72,18 @@ function ensureStackedRules(): void {
 }
 
 /**
- * Empile jusqu'a quatre cartes et les evente au survol ou au focus.
+ * Stacks up to four cards and fans them out on hover or focus.
  *
  * @example
  * <StackedCards>
- *   <article className="o-rounded-xl o-border-w-1 o-p-6">Une</article>
- *   <article className="o-rounded-xl o-border-w-1 o-p-6">Deux</article>
- *   <article className="o-rounded-xl o-border-w-1 o-p-6">Trois</article>
+ *   <article className="o-rounded-xl o-border-w-1 o-p-6">One</article>
+ *   <article className="o-rounded-xl o-border-w-1 o-p-6">Two</article>
+ *   <article className="o-rounded-xl o-border-w-1 o-p-6">Three</article>
  * </StackedCards>
  *
  * @example
- * // Un eventail plus large et plus ecarte.
- * <StackedCards spread={18} lift={64}>{cartes}</StackedCards>
+ * // A wider, more spread out fan.
+ * <StackedCards spread={18} lift={64}>{cards}</StackedCards>
  */
 export function StackedCards({
   children,
@@ -113,8 +113,8 @@ export function StackedCards({
       }
     >
       {cards.map((card, index) => {
-        // Au repos, chaque carte glisse et penche un peu plus que la
-        // precedente ; eventee, elle prend sa place autour du centre.
+        // At rest, each card slides and tilts a little more than the previous
+        // one; fanned out, it takes its place around the center.
         const rest_ = `translateY(${String(index * -6)}px) rotate(${String(index * 2)}deg)`
         const fan = [
           `translateX(${String((index - middle) * lift)}px)`,

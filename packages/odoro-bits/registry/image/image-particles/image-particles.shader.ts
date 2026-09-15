@@ -1,30 +1,30 @@
 /**
- * Shaders de l'image en particules.
+ * Shaders of the image in particles.
  *
- * ## Tout se passe au sommet
+ * ## Everything happens at the vertex
  *
- * Chaque point porte sa place definitive — c'est son `position` — et un
- * tirage qui dit d'ou il vient. Le rassemblement n'est qu'un melange entre les
- * deux, pilote par un seul uniforme : aucune position n'est recalculee par le
- * processeur central, et l'animation entiere tient dans une interpolation.
+ * Each point carries its final place — that is its `position` — and a random
+ * draw that says where it comes from. The gathering is nothing but a blend
+ * between the two, driven by a single uniform: no position is recomputed by
+ * the central processor, and the whole animation fits into an interpolation.
  *
- * ## La taille des points est une projection, pas un nombre magique
+ * ## The size of the points is a projection, not a magic number
  *
- * `gl_PointSize` s'exprime en pixels du tampon de dessin. La convertir depuis
- * une taille en unites de scene demande le facteur de projection — hauteur du
- * tampon divisee par deux fois la tangente du demi-champ — qui arrive en
- * uniforme. Sans lui, les points changeraient de taille apparente avec la
- * densite de pixels de l'ecran et avec la hauteur du cadre.
+ * `gl_PointSize` is expressed in pixels of the drawing buffer. Converting it
+ * from a size in scene units requires the projection factor — height of the
+ * buffer divided by twice the tangent of the half field of view — which
+ * arrives as a uniform. Without it, the points would change apparent size with
+ * the pixel density of the screen and with the height of the frame.
  *
  * @module
  */
 
 /**
- * Sommet : disperse, rassemble, respire.
+ * Vertex: scatter, gather, breathe.
  *
- * La respiration ne commence qu'une fois l'image formee — elle est multipliee
- * par l'avancement du rassemblement. Sinon les points arriveraient deja en
- * train de bouger, et l'on ne verrait pas l'image se poser.
+ * The breathing only starts once the image is formed — it is multiplied by the
+ * progress of the gathering. Otherwise the points would arrive already moving,
+ * and one would not see the image settle.
  */
 export const IMAGE_PARTICLES_VERTEX = /* glsl */ `
 attribute vec3 aTint;
@@ -54,11 +54,10 @@ void main() {
 `
 
 /**
- * Fragment : un disque, pas un carre.
+ * Fragment: a disc, not a square.
  *
- * Un point carre se lit comme un pixel — donc comme un defaut d'affichage.
- * Le rejet des coins coute moins qu'une texture et ne demande aucun
- * telechargement.
+ * A square point reads as a pixel — hence as a display fault. Discarding the
+ * corners costs less than a texture and requires no download.
  */
 export const IMAGE_PARTICLES_FRAGMENT = /* glsl */ `
 precision mediump float;

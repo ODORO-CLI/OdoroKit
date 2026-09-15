@@ -1,34 +1,34 @@
 /**
- * Shader de la grille au curseur.
+ * Cursor grid shader.
  *
- * ## L'idee mathematique
+ * ## The mathematical idea
  *
- * Une grille de paves, et deux distances au lieu d'une : celle du centre du
- * pave au pointeur vif, celle du meme centre au pointeur retarde. La
- * premiere allume, la seconde laisse une trainee derriere le geste — deux
- * positions suffisent la ou un tampon d'historique serait necessaire pour
- * un fondu par pave.
+ * A grid of tiles, and two distances instead of one: from the tile's centre
+ * to the live pointer, and from the same centre to the lagged pointer. The
+ * first lights up, the second leaves a trail behind the gesture — two
+ * positions are enough where a history buffer would otherwise be needed for
+ * a per-tile fade.
  *
- * La distance n'est ni le disque ni le carre mais un melange des deux : un
- * halo rond ignorerait la grille qu'il eclaire, un halo carre la recopierait
- * trop fidelement. A mi-chemin, la tache reste ronde tout en s'appuyant sur
- * les paves.
+ * The distance is neither the disc nor the square but a mix of the two: a
+ * round halo would ignore the grid it lights, a square halo would copy it
+ * too faithfully. Halfway between, the patch stays round while still
+ * leaning on the tiles.
  *
- * Chaque pave respire a sa propre phase, tiree de ses coordonnees de
- * cellule : sans cela la nappe s'allumerait d'un bloc, comme un ecran.
+ * Each tile breathes at its own phase, drawn from its cell coordinates:
+ * without that the sheet would light up all at once, like a screen.
  *
  * ## Uniforms
  *
- * - `uTime` — temps en secondes, fourni par le moteur.
- * - `uResolution` — taille du canevas en pixels, fournie par le moteur.
- * - `uColorA` — le fond.
- * - `uColorB` — le filet de la grille, et la trainee.
- * - `uColorC` — les paves allumes.
- * - `uPointer` — position vive du pointeur, en coordonnees de texture.
- * - `uEcho` — position retardee du pointeur, meme repere.
- * - `uCells` — nombre de cellules sur la hauteur.
- * - `uRadius` — portee de l allumage, en hauteurs de cadre.
- * - `uTrail` — force de la trainee, entre zero et un.
+ * - `uTime` — time in seconds, supplied by the engine.
+ * - `uResolution` — canvas size in pixels, supplied by the engine.
+ * - `uColorA` — the background.
+ * - `uColorB` — the grid's line, and the trail.
+ * - `uColorC` — the lit tiles.
+ * - `uPointer` — live pointer position, in texture coordinates.
+ * - `uEcho` — lagged pointer position, same frame.
+ * - `uCells` — number of cells across the height.
+ * - `uRadius` — reach of the lighting, in frame heights.
+ * - `uTrail` — strength of the trail, between zero and one.
  */
 export const CURSOR_GRID_FRAGMENT = /* glsl */ `
 precision highp float;
@@ -46,7 +46,7 @@ uniform float uCells;
 uniform float uRadius;
 uniform float uTrail;
 
-// Phase propre a une cellule, stable d'une image a l'autre.
+// A cell's own phase, stable from one frame to the next.
 float cellPhase(vec2 cell) {
   return fract(sin(dot(cell, vec2(41.7, 289.3))) * 24634.6345);
 }
@@ -61,33 +61,33 @@ void main() {
   vec2 local = fract(p) - 0.5;
 
   vec2 centre = (cell + 0.5) / scale;
-  vec2 vif = uPointer * vec2(aspect, 1.0);
-  vec2 lent = uEcho * vec2(aspect, 1.0);
+  vec2 live = uPointer * vec2(aspect, 1.0);
+  vec2 lagged = uEcho * vec2(aspect, 1.0);
   float reach = max(uRadius, 0.05);
 
-  // Le melange du carre et du disque : ni l'un ni l'autre tout a fait.
-  vec2 dv = abs(centre - vif);
-  float nearVif = mix(max(dv.x, dv.y), length(dv), 0.55);
-  vec2 dl = abs(centre - lent);
-  float nearLent = mix(max(dl.x, dl.y), length(dl), 0.55);
+  // The mix of the square and the disc: neither one quite.
+  vec2 dLive = abs(centre - live);
+  float nearLive = mix(max(dLive.x, dLive.y), length(dLive), 0.55);
+  vec2 dLagged = abs(centre - lagged);
+  float nearLagged = mix(max(dLagged.x, dLagged.y), length(dLagged), 0.55);
 
-  float lit = 1.0 - smoothstep(reach * 0.2, reach, nearVif);
+  float lit = 1.0 - smoothstep(reach * 0.2, reach, nearLive);
   float trail =
-    (1.0 - smoothstep(reach * 0.4, reach * 1.4, nearLent)) * clamp(uTrail, 0.0, 1.0);
+    (1.0 - smoothstep(reach * 0.4, reach * 1.4, nearLagged)) * clamp(uTrail, 0.0, 1.0);
 
-  // Chaque pave respire a sa phase : la nappe ne s'allume pas d'un bloc.
+  // Each tile breathes at its phase: the sheet does not light up all at once.
   lit *= 0.6 + 0.4 * (0.5 + 0.5 * sin(uTime * 2.0 + cellPhase(cell) * 6.2831853));
 
-  // Le pave et son filet, tires du meme creux : la distance au bord de la
-  // cellule, nulle sur le trait, maximale au centre.
+  // The tile and its line, drawn from the same hollow: the distance to the
+  // cell's edge, zero on the stroke, greatest at the centre.
   float px = scale / max(uResolution.y, 1.0) * 1.5;
   float inset = 0.5 - max(abs(local.x), abs(local.y));
-  float pave = smoothstep(0.0, 0.05, inset - 0.07);
-  float filet = 1.0 - smoothstep(px, px * 3.0, abs(inset - 0.05));
+  float tile = smoothstep(0.0, 0.05, inset - 0.07);
+  float line = 1.0 - smoothstep(px, px * 3.0, abs(inset - 0.05));
 
-  vec3 colour = mix(uColorA, uColorB, filet * 0.35);
-  colour = mix(colour, uColorB, pave * trail * 0.55);
-  colour = mix(colour, uColorC, pave * lit);
+  vec3 colour = mix(uColorA, uColorB, line * 0.35);
+  colour = mix(colour, uColorB, tile * trail * 0.55);
+  colour = mix(colour, uColorC, tile * lit);
 
   gl_FragColor = vec4(colour, 1.0);
 }

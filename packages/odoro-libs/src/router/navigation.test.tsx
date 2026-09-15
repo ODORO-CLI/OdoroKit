@@ -1,12 +1,12 @@
 /**
- * Le point d'accroche de navigation.
+ * The navigation hook point.
  *
- * Ce que ces tests protegent : le moteur d'animation doit pouvoir liberer ce
- * qui appartient a la page qui part, **avant** qu'elle parte, et mesurer la
- * nouvelle **apres** qu'elle a rendu. Un seul evenement, ou un evenement au
- * mauvais moment, produit des declencheurs de defilement cales sur les
- * positions de l'ancienne page — un defaut qui disparait au rechargement, donc
- * qu'on n'attribue jamais a la navigation.
+ * What these tests protect: the animation engine must be able to release
+ * what belongs to the page that is leaving, **before** it leaves, and measure
+ * the new one **after** it has rendered. A single event, or an event at the
+ * wrong moment, produces scroll triggers pinned to the positions of the old
+ * page — a defect that disappears on reload, and that is therefore never
+ * attributed to the navigation.
  *
  * @module
  */
@@ -23,7 +23,7 @@ afterEach(() => {
   vi.restoreAllMocks()
 })
 
-/** Une application a deux pages. */
+/** An application with two pages. */
 function App() {
   return (
     <Routes>
@@ -33,40 +33,39 @@ function App() {
   )
 }
 
-describe('abonnement', () => {
-  it('rend de quoi se desabonner', () => {
-    const vu: string[] = []
-    const off = onNavigation((event) => vu.push(event.phase))
+describe('subscription', () => {
+  it('returns what is needed to unsubscribe', () => {
+    const seen: string[] = []
+    const off = onNavigation((event) => seen.push(event.phase))
 
     emitNavigation({ phase: 'before', from: '/a', to: '/b' })
     off()
     emitNavigation({ phase: 'after', from: '/a', to: '/b' })
 
-    expect(vu).toEqual(['before'])
+    expect(seen).toEqual(['before'])
   })
 
-  it('previent tous les abonnes meme si l un echoue', () => {
-    // Un abonne qui casse ne doit ni interrompre la navigation, ni priver les
-    // autres de l'evenement : le moteur et un journal peuvent ecouter le meme.
+  it('notifies every subscriber even when one of them fails', () => {
+    // A subscriber that breaks must neither interrupt the navigation, nor
+    // deprive the others of the event: the engine and a log may listen to the
+    // same one.
     vi.spyOn(console, 'error').mockImplementation(() => undefined)
-    const survivant = vi.fn()
+    const survivor = vi.fn()
 
     onNavigation(() => {
-      throw new Error('abonne fautif')
+      throw new Error('faulty subscriber')
     })
-    onNavigation(survivant)
+    onNavigation(survivor)
 
     expect(() => emitNavigation({ phase: 'after', from: '/a', to: '/b' })).not.toThrow()
-    expect(survivant).toHaveBeenCalledTimes(1)
+    expect(survivor).toHaveBeenCalledTimes(1)
   })
 })
 
-describe('emission par le router', () => {
-  it('annonce les deux moments, dans l ordre', async () => {
-    const evenements: string[] = []
-    onNavigation((event) =>
-      evenements.push(`${event.phase} ${event.from} -> ${event.to}`),
-    )
+describe('emission by the router', () => {
+  it('announces both moments, in order', async () => {
+    const events: string[] = []
+    onNavigation((event) => events.push(`${event.phase} ${event.from} -> ${event.to}`))
 
     const history = createMemoryHistory(['/'])
     render(
@@ -78,16 +77,16 @@ describe('emission par le router', () => {
     history.push('/suite')
 
     await waitFor(() => expect(screen.getByText('page suite')).toBeDefined())
-    await waitFor(() => expect(evenements).toHaveLength(2))
+    await waitFor(() => expect(events).toHaveLength(2))
 
-    expect(evenements).toEqual(['before / -> /suite', 'after / -> /suite'])
+    expect(events).toEqual(['before / -> /suite', 'after / -> /suite'])
   })
 
-  it('n annonce rien au premier rendu', async () => {
-    // Le montage n'est pas une navigation : annoncer un `after` ferait
-    // rafraichir des positions que personne n'a encore mesurees.
-    const ecoute = vi.fn()
-    onNavigation(ecoute)
+  it('announces nothing on the first render', async () => {
+    // Mounting is not a navigation: announcing an `after` would refresh
+    // positions that nobody has measured yet.
+    const listener = vi.fn()
+    onNavigation(listener)
 
     render(
       <Router history={createMemoryHistory(['/'])}>
@@ -96,14 +95,14 @@ describe('emission par le router', () => {
     )
 
     await waitFor(() => expect(screen.getByText('aller')).toBeDefined())
-    expect(ecoute).not.toHaveBeenCalled()
+    expect(listener).not.toHaveBeenCalled()
   })
 
-  it('n annonce rien quand seul le fragment change', async () => {
-    // Aller a `/suite#section` depuis `/suite` ne remplace aucune page : les
-    // declencheurs de defilement restent valides, et les detruire couperait
-    // une animation en cours pour rien.
-    const ecoute = vi.fn()
+  it('announces nothing when only the fragment changes', async () => {
+    // Going to `/suite#section` from `/suite` replaces no page: the scroll
+    // triggers stay valid, and destroying them would cut a running animation
+    // for nothing.
+    const listener = vi.fn()
     const history = createMemoryHistory(['/suite'])
 
     render(
@@ -113,17 +112,17 @@ describe('emission par le router', () => {
     )
 
     await waitFor(() => expect(screen.getByText('page suite')).toBeDefined())
-    onNavigation(ecoute)
+    onNavigation(listener)
     history.push('/suite#section')
 
     await new Promise((resolve) => setTimeout(resolve, 30))
-    expect(ecoute).not.toHaveBeenCalled()
+    expect(listener).not.toHaveBeenCalled()
   })
 
-  it('annonce aussi un retour arriere', async () => {
-    // Le retour du navigateur ne traverse jamais `navigate` : c'est pour cela
-    // que l'abonnement passe par l'historique et non par le rendu.
-    const evenements: string[] = []
+  it('announces a browser back too', async () => {
+    // The browser back never goes through `navigate`: that is why the
+    // subscription goes through the history and not through the render.
+    const events: string[] = []
     const history = createMemoryHistory(['/', '/suite'])
 
     render(
@@ -133,9 +132,9 @@ describe('emission par le router', () => {
     )
 
     await waitFor(() => expect(screen.getByText('page suite')).toBeDefined())
-    onNavigation((event) => evenements.push(event.phase))
+    onNavigation((event) => events.push(event.phase))
     history.go(-1)
 
-    await waitFor(() => expect(evenements).toEqual(['before', 'after']))
+    await waitFor(() => expect(events).toEqual(['before', 'after']))
   })
 })

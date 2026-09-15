@@ -1,24 +1,24 @@
 /**
- * Moteur d'animation d'Odoro.
+ * Odoro's animation engine.
  *
- * ## Ou passe la frontiere avec `@odoro-cli/libs/motion`
+ * ## Where the boundary with `@odoro-cli/libs/motion` lies
  *
- * La question a se poser tient en une phrase : **ce composant doit-il
- * travailler a chaque image ?**
+ * The question to ask fits in one sentence: **must this component work on
+ * every frame?**
  *
- * - Non — une revelation declenchee une fois, une transition de presence, une
- *   micro-interaction : cela appartient a `@odoro-cli/libs/motion`, qui confie tout
- *   au compositeur du navigateur et n'execute aucun JavaScript par image.
- * - Oui — lie au defilement, lie au pointeur avec amortissement, rendu WebGL,
- *   orchestration de plusieurs elements en cadence : cela appartient ici.
+ * - No — a reveal fired once, a presence transition, a micro-interaction: that
+ *   belongs to `@odoro-cli/libs/motion`, which hands everything to the
+ *   browser's compositor and runs no JavaScript per frame.
+ * - Yes — scroll-linked, pointer-linked with damping, WebGL rendering,
+ *   orchestrating several elements in step: that belongs here.
  *
- * Le critere n'est pas « leger contre lourd », qui laisse hesiter a chaque
- * composant, mais **qui possede la frame**. Un defilement horizontal pilote
- * par le scroll ne *peut pas* etre fait dans la librairie ; une revelation au
- * scroll ne *doit pas* etre faite ici.
+ * The criterion is not "light versus heavy", which leaves you hesitating at
+ * every component, but **who owns the frame**. A horizontal scroll driven by
+ * the scroll position *cannot* be done in the library; a reveal on scroll
+ * *must not* be done here.
  *
- * Le moteur reprend les tokens de duree et de courbe d'`@odoro-cli/libs` : il ne
- * les redefinit pas.
+ * The engine takes up the duration and easing tokens of `@odoro-cli/libs`: it
+ * does not redefine them.
  *
  * @example
  * import { OdoroEngine, clock, motionPolicy } from '@odoro-cli/engine'

@@ -1,32 +1,32 @@
 /**
- * Shader du tramage.
+ * Dither shader.
  *
- * ## L'idee mathematique
+ * ## The mathematical idea
  *
- * Un tramage ordonne compare chaque pixel a un seuil qui depend de sa
- * position dans une petite matrice repetee — celle de Bayer — plutot qu'a un
- * seuil fixe. Un degrade continu devient alors une densite de points : la
- * ou la valeur est haute, presque tous les pixels passent ; la ou elle est
- * basse, presque aucun. C'est la technique des imprimantes et des consoles a
- * deux couleurs, et elle donne ce grain regulier qu'aucun bruit ne remplace.
+ * An ordered dither compares each pixel to a threshold that depends on its
+ * position in a small repeated matrix — Bayer's — rather than to a fixed
+ * threshold. A continuous gradient then becomes a density of dots: where
+ * the value is high, almost every pixel passes; where it is low, almost
+ * none. It is the technique of printers and two-colour consoles, and it
+ * gives that even grain no noise can replace.
  *
- * La matrice huit par huit n'est pas une texture : elle se calcule par une
- * recurrence, la matrice de rang n etant celle de rang n-1 repliee. Sans
- * operations sur les bits, absentes du langage employe ici, la recurrence
- * est ecrite en arithmetique flottante.
+ * The eight by eight matrix is not a texture: it is computed by a
+ * recurrence, the matrix of rank n being that of rank n-1 folded. Without
+ * bitwise operations, absent from the language used here, the recurrence is
+ * written in floating-point arithmetic.
  *
- * Le degrade est un bruit de valeur a deux octaves, en derive lente. Trois
- * teintes : la valeur est d'abord quantifiee en deux paliers, et le tramage
- * ne joue qu'entre deux teintes voisines.
+ * The gradient is a value noise of two octaves, in slow drift. Three hues:
+ * the value is first quantised into two steps, and the dither plays only
+ * between two neighbouring hues.
  *
  * ## Uniforms
  *
- * - `uTime` — temps en secondes, fourni par le moteur.
- * - `uResolution` — taille du canevas en pixels, fournie par le moteur.
- * - `uColorA`, `uColorB`, `uColorC` — les trois teintes, de la plus basse a la plus haute.
- * - `uSpeed` — vitesse du degrade.
- * - `uPixel` — cote d'un pixel de trame, en pixels physiques.
- * - `uScale` — echelle du degrade.
+ * - `uTime` — time in seconds, supplied by the engine.
+ * - `uResolution` — canvas size in pixels, supplied by the engine.
+ * - `uColorA`, `uColorB`, `uColorC` — the three hues, from the lowest to the highest.
+ * - `uSpeed` — speed of the gradient.
+ * - `uPixel` — side of one dither pixel, in physical pixels.
+ * - `uScale` — scale of the gradient.
  */
 export const DITHER_FRAGMENT = /* glsl */ `
 precision highp float;
@@ -42,13 +42,13 @@ uniform float uSpeed;
 uniform float uPixel;
 uniform float uScale;
 
-// Nombre pseudo-aleatoire : projection sur une direction arbitraire, sinus
-// amplifie, partie fractionnaire.
+// Pseudo-random number: projection onto an arbitrary direction, amplified
+// sine, fractional part.
 float ditherHash(vec2 p) {
   return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
 }
 
-// Bruit de valeur : interpolation lissee entre les quatre coins de la cellule.
+// Value noise: smoothed interpolation between the cell's four corners.
 float ditherNoise(vec2 p) {
   vec2 cell = floor(p);
   vec2 local = fract(p);
@@ -62,8 +62,8 @@ float ditherNoise(vec2 p) {
   return mix(mix(a, b, smoothed.x), mix(c, d, smoothed.x), smoothed.y);
 }
 
-// Matrice de Bayer par recurrence : le rang deux est ecrit en clair, chaque
-// rang suivant replie le precedent a l'echelle moitie.
+// Bayer matrix by recurrence: rank two is written out in the clear, each
+// following rank folds the previous one at half scale.
 float bayer2(vec2 a) {
   a = floor(a);
   return fract(a.x / 2.0 + a.y * a.y * 0.75);
@@ -79,7 +79,7 @@ float bayer8(vec2 a) {
 
 void main() {
   float pixel = max(uPixel, 1.0);
-  // Le pixel de trame : tout ce qui suit se calcule au centre de sa case.
+  // The dither pixel: everything that follows is computed at its cell's centre.
   vec2 grid = floor(gl_FragCoord.xy / pixel);
   vec2 uv = (grid + 0.5) * pixel / uResolution;
   float aspect = uResolution.x / max(uResolution.y, 1.0);
@@ -90,10 +90,10 @@ void main() {
   value += 0.5 * ditherNoise(p * 2.1 - vec2(t * 0.15, t * 0.4));
   value /= 1.5;
 
-  // Un leger contraste : sans lui, le tramage reste dans les gris moyens.
+  // A slight contrast: without it, the dither stays in the mid greys.
   value = smoothstep(0.2, 0.8, value);
 
-  // Deux paliers, et le tramage entre les deux teintes voisines.
+  // Two steps, and the dither between the two neighbouring hues.
   float scaled = value * 2.0;
   float base = min(floor(scaled), 1.0);
   float rest = scaled - base;

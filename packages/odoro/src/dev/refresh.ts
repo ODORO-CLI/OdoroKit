@@ -1,33 +1,31 @@
 /**
- * Rechargement a chaud avec preservation de l'etat React.
+ * Hot reloading with preservation of the React state.
  *
- * ## Pourquoi une transformation dediee
+ * ## Why a dedicated transformation
  *
- * Remplacer un module ne suffit pas : React doit savoir qu'un composant est
- * *le meme* qu'avant, pour conserver son etat plutot que de le remonter. Cela
- * demande deux choses que seule une transformation du code peut fournir :
+ * Replacing a module is not enough: React must know that a component is *the
+ * same* as before, in order to keep its state rather than remount it. That
+ * requires two things only a transformation of the code can provide:
  *
- * 1. **l'enregistrement** de chaque composant sous une identite stable, pour
- *    que React relie l'ancienne version a la nouvelle ;
- * 2. **une signature des hooks** utilises par le composant. Si cette signature
- *    change entre deux versions — un `useState` ajoute, par exemple —, l'etat
- *    ne peut pas etre conserve : React doit remonter le composant. Sans
- *    signature, il tenterait de reutiliser un etat dont l'ordre des hooks ne
- *    correspond plus, et l'application planterait sur « Rendered more hooks
- *    than during the previous render ».
+ * 1. **the registration** of every component under a stable identity, so that
+ *    React links the old version to the new one;
+ * 2. **a signature of the hooks** used by the component. When this signature
+ *    changes between two versions — an added `useState`, for instance — the
+ *    state cannot be kept: React must remount the component. Without a
+ *    signature, it would try to reuse a state whose hook order no longer
+ *    matches, and the application would crash on "Rendered more hooks than
+ *    during the previous render".
  *
- * C'est la raison pour laquelle on s'appuie ici sur la transformation de
- * reference plutot que d'ecrire la notre : calculer ces signatures demande une
- * analyse syntaxique complete, et une erreur subtile ne se manifeste qu'en
- * plantage a l'edition.
+ * That is why we lean here on the reference transformation rather than writing
+ * our own: computing those signatures requires a full syntactic analysis, and a
+ * subtle mistake only shows up as a crash while editing.
  *
- * ## Ce qui est fait ici
+ * ## What is done here
  *
- * La transformation ne s'applique qu'au code du projet, et seuls les modules
- * ayant reellement enregistre un composant deviennent des frontieres de
- * rechargement. Un module exportant autre chose qu'un composant continue de
- * provoquer un rechargement de page — c'est correct : rien ne permettrait d'en
- * propager le changement sans risque.
+ * The transformation only applies to the project code, and only the modules
+ * that actually registered a component become reload boundaries. A module
+ * exporting something other than a component still triggers a page reload —
+ * which is correct: nothing would allow propagating its change safely.
  *
  * @module
  */
@@ -37,24 +35,24 @@ import { fileURLToPath } from 'node:url'
 
 import { transformAsync, type TransformOptions } from '@babel/core'
 import { build } from 'esbuild'
-// La transformation de reference est distribuee en CommonJS et sans types.
+// The reference transformation is distributed as CommonJS and without types.
 import reactRefreshPlugin from 'react-refresh/babel'
 
-/** Chemin du module de runtime servi au navigateur. */
+/** Path of the runtime module served to the browser. */
 export const REFRESH_RUNTIME_PATH = '/@odoro/react-refresh'
 
-/** Extensions susceptibles de contenir des composants. */
+/** Extensions likely to hold components. */
 const CANDIDATE_EXTENSIONS = ['.tsx', '.jsx', '.ts', '.js', '.mjs'] as const
 
 /**
- * Indique si un fichier doit passer par la transformation.
+ * Tells whether a file must go through the transformation.
  *
- * Le code des dependances en est exclu : il est deja compile, il ne change pas
- * pendant une session, et l'instrumenter ne ferait que ralentir le demarrage.
+ * The dependency code is excluded: it is already compiled, it does not change
+ * during a session, and instrumenting it would only slow down the start.
  *
  * @example
- * isRefreshCandidate('/projet/src/App.tsx') // true
- * isRefreshCandidate('/projet/node_modules/react/index.js') // false
+ * isRefreshCandidate('/project/src/App.tsx') // true
+ * isRefreshCandidate('/project/node_modules/react/index.js') // false
  */
 export function isRefreshCandidate(file: string): boolean {
   const normalized = file.split('\\').join('/')
@@ -63,38 +61,37 @@ export function isRefreshCandidate(file: string): boolean {
 }
 
 /**
- * Applique la transformation de rechargement a un module deja compile.
+ * Applies the refresh transformation to an already compiled module.
  *
- * @param code Code JavaScript issu de la compilation.
- * @param file Chemin du fichier d'origine, pour les messages et la carte de
- *   source.
- * @returns Le code instrumente, ou le code d'origine si la transformation
- *   n'a rien produit.
+ * @param code JavaScript code coming out of the build.
+ * @param file Path of the original file, for the messages and the source map.
+ * @returns The instrumented code, or the original code when the transformation
+ *   produced nothing.
  *
  * @example
- * const instrumented = await applyReactRefresh(code, '/projet/src/App.tsx')
+ * const instrumented = await applyReactRefresh(code, '/project/src/App.tsx')
  */
 export async function applyReactRefresh(code: string, file: string): Promise<string> {
   const result = await transformAsync(code, {
     filename: file,
     babelrc: false,
     configFile: false,
-    // La carte de source produite par la compilation precedente est reprise et
-    // fusionnee : sans cela, les numeros de ligne du debogueur designeraient le
-    // code instrumente plutot que la source.
+    // The source map produced by the previous build is picked up and merged:
+    // without that, the line numbers in the debugger would designate the
+    // instrumented code rather than the source.
     //
-    // `true` demande a Babel de lire la carte inline du code recu. Il l'accepte
-    // — verifie : la source reprise est bien le fichier d'origine — mais les
-    // types de la 7.x ne decrivent que la forme objet. L'annotation est
-    // incomplete, pas la valeur.
+    // `true` asks Babel to read the inline map of the received code. It accepts
+    // it — checked: the source picked up is indeed the original file — but the
+    // 7.x types only describe the object form. The annotation is incomplete,
+    // not the value.
     inputSourceMap: true as unknown as TransformOptions['inputSourceMap'],
     sourceMaps: 'inline',
-    // `skipEnvCheck` leve un garde-fou destine aux configurations globales,
-    // qui refuse la transformation hors de NODE_ENV=development. Ici c'est le
-    // point d'application qui garantit la regle : cette fonction n'est appelee
-    // que par le serveur de developpement, jamais par la compilation de
-    // production. Sans cela, un `NODE_ENV=production odoro dev` — ou une suite
-    // de tests — echouerait au lieu de simplement instrumenter.
+    // `skipEnvCheck` lifts a guard meant for global configurations, which
+    // refuses the transformation outside NODE_ENV=development. Here it is the
+    // point of application that enforces the rule: this function is only called
+    // by the development server, never by the production build. Without it, a
+    // `NODE_ENV=production odoro dev` — or a test suite — would fail instead of
+    // simply instrumenting.
     plugins: [[reactRefreshPlugin, { skipEnvCheck: true }]],
     parserOpts: { sourceType: 'module' },
   })
@@ -103,24 +100,24 @@ export async function applyReactRefresh(code: string, file: string): Promise<str
 }
 
 /**
- * Indique si la transformation a effectivement enregistre un composant.
+ * Tells whether the transformation actually registered a component.
  *
- * C'est ce qui distingue un module susceptible d'etre remplace a chaud d'un
- * module ordinaire, qui devra provoquer un rechargement de page.
+ * That is what distinguishes a module that can be replaced hot from an ordinary
+ * module, which will have to trigger a page reload.
  *
  * @example
- * hasRegisteredComponent(code) // true si le module declare un composant
+ * hasRegisteredComponent(code) // true when the module declares a component
  */
 export function hasRegisteredComponent(code: string): boolean {
   return code.includes('$RefreshReg$(')
 }
 
 /**
- * Preambule pose en tete d'un module instrumente.
+ * Preamble placed at the top of an instrumented module.
  *
- * Les deux fonctions globales sont sauvegardees puis restaurees par
- * l'epilogue : plusieurs modules s'evaluent en cascade, et chacun doit
- * enregistrer ses composants sous sa propre identite.
+ * The two global functions are saved then restored by the epilogue: several
+ * modules evaluate in cascade, and each must register its components under its
+ * own identity.
  */
 export function refreshPreamble(id: string): string {
   return `import * as __odoroRefresh from ${JSON.stringify(REFRESH_RUNTIME_PATH)}
@@ -132,11 +129,11 @@ window.$RefreshSig$ = __odoroRefresh.createSignature
 }
 
 /**
- * Epilogue pose en fin d'un module instrumente.
+ * Epilogue placed at the end of an instrumented module.
  *
- * L'auto-import est le seul moyen, pour un module, d'acceder a son propre
- * espace de noms : le module etant deja dans le cache du navigateur, l'import
- * rend la meme instance sans nouvelle requete.
+ * The self-import is the only way for a module to reach its own namespace: the
+ * module being already in the browser cache, the import returns the same
+ * instance without a new request.
  */
 export function refreshEpilogue(id: string): string {
   return `
@@ -147,8 +144,8 @@ void import(import.meta.url).then((__odoroCurrent) => {
   __odoroRefresh.registerExports(${JSON.stringify(id)}, __odoroCurrent)
   import.meta.hot?.accept((__odoroNext) => {
     if (!__odoroNext) return
-    const refus = __odoroRefresh.checkBoundary(__odoroCurrent, __odoroNext)
-    if (refus !== null) import.meta.hot.invalidate(refus)
+    const refusal = __odoroRefresh.checkBoundary(__odoroCurrent, __odoroNext)
+    if (refusal !== null) import.meta.hot.invalidate(refusal)
     else {
       __odoroRefresh.registerExports(${JSON.stringify(id)}, __odoroNext)
       __odoroRefresh.enqueueUpdate()
@@ -159,20 +156,19 @@ void import(import.meta.url).then((__odoroCurrent) => {
 }
 
 /**
- * Source du module de runtime servi au navigateur.
+ * Source of the runtime module served to the browser.
  *
- * Elle est compilee au demarrage du serveur : la transformation de reference
- * est distribuee en CommonJS, et le navigateur ne sait pas la charger telle
- * quelle.
+ * It is bundled when the server starts: the reference transformation is
+ * distributed as CommonJS, and the browser cannot load it as it is.
  */
 export const REFRESH_RUNTIME_SOURCE = `import runtime from 'react-refresh/runtime'
 
-// Le crochet doit etre installe **avant** que React ne soit charge : c'est par
-// lui que React signale les composants qu'il rend.
+// The hook must be installed **before** React is loaded: it is through it that
+// React reports the components it renders.
 runtime.injectIntoGlobalHook(window)
 
-// Valeurs neutres : un module non instrumente doit pouvoir s'evaluer sans que
-// ces fonctions existent vraiment.
+// Neutral values: an uninstrumented module must be able to evaluate without
+// those functions really existing.
 window.$RefreshReg$ = () => {}
 window.$RefreshSig$ = () => (type) => type
 
@@ -180,11 +176,10 @@ export const register = runtime.register
 export const createSignature = runtime.createSignatureFunctionForTransform
 
 /**
- * Enregistre les exports d'un module qui ressemblent a des composants.
+ * Registers the exports of a module that look like components.
  *
- * L'enregistrement par nom d'export complete celui pose dans le corps du
- * module : un composant re-exporte depuis un autre fichier n'y apparaitrait
- * pas.
+ * Registering by export name completes the one placed in the body of the
+ * module: a component re-exported from another file would not appear there.
  */
 export function registerExports(id, exports) {
   for (const key of Object.keys(exports)) {
@@ -196,29 +191,29 @@ export function registerExports(id, exports) {
 }
 
 /**
- * Verifie qu'un module peut etre remplace a chaud.
+ * Checks that a module can be replaced hot.
  *
- * @returns null si le remplacement est sur, sinon la raison du refus.
+ * @returns null when the replacement is safe, otherwise the reason for refusal.
  */
 export function checkBoundary(previous, next) {
   const before = Object.keys(previous)
   const after = Object.keys(next)
 
-  if (after.length === 0) return 'le module n exporte plus rien'
+  if (after.length === 0) return 'the module no longer exports anything'
 
   for (const key of after) {
-    if (!before.includes(key)) return 'nouvel export : ' + key
+    if (!before.includes(key)) return 'new export: ' + key
   }
   for (const key of before) {
-    if (!after.includes(key)) return 'export retire : ' + key
+    if (!after.includes(key)) return 'export removed: ' + key
   }
 
   for (const key of after) {
     const value = next[key]
     if (runtime.isLikelyComponentType(value)) continue
-    // Un export qui n'est pas un composant ne peut etre conserve que s'il n'a
-    // pas change : sinon ses consommateurs garderaient l'ancienne valeur.
-    if (previous[key] !== value) return 'export non-composant modifie : ' + key
+    // An export that is not a component can only be kept when it has not
+    // changed: otherwise its consumers would keep the old value.
+    if (previous[key] !== value) return 'non-component export changed: ' + key
   }
 
   return null
@@ -227,7 +222,7 @@ export function checkBoundary(previous, next) {
 let planned
 const DEBOUNCE = 16
 
-/** Regroupe les mises a jour d'une meme salve en un seul rafraichissement. */
+/** Groups the updates of a same burst into a single refresh. */
 export function enqueueUpdate() {
   clearTimeout(planned)
   planned = setTimeout(() => {
@@ -238,23 +233,23 @@ export function enqueueUpdate() {
 `
 
 /**
- * Balise injectee dans le document, avant tout autre module.
+ * Tag injected into the document, before any other module.
  *
- * L'ordre est imperatif : le crochet global doit etre installe avant le
- * chargement de React.
+ * The order is mandatory: the global hook must be installed before React is
+ * loaded.
  */
 export const REFRESH_HTML_TAG = `<script type="module" src="${REFRESH_RUNTIME_PATH}"></script>`
 
-/** Runtime compile, conserve pour la duree du serveur. */
+/** Bundled runtime, kept for the lifetime of the server. */
 let cachedRuntime: string | undefined
 
 /**
- * Compile le module de runtime pour le navigateur.
+ * Bundles the runtime module for the browser.
  *
- * La transformation de reference etant distribuee en CommonJS, elle passe par
- * la meme conversion que n'importe quelle dependance. La resolution part du
- * dossier du moteur, et non du projet : c'est le moteur qui declare cette
- * dependance, pas l'application.
+ * The reference transformation being distributed as CommonJS, it goes through
+ * the same conversion as any other dependency. The resolution starts from the
+ * engine directory, and not from the project: it is the engine that declares
+ * this dependency, not the application.
  *
  * @example
  * const source = await bundleRefreshRuntime()

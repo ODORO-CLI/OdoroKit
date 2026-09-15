@@ -1,22 +1,22 @@
 /**
- * Bandeau defilant, sans fin.
+ * Scrolling banner, endless.
  *
- * ## Le contenu est rendu deux fois
+ * ## The content is rendered twice
  *
- * Un defilement sans fin demande que la fin du contenu soit suivie de son
- * debut. La seule facon d'y parvenir sans calcul est de rendre le contenu deux
- * fois et de translater l'ensemble d'exactement la moitie : au moment ou la
- * premiere copie disparait, la seconde occupe sa place au pixel pres, et le
- * cycle recommence sans saut.
+ * An endless scroll requires the end of the content to be followed by its
+ * beginning. The only way to get there without computation is to render the
+ * content twice and to translate the whole by exactly half: at the moment the
+ * first copy disappears, the second takes its place to the pixel, and the
+ * cycle starts again without a jump.
  *
- * La copie est retiree de l'arbre d'accessibilite : un lecteur d'ecran
- * annoncerait sinon deux fois la meme chose.
+ * The copy is removed from the accessibility tree: a screen reader would
+ * otherwise announce the same thing twice.
  *
- * ## La duree suit la largeur
+ * ## The duration follows the width
  *
- * Une duree fixe ferait defiler un bandeau court aussi lentement qu'un long.
- * Le reglage est donc une vitesse, et la duree se deduit de la largeur reelle
- * du contenu — relue quand elle change.
+ * A fixed duration would scroll a short banner as slowly as a long one. The
+ * setting is therefore a speed, and the duration is derived from the real
+ * width of the content — read again when it changes.
  *
  * @module
  */
@@ -30,27 +30,27 @@ import {
   type ReactNode,
 } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface MarqueeOwnProps {
-  /** Contenu defilant. */
+  /** Scrolling content. */
   children: ReactNode
-  /** Duree d'un cycle pour cent pour cent de largeur, en secondes. @defaultValue 40 */
+  /** Duration of one cycle for a hundred percent of width, in seconds. @defaultValue 40 */
   speed?: number
-  /** Inverse le sens du defilement. @defaultValue false */
+  /** Reverses the direction of the scroll. @defaultValue false */
   reverse?: boolean
-  /** Suspend le defilement au survol. @defaultValue true */
+  /** Suspends the scroll on hover. @defaultValue true */
   pauseOnHover?: boolean
-  /** Largeur des fondus lateraux, en pourcentage. @defaultValue 12 */
+  /** Width of the side fades, as a percentage. @defaultValue 12 */
   fade?: number
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type MarqueeProps = Customisable<MarqueeOwnProps>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-marquee'
 
-/** Pose l'animation, une fois par document. */
+/** Sets the animation, once per document. */
 function ensureMarqueeRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -68,13 +68,13 @@ function ensureMarqueeRule(): void {
     '[data-o-marquee-reverse] > div{animation-name:o-marquee-reverse}',
     '[data-o-marquee-pause]:hover > div{animation-play-state:paused}',
     '@media (prefers-reduced-motion:reduce){[data-o-marquee] > div{animation:none}}',
-    '[data-o-marquee-fige] > div{animation:none}',
+    '[data-o-marquee-frozen] > div{animation:none}',
   ].join('')
   document.head.append(style)
 }
 
 /**
- * Fait defiler un contenu sans fin.
+ * Scrolls a content endlessly.
  *
  * @example
  * <Marquee speed={30} className="o-py-4">
@@ -101,8 +101,8 @@ export function Marquee({
   useEffect(() => {
     if (track === null) return
 
-    // La duree se deduit de la largeur : un reglage de vitesse doit donner le
-    // meme defilement apparent quel que soit le contenu.
+    // The duration is derived from the width: a speed setting must give the
+    // same apparent scroll whatever the content.
     const measure = (): void => {
       const width = track.scrollWidth / 2
       const viewport = track.parentElement?.clientWidth ?? 1
@@ -129,18 +129,18 @@ export function Marquee({
           '--o-marquee-fade': `${String(fade)}%`,
         } as CSSProperties
       }
-      // L attribut porte aussi la coupe et le masque, pas seulement
-      // l animation : le retirer sous mouvement reduit laissait la copie
-      // sortir de la bande et poussait la page de trois cents pixels. La
-      // regle @media de la feuille arrete deja le defilement.
+      // The attribute also carries the clipping and the mask, not just the
+      // animation: removing it under reduced motion let the copy leave the
+      // band and pushed the page by three hundred pixels. The @media rule of
+      // the stylesheet already stops the scroll.
       data-o-marquee=""
-      data-o-marquee-fige={reduced ? '' : undefined}
+      data-o-marquee-frozen={reduced ? '' : undefined}
       data-o-marquee-reverse={reverse ? '' : undefined}
       data-o-marquee-pause={pauseOnHover ? '' : undefined}
     >
       <div ref={setTrack}>
         <div className="o-flex">{children}</div>
-        {/* La copie n'est la que pour l'oeil : elle ne doit pas etre annoncee. */}
+        {/* The copy is there for the eye only: it must not be announced. */}
         <div aria-hidden className="o-flex">
           {children}
         </div>

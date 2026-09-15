@@ -1,32 +1,32 @@
 /**
- * Liste qui se remplit en cascade quand elle entre dans le champ, et dont la
- * ligne survolee s'allume.
+ * List that fills in a cascade when it enters the viewport, and whose hovered
+ * row lights up.
  *
- * ## La cascade se declenche a l'arrivee, pas au montage
+ * ## The cascade fires on arrival, not on mount
  *
- * Une liste posee en bas de page a fini son animation avant qu'on la voie :
- * il ne reste qu'un bloc deja en place, et le travail est perdu. L'observation
- * par `useInView` attend que la liste soit reellement regardee. Le retard de
- * chaque ligne est un index ecrit dans une variable — la feuille en fait un
- * `animation-delay`, et le composant ne pose aucune minuterie.
+ * A list placed at the bottom of the page has finished animating before anyone
+ * sees it: all that is left is a block already in place, and the work is lost.
+ * Observing with `useInView` waits until the list is really being looked at.
+ * Each row's delay is an index written into a variable — the stylesheet turns
+ * it into an `animation-delay`, and the component sets no timer at all.
  *
- * ## Ce n'est pas une barre d'onglets
+ * ## This is not a tab bar
  *
- * Des onglets changent de vue et vivent dans un `tablist`. Ici on choisit une
- * ligne dans un inventaire : c'est un `listbox`, le choix suit le focus, et la
- * liste defile. Les fleches circulent, Origine et Fin sautent aux extremites,
- * une seule ligne est dans l'ordre de tabulation.
+ * Tabs change views and live inside a `tablist`. Here one picks a row from an
+ * inventory: this is a `listbox`, selection follows focus, and the list
+ * scrolls. Arrows wrap around, Home and End jump to the ends, and a single row
+ * sits in the tab order.
  *
- * ## Le voile des bords est un masque, pas un degrade pose dessus
+ * ## The edge veil is a mask, not a gradient laid on top
  *
- * Un degrade superpose devrait connaitre la couleur du fond ; il se trahit des
- * que la page change de theme. Un `mask-image` retire de l'alpha : il marche
- * sur n'importe quel fond, et laisse les lignes du dessous cliquables.
+ * A stacked gradient would have to know the background colour; it gives itself
+ * away as soon as the page changes theme. A `mask-image` removes alpha: it
+ * works on any background, and leaves the rows underneath clickable.
  *
- * ## Mouvement reduit
+ * ## Reduced motion
  *
- * Aucune cascade : les lignes sont a leur place finale, visibles, des le
- * premier rendu — l'observation ne conditionne plus rien.
+ * No cascade: rows are at their final place, visible, from the first render —
+ * the observation no longer gates anything.
  *
  * @module
  */
@@ -40,41 +40,41 @@ import {
   type ReactElement,
 } from 'react'
 
-/** Une ligne de la liste. */
+/** One row of the list. */
 export interface AnimatedListItem {
-  /** Identifiant, unique dans la liste. */
+  /** Identifier, unique within the list. */
   readonly id: string
-  /** Libelle affiche. */
+  /** Displayed label. */
   readonly label: string
-  /** Precision affichee en sourdine, a droite du libelle. */
+  /** Detail shown muted, to the right of the label. */
   readonly hint?: string
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface AnimatedListOwnProps {
-  /** Les lignes, dans l'ordre d'affichage. */
+  /** The rows, in display order. */
   items: readonly AnimatedListItem[]
-  /** Nom de la liste pour les lecteurs d'ecran. */
+  /** Name of the list for screen readers. */
   label: string
-  /** Ligne choisie, en mode controle. */
+  /** Selected row, in controlled mode. */
   value?: string
-  /** Ligne choisie au montage, en mode non controle. */
+  /** Row selected on mount, in uncontrolled mode. */
   defaultValue?: string
-  /** Appele quand le choix change. */
+  /** Called when the selection changes. */
   onChange?: (id: string) => void
-  /** Retard ajoute par ligne dans la cascade. @defaultValue 60 */
+  /** Delay added per row in the cascade. @defaultValue 60 */
   stagger?: number
-  /** Voile les bords haut et bas de la zone qui defile. @defaultValue true */
+  /** Veils the top and bottom edges of the scrolling area. @defaultValue true */
   fade?: boolean
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type AnimatedListProps = Customisable<AnimatedListOwnProps>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-animated-list'
 
-/** Pose la zone de defilement, les lignes et leur cascade, une fois par document. */
+/** Applies the scroll area, the rows and their cascade, once per document. */
 function ensureListRules(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -86,7 +86,7 @@ function ensureListRules(): void {
     'display:flex;flex-direction:column;gap:6px;overflow-y:auto;overscroll-behavior:contain;',
     'padding:4px;scrollbar-width:thin;',
     '}',
-    // Le voile est un masque : il ne connait pas la couleur du fond.
+    // The veil is a mask: it does not know the background colour.
     '[data-o-alist][data-o-alist-fade]{',
     '-webkit-mask-image:linear-gradient(to bottom,transparent,currentColor 10%,currentColor 90%,transparent);',
     'mask-image:linear-gradient(to bottom,transparent,currentColor 10%,currentColor 90%,transparent);',
@@ -99,7 +99,7 @@ function ensureListRules(): void {
     'transition:transform var(--o-duration-base) var(--o-ease-standard),',
     'background-color var(--o-duration-base) linear,border-color var(--o-duration-base) linear;',
     '}',
-    // Le filet de gauche : c'est lui qui « allume » la ligne, pas un fond plein.
+    // The left rule: that is what "lights up" the row, not a solid background.
     '[data-o-alist] [role="option"]::before{',
     'content:"";position:absolute;left:0;top:50%;translate:0 -50%;',
     'width:3px;height:0;border-radius:999px;background:var(--o-alist-accent);',
@@ -117,17 +117,17 @@ function ensureListRules(): void {
     '[data-o-alist] [role="option"][aria-selected="true"]::before{height:60%}',
     '[data-o-alist] [role="option"]:focus-visible{outline:2px solid var(--o-alist-accent);outline-offset:2px}',
     '[data-o-alist-hint]{opacity:0.55;font-size:0.875em;white-space:nowrap}',
-    // Avant la cascade, les lignes sont retenues ; l'attribut de passage les libere.
+    // Before the cascade, rows are held back; the in-view attribute releases them.
     '[data-o-alist] [role="option"]{opacity:0}',
-    '[data-o-alist][data-o-alist-vu] [role="option"]{',
+    '[data-o-alist][data-o-alist-seen] [role="option"]{',
     'animation:o-alist-in var(--o-duration-slow) var(--o-ease-entrance) both;',
     'animation-delay:calc(var(--o-alist-index) * var(--o-alist-stagger));',
     '}',
-    // La cascade se joue sur `translate`, pas sur `transform` : une animation
-    // remplie vers l'avant garderait la main sur `transform`, et le survol ne
-    // pourrait plus decaler la ligne.
+    // The cascade plays on `translate`, not on `transform`: an animation filled
+    // forwards would keep hold of `transform`, and hover could no longer shift
+    // the row.
     '@keyframes o-alist-in{from{opacity:0;translate:0 12px}to{opacity:1;translate:none}}',
-    // Mouvement reduit : etat final tout de suite, sans attendre le passage.
+    // Reduced motion: final state right away, without waiting for the viewport.
     '@media (prefers-reduced-motion:reduce){',
     '[data-o-alist] [role="option"]{opacity:1;animation:none;transition:none}',
     '[data-o-alist] [role="option"]::before{transition:none}',
@@ -137,22 +137,22 @@ function ensureListRules(): void {
 }
 
 /**
- * Liste dont les lignes entrent en cascade et s'allument au survol.
+ * List whose rows enter in a cascade and light up on hover.
  *
  * @example
  * <AnimatedList
- *   label="Activite"
+ *   label="Activity"
  *   items={[
- *     { id: 'a', label: 'Virement recu', hint: '120 EUR' },
- *     { id: 'b', label: 'Abonnement', hint: '9 EUR' },
+ *     { id: 'a', label: 'Transfer received', hint: '120 EUR' },
+ *     { id: 'b', label: 'Subscription', hint: '9 EUR' },
  *   ]}
  *   defaultValue="a"
  *   className="o-max-h-64"
  * />
  *
  * @example
- * // Mode controle : la page decide de la ligne choisie.
- * <AnimatedList label="Dossiers" items={dossiers} value={choix} onChange={setChoix} stagger={40} />
+ * // Controlled mode: the page decides which row is selected.
+ * <AnimatedList label="Files" items={files} value={choice} onChange={setChoice} stagger={40} />
  */
 export function AnimatedList({
   items,
@@ -164,7 +164,7 @@ export function AnimatedList({
   fade = true,
   ...rest
 }: AnimatedListProps): ReactElement {
-  const { ref, vu } = useInView<HTMLDivElement>({ amount: 0.15 })
+  const { ref, inView } = useInView<HTMLDivElement>({ amount: 0.15 })
   const [internal, setInternal] = useState<string | undefined>(defaultValue)
   ensureListRules()
 
@@ -179,7 +179,7 @@ export function AnimatedList({
     onChange?.(id)
   }
 
-  /** Le choix suit le focus : c'est un listbox a selection unique. */
+  /** Selection follows focus: this is a single-select listbox. */
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>): void => {
     const last = items.length - 1
     if (last < 0) return
@@ -211,7 +211,7 @@ export function AnimatedList({
       aria-label={label}
       data-o-alist=""
       data-o-alist-fade={fade ? '' : undefined}
-      data-o-alist-vu={vu ? '' : undefined}
+      data-o-alist-seen={inView ? '' : undefined}
       className={className}
       style={
         {

@@ -1,8 +1,8 @@
 # syntax=docker/dockerfile:1
 
-# --- Etape 1 : dependances -----------------------------------------------
-# Isolee pour que le cache de couches survive a toute modification du code :
-# seule une modification du manifeste relance l'installation.
+# --- Stage 1: dependencies -----------------------------------------------
+# Isolated so that the layer cache survives any change to the code: only a
+# change to the manifest re-runs the install.
 FROM node:22-alpine AS deps
 WORKDIR /app
 COPY package.json package-lock.json* pnpm-lock.yaml* yarn.lock* ./
@@ -14,28 +14,28 @@ RUN if [ -f pnpm-lock.yaml ]; then \
       npm ci; \
     fi
 
-# --- Etape 2 : compilation ------------------------------------------------
+# --- Stage 2: build -------------------------------------------------------
 FROM node:22-alpine AS build
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN npm run build
 
-# --- Etape 3 : dependances de production ----------------------------------
-# Reinstallees a part : l'image finale ne doit pas embarquer la chaine de
-# compilation, qui pese souvent plus que l'application elle-meme.
+# --- Stage 3: production dependencies -------------------------------------
+# Reinstalled separately: the final image must not carry the build chain,
+# which often weighs more than the application itself.
 FROM node:22-alpine AS runtime-deps
 WORKDIR /app
 COPY package.json package-lock.json* ./
 RUN npm ci --omit=dev || npm install --omit=dev
 
-# --- Etape 4 : image finale -----------------------------------------------
+# --- Stage 4: final image -------------------------------------------------
 FROM node:22-alpine AS runtime
 WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=3001
 
-# Un processus applicatif n'a aucune raison de tourner en root.
+# An application process has no reason to run as root.
 RUN addgroup -S odoro && adduser -S odoro -G odoro
 
 COPY --from=runtime-deps --chown=odoro:odoro /app/node_modules ./node_modules

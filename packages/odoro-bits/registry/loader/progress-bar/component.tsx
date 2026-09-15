@@ -1,35 +1,34 @@
 /**
- * Barre de progression : une barre dans le flux, avec son etiquette et sa
- * valeur, remplie par une progression reelle ou parcourue d'un segment qui
- * respire quand rien n'est mesurable.
+ * Progress bar: a bar in the flow, with its label and its value, filled by a
+ * real progression or crossed by a segment that breathes when nothing is
+ * measurable.
  *
- * ## Une barre dans la page, pas un filet sur le bord
+ * ## A bar in the page, not a thread on the edge
  *
- * `top-loader` est un filet colle au bord de son conteneur, sans piste
- * visible ni texte : il dit « la page travaille ». Cette barre-ci prend sa
- * place dans le flux, montre sa piste, et nomme ce qu'elle mesure — un
- * envoi, une installation — avec sa valeur en chiffres. Elle dit « voici
- * ou en est cette tache ».
+ * `top-loader` is a thread stuck to the edge of its container, with no
+ * visible track and no text: it says "the page is working". This bar here
+ * takes its place in the flow, shows its track, and names what it measures —
+ * an upload, an install — with its value in figures. It says "here is where
+ * this task stands".
  *
- * ## Deux modes, deux honnetetes
+ * ## Two modes, two honesties
  *
- * Le mode determine recoit `value` et le montre tel quel : la barre est un
- * `role="progressbar"` complet, valeur comprise, et le remplissage est une
- * echelle de transformation — jamais une largeur, qui forcerait une mise en
- * page a chaque avancee.
+ * The determinate mode receives `value` and shows it as it is: the bar is a
+ * complete `role="progressbar"`, value included, and the fill is a transform
+ * scale — never a width, which would force a layout pass at every step.
  *
- * Le mode `indeterminate` ne pretend rien mesurer : un segment traverse la
- * piste en s'etirant au milieu et en se resserrant aux bords, en boucle, et
- * le `progressbar` est declare **sans** valeur — c'est ainsi que la
- * specification decrit une progression inconnue. La valeur affichee devient
- * trois points : un pourcentage invente serait le mensonge classique des
- * barres de chargement.
+ * The `indeterminate` mode claims to measure nothing: a segment crosses the
+ * track, stretching in the middle and tightening at the edges, in a loop,
+ * and the `progressbar` is declared **without** a value — that is how the
+ * specification describes an unknown progression. The displayed value
+ * becomes three dots: an invented percentage would be the classic lie of
+ * loading bars.
  *
- * L'etiquette visible et le libelle annonce sont le meme texte : ce que
- * l'oeil lit et ce que le lecteur d'ecran entend ne doivent pas diverger.
+ * The visible label and the announced label are the same text: what the eye
+ * reads and what the screen reader hears must not diverge.
  *
- * Sous mouvement reduit, la valeur saute sans transition et le segment
- * indetermine devient une piste pleine et attenuee — presente, immobile.
+ * Under reduced motion, the value jumps without a transition and the
+ * indeterminate segment becomes a full, dimmed track — present, still.
  *
  * @module
  */
@@ -37,10 +36,10 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Id of the injected stylesheet. */
 const STYLE_ID = 'o-progress-bar'
 
-/** Pose la piste, le remplissage et le segment, une fois par document. */
+/** Sets the track, the fill and the segment, once per document. */
 function ensureProgressBarRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -48,7 +47,7 @@ function ensureProgressBarRule(): void {
   const style = document.createElement('style')
   style.id = STYLE_ID
   style.textContent = [
-    // En bloc : la barre prend la largeur de son parent, comme un champ.
+    // As a block: the bar takes the width of its parent, like a field.
     '[data-o-progress-bar]{',
     'display:flex;flex-direction:column;gap:0.45em;',
     'font-size:0.875rem;line-height:1.2;',
@@ -65,8 +64,8 @@ function ensureProgressBarRule(): void {
     'background:var(--o-pbar-color);transform-origin:left;',
     'transition:transform var(--o-duration-base) var(--o-ease-standard);',
     '}',
-    // Le segment respire : etroit aux bords, large au milieu de la piste,
-    // et il repart de la gauche a chaque aller.
+    // The segment breathes: narrow at the edges, wide in the middle of the
+    // track, and it starts again from the left on each pass.
     '[data-o-pbar-indeterminate] [data-o-pbar-fill]{',
     'width:35%;transition:none;',
     'animation:o-progress-bar-run var(--o-pbar-speed) cubic-bezier(0.4,0,0.2,1) infinite;',
@@ -76,7 +75,7 @@ function ensureProgressBarRule(): void {
     '50%{transform:translateX(110%) scaleX(1.4)}',
     '100%{transform:translateX(300%) scaleX(0.5)}',
     '}',
-    // Une piste pleine et attenuee : l'attente reste dite, sans mouvement.
+    // A full, dimmed track: the wait is still said, without movement.
     '@media (prefers-reduced-motion:reduce){',
     '[data-o-pbar-fill]{transition:none}',
     '[data-o-pbar-indeterminate] [data-o-pbar-fill]{animation:none;width:100%;opacity:0.5;transform:none}',
@@ -85,36 +84,36 @@ function ensureProgressBarRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** The component's own props. */
 export interface ProgressBarOwnProps {
-  /** Progression, de 0 a 100. Ignoree en mode indetermine. @defaultValue 42 */
+  /** Progression, from 0 to 100. Ignored in indeterminate mode. @defaultValue 42 */
   value?: number
-  /** Segment sans valeur, quand rien n'est mesurable. @defaultValue false */
+  /** Segment without a value, when nothing is measurable. @defaultValue false */
   indeterminate?: boolean
-  /** Afficher l'etiquette et la valeur au-dessus de la piste. @defaultValue true */
+  /** Show the label and the value above the track. @defaultValue true */
   showLabel?: boolean
-  /** Epaisseur de la piste, en pixels. @defaultValue 6 */
+  /** Thickness of the track, in pixels. @defaultValue 6 */
   height?: number
-  /** Duree d'un aller du segment indetermine, en millisecondes. @defaultValue 1600 */
+  /** Duration of one pass of the indeterminate segment, in milliseconds. @defaultValue 1600 */
   speed?: number
-  /** Couleur du remplissage. @defaultValue la couleur du texte */
+  /** Color of the fill. @defaultValue the text color */
   color?: string
-  /** Etiquette affichee et annoncee aux lecteurs d'ecran. @defaultValue 'Chargement' */
+  /** Label displayed and announced to screen readers. @defaultValue 'Loading' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type ProgressBarProps = Customisable<ProgressBarOwnProps, 'span'>
 
 /**
- * Barre de progression dans le flux, determinee ou indeterminee.
+ * Progress bar in the flow, determinate or indeterminate.
  *
  * @example
- * // Progression reelle, etiquetee.
+ * // Real progression, labelled.
  * <ProgressBar label="Envoi" value={sent / total * 100} />
  *
  * @example
- * // Attente sans mesure, sans etiquette, dans la teinte de marque.
+ * // A wait without measure, without a label, in the brand hue.
  * <ProgressBar indeterminate showLabel={false} color="var(--o-palette-brand-500)" />
  */
 export function ProgressBar({
@@ -124,7 +123,7 @@ export function ProgressBar({
   height = 6,
   speed = 1600,
   color = 'currentColor',
-  label = 'Chargement',
+  label = 'Loading',
   ...rest
 }: ProgressBarProps): ReactElement {
   ensureProgressBarRule()
@@ -149,15 +148,15 @@ export function ProgressBar({
       data-o-pbar-indeterminate={indeterminate ? '' : undefined}
       role="progressbar"
       aria-label={label}
-      // Un progressbar sans aria-valuenow est indetermine : c'est la maniere
-      // normative de dire « j'avance, mais je ne sais pas de combien ».
+      // A progressbar without aria-valuenow is indeterminate: it is the
+      // normative way of saying "I am moving, but I do not know by how much".
       aria-valuemin={indeterminate ? undefined : 0}
       aria-valuemax={indeterminate ? undefined : 100}
       aria-valuenow={indeterminate ? undefined : Math.round(clamped)}
     >
       {showLabel ? (
-        // Le texte visible double le libelle du role : il est retire de
-        // l'arbre pour ne pas etre annonce deux fois.
+        // The visible text duplicates the label of the role: it is removed
+        // from the tree so as not to be announced twice.
         <span aria-hidden data-o-pbar-head="">
           <span>{label}</span>
           <span data-o-pbar-value="">

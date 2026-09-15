@@ -22,7 +22,7 @@
 
 import { palette } from '@odoro-cli/libs/styles'
 import { Icon } from '@odoro-cli/icons'
-import { ChevronRight } from '@odoro-cli/icons/filaire'
+import { ChevronRight } from '@odoro-cli/icons/outline'
 import {
   type CSSProperties,
   type ReactElement,

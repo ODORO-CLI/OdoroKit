@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="fr">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -7,9 +7,9 @@
     <meta name="theme-color" content="#3b82f6" />
     <title>Odoro</title>
     <script>
-      // Applique le theme memorise avant la premiere peinture. Le faire depuis
-      // React arriverait trop tard : un visiteur en theme force verrait un
-      // eclair de l'autre theme, le temps que le script se charge.
+      // Applies the stored theme before the first paint. Doing it from React
+      // would come too late: a visitor on a forced theme would see a flash of
+      // the other one, for as long as the script takes to load.
       try {
         var theme = localStorage.getItem('odoro-theme')
         if (theme === 'light' || theme === 'dark')

@@ -1,29 +1,29 @@
 /**
- * Anneau a segments : des segments fixes s'allument un a un.
+ * Segment ring: fixed segments that light up one by one.
  *
- * ## Rien ne bouge, tout s'allume
+ * ## Nothing moves, everything lights up
  *
- * Les segments ne se deplacent pas : ce sont des arcs fixes, a distance
- * egale, et seule leur opacite change. Chacun joue la meme animation —
- * s'allumer d'un coup, tenir, s'eteindre lentement — avec un delai negatif
- * proportionnel a sa place sur le tour. L'oeil voit un front qui avance
- * segment par segment, suivi d'une trainee qui s'efface. C'est le mouvement
- * d'un compteur a cadran, pas celui d'une aiguille.
+ * The segments do not travel: they are fixed arcs, evenly spaced, and only
+ * their opacity changes. Each plays the same animation — light up at once,
+ * hold, fade slowly — with a negative delay proportional to its place on the
+ * turn. The eye sees a front advancing segment by segment, followed by a
+ * trail that fades. It is the movement of a dial counter, not that of a
+ * needle.
  *
- * L'allumage est instantane et l'extinction lente, a dessein : le contraire
- * — monter lentement, couper net — se lirait comme un clignotement.
+ * The lighting is instant and the fading slow, by design: the opposite —
+ * rising slowly, cutting sharply — would read as a blink.
  *
- * Aucun JavaScript apres le premier rendu : une animation d'opacite par
- * segment, tenue par le compositeur.
+ * No JavaScript after the first render: one opacity animation per segment,
+ * held by the compositor.
  *
- * ## Un statut, pas un dessin
+ * ## A status, not a drawing
  *
- * L'element porte `role="status"` et un libelle pour les lecteurs d'ecran :
- * l'attente est une information, pas une decoration. Le dessin, lui, est
- * retire de l'arbre d'accessibilite.
+ * The element carries `role="status"` and a label for screen readers: the
+ * wait is information, not decoration. The drawing itself is removed from the
+ * accessibility tree.
  *
- * Sous mouvement reduit, tous les segments restent allumes : un anneau
- * segmente se lit encore comme un chargeur, seul le mouvement s'arrete.
+ * Under reduced motion, every segment stays lit: a segmented ring still reads
+ * as a loader, only the movement stops.
  *
  * @module
  */
@@ -31,10 +31,10 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Id of the injected stylesheet. */
 const STYLE_ID = 'o-segment-ring'
 
-/** Pose l'allumage des segments, une fois par document. */
+/** Sets the lighting of the segments, once per document. */
 function ensureSegmentRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -48,8 +48,7 @@ function ensureSegmentRule(): void {
     'animation:o-segment-ring-light var(--o-seg-speed) linear infinite;',
     'animation-delay:var(--o-seg-delay);',
     '}',
-    // Plein d'un coup, eteint lentement : le front est net, la trainee
-    // douce.
+    // Full at once, out slowly: the front is sharp, the trail soft.
     '@keyframes o-segment-ring-light{',
     '0%,20%{opacity:1}',
     '70%,100%{opacity:0.18}',
@@ -61,33 +60,33 @@ function ensureSegmentRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to the component. */
 export interface SegmentRingOwnProps {
-  /** Diametre de l'anneau, en pixels. @defaultValue 48 */
+  /** Diameter of the ring, in pixels. @defaultValue 48 */
   size?: number
-  /** Epaisseur des segments, en pixels. @defaultValue 5 */
+  /** Thickness of the segments, in pixels. @defaultValue 5 */
   thickness?: number
-  /** Nombre de segments sur le tour. @defaultValue 8 */
+  /** Number of segments around the turn. @defaultValue 8 */
   segments?: number
-  /** Duree pour que le front fasse le tour, en millisecondes. @defaultValue 1200 */
+  /** Time for the front to go round, in milliseconds. @defaultValue 1200 */
   speed?: number
-  /** Couleur des segments. @defaultValue la couleur du texte */
+  /** Colour of the segments. @defaultValue the text colour */
   color?: string
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */
+  /** Label announced to screen readers. @defaultValue 'Loading' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type SegmentRingProps = Customisable<SegmentRingOwnProps, 'span'>
 
 /**
- * Signale une attente par des segments qui s'allument en sequence.
+ * Signals a wait with segments that light up in sequence.
  *
  * @example
  * <SegmentRing />
  *
  * @example
- * // Douze segments fins, dans la teinte de marque.
+ * // Twelve thin segments, in the brand hue.
  * <SegmentRing segments={12} thickness={3} color="var(--o-palette-brand-500)" />
  */
 export function SegmentRing({
@@ -96,23 +95,23 @@ export function SegmentRing({
   segments = 8,
   speed = 1200,
   color = 'currentColor',
-  label = 'Chargement',
+  label = 'Loading',
   ...rest
 }: SegmentRingProps): ReactElement {
   ensureSegmentRule()
 
   const { className, style } = mergePresentation({}, rest)
 
-  // Le dessin vit dans une vue de 100 unites : l'epaisseur demandee en
-  // pixels est convertie pour que le trait garde sa mesure a toute taille.
+  // The drawing lives in a 100-unit view: the thickness asked for in pixels
+  // is converted so that the stroke keeps its measure at any size.
   const stroke = Math.min((thickness / size) * 100, 25)
   const radius = 50 - stroke / 2
   const circumference = 2 * Math.PI * radius
 
   const count = Math.max(1, Math.round(segments))
   const period = circumference / count
-  // Les bouts ronds mangent une demi-epaisseur de chaque cote : la part
-  // peinte est reduite d'autant pour que l'espace reste visible.
+  // Round caps eat half a thickness on each side: the painted share is
+  // reduced by as much so that the gap stays visible.
   const painted = Math.max(period * 0.62 - stroke, period * 0.25)
 
   const loaderStyle = {
@@ -148,9 +147,9 @@ export function SegmentRing({
             transform={`rotate(${String((index * 360) / count - 90 + (stroke * 180) / (Math.PI * radius * 2))} 50 50)`}
             style={
               {
-                // Le delai remonte le long du tour, en negatif : le front
-                // avance dans le sens horaire et la sequence est complete
-                // des la premiere image.
+                // The delay climbs along the turn, in the negative: the front
+                // advances clockwise and the sequence is complete from the
+                // very first frame.
                 '--o-seg-delay': `${String(Math.round((-speed * (count - index)) / count))}ms`,
               } as CSSProperties
             }

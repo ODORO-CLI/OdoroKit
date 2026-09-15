@@ -1,33 +1,32 @@
 /**
- * Lettres qui sautent : chaque lettre s'ecrase, saute et retombe a son tour,
- * de gauche a droite, puis le mot entier se pose avant le saut suivant.
+ * Bouncing letters: each letter squashes, jumps and lands in turn, from left
+ * to right, then the whole word settles before the next jump.
  *
- * ## Un saut, pas une vague
+ * ## A jump, not a wave
  *
- * Une vague fait monter et descendre les lettres sur une sinusoide, sans
- * arret : c'est un titre qui ondule. Un saut a une preparation, un apogee et
- * un atterrissage. Ici chaque lettre s'ecrase d'abord sur sa ligne de base,
- * part, s'etire au sommet, puis retombe en s'aplatissant. C'est la sequence
- * qui rend le mouvement lisible comme un rebond, et non comme un flottement.
+ * A wave makes the letters rise and fall on a sine, without stopping: that is
+ * a heading rippling. A jump has a wind-up, an apex and a landing. Here each
+ * letter first squashes onto its baseline, leaves, stretches at the top, then
+ * falls back flattening. It is that sequence which makes the movement read as
+ * a bounce, and not as a drift.
  *
- * Le saut n'occupe qu'un tiers du cycle de chaque lettre ; le reste est une
- * pose. Les lettres sont decalees d'un petit pas, en delais negatifs, et
- * l'ensemble tient dans les deux premiers tiers du cycle : le mot entier est
- * donc immobile un moment avant que la premiere lettre ne reparte. Sans
- * cette respiration, une suite de sauts en continu se lirait de nouveau
- * comme une vague.
+ * The jump only takes a third of each letter's cycle; the rest is a pose. The
+ * letters are offset by a small step, in negative delays, and the whole thing
+ * fits in the first two thirds of the cycle: the entire word is therefore
+ * still for a moment before the first letter sets off again. Without that
+ * breathing, a run of continuous jumps would read as a wave once more.
  *
- * Le pas s'adapte a la longueur du texte : un mot long ne deborde pas de
- * sa fenetre, il resserre les sauts.
+ * The step adapts to the length of the text: a long word does not overflow its
+ * window, it tightens the jumps.
  *
- * ## Un statut, pas un dessin
+ * ## A status, not a drawing
  *
- * L'element porte `role="status"` et un libelle pour les lecteurs d'ecran.
- * Les lettres, decoupees dans des elements separes, sont retirees de l'arbre
- * d'accessibilite : un lecteur d'ecran les epellerait.
+ * The element carries `role="status"` and a label for screen readers. The
+ * letters, cut into separate elements, are removed from the accessibility
+ * tree: a screen reader would spell them out.
  *
- * Sous mouvement reduit, le mot reste pose sur sa ligne : il se lit encore
- * comme une attente, seul le saut s'arrete.
+ * Under reduced motion, the word stays settled on its line: it still reads as
+ * a wait, only the jump stops.
  *
  * @module
  */
@@ -35,16 +34,16 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-letters-bounce'
 
-/** Part du cycle occupee par la sequence des sauts, la pause etant le reste. */
+/** Share of the cycle taken by the sequence of jumps, the pause being the rest. */
 const SEQUENCE_SHARE = 0.62
 
-/** Pas maximal entre deux lettres, en part du cycle. */
+/** Largest step between two letters, as a share of the cycle. */
 const MAX_STEP_SHARE = 0.07
 
-/** Pose les lettres et leur saut, une fois par document. */
+/** Sets up the letters and their jump, once per document. */
 function ensureLettersBounceRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -61,8 +60,8 @@ function ensureLettersBounceRule(): void {
     'animation:o-lb-jump var(--o-lb-speed) ease-in-out infinite;',
     'animation-delay:var(--o-lb-delay);',
     '}',
-    // Ecrasement, envol, etirement au sommet, atterrissage : le saut tient
-    // dans le premier tiers, la lettre se pose pour le reste.
+    // Squash, take-off, stretch at the top, landing: the jump fits in the
+    // first third, the letter settles for the rest.
     '@keyframes o-lb-jump{',
     '0%,34%,100%{transform:translateY(0) scale(1,1)}',
     '6%{transform:translateY(0) scale(1.15,0.8)}',
@@ -76,39 +75,39 @@ function ensureLettersBounceRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** Props of the component itself. */
 export interface LettersBounceOwnProps {
-  /** Le texte affiche, lettre par lettre. @defaultValue 'Chargement' */
+  /** The displayed text, letter by letter. @defaultValue 'Loading' */
   text?: string
-  /** Corps du texte, en pixels. @defaultValue 18 */
+  /** Size of the text, in pixels. @defaultValue 18 */
   size?: number
-  /** Duree d'un cycle, la pause comprise, en millisecondes. @defaultValue 2000 */
+  /** Duration of one cycle, the pause included, in milliseconds. @defaultValue 2000 */
   speed?: number
-  /** Couleur du texte. @defaultValue la couleur du texte */
+  /** Colour of the text. @defaultValue the text colour */
   color?: string
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */
+  /** Label announced to screen readers. @defaultValue 'Loading' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All the props. */
 export type LettersBounceProps = Customisable<LettersBounceOwnProps, 'span'>
 
 /**
- * Signale une attente par un mot dont les lettres sautent a tour de role.
+ * Signals a wait through a word whose letters jump in turn.
  *
  * @example
  * <LettersBounce />
  *
  * @example
- * // Un autre mot, plus vif, dans la teinte de marque.
+ * // Another word, brisker, in the brand hue.
  * <LettersBounce text="Envoi" speed={1400} color="var(--o-palette-brand-500)" />
  */
 export function LettersBounce({
-  text = 'Chargement',
+  text = 'Loading',
   size = 18,
   speed = 2000,
   color = 'currentColor',
-  label = 'Chargement',
+  label = 'Loading',
   ...rest
 }: LettersBounceProps): ReactElement {
   ensureLettersBounceRule()
@@ -116,8 +115,8 @@ export function LettersBounce({
   const { className, style } = mergePresentation({}, rest)
   const letters = Array.from(text)
 
-  // Le pas se resserre quand le mot s'allonge, pour que la sequence entiere
-  // tienne dans sa part du cycle et laisse la pause intacte.
+  // The step tightens as the word gets longer, so that the whole sequence fits
+  // in its share of the cycle and leaves the pause untouched.
   const stepShare = Math.min(MAX_STEP_SHARE, SEQUENCE_SHARE / Math.max(1, letters.length))
 
   const loaderStyle = {
@@ -137,14 +136,14 @@ export function LettersBounce({
             data-o-lb-letter=""
             style={
               {
-                // Negatif, pour que le canon soit en place des la premiere
-                // image : une lettre est d'autant plus en retard sur la
-                // premiere qu'elle en est loin.
+                // Negative, so that the canon is in place from the first
+                // frame: a letter lags behind the first one in proportion to
+                // how far from it it sits.
                 '--o-lb-delay': `${String(Math.round(index * stepShare * speed - speed))}ms`,
               } as CSSProperties
             }
           >
-            {/* Une espace insecable : une espace ordinaire dans un bloc en ligne s'effondrerait. */}
+            {/* A non-breaking space: an ordinary space in an inline block would collapse. */}
             {letter === ' ' ? '\u00A0' : letter}
           </span>
         ))}

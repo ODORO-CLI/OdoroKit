@@ -1,33 +1,32 @@
 /**
- * Tetris : trois pieces tombent cran par cran dans un puits de quatre cases,
- * completent trois lignes qui clignotent, et le puits se vide.
+ * Tetris: three pieces fall notch by notch into a well four cells wide,
+ * complete three rows that blink, and the well empties.
  *
- * ## Une piece est un groupe, pas quatre cases
+ * ## A piece is a group, not four cells
  *
- * Les cases d'une piece sont posees a leur place finale dans le puits, et
- * c'est le groupe entier qui est translate au-dessus du bord puis ramene
- * cran par cran par `steps()` : une case a la fois, sans interpolation. La
- * chute continue d'une animation lisse ne se lirait pas comme un Tetris ;
- * la saccade, si. Le puits coupe ce qui depasse, donc une piece n'existe
- * visuellement qu'a partir du moment ou elle entre.
+ * The cells of a piece are placed at their final position in the well, and
+ * it is the whole group that is translated above the edge then brought back
+ * notch by notch by `steps()`: one cell at a time, with no interpolation.
+ * The continuous fall of a smooth animation would not read as a Tetris; the
+ * jerk does. The well clips whatever sticks out, so a piece only exists
+ * visually from the moment it enters.
  *
- * Trois pieces — un L, un J et un carre — suffisent a remplir exactement
- * trois lignes sur quatre colonnes : douze cases, sans trou. Les lignes
- * pleines clignotent une fois puis s'effacent, comme dans le jeu, et la
- * boucle recommence.
+ * Three pieces — an L, a J and a square — are enough to fill exactly three
+ * rows over four columns: twelve cells, with no hole. The full rows blink
+ * once then clear, as in the game, and the loop starts again.
  *
- * Chaque piece connait sa fenetre dans le cycle, par une animation propre
- * ecrite une fois dans la feuille : l'ordre de chute et l'effacement commun
- * l'exigent.
+ * Every piece knows its window within the cycle, through an animation of
+ * its own written once in the stylesheet: the order of the falls and the
+ * shared clearing demand it.
  *
- * ## Un statut, pas un dessin
+ * ## A status, not a drawing
  *
- * L'element porte `role="status"` et un libelle pour les lecteurs d'ecran :
- * l'attente est une information, pas une decoration. Le puits et ses pieces
- * sont retires de l'arbre d'accessibilite.
+ * The element carries `role="status"` and a label for screen readers: the
+ * wait is information, not decoration. The well and its pieces are removed
+ * from the accessibility tree.
  *
- * Sous mouvement reduit, le puits reste rempli : la figure se lit encore,
- * seules la chute et l'effacement s'arretent.
+ * Under reduced motion, the well stays filled: the figure still reads, only
+ * the fall and the clearing stop.
  *
  * @module
  */
@@ -35,18 +34,18 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-tetris'
 
-/** Cote du puits, en cases. */
+/** Side of the well, in cells. */
 const WELL = 4
 
 /**
- * Les pieces, dans l'ordre de chute, comme listes de cases `[colonne, ligne]`
- * ou la ligne zero est en haut du puits.
+ * The pieces, in order of fall, as lists of cells `[column, row]` where row
+ * zero is at the top of the well.
  *
- * Un L a gauche, un J a droite, et le carre vient combler le milieu : les
- * trois lignes du bas sont pleines, sans trou.
+ * An L on the left, a J on the right, and the square comes to fill the
+ * middle: the three bottom rows are full, with no hole.
  */
 const PIECES: readonly (readonly (readonly [number, number])[])[] = [
   [
@@ -69,16 +68,16 @@ const PIECES: readonly (readonly (readonly [number, number])[])[] = [
   ],
 ]
 
-/** Part du cycle entre deux departs de chute, en pour cent. */
+/** Share of the cycle between two starts of a fall, in per cent. */
 const STEP = 22
 
-/** Duree d'une chute, en pour cent du cycle. */
+/** Duration of a fall, in per cent of the cycle. */
 const DROP = 18
 
-/** Instant ou les lignes pleines commencent a clignoter, en pour cent. */
+/** Moment when the full rows start to blink, in per cent. */
 const CLEAR_AT = 84
 
-/** Pose le puits, les cases et les chutes, une fois par document. */
+/** Applies the well, the cells and the falls, once per document. */
 function ensureTetrisRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -86,7 +85,7 @@ function ensureTetrisRule(): void {
   const style = document.createElement('style')
   style.id = STYLE_ID
   style.textContent = [
-    // Le puits : un carre attenue qui coupe ce qui tombe d'au-dessus.
+    // The well: a dimmed square that clips whatever falls in from above.
     '[data-o-tetris]{',
     'position:relative;display:inline-block;overflow:hidden;',
     `width:calc(var(--o-tetris-size) * ${String(WELL)});height:calc(var(--o-tetris-size) * ${String(WELL)});`,
@@ -97,8 +96,8 @@ function ensureTetrisRule(): void {
     'position:absolute;inset:0;',
     'animation-duration:var(--o-tetris-speed);animation-iteration-count:infinite;',
     '}',
-    // Une bordure transparente rognee par le fond : le joint entre deux
-    // cases, sans couleur ni calcul.
+    // A transparent border clipped by the background: the seam between two
+    // cells, with no color and no computation.
     '[data-o-tetris-cell]{',
     'position:absolute;width:var(--o-tetris-size);height:var(--o-tetris-size);',
     'box-sizing:border-box;border:1px solid transparent;background-clip:padding-box;',
@@ -112,7 +111,7 @@ function ensureTetrisRule(): void {
       return [
         `[data-o-tetris-piece="${String(piece)}"]{animation-name:o-tetris-${String(piece)}}`,
         `@keyframes o-tetris-${String(piece)}{`,
-        // Quatre crans du bord jusqu'a la place finale, un cran a la fois.
+        // Four notches from the edge to the final position, one at a time.
         `0%,${String(start)}%{transform:translateY(calc(var(--o-tetris-size) * ${String(-WELL)}));opacity:1;animation-timing-function:steps(${String(WELL)},end)}`,
         `${String(end)}%,${String(CLEAR_AT)}%{transform:none;opacity:1}`,
         `${String(CLEAR_AT + 4)}%{opacity:0.3}`,
@@ -121,7 +120,7 @@ function ensureTetrisRule(): void {
         '}',
       ].join('')
     }),
-    // Un puits rempli : la figure est dite, sans chute.
+    // A filled well: the figure is stated, with no fall.
     '@media (prefers-reduced-motion:reduce){',
     '[data-o-tetris-piece]{animation:none;transform:none;opacity:1}',
     '}',
@@ -129,36 +128,36 @@ function ensureTetrisRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface TetrisOwnProps {
-  /** Cote d'une case, en pixels. @defaultValue 8 */
+  /** Side of a cell, in pixels. @defaultValue 8 */
   size?: number
-  /** Duree d'un cycle complet, en millisecondes. @defaultValue 2600 */
+  /** Duration of a full cycle, in milliseconds. @defaultValue 2600 */
   speed?: number
-  /** Couleur des pieces. @defaultValue la couleur du texte */
+  /** Color of the pieces. @defaultValue the text color */
   color?: string
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */
+  /** Label announced to screen readers. @defaultValue 'Loading' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All the properties. */
 export type TetrisProps = Customisable<TetrisOwnProps, 'span'>
 
 /**
- * Signale une attente par des pieces qui tombent dans un puits.
+ * Signals a wait with pieces falling into a well.
  *
  * @example
  * <Tetris />
  *
  * @example
- * // Plus grand, plus lent, dans la teinte de marque.
+ * // Bigger, slower, in the brand hue.
  * <Tetris size={12} speed={3600} color="var(--o-palette-brand-500)" />
  */
 export function Tetris({
   size = 8,
   speed = 2600,
   color = 'currentColor',
-  label = 'Chargement',
+  label = 'Loading',
   ...rest
 }: TetrisProps): ReactElement {
   ensureTetrisRule()

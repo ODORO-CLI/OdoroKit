@@ -1,35 +1,35 @@
 /**
- * Menu coulant : des lignes de menu dont le fond coule au survol. Une bande
- * inversee entre par le bord ou le pointeur est arrive, et ressort par celui
- * ou il s'en va, en faisant defiler le libelle.
+ * Flowing menu rows whose background flows on hover. An inverted band
+ * comes in from the edge the pointer arrived at, and leaves by the one it
+ * departs through, scrolling the label along the way.
  *
- * ## Le bord d'entree est lu sur le geste, pas devine
+ * ## The entry edge is read from the gesture, not guessed
  *
- * Une bande qui entre toujours par le bas ment une fois sur deux : quand le
- * pointeur descend dans la liste, il arrive par le haut. A chaque entree la
- * position verticale du pointeur est comparee au centre de la ligne, et la
- * bande part du bord le plus proche. Meme lecture a la sortie. C'est ce qui
- * fait que le fond semble suivre la main plutot que reagir a elle.
+ * A band that always comes in from the bottom lies half the time: when the
+ * pointer moves down the list, it arrives from the top. On every entry the
+ * vertical position of the pointer is compared to the centre of the row, and
+ * the band starts from the nearest edge. Same reading on the way out. That is
+ * what makes the background seem to follow the hand rather than react to it.
  *
- * ## Changer de bord sans le montrer
+ * ## Changing edge without showing it
  *
- * Le bord est une variable CSS, et la transformation en depend. Ecrire la
- * variable pendant que la bande est cachee la ferait traverser la ligne, de
- * bas en haut, avant meme d'entrer — la transition ne sait pas que ce trajet
- * n'est pas voulu. La transition est donc coupee le temps d'ecrire le bord,
- * une mise en page forcee la fait prendre, puis elle est rendue.
+ * The edge is a CSS variable, and the transform depends on it. Writing the
+ * variable while the band is hidden would send it across the row, bottom to
+ * top, before it even comes in — the transition has no idea that journey is
+ * unwanted. The transition is therefore cut off for the time it takes to
+ * write the edge, a forced layout makes it stick, then it is given back.
  *
- * ## Le defilement ne tourne que sur la ligne survolee
+ * ## The scroll only runs on the hovered row
  *
- * Une animation d'images cles par ligne, en permanence, c'est autant de
- * calques composites qui vivent pour rien. L'animation n'est posee que
- * quand la bande est visible.
+ * One keyframe animation per row, permanently, means that many composited
+ * layers living for nothing. The animation is only set when the band is
+ * visible.
  *
- * ## Sous mouvement reduit
+ * ## Under reduced motion
  *
- * La bande apparait en place, et ne defile pas : le libelle y est ecrit
- * plusieurs fois, immobile. Ce qui reste est un survol inverse — le sens
- * est entier, seul le trajet manque.
+ * The band appears in place, and does not scroll: the label is written in it
+ * several times, motionless. What is left is an inverted hover — the meaning
+ * is whole, only the journey is missing.
  *
  * @module
  */
@@ -45,39 +45,39 @@ import {
   type ReactNode,
 } from 'react'
 
-/** Un element de navigation. */
+/** One navigation item. */
 export interface NavItem {
-  /** Libelle affiche. */
+  /** Displayed label. */
   readonly label: string
-  /** Cible du lien. Sans cible, l'element est un bouton. */
+  /** Target of the link. With no target, the item is a button. */
   readonly href?: string
-  /** Icone, employee comme separateur dans la bande. */
+  /** Icon, used as a separator inside the band. */
   readonly icon?: ReactNode
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface FlowingMenuOwnProps {
-  /** Les lignes, dans l'ordre d'affichage. */
+  /** The rows, in display order. */
   items: readonly NavItem[]
-  /** Duree d'un tour du defilement dans la bande, en secondes. @defaultValue 10 */
+  /** Duration of one turn of the scroll inside the band, in seconds. @defaultValue 10 */
   speed?: number
-  /** Nombre de fois que le libelle est repete dans la bande. @defaultValue 4 */
+  /** Number of times the label is repeated inside the band. @defaultValue 4 */
   repeat?: number
-  /** Index de la page courante. */
+  /** Index of the current page. */
   active?: number
-  /** Appele quand l'utilisateur choisit une ligne. */
+  /** Called when the user picks a row. */
   onActiveChange?: (index: number) => void
-  /** Nom du bloc pour les lecteurs d'ecran. @defaultValue 'Navigation' */
+  /** Name of the block for screen readers. @defaultValue 'Navigation' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type FlowingMenuProps = Customisable<FlowingMenuOwnProps, 'nav'>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-flowing-menu'
 
-/** Pose les lignes, la bande et le defilement, une fois par document. */
+/** Applies the rows, the band and the scroll, once per document. */
 function ensureFlowingRules(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -100,7 +100,7 @@ function ensureFlowingRules(): void {
     '}',
     '[data-o-flow-link]:focus-visible{outline:2px solid currentColor;outline-offset:-4px}',
     '[data-o-flow-link][aria-current]{color:var(--o-palette-brand-500)}',
-    // La bande : le theme inverse, posee par-dessus, jamais cliquable.
+    // The band: the theme inverted, laid on top, never clickable.
     '[data-o-flow-band]{',
     'position:absolute;inset:0;pointer-events:none;overflow:hidden;',
     'background:var(--o-theme-fg);color:var(--o-theme-bg);',
@@ -125,20 +125,20 @@ function ensureFlowingRules(): void {
 }
 
 /**
- * Lignes de menu dont le fond coule au survol.
+ * Menu rows whose background flows on hover.
  *
  * @example
  * <FlowingMenu
  *   items={[
- *     { label: 'Cuisine', href: '/cuisine' },
- *     { label: 'Terrasse', href: '/terrasse' },
- *     { label: 'Cave', href: '/cave' },
+ *     { label: 'Kitchen', href: '/kitchen' },
+ *     { label: 'Terrace', href: '/terrace' },
+ *     { label: 'Cellar', href: '/cellar' },
  *   ]}
  * />
  *
  * @example
- * // Defilement plus vif, libelle repete plus souvent.
- * <FlowingMenu items={liens} speed={6} repeat={6} />
+ * // Brisker scroll, label repeated more often.
+ * <FlowingMenu items={links} speed={6} repeat={6} />
  */
 export function FlowingMenu({
   items,
@@ -155,13 +155,13 @@ export function FlowingMenu({
   const links = (): HTMLElement[] =>
     Array.from(hostRef.current?.querySelectorAll<HTMLElement>('[data-o-flow-link]') ?? [])
 
-  /** Bord le plus proche du pointeur : `-101%` pour le haut, `101%` pour le bas. */
+  /** Edge nearest the pointer: `-101%` for the top, `101%` for the bottom. */
   const edgeOf = (row: HTMLElement, clientY: number): string => {
     const box = row.getBoundingClientRect()
     return clientY < box.top + box.height / 2 ? '-101%' : '101%'
   }
 
-  /** Ecrit le bord sans que la transition ne le montre. */
+  /** Writes the edge without the transition showing it. */
   const setEdge = (row: HTMLElement, edge: string): void => {
     const band = row.querySelector<HTMLElement>('[data-o-flow-band]')
     if (band === null) return
@@ -179,14 +179,14 @@ export function FlowingMenu({
 
   const leave = (event: PointerEvent<HTMLLIElement>): void => {
     const row = event.currentTarget
-    // Ouverte, la bande est a zero : changer le bord ne la deplace pas, et la
-    // fermeture partira vers ce nouveau bord.
+    // Open, the band sits at zero: changing the edge does not move it, and the
+    // closing will head towards that new edge.
     row.style.setProperty('--o-flow-edge', edgeOf(row, event.clientY))
     row.removeAttribute('data-o-flow-on')
   }
 
-  // Au clavier il n'y a pas de geste a lire : la bande entre et sort par le
-  // haut, comme si l'on descendait la liste.
+  // From the keyboard there is no gesture to read: the band comes in and goes
+  // out through the top, as if one were moving down the list.
   const focus = (event: FocusEvent<HTMLLIElement>): void => {
     const row = event.currentTarget
     setEdge(row, '-101%')
@@ -239,8 +239,8 @@ export function FlowingMenu({
             ) : (
               <span aria-hidden="true" data-o-flow-dot="" />
             )
-          // Deux groupes identiques : le defilement d'une moitie ramene
-          // exactement le second sur la place du premier, sans raccord.
+          // Two identical groups: scrolling by one half brings the second one
+          // exactly onto the place of the first, with no seam.
           const group = (prefix: string): ReactElement[] =>
             Array.from({ length: copies }, (_, copy) => (
               <span key={`${prefix}${String(copy)}`}>

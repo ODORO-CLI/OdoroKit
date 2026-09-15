@@ -1,52 +1,52 @@
 /**
- * Deformation : un filtre de deplacement pose sur n'importe quel contenu.
+ * Deformation: a displacement filter laid over any content.
  *
- * ## Pourquoi un filtre SVG et pas une texture
+ * ## Why an SVG filter and not a texture
  *
- * La facon evidente de deformer du contenu serait de le rendre dans une
- * texture, puis de la tordre dans un shader. C'est ce que font les
- * demonstrations WebGL, et c'est une impasse des que le contenu est du DOM :
- * capturer du HTML en image demande une bibliotheque tierce, echoue sur les
- * polices distantes, ignore une partie des pseudo-elements, et casse
- * completement des qu'une image vient d'une autre origine.
+ * The obvious way to deform content would be to render it into a texture, then
+ * to twist it in a shader. That is what WebGL demos do, and it is a dead end
+ * as soon as the content is DOM: capturing HTML as an image requires a
+ * third-party library, fails on remote fonts, ignores part of the
+ * pseudo-elements, and breaks completely as soon as an image comes from
+ * another origin.
  *
- * Un filtre de deplacement fait le meme travail, nativement. Le navigateur
- * rasterise l'element — ce qu'il fait de toute facon — puis decale chaque
- * pixel selon un champ de bruit. Aucune capture, aucune dependance, et cela
- * s'applique indifferemment a un fond, a du texte ou a une image.
+ * A displacement filter does the same work, natively. The browser rasterises
+ * the element — which it does anyway — then offsets each pixel according to a
+ * noise field. No capture, no dependency, and it applies indifferently to a
+ * background, to text or to an image.
  *
- * ## Les bords, et pourquoi ils sont recolles par defaut
+ * ## The edges, and why they are glued back by default
  *
- * Un deplacement va chercher chaque pixel ailleurs. Au bord de l'element, cet
- * ailleurs est en dehors : le filtre y trouve du vide, et la silhouette part
- * en lambeaux. C'est correct au sens du calcul, et illisible a l'oeil — cela
- * ressemble a un defaut d'affichage, pas a un effet.
+ * A displacement fetches each pixel from somewhere else. At the edge of the
+ * element, that somewhere else is outside: the filter finds emptiness there,
+ * and the silhouette falls into tatters. It is correct as far as the
+ * computation goes, and unreadable to the eye — it looks like a display fault,
+ * not like an effect.
  *
- * Le resultat est donc redecoupe sur l'opacite d'origine : la forme reste
- * exactement celle qu'elle etait, et seul l'interieur ondule. C'est ce que
- * `edges: 'clean'` fait, et c'est le defaut.
+ * The result is therefore re-clipped on the original opacity: the shape stays
+ * exactly what it was, and only the inside ripples. That is what
+ * `edges: 'clean'` does, and it is the default.
  *
- * `edges: 'organic'` laisse la silhouette se deformer. C'est le bon choix pour
- * une tache de couleur ou un fond, ou il n'y a pas de forme a respecter — et
- * le mauvais pour une carte, dont les angles droits sont precisement ce qu'on
- * remarque.
+ * `edges: 'organic'` lets the silhouette deform. It is the right choice for a
+ * blob of colour or a background, where there is no shape to respect — and the
+ * wrong one for a card, whose right angles are precisely what gets noticed.
  *
- * ## Ce que ce choix coute
+ * ## What this choice costs
  *
- * Trois limites, qu'il vaut mieux connaitre avant de poser le composant.
+ * Three limits, better known before laying the component down.
  *
- * Le texte est **rasterise**. A faible amplitude cela ne se voit pas ; au-dela
- * d'une dizaine de pixels, les lettres perdent leur nettete. C'est inherent :
- * un filtre travaille sur des pixels, pas sur des glyphes.
+ * Text is **rasterised**. At low amplitude it does not show; beyond a dozen
+ * pixels, the letters lose their crispness. It is inherent: a filter works on
+ * pixels, not on glyphs.
  *
- * Un filtre cree un **contexte d'empilement** et un bloc conteneur. Un enfant
- * en `position: fixed` a l'interieur se positionnera par rapport au conteneur
- * deforme, pas par rapport a la fenetre.
+ * A filter creates a **stacking context** and a containing block. A child in
+ * `position: fixed` inside it will position itself relative to the deformed
+ * container, not relative to the window.
  *
- * Et la turbulence est **calculee une fois**, pas a chaque image. Animer sa
- * frequence obligerait le navigateur a la recalculer entierement, ce qui
- * effondre la cadence. Le mouvement vient donc du deplacement du champ, pas de
- * sa regeneration — moins riche, et cent fois moins cher.
+ * And the turbulence is **computed once**, not on every frame. Animating its
+ * frequency would force the browser to recompute it entirely, which collapses
+ * the frame rate. The movement therefore comes from the displacement of the
+ * field, not from its regeneration — less rich, and a hundred times cheaper.
  *
  * @module
  */
@@ -60,53 +60,53 @@ import {
 } from '@odoro-cli/engine'
 import { useEffect, useId, useRef, type ReactElement, type ReactNode } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface DeformOwnProps {
-  /** Contenu deforme : conteneur, texte, image, n'importe quoi. */
+  /** Deformed content: container, text, image, anything. */
   children: ReactNode
-  /** Amplitude du deplacement, en pixels. @defaultValue 12 */
+  /** Amplitude of the displacement, in pixels. @defaultValue 12 */
   amount?: number
-  /** Finesse du bruit. Plus haut, plus serre. @defaultValue 0.012 */
+  /** Fineness of the noise. The higher, the tighter. @defaultValue 0.012 */
   frequency?: number
-  /** Vitesse de derive du champ. Zero pour figer. @defaultValue 0.15 */
+  /** Drift speed of the field. Zero to freeze it. @defaultValue 0.15 */
   speed?: number
   /**
-   * Nombre d'octaves du bruit. Une seule donne une ondulation lisse ; au-dela,
-   * le detail fin hache le deplacement.
+   * Number of octaves of the noise. A single one gives a smooth ripple; beyond
+   * that, the fine detail chops the displacement up.
    *
    * @defaultValue 1
    */
   octaves?: number
   /**
-   * Traitement des bords.
+   * Handling of the edges.
    *
-   * - `clean` redecoupe le resultat sur la forme d'origine : elle est
-   *   preservee, seul l'interieur ondule.
-   * - `organic` laisse la silhouette se deformer.
+   * - `clean` re-clips the result on the original shape: it is preserved, only
+   *   the inside ripples.
+   * - `organic` lets the silhouette deform.
    *
    * @defaultValue 'clean'
    */
   edges?: 'clean' | 'organic'
-  /** Amplifie la deformation au survol. @defaultValue false */
+  /** Amplifies the deformation on hover. @defaultValue false */
   onHover?: boolean
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type DeformProps = Customisable<DeformOwnProps>
 
 /**
- * Deforme son contenu.
+ * Deforms its content.
  *
  * @example
- * // Un conteneur ordinaire, fond et texte compris.
+ * // An ordinary container, background and text included.
  * <Deform amount={8}>
  *   <section className="o-rounded-xl o-bg-brand-600 o-p-8">
- *     <h2>Un titre</h2>
+ *     <h2>A heading</h2>
  *   </section>
  * </Deform>
  *
  * @example
- * // Une image, deformee seulement au survol.
+ * // An image, deformed on hover only.
  * <Deform amount={0} onHover className="o-rounded-lg o-overflow-hidden">
  *   <img src="/photo.jpg" alt="" />
  * </Deform>
@@ -127,8 +127,8 @@ export function Deform({
   const offset = useRef<SVGFEOffsetElement | null>(null)
   const hovering = useRef(false)
 
-  // En qualite basse, une seule octave : c'est le reglage qui pese, et la
-  // deformation reste lisible avec moins de detail.
+  // On low quality, a single octave: it is the setting that weighs, and the
+  // deformation stays readable with less detail.
   const grade = quality === 'low' ? 1 : octaves
 
   useEffect(() => {
@@ -136,8 +136,9 @@ export function Deform({
 
     const subscription = clock.subscribe(
       ({ time }) => {
-        // Le champ est translate, jamais regenere : animer la frequence de la
-        // turbulence obligerait le navigateur a la recalculer a chaque image.
+        // The field is translated, never regenerated: animating the frequency
+        // of the turbulence would force the browser to recompute it on every
+        // frame.
         const shift = time * speed * 60
         offset.current?.setAttribute('dx', (Math.sin(shift * 0.017) * 30).toFixed(1))
         offset.current?.setAttribute('dy', (Math.cos(shift * 0.013) * 30).toFixed(1))
@@ -151,7 +152,7 @@ export function Deform({
           )
         }
       },
-      { name: 'deformation', priority: CLOCK_PRIORITY.render },
+      { name: 'deform', priority: CLOCK_PRIORITY.render },
     )
 
     return () => subscription.unsubscribe()
@@ -168,9 +169,9 @@ export function Deform({
       onPointerLeave={() => (hovering.current = false)}
     >
       {/*
-        Le filtre vit dans le document, pas dans une feuille : il porte des
-        valeurs qui changent, et un attribut se met a jour la ou une regle CSS
-        devrait etre reecrite.
+        The filter lives in the document, not in a stylesheet: it carries
+        values that change, and an attribute updates where a CSS rule would
+        have to be rewritten.
       */}
       <svg aria-hidden className="o-absolute o-size-0" focusable="false">
         <filter id={id} colorInterpolationFilters="sRGB">
@@ -179,22 +180,22 @@ export function Deform({
             baseFrequency={frequency}
             numOctaves={grade}
             seed={7}
-            result="bruit"
+            result="noise"
           />
-          <feOffset ref={offset} in="bruit" dx="0" dy="0" result="champ" />
+          <feOffset ref={offset} in="noise" dx="0" dy="0" result="field" />
           <feDisplacementMap
             ref={displacement}
             in="SourceGraphic"
-            in2="champ"
+            in2="field"
             scale={onHover ? 0 : amount}
             xChannelSelector="R"
             yChannelSelector="G"
-            result="deplace"
+            result="displaced"
           />
           {edges === 'clean' ? (
-            // Le resultat est redecoupe sur l'opacite d'origine : la forme
-            // reste intacte, seul son interieur ondule.
-            <feComposite in="deplace" in2="SourceAlpha" operator="in" />
+            // The result is re-clipped on the original opacity: the shape
+            // stays intact, only its inside ripples.
+            <feComposite in="displaced" in2="SourceAlpha" operator="in" />
           ) : null}
         </filter>
       </svg>

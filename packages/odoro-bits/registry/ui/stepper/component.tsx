@@ -1,33 +1,33 @@
 /**
- * Etapes numerotees : le trait se remplit derriere l'avancee, et le panneau
- * glisse du cote ou l'on va.
+ * Numbered steps: the line fills in behind the progress, and the panel slides
+ * in from the side one is heading to.
  *
- * ## Les fleches deplacent le focus, pas l'etape
+ * ## The arrows move focus, not the step
  *
- * Ailleurs dans le registre — onglets a pastille, controle segmente — les
- * fleches deplacent le choix lui-meme, parce que changer d'option ne coute
- * rien. Ici, changer d'etape remplace le contenu de la page : parcourir un
- * formulaire en cinq etapes du clavier ferait alors defiler quatre panneaux
- * pour en regarder un. Les fleches promenent donc le focus, Entree valide.
- * C'est le motif d'un menu, pas celui d'un groupe de boutons radio.
+ * Elsewhere in the registry — dot tabs, segmented control — the arrows move
+ * the choice itself, because changing option costs nothing. Here, changing
+ * step replaces the content of the page: walking a five step form from the
+ * keyboard would then scroll past four panels just to look at one. So the
+ * arrows walk focus around, and Enter commits. It is the pattern of a menu,
+ * not that of a group of radio buttons.
  *
- * ## Le trait est un remplissage, pas une largeur
+ * ## The line is a fill, not a width
  *
- * Le segment entre deux etapes porte un enfant en `scaleX(0)` qui passe a 1
- * quand l'etape est franchie : une transformation, donc composee, la ou une
- * largeur animee redisposerait la barre a chaque image.
+ * The segment between two steps carries a child at `scaleX(0)` that goes to 1
+ * once the step is passed: a transform, therefore composited, where an
+ * animated width would lay the bar out again on every frame.
  *
- * ## Le panneau connait le sens de la marche
+ * ## The panel knows which way one is going
  *
- * Avancer et reculer ne se ressemblent pas : le panneau entre du cote d'ou
- * l'on vient. Le sens est deduit de l'ecart entre l'ancienne etape et la
- * nouvelle, et pose en attribut ; la clef React force la reprise de
- * l'animation, sans quoi un retour au meme panneau ne montrerait rien.
+ * Going forward and going back do not look alike: the panel enters from the side
+ * one comes from. The direction is deduced from the gap between the old step and
+ * the new one, and set as an attribute; the React key forces the animation to
+ * play again, without which coming back to the same panel would show nothing.
  *
- * ## Mouvement reduit
+ * ## Reduced motion
  *
- * Le trait est rempli d'un coup et le panneau parait sans glisser : l'etat
- * final, jamais l'etat de depart.
+ * The line is filled in one go and the panel appears without sliding: the
+ * final state, never the starting state.
  *
  * @module
  */
@@ -42,51 +42,51 @@ import {
   type ReactNode,
 } from 'react'
 
-/** Une etape. */
+/** One step. */
 export interface StepperStep {
-  /** Identifiant, unique dans le parcours. */
+  /** Id, unique within the flow. */
   readonly id: string
-  /** Libelle affiche sous le jeton. */
+  /** Label displayed under the token. */
   readonly label: string
-  /** Precision affichee en sourdine. */
+  /** Detail displayed in a muted tone. */
   readonly hint?: string
 }
 
-/** Ce que l'on peut atteindre en cliquant. */
+/** What one can reach by clicking. */
 export type StepperReach = 'done' | 'all' | 'none'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface StepperOwnProps {
-  /** Les etapes, dans l'ordre du parcours. */
+  /** The steps, in the order of the flow. */
   steps: readonly StepperStep[]
-  /** Nom du parcours pour les lecteurs d'ecran. */
+  /** Name of the flow for screen readers. */
   label: string
-  /** Index de l'etape courante, en mode controle. */
+  /** Index of the current step, in controlled mode. */
   value?: number
-  /** Index de l'etape courante au montage, en mode non controle. @defaultValue 0 */
+  /** Index of the current step on mount, in uncontrolled mode. @defaultValue 0 */
   defaultValue?: number
-  /** Appele avec l'index de l'etape choisie. */
+  /** Called with the index of the chosen step. */
   onChange?: (index: number) => void
-  /** Contenu de l'etape courante, anime a chaque changement. */
+  /** Content of the current step, animated on every change. */
   children?: ReactNode
-  /** Sens de lecture du rail. @defaultValue 'horizontal' */
+  /** Reading direction of the rail. @defaultValue 'horizontal' */
   orientation?: 'horizontal' | 'vertical'
   /**
-   * Ce que l'on peut atteindre : les etapes franchies, toutes, ou aucune —
-   * dans ce dernier cas la page seule decide.
+   * What one can reach: the steps already passed, all of them, or none —
+   * in that last case the page alone decides.
    *
    * @defaultValue 'done'
    */
   reach?: StepperReach
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type StepperProps = Customisable<StepperOwnProps>
 
-/** Identifiant de la feuille injectee. */
+/** Id of the injected stylesheet. */
 const STYLE_ID = 'o-stepper'
 
-/** Pose le rail, les jetons, le trait et le panneau, une fois par document. */
+/** Sets up the rail, the tokens, the line and the panel, once per document. */
 function ensureStepperRules(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -107,7 +107,7 @@ function ensureStepperRules(): void {
     '}',
     '[data-o-step][aria-disabled="true"]{cursor:default;opacity:0.45}',
     '[data-o-step]:focus-visible{outline:2px solid var(--o-step-accent);outline-offset:2px}',
-    // Le jeton : creux tant que l'etape est devant, plein des qu'elle est atteinte.
+    // The token: hollow while the step lies ahead, filled as soon as it is reached.
     '[data-o-step-token]{',
     'display:grid;place-items:center;flex:none;width:2rem;height:2rem;border-radius:999px;',
     'border:1px solid var(--o-theme-line);background:var(--o-theme-surface);',
@@ -123,7 +123,7 @@ function ensureStepperRules(): void {
     'box-shadow:0 0 0 4px color-mix(in oklab,var(--o-step-accent) 20%,transparent)}',
     '[data-o-step-text]{display:flex;flex-direction:column;min-width:0}',
     '[data-o-step-hint]{font-size:0.8125em;opacity:0.55}',
-    // Le segment entre deux etapes, et son remplissage en transformation.
+    // The segment between two steps, and its fill done as a transform.
     '[data-o-step-line]{',
     'position:relative;flex:1 1 auto;align-self:center;height:2px;margin:0 0.5rem;',
     'border-radius:999px;background:var(--o-theme-line);overflow:hidden;',
@@ -138,7 +138,7 @@ function ensureStepperRules(): void {
     '[data-o-stepper][data-o-stepper-vertical] [data-o-step-line] span{',
     'transform:scaleY(0);transform-origin:center top}',
     '[data-o-step-line][data-o-step-filled] span{transform:none}',
-    // Le panneau : il entre du cote d'ou l'on vient.
+    // The panel: it enters from the side one comes from.
     '[data-o-step-panel]{animation:o-step-next var(--o-duration-slow) var(--o-ease-standard) both}',
     '[data-o-step-panel][data-o-step-back]{animation-name:o-step-prev}',
     '@keyframes o-step-next{from{opacity:0;translate:24px 0}to{opacity:1;translate:none}}',
@@ -152,23 +152,23 @@ function ensureStepperRules(): void {
 }
 
 /**
- * Parcours en etapes, avec un panneau par etape.
+ * Step by step flow, with one panel per step.
  *
  * @example
  * <Stepper
- *   label="Commande"
+ *   label="Order"
  *   steps={[
- *     { id: 'panier', label: 'Panier' },
- *     { id: 'livraison', label: 'Livraison' },
- *     { id: 'paiement', label: 'Paiement' },
+ *     { id: 'cart', label: 'Cart' },
+ *     { id: 'shipping', label: 'Shipping' },
+ *     { id: 'payment', label: 'Payment' },
  *   ]}
  * >
- *   <p>Contenu de l etape courante.</p>
+ *   <p>Content of the current step.</p>
  * </Stepper>
  *
  * @example
- * // Mode controle : la page avance quand son formulaire est valide.
- * <Stepper label="Inscription" steps={etapes} value={etape} onChange={setEtape} reach="none" />
+ * // Controlled mode: the page moves on when its form is valid.
+ * <Stepper label="Sign up" steps={steps} value={step} onChange={setStep} reach="none" />
  */
 export function Stepper({
   steps,
@@ -188,9 +188,9 @@ export function Stepper({
 
   const current = Math.min(Math.max(0, value ?? internal), Math.max(0, steps.length - 1))
 
-  // Le sens de la marche se deduit de l'ecart, et se retient en etat plutot
-  // qu'en reference : ecrire une reference pendant le rendu donnerait deux
-  // resultats differents selon que React le rejoue ou non.
+  // The direction of travel is deduced from the gap, and kept in state rather
+  // than in a ref: writing to a ref during the render would give two different
+  // results depending on whether React replays it or not.
   const [seen, setSeen] = useState(current)
   const [back, setBack] = useState(false)
   if (seen !== current) {
@@ -208,7 +208,7 @@ export function Stepper({
     onChange?.(index)
   }
 
-  /** Les fleches promenent le focus ; c'est Entree qui change d'etape. */
+  /** The arrows walk focus around; it is Enter that changes step. */
   const onKeyDown = (event: KeyboardEvent<HTMLOListElement>): void => {
     const last = steps.length - 1
     const forward = orientation === 'vertical' ? 'ArrowDown' : 'ArrowRight'

@@ -1,38 +1,38 @@
 /**
- * Piscine a balles : des balles qui tombent, rebondissent et fuient le
- * pointeur.
+ * Ballpit: balls that fall, bounce and flee the pointer.
  *
- * ## Pourquoi une scene, et pas un shader plein ecran
+ * ## Why a scene, and not a full-screen shader
  *
- * Des spheres eclairees qui se chevauchent, avec une ombre propre et un
- * reflet chacune, sont ce qu'un fragment plein ecran fait le plus mal : il
- * faudrait sommer toutes les balles a chaque pixel. Une geometrie instanciee
- * les dessine toutes en un seul appel, et la lumiere est gratuite.
+ * Lit spheres that overlap, each with its own shading and its own
+ * highlight, are what a full-screen fragment does worst: every ball would
+ * have to be summed at every pixel. An instanced geometry draws them all in
+ * a single call, and the light comes free.
  *
- * ## La physique est simple, et bornee
+ * ## The physics is simple, and bounded
  *
- * Pesanteur, chocs contre le cadre, chocs par paires avec une correction de
- * position et une impulsion elastique amortie. Les paires sont testees en
- * n2 : avec cent soixante balles au plus, c'est moins de treize mille tests
- * par image, bien en dessous de ce qu'une grille d'acceleration meriterait.
- * Le pas de temps est plafonne : une image longue — un onglet qui revient —
- * ne catapulte pas les balles hors du cadre.
+ * Gravity, impacts against the frame, pairwise impacts with a position
+ * correction and a damped elastic impulse. The pairs are tested in n2: with
+ * a hundred and sixty balls at most, that is under thirteen thousand tests
+ * per frame, well below what an acceleration grid would deserve. The time
+ * step is capped: one long frame — a tab coming back — does not catapult
+ * the balls out of the frame.
  *
- * La pesanteur penche lentement d'un cote puis de l'autre. Sans cela le tas
- * se fige en quelques secondes, et un fond fige est un fond mort.
+ * Gravity tilts slowly to one side and then to the other. Without that the
+ * heap settles within a few seconds, and a frozen background is a dead
+ * background.
  *
- * ## Le cadre suit la surface
+ * ## The frame follows the surface
  *
- * Les parois sont deduites de la camera a chaque image : la demi-hauteur
- * visible a la profondeur des balles, fois le rapport de la surface. Un
- * redimensionnement deplace donc les parois, et les balles s'y rangent a
- * l'image suivante.
+ * The walls are derived from the camera on every frame: the visible half
+ * height at the depth of the balls, times the aspect of the surface. A
+ * resize therefore moves the walls, and the balls settle back inside them
+ * on the next frame.
  *
- * ## Le repli
+ * ## The fallback
  *
- * Pendant le chargement de la scene, sans WebGL, sous mouvement reduit, ou si
- * l'arbitre refuse une seconde scene, un degrade flou prend la place — dans
- * les memes tons, sans bord dur.
+ * While the scene loads, without WebGL, under reduced motion, or if the
+ * arbiter refuses a second scene, a blurred gradient takes its place — in
+ * the same tones, with no hard edge.
  *
  * @module
  */
@@ -52,78 +52,78 @@ import { useEffect, useRef, useState, type ReactElement } from 'react'
 import { usePointerDamped } from '@registre/hooks/usePointerDamped'
 import { usePoster } from '@registre/hooks/usePoster'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface BallpitControls {
-  /** Contexte de la scene : objets, camera, moteur de rendu, module. */
+  /** Context of the scene: objects, camera, renderer, module. */
   readonly scene: SceneContext
-  /** Positions vivantes, trois flottants par balle. */
+  /** Live positions, three floats per ball. */
   readonly positions: Float32Array
-  /** Vitesses vivantes, trois flottants par balle. */
+  /** Live velocities, three floats per ball. */
   readonly velocities: Float32Array
 }
 
-/** Proprietes propres au composant. */
+/** Props belonging to the component itself. */
 export interface BallpitOwnProps {
-  /** Nombre de balles. @defaultValue 80 */
+  /** Number of balls. @defaultValue 80 */
   count?: number
-  /** Rayon moyen d'une balle, en unites de scene. @defaultValue 0.32 */
+  /** Mean radius of a ball, in scene units. @defaultValue 0.32 */
   size?: number
-  /** Pesanteur. @defaultValue 6 */
+  /** Gravity. @defaultValue 6 */
   gravity?: number
-  /** Restitution des chocs. @defaultValue 0.55 */
+  /** Restitution of the impacts. @defaultValue 0.55 */
   bounce?: number
-  /** Force avec laquelle le pointeur repousse les balles. @defaultValue 8 */
+  /** Force with which the pointer pushes the balls away. @defaultValue 8 */
   push?: number
-  /** Tokens des balles, distribues a tour de role. */
+  /** Tokens of the balls, handed out in turn. */
   colors?: readonly [string, string, string]
-  /** Classes du repli. */
+  /** Classes of the fallback. */
   poster?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<BallpitControls>
 }
 
-/** Toutes les proprietes. */
+/** All the props. */
 export type BallpitProps = Customisable<BallpitOwnProps>
 
-/** Tokens employes par defaut pour les balles. */
+/** Tokens used by default for the balls. */
 const DEFAULT_TOKENS = [
   '--o-palette-brand-500',
   '--o-palette-fuchsia-500',
   '--o-palette-sky-400',
 ] as const
 
-/** Le fond de la scene suit toujours le theme. */
+/** The background of the scene always follows the theme. */
 const BACKGROUND_TOKEN = '--o-theme-bg'
 
-/** Repli par defaut : des taches floues, dans les memes tons. */
+/** Default fallback: blurred blotches, in the same tones. */
 const DEFAULT_POSTER =
   'o-bg-gradient-to-tr o-from-brand-300 dark:o-from-brand-900 o-via-zinc-50 dark:o-via-zinc-950 o-to-sky-300 dark:o-to-sky-900 o-blur-2xl o-scale-110'
 
 /**
- * Plafond du nombre de balles.
+ * Ceiling on the number of balls.
  *
- * Il borne les tests par paires : au-dela, le n2 cesserait d'etre
- * negligeable et il faudrait une grille. Le maillage instancie est alloue a
- * cette taille une fois pour toutes.
+ * It bounds the pairwise tests: beyond it, the n2 would stop being
+ * negligible and a grid would be called for. The instanced mesh is
+ * allocated at that size once and for all.
  */
 const MAX_BALLS = 160
 
-/** Nombre de balles en qualite basse. */
+/** Number of balls at low quality. */
 const LOW_BALLS = 32
 
-/** Profondeur de la piscine, de part et d'autre du plan des balles. */
+/** Depth of the pit, on either side of the plane of the balls. */
 const DEPTH = 0.5
 
-/** Distance de la camera au plan des balles. */
+/** Distance from the camera to the plane of the balls. */
 const CAMERA_DISTANCE = 6
 
-/** Pas de temps maximal : une image longue ne catapulte rien. */
+/** Maximum time step: one long frame catapults nothing. */
 const MAX_STEP = 1 / 30
 
-/** Portee de la poussee du pointeur, en unites de scene. */
+/** Reach of the pointer push, in scene units. */
 const PUSH_REACH = 1.6
 
-/** Ce que la boucle manipule, construit une fois par montage. */
+/** What the loop works on, built once per mount. */
 interface World {
   readonly mesh: InstanceType<SceneContext['three']['InstancedMesh']>
   readonly positions: Float32Array
@@ -132,19 +132,19 @@ interface World {
   readonly count: number
 }
 
-/** Lecture bornee d'un tableau type : jamais `undefined`, jamais de garde. */
+/** Bounded read of a typed array: never `undefined`, never a guard. */
 function at(array: Float32Array, index: number): number {
   return array[index] ?? 0
 }
 
-/** Nombre pseudo-aleatoire d'un indice, stable d'un montage a l'autre. */
+/** Pseudo-random number for an index, stable from one mount to the next. */
 function hash(index: number): number {
   const x = Math.sin(index * 127.1 + 311.7) * 43758.5453123
   return x - Math.floor(x)
 }
 
 /**
- * Piscine a balles.
+ * Ballpit.
  *
  * @example
  * <div className="o-relative o-h-96 o-overflow-hidden o-rounded-xl">
@@ -166,14 +166,14 @@ export function Ballpit({
   const { theme } = useMotionState()
   const [host, setHost] = useState<HTMLDivElement | null>(null)
 
-  // Un rattrapage sec : la main qui ecarte les balles n'a pas d'inertie.
-  const pointer = usePointerDamped({ host, speed: 6, name: 'ballpit : pointeur' })
+  // A crisp catch-up: the hand that shoves the balls aside has no inertia.
+  const pointer = usePointerDamped({ host, speed: 6, name: 'ballpit : pointer' })
 
   const world = useRef<World | null>(null)
   const context = useRef<SceneContext | null>(null)
 
-  // Le hook ramene le pointeur au centre quand il quitte le cadre : sans ce
-  // drapeau, la poussee creuserait un trou permanent au milieu du tas.
+  // The hook brings the pointer back to the centre when it leaves the frame:
+  // without this flag, the push would dig a permanent hole in the heap.
   const inside = useRef(false)
 
   useEffect(() => {
@@ -192,8 +192,8 @@ export function Ballpit({
     }
   }, [host])
 
-  // Les reglages sont lus par ref dans la boucle : un changement de curseur
-  // dans l'atelier prend effet a l'image suivante sans reconstruire la scene.
+  // The settings are read through a ref inside the loop: moving a slider in
+  // the workshop takes effect on the next frame without rebuilding the scene.
   const settings = useRef({ gravity, bounce, push })
   settings.current = { gravity, bounce, push }
 
@@ -211,9 +211,10 @@ export function Ballpit({
       camera.position.set(0, 0, CAMERA_DISTANCE)
       camera.lookAt(0, 0, 0)
 
-      // Le fond est la couleur du theme. Le token est en sRGB et le moteur
-      // encode sa couleur d'effacement du lineaire vers le sRGB : sans la
-      // conversion inverse, le fond ressort un cran plus clair que la page.
+      // The background is the colour of the theme. The token is in sRGB and
+      // the engine encodes its clear colour from linear to sRGB: without the
+      // reverse conversion, the background comes out a notch lighter than the
+      // page.
       const paint = (value: ShaderColour): InstanceType<typeof three.Color> =>
         new three.Color().setRGB(value[0], value[1], value[2], three.SRGBColorSpace)
       renderer.setClearColor(paint(readTokenColour(BACKGROUND_TOKEN, host)), 1)
@@ -235,8 +236,8 @@ export function Ballpit({
       const dummy = new three.Object3D()
 
       for (let index = 0; index < total; index += 1) {
-        // Les balles naissent au-dessus du cadre, etagees, pour tomber en
-        // pluie plutot que d'apparaitre empilees.
+        // The balls are born above the frame, staggered, so that they fall
+        // like rain rather than turning up already stacked.
         const radius = size * (0.7 + 0.6 * hash(index * 3 + 1))
         radii[index] = radius
         positions[index * 3] = (hash(index * 3 + 2) - 0.5) * 6
@@ -259,8 +260,8 @@ export function Ballpit({
       mesh.instanceMatrix.needsUpdate = true
       if (mesh.instanceColor !== null) mesh.instanceColor.needsUpdate = true
 
-      // Une lumiere principale, une de remplissage, une ambiance : de quoi
-      // donner un volume aux spheres sans ombre portee.
+      // One key light, one fill light, one ambient: enough to give the
+      // spheres a volume without any cast shadow.
       const key = new three.DirectionalLight()
       key.intensity = 2.4
       key.position.set(3, 5, 4)
@@ -271,7 +272,7 @@ export function Ballpit({
       ambient.intensity = 0.9
 
       const group = new three.Group()
-      group.name = 'ballpit-groupe'
+      group.name = 'ballpit-group'
       group.add(mesh, key, fill, ambient)
       scene.scene.add(group)
 
@@ -292,17 +293,17 @@ export function Ballpit({
       const { positions, velocities, radii, count: total, mesh } = live
       const { gravity: g, bounce: restitution, push: force } = settings.current
 
-      // Les parois : la demi-hauteur visible a la profondeur des balles,
-      // fois le rapport de la surface. Lues a chaque image, elles suivent le
-      // redimensionnement.
+      // The walls: the visible half height at the depth of the balls, times
+      // the aspect of the surface. Read on every frame, they follow the
+      // resize.
       const halfHeight = Math.tan((camera.fov * Math.PI) / 360) * CAMERA_DISTANCE
       const halfWidth = halfHeight * camera.aspect
 
-      // La pesanteur penche lentement : le tas ne se fige jamais tout a fait.
+      // Gravity tilts slowly: the heap never quite settles for good.
       const gx = Math.sin(time * 0.25) * g * 0.12
       const gy = -g
 
-      // Le pointeur, du repere du hook vers celui de la scene.
+      // The pointer, from the frame of the hook to that of the scene.
       const px = pointer.current.x * halfWidth
       const py = -pointer.current.y * halfHeight
 
@@ -315,8 +316,8 @@ export function Ballpit({
         let vy = at(velocities, base + 1) + gy * dt
         let vz = at(velocities, base + 2)
 
-        // La poussee : une force qui decroit lineairement avec la distance au
-        // pointeur, nulle au-dela de sa portee.
+        // The push: a force that falls off linearly with the distance to the
+        // pointer, and is zero beyond its reach.
         const dx = at(positions, base) - px
         const dy = at(positions, base + 1) - py
         const distance = Math.hypot(dx, dy)
@@ -335,8 +336,8 @@ export function Ballpit({
         let z = at(positions, base + 2) + vz * dt
         const radius = at(radii, index)
 
-        // Les parois : la position est ramenee dans le cadre, et la vitesse
-        // normale s'inverse, amortie par la restitution.
+        // The walls: the position is brought back inside the frame, and the
+        // normal velocity flips, damped by the restitution.
         if (x < -halfWidth + radius) {
           x = -halfWidth + radius
           vx = Math.abs(vx) * restitution
@@ -348,8 +349,8 @@ export function Ballpit({
           y = -halfHeight + radius
           vy = Math.abs(vy) * restitution
         } else if (y > halfHeight + 10) {
-          // Rien ne retient les balles par le haut, sauf une limite lointaine
-          // qui empeche une derive infinie si la pesanteur est nulle.
+          // Nothing holds the balls back from above, save a distant limit
+          // that prevents an endless drift when gravity is zero.
           y = halfHeight + 10
           vy = 0
         }
@@ -369,9 +370,9 @@ export function Ballpit({
         velocities[base + 2] = vz
       }
 
-      // Les chocs par paires : correction de position, puis impulsion le
-      // long de la normale si les balles se rapprochent. La masse suit le
-      // cube du rayon, pour qu'une grosse balle ecarte les petites.
+      // The pairwise impacts: position correction, then an impulse along the
+      // normal if the balls are closing in. The mass follows the cube of the
+      // radius, so that a big ball shoves the small ones aside.
       for (let i = 0; i < total; i += 1) {
         const bi = i * 3
         const ri = at(radii, i)
@@ -418,8 +419,8 @@ export function Ballpit({
         }
       }
 
-      // Les matrices : une translation et une echelle par balle, sans passer
-      // par un objet intermediaire — c'est la seule ecriture par image.
+      // The matrices: one translation and one scale per ball, without going
+      // through an intermediate object — the only write per frame.
       const matrix = new three.Matrix4()
       for (let index = 0; index < total; index += 1) {
         const base = index * 3
@@ -436,8 +437,8 @@ export function Ballpit({
     },
   })
 
-  // Le theme a bascule : les tokens sont relus et les couleurs mises a jour
-  // en place. La scene n'est pas reconstruite — seules ses couleurs changent.
+  // The theme has flipped: the tokens are read again and the colours updated
+  // in place. The scene is not rebuilt — only its colours change.
   useEffect(() => {
     const scene = context.current
     const live = world.current

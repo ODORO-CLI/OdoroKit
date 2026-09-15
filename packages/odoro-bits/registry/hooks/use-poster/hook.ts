@@ -1,58 +1,59 @@
 /**
- * Repli visuel d'un composant couteux.
+ * Visual fallback of an expensive component.
  *
- * ## Pourquoi le repli est affiche d'abord
+ * ## Why the fallback is shown first
  *
- * Un moteur de rendu 3D pese plus de cent kilo-octets compresses. Entre
- * l'arrivee de la page et la premiere image de la scene, il s'ecoule un delai
- * qui se compte en centaines de millisecondes sur une connexion ordinaire.
- * Monter la scene d'abord et le repli ensuite reviendrait a afficher un
- * rectangle vide pendant tout ce temps — a l'endroit le plus visible de la
- * page.
+ * A 3D rendering engine weighs more than a hundred kilobytes compressed.
+ * Between the arrival of the page and the first frame of the scene, a delay
+ * goes by that is counted in hundreds of milliseconds on an ordinary
+ * connection. Mounting the scene first and the fallback afterwards would
+ * amount to displaying an empty rectangle for all that time — in the most
+ * visible spot on the page.
  *
- * Le repli est donc rendu **immediatement**, dans le document, et ne
- * disparait qu'une fois la scene prete. Il sert aussi lorsque la scene ne
- * viendra jamais : sans WebGL, sous mouvement reduit, ou quand l'arbitre de
- * surfaces refuse.
+ * The fallback is therefore rendered **immediately**, in the document, and
+ * only disappears once the scene is ready. It also serves when the scene will
+ * never come: without WebGL, under reduced motion, or when the surface
+ * arbiter says no.
  *
- * ## Pourquoi il n'est pas simplement retire
+ * ## Why it is not simply removed
  *
- * Un retrait sec fait clignoter la transition entre deux images tres proches
- * mais pas identiques. Le fondu, lui, masque l'ecart. Sa duree vient des
- * tokens : elle suit le reglage du projet plutot que d'imposer le sien.
+ * A blunt removal makes the transition flicker between two very close but not
+ * identical frames. The fade, on the other hand, hides the gap. Its duration
+ * comes from the tokens: it follows the project setting rather than imposing
+ * its own.
  *
  * @module
  */
 
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
 
-/** Options de `usePoster`. */
+/** Options of `usePoster`. */
 export interface PosterOptions {
-  /** Passe a vrai quand la scene a rendu sa premiere image. */
+  /** Turns true when the scene has rendered its first frame. */
   ready: boolean
   /**
-   * Motif pour lequel la scene ne sera jamais montee. Sa presence maintient le
-   * repli indefiniment.
+   * Reason for which the scene will never be mounted. Its presence keeps the
+   * fallback in place indefinitely.
    */
   refused?: string | undefined
-  /** Duree du fondu, en millisecondes. @defaultValue 320 */
+  /** Duration of the fade, in milliseconds. @defaultValue 320 */
   fade?: number
 }
 
-/** Ce que rend `usePoster`. */
+/** What `usePoster` returns. */
 export interface PosterHandle {
-  /** `true` tant que le repli doit rester dans le document. */
+  /** `true` as long as the fallback has to stay in the document. */
   readonly visible: boolean
-  /** Styles a appliquer au repli. */
+  /** Styles to apply to the fallback. */
   readonly style: CSSProperties
 }
 
 /**
- * Pilote l'affichage et la disparition d'un repli.
+ * Drives the display and the disappearance of a fallback.
  *
- * Le repli reste monte pendant toute la duree du fondu : le retirer des le
- * debut ferait apparaitre la scene d'un coup, ce que le fondu existe
- * precisement pour eviter.
+ * The fallback stays mounted for the whole length of the fade: removing it
+ * right at the start would make the scene appear all at once, which is exactly
+ * what the fade exists to avoid.
  *
  * @example
  * const { ref, ready, refused } = useScene({ ... })
@@ -75,7 +76,7 @@ export function usePoster(options: PosterOptions): PosterHandle {
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
 
   useEffect(() => {
-    // La scene ne viendra pas : le repli est le rendu final, pas une attente.
+    // The scene will not come: the fallback is the final output, not a wait.
     if (refused !== undefined) {
       setVisible(true)
       setOpacity(1)
@@ -95,7 +96,7 @@ export function usePoster(options: PosterOptions): PosterHandle {
     style: {
       opacity,
       transition: `opacity ${fade}ms var(--o-ease-entrance, ease-out)`,
-      // Le repli s'efface, mais il ne doit intercepter aucun clic entre-temps.
+      // The fallback fades out, but it must not intercept any click meanwhile.
       pointerEvents: 'none',
     },
   }

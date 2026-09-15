@@ -1,5 +1,5 @@
 /**
- * Filet de separation.
+ * Separator rule.
  *
  * @module
  */
@@ -8,34 +8,34 @@ import { type HTMLAttributes, type ReactElement, type ReactNode } from 'react'
 
 import { cx } from '../styles/cx.js'
 
-/** Proprietes de {@link Separator}. */
+/** Properties of {@link Separator}. */
 export interface SeparatorProps extends Omit<
   HTMLAttributes<HTMLDivElement>,
   'className'
 > {
-  /** Sens du filet. @defaultValue 'horizontal' */
+  /** Direction of the rule. @defaultValue 'horizontal' */
   orientation?: 'horizontal' | 'vertical'
   /**
-   * Libelle centre entre deux filets. Horizontal seulement : un libelle sur
-   * un filet vertical n'a pas de disposition raisonnable.
+   * Label centered between two rules. Horizontal only: a label on a vertical
+   * rule has no reasonable layout.
    */
   label?: ReactNode
   /**
-   * Un separateur decoratif est retire de l'arbre d'accessibilite
-   * (`aria-hidden`) ; sinon il porte `role="separator"` et son orientation.
+   * A decorative separator is removed from the accessibility tree
+   * (`aria-hidden`); otherwise it carries `role="separator"` and its orientation.
    *
    * @defaultValue true
    */
   decorative?: boolean
-  /** Classes additionnelles. */
+  /** Additional classes. */
   className?: string
 }
 
 /**
- * Filet horizontal ou vertical, avec libelle optionnel.
+ * Horizontal or vertical rule, with an optional label.
  *
  * @example
- * <Separator label="ou" />
+ * <Separator label="or" />
  */
 export function Separator({
   orientation = 'horizontal',
@@ -44,8 +44,8 @@ export function Separator({
   className,
   ...rest
 }: SeparatorProps): ReactElement {
-  // ARIA considere un separateur horizontal comme l'orientation implicite ;
-  // seul le vertical doit etre declare.
+  // ARIA treats a horizontal separator as the implicit orientation;
+  // only the vertical one has to be declared.
   const aria = decorative
     ? ({ 'aria-hidden': true } as const)
     : ({

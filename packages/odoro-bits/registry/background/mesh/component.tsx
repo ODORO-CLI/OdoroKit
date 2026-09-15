@@ -1,19 +1,19 @@
 /**
- * Nappe : trois taches de couleur qui derivent et se melangent.
+ * Mesh: three colour blots drifting and blending.
  *
- * ## Ce que ce composant apporte, et ce qu'il delegue
+ * ## What this component brings, and what it delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur — les recopier ici en ferait autant
- * de versions a maintenir qu'il y a de fonds.
+ * It carries only what sets it apart: its shader, its settings and its
+ * fallback. Reading the tokens, converting them to floats and re-reading them
+ * when the theme changes all come from the engine — copying that here would
+ * leave as many versions to maintain as there are backgrounds.
  *
- * ## Le repli n'est pas une precaution
+ * ## The fallback is not a precaution
  *
- * C'est la moitie du composant. Il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en
- * accorde qu'une par backend — et sous mouvement reduit, ou un fond anime
- * n'apporte rien d'autre que son mouvement.
+ * It is half the component. It is shown while the backend loads, when WebGL is
+ * missing, when the arbiter refuses the surface — it grants only one per
+ * backend — and under reduced motion, where an animated background brings
+ * nothing but its motion.
  *
  * @module
  */
@@ -29,44 +29,44 @@ import {
 } from '@odoro-cli/engine'
 import { type ReactElement } from 'react'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface MeshControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to this component. */
 export interface MeshOwnProps {
-  /** Vitesse de derive des taches. @defaultValue 0.2 */
+  /** Speed at which the blots drift. @defaultValue 0.2 */
   speed?: number
-  /** Etendue des taches. @defaultValue 0.55 */
+  /** Extent of the blots. @defaultValue 0.55 */
   spread?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<MeshControls>
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type MeshProps = Customisable<MeshOwnProps>
 
-/** Tokens employes par defaut. */
+/** Tokens used by default. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-brand-500',
   '--o-palette-fuchsia-500',
 ] as const
 
-/** Repli par defaut : un degrade fige, dans les memes tons. */
+/** Default fallback: a frozen gradient, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-br o-from-brand-800 o-via-fuchsia-800 o-to-zinc-50 dark:o-to-zinc-950'
 
 /**
- * Nappe : trois taches de couleur qui derivent et se melangent.
+ * Mesh: three colour blots drifting and blending.
  *
  * @example
  * <div className="o-relative o-min-h-screen">
@@ -86,7 +86,7 @@ export function Mesh({
     fragment: MESH_FRAGMENT,
     colors,
     uniforms: { uSpeed: speed, uScale: spread },
-    name: 'nappe',
+    name: 'sheet',
   })
 
   useOnReady(onReady, ready ? { colours, refused } : null, ref.current)

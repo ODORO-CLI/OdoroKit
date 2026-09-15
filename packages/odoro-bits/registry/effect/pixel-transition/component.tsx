@@ -1,34 +1,33 @@
 /**
- * Transition en damier entre deux contenus.
+ * Checkerboard transition between two contents.
  *
- * ## Recouvrir, echanger, decouvrir
+ * ## Cover, swap, uncover
  *
- * Faire passer un contenu a un autre par un masque de cases obligerait a
- * decouper le second en autant de morceaux — impossible des qu'il s'agit de
- * texte, de boutons ou d'une carte entiere.
+ * Moving from one content to another through a mask of squares would require
+ * cutting the second into as many pieces — impossible as soon as it is text,
+ * buttons or a whole card.
  *
- * Le damier est donc **opaque** et joue en trois temps : il couvre le premier
- * contenu, l'echange a lieu derriere lui, puis il se retire. Ce sont deux
- * rendus React par passage, et rien entre les deux : les retards de chaque
- * case sont dans la feuille de style, pas dans une boucle.
+ * The checkerboard is therefore **opaque** and plays in three beats: it covers
+ * the first content, the swap happens behind it, then it withdraws. That is
+ * two React renders per passage, and nothing in between: the delays of each
+ * square live in the stylesheet, not in a loop.
  *
- * ## Pourquoi un damier et pas un balayage
+ * ## Why a checkerboard and not a sweep
  *
- * Les cases s'allument par diagonales, mais en deux passes : d'abord une case
- * sur deux, puis les autres. Le recouvrement se fait ainsi en deux vagues qui
- * s'entrelacent, ce qui evite le front rectiligne d'un simple balayage — on
- * reconnait un ecran qui se pixelise, pas un rideau qui se ferme.
+ * The squares light up along diagonals, but in two passes: first every other
+ * square, then the rest. The covering is thus done in two interleaved waves,
+ * which avoids the straight front of a plain sweep — one recognises a screen
+ * pixelating, not a curtain closing.
  *
- * ## Les deux contenus restent dans le document
+ * ## Both contents stay in the document
  *
- * Le contenu au repos occupe le flux et donne sa taille a la zone ; l'autre
- * est superpose. Celui qui n'est pas montre est cache par `visibility`, ce qui
- * le retire de l'ordre de tabulation et de la restitution vocale sans lui
- * prendre sa place — un contenu absent ferait sauter la mise en page a chaque
- * passage.
+ * The resting content occupies the flow and gives the area its size; the other
+ * is superimposed. The one that is not shown is hidden by `visibility`, which
+ * removes it from the tab order and from speech output without taking away its
+ * place — an absent content would make the layout jump on every passage.
  *
- * Sous mouvement reduit, l'echange est immediat : c'est l'etat final, sans les
- * cases.
+ * Under reduced motion, the swap is immediate: it is the final state, without
+ * the squares.
  *
  * @module
  */
@@ -45,49 +44,49 @@ import {
 
 import { useInView } from '@registre/hooks/useInView'
 
-/** Ce qui declenche le passage au second contenu. */
+/** What triggers the passage to the second content. */
 export type PixelTrigger = 'hover' | 'click' | 'view'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface PixelTransitionOwnProps {
-  /** Contenu au repos. Il donne sa taille a la zone. */
+  /** Resting content. It gives the area its size. */
   from: ReactNode
-  /** Contenu montre apres le passage. */
+  /** Content shown after the passage. */
   to: ReactNode
-  /** Nombre de colonnes. Les lignes suivent les proportions. @defaultValue 12 */
+  /** Number of columns. The rows follow the proportions. @defaultValue 12 */
   cells?: number
-  /** Duree du recouvrement, en millisecondes. @defaultValue 520 */
+  /** Duration of the covering, in milliseconds. @defaultValue 520 */
   duration?: number
-  /** Ce qui declenche le passage. @defaultValue 'hover' */
+  /** What triggers the passage. @defaultValue 'hover' */
   trigger?: PixelTrigger
-  /** Couleur des cases. @defaultValue l'encre du theme */
+  /** Colour of the squares. @defaultValue the theme ink */
   color?: string
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type PixelTransitionProps = Customisable<PixelTransitionOwnProps>
 
-/** Duree du fondu d'une seule case, en millisecondes. */
+/** Duration of the fade of a single square, in milliseconds. */
 const CELL_FADE = 140
 
 /**
- * Echange deux contenus derriere un damier.
+ * Swaps two contents behind a checkerboard.
  *
  * @example
  * <PixelTransition
- *   from={<img src="/pochette.jpg" alt="Pochette de l album" />}
- *   to={<img src="/verso.jpg" alt="Liste des titres" />}
+ *   from={<img src="/sleeve.jpg" alt="Album sleeve" />}
+ *   to={<img src="/back.jpg" alt="Track listing" />}
  *   className="o-w-64 o-rounded-xl"
  * />
  *
  * @example
- * // Au clic, en gros pixels, dans la teinte de marque.
+ * // On click, in coarse pixels, in the brand hue.
  * <PixelTransition
  *   trigger="click"
  *   cells={6}
  *   color="var(--o-palette-brand-500)"
- *   from={<p>Le tarif</p>}
- *   to={<p>39 EUR par mois</p>}
+ *   from={<p>The price</p>}
+ *   to={<p>39 EUR per month</p>}
  * />
  */
 export function PixelTransition({
@@ -100,22 +99,24 @@ export function PixelTransition({
   ...rest
 }: PixelTransitionProps): ReactElement {
   const { reduced } = useMotionState()
-  const { ref, vu } = useInView<HTMLDivElement>({ immediat: trigger !== 'view' })
+  const { ref, inView } = useInView<HTMLDivElement>({
+    immediate: trigger !== 'view',
+  })
 
   const [ratio, setRatio] = useState(0.6)
   const [target, setTarget] = useState<'from' | 'to'>('from')
   const [shown, setShown] = useState<'from' | 'to'>('from')
   const [covered, setCovered] = useState(false)
 
-  // L'entree dans le champ est un declenchement comme un autre : elle pose la
-  // meme cible que le survol ou le clic.
+  // Entering the viewport is a trigger like any other: it sets the same target
+  // as the hover or the click.
   useEffect(() => {
-    if (trigger === 'view' && vu) setTarget('to')
-  }, [trigger, vu])
+    if (trigger === 'view' && inView) setTarget('to')
+  }, [trigger, inView])
 
-  // Les proportions de la zone donnent le nombre de lignes : sans cette
-  // mesure, les cases seraient des rectangles etires sur une zone large, et le
-  // damier ne se lirait plus comme un damier.
+  // The proportions of the area give the number of rows: without that
+  // measurement, the squares would be rectangles stretched over a wide area,
+  // and the checkerboard would no longer read as a checkerboard.
   useEffect(() => {
     const host = ref.current
     if (host === null) return
@@ -133,8 +134,8 @@ export function PixelTransition({
   useEffect(() => {
     if (target === shown) return
 
-    // Sans mouvement, il n'y a rien a couvrir : l'etat final est pose tout de
-    // suite.
+    // With no motion, there is nothing to cover: the final state is applied
+    // right away.
     if (reduced) {
       setShown(target)
       return
@@ -142,8 +143,8 @@ export function PixelTransition({
 
     setCovered(true)
     const timer = setTimeout(() => {
-      // L'echange a lieu derriere le damier plein, puis les cases se retirent
-      // dans l'ordre inverse.
+      // The swap happens behind the full checkerboard, then the squares
+      // withdraw in the reverse order.
       setShown(target)
       setCovered(false)
     }, cover)
@@ -167,8 +168,8 @@ export function PixelTransition({
 
   const toggle = (): void => setTarget((value) => (value === 'from' ? 'to' : 'from'))
 
-  // Un declenchement au clic doit repondre au clavier : sans cela, le second
-  // contenu serait hors d'atteinte de qui n'a pas de souris.
+  // A click trigger must answer the keyboard: without that, the second content
+  // would be out of reach for anyone without a mouse.
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>): void => {
     if (event.key !== 'Enter' && event.key !== ' ') return
     event.preventDefault()
@@ -205,8 +206,8 @@ export function PixelTransition({
           {Array.from({ length: total }, (_, index) => {
             const column = index % columns
             const row = Math.floor(index / columns)
-            // Une case sur deux d'abord, les autres ensuite, chaque passe en
-            // diagonale : deux vagues entrelacees plutot qu'un front droit.
+            // Every other square first, the rest afterwards, each pass along a
+            // diagonal: two interleaved waves rather than a straight front.
             const pass = (column + row) % 2
             const rank = (pass * steps + column + row) / (2 * steps)
             const delay = (covered ? rank : 1 - rank) * duration

@@ -1,23 +1,23 @@
 /**
- * Compilation et evaluation des patterns de route.
+ * Compilation and evaluation of route patterns.
  *
- * Chaque pattern est compile en expression reguliere **une seule fois** puis
- * conserve dans un cache module. Le rendu d'un composant ne recompile jamais :
- * il ne fait qu'executer une `RegExp` deja construite.
+ * Each pattern is compiled into a regular expression **only once** then kept
+ * in a module cache. Rendering a component never recompiles: it only runs an
+ * already built `RegExp`.
  *
  * @module
  */
 
 import { normalizePathname } from './path.js'
 
-/** Nature d'un segment de pattern, du plus specifique au moins specifique. */
+/** Nature of a pattern segment, from the most to the least specific. */
 export type SegmentKind = 'static' | 'dynamic' | 'optional' | 'catchAll'
 
 /**
- * Poids de specificite d'un segment. `RANK_ABSENT` represente l'absence de
- * segment a une position donnee : un pattern qui s'arrete est plus specifique
- * qu'un pattern qui continue avec un segment optionnel ou un catch-all,
- * puisqu'il decrit exactement le chemin teste.
+ * Specificity weight of a segment. `RANK_ABSENT` represents the absence of a
+ * segment at a given position: a pattern that stops is more specific than a
+ * pattern that carries on with an optional segment or a catch-all, since it
+ * describes exactly the path being tested.
  */
 const RANK_ABSENT = 5
 const RANK_BY_KIND: Readonly<Record<SegmentKind, number>> = {
@@ -27,41 +27,41 @@ const RANK_BY_KIND: Readonly<Record<SegmentKind, number>> = {
   catchAll: 1,
 }
 
-/** Nom du parametre expose pour un segment catch-all. */
+/** Name of the parameter exposed for a catch-all segment. */
 export const CATCH_ALL_PARAM = '*'
 
-/** Un pattern analyse, pret a etre confronte a un pathname. */
+/** A parsed pattern, ready to be matched against a pathname. */
 export interface CompiledPattern {
-  /** Pattern d'origine, tel qu'ecrit par le developpeur. */
+  /** Original pattern, as written by the developer. */
   readonly pattern: string
-  /** Expression reguliere compilee, insensible a la casse. */
+  /** Compiled regular expression, case insensitive. */
   readonly regex: RegExp
-  /** Noms des parametres, dans l'ordre des groupes capturants. */
+  /** Names of the parameters, in the order of the capturing groups. */
   readonly paramNames: readonly string[]
-  /** Poids de specificite, compares position par position. */
+  /** Specificity weights, compared position by position. */
   readonly rank: readonly number[]
-  /** `true` si le dernier segment est un catch-all. */
+  /** `true` when the last segment is a catch-all. */
   readonly hasCatchAll: boolean
-  /** `true` si le pattern doit consommer le pathname en entier. */
+  /** `true` when the pattern must consume the whole pathname. */
   readonly end: boolean
 }
 
-/** Resultat d'une confrontation reussie entre un pattern et un pathname. */
+/** Result of a successful match between a pattern and a pathname. */
 export interface PathMatch {
-  /** Pattern ayant produit la correspondance. */
+  /** Pattern that produced the match. */
   readonly pattern: string
-  /** Portion du pathname effectivement consommee. */
+  /** Portion of the pathname effectively consumed. */
   readonly pathname: string
   /**
-   * Parametres extraits. Un segment optionnel absent vaut `undefined`, ce que
-   * `noUncheckedIndexedAccess` rend explicite cote consommateur.
+   * Extracted parameters. A missing optional segment is `undefined`, which
+   * `noUncheckedIndexedAccess` makes explicit on the consumer side.
    */
   readonly params: Readonly<Record<string, string | undefined>>
 }
 
 const CACHE = new Map<string, CompiledPattern>()
 
-/** Caracteres a neutraliser dans un segment statique. */
+/** Characters to neutralize inside a static segment. */
 const REGEX_SPECIALS = /[.*+?^${}()|[\]\\]/g
 
 function escapeRegex(value: string): string {
@@ -69,8 +69,8 @@ function escapeRegex(value: string): string {
 }
 
 /**
- * Decode un segment d'URL sans jamais lever : un `%` isole dans une URL
- * malformee ne doit pas faire tomber l'application entiere.
+ * Decodes a URL segment without ever throwing: a lone `%` in a malformed URL
+ * must not bring the whole application down.
  */
 function safeDecode(value: string): string {
   try {
@@ -81,19 +81,19 @@ function safeDecode(value: string): string {
 }
 
 /**
- * Compile un pattern de route en expression reguliere, avec mise en cache.
+ * Compiles a route pattern into a regular expression, with caching.
  *
- * Syntaxe supportee :
- * - `/users` — segment statique
- * - `/users/:id` — segment dynamique obligatoire
- * - `/blog/:slug?` — segment dynamique optionnel
- * - `/docs/*` — catch-all, expose le parametre `*`
+ * Supported syntax:
+ * - `/users` — static segment
+ * - `/users/:id` — required dynamic segment
+ * - `/blog/:slug?` — optional dynamic segment
+ * - `/docs/*` — catch-all, exposes the `*` parameter
  *
- * @param pattern Pattern de route, avec ou sans `/` initial.
- * @param end Si `false`, le pattern peut ne consommer qu'un prefixe du
- *   pathname : c'est le mode utilise pour les routes parentes imbriquees.
- * @throws {Error} Si un segment catch-all n'est pas en derniere position, si un
- *   parametre n'a pas de nom, ou si un parametre est declare deux fois.
+ * @param pattern Route pattern, with or without a leading `/`.
+ * @param end When `false`, the pattern may consume only a prefix of the
+ *   pathname: this is the mode used for nested parent routes.
+ * @throws {Error} When a catch-all segment is not in last position, when a
+ *   parameter has no name, or when a parameter is declared twice.
  *
  * @example
  * const compiled = compilePattern('/users/:id')
@@ -115,7 +115,7 @@ export function compilePattern(pattern: string, end = true): CompiledPattern {
   for (const [index, segment] of segments.entries()) {
     if (hasCatchAll) {
       throw new Error(
-        `[odoro/router] Le segment catch-all "*" doit etre le dernier segment du pattern "${pattern}".`,
+        `[odoro/router] The catch-all segment "*" must be the last segment of the pattern "${pattern}".`,
       )
     }
 
@@ -123,8 +123,8 @@ export function compilePattern(pattern: string, end = true): CompiledPattern {
       hasCatchAll = true
       paramNames.push(CATCH_ALL_PARAM)
       rank.push(RANK_BY_KIND.catchAll)
-      // Un catch-all accepte l'absence totale de suite : `/docs/*` matche
-      // aussi bien `/docs` que `/docs/a/b`.
+      // A catch-all accepts a completely missing remainder: `/docs/*` matches
+      // `/docs` just as well as `/docs/a/b`.
       source += '(?:/(.*))?'
       continue
     }
@@ -134,12 +134,12 @@ export function compilePattern(pattern: string, end = true): CompiledPattern {
       const name = segment.slice(1, optional ? -1 : undefined)
       if (name === '') {
         throw new Error(
-          `[odoro/router] Parametre sans nom a la position ${index} du pattern "${pattern}".`,
+          `[odoro/router] Parameter without a name at position ${index} of the pattern "${pattern}".`,
         )
       }
       if (paramNames.includes(name)) {
         throw new Error(
-          `[odoro/router] Le parametre ":${name}" est declare plusieurs fois dans le pattern "${pattern}".`,
+          `[odoro/router] The parameter ":${name}" is declared several times in the pattern "${pattern}".`,
         )
       }
       paramNames.push(name)
@@ -152,8 +152,8 @@ export function compilePattern(pattern: string, end = true): CompiledPattern {
     source += `/${escapeRegex(segment)}`
   }
 
-  // Sans le `/?` final, `/users` ne matcherait pas `/users/` ; sans le
-  // lookahead en mode prefixe, `/user` matcherait le debut de `/users`.
+  // Without the trailing `/?`, `/users` would not match `/users/`; without
+  // the lookahead in prefix mode, `/user` would match the start of `/users`.
   const suffix = end ? '/?$' : '(?=/|$)'
   const regex = new RegExp(`^${source}${suffix}`, 'i')
 
@@ -170,13 +170,13 @@ export function compilePattern(pattern: string, end = true): CompiledPattern {
 }
 
 /**
- * Confronte un pattern a un pathname.
+ * Matches a pattern against a pathname.
  *
- * @param pattern Pattern de route.
- * @param pathname Chemin a tester.
- * @param end Voir {@link compilePattern}.
- * @returns Le detail de la correspondance, ou `null` si le pattern ne
- *   s'applique pas.
+ * @param pattern Route pattern.
+ * @param pathname Path to test.
+ * @param end See {@link compilePattern}.
+ * @returns The details of the match, or `null` when the pattern does not
+ *   apply.
  *
  * @example
  * matchPattern('/users/:id', '/users/42')?.params // { id: '42' }
@@ -197,8 +197,8 @@ export function matchPattern(
     params[name] = raw === undefined ? undefined : safeDecode(raw)
   }
 
-  // `result[0]` peut inclure un `/` final que l'on ne veut pas propager aux
-  // routes enfants.
+  // `result[0]` may include a trailing `/` that we do not want to propagate to
+  // the child routes.
   const consumed = result[0] ?? ''
   return {
     pattern,
@@ -208,7 +208,7 @@ export function matchPattern(
 }
 
 /**
- * Compare deux vecteurs de specificite, position par position.
+ * Compares two specificity vectors, position by position.
  *
  * @internal
  */
@@ -223,13 +223,13 @@ export function compareRanks(a: readonly number[], b: readonly number[]): number
 }
 
 /**
- * Compare deux patterns par specificite decroissante : statique avant
- * dynamique, dynamique avant optionnel, optionnel avant catch-all, position
- * par position et de gauche a droite.
+ * Compares two patterns by decreasing specificity: static before dynamic,
+ * dynamic before optional, optional before catch-all, position by position and
+ * from left to right.
  *
- * Destinee a `Array.prototype.sort` : un resultat negatif place `a` en
- * premier. En cas d'egalite stricte, retourne `0` — le tri de JavaScript etant
- * stable, l'ordre de declaration est alors conserve.
+ * Meant for `Array.prototype.sort`: a negative result puts `a` first. On a
+ * strict tie, returns `0` — JavaScript sorting being stable, the declaration
+ * order is then preserved.
  *
  * @example
  * ['/users/*', '/users/:id', '/users/me'].sort(comparePatternSpecificity)
@@ -240,8 +240,8 @@ export function comparePatternSpecificity(a: string, b: string): number {
 }
 
 /**
- * Vide le cache de compilation. Reserve aux tests : en production le cache est
- * borne par le nombre de patterns declares dans l'application.
+ * Clears the compilation cache. Reserved for tests: in production the cache
+ * is bounded by the number of patterns declared in the application.
  *
  * @internal
  */
@@ -250,7 +250,7 @@ export function clearPatternCache(): void {
 }
 
 /**
- * Nombre de patterns actuellement en cache. Reserve aux tests.
+ * Number of patterns currently cached. Reserved for tests.
  *
  * @internal
  */

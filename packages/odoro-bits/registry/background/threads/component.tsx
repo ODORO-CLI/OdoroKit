@@ -1,22 +1,22 @@
 /**
- * Fils : un faisceau de courbes fines, d epaisseur constante sur toute leur longueur.
+ * Threads: a bundle of thin curves, of constant thickness along their whole length.
  *
- * ## Le principe
+ * ## The principle
  *
- * Chaque fil est un y = f(x) ; le fragment compare son propre y a celui du fil. Aucun trace n existe.
+ * Each thread is a y = f(x); the fragment compares its own y with the thread's. No stroke exists at all.
  *
- * La division par la pente n est pas un detail : sans elle, le fil parait epais la ou il est plat et fin la ou il monte.
+ * Dividing by the slope is not a detail: without it, the thread looks thick where it is flat and thin where it climbs.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur — les recopier ici en ferait autant
- * de versions a maintenir qu'il y a de fonds.
+ * It carries only what sets it apart: its shader, its settings and its fallback.
+ * Reading the tokens, converting them to floats and re-reading them when the
+ * theme changes all come from the engine — copying that here would leave as many
+ * versions to maintain as there are backgrounds.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en
- * accorde qu'une par backend — et sous mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface — it grants only one per
+ * backend — and under reduced motion.
  *
  * @module
  */
@@ -32,41 +32,41 @@ import {
 } from '@odoro-cli/engine'
 import { type ReactElement } from 'react'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface ThreadsControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to this component. */
 export interface ThreadsOwnProps {
-  /** Vitesse de l ondulation. @defaultValue 0.3 */
+  /** Speed of the undulation. @defaultValue 0.3 */
   speed?: number
-  /** Nombre de fils. Borne a douze par le shader. @defaultValue 7 */
+  /** Number of threads. Capped at twelve by the shader. @defaultValue 7 */
   count?: number
-  /** Epaisseur des fils. @defaultValue 0.004 */
+  /** Thickness of the threads. @defaultValue 0.004 */
   thickness?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<ThreadsControls>
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type ThreadsProps = Customisable<ThreadsOwnProps>
 
-/** Tokens employes par defaut. */
+/** Tokens used by default. */
 const DEFAULT_TOKENS = ['--o-theme-bg', '--o-palette-emerald-300'] as const
 
-/** Repli par defaut : une teinte figee, dans les memes tons. */
+/** Default fallback: a frozen tint, in the same tones. */
 const DEFAULT_FALLBACK = 'o-bg-zinc-50 dark:o-bg-zinc-950'
 
 /**
- * Fils.
+ * Threads.
  *
  * @example
  * <div className="o-relative o-min-h-screen">
@@ -88,8 +88,8 @@ export function Threads({
     colors,
     uniforms: { uSpeed: speed, uScale: count, uThickness: thickness },
     name: 'threads',
-    // En qualite basse, le reglage qui pese est borne : le motif reste
-    // reconnaissable une fois reduit.
+    // At low quality the setting that weighs is capped: the pattern stays
+    // recognisable once reduced.
     degrade: (quality) => ({
       uScale: quality === 'low' ? Math.min(count, 4) : count,
     }),

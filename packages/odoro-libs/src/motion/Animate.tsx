@@ -1,5 +1,5 @@
 /**
- * Animation declarative d'un element.
+ * Declarative animation of an element.
  *
  * @module
  */
@@ -18,49 +18,49 @@ import { type MotionPresetName, getMotionPreset } from './presets.js'
 import { type DurationInput, type EasingInput } from './tokens.js'
 import { useAnimate } from './useAnimate.js'
 
-/** Proprietes de {@link Animate}. */
+/** Properties of {@link Animate}. */
 export interface AnimateProps extends ComponentPropsWithoutRef<'div'> {
-  /** Element rendu. @defaultValue 'div' */
+  /** Rendered element. @defaultValue 'div' */
   as?: ElementType
-  /** Contenu anime. */
+  /** Animated content. */
   children?: ReactNode
   /**
-   * Preset joue. `keyframes`, `from` et `to` restent prioritaires ; `duration`
-   * et `easing`, s'ils sont fournis, surchargent ceux du preset.
+   * Preset played. `keyframes`, `from` and `to` stay prioritary; `duration`
+   * and `easing`, when provided, override those of the preset.
    */
   preset?: MotionPresetName
   /**
-   * Etapes de l'animation. Prioritaire sur `from` / `to` lorsque les deux sont
-   * fournis.
+   * Steps of the animation. Prioritary over `from` / `to` when both are
+   * provided.
    */
   keyframes?: Keyframe[]
-  /** Etat de depart, si `keyframes` n'est pas fourni. */
+  /** Starting state, if `keyframes` is not provided. */
   from?: MotionKeyframe
-  /** Etat d'arrivee, si `keyframes` n'est pas fourni. @defaultValue etat naturel */
+  /** End state, if `keyframes` is not provided. @defaultValue natural state */
   to?: MotionKeyframe
-  /** Duree : nom de token ou millisecondes. @defaultValue celle du preset, sinon 'base' */
+  /** Duration: token name or milliseconds. @defaultValue that of the preset, otherwise 'base' */
   duration?: DurationInput
-  /** Courbe : nom de token ou valeur CSS. @defaultValue celle du preset, sinon 'standard' */
+  /** Curve: token name or CSS value. @defaultValue that of the preset, otherwise 'standard' */
   easing?: EasingInput
-  /** Retard avant demarrage, en millisecondes. @defaultValue 0 */
+  /** Delay before start, in milliseconds. @defaultValue 0 */
   delay?: number
-  /** Nombre de repetitions. @defaultValue 1 */
+  /** Number of repetitions. @defaultValue 1 */
   iterations?: number
   /**
-   * Rejoue l'animation a chaque changement de cette valeur. Laisser
-   * `undefined` ne la joue qu'au montage.
+   * Replays the animation on every change of this value. Leaving it
+   * `undefined` plays it only on mount.
    */
   trigger?: unknown
-  /** Suspend le declenchement. @defaultValue true */
+  /** Suspends the triggering. @defaultValue true */
   play?: boolean
 }
 
 /**
- * Joue une animation au montage, puis a chaque changement de `trigger`.
+ * Plays an animation on mount, then on every change of `trigger`.
  *
- * C'est l'equivalent declaratif de {@link useAnimate}, pour les cas ou aucun
- * controle imperatif n'est necessaire. La neutralisation sous
- * `prefers-reduced-motion` est heritee du hook.
+ * This is the declarative equivalent of {@link useAnimate}, for the cases where no
+ * imperative control is needed. The neutralization under
+ * `prefers-reduced-motion` is inherited from the hook.
  *
  * @example
  * <Animate preset="tada" trigger={errorCount} />
@@ -102,9 +102,9 @@ export function Animate({
       delay,
       iterations,
     })
-    // `keyframes`, `from` et `to` sont des litteraux cote appelant : les
-    // comparer par identite rejouerait l'animation a chaque rendu. C'est
-    // `trigger` qui commande les rejeux.
+    // `keyframes`, `from` and `to` are literals on the caller side: comparing
+    // them by identity would replay the animation on every render. It is
+    // `trigger` that commands the replays.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [controls, play, trigger, preset, duration, easing, delay, iterations])
 

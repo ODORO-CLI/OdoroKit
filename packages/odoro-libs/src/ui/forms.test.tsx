@@ -9,12 +9,12 @@ import { Switch, switchClasses } from './Switch.jsx'
 import { Textarea } from './Textarea.jsx'
 
 describe('Textarea', () => {
-  it('relie le libelle au champ', () => {
+  it('ties the label to the field', () => {
     render(<Textarea label="Message" />)
     expect(screen.getByLabelText('Message').tagName).toBe('TEXTAREA')
   })
 
-  it('decrit le champ par son aide', () => {
+  it('describes the field by its hint', () => {
     render(<Textarea label="Message" hint="Markdown accepte." />)
     const field = screen.getByLabelText('Message')
     const describedBy = field.getAttribute('aria-describedby')
@@ -24,7 +24,7 @@ describe('Textarea', () => {
     )
   })
 
-  it('signale l erreur et la substitue a l aide', () => {
+  it('reports the error and substitutes it for the hint', () => {
     render(<Textarea label="Message" hint="Aide" error="Message trop court" />)
     const field = screen.getByLabelText('Message')
     expect(field.getAttribute('aria-invalid')).toBe('true')
@@ -32,21 +32,21 @@ describe('Textarea', () => {
     expect(screen.queryByText('Aide')).toBeNull()
   })
 
-  it('masque visuellement le libelle sans le retirer', () => {
+  it('visually hides the label without removing it', () => {
     render(<Textarea label="Notes" hideLabel />)
     const field = screen.getByLabelText('Notes')
     const label = document.querySelector(`label[for="${field.id}"]`)
     expect(label?.className).toContain('o-sr-only')
   })
 
-  it('accepte la saisie en mode non controle', () => {
+  it('accepts typing in uncontrolled mode', () => {
     render(<Textarea label="Message" defaultValue="Bonjour" />)
     const field = screen.getByLabelText<HTMLTextAreaElement>('Message')
     fireEvent.change(field, { target: { value: 'Bonsoir' } })
     expect(field.value).toBe('Bonsoir')
   })
 
-  it('laisse la valeur a l appelant en mode controle', () => {
+  it('leaves the value to the caller in controlled mode', () => {
     const onChange = vi.fn()
     render(<Textarea label="Message" value="Fixe" onChange={onChange} />)
     const field = screen.getByLabelText<HTMLTextAreaElement>('Message')
@@ -55,7 +55,7 @@ describe('Textarea', () => {
     expect(field.value).toBe('Fixe')
   })
 
-  it('suit le contenu quand autoResize est actif', () => {
+  it('follows the content when autoResize is on', () => {
     render(<Textarea label="Message" autoResize />)
     const field = screen.getByLabelText<HTMLTextAreaElement>('Message')
     Object.defineProperty(field, 'scrollHeight', { value: 120 })
@@ -63,14 +63,14 @@ describe('Textarea', () => {
     expect(field.style.height).toBe('120px')
   })
 
-  it('ne touche pas a la hauteur sans autoResize', () => {
+  it('does not touch the height without autoResize', () => {
     render(<Textarea label="Message" />)
     const field = screen.getByLabelText<HTMLTextAreaElement>('Message')
     fireEvent.input(field, { target: { value: 'ligne' } })
     expect(field.style.height).toBe('auto')
   })
 
-  it('respecte disabled', () => {
+  it('respects disabled', () => {
     render(<Textarea label="Message" disabled />)
     expect(screen.getByLabelText<HTMLTextAreaElement>('Message').disabled).toBe(true)
   })
@@ -83,13 +83,13 @@ describe('Select', () => {
     { value: 'ch', label: 'Suisse', disabled: true },
   ]
 
-  it('rend une liste deroulante reliee a son libelle', () => {
+  it('renders a dropdown list tied to its label', () => {
     render(<Select label="Pays" options={options} />)
     expect(screen.getByRole('combobox', { name: 'Pays' })).toBeDefined()
     expect(screen.getAllByRole('option')).toHaveLength(3)
   })
 
-  it('rend le placeholder comme option vide et desactivee', () => {
+  it('renders the placeholder as an empty and disabled option', () => {
     render(<Select label="Pays" options={options} placeholder="Choisir un pays" />)
     const field = screen.getByRole<HTMLSelectElement>('combobox')
     expect(field.value).toBe('')
@@ -99,7 +99,7 @@ describe('Select', () => {
     expect(placeholder.disabled).toBe(true)
   })
 
-  it('accepte des enfants option a defaut de la liste options', () => {
+  it('accepts option children in the absence of the options list', () => {
     render(
       <Select label="Tri">
         <option value="date">Par date</option>
@@ -109,7 +109,7 @@ describe('Select', () => {
     expect(screen.getAllByRole('option')).toHaveLength(2)
   })
 
-  it('decrit le champ par son aide', () => {
+  it('describes the field by its hint', () => {
     render(<Select label="Pays" options={options} hint="Expedition en Europe." />)
     const field = screen.getByRole('combobox')
     const describedBy = field.getAttribute('aria-describedby')
@@ -118,21 +118,21 @@ describe('Select', () => {
     )
   })
 
-  it('signale l erreur et la substitue a l aide', () => {
+  it('reports the error and substitutes it for the hint', () => {
     render(<Select label="Pays" options={options} hint="Aide" error="Choix requis" />)
     expect(screen.getByRole('combobox').getAttribute('aria-invalid')).toBe('true')
     expect(screen.getByRole('alert').textContent).toBe('Choix requis')
     expect(screen.queryByText('Aide')).toBeNull()
   })
 
-  it('change de valeur en mode non controle', () => {
+  it('changes value in uncontrolled mode', () => {
     render(<Select label="Pays" options={options} defaultValue="fr" />)
     const field = screen.getByRole<HTMLSelectElement>('combobox')
     fireEvent.change(field, { target: { value: 'be' } })
     expect(field.value).toBe('be')
   })
 
-  it('laisse la valeur a l appelant en mode controle', () => {
+  it('leaves the value to the caller in controlled mode', () => {
     const onChange = vi.fn()
     render(<Select label="Pays" options={options} value="fr" onChange={onChange} />)
     const field = screen.getByRole<HTMLSelectElement>('combobox')
@@ -141,19 +141,19 @@ describe('Select', () => {
     expect(field.value).toBe('fr')
   })
 
-  it('respecte disabled', () => {
+  it('respects disabled', () => {
     render(<Select label="Pays" options={options} disabled />)
     expect(screen.getByRole<HTMLSelectElement>('combobox').disabled).toBe(true)
   })
 })
 
 describe('Checkbox', () => {
-  it('rend une case reliee a son libelle', () => {
+  it('renders a box tied to its label', () => {
     render(<Checkbox label="Se souvenir de moi" />)
     expect(screen.getByRole('checkbox', { name: 'Se souvenir de moi' })).toBeDefined()
   })
 
-  it('decrit la case par sa description', () => {
+  it('describes the box by its description', () => {
     render(<Checkbox label="Newsletter" description="Un courriel par mois." />)
     const field = screen.getByRole('checkbox')
     const describedBy = field.getAttribute('aria-describedby')
@@ -162,7 +162,7 @@ describe('Checkbox', () => {
     )
   })
 
-  it('bascule au clic en mode non controle', () => {
+  it('toggles on a click in uncontrolled mode', () => {
     render(<Checkbox label="Option" />)
     const field = screen.getByRole<HTMLInputElement>('checkbox')
     expect(field.checked).toBe(false)
@@ -172,12 +172,12 @@ describe('Checkbox', () => {
     expect(field.checked).toBe(false)
   })
 
-  it('demarre cochee avec defaultChecked', () => {
+  it('starts checked with defaultChecked', () => {
     render(<Checkbox label="Option" defaultChecked />)
     expect(screen.getByRole<HTMLInputElement>('checkbox').checked).toBe(true)
   })
 
-  it('laisse l etat a l appelant en mode controle', () => {
+  it('leaves the state to the caller in controlled mode', () => {
     const onChange = vi.fn()
     render(<Checkbox label="Option" checked={false} onChange={onChange} />)
     const field = screen.getByRole<HTMLInputElement>('checkbox')
@@ -186,18 +186,18 @@ describe('Checkbox', () => {
     expect(field.checked).toBe(false)
   })
 
-  it('remplit la boite dessinee quand la case est cochee', () => {
+  it('fills the drawn box when the checkbox is checked', () => {
     render(<Checkbox label="Option" defaultChecked />)
     const box = document.querySelector('span[aria-hidden="true"]')
     expect(box?.className).toContain('o-bg-brand-600 dark:o-bg-brand-400')
   })
 
-  it('pose indeterminate sur l element natif', () => {
+  it('sets indeterminate on the native element', () => {
     render(<Checkbox label="Tout selectionner" indeterminate />)
     expect(screen.getByRole<HTMLInputElement>('checkbox').indeterminate).toBe(true)
   })
 
-  it('montre l anneau de focus sur la boite quand l input a le focus', () => {
+  it('shows the focus ring on the box when the input has the focus', () => {
     render(<Checkbox label="Option" />)
     const field = screen.getByRole('checkbox')
     const box = () => document.querySelector('span[aria-hidden="true"]')
@@ -210,14 +210,14 @@ describe('Checkbox', () => {
     expect(box()?.className).not.toContain('o-ring')
   })
 
-  it('respecte disabled', () => {
+  it('respects disabled', () => {
     const onChange = vi.fn()
     render(<Checkbox label="Option" disabled onChange={onChange} />)
     const field = screen.getByRole<HTMLInputElement>('checkbox')
     expect(field.disabled).toBe(true)
 
-    // jsdom bascule la propriete DOM meme sur un input desactive : c'est
-    // l'absence d'evenement change qui atteste du blocage.
+    // jsdom toggles the DOM property even on a disabled input: it is
+    // the absence of a change event that attests the blocking.
     fireEvent.click(field)
     expect(onChange).not.toHaveBeenCalled()
   })
@@ -230,13 +230,13 @@ describe('RadioGroup', () => {
     { value: 'public', label: 'Public', disabled: true },
   ]
 
-  it('rend un groupe nomme par sa legende', () => {
+  it('renders a group named by its legend', () => {
     render(<RadioGroup label="Visibilite" items={items} />)
     expect(screen.getByRole('group', { name: 'Visibilite' })).toBeDefined()
     expect(screen.getAllByRole('radio')).toHaveLength(3)
   })
 
-  it('partage un meme name genere entre les items', () => {
+  it('shares one same generated name across the items', () => {
     render(<RadioGroup label="Visibilite" items={items} />)
     const names = new Set(
       screen.getAllByRole<HTMLInputElement>('radio').map((radio) => radio.name),
@@ -245,7 +245,7 @@ describe('RadioGroup', () => {
     expect([...names][0]).not.toBe('')
   })
 
-  it('decrit un item par sa description', () => {
+  it('describes an item by its description', () => {
     render(<RadioGroup label="Visibilite" items={items} />)
     const radio = screen.getByRole('radio', { name: 'Prive' })
     const describedBy = radio.getAttribute('aria-describedby')
@@ -254,7 +254,7 @@ describe('RadioGroup', () => {
     )
   })
 
-  it('selectionne un item au clic en mode non controle', () => {
+  it('selects an item on a click in uncontrolled mode', () => {
     render(<RadioGroup label="Visibilite" items={items} defaultValue="prive" />)
     expect(screen.getByRole<HTMLInputElement>('radio', { name: 'Prive' }).checked).toBe(
       true,
@@ -269,7 +269,7 @@ describe('RadioGroup', () => {
     )
   })
 
-  it('laisse la valeur a l appelant en mode controle', () => {
+  it('leaves the value to the caller in controlled mode', () => {
     const onValueChange = vi.fn()
     render(
       <RadioGroup
@@ -286,7 +286,7 @@ describe('RadioGroup', () => {
     )
   })
 
-  it('ignore le clic sur un item desactive', () => {
+  it('ignores a click on a disabled item', () => {
     const onValueChange = vi.fn()
     render(
       <RadioGroup
@@ -299,13 +299,13 @@ describe('RadioGroup', () => {
     const disabledRadio = screen.getByRole<HTMLInputElement>('radio', { name: 'Public' })
     expect(disabledRadio.disabled).toBe(true)
 
-    // jsdom bascule la propriete DOM meme sur un input desactive : c'est
-    // l'absence d'evenement change qui atteste du blocage.
+    // jsdom toggles the DOM property even on a disabled input: it is
+    // the absence of a change event that attests the blocking.
     fireEvent.click(disabledRadio)
     expect(onValueChange).not.toHaveBeenCalled()
   })
 
-  it('empile horizontalement quand orientation le demande', () => {
+  it('stacks horizontally when orientation asks for it', () => {
     render(<RadioGroup label="Visibilite" items={items} orientation="horizontal" />)
     const list = screen.getByRole('group').querySelector('div')
     expect(list?.className).toContain('o-flex-row')
@@ -313,13 +313,13 @@ describe('RadioGroup', () => {
 })
 
 describe('Switch', () => {
-  it('rend un interrupteur relie a son libelle', () => {
+  it('renders a toggle tied to its label', () => {
     render(<Switch label="Notifications" />)
     const control = screen.getByRole('switch', { name: 'Notifications' })
     expect(control.getAttribute('aria-checked')).toBe('false')
   })
 
-  it('decrit l interrupteur par sa description', () => {
+  it('describes the toggle by its description', () => {
     render(<Switch label="Notifications" description="Un courriel par commentaire." />)
     const control = screen.getByRole('switch')
     const describedBy = control.getAttribute('aria-describedby')
@@ -328,7 +328,7 @@ describe('Switch', () => {
     )
   })
 
-  it('bascule au clic en mode non controle', () => {
+  it('toggles on a click in uncontrolled mode', () => {
     render(<Switch label="Notifications" />)
     const control = screen.getByRole('switch')
     fireEvent.click(control)
@@ -337,12 +337,12 @@ describe('Switch', () => {
     expect(control.getAttribute('aria-checked')).toBe('false')
   })
 
-  it('demarre active avec defaultChecked', () => {
+  it('starts on with defaultChecked', () => {
     render(<Switch label="Notifications" defaultChecked />)
     expect(screen.getByRole('switch').getAttribute('aria-checked')).toBe('true')
   })
 
-  it('laisse l etat a l appelant en mode controle', () => {
+  it('leaves the state to the caller in controlled mode', () => {
     const onCheckedChange = vi.fn()
     render(
       <Switch label="Notifications" checked={false} onCheckedChange={onCheckedChange} />,
@@ -353,26 +353,26 @@ describe('Switch', () => {
     expect(control.getAttribute('aria-checked')).toBe('false')
   })
 
-  it('colore la piste selon l etat', () => {
+  it('colors the track according to the state', () => {
     render(<Switch label="Notifications" defaultChecked />)
     expect(screen.getByRole('switch').className).toContain(
       'o-bg-brand-600 dark:o-bg-brand-400',
     )
   })
 
-  it('applique les classes de taille', () => {
+  it('applies the size classes', () => {
     render(<Switch label="Notifications" size="lg" />)
     expect(screen.getByRole('switch').className).toContain('o-w-12')
   })
 
-  it('expose sa table de classes pour habiller un autre element', () => {
+  it('exposes its class table to style another element', () => {
     expect(switchClasses({ checked: 'true' })).toContain(
       'o-bg-brand-600 dark:o-bg-brand-400',
     )
     expect(switchClasses({ size: 'sm' })).toContain('o-w-7')
   })
 
-  it('respecte disabled', () => {
+  it('respects disabled', () => {
     const onCheckedChange = vi.fn()
     render(<Switch label="Notifications" disabled onCheckedChange={onCheckedChange} />)
     const control = screen.getByRole('switch')
@@ -383,17 +383,17 @@ describe('Switch', () => {
 })
 
 describe('Slider', () => {
-  it('rend un curseur relie a son libelle', () => {
+  it('renders a slider tied to its label', () => {
     render(<Slider label="Volume" />)
     expect(screen.getByRole('slider', { name: 'Volume' })).toBeDefined()
   })
 
-  it('demarre au milieu de la plage comme le natif', () => {
+  it('starts in the middle of the range like the native one', () => {
     render(<Slider label="Volume" min={0} max={100} />)
     expect(screen.getByRole<HTMLInputElement>('slider').value).toBe('50')
   })
 
-  it('decrit le curseur par son aide', () => {
+  it('describes the slider by its hint', () => {
     render(<Slider label="Volume" hint="En pourcentage." />)
     const field = screen.getByRole('slider')
     const describedBy = field.getAttribute('aria-describedby')
@@ -402,21 +402,21 @@ describe('Slider', () => {
     )
   })
 
-  it('signale l erreur et la substitue a l aide', () => {
+  it('reports the error and substitutes it for the hint', () => {
     render(<Slider label="Volume" hint="Aide" error="Valeur trop haute" />)
     expect(screen.getByRole('slider').getAttribute('aria-invalid')).toBe('true')
     expect(screen.getByRole('alert').textContent).toBe('Valeur trop haute')
     expect(screen.queryByText('Aide')).toBeNull()
   })
 
-  it('change de valeur en mode non controle', () => {
+  it('changes value in uncontrolled mode', () => {
     render(<Slider label="Volume" defaultValue={20} />)
     const field = screen.getByRole<HTMLInputElement>('slider')
     fireEvent.change(field, { target: { value: '80' } })
     expect(field.value).toBe('80')
   })
 
-  it('laisse la valeur a l appelant en mode controle', () => {
+  it('leaves the value to the caller in controlled mode', () => {
     const onChange = vi.fn()
     render(<Slider label="Volume" value={30} onChange={onChange} />)
     const field = screen.getByRole<HTMLInputElement>('slider')
@@ -425,7 +425,7 @@ describe('Slider', () => {
     expect(field.value).toBe('30')
   })
 
-  it('affiche la valeur courante avec showValue', () => {
+  it('displays the current value with showValue', () => {
     render(<Slider label="Volume" defaultValue={20} showValue />)
     expect(screen.getByText('20')).toBeDefined()
 
@@ -433,7 +433,7 @@ describe('Slider', () => {
     expect(screen.getByText('45')).toBeDefined()
   })
 
-  it('met en forme la valeur avec formatValue', () => {
+  it('formats the value with formatValue', () => {
     render(
       <Slider
         label="Volume"
@@ -445,7 +445,7 @@ describe('Slider', () => {
     expect(screen.getByText('20 %')).toBeDefined()
   })
 
-  it('respecte disabled', () => {
+  it('respects disabled', () => {
     render(<Slider label="Volume" disabled />)
     expect(screen.getByRole<HTMLInputElement>('slider').disabled).toBe(true)
   })

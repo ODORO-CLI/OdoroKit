@@ -5,7 +5,7 @@
  */
 
 import { Icon } from '@odoro-cli/icons'
-import { Check } from '@odoro-cli/icons/filaire'
+import { Check } from '@odoro-cli/icons/outline'
 import { type ReactElement, useState } from 'react'
 import { palette } from '@odoro-cli/libs/styles'
 

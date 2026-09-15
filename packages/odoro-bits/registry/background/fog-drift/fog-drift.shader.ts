@@ -1,30 +1,30 @@
 /**
- * Shader de la brume basse.
+ * Low fog shader.
  *
- * ## L'idee mathematique
+ * ## The mathematical idea
  *
- * Deux nappes de brume, chacune un bruit fractal etire en largeur : dense au
- * bas du cadre, dissoute au-dessus d'une crete que le bruit dessine. Les deux
- * plans glissent en sens contraires — c'est la parallaxe qui les separe a
- * l'oeil, plus surement que leur teinte. Le plan lointain monte plus haut
- * et porte une teinte froide ; le proche reste bas, plus dense, dans le
- * neutre du theme.
+ * Two sheets of fog, each a fractal noise stretched across the width: dense
+ * at the bottom of the frame, dissolved above a crest the noise draws. The
+ * two planes slide in opposite directions — it is the parallax that parts
+ * them to the eye, more surely than their hue. The far plane climbs higher
+ * and carries a cold hue; the near one stays low, denser, in the theme's
+ * neutral.
  *
- * La brume se pose par melange borne vers ses teintes : sur un fond clair,
- * elle grise ; sur un fond sombre, elle eclaircit. Dans les deux cas, elle
- * reste une brume et le texte reste lisible.
+ * The fog is laid down by a capped mix towards its hues: on a light
+ * background it greys; on a dark one it lightens. Either way it stays a fog
+ * and the text stays legible.
  *
  * ## Uniforms
  *
- * - `uTime` — temps en secondes, fourni par le moteur.
- * - `uResolution` — taille du canevas en pixels, fournie par le moteur.
- * - `uColorA` — le fond.
- * - `uColorB` — la nappe proche.
- * - `uColorC` — la nappe lointaine.
- * - `uSpeed` — vitesse de glissement.
- * - `uHeight` — hauteur de la brume, en fraction du cadre.
- * - `uDensity` — opacite maximale des nappes.
- * - `uOctaves` — detail du bruit, et donc son cout.
+ * - `uTime` — time in seconds, supplied by the engine.
+ * - `uResolution` — canvas size in pixels, supplied by the engine.
+ * - `uColorA` — the background.
+ * - `uColorB` — the near sheet.
+ * - `uColorC` — the far sheet.
+ * - `uSpeed` — sliding speed.
+ * - `uHeight` — height of the fog, as a fraction of the frame.
+ * - `uDensity` — maximum opacity of the sheets.
+ * - `uOctaves` — noise detail, and so its cost.
  */
 export const FOG_DRIFT_FRAGMENT = /* glsl */ `
 precision highp float;
@@ -41,31 +41,31 @@ uniform float uHeight;
 uniform float uDensity;
 uniform float uOctaves;
 
-float brumeHash(vec2 p) {
+float fogHash(vec2 p) {
   return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
 }
 
-float brumeNoise(vec2 p) {
+float fogNoise(vec2 p) {
   vec2 cell = floor(p);
   vec2 local = fract(p);
   vec2 smoothed = local * local * (3.0 - 2.0 * local);
 
-  float a = brumeHash(cell);
-  float b = brumeHash(cell + vec2(1.0, 0.0));
-  float c = brumeHash(cell + vec2(0.0, 1.0));
-  float d = brumeHash(cell + vec2(1.0, 1.0));
+  float a = fogHash(cell);
+  float b = fogHash(cell + vec2(1.0, 0.0));
+  float c = fogHash(cell + vec2(0.0, 1.0));
+  float d = fogHash(cell + vec2(1.0, 1.0));
 
   return mix(mix(a, b, smoothed.x), mix(c, d, smoothed.x), smoothed.y);
 }
 
-float brumeFbm(vec2 p, int octaves) {
+float fogFbm(vec2 p, int octaves) {
   float total = 0.0;
   float amplitude = 0.5;
   float normalisation = 0.0;
 
   for (int i = 0; i < 5; i += 1) {
     if (i >= octaves) break;
-    total += brumeNoise(p) * amplitude;
+    total += fogNoise(p) * amplitude;
     normalisation += amplitude;
     p = p * 2.1 + vec2(3.7, 1.3);
     amplitude *= 0.5;
@@ -74,16 +74,16 @@ float brumeFbm(vec2 p, int octaves) {
   return total / max(normalisation, 0.0001);
 }
 
-// Une nappe : dense au bas, dissoute au-dessus d'une crete bruitee. Le bruit
-// est etire en largeur — une brume s'etale, elle ne monte pas en colonnes.
-float brumeNappe(vec2 p, float t, float vitesse, float hauteur, float echelle, int octaves, float graine) {
-  vec2 q = vec2(p.x * echelle + t * vitesse, p.y * echelle * 2.2 + graine);
-  float n = brumeFbm(q, octaves);
+// One sheet: dense at the bottom, dissolved above a noisy crest. The noise
+// is stretched across the width — fog spreads, it does not rise in columns.
+float fogSheet(vec2 p, float t, float speed, float height, float scale, int octaves, float seed) {
+  vec2 q = vec2(p.x * scale + t * speed, p.y * scale * 2.2 + seed);
+  float n = fogFbm(q, octaves);
 
-  float crete = max(hauteur, 0.02) * (0.5 + 0.9 * n);
-  float masse = 1.0 - smoothstep(crete * 0.25, crete, p.y);
+  float crest = max(height, 0.02) * (0.5 + 0.9 * n);
+  float mass = 1.0 - smoothstep(crest * 0.25, crest, p.y);
 
-  return masse * (0.6 + 0.4 * n);
+  return mass * (0.6 + 0.4 * n);
 }
 
 void main() {
@@ -91,17 +91,17 @@ void main() {
   vec2 p = vec2(vUv.x * aspect, vUv.y);
   float t = uTime * uSpeed;
   int octaves = int(clamp(uOctaves, 1.0, 5.0));
-  float densite = clamp(uDensity, 0.0, 1.0);
+  float density = clamp(uDensity, 0.0, 1.0);
 
-  // Le lointain monte plus haut, plus fin et plus lent ; le proche, bas et
-  // large, glisse en sens contraire.
-  float loin = brumeNappe(p, t, 0.12, uHeight * 1.35, 1.7, octaves, 3.7);
-  float pres = brumeNappe(p, t, -0.2, uHeight * 0.85, 2.6, octaves, 9.1);
+  // The far one climbs higher, finer and slower; the near one, low and
+  // broad, slides the other way.
+  float far = fogSheet(p, t, 0.12, uHeight * 1.35, 1.7, octaves, 3.7);
+  float near = fogSheet(p, t, -0.2, uHeight * 0.85, 2.6, octaves, 9.1);
 
-  // Les bornes gardent l'encre lisible : meme a pleine densite, la nappe
-  // proche ne prend que les trois quarts de sa teinte.
-  vec3 colour = mix(uColorA, uColorC, clamp(loin, 0.0, 1.0) * 0.55 * densite);
-  colour = mix(colour, uColorB, clamp(pres, 0.0, 1.0) * 0.75 * densite);
+  // The caps keep the ink legible: even at full density, the near sheet
+  // takes only three quarters of its hue.
+  vec3 colour = mix(uColorA, uColorC, clamp(far, 0.0, 1.0) * 0.55 * density);
+  colour = mix(colour, uColorB, clamp(near, 0.0, 1.0) * 0.75 * density);
 
   gl_FragColor = vec4(colour, 1.0);
 }

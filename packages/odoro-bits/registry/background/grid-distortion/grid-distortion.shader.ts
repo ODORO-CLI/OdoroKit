@@ -1,34 +1,33 @@
 /**
- * Shader de la grille sous lentille.
+ * Shader for the grid under a lens.
  *
- * ## L'idee mathematique
+ * ## The mathematical idea
  *
- * La grille n'est pas deformee : c'est le domaine qui l'est, avant lecture.
- * Autour du centre de la lentille, chaque point est tire vers ce centre
- * d'une fraction qui vaut le carre du profil — plein au centre, nul au bord,
- * sans marche. La grille lue sur ce domaine contracte apparait dilatee : les
- * mailles s'ecartent, et les lignes s'epaississent avec elles, comme sous un
- * vrai verre. Un profil lineaire donnerait une cassure au bord ; le carre
- * la lisse.
+ * The grid is not deformed: the domain is, before it is read. Around the
+ * lens centre, every point is pulled towards that centre by a fraction
+ * worth the square of the profile — full at the centre, nil at the edge,
+ * without a step. The grid read on that contracted domain appears dilated:
+ * the meshes spread apart, and the lines thicken with them, as under real
+ * glass. A linear profile would give a break at the edge; the square
+ * smooths it.
  *
- * Le bord de la lentille est un anneau fin lu par distance au rayon, et
- * une ombre juste a l'interieur donne l'epaisseur du verre. Le rayon
- * respire a peine : une lentille parfaitement immobile se lirait comme un
- * defaut d'affichage.
+ * The lens rim is a thin ring read by distance to the radius, and a shadow
+ * just inside gives the glass its thickness. The radius barely breathes: a
+ * perfectly still lens would read as a display fault.
  *
- * Le centre est le pointeur, amorti par le composant.
+ * The centre is the pointer, damped by the component.
  *
  * ## Uniforms
  *
- * - `uTime` — temps en secondes, fourni par le moteur.
- * - `uResolution` — taille du canevas en pixels, fournie par le moteur.
- * - `uColorA` — le fond.
- * - `uColorB` — les lignes.
- * - `uColorC` — le bord de la lentille, et les lignes en son centre.
- * - `uPointer` — position du centre, en coordonnees de texture.
- * - `uCells` — nombre de cellules sur la hauteur.
- * - `uStrength` — force du grossissement, entre zero et un.
- * - `uRadius` — rayon de la lentille, en hauteurs de cadre.
+ * - `uTime` — time in seconds, supplied by the engine.
+ * - `uResolution` — canvas size in pixels, supplied by the engine.
+ * - `uColorA` — the background.
+ * - `uColorB` — the lines.
+ * - `uColorC` — the lens rim, and the lines at its centre.
+ * - `uPointer` — centre position, in texture coordinates.
+ * - `uCells` — number of cells across the height.
+ * - `uStrength` — magnification strength, between zero and one.
+ * - `uRadius` — lens radius, in frame heights.
  */
 export const GRID_DISTORTION_FRAGMENT = /* glsl */ `
 precision highp float;
@@ -51,17 +50,17 @@ void main() {
   vec2 centre = uPointer * vec2(aspect, 1.0);
   float px = 1.0 / max(uResolution.y, 1.0);
 
-  // Le rayon respire a peine.
+  // The radius barely breathes.
   float radius = max(uRadius, 0.05) * (1.0 + 0.04 * sin(uTime * 1.3));
   vec2 d = p - centre;
   float r = length(d);
 
-  // Le profil de la lentille : plein au centre, nul au bord, sans marche.
+  // The lens profile: full at the centre, nil at the edge, without a step.
   float inside = 1.0 - smoothstep(0.0, radius, r);
   float bulge = inside * inside;
 
-  // Le domaine est tire vers le centre avant lecture : les mailles y
-  // apparaissent dilatees, et les lignes epaissies avec elles.
+  // The domain is pulled towards the centre before reading: the meshes
+  // appear dilated there, and the lines thickened with them.
   vec2 q = centre + d * (1.0 - clamp(uStrength, 0.0, 0.95) * bulge);
 
   float cells = clamp(uCells, 2.0, 60.0);
@@ -70,7 +69,7 @@ void main() {
   float pxc = px * cells;
   float lines = 1.0 - smoothstep(pxc * 0.4, pxc * 1.4, 0.5 - max(local.x, local.y));
 
-  // Le bord du verre, et son ombre juste a l'interieur.
+  // The glass rim, and its shadow just inside.
   float rim = 1.0 - smoothstep(px * 1.0, px * 3.0, abs(r - radius));
   float shade = smoothstep(radius * 0.6, radius, r) * inside;
 

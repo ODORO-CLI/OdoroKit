@@ -1,34 +1,34 @@
 /**
- * Distorsion d'ondes sous le pointeur, derriere un contenu.
+ * Ripple distortion under the pointer, behind a content.
  *
- * ## Ce que ce composant deforme, et ce qu'il ne deforme pas
+ * ## What this component deforms, and what it does not
  *
- * Il ne deforme **pas** le contenu qu'il enveloppe. Un shader ne sait pas lire
- * le document : tordre du texte ou une carte demanderait de les capturer en
- * image, ce qui echoue sur les polices distantes et les origines croisees — la
- * deformation par filtre existe pour ce cas-la, et c'est un autre composant.
+ * It does **not** deform the content it wraps. A shader cannot read the
+ * document: twisting text or a card would require capturing them as an image,
+ * which fails on remote fonts and cross origins — filter deformation exists
+ * for that case, and it is another component.
  *
- * Ce qui est deforme ici est une surface peinte par le shader, posee **sous**
- * le contenu. Le texte reste net, selectionnable et lisible ; c'est le sol qui
- * ondule sous lui.
+ * What is deformed here is a surface painted by the shader, laid **under** the
+ * content. The text stays crisp, selectable and readable; it is the ground
+ * that ripples beneath it.
  *
- * ## Pourquoi le pointeur passe par un uniform mute en place
+ * ## Why the pointer goes through a uniform mutated in place
  *
- * La position change a chaque image. La porter dans l'etat React ferait
- * soixante rendus par seconde pour deplacer un centre d'ondes que le shader
- * relit seul. Le crochet de pointeur amorti ecrit donc sa valeur dans la
- * boucle, et un tableau stable — jamais reconstruit — la transmet a la surface,
- * qui relit ses uniforms a chaque image.
+ * The position changes on every frame. Carrying it in React state would mean
+ * sixty renders per second to move a wave centre that the shader reads on its
+ * own. The damped pointer hook therefore writes its value inside the loop, and
+ * a stable array — never rebuilt — passes it to the surface, which reads its
+ * uniforms again on every frame.
  *
- * L'amortissement n'est pas un ornement : sans lui, un deplacement rapide fait
- * sauter le centre d'un bout a l'autre de la zone, et les anneaux se cassent
- * au lieu de suivre.
+ * The damping is not an ornament: without it, a fast movement makes the centre
+ * jump from one end of the area to the other, and the rings break instead of
+ * following.
  *
- * ## Le repli n'est pas une precaution
+ * ## The fallback is not a precaution
  *
- * Il est affiche pendant le chargement du backend, quand WebGL manque, quand
- * l'arbitre refuse la surface, et sous mouvement reduit. Il reprend les memes
- * tokens, en anneaux figes : ce qui disparait est l'ondulation, pas le decor.
+ * It is displayed while the backend loads, when WebGL is missing, when the
+ * arbiter refuses the surface, and under reduced motion. It reuses the same
+ * tokens, in frozen rings: what disappears is the rippling, not the decor.
  *
  * @module
  */
@@ -59,38 +59,38 @@ import { usePointerDamped } from '@registre/hooks/usePointerDamped'
 
 import { RIPPLE_DISTORTION_FRAGMENT } from './ripple-distortion.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface RippleDistortionControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually passed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface RippleDistortionOwnProps {
-  /** Contenu pose sur la surface. Il reste net. */
+  /** Content laid over the surface. It stays crisp. */
   children: ReactNode
-  /** Vitesse de propagation des ondes. @defaultValue 1 */
+  /** Propagation speed of the waves. @defaultValue 1 */
   speed?: number
-  /** Serrage des ondes et des bandes. @defaultValue 26 */
+  /** Tightness of the waves and of the bands. @defaultValue 26 */
   scale?: number
-  /** Amplitude du decalage de lecture. @defaultValue 0.5 */
+  /** Amplitude of the lookup offset. @defaultValue 0.5 */
   amount?: number
-  /** Vitesse de rattrapage du pointeur. Plus haut, plus sec. @defaultValue 3 */
+  /** Catch-up speed of the pointer. The higher, the snappier. @defaultValue 3 */
   damping?: number
-  /** Tokens du creux des bandes, de leur crete, puis de l'eclat. */
+  /** Tokens of the trough of the bands, of their crest, then of the sheen. */
   colors?: readonly [string, string, string]
-  /** Classes du repli, a la place des anneaux figes derives des tokens. */
+  /** Classes of the fallback, in place of the frozen rings derived from the tokens. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<RippleDistortionControls>
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type RippleDistortionProps = Customisable<RippleDistortionOwnProps>
 
-/** Tokens employes par defaut : creux, crete, puis eclat. */
+/** Tokens used by default: trough, crest, then sheen. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-theme-surface',
@@ -98,14 +98,14 @@ const DEFAULT_TOKENS = [
 ] as const
 
 /**
- * Repli par defaut : les memes anneaux, immobiles et sans source.
+ * Default fallback: the same rings, motionless and with no source.
  *
- * Ce qui doit disparaitre est l'ondulation, pas le decor : un aplat effacerait
- * le motif pour tous ceux qui recoivent le repli, alors que seule sa mise en
- * mouvement est en cause.
+ * What must disappear is the rippling, not the decor: a flat fill would erase
+ * the pattern for everyone who receives the fallback, when only its setting in
+ * motion is at issue.
  *
- * @param colors Tokens du creux, de la crete, puis de l'eclat.
- * @param scale Serrage des ondes, dont se deduit le pas des anneaux.
+ * @param colors Tokens of the trough, of the crest, then of the sheen.
+ * @param scale Tightness of the waves, from which the ring pitch is derived.
  */
 function staticRings(
   colors: readonly [string, string, string],
@@ -123,23 +123,24 @@ function staticRings(
 }
 
 /**
- * Serrage en qualite basse.
+ * Tightness on low quality.
  *
- * Le cout ne tient pas au serrage — chaque fragment fait le meme travail — mais
- * des ondes trop fines scintillent des que la densite de pixels est plafonnee.
+ * The cost does not come from the tightness — every fragment does the same
+ * work — but waves that are too fine shimmer as soon as the pixel density is
+ * capped.
  */
 const LOW_SCALE = 18
 
 /**
- * Fait onduler une surface sous son contenu, autour du pointeur.
+ * Ripples a surface under its content, around the pointer.
  *
  * @example
  * <RippleDistortion className="o-rounded-xl o-p-10">
- *   <h2>Passez la souris</h2>
+ *   <h2>Move the mouse over</h2>
  * </RippleDistortion>
  *
  * @example
- * // Des ondes larges et lentes, sans eclat de marque.
+ * // Wide and slow waves, with no brand sheen.
  * <RippleDistortion
  *   scale={12}
  *   speed={0.4}
@@ -163,36 +164,36 @@ export function RippleDistortion({
   const [host, setHost] = useState<HTMLDivElement | null>(null)
   const [colours, setColours] = useState<readonly ShaderColour[]>([])
 
-  const pointer = usePointerDamped({ host, speed: damping, name: 'ondes : pointeur' })
+  const pointer = usePointerDamped({ host, speed: damping, name: 'ripples : pointer' })
 
-  // Tableau stable, mute en place : reconstruire l'uniform a chaque image
-  // reconstruirait aussi la table d'uniforms de la surface.
+  // Stable array, mutated in place: rebuilding the uniform on every frame
+  // would also rebuild the uniform table of the surface.
   const uPointer = useRef<number[]>([0.5, 0.5]).current
 
   useEffect(() => {
     const subscription = clock.subscribe(
       () => {
-        // Le crochet rend une position centree sur zero, l'axe vertical vers
-        // le bas ; vUv a son origine en bas a gauche.
+        // The hook returns a position centred on zero, with the vertical axis
+        // pointing down; vUv has its origin at the bottom left.
         uPointer[0] = (pointer.current.x + 1) / 2
         uPointer[1] = 1 - (pointer.current.y + 1) / 2
       },
-      // Apres la lecture des entrees, avant le rendu de la meme image.
-      { priority: CLOCK_PRIORITY.layout, name: 'ondes : centre' },
+      // After the inputs are read, before the render of the same frame.
+      { priority: CLOCK_PRIORITY.layout, name: 'ripples : centre' },
     )
 
     return () => subscription.unsubscribe()
   }, [pointer, uPointer])
 
-  // Les tokens entrent par leur texte, jamais par l'identite du tableau : un
-  // litteral passe en prop en construirait un neuf a chaque rendu, et l'effet
-  // qui en dependrait ne s'arreterait jamais.
+  // The tokens enter by their text, never by the identity of the array: a
+  // literal passed as a prop would build a new one on every render, and the
+  // effect that depended on it would never stop.
   const tokenList = colors.join(' ')
 
   useEffect(() => {
     if (host === null) return
     setColours(tokenList.split(' ').map((token) => readTokenColour(token, host)))
-    // La politique de mouvement suit le theme : sa bascule relit les tokens.
+    // The motion policy follows the theme: its switch reads the tokens again.
   }, [host, tokenList, reduced, quality])
 
   const uniforms = useMemo(() => {
@@ -212,10 +213,10 @@ export function RippleDistortion({
 
   const { ref, ready, refused } = useShaderSurface<HTMLDivElement>({
     fragment: RIPPLE_DISTORTION_FRAGMENT,
-    // Sans couleurs lues, le shader peindrait du noir : le repli couvre mieux
-    // cet instant.
+    // With no colours read, the shader would paint black: the fallback covers
+    // that instant better.
     uniforms: uniforms ?? {},
-    name: 'ondes',
+    name: 'ripples',
   })
 
   useOnReady(onReady, ready ? { colours, refused } : null, host)
@@ -229,7 +230,7 @@ export function RippleDistortion({
 
   return (
     <div {...rest} ref={setHost} className={className} style={style}>
-      {/* La surface est posee sous le contenu, et n'intercepte rien. */}
+      {/* The surface is laid under the content, and intercepts nothing. */}
       <div
         aria-hidden
         ref={ref}

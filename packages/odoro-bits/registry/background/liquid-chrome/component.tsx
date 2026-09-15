@@ -1,24 +1,24 @@
 /**
- * Chrome liquide : un liquide chrome qui reflechit un studio : ciel clair, sol sombre, horizon dur, en encre sur le fond clair et en lueur sur le sombre.
+ * Liquid chrome: a chromed liquid reflecting a studio: light sky, dark floor, hard horizon, in ink over a light background and as a glow over a dark one.
  *
- * ## Le principe
+ * ## The principle
  *
- * Le chrome ne se peint pas, il reflechit : la direction reflechie d'une
- * surface de vagues molles regarde soit le ciel, soit le sol, et cette
- * marche brutale fait le chrome. Le ciel et le sol sont le fond et
- * l'encre du theme, ranges par luminance : en clair le chrome se dessine
- * en encre, en sombre il luit, sans jamais multiplier le fond vers le noir.
+ * Chrome is not painted, it reflects: the reflected direction of a surface of
+ * soft waves looks either at the sky or at the floor, and that abrupt step
+ * makes the chrome. The sky and the floor are the background and the ink of
+ * the theme, ordered by luminance: in light the chrome draws itself in ink, in
+ * dark it glows, without ever multiplying the background towards black.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur — les recopier ici en ferait autant
- * de versions a maintenir qu'il y a de fonds.
+ * It carries only what sets it apart: its shader, its settings and its
+ * fallback. Reading the tokens, converting them to floats and re-reading them
+ * when the theme changes all come from the engine — copying that here would
+ * leave as many versions to maintain as there are backgrounds.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en
- * accorde qu'une par backend — et sous mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface — it grants only one
+ * per backend — and under reduced motion.
  *
  * @module
  */
@@ -35,55 +35,55 @@ import { type ReactElement } from 'react'
 
 import { LIQUID_CHROME_FRAGMENT } from './liquid-chrome.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface LiquidChromeControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to this component. */
 export interface LiquidChromeOwnProps {
-  /** Vitesse du liquide. @defaultValue 0.35 */
+  /** Speed of the liquid. @defaultValue 0.35 */
   speed?: number
-  /** Echelle des vagues. @defaultValue 1.6 */
+  /** Scale of the waves. @defaultValue 1.6 */
   scale?: number
-  /** Profondeur du sol dans le reflet. @defaultValue 0.8 */
+  /** Depth of the floor in the reflection. @defaultValue 0.8 */
   contrast?: number
-  /** Force de la teinte a l horizon. @defaultValue 0.5 */
+  /** Strength of the hue at the horizon. @defaultValue 0.5 */
   sheen?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<LiquidChromeControls>
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type LiquidChromeProps = Customisable<LiquidChromeOwnProps>
 
-/** Tokens employes par defaut : le fond, l'encre, la teinte de l'horizon. */
+/** Tokens used by default: the background, the ink, the hue of the horizon. */
 const DEFAULT_TOKENS = ['--o-theme-bg', '--o-theme-fg', '--o-palette-sky-400'] as const
 
-/** Repli par defaut : un degrade fige, dans les memes tons. */
+/** Default fallback: a frozen gradient, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-b o-from-zinc-50 dark:o-from-zinc-950 o-via-sky-200 dark:o-via-sky-900 o-to-zinc-400 dark:o-to-zinc-700'
 
 /**
- * Detail hors qualite basse.
+ * Detail outside low quality.
  *
- * Les vagues fines ne changent pas la nature du reflet, seulement son
- * grain : ce sont elles qui tombent en qualite basse.
+ * The fine waves do not change the nature of the reflection, only its grain:
+ * they are the ones that drop at low quality.
  */
 const DETAIL = 5
 
-/** Detail en qualite basse. */
+/** Detail at low quality. */
 const LOW_DETAIL = 3
 
 /**
- * Chrome liquide.
+ * Liquid chrome.
  *
  * @example
  * <div className="o-relative o-min-h-screen">

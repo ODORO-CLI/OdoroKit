@@ -1,24 +1,24 @@
 /**
- * L'application assemblee, sur de vraies requetes HTTP.
+ * The assembled application, on real HTTP requests.
  *
- * ## Ce que ces tests couvrent que les autres ne peuvent pas
+ * ## What these tests cover that the others cannot
  *
- * Le conteneur, la configuration et l'ordre des modules se testent isolement.
- * Trois choses ne le peuvent pas, et ce sont celles qui font mal en
- * production :
+ * The container, the configuration and the order of the modules are tested in isolation.
+ * Three things cannot be, and those are the ones that hurt in
+ * production:
  *
- * 1. **Une erreur imprevue ne doit rien divulguer.** Un message de pilote SQL
- *    cite la requete, donc la structure des tables. Un nom de contrainte dit
- *    qu'une adresse existe deja. Le seul moyen de le verifier est de lever une
- *    telle erreur et de lire ce qui sort.
+ * 1. **An unexpected error must divulge nothing.** An SQL driver message
+ *    quotes the query, therefore the structure of the tables. A constraint name says
+ *    that an address already exists. The only way to check it is to throw
+ *    such an error and read what comes out.
  *
- * 2. **Express 5 doit transmettre les promesses rejetees.** C'est la raison
- *    d'exiger cette version ; si l'hypothese est fausse, la requete reste
- *    suspendue et aucun test unitaire ne le montre.
+ * 2. **Express 5 must pass on the rejected promises.** That is the reason
+ *    for requiring this version; if the assumption is false, the request stays
+ *    hanging and no unit test shows it.
  *
- * 3. **La portee de requete doit se refermer**, y compris quand la requete
- *    echoue. Une portee qui fuit ne se voit qu'a la millieme requete, en
- *    memoire qui ne redescend pas.
+ * 3. **The request scope must close**, including when the request
+ *    fails. A scope that leaks is only seen on the thousandth request, in
+ *    memory that does not come back down.
  *
  * @module
  */
@@ -35,10 +35,10 @@ import { route } from './http/route.js'
 import { defineModule } from './module.js'
 import { createLogger } from './logger.js'
 
-/** Un journal muet : ces tests lisent des reponses, pas des lignes. */
+/** A silent log: these tests read responses, not lines. */
 const logger = createLogger({ level: 'silent' })
 
-/** Assemble une application d'essai. */
+/** Assembles a test application. */
 function build(
   routes: readonly ReturnType<typeof route>[],
   overrides: Partial<KernelConfig> = {},
@@ -53,151 +53,155 @@ function build(
     config,
     logger,
     container: createContainer() as never,
-    modules: [defineModule({ name: 'essai', routes: routes as never }) as never],
+    modules: [defineModule({ name: 'test', routes: routes as never }) as never],
     ...(authenticate === undefined ? {} : { authenticate }),
   })
 }
 
-describe('reponses', () => {
-  it('rend la sortie validee', async () => {
+describe('responses', () => {
+  it('gives the validated output', async () => {
     const app = build([
       route({
-        name: 'essai.lire',
+        name: 'test.read',
         method: 'GET',
-        path: '/essai',
+        path: '/test',
         auth: 'public',
-        output: z.object({ valeur: z.number() }),
-        handler: () => ({ valeur: 42 }),
+        output: z.object({ value: z.number() }),
+        handler: () => ({ value: 42 }),
       }),
     ])
 
-    const response = await request(app.express).get('/essai')
+    const response = await request(app.express).get('/test')
     expect(response.status).toBe(200)
-    expect(response.body).toEqual({ valeur: 42 })
+    expect(response.body).toEqual({ value: 42 })
   })
 
-  it('retient les champs non declares par le schema de sortie', async () => {
-    // La regle « aucune entite de base n'est renvoyee directement » devient
-    // verifiable plutot que seulement ecrite : un objet Zod ne conserve que ce
-    // qu'il declare, hachage de mot de passe compris.
+  it('holds back the fields not declared by the output schema', async () => {
+    // The rule "no database entity is returned directly" becomes
+    // checkable rather than only written: a Zod object only keeps what
+    // it declares, password hash included.
     const app = build(
       [
         route({
-          name: 'essai.utilisateur',
+          name: 'test.user',
           method: 'GET',
-          path: '/utilisateur',
+          path: '/user',
           auth: 'public',
           output: z.object({ id: z.string() }),
           handler: () =>
             ({ id: 'u1', passwordHash: '$argon2id$…', resetToken: 'secret' }) as never,
         }),
       ],
-      // En production, une sortie non conforme n'echoue pas : elle est
-      // reduite. C'est ce comportement-la qu'on verifie ici.
+      // In production, a non-compliant output does not fail: it is
+      // reduced. It is that very behaviour that is checked here.
       { NODE_ENV: 'production' },
     )
 
-    const response = await request(app.express).get('/utilisateur')
+    const response = await request(app.express).get('/user')
     expect(response.body).toEqual({ id: 'u1' })
     expect(response.text).not.toContain('argon2')
     expect(response.text).not.toContain('secret')
   })
 
-  it('rend 204 quand la route ne declare aucune sortie', async () => {
+  it('gives 204 when the route declares no output', async () => {
     const app = build([
       route({
-        name: 'essai.vide',
+        name: 'test.empty',
         method: 'DELETE',
-        path: '/essai',
+        path: '/test',
         auth: 'public',
         handler: () => undefined,
       }),
     ])
 
-    const response = await request(app.express).delete('/essai')
+    const response = await request(app.express).delete('/test')
     expect(response.status).toBe(204)
   })
 })
 
-describe('validation des entrees', () => {
+describe('validation of the inputs', () => {
   const app = build([
     route({
-      name: 'essai.ecrire',
+      name: 'test.write',
       method: 'POST',
-      path: '/essai/:id',
+      path: '/test/:id',
       auth: 'public',
-      input: z.object({ id: z.string(), nom: z.string().min(2), age: z.coerce.number() }),
-      output: z.object({ id: z.string(), nom: z.string(), age: z.number() }),
+      input: z.object({
+        id: z.string(),
+        name: z.string().min(2),
+        age: z.coerce.number(),
+      }),
+      output: z.object({ id: z.string(), name: z.string(), age: z.number() }),
       handler: ({ input }) => input,
     }),
   ])
 
-  it('fusionne corps, chaine de requete et parametres d URL', async () => {
+  it('merges body, query string and URL parameters', async () => {
     const response = await request(app.express)
-      .post('/essai/u1?age=30')
-      .send({ nom: 'Lea' })
+      .post('/test/u1?age=30')
+      .send({ name: 'Lea' })
 
     expect(response.status).toBe(200)
-    expect(response.body).toEqual({ id: 'u1', nom: 'Lea', age: 30 })
+    expect(response.body).toEqual({ id: 'u1', name: 'Lea', age: 30 })
   })
 
-  it('fait gagner le parametre d URL sur le corps', async () => {
-    // Elevation de privilege classique : on lit l'identite dans le chemin pour
-    // autoriser, puis on agit sur celle du corps.
+  it('makes the URL parameter win over the body', async () => {
+    // Classic privilege escalation: the identity is read in the path to
+    // authorize, then one acts on the one of the body.
     const response = await request(app.express)
-      .post('/essai/u1?age=30')
-      .send({ nom: 'Lea', id: 'u2' })
+      .post('/test/u1?age=30')
+      .send({ name: 'Lea', id: 'u2' })
 
     expect(response.body.id).toBe('u1')
   })
 
-  it('detaille les champs fautifs', async () => {
-    const response = await request(app.express).post('/essai/u1').send({ nom: 'L' })
+  it('details the faulty fields', async () => {
+    const response = await request(app.express).post('/test/u1').send({ name: 'L' })
 
     expect(response.status).toBe(422)
     expect(response.type).toBe('application/problem+json')
     expect(response.body.kind).toBe('VALIDATION')
 
-    const champs = response.body.errors.map((e: { field: string }) => e.field)
-    expect(champs).toContain('nom')
-    expect(champs).toContain('age')
+    const fields = response.body.errors.map((e: { field: string }) => e.field)
+    expect(fields).toContain('name')
+    expect(fields).toContain('age')
   })
 })
 
-describe('erreurs', () => {
-  it('laisse passer le message d une erreur prevue', async () => {
+describe('errors', () => {
+  it('lets the message of an expected error through', async () => {
     const app = build([
       route({
-        name: 'essai.conflit',
+        name: 'test.conflict',
         method: 'POST',
-        path: '/conflit',
+        path: '/conflict',
         auth: 'public',
         handler: () => {
-          throw new ConflictError('Cette adresse est deja prise.')
+          throw new ConflictError('This address is already taken.')
         },
       }),
     ])
 
-    const response = await request(app.express).post('/conflit')
+    const response = await request(app.express).post('/conflict')
     expect(response.status).toBe(409)
     expect(response.body.kind).toBe('CONFLICT')
-    expect(response.body.detail).toBe('Cette adresse est deja prise.')
+    expect(response.body.detail).toBe('This address is already taken.')
   })
 
-  it('ne divulgue rien d une erreur imprevue en production', async () => {
+  it('divulges nothing of an unexpected error in production', async () => {
     const app = build(
       [
         route({
-          name: 'essai.panne',
+          name: 'test.failure',
           method: 'GET',
-          path: '/panne',
+          path: '/failure',
           auth: 'public',
           handler: () => {
-            // Ce qu'un pilote SQL rendrait vraiment : la requete, donc la
-            // structure des tables, et le nom d'une contrainte violee.
+            // What an SQL driver would really give: the query, therefore the
+            // structure of the tables, and the name of a violated constraint.
             throw new Error(
               'duplicate key value violates unique constraint "users_email_key" ' +
-                'DETAIL: Key (email)=(lea@exemple.fr) already exists.',
+                'DETAIL: Key (email)=(lea@example.com) already exists.',
             )
           },
         }),
@@ -205,29 +209,29 @@ describe('erreurs', () => {
       { NODE_ENV: 'production' },
     )
 
-    const response = await request(app.express).get('/panne')
+    const response = await request(app.express).get('/failure')
 
     expect(response.status).toBe(500)
     expect(response.body.kind).toBe('INTERNAL')
     expect(response.text).not.toContain('users_email_key')
-    expect(response.text).not.toContain('lea@exemple.fr')
+    expect(response.text).not.toContain('lea@example.com')
     expect(response.text).not.toContain('unique constraint')
     expect(response.body.correlationId).toEqual(expect.any(String))
   })
 
-  it('transmet une promesse rejetee sans enveloppe', async () => {
-    // L'hypothese qui justifie Express 5. Fausse, la requete resterait
-    // suspendue jusqu'au delai d'expiration du client.
+  it('passes on a rejected promise without a wrapper', async () => {
+    // The assumption that justifies Express 5. False, the request would stay
+    // hanging until the client timed out.
     const app = build(
       [
         route({
-          name: 'essai.async',
+          name: 'test.async',
           method: 'GET',
           path: '/async',
           auth: 'public',
           handler: async () => {
             await Promise.resolve()
-            throw new ConflictError('rejet asynchrone')
+            throw new ConflictError('asynchronous rejection')
           },
         }),
       ],
@@ -238,86 +242,86 @@ describe('erreurs', () => {
     expect(response.status).toBe(409)
   })
 
-  it('rend un problem+json sur une route absente', async () => {
+  it('gives a problem+json on a missing route', async () => {
     const app = build([])
-    const response = await request(app.express).get('/nulle-part')
+    const response = await request(app.express).get('/nowhere')
 
     expect(response.status).toBe(404)
     expect(response.type).toBe('application/problem+json')
     expect(response.body.kind).toBe('NOT_FOUND')
   })
 
-  it('porte l identifiant de correlation en en-tete et dans le corps', async () => {
+  it('carries the correlation identifier in a header and in the body', async () => {
     const app = build(
       [
         route({
-          name: 'essai.panne',
+          name: 'test.failure',
           method: 'GET',
-          path: '/panne',
+          path: '/failure',
           auth: 'public',
           handler: () => {
-            throw new Error('interne')
+            throw new Error('internal')
           },
         }),
       ],
       { NODE_ENV: 'production' },
     )
 
-    const response = await request(app.express).get('/panne')
+    const response = await request(app.express).get('/failure')
     expect(response.headers['x-request-id']).toBe(response.body.correlationId)
   })
 
-  it('conserve un identifiant venu de l amont', async () => {
-    // Derriere une passerelle, c'est lui qui relie notre trace a la sienne.
+  it('keeps an identifier coming from upstream', async () => {
+    // Behind a gateway, it is what ties our trace to its own.
     const app = build([])
     const response = await request(app.express)
-      .get('/nulle-part')
-      .set('x-request-id', 'trace-amont')
+      .get('/nowhere')
+      .set('x-request-id', 'upstream-trace')
 
-    expect(response.body.correlationId).toBe('trace-amont')
+    expect(response.body.correlationId).toBe('upstream-trace')
   })
 })
 
-describe('garde d authentification', () => {
-  it('refuse une route privee sans identite', async () => {
+describe('authentication guard', () => {
+  it('refuses a private route without an identity', async () => {
     const app = build([
       route({
-        name: 'essai.prive',
+        name: 'test.private',
         method: 'GET',
-        path: '/prive',
+        path: '/private',
         auth: 'required',
         handler: () => undefined,
       }),
     ])
 
-    const response = await request(app.express).get('/prive')
+    const response = await request(app.express).get('/private')
     expect(response.status).toBe(401)
     expect(response.body.kind).toBe('UNAUTHORIZED')
   })
 
-  it('refuse aussi quand aucun module d authentification n est monte', async () => {
-    // Le bon defaut : un serveur sans authentification ne sert pas ses routes
-    // privees comme si elles etaient publiques.
+  it('refuses as well when no authentication module is mounted', async () => {
+    // The right default: a server without authentication does not serve its
+    // private routes as if they were public.
     const app = build([
       route({
-        name: 'essai.prive',
+        name: 'test.private',
         method: 'GET',
-        path: '/prive',
+        path: '/private',
         auth: 'required',
         handler: () => undefined,
       }),
     ])
 
-    expect((await request(app.express).get('/prive')).status).toBe(401)
+    expect((await request(app.express).get('/private')).status).toBe(401)
   })
 
-  it('transmet l identite au handler', async () => {
+  it('passes the identity on to the handler', async () => {
     const app = build(
       [
         route({
-          name: 'essai.moi',
+          name: 'test.me',
           method: 'GET',
-          path: '/moi',
+          path: '/me',
           auth: 'required',
           output: z.object({ id: z.string() }),
           handler: ({ user }) => ({ id: user.id }),
@@ -327,19 +331,19 @@ describe('garde d authentification', () => {
       () => Promise.resolve({ id: 'u1', sessionId: 's1', organizationId: undefined }),
     )
 
-    const response = await request(app.express).get('/moi')
+    const response = await request(app.express).get('/me')
     expect(response.body).toEqual({ id: 'u1' })
   })
 })
 
-describe('portee de requete', () => {
-  it('la referme meme quand la requete echoue', async () => {
-    // Une portee qui fuit ne se voit qu'a la millieme requete, en memoire qui
-    // ne redescend pas.
-    const libere = vi.fn()
+describe('request scope', () => {
+  it('closes it even when the request fails', async () => {
+    // A scope that leaks is only seen on the thousandth request, in memory that
+    // does not come back down.
+    const released = vi.fn()
     const container = createContainer().register(
-      'ressource',
-      () => ({ dispose: libere }),
+      'resource',
+      () => ({ dispose: released }),
       'request',
     )
 
@@ -349,16 +353,16 @@ describe('portee de requete', () => {
       container: container as never,
       modules: [
         defineModule({
-          name: 'essai',
+          name: 'test',
           routes: [
             route({
-              name: 'essai.panne',
+              name: 'test.failure',
               method: 'GET',
-              path: '/panne',
+              path: '/failure',
               auth: 'public',
               handler: ({ c }) => {
-                ;(c as unknown as { get: (k: string) => unknown }).get('ressource')
-                throw new Error('interne')
+                ;(c as unknown as { get: (k: string) => unknown }).get('resource')
+                throw new Error('internal')
               },
             }),
           ] as never,
@@ -366,24 +370,24 @@ describe('portee de requete', () => {
       ],
     })
 
-    await request(app.express).get('/panne')
-    expect(libere).toHaveBeenCalledTimes(1)
+    await request(app.express).get('/failure')
+    expect(released).toHaveBeenCalledTimes(1)
   })
 })
 
-describe('inventaire', () => {
-  it('expose les routes montees', async () => {
+describe('inventory', () => {
+  it('exposes the mounted routes', async () => {
     const app = build([
       route({
-        name: 'essai.lire',
+        name: 'test.read',
         method: 'GET',
-        path: '/essai',
+        path: '/test',
         auth: 'public',
         handler: () => undefined,
       }),
     ])
 
-    expect(app.routes.map((r) => r.name)).toEqual(['essai.lire'])
+    expect(app.routes.map((r) => r.name)).toEqual(['test.read'])
     await Promise.resolve()
   })
 })

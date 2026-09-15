@@ -1,24 +1,24 @@
 /**
- * Prisme : un faisceau blanc entre par la gauche, traverse un prisme et ressort en eventail, disperse entre deux teintes du projet.
+ * Prism: a white beam enters from the left, crosses a prism and comes back out as a fan, dispersed between two hues of the project.
  *
- * ## Le principe
+ * ## The principle
  *
- * Trois pieces dans l'ordre ou la lumiere les traverse : un faisceau,
- * distance a un segment ; un prisme, distance signee a un triangle dont
- * seule l'arete brille ; une dispersion, eventail d'angles a la sortie ou
- * la teinte tourne d'un token a l'autre — un spectre entre deux couleurs
- * du projet, pas un arc-en-ciel ecrit en dur.
+ * Three pieces, in the order in which the light crosses them: a beam,
+ * distance to a segment; a prism, signed distance to a triangle of which
+ * only the edge shines; a dispersion, a fan of angles at the exit where the
+ * hue turns from one token to the other — a spectrum between two colours of
+ * the project, not a hard-coded rainbow.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur — les recopier ici en ferait autant
- * de versions a maintenir qu'il y a de fonds.
+ * It carries only what sets it apart: its shader, its settings and its fallback.
+ * Reading the tokens, converting them to floats and re-reading them when the
+ * theme changes all come from the engine — copying that here would leave as many
+ * versions to maintain as there are backgrounds.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en
- * accorde qu'une par backend — et sous mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface — it grants only one per
+ * backend — and under reduced motion.
  *
  * @module
  */
@@ -35,61 +35,61 @@ import { type ReactElement } from 'react'
 
 import { PRISM_FRAGMENT } from './prism.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface PrismControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to this component. */
 export interface PrismOwnProps {
-  /** Position horizontale du prisme, en fraction du cadre. @defaultValue 0.42 */
+  /** Horizontal position of the prism, as a fraction of the frame. @defaultValue 0.42 */
   x?: number
-  /** Position verticale du prisme, en fraction du cadre. @defaultValue 0.5 */
+  /** Vertical position of the prism, as a fraction of the frame. @defaultValue 0.5 */
   y?: number
-  /** Ouverture de l eventail, en radians. @defaultValue 0.6 */
+  /** Aperture of the fan, in radians. @defaultValue 0.6 */
   spread?: number
-  /** Nombre de raies dans le spectre. @defaultValue 6 */
+  /** Number of lines in the spectrum. @defaultValue 6 */
   bands?: number
-  /** Vitesse de la respiration et du scintillement. @defaultValue 0.5 */
+  /** Speed of the breathing and of the shimmer. @defaultValue 0.5 */
   speed?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<PrismControls>
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type PrismProps = Customisable<PrismOwnProps>
 
-/** Tokens employes par defaut : le fond, le debut et la fin du spectre. */
+/** Tokens used by default: the background, the start and the end of the spectrum. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-violet-500',
   '--o-palette-amber-400',
 ] as const
 
-/** Repli par defaut : un degrade fige, dans les memes tons. */
+/** Default fallback: a frozen gradient, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-br o-from-zinc-50 dark:o-from-zinc-950 o-via-violet-200 dark:o-via-violet-900 o-to-amber-200 dark:o-to-amber-900'
 
 /**
- * Detail hors qualite basse.
+ * Detail outside low quality.
  *
- * L'eventail est l'essentiel ; le faisceau et le prisme sont deux
- * distances de plus, et ce sont elles qui tombent en qualite basse.
+ * The fan is the essential part; the beam and the prism are two further
+ * distances, and they are the ones that go at low quality.
  */
 const DETAIL = 3
 
-/** Detail en qualite basse. */
+/** Detail at low quality. */
 const LOW_DETAIL = 1
 
 /**
- * Prisme.
+ * Prism.
  *
  * @example
  * <div className="o-relative o-min-h-screen">

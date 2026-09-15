@@ -1,22 +1,21 @@
 /**
- * Le serveur applicatif : un assemblage de modules, rien de plus.
+ * The application server: an assembly of modules, nothing more.
  *
- * ## Ce fichier ne contient aucune logique
+ * ## This file holds no logic
  *
- * C'est voulu. Tout ce qu'une application fait vit dans un module, et ce
- * fichier ne fait que dire lesquels sont actifs. Activer ou desactiver une
- * fonctionnalite tient alors en une ligne, et rien d'autre ne bouge.
+ * That is deliberate. Everything an application does lives in a module, and
+ * this file does nothing but say which ones are active. Enabling or disabling
+ * a feature then takes one line, and nothing else moves.
  *
- * Un serveur ou les routes s'ajoutent directement ici finit par melanger
- * l'assemblage et le metier, et « desactiver l'authentification » devient un
- * travail d'archeologie plutot qu'une ligne commentee.
+ * A server where routes are added directly here ends up mixing the assembly
+ * with the domain, and "disable authentication" becomes a piece of archaeology
+ * rather than a commented line.
  *
- * ## En developpement et en production
+ * ## In development and in production
  *
- * En developpement, ce serveur n'expose que l'API : le client est servi par
- * Odoro, qui lui transmet les appels commencant par `/api`. En production, il
- * sert en plus le resultat de la compilation du client — une seule chose a
- * deployer.
+ * In development, this server exposes only the API: the client is served by
+ * Odoro, which forwards the calls starting with `/api` to it. In production,
+ * it also serves the result of the client build — a single thing to deploy.
  *
  * @module
  */
@@ -36,10 +35,17 @@ import express from 'express'
 
 import { createHealthModule } from './modules/health/index.js'
 
-/** Racine du module compile, pour retrouver le client a cote. */
+/** Root of the compiled module, to find the client next to it. */
 const HERE = dirname(fileURLToPath(import.meta.url))
 
-/** Assemble l'application. Exporte pour que les tests la montent sans l'ecouter. */
+/**
+ * Assembles the application. Exported so that tests can mount it without
+ * listening.
+ *
+ * @returns `app` is the kernel and its modules; `express` is what has to be
+ *   listened on — in production, a wrapper that serves the built client first.
+ *   An API test mounts `app.express`; an end-to-end test, `express`.
+ */
 export function buildServer() {
   const config = loadConfig()
 
@@ -48,8 +54,8 @@ export function buildServer() {
     pretty: config.NODE_ENV === 'development',
   })
 
-  // La configuration et le journal sont dans le conteneur : un module les y
-  // trouve sans qu'on les lui passe de main en main a travers trois couches.
+  // The configuration and the logger are in the container: a module finds them
+  // there without their being handed down through three layers.
   const container = createContainer()
     .register('config', () => config)
     .register('logger', () => logger)
@@ -60,8 +66,8 @@ export function buildServer() {
     container: container as never,
     modules: [
       createHealthModule(config),
-      // Les modules du socle s'ajoutent ici, dans n'importe quel ordre :
-      // le noyau les trie selon leurs dependances.
+      // The foundation modules are added here, in any order: the kernel sorts
+      // them according to their dependencies.
       //
       //   authModule,
       //   accountModule,
@@ -69,51 +75,108 @@ export function buildServer() {
     ],
   })
 
-  if (config.NODE_ENV === 'production') {
-    // `dist/server/main.js` -> `dist/client`
-    const client = resolve(HERE, '..', 'client')
-    if (existsSync(client)) {
-      app.express.use(
-        express.static(client, { index: false, maxAge: '1y', immutable: true }),
-      )
-      // Repli d'application monopage : toute route hors API rend le document,
-      // et c'est le routeur client qui decide de la suite.
-      app.express.get(/^(?!\/api\/).*/, (_request, response) => {
-        response.sendFile(join(client, 'index.html'))
-      })
-    }
-  }
+  // `dist/server/main.js` -> `dist/client`
+  const client = resolve(HERE, '..', 'client')
+  const servesTheClient = config.NODE_ENV === 'production' && existsSync(client)
 
-  return { app, config, logger }
+  if (!servesTheClient) return { app, express: app.express, config, logger }
+
+  // ## Why one application wrapping another
+  //
+  // `createApp` ends by installing the 404 handler and the error handler.
+  // Anything mounted **after** it would therefore be unreachable: the request
+  // would already have its answer. The client was thus never served in
+  // production — with no error at startup, since the mounting succeeds; every
+  // page simply came back 404.
+  //
+  // So the wrapper handles the files first and only hands over to the API for
+  // what it has not served. The order is explicit, and the kernel stays free to
+  // end with its handlers.
+  const wrapper = express()
+  wrapper.set('trust proxy', true)
+  wrapper.disable('x-powered-by')
+
+  // `index: false`: without it, a directory would return its `index.html` with
+  // the cache header of a hashed file — one year, immutable —, and a wording
+  // fix would stay invisible for a year. Those documents go through the
+  // handling below, with no caching.
+  //
+  // `redirect: false`: prerendering drops one directory per route, and without
+  // it `/about` answered with a redirect to `/about/`. One more round trip,
+  // and above all an address that is not the one that was published.
+  wrapper.use(
+    express.static(client, {
+      index: false,
+      redirect: false,
+      maxAge: '1y',
+      immutable: true,
+    }),
+  )
+
+  // A prerendered route is served as it stands; everything else falls back to
+  // the document, and the client router decides what happens next.
+  //
+  // Without this lookup, `/about` would receive the document of the root: the
+  // page would end up showing, once the script had run, but the prerendered
+  // HTML — the one robots and link previews read — would be the home page's,
+  // with its title and its description.
+  wrapper.get(/^(?!\/api\/).*/, (request, response, next) => {
+    const route = request.path.replace(/^\/+|\/+$/g, '')
+    const prerendered = route === '' ? undefined : resolve(client, route, 'index.html')
+
+    if (
+      prerendered !== undefined &&
+      prerendered.startsWith(client) &&
+      existsSync(prerendered)
+    ) {
+      response.sendFile(prerendered)
+      return
+    }
+
+    const document = join(client, 'index.html')
+    if (!existsSync(document)) {
+      // The client has not been built: the API will answer, and its 404 will
+      // at least say that no route matches.
+      next()
+      return
+    }
+    response.sendFile(document)
+  })
+
+  wrapper.use(app.express)
+
+  return { app, express: wrapper, config, logger }
 }
 
-/** Demarre le serveur. */
+/** Starts the server. */
 function main(): void {
   let server
   try {
     server = buildServer()
   } catch (cause) {
     if (cause instanceof ConfigError) {
-      // La configuration est incomplete : le message liste tout ce qui manque,
-      // d'un coup. Rien ne sert de demarrer a moitie.
+      // The configuration is incomplete: the message lists everything that is
+      // missing, at once. There is no point starting halfway.
       console.error(cause.message)
       process.exit(1)
     }
     throw cause
   }
 
-  const { app, config, logger } = server
+  // `express` and not `app.express`: it is the wrapper that serves the client
+  // before handing over to the API. In development the two are the same thing.
+  const { express: application, config, logger } = server
 
-  const listener = app.express.listen(config.PORT, () => {
-    logger.info({ port: config.PORT, environment: config.NODE_ENV }, 'serveur a l ecoute')
+  const listener = application.listen(config.PORT, () => {
+    logger.info({ port: config.PORT, environment: config.NODE_ENV }, 'server listening')
   })
 
-  // Arret propre : on cesse d'accepter, on laisse finir ce qui est en cours, et
-  // on abandonne au-dela du delai plutot que de rester suspendu.
+  // Graceful shutdown: stop accepting, let what is in flight finish, and give
+  // up past the deadline rather than hanging.
   const stop = (signal: string): void => {
-    logger.info({ signal }, 'arret demande')
+    logger.info({ signal }, 'shutdown requested')
     const deadline = setTimeout(() => {
-      logger.warn('delai depasse, arret force')
+      logger.warn('deadline exceeded, forcing shutdown')
       process.exit(1)
     }, config.SHUTDOWN_TIMEOUT)
     deadline.unref()

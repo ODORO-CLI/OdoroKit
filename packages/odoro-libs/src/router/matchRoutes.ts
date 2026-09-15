@@ -1,9 +1,9 @@
 /**
- * Aplatissement d'un arbre de routes en branches classees, puis confrontation
- * au pathname courant.
+ * Flattening of a route tree into ranked branches, then matching against the
+ * current pathname.
  *
- * L'aplatissement et le tri sont memorises par identite du tableau de routes :
- * un rendu qui reutilise le meme arbre ne repaie ni le parcours ni le tri.
+ * Flattening and sorting are memoized by identity of the route array: a
+ * render that reuses the same tree pays neither the walk nor the sort again.
  *
  * @module
  */
@@ -13,30 +13,30 @@ import { joinPaths, normalizePathname } from './path.js'
 import type { RouteMatch, RouteObject, RouteParams } from './types.js'
 
 /**
- * Une chaine racine -> feuille de l'arbre de routes, avec son pattern complet.
+ * A root -> leaf chain of the route tree, with its complete pattern.
  *
  * @internal
  */
 export interface RouteBranch {
-  /** Pattern complet de la feuille, par exemple `/users/:id/settings`. */
+  /** Complete pattern of the leaf, for example `/users/:id/settings`. */
   readonly pattern: string
-  /** Chaine des routes traversees, de la racine a la feuille. */
+  /** Chain of the routes traversed, from the root to the leaf. */
   readonly routes: readonly RouteObject[]
-  /** Pattern cumule a chaque niveau de la chaine, meme longueur que `routes`. */
+  /** Pattern accumulated at each level of the chain, same length as `routes`. */
   readonly patterns: readonly string[]
-  /** Vecteur de specificite servant au classement. */
+  /** Specificity vector used for the ranking. */
   readonly rank: readonly number[]
 }
 
 const BRANCH_CACHE = new WeakMap<readonly RouteObject[], readonly RouteBranch[]>()
 
 /**
- * Aplatit un arbre de routes en branches, triees par specificite decroissante.
+ * Flattens a route tree into branches, sorted by decreasing specificity.
  *
- * Le tri est stable : deux branches de specificite identique conservent leur
- * ordre de declaration, ce qui rend le resultat entierement deterministe.
+ * The sort is stable: two branches of identical specificity keep their
+ * declaration order, which makes the result entirely deterministic.
  *
- * @throws {Error} Si une route index declare un `path` ou des `children`.
+ * @throws {Error} When an index route declares a `path` or `children`.
  *
  * @internal
  */
@@ -55,7 +55,7 @@ export function flattenRoutes(routes: readonly RouteObject[]): readonly RouteBra
     for (const route of nodes) {
       if (route.index && (route.path !== undefined || route.children !== undefined)) {
         throw new Error(
-          '[odoro/router] Une route index ne peut declarer ni "path" ni "children".',
+          '[odoro/router] An index route can declare neither "path" nor "children".',
         )
       }
 
@@ -65,8 +65,8 @@ export function flattenRoutes(routes: readonly RouteObject[]): readonly RouteBra
 
       if (route.children && route.children.length > 0) {
         walk(route.children, pattern, chain, patterns)
-        // Une route parente sans enfant index ne peut pas etre une feuille :
-        // rendre un layout sans contenu serait une page vide silencieuse.
+        // A parent route without an index child cannot be a leaf: rendering a
+        // layout with no content would be a silently empty page.
         continue
       }
 
@@ -74,8 +74,8 @@ export function flattenRoutes(routes: readonly RouteObject[]): readonly RouteBra
         pattern,
         routes: chain,
         patterns,
-        // Une route index est plus specifique que son parent seul : elle
-        // decrit le meme chemin mais de facon terminale.
+        // An index route is more specific than its parent alone: it describes
+        // the same path but in a terminal way.
         rank: route.index
           ? [...compilePattern(pattern).rank, Number.MAX_SAFE_INTEGER]
           : compilePattern(pattern).rank,
@@ -91,7 +91,7 @@ export function flattenRoutes(routes: readonly RouteObject[]): readonly RouteBra
 }
 
 /**
- * Retire d'un pathname la portion capturee par un catch-all.
+ * Removes from a pathname the portion captured by a catch-all.
  *
  * @internal
  */
@@ -102,13 +102,13 @@ function stripSplat(pathname: string, splat: string | undefined): string {
 }
 
 /**
- * Confronte un arbre de routes a un pathname et retourne la chaine de routes
- * correspondante, de la racine a la feuille.
+ * Matches a route tree against a pathname and returns the corresponding chain
+ * of routes, from the root to the leaf.
  *
- * @param routes Arbre de routes.
- * @param pathname Chemin a resoudre.
- * @returns La chaine des routes traversees, ou `null` si aucune branche ne
- *   correspond.
+ * @param routes Route tree.
+ * @param pathname Path to resolve.
+ * @returns The chain of the routes traversed, or `null` when no branch
+ *   matches.
  *
  * @example
  * const routes = [
@@ -132,11 +132,11 @@ export function matchRoutes(
     for (const [index, route] of branch.routes.entries()) {
       const isLeaf = index === branch.routes.length - 1
       const pattern = branch.patterns[index] ?? '/'
-      // Les niveaux intermediaires ne consomment qu'un prefixe du pathname.
+      // Intermediate levels only consume a prefix of the pathname.
       const match = isLeaf ? leaf : matchPattern(pattern, target, false)
 
-      // Le pattern d'un ancetre est par construction un prefixe de celui de la
-      // feuille : si la feuille matche, l'ancetre matche aussi.
+      // The pattern of an ancestor is by construction a prefix of the one of
+      // the leaf: if the leaf matches, the ancestor matches too.
       /* c8 ignore next */
       if (match === null) break
 

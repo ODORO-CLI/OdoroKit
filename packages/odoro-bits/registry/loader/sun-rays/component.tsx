@@ -1,40 +1,37 @@
 /**
- * Soleil dont les rayons tournent : un disque fixe, douze rayons qui
- * s'allongent en alternance, et une rotation d'ensemble tres lente.
+ * Sun whose rays turn: a fixed disc, twelve rays that lengthen in turn, and a
+ * very slow rotation of the whole.
  *
- * ## Deux rythmes, pas un
+ * ## Two rhythms, not one
  *
- * Un soleil dont tous les rayons pulsent ensemble clignote ; un soleil dont
- * les rayons pulsent en cascade tourne deja, et la rotation d'ensemble
- * n'ajoute rien. En les faisant respirer en alternance — un rayon sur deux
- * en avance d'une demi-periode — la couronne ne se lit ni comme un
- * clignotement ni comme une rotation : elle scintille. La rotation lente,
- * huit fois plus longue qu'une respiration, se pose alors dessus sans
- * entrer en concurrence.
+ * A sun whose rays all pulse together blinks; a sun whose rays pulse in
+ * cascade is already turning, and the overall rotation adds nothing. By making
+ * them breathe alternately — every other ray half a period ahead — the crown
+ * reads neither as a blink nor as a rotation: it twinkles. The slow rotation,
+ * eight times longer than one breath, then sits on top of it without competing.
  *
- * Les rayons alternent aussi de longueur au repos, longs et courts : c'est
- * ce qui distingue une couronne solaire d'une roue a rayons.
+ * The rays also alternate in length at rest, long and short: that is what
+ * tells a solar crown apart from a spoked wheel.
  *
- * ## Un rayon, une variable
+ * ## One ray, one variable
  *
- * Chaque rayon est le meme segment, tourne a sa place. L'angle est une
- * variable CSS lue **dans** les etapes de l'animation : sans cela, la
- * rotation posee en attribut serait ecrasee par la transformation animee,
- * et les douze rayons se superposeraient sur un seul. Une animation, douze
- * elements, aucune duplication de regle.
+ * Each ray is the same segment, turned into its place. The angle is a CSS
+ * variable read **inside** the steps of the animation: without that, the
+ * rotation set as an attribute would be overwritten by the animated transform,
+ * and the twelve rays would stack onto a single one. One animation, twelve
+ * elements, no duplicated rule.
  *
- * Le disque central ne bouge pas : c'est l'ancre visuelle. Un coeur qui
- * respirerait aussi brouillerait la lecture — rien ne resterait fixe.
+ * The central disc does not move: it is the visual anchor. A heart that also
+ * breathed would blur the reading — nothing would stay fixed.
  *
- * ## Un statut, pas un dessin
+ * ## A status, not a drawing
  *
- * L'element porte `role="status"` et un libelle pour les lecteurs d'ecran :
- * l'attente est une information, pas une decoration. Le dessin est retire
- * de l'arbre d'accessibilite.
+ * The element carries `role="status"` and a label for screen readers: the wait
+ * is information, not decoration. The drawing is removed from the
+ * accessibility tree.
  *
- * Sous mouvement reduit, les rayons restent a leur longueur de repos et la
- * couronne ne tourne plus : la figure se lit encore comme un soleil, seul
- * le mouvement s'arrete.
+ * Under reduced motion, the rays stay at their resting length and the crown no
+ * longer turns: the figure still reads as a sun, only the motion stops.
  *
  * @module
  */
@@ -42,13 +39,13 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-sun-rays'
 
-/** Nombre de rayons. Douze : un cadran, et une alternance qui se referme. */
+/** Number of rays. Twelve: a dial, and an alternation that closes on itself. */
 const RAYS = 12
 
-/** Pose le soleil, ses rayons et sa rotation, une fois par document. */
+/** Sets the sun, its rays and its rotation, once per document. */
 function ensureSunRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -70,8 +67,8 @@ function ensureSunRule(): void {
     'animation:o-sun-rays-reach var(--o-sun-speed) ease-in-out infinite;',
     'animation-delay:var(--o-sun-delay);',
     '}',
-    // L'angle est repris dans chaque etape : une animation de transformation
-    // remplace la valeur entiere, pas seulement la fonction qu'elle anime.
+    // The angle is repeated in every step: a transform animation replaces the
+    // whole value, not only the function it animates.
     '@keyframes o-sun-rays-reach{',
     '0%,100%{transform:rotate(var(--o-sun-angle)) translateY(0);opacity:0.55}',
     '50%{transform:rotate(var(--o-sun-angle)) translateY(-5px);opacity:1}',
@@ -84,36 +81,36 @@ function ensureSunRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface SunRaysOwnProps {
-  /** Cote de la zone de dessin, en pixels. @defaultValue 56 */
+  /** Side of the drawing area, in pixels. @defaultValue 56 */
   size?: number
-  /** Duree d'une respiration de rayon, en millisecondes. @defaultValue 1800 */
+  /** Duration of one ray breath, in milliseconds. @defaultValue 1800 */
   speed?: number
-  /** Couleur du soleil. @defaultValue la couleur du texte */
+  /** Colour of the sun. @defaultValue the text colour */
   color?: string
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */
+  /** Label announced to screen readers. @defaultValue 'Loading' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All the properties. */
 export type SunRaysProps = Customisable<SunRaysOwnProps, 'span'>
 
 /**
- * Signale une attente par un soleil dont la couronne scintille et tourne.
+ * Signals a wait with a sun whose crown twinkles and turns.
  *
  * @example
  * <SunRays />
  *
  * @example
- * // Plus grand, plus lent, dans la teinte de marque.
+ * // Bigger, slower, in the brand hue.
  * <SunRays size={88} speed={2600} color="var(--o-palette-brand-500)" />
  */
 export function SunRays({
   size = 56,
   speed = 1800,
   color = 'currentColor',
-  label = 'Chargement',
+  label = 'Loading',
   ...rest
 }: SunRaysProps): ReactElement {
   ensureSunRule()
@@ -126,8 +123,8 @@ export function SunRays({
     height: `${String(size)}px`,
     color,
     '--o-sun-speed': `${String(speed)}ms`,
-    // Le tour est huit fois plus long qu'une respiration : assez lent pour
-    // ne pas rivaliser avec le scintillement.
+    // The turn is eight times longer than one breath: slow enough not to
+    // compete with the twinkle.
     '--o-sun-turn': `${String(speed * 8)}ms`,
   } as CSSProperties
 
@@ -159,9 +156,9 @@ export function SunRays({
                 style={
                   {
                     '--o-sun-angle': `${String((360 / RAYS) * index)}deg`,
-                    // Un rayon sur deux est en avance d'une demi-periode.
-                    // Le delai est negatif : la couronne scintille des la
-                    // premiere image, au lieu d'attendre son tour.
+                    // Every other ray is half a period ahead. The delay is
+                    // negative: the crown twinkles from the very first frame,
+                    // instead of waiting its turn.
                     '--o-sun-delay': long ? '0ms' : `${String(Math.round(-speed / 2))}ms`,
                   } as CSSProperties
                 }

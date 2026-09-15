@@ -1,31 +1,31 @@
 /**
- * Petales qui s'ouvrent : huit petales s'ouvrent un a un autour d'un coeur,
- * tiennent, puis se referment.
+ * Opening petals: eight petals open one by one around a heart, hold, then
+ * close again.
  *
- * ## Un petale pousse depuis sa base
+ * ## A petal grows from its base
  *
- * Chaque petale est une ellipse posee au-dessus du coeur, puis tournee
- * autour de lui par son groupe : huit groupes, huit angles, une seule forme.
- * L'ouverture est une echelle dont l'origine est la base du petale — le
- * bout qui touche le coeur. Une echelle centree ferait apparaitre le petale
- * en l'air, detache ; depuis sa base, il pousse.
+ * Each petal is an ellipse placed above the heart, then turned around it by
+ * its group: eight groups, eight angles, a single shape. The opening is a
+ * scale whose origin is the base of the petal — the end that touches the
+ * heart. A centred scale would make the petal appear in mid-air, detached;
+ * from its base, it grows.
  *
- * Le cycle est asymetrique a dessein : l'ouverture est lente et la fleur
- * tient ouverte la moitie du temps, la fermeture est brusque. Une fleur qui
- * s'ouvrirait et se fermerait a la meme allure respirerait, et ce chargeur
- * n'est pas une respiration — `dots-loader` l'est deja.
+ * The cycle is asymmetric on purpose: the opening is slow and the flower holds
+ * open half of the time, the closing is abrupt. A flower that opened and
+ * closed at the same pace would breathe, and this loader is not a breath —
+ * `dots-loader` already is one.
  *
- * Les huit petales partagent l'animation, decalee d'un douzieme de cycle
- * chacun, en delai negatif : la sequence est engagee des la premiere image.
+ * The eight petals share the animation, each offset by a twelfth of a cycle,
+ * in negative delay: the sequence is already under way on the first frame.
  *
- * ## Un statut, pas un dessin
+ * ## A status, not a drawing
  *
- * L'element porte `role="status"` et un libelle pour les lecteurs d'ecran :
- * l'attente est une information, pas une decoration. Le dessin est retire
- * de l'arbre d'accessibilite.
+ * The element carries `role="status"` and a label for screen readers: the wait
+ * is information, not decoration. The drawing is removed from the
+ * accessibility tree.
  *
- * Sous mouvement reduit, la fleur reste ouverte : c'est l'etat ou elle passe
- * le plus de temps, et le seul ou elle se reconnait.
+ * Under reduced motion, the flower stays open: that is the state it spends the
+ * most time in, and the only one where it is recognisable.
  *
  * @module
  */
@@ -33,13 +33,13 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-flower-petals'
 
-/** Nombre de petales. */
+/** Number of petals. */
 const PETALS = 8
 
-/** Pose la fleur et son ouverture, une fois par document. */
+/** Sets the flower and its opening, once per document. */
 function ensureFlowerRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -49,21 +49,21 @@ function ensureFlowerRule(): void {
   style.textContent = [
     '[data-o-flower-petals]{display:inline-block;line-height:0}',
     '[data-o-flower-heart]{fill:var(--o-petal-color)}',
-    // L'origine de l'echelle est la base du petale, cote coeur : il pousse
-    // depuis la fleur, il n'apparait pas en l'air.
+    // The origin of the scale is the base of the petal, on the heart side: it
+    // grows out of the flower, it does not appear in mid-air.
     '[data-o-flower-petal]{',
     'fill:var(--o-petal-color);opacity:0.85;',
     'transform-box:fill-box;transform-origin:50% 100%;',
     'animation:o-flower-petals-bloom var(--o-petal-speed) infinite;',
     'animation-delay:var(--o-petal-delay);',
     '}',
-    // Ouverture lente, longue tenue, fermeture brusque.
+    // Slow opening, long hold, abrupt closing.
     '@keyframes o-flower-petals-bloom{',
     '0%{transform:scale(0.1);animation-timing-function:ease-out}',
     '30%,80%{transform:scale(1);animation-timing-function:ease-in}',
     '92%,100%{transform:scale(0.1)}',
     '}',
-    // La fleur ouverte : l'etat ou elle se reconnait.
+    // The flower open: the state in which it is recognisable.
     '@media (prefers-reduced-motion:reduce){',
     '[data-o-flower-petal]{animation:none;transform:none}',
     '}',
@@ -71,36 +71,36 @@ function ensureFlowerRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface FlowerPetalsOwnProps {
-  /** Cote du dessin, en pixels. @defaultValue 48 */
+  /** Side of the drawing, in pixels. @defaultValue 48 */
   size?: number
-  /** Duree d'une floraison complete, en millisecondes. @defaultValue 2400 */
+  /** Duration of one full bloom, in milliseconds. @defaultValue 2400 */
   speed?: number
-  /** Couleur des petales et du coeur. @defaultValue la couleur du texte */
+  /** Colour of the petals and of the heart. @defaultValue the text colour */
   color?: string
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */
+  /** Label announced to screen readers. @defaultValue 'Loading' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All the properties. */
 export type FlowerPetalsProps = Customisable<FlowerPetalsOwnProps, 'span'>
 
 /**
- * Signale une attente par une fleur qui s'ouvre petale apres petale.
+ * Signals a wait with a flower opening petal after petal.
  *
  * @example
  * <FlowerPetals />
  *
  * @example
- * // Plus grande, plus lente, dans la teinte de marque.
+ * // Bigger, slower, in the brand hue.
  * <FlowerPetals size={96} speed={3600} color="var(--o-palette-brand-500)" />
  */
 export function FlowerPetals({
   size = 48,
   speed = 2400,
   color = 'currentColor',
-  label = 'Chargement',
+  label = 'Loading',
   ...rest
 }: FlowerPetalsProps): ReactElement {
   ensureFlowerRule()
@@ -133,8 +133,8 @@ export function FlowerPetals({
               ry="19"
               style={
                 {
-                  // Un douzieme de cycle entre deux petales, en negatif : la
-                  // sequence est engagee des la premiere image.
+                  // A twelfth of a cycle between two petals, negative: the
+                  // sequence is already under way on the first frame.
                   '--o-petal-delay': `${String(Math.round((-speed * (PETALS - 1 - index)) / 12))}ms`,
                 } as CSSProperties
               }

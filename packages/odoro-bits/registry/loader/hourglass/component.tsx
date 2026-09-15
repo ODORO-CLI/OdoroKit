@@ -1,34 +1,34 @@
 /**
- * Sablier : le sable coule du haut vers le bas, puis le sablier se
- * retourne et tout recommence.
+ * Hourglass: the sand flows from the top to the bottom, then the hourglass
+ * flips over and it all starts again.
  *
- * ## Le sable coule a vitesse constante, le retournement non
+ * ## The sand flows at a constant rate, the flip does not
  *
- * C'est la propriete qui fait du sablier un instrument de mesure : le
- * debit par le col ne depend pas de la hauteur de sable au-dessus. La
- * descente du niveau est donc lineaire, et le tas du bas monte au meme
- * rythme. Le retournement, lui, est un geste de main : il part doucement,
- * accelere, et se pose — `ease-in-out`, sur un demi-tour.
+ * That is the property which makes an hourglass a measuring instrument: the
+ * flow through the neck does not depend on the height of sand above it. The
+ * fall of the level is therefore linear, and the pile at the bottom rises at
+ * the same rate. The flip, on the other hand, is a hand gesture: it starts
+ * gently, speeds up, and settles — `ease-in-out`, over a half turn.
  *
- * Le sable est decoupe par la forme interieure de chaque ampoule : c'est un
- * `clipPath`, et les deux formes de sable ne font que glisser derriere lui.
- * Le tas du bas a une pointe, comme du sable qui tombe d'un point ; le
- * sable du haut a un creux au milieu, comme du sable qui s'ecoule par un
- * trou. Ce sont la meme forme, tournee d'un demi-tour — ce qui fait que la
- * fin du cycle, le sablier retourne avec son tas en haut, est exactement
- * l'image de depart. La boucle se referme sans saut.
+ * The sand is clipped by the inner shape of each bulb: it is a `clipPath`, and
+ * the two sand shapes merely slide behind it. The pile at the bottom has a
+ * peak, like sand falling from a point; the sand at the top has a hollow in
+ * the middle, like sand draining through a hole. They are the same shape,
+ * turned by a half turn — which makes the end of the cycle, the hourglass
+ * flipped with its pile on top, exactly the starting frame. The loop closes
+ * without a jump.
  *
- * Quatre animations sur des elements SVG, tenues par le compositeur, aucun
- * JavaScript apres le premier rendu.
+ * Four animations on SVG elements, held by the compositor, no JavaScript after
+ * the first render.
  *
- * ## Un statut, pas un dessin
+ * ## A status, not a drawing
  *
- * L'element porte `role="status"` et un libelle pour les lecteurs d'ecran :
- * l'attente est une information, pas une decoration. Le sablier est retire
- * de l'arbre d'accessibilite.
+ * The element carries `role="status"` and a label for screen readers: waiting
+ * is information, not decoration. The hourglass is removed from the
+ * accessibility tree.
  *
- * Sous mouvement reduit, le sable est entierement en bas : c'est l'etat ou
- * un sablier finit, et la figure se reconnait encore.
+ * Under reduced motion, the sand is entirely at the bottom: that is the state
+ * an hourglass ends in, and the figure is still recognisable.
  *
  * @module
  */
@@ -36,35 +36,35 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import { useId, type CSSProperties, type ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-hourglass'
 
-/** Contour du verre, les deux ampoules et le col. */
+/** Outline of the glass, the two bulbs and the neck. */
 const GLASS =
   'M 28 10 L 72 10 L 72 22 Q 72 40 53 49 L 53 51 Q 72 60 72 78 L 72 90 L 28 90 L 28 78 Q 28 60 47 51 L 47 49 Q 28 40 28 22 Z'
 
-/** Interieur de l'ampoule du haut : la ou le sable peut se voir. */
+/** Inside of the top bulb: where the sand can be seen. */
 const TOP_BULB = 'M 30 12 L 70 12 L 70 22 Q 70 39 52 48.5 L 48 48.5 Q 30 39 30 22 Z'
 
-/** Interieur de l'ampoule du bas. */
+/** Inside of the bottom bulb. */
 const BOTTOM_BULB =
   'M 48 51.5 L 52 51.5 Q 70 61 70 78 L 70 88 L 30 88 L 30 78 Q 30 61 48 51.5 Z'
 
-/** Le tas du bas, en pointe. */
+/** The pile at the bottom, with a peak. */
 const MOUND = 'M 30 90 L 30 76 Q 42 70 50 60 Q 58 70 70 76 L 70 90 Z'
 
-/** Le sable du haut : le meme tas, tourne d'un demi-tour, donc creuse. */
+/** The sand at the top: the same pile, turned by a half turn, and so hollowed. */
 const HOLLOW = 'M 70 10 L 70 24 Q 58 30 50 40 Q 42 30 30 24 L 30 10 Z'
 
 /**
- * Course du sable, en unites de la vue.
+ * Travel of the sand, in view units.
  *
- * Assez pour que le sable du haut sorte entierement de son ampoule, et que
- * le tas du bas parte entierement sous la sienne.
+ * Enough for the sand at the top to leave its bulb entirely, and for the pile
+ * at the bottom to start entirely below its own.
  */
 const TRAVEL = 40
 
-/** Pose le sablier, le sable et le retournement, une fois par document. */
+/** Sets up the hourglass, the sand and the flip, once per document. */
 function ensureHourglassRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -79,13 +79,13 @@ function ensureHourglassRule(): void {
     'animation-duration:var(--o-hourglass-speed);animation-iteration-count:infinite;',
     '}',
     '[data-o-hourglass-body]{animation-name:o-hourglass-flip}',
-    // Au repos, le sable est en bas : le haut a glisse hors de son ampoule,
-    // le tas est monte dans la sienne.
+    // At rest, the sand is at the bottom: the top has slid out of its bulb,
+    // the pile has risen into its own.
     `[data-o-hourglass-sand="top"]{transform:translateY(${String(TRAVEL)}px);animation-name:o-hourglass-drain}`,
     '[data-o-hourglass-sand="bottom"]{transform:translateY(0);animation-name:o-hourglass-fill}',
     '[data-o-hourglass-stream]{opacity:0;animation-name:o-hourglass-stream}',
-    // Un debit constant : le niveau descend en lineaire jusqu'a vide, puis
-    // attend le retournement.
+    // A constant flow: the level falls linearly until empty, then waits for
+    // the flip.
     '@keyframes o-hourglass-drain{',
     '0%{transform:translateY(0);animation-timing-function:linear}',
     `72%,100%{transform:translateY(${String(TRAVEL)}px)}`,
@@ -94,20 +94,21 @@ function ensureHourglassRule(): void {
     `0%{transform:translateY(${String(TRAVEL)}px);animation-timing-function:linear}`,
     '72%,100%{transform:translateY(0)}',
     '}',
-    // Le filet de sable est un trait en pointille dont le motif descend :
-    // ce sont les grains qui tombent. Il s'eteint quand le haut est vide.
+    // The thread of sand is a dashed line whose pattern travels downwards:
+    // those are the grains falling. It goes out when the top is empty.
     '@keyframes o-hourglass-stream{',
     '0%{stroke-dashoffset:0;opacity:1;animation-timing-function:linear}',
     '70%{stroke-dashoffset:-72px;opacity:1}',
     '74%,100%{stroke-dashoffset:-72px;opacity:0}',
     '}',
-    // Un geste de main : un demi-tour qui part doucement et se pose. Le
-    // sablier retourne, tas en haut, est l'image de depart.
+    // A hand gesture: a half turn that starts gently and settles. The flipped
+    // hourglass, pile on top, is the starting frame.
     '@keyframes o-hourglass-flip{',
     '0%,78%{transform:rotate(0deg);animation-timing-function:ease-in-out}',
     '96%,100%{transform:rotate(180deg)}',
     '}',
-    // Tout le sable en bas, sablier droit : la figure est dite, ecoulee.
+    // All the sand at the bottom, hourglass upright: the figure is stated,
+    // run through.
     '@media (prefers-reduced-motion:reduce){',
     '[data-o-hourglass-body],[data-o-hourglass-sand],[data-o-hourglass-stream]{animation:none}',
     '[data-o-hourglass-body]{transform:none}',
@@ -116,42 +117,42 @@ function ensureHourglassRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** Props of the component itself. */
 export interface HourglassOwnProps {
-  /** Hauteur du sablier, en pixels. @defaultValue 48 */
+  /** Height of the hourglass, in pixels. @defaultValue 48 */
   size?: number
-  /** Duree d'un cycle, ecoulement et retournement compris, en millisecondes. @defaultValue 3000 */
+  /** Duration of one cycle, flow and flip included, in milliseconds. @defaultValue 3000 */
   speed?: number
-  /** Couleur du verre et du sable. @defaultValue la couleur du texte */
+  /** Colour of the glass and of the sand. @defaultValue the text colour */
   color?: string
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */
+  /** Label announced to screen readers. @defaultValue 'Loading' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All the props. */
 export type HourglassProps = Customisable<HourglassOwnProps, 'span'>
 
 /**
- * Signale une attente par un sablier qui s'ecoule et se retourne.
+ * Signals a wait through an hourglass running through and flipping over.
  *
  * @example
  * <Hourglass />
  *
  * @example
- * // Plus grand, plus lent, dans la teinte de marque.
+ * // Bigger, slower, in the brand hue.
  * <Hourglass size={80} speed={5000} color="var(--o-palette-brand-500)" />
  */
 export function Hourglass({
   size = 48,
   speed = 3000,
   color = 'currentColor',
-  label = 'Chargement',
+  label = 'Loading',
   ...rest
 }: HourglassProps): ReactElement {
   ensureHourglassRule()
 
-  // Les decoupes sont referencees par identifiant dans le document : deux
-  // sabliers sur la meme page ne doivent pas se partager le meme.
+  // The clips are referenced by identifier in the document: two hourglasses on
+  // the same page must not share the same one.
   const id = useId().replace(/[^a-zA-Z0-9_-]/g, '')
   const topClip = `o-hourglass-top-${id}`
   const bottomClip = `o-hourglass-bottom-${id}`

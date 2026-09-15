@@ -1,5 +1,5 @@
 /**
- * Notifications empilables.
+ * Stackable notifications.
  *
  * @module
  */
@@ -19,51 +19,51 @@ import {
 import { usePresence } from '../motion/usePresence.js'
 import { cx } from '../styles/cx.js'
 
-/** Registre visuel d'une notification. */
+/** Visual register of a notification. */
 export type ToastTone = 'info' | 'success' | 'warning' | 'danger'
 
-/** Une notification en attente d'affichage ou affichee. */
+/** A notification waiting to be displayed or already displayed. */
 export interface Toast {
-  /** Identifiant unique, attribue a la creation. */
+  /** Unique identifier, assigned at creation. */
   readonly id: string
-  /** Titre court. */
+  /** Short title. */
   readonly title: ReactNode
-  /** Detail facultatif. */
+  /** Optional detail. */
   readonly description?: ReactNode
-  /** Registre visuel. @defaultValue 'info' */
+  /** Visual register. @defaultValue 'info' */
   readonly tone?: ToastTone
   /**
-   * Duree d'affichage en millisecondes. `0` maintient la notification jusqu'a
-   * fermeture explicite.
+   * Display duration in milliseconds. `0` keeps the notification until an
+   * explicit dismissal.
    *
    * @defaultValue 5000
    */
   readonly duration?: number
 }
 
-/** Notification telle que passee a `toast()`, sans identifiant. */
+/** Notification as passed to `toast()`, without an identifier. */
 export type ToastInput = Omit<Toast, 'id'>
 
-/** Interface exposee par {@link useToast}. */
+/** Interface exposed by {@link useToast}. */
 export interface ToastApi {
   /**
-   * Empile une notification.
+   * Stacks a notification.
    *
-   * @returns L'identifiant attribue, utilisable pour la fermer par avance.
+   * @returns The assigned identifier, usable to dismiss it ahead of time.
    */
   toast(input: ToastInput): string
-  /** Ferme une notification. */
+  /** Dismisses a notification. */
   dismiss(id: string): void
-  /** Ferme toutes les notifications. */
+  /** Dismisses every notification. */
   clear(): void
-  /** Notifications actuellement affichees, de la plus ancienne a la plus recente. */
+  /** Notifications currently displayed, from the oldest to the most recent. */
   readonly toasts: readonly Toast[]
 }
 
 const ToastContext = createContext<ToastApi | null>(null)
 ToastContext.displayName = 'OdoroToast'
 
-/** Couleurs par registre, en classes de la feuille de base. */
+/** Colors per register, as classes of the base stylesheet. */
 const TONE_CLASSES: Readonly<Record<ToastTone, string>> = {
   info: 'o-bg-sky-50 dark:o-bg-sky-950 o-border-sky-200 dark:o-border-sky-800 o-text-zinc-900 dark:o-text-zinc-50',
   success:
@@ -74,31 +74,31 @@ const TONE_CLASSES: Readonly<Record<ToastTone, string>> = {
     'o-bg-red-50 dark:o-bg-red-950 o-border-red-200 dark:o-border-red-800 o-text-zinc-900 dark:o-text-zinc-50',
 }
 
-/** Proprietes de {@link ToastProvider}. */
+/** Properties of {@link ToastProvider}. */
 export interface ToastProviderProps {
   /** Application. */
   children?: ReactNode
   /**
-   * Nombre maximum de notifications simultanees. Au-dela, la plus ancienne
-   * est retiree : un empilement sans limite finit par masquer l'interface.
+   * Maximum number of simultaneous notifications. Beyond that, the oldest one
+   * is removed: a stack without a limit ends up hiding the interface.
    *
    * @defaultValue 4
    */
   max?: number
-  /** Duree d'affichage par defaut, en millisecondes. @defaultValue 5000 */
+  /** Default display duration, in milliseconds. @defaultValue 5000 */
   duration?: number
-  /** Classes additionnelles pour la region d'affichage. */
+  /** Additional classes for the display region. */
   className?: string
 }
 
 let counter = 0
 
 /**
- * Fournit la file de notifications et affiche la region qui les presente.
+ * Provides the notification queue and renders the region that presents them.
  *
- * La region porte `aria-live="polite"` : une notification est annoncee sans
- * interrompre la lecture en cours. Les notifications en registre `danger`
- * passent en `role="alert"`, qui interrompt.
+ * The region carries `aria-live="polite"`: a notification is announced
+ * without interrupting the reading in progress. Notifications in the `danger`
+ * register switch to `role="alert"`, which interrupts.
  *
  * @example
  * <ToastProvider>
@@ -155,13 +155,13 @@ export function ToastProvider({
   )
 }
 
-/** Proprietes de {@link ToastItem}. */
+/** Properties of {@link ToastItem}. */
 interface ToastItemProps {
   toast: Toast
   onDismiss: (id: string) => void
 }
 
-/** Une notification affichee, avec sa temporisation et son animation. */
+/** One displayed notification, with its timer and its animation. */
 function ToastItem({ toast, onDismiss }: ToastItemProps): ReactElement | null {
   const [visible, setVisible] = useState(true)
   const { ref, isMounted } = usePresence<HTMLDivElement>(visible, {
@@ -181,7 +181,7 @@ function ToastItem({ toast, onDismiss }: ToastItemProps): ReactElement | null {
     return () => clearTimeout(timer)
   }, [lifetime])
 
-  // Le retrait de la file n'a lieu qu'apres l'animation de sortie.
+  // The removal from the queue only happens after the exit animation.
   useEffect(() => {
     if (isMounted) return
     dismissRef.current(toast.id)
@@ -212,7 +212,7 @@ function ToastItem({ toast, onDismiss }: ToastItemProps): ReactElement | null {
       <button
         type="button"
         onClick={() => setVisible(false)}
-        aria-label="Fermer la notification"
+        aria-label="Close the notification"
         className="o-shrink-0 o-cursor-pointer o-rounded-sm o-text-zinc-500 dark:o-text-zinc-400 hover:o-text-zinc-900 dark:hover:o-text-zinc-50 o-transition"
       >
         <svg
@@ -235,20 +235,18 @@ function ToastItem({ toast, onDismiss }: ToastItemProps): ReactElement | null {
 }
 
 /**
- * Accede a la file de notifications.
+ * Accesses the notification queue.
  *
- * @throws {Error} Hors d'un {@link ToastProvider}.
+ * @throws {Error} Outside of a {@link ToastProvider}.
  *
  * @example
  * const { toast } = useToast()
- * toast({ title: 'Projet enregistre', tone: 'success' })
+ * toast({ title: 'Project saved', tone: 'success' })
  */
 export function useToast(): ToastApi {
   const api = useContext(ToastContext)
   if (api === null) {
-    throw new Error(
-      "[odoro/ui] useToast() doit etre appele a l'interieur d'un <ToastProvider>.",
-    )
+    throw new Error('[odoro/ui] useToast() must be called inside a <ToastProvider>.')
   }
   return api
 }

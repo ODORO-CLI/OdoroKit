@@ -1,34 +1,36 @@
 /**
- * Image en particules : la photo est echantillonnee dans un canevas hors du
- * document, puis rendue en points colores qui se rassemblent pour la former.
+ * Image in particles: the photograph is sampled into a canvas outside the
+ * document, then rendered as coloured points that gather to form it.
  *
- * ## Pourquoi une scene, et pas un shader plein cadre
+ * ## Why a scene, and not a full-frame shader
  *
- * Le backend leger peint des fragments : il n'a pas de sommets a deplacer. Or
- * ici, tout l'effet est dans le trajet de chaque point vers sa place — une
- * geometrie de plusieurs milliers de sommets, dispersee puis rassemblee dans
- * le shader de sommet. C'est la seule raison de payer une scene.
+ * The light backend paints fragments: it has no vertices to move. Here,
+ * however, the whole effect lies in the journey of each point towards its
+ * place — a geometry of several thousand vertices, scattered then gathered in
+ * the vertex shader. That is the only reason to pay for a scene.
  *
- * ## L'image reelle est dessous, et elle sert de repli
+ * ## The real image is underneath, and it serves as the fallback
  *
- * L'element `img` est pose sous le canevas, en position absolue : il porte le
- * texte de remplacement, il s'affiche pendant le telechargement du moteur de
- * rendu, et il reste seul quand la scene ne viendra pas — sans WebGL, sous
- * mouvement reduit, ou quand l'arbitre refuse la surface. Il n'y a donc aucun
- * repli a dessiner : la photo **est** le repli, et c'est le meilleur possible.
+ * The `img` element is laid under the canvas, absolutely positioned: it
+ * carries the alternative text, it is displayed while the renderer downloads,
+ * and it stays alone when the scene will not come — without WebGL, under
+ * reduced motion, or when the arbiter refuses the surface. There is therefore
+ * no fallback to draw: the photograph **is** the fallback, and the best
+ * possible one.
  *
- * ## Ce que la couleur des points doit a l'image, et le fond au theme
+ * ## What the colour of the points owes to the image, and the background to the theme
  *
- * Chaque point prend la couleur de sa cellule : les teintes viennent de la
- * photo, pas de la palette. Ce qui vient de la palette, c'est le fond du
- * canevas — sans lui, la scene se decouperait sur du noir au milieu d'une page
- * claire. Il est relu a chaque bascule de theme, sans reconstruire la scene.
+ * Each point takes the colour of its cell: the hues come from the photograph,
+ * not from the palette. What comes from the palette is the background of the
+ * canvas — without it, the scene would stand out against black in the middle
+ * of a light page. It is read again on every theme switch, without rebuilding
+ * the scene.
  *
- * ## La lecture des pixels peut echouer
+ * ## Reading the pixels can fail
  *
- * Une image d'un autre domaine sans en-tete d'autorisation teinte le canevas
- * et la lecture leve. Les points restent alors a zero, invisibles, et la photo
- * reste affichee dessous.
+ * An image from another domain without an authorisation header taints the
+ * canvas and the read throws. The points then stay at zero, invisible, and the
+ * photograph stays displayed underneath.
  *
  * @module
  */
@@ -50,64 +52,64 @@ import {
   IMAGE_PARTICLES_VERTEX,
 } from './image-particles.shader.js'
 
-/** Part de la densite demandee retenue par palier de qualite. */
+/** Share of the requested density kept at each quality step. */
 const GRADE: Readonly<Record<QualityLevel, number>> = {
   low: 0.55,
   medium: 0.78,
   high: 1,
 }
 
-/** Demi-hauteur du plan, en unites de scene. Le reste en decoule. */
+/** Half-height of the plane, in scene units. The rest follows from it. */
 const HALF = 1
 
-/** Ce qu'un echantillon rend : une place et une couleur par cellule. */
+/** What a sampling produces: one place and one colour per cell. */
 interface Sample {
   readonly positions: Float32Array
   readonly tints: Float32Array
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface ImageParticlesOwnProps {
-  /** Source de l'image. */
+  /** Source of the image. */
   src: string
-  /** Texte de remplacement. Chaine vide si l'image est purement decorative. */
+  /** Alternative text. Empty string if the image is purely decorative. */
   alt: string
-  /** Rapport largeur sur hauteur du cadre. @defaultValue 1.777 */
+  /** Width to height ratio of the frame. @defaultValue 1.777 */
   ratio?: number
   /**
-   * Nombre de points sur la largeur, avant reduction par la qualite.
+   * Number of points across the width, before reduction by the quality.
    *
-   * Borne a deux cent vingt : au-dela, chaque point pese moins d'un pixel et
-   * l'image redevient une image, en plus couteuse.
+   * Capped at two hundred and twenty: beyond that, each point weighs less than
+   * a pixel and the image becomes an image again, only more expensive.
    *
    * @defaultValue 140
    */
   density?: number
-  /** Taille d'un point, en cellules. Au-dela de un, les points se touchent. @defaultValue 1.1 */
+  /** Size of a point, in cells. Beyond one, the points touch. @defaultValue 1.1 */
   size?: number
-  /** Distance de dispersion au depart, en unites de scene. @defaultValue 0.7 */
+  /** Scatter distance at the start, in scene units. @defaultValue 0.7 */
   scatter?: number
-  /** Duree du rassemblement, en millisecondes. @defaultValue 1600 */
+  /** Duration of the gathering, in milliseconds. @defaultValue 1600 */
   duration?: number
-  /** Vitesse de la respiration, une fois l'image formee. @defaultValue 0.6 */
+  /** Speed of the breathing, once the image is formed. @defaultValue 0.6 */
   speed?: number
-  /** Inclinaison du nuage sous le pointeur. Zero la fige. @defaultValue 0.16 */
+  /** Tilt of the cloud under the pointer. Zero freezes it. @defaultValue 0.16 */
   parallax?: number
-  /** Token dont la couleur peint le fond de la scene. */
+  /** Token whose colour paints the background of the scene. */
   background?: string
 }
 
-/** Toutes les proprietes : les siennes, plus celles d'une image. */
+/** All properties: its own, plus those of an image. */
 export type ImageParticlesProps = Customisable<ImageParticlesOwnProps, 'img'>
 
 /**
- * Rend une image en nuage de points colores.
+ * Renders an image as a cloud of coloured points.
  *
  * @example
- * <ImageParticles src="/portrait.jpg" alt="Portrait de l equipe" />
+ * <ImageParticles src="/portrait.jpg" alt="Portrait of the team" />
  *
  * @example
- * // Plus grossier, dispersion large, rassemblement lent.
+ * // Coarser, wide scatter, slow gathering.
  * <ImageParticles
  *   src="/portrait.jpg"
  *   alt=""
@@ -135,33 +137,33 @@ export function ImageParticles({
   const pointer = usePointerDamped({
     host,
     speed: 2.5,
-    name: 'image en particules : pointeur',
+    name: 'image in particles : pointer',
   })
 
   const cols = Math.round(Math.min(220, Math.max(24, density * GRADE[quality])))
   const rows = Math.max(2, Math.round(cols / Math.max(ratio, 0.1)))
   const count = cols * rows
 
-  /** Echantillon pret a etre verse dans la geometrie, ou rien. */
+  /** Sample ready to be poured into the geometry, or nothing. */
   const sample = useRef<Sample | null>(null)
-  /** Verse l'echantillon dans les attributs. Existe des que la scene est la. */
+  /** Pours the sample into the attributes. Exists as soon as the scene is there. */
   const pour = useRef<((data: Sample) => void) | null>(null)
-  /** Avancement du rassemblement, de zero a un. */
+  /** Progress of the gathering, from zero to one. */
   const assembly = useRef(0)
-  /** Uniformes vivants : les modifier change le rendu a l'image suivante. */
+  /** Live uniforms: changing them changes the rendering on the next frame. */
   const uniforms = useRef<Record<string, { value: number }>>({})
   const context = useRef<SceneContext | null>(null)
 
-  // L'echantillonnage est independant de la scene : il peut aboutir avant
-  // qu'elle existe — le moteur de rendu pese plus lourd qu'une image — ou
-  // apres. La ref sert de rendez-vous entre les deux.
+  // The sampling is independent of the scene: it can finish before the scene
+  // exists — the renderer weighs more than an image — or after. The ref serves
+  // as the meeting point between the two.
   useEffect(() => {
     if (typeof document === 'undefined') return
 
     let cancelled = false
     const source = new Image()
-    // Voir l'en-tete : sans cet attribut, une image d'un autre domaine teinte
-    // le canevas et la lecture leve.
+    // See the header: without this attribute, an image from another domain
+    // taints the canvas and the read throws.
     source.crossOrigin = 'anonymous'
     source.decoding = 'async'
 
@@ -175,8 +177,8 @@ export function ImageParticles({
         const paint = canvas.getContext('2d')
         if (paint === null) return
 
-        // Cadrage « cover » : la partie de l'image qui remplit la grille sans
-        // la deformer, exactement comme l'element `img` pose dessous.
+        // "Cover" framing: the part of the image that fills the grid without
+        // distorting it, exactly like the `img` element laid underneath.
         const nw = source.naturalWidth
         const nh = source.naturalHeight
         if (nw === 0 || nh === 0) return
@@ -198,14 +200,15 @@ export function ImageParticles({
             const at = cell * 3
             const px = cell * 4
 
-            // Le centre de la cellule, ramene au repere de la scene : l'axe
-            // vertical y monte, celui de l'image descend.
+            // The centre of the cell, brought back to the frame of reference
+            // of the scene: its vertical axis goes up, that of the image goes
+            // down.
             positions[at] = ((x + 0.5) / cols) * width - width / 2
             positions[at + 1] = height / 2 - ((y + 0.5) / rows) * height
             positions[at + 2] = 0
 
-            // Les couleurs de l'image sont en sRGB, la scene travaille en
-            // lineaire : sans cette conversion, le nuage sort delave.
+            // The colours of the image are in sRGB, the scene works in linear:
+            // without this conversion, the cloud comes out washed out.
             tints[at] = ((pixels[px] ?? 0) / 255) ** 2.2
             tints[at + 1] = ((pixels[px + 1] ?? 0) / 255) ** 2.2
             tints[at + 2] = ((pixels[px + 2] ?? 0) / 255) ** 2.2
@@ -217,7 +220,7 @@ export function ImageParticles({
         assembly.current = 0
         pour.current?.(data)
       } catch {
-        // Canevas teinte : la photo reste seule, sans nuage.
+        // Tainted canvas: the photograph stays alone, with no cloud.
         sample.current = null
       }
     }
@@ -233,7 +236,7 @@ export function ImageParticles({
   }, [src, cols, rows, count, ratio])
 
   const { ref } = useScene({
-    name: 'image en particules',
+    name: 'image in particles',
     setup: (scene) => {
       context.current = scene
       const { three, camera, renderer } = scene
@@ -276,23 +279,23 @@ export function ImageParticles({
           uniforms: uniforms.current,
         }),
       )
-      // Les places arrivent apres la construction : la sphere englobante
-      // calculee sur des zeros ferait disparaitre le nuage entier des que la
-      // camera bouge.
+      // The places arrive after construction: a bounding sphere computed on
+      // zeros would make the whole cloud disappear as soon as the camera
+      // moves.
       points.frustumCulled = false
 
       const group = new three.Group()
-      group.name = 'nuage'
+      group.name = 'cloud'
       group.add(points)
       scene.scene.add(group)
 
-      // Le plan fait deux unites de haut : place la camera a cette distance,
-      // il occupe exactement la hauteur du champ.
+      // The plane is two units tall: place the camera at that distance and it
+      // occupies exactly the height of the field of view.
       camera.position.set(0, 0, HALF / Math.tan((45 * Math.PI) / 360))
       camera.lookAt(0, 0, 0)
 
-      // Le rendez-vous : si l'echantillon est deja la, il est verse tout de
-      // suite ; sinon, la lecture appellera cette fonction en aboutissant.
+      // The meeting point: if the sample is already there, it is poured right
+      // away; otherwise, the read will call this function when it finishes.
       pour.current = (data) => {
         positions.set(data.positions)
         tints.set(data.tints)
@@ -311,17 +314,16 @@ export function ImageParticles({
       const clock = live['uTime']
       if (clock !== undefined) clock.value = time * Math.max(0, speed)
 
-      // La taille d'un point se calcule en pixels du tampon : elle depend de
-      // la hauteur reelle du canevas et de l'ouverture de la camera.
+      // The size of a point is computed in buffer pixels: it depends on the
+      // real height of the canvas and on the aperture of the camera.
       const projection = live['uProjection']
       if (projection !== undefined) {
         const height = renderer.domElement.height
         projection.value = height / (2 * Math.tan((camera.fov * Math.PI) / 360))
       }
 
-      // Le rassemblement n'avance que lorsqu'il y a quelque chose a
-      // rassembler, et se termine en douceur : une arrivee lineaire aurait
-      // l'air d'un arret net.
+      // The gathering only advances when there is something to gather, and
+      // ends gently: a linear arrival would look like an abrupt stop.
       const state = live['uAssembly']
       if (state !== undefined && sample.current !== null && assembly.current < 1) {
         assembly.current = Math.min(
@@ -332,11 +334,11 @@ export function ImageParticles({
         state.value = 1 - (1 - t) ** 3
       }
 
-      const group = scene.getObjectByName('nuage')
+      const group = scene.getObjectByName('cloud')
       if (group === undefined) return
 
-      // Cadrage « cover » du plan : si le cadre est plus large que l'image,
-      // le nuage grandit pour le remplir plutot que de laisser des bandes.
+      // "Cover" framing of the plane: if the frame is wider than the image,
+      // the cloud grows to fill it rather than leaving bands.
       group.scale.setScalar(Math.max(1, camera.aspect / Math.max(ratio, 0.1)))
 
       if (parallax === 0) return
@@ -346,8 +348,8 @@ export function ImageParticles({
     },
   })
 
-  // Le theme a bascule : le fond de la scene est relu, la scene n'est pas
-  // reconstruite.
+  // The theme has switched: the background of the scene is read again, the
+  // scene is not rebuilt.
   useEffect(() => {
     const scene = context.current
     if (scene === null) return
@@ -379,8 +381,9 @@ export function ImageParticles({
         className="o-absolute o-inset-0 o-size-full o-object-cover"
       />
 
-      {/* La surface de la scene : posee sur la photo, decorative, opaque des
-          qu'elle rend. Sans elle, la photo est tout ce qu'il y a. */}
+      {/* The surface of the scene: laid over the photograph, decorative,
+          opaque as soon as it renders. Without it, the photograph is all there
+          is. */}
       <div
         aria-hidden
         ref={(element) => {

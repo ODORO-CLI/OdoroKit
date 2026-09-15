@@ -1,26 +1,25 @@
 /**
- * Degrade en mouvement : une nappe de couleur traverse le texte, en boucle.
+ * Flowing gradient: a sheet of colour crosses the text, on a loop.
  *
- * ## Zero JavaScript a l'execution
+ * ## Zero JavaScript at runtime
  *
- * Le texte est peint par son fond — un degrade plus large que lui, dont la
- * position est animee. Le compositeur du navigateur fait tout : aucune
- * boucle, aucun abonnement, aucun rendu React apres le premier.
+ * The text is painted by its background — a gradient wider than itself, whose
+ * position is animated. The browser's compositor does everything: no loop, no
+ * subscription, no React render after the first.
  *
- * Le degrade fait trois fois la largeur du texte et boucle sur lui-meme :
- * la couleur de depart est aussi celle d'arrivee, donc le raccord du cycle
- * est invisible.
+ * The gradient is three times the width of the text and loops on itself: the
+ * starting colour is also the arriving one, so the seam of the cycle is
+ * invisible.
  *
- * ## La contrepartie du decoupage
+ * ## The trade-off of the clipping
  *
- * `background-clip: text` suppose de rendre la couleur du texte
- * transparente. Un navigateur qui ne saurait pas decouper afficherait donc
- * un texte invisible. La regle est enfermee dans une requete de support :
- * sans elle, le texte garde sa couleur heritee et perd seulement son
- * degrade, ce qui est le bon sens de la degradation.
+ * `background-clip: text` requires making the text colour transparent. A
+ * browser that could not clip would therefore show invisible text. The rule is
+ * shut inside a support query: without it, the text keeps its inherited colour
+ * and only loses its gradient, which is the right way round for degradation.
  *
- * Sous mouvement reduit, le degrade reste : c'est la couleur du texte, pas
- * un geste. Seul son deplacement s'arrete.
+ * Under reduced motion, the gradient stays: it is the colour of the text, not
+ * a gesture. Only its movement stops.
  *
  * @module
  */
@@ -28,29 +27,29 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import { type CSSProperties, type ElementType, type ReactElement } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface GradientFlowOwnProps {
-  /** Texte a peindre. */
+  /** Text to paint. */
   children: string
-  /** Balise rendue. @defaultValue 'span' */
+  /** Rendered tag. @defaultValue 'span' */
   as?: ElementType
-  /** Duree d'un cycle, en millisecondes. @defaultValue 4000 */
+  /** Duration of one cycle, in milliseconds. @defaultValue 4000 */
   speed?: number
-  /** Angle du degrade, en degres. @defaultValue 90 */
+  /** Angle of the gradient, in degrees. @defaultValue 90 */
   angle?: number
-  /** Premiere couleur. @defaultValue teinte de marque */
+  /** First colour. @defaultValue brand hue */
   from?: string
-  /** Seconde couleur. @defaultValue fuchsia de la palette */
+  /** Second colour. @defaultValue fuchsia from the palette */
   to?: string
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type GradientFlowProps = Customisable<GradientFlowOwnProps, 'span'>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-gradient-flow'
 
-/** Pose le degrade et son mouvement, une fois par document. */
+/** Sets the gradient and its movement, once per document. */
 function ensureFlowRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -61,8 +60,8 @@ function ensureFlowRule(): void {
     '@keyframes o-gradient-flow{from{background-position:0% 50%}to{background-position:-200% 50%}}',
     '@supports (background-clip:text) or (-webkit-background-clip:text){',
     '[data-o-gradient-flow]{',
-    // Quatre jalons dont le premier et le dernier partagent la couleur : le
-    // motif se repete sans couture quand la position boucle.
+    // Four stops whose first and last share the colour: the pattern repeats
+    // seamlessly when the position loops.
     'background-image:linear-gradient(var(--o-flow-angle),var(--o-flow-from),var(--o-flow-to),var(--o-flow-from));',
     'background-size:200% 100%;',
     '-webkit-background-clip:text;background-clip:text;',
@@ -75,15 +74,15 @@ function ensureFlowRule(): void {
 }
 
 /**
- * Fait couler un degrade a travers un texte.
+ * Flows a gradient through a text.
  *
  * @example
  * <GradientFlow as="h1" className="o-text-5xl o-font-extrabold">
- *   Construire en couleur
+ *   Building in colour
  * </GradientFlow>
  *
  * @example
- * // Les couleurs sont libres : ce sont des valeurs, pas des roles.
+ * // The colours are free: they are values, not roles.
  * <GradientFlow from="var(--o-palette-sky-400)" to="var(--o-palette-emerald-300)">
  *   Odoro
  * </GradientFlow>
@@ -109,9 +108,9 @@ export function GradientFlow({
     '--o-flow-speed': `${String(speed)}ms`,
   } as CSSProperties
 
-  // Le mouvement reduit est traite par la feuille, pas par le rendu : le
-  // degrade est la couleur du texte et doit rester, seul son deplacement
-  // s'arrete. Retirer l'attribut retirerait la couleur avec.
+  // Reduced motion is handled by the stylesheet, not by the render: the
+  // gradient is the colour of the text and must stay, only its movement stops.
+  // Removing the attribute would take the colour away with it.
   return (
     <Tag {...rest} className={className} style={flowStyle} data-o-gradient-flow="">
       {children}

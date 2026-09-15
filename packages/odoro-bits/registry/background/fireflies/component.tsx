@@ -1,22 +1,22 @@
 /**
- * Lucioles : des points qui clignotent chacun a sa phase, dans un halo doux.
+ * Fireflies: points blinking each at its own phase, in a soft halo.
  *
- * ## Le principe
+ * ## The principle
  *
- * Une luciole par cellule d une grille, sa position tiree du hachage de la cellule ; le clignotement est un sinus de phase propre, jamais un tirage par image.
+ * One firefly per cell of a grid, its position drawn from the cell's hash; the blinking is a sine of its own phase, never a draw per frame.
  *
- * Le halo est une exponentielle de la distance, sommee sur les neuf cellules voisines pour traverser les bords de maille.
+ * The halo is an exponential of the distance, summed over the nine neighbouring cells so as to cross the mesh edges.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur — les recopier ici en ferait autant
- * de versions a maintenir qu'il y a de fonds.
+ * It carries only what sets it apart: its shader, its settings and its fallback.
+ * Reading the tokens, converting them to floats and re-reading them when the
+ * theme changes all come from the engine — copying them here would leave as
+ * many versions to maintain as there are backgrounds.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en
- * accorde qu'une par backend — et sous mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface — it grants only one
+ * per backend — and under reduced motion.
  *
  * @module
  */
@@ -33,45 +33,45 @@ import { type ReactElement } from 'react'
 
 import { FIREFLIES_FRAGMENT } from './fireflies.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface FirefliesControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to this component. */
 export interface FirefliesOwnProps {
-  /** Cadence du clignotement et de la derive. @defaultValue 0.8 */
+  /** Rate of the blinking and of the drift. @defaultValue 0.8 */
   speed?: number
-  /** Nombre de cellules sur le plus petit cote. @defaultValue 16 */
+  /** Number of cells across the shorter side. @defaultValue 16 */
   density?: number
-  /** Portee du halo. @defaultValue 0.6 */
+  /** Reach of the halo. @defaultValue 0.6 */
   glow?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<FirefliesControls>
 }
 
-/** Toutes les proprietes. */
+/** Every property. */
 export type FirefliesProps = Customisable<FirefliesOwnProps>
 
-/** Tokens employes par defaut : la nuit, puis les deux teintes de lucioles. */
+/** Tokens used by default: the night, then the two firefly hues. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-amber-300',
   '--o-palette-lime-300',
 ] as const
 
-/** Repli par defaut : une teinte figee, dans les memes tons. */
+/** Default fallback: a frozen hue, in the same tones. */
 const DEFAULT_FALLBACK = 'o-bg-zinc-50 dark:o-bg-zinc-950'
 
 /**
- * Lucioles.
+ * Fireflies.
  *
  * @example
  * <div className="o-relative o-min-h-screen">
@@ -93,8 +93,8 @@ export function Fireflies({
     colors,
     uniforms: { uSpeed: speed, uDensity: density, uGlow: glow },
     name: 'fireflies',
-    // Une maille plus large fait moins de lucioles a l'ecran, donc moins de
-    // halos qui se recouvrent : c'est le reglage qui pese, donc il est borne.
+    // A wider mesh puts fewer fireflies on screen, hence fewer overlapping
+    // halos: it is the setting that weighs, so it is the one that is capped.
     degrade: (quality) => ({
       uDensity: quality === 'low' ? Math.min(density, 10) : density,
     }),

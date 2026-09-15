@@ -9,28 +9,28 @@ import {
 } from './resolve.js'
 import { entryId, parseMeta, type RegistryMetaInput } from './schema.js'
 
-/** Entree minimale valide, a deriver dans chaque test. */
+/** Minimal valid entry, to be derived in each test. */
 function meta(overrides: Partial<RegistryMetaInput> = {}): RegistryMetaInput {
   return {
     name: 'split-reveal',
     category: 'text',
     title: 'Split Reveal',
-    description: 'Revele un texte caractere par caractere.',
+    description: 'Reveals a text character by character.',
     files: [{ path: 'component.tsx', target: 'text/SplitReveal.tsx' }],
     perf: { tier: 'light' },
     ...overrides,
   }
 }
 
-/** Construit un catalogue a partir de couples identifiant / dependances. */
+/** Builds a catalogue from identifier / dependencies pairs. */
 function catalogue(entries: Record<string, string[]>): Map<string, ResolvableEntry> {
   return new Map(
     Object.entries(entries).map(([id, deps]) => [id, { id, registryDependencies: deps }]),
   )
 }
 
-describe('validation du format', () => {
-  it('accepte une entree minimale et applique les valeurs par defaut', () => {
+describe('validation of the format', () => {
+  it('accepts a minimal entry and applies the default values', () => {
     const result = parseMeta(meta(), 'text/split-reveal')
 
     expect(result.ok).toBe(true)
@@ -43,39 +43,39 @@ describe('validation du format', () => {
     expect(entryId(result.meta)).toBe('text/split-reveal')
   })
 
-  it('refuse un nom qui n est pas en minuscules a tirets', () => {
+  it('refuses a name that is not lowercase with dashes', () => {
     const result = parseMeta(meta({ name: 'SplitReveal' }), 'text/x')
     expect(result.ok).toBe(false)
     if (result.ok) return
-    expect(result.problems.join()).toMatch(/minuscules/)
+    expect(result.problems.join()).toMatch(/lowercase/)
   })
 
-  it('refuse une categorie inconnue', () => {
+  it('refuses an unknown category', () => {
     const result = parseMeta(
-      meta({ category: 'inexistante' as RegistryMetaInput['category'] }),
+      meta({ category: 'nonexistent' as RegistryMetaInput['category'] }),
       'x/y',
     )
     expect(result.ok).toBe(false)
   })
 
-  it('exige au moins un fichier', () => {
+  it('requires at least one file', () => {
     const result = parseMeta(meta({ files: [] }), 'text/x')
     expect(result.ok).toBe(false)
   })
 
-  it('cite le chemin du champ fautif', () => {
-    // Un message qui dit seulement « invalide » oblige a chercher.
-    const result = parseMeta(meta({ perf: { tier: 'inconnu' } as never }), 'text/x')
+  it('names the path of the offending field', () => {
+    // A message that says only "invalid" forces you to go looking.
+    const result = parseMeta(meta({ perf: { tier: 'unknown' } as never }), 'text/x')
     expect(result.ok).toBe(false)
     if (result.ok) return
     expect(result.problems[0]).toContain('text/x → perf.tier')
   })
 })
 
-describe('destinations d ecriture', () => {
-  it('refuse une destination absolue', () => {
-    // La CLI ecrit chez l'utilisateur : un chemin non borne y serait une porte
-    // ouverte.
+describe('write destinations', () => {
+  it('refuses an absolute destination', () => {
+    // The CLI writes into the user project: an unbounded path would be an open
+    // door there.
     const result = parseMeta(
       meta({ files: [{ path: 'a.tsx', target: '/etc/passwd' }] }),
       'text/x',
@@ -85,45 +85,45 @@ describe('destinations d ecriture', () => {
     expect(result.problems.join()).toMatch(/relative/)
   })
 
-  it('refuse une remontee dans l arborescence', () => {
+  it('refuses a climb up the tree', () => {
     const result = parseMeta(
-      meta({ files: [{ path: 'a.tsx', target: '../../ailleurs.tsx' }] }),
+      meta({ files: [{ path: 'a.tsx', target: '../../elsewhere.tsx' }] }),
       'text/x',
     )
     expect(result.ok).toBe(false)
   })
 
-  it('refuse deux fichiers vers la meme destination', () => {
-    // Le second effacerait le premier sans que rien ne le signale.
+  it('refuses two files aiming at the same destination', () => {
+    // The second would erase the first without anything reporting it.
     const result = parseMeta(
       meta({
         files: [
-          { path: 'a.tsx', target: 'text/Meme.tsx' },
-          { path: 'b.tsx', target: 'text/Meme.tsx' },
+          { path: 'a.tsx', target: 'text/Same.tsx' },
+          { path: 'b.tsx', target: 'text/Same.tsx' },
         ],
       }),
       'text/x',
     )
     expect(result.ok).toBe(false)
     if (result.ok) return
-    expect(result.problems.join()).toMatch(/meme destination/)
+    expect(result.problems.join()).toMatch(/same destination/)
   })
 })
 
-describe('coherence du cout', () => {
-  it('exige un repli pour un composant couteux', () => {
-    // Sans repli, l'ecran reste vide pendant le chargement, sur les appareils
-    // lents et en mouvement reduit.
+describe('coherence of the cost', () => {
+  it('requires a fallback for an expensive component', () => {
+    // Without a fallback, the screen stays empty while loading, on slow devices
+    // and in reduced motion.
     const result = parseMeta(
       meta({ engine: { gl: 'three' }, perf: { tier: 'heavy', backend: 'three' } }),
       'hero/x',
     )
     expect(result.ok).toBe(false)
     if (result.ok) return
-    expect(result.problems.join()).toMatch(/repli visuel/)
+    expect(result.problems.join()).toMatch(/visual fallback/)
   })
 
-  it('accepte un composant couteux qui declare son repli', () => {
+  it('accepts an expensive component that declares its fallback', () => {
     const result = parseMeta(
       meta({
         category: 'hero',
@@ -135,7 +135,7 @@ describe('coherence du cout', () => {
     expect(result.ok).toBe(true)
   })
 
-  it('refuse un backend declare de deux facons differentes', () => {
+  it('refuses a backend declared in two different ways', () => {
     const result = parseMeta(
       meta({
         engine: { gl: 'ogl' },
@@ -145,12 +145,12 @@ describe('coherence du cout', () => {
     )
     expect(result.ok).toBe(false)
     if (result.ok) return
-    expect(result.problems.join()).toMatch(/ne correspond pas/)
+    expect(result.problems.join()).toMatch(/does not match/)
   })
 
-  it('refuse une scene 3D classee autrement que couteuse', () => {
-    // La classer legere desactiverait les garde-fous de la CLI et de l'arbitre
-    // de surfaces.
+  it('refuses a 3D scene classed as anything but expensive', () => {
+    // Classing it light would disable the safeguards of the CLI and of the
+    // surface arbiter.
     const result = parseMeta(
       meta({
         engine: { gl: 'three' },
@@ -160,12 +160,12 @@ describe('coherence du cout', () => {
     )
     expect(result.ok).toBe(false)
     if (result.ok) return
-    expect(result.problems.join()).toMatch(/cout eleve/)
+    expect(result.problems.join()).toMatch(/high cost/)
   })
 })
 
-describe('resolution du graphe', () => {
-  it('installe les dependances avant ce qui les reclame', () => {
+describe('resolution of the graph', () => {
+  it('installs the dependencies before what requires them', () => {
     const result = resolveGraph(
       ['text/split-reveal'],
       catalogue({ 'text/split-reveal': ['hooks/use-in-view'], 'hooks/use-in-view': [] }),
@@ -176,7 +176,7 @@ describe('resolution du graphe', () => {
     expect(result.graph.order).toEqual(['hooks/use-in-view', 'text/split-reveal'])
   })
 
-  it('signale ce qui a ete ajoute sans avoir ete demande', () => {
+  it('reports what was added without having been asked for', () => {
     const result = resolveGraph(
       ['text/split-reveal'],
       catalogue({ 'text/split-reveal': ['hooks/use-in-view'], 'hooks/use-in-view': [] }),
@@ -185,64 +185,64 @@ describe('resolution du graphe', () => {
     expect(result.graph.implied).toEqual(['hooks/use-in-view'])
   })
 
-  it('resout un graphe profond sans doublon', () => {
+  it('resolves a deep graph without duplicates', () => {
     const result = resolveGraph(
-      ['a/un', 'a/deux'],
+      ['a/one', 'a/two'],
       catalogue({
-        'a/un': ['b/commun'],
-        'a/deux': ['b/commun'],
-        'b/commun': ['c/base'],
+        'a/one': ['b/common'],
+        'a/two': ['b/common'],
+        'b/common': ['c/base'],
         'c/base': [],
       }),
     )
 
     expect(result.ok).toBe(true)
     if (!result.ok) return
-    expect(result.graph.order).toEqual(['c/base', 'b/commun', 'a/un', 'a/deux'])
+    expect(result.graph.order).toEqual(['c/base', 'b/common', 'a/one', 'a/two'])
   })
 
-  it('signale une entree introuvable et qui la reclamait', () => {
-    const result = resolveGraph(['a/un'], catalogue({ 'a/un': ['b/absent'] }))
+  it('reports an entry that cannot be found, and who required it', () => {
+    const result = resolveGraph(['a/one'], catalogue({ 'a/one': ['b/absent'] }))
 
     expect(result.ok).toBe(false)
     if (result.ok) return
     expect(result.problems[0]).toEqual({
-      kind: 'introuvable',
+      kind: 'missing',
       id: 'b/absent',
-      requiredBy: 'a/un',
+      requiredBy: 'a/one',
     })
   })
 
-  it('detecte un cycle et en donne le chemin', () => {
-    // Une erreur qui dit seulement « cycle detecte » oblige a le chercher a la
-    // main dans tout le registre.
+  it('detects a cycle and gives its path', () => {
+    // An error that says only "cycle detected" forces you to look for it by
+    // hand across the whole registry.
     const result = resolveGraph(
-      ['a/un'],
-      catalogue({ 'a/un': ['b/deux'], 'b/deux': ['c/trois'], 'c/trois': ['a/un'] }),
+      ['a/one'],
+      catalogue({ 'a/one': ['b/two'], 'b/two': ['c/three'], 'c/three': ['a/one'] }),
     )
 
     expect(result.ok).toBe(false)
     if (result.ok) return
     expect(result.problems[0]).toMatchObject({ kind: 'cycle' })
     expect(describeProblem(result.problems[0]!)).toBe(
-      'Cycle de dependances : a/un → b/deux → c/trois → a/un',
+      'Dependency cycle: a/one → b/two → c/three → a/one',
     )
   })
 
-  it('detecte un cycle direct', () => {
-    const result = resolveGraph(['a/un'], catalogue({ 'a/un': ['a/un'] }))
+  it('detects a direct cycle', () => {
+    const result = resolveGraph(['a/one'], catalogue({ 'a/one': ['a/one'] }))
     expect(result.ok).toBe(false)
   })
 
-  it('ne boucle pas indefiniment sur un cycle', () => {
+  it('does not loop forever on a cycle', () => {
     const result = resolveGraph(
-      ['a/un'],
-      catalogue({ 'a/un': ['b/deux'], 'b/deux': ['a/un'] }),
+      ['a/one'],
+      catalogue({ 'a/one': ['b/two'], 'b/two': ['a/one'] }),
     )
     expect(result.ok).toBe(false)
   })
 
-  it('accepte une demande vide', () => {
+  it('accepts an empty request', () => {
     const result = resolveGraph([], catalogue({}))
     expect(result.ok).toBe(true)
     if (!result.ok) return
@@ -250,18 +250,18 @@ describe('resolution du graphe', () => {
   })
 })
 
-describe('integrite d un catalogue entier', () => {
-  it('ne signale rien sur un catalogue sain', () => {
-    expect(validateCatalogue(catalogue({ 'a/un': ['b/deux'], 'b/deux': [] }))).toEqual([])
+describe('integrity of a whole catalogue', () => {
+  it('reports nothing on a sound catalogue', () => {
+    expect(validateCatalogue(catalogue({ 'a/one': ['b/two'], 'b/two': [] }))).toEqual([])
   })
 
-  it('signale une dependance pointant dans le vide', () => {
-    const problems = validateCatalogue(catalogue({ 'a/un': ['b/absent'] }))
+  it('reports a dependency pointing into the void', () => {
+    const problems = validateCatalogue(catalogue({ 'a/one': ['b/absent'] }))
     expect(problems).toHaveLength(1)
-    expect(describeProblem(problems[0]!)).toMatch(/introuvable/)
+    expect(describeProblem(problems[0]!)).toMatch(/not found/)
   })
 
-  it('construit un catalogue depuis des entrees completes', () => {
+  it('builds a catalogue from complete entries', () => {
     const parsed = parseMeta(meta({ registryDependencies: ['hooks/use-in-view'] }), 'x')
     expect(parsed.ok).toBe(true)
     if (!parsed.ok) return

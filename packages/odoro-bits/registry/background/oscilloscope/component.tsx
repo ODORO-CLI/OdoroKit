@@ -1,24 +1,25 @@
 /**
- * Oscilloscope : un spot qui balaie l'ecran, et le phosphore qui garde sa trace.
+ * Oscilloscope: a spot that sweeps the screen, and the phosphor that keeps its
+ * trail.
  *
- * ## Le principe
+ * ## The principle
  *
- * Rien n'est trace : chaque fragment reconstruit l'instant ou le spot l'a
- * eclaire — dans ce balayage s'il est derriere le spot, dans le precedent
- * sinon — et son intensite est l'exponentielle de cet age. Le signal est fige
- * par balayage, comme sur un vrai ecran : la trace ne bouge pas derriere le
- * spot, elle s'eteint.
+ * Nothing is drawn: every fragment reconstructs the moment when the spot lit
+ * it — in this sweep if it sits behind the spot, in the previous one
+ * otherwise — and its intensity is the exponential of that age. The signal is
+ * frozen per sweep, as on a real screen: the trail does not move behind the
+ * spot, it dies away.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur — les recopier ici en ferait autant
- * de versions a maintenir qu'il y a de fonds.
+ * It carries only what sets it apart: its shader, its settings and its fallback.
+ * Reading the tokens, converting them to floats and re-reading them when the
+ * theme changes all come from the engine — copying that here would leave as many
+ * versions to maintain as there are backgrounds.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en
- * accorde qu'une par backend — et sous mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface — it grants only one per
+ * backend — and under reduced motion.
  *
  * @module
  */
@@ -35,43 +36,43 @@ import { type ReactElement } from 'react'
 
 import { OSCILLOSCOPE_FRAGMENT } from './oscilloscope.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface OscilloscopeControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to this component. */
 export interface OscilloscopeOwnProps {
-  /** Balayages par seconde. @defaultValue 0.5 */
+  /** Sweeps per second. @defaultValue 0.5 */
   speed?: number
-  /** Vitesse d'extinction du phosphore. Plus bas, plus de remanence. @defaultValue 1.2 */
+  /** Decay speed of the phosphor. Lower means more persistence. @defaultValue 1.2 */
   decay?: number
-  /** Periodes du signal dans le cadre. @defaultValue 3 */
+  /** Periods of the signal in the frame. @defaultValue 3 */
   frequency?: number
-  /** Hauteur du signal, en fraction du cadre. @defaultValue 0.28 */
+  /** Height of the signal, as a fraction of the frame. @defaultValue 0.28 */
   amplitude?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<OscilloscopeControls>
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type OscilloscopeProps = Customisable<OscilloscopeOwnProps>
 
-/** Tokens employes par defaut : le fond, la graticule, le phosphore. */
+/** Tokens used by default: the background, the graticule, the phosphor. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-theme-line',
   '--o-palette-green-400',
 ] as const
 
-/** Repli par defaut : un degrade fige, dans les memes tons. */
+/** Default fallback: a frozen gradient, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-b o-from-zinc-50 dark:o-from-zinc-950 o-to-green-950'
 
@@ -104,9 +105,9 @@ export function Oscilloscope({
       uAmplitude: amplitude,
     },
     name: 'oscilloscope',
-    // Une trace fine a densite de pixels reduite scintille : en qualite basse
-    // le phosphore s'eteint plus vite, et la remanence — la partie qui
-    // scintille — raccourcit d'autant.
+    // A thin trail at reduced pixel density shimmers: at low quality the
+    // phosphor dies away faster, and the persistence — the part that
+    // shimmers — shortens by just as much.
     degrade: (quality) => ({ uDecay: quality === 'low' ? decay * 2 : decay }),
   })
 

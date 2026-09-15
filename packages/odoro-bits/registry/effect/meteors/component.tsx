@@ -1,22 +1,22 @@
 /**
- * Meteores : des traits obliques tombent en boucle a travers la zone.
+ * Meteors: oblique strokes fall on a loop across the area.
  *
- * ## Un hasard qui n'en est pas un
+ * ## A randomness that is not one
  *
- * Position, delai et duree de chaque meteore paraissent aleatoires, mais
- * sont derives de son index par une suite deterministe. `Math.random()` au
- * rendu ferait deux pluies differentes entre le serveur et le client — une
- * erreur d'hydratation par meteore — et une pluie nouvelle a chaque rendu
- * du parent. La graine par index donne la meme pluie partout, toujours.
+ * Position, delay and duration of each meteor look random, but are derived
+ * from its index by a deterministic sequence. `Math.random()` at render time
+ * would make two different showers between the server and the client — one
+ * hydration error per meteor — and a new shower on every render of the parent.
+ * Seeding by index gives the same shower everywhere, always.
  *
- * ## Le compositeur fait tomber la pluie
+ * ## The compositor makes the rain fall
  *
- * Chaque meteore est une seule animation CSS — translation le long de sa
- * pente et fondu — qui boucle avec un delai negatif : la pluie est deja en
- * cours au premier regard, personne n'assiste au depart groupe.
+ * Each meteor is a single CSS animation — translation along its slope and fade
+ * — that loops with a negative delay: the shower is already under way at first
+ * glance, nobody witnesses the grouped start.
  *
- * La zone est purement decorative : elle est retiree de l'arbre
- * d'accessibilite, et sous mouvement reduit elle n'est pas rendue du tout.
+ * The area is purely decorative: it is removed from the accessibility tree,
+ * and under reduced motion it is not rendered at all.
  *
  * @module
  */
@@ -24,34 +24,34 @@
 import { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'
 import { type CSSProperties, type ReactElement } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface MeteorsOwnProps {
-  /** Nombre de meteores. @defaultValue 12 */
+  /** Number of meteors. @defaultValue 12 */
   count?: number
-  /** Angle de la chute, en degres. @defaultValue 215 */
+  /** Angle of the fall, in degrees. @defaultValue 215 */
   angle?: number
-  /** Couleur des traits. @defaultValue la couleur du texte */
+  /** Colour of the strokes. @defaultValue the text colour */
   color?: string
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type MeteorsProps = Customisable<MeteorsOwnProps>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-meteors'
 
 /**
- * Valeur pseudo-aleatoire dans [0, 1), stable pour un couple index-canal.
+ * Pseudo-random value in [0, 1), stable for an index-channel pair.
  *
- * Une congruence suffit : il ne s'agit pas de cryptographie, seulement de
- * casser les alignements visibles entre meteores voisins.
+ * A congruence is enough: this is not cryptography, only a way to break the
+ * visible alignments between neighbouring meteors.
  */
 function seeded(index: number, channel: number): number {
   const value = Math.sin(index * 127.1 + channel * 311.7) * 43758.5453
   return value - Math.floor(value)
 }
 
-/** Pose la chute, une fois par document. */
+/** Sets the fall, once per document. */
 function ensureMeteorRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -62,15 +62,16 @@ function ensureMeteorRule(): void {
     '[data-o-meteors]{position:absolute;inset:0;overflow:hidden;pointer-events:none}',
     '[data-o-meteor]{',
     'position:absolute;top:-10%;width:var(--o-meteor-length);height:1px;',
-    // Le trait est un degrade : tete pleine, queue qui s'efface.
+    // The stroke is a gradient: full head, tail that fades away.
     'background:linear-gradient(90deg,var(--o-meteor-color),transparent);',
     'rotate:var(--o-meteor-angle);',
     'animation:o-meteor-fall var(--o-meteor-duration) linear infinite;',
     'animation-delay:var(--o-meteor-delay);',
     'opacity:0;',
     '}',
-    // La translation suit l'axe du trait : `rotate` a deja oriente le
-    // repere, tomber revient a avancer sur son propre X.
+    // The translation follows the axis of the stroke: `rotate` has already
+    // oriented the frame of reference, falling amounts to advancing along its
+    // own X.
     '@keyframes o-meteor-fall{',
     '0%{transform:translateX(0);opacity:0}',
     '8%{opacity:var(--o-meteor-opacity)}',
@@ -82,18 +83,18 @@ function ensureMeteorRule(): void {
 }
 
 /**
- * Remplit sa zone d'une pluie de meteores.
+ * Fills its area with a shower of meteors.
  *
- * Le parent doit etre en position relative : la pluie epouse ses bords.
+ * The parent must be positioned relative: the shower hugs its edges.
  *
  * @example
  * <div className="o-relative o-overflow-hidden o-rounded-xl o-p-8">
  *   <Meteors />
- *   <h3>Un coin de ciel</h3>
+ *   <h3>A corner of sky</h3>
  * </div>
  *
  * @example
- * // Une pluie dense, presque verticale.
+ * // A dense shower, almost vertical.
  * <Meteors count={24} angle={245} />
  */
 export function Meteors({
@@ -105,8 +106,8 @@ export function Meteors({
   const { reduced } = useMotionState()
   ensureMeteorRule()
 
-  // Purement decoratif : sous mouvement reduit, une pluie figee ne serait
-  // qu'un bruit de traits. Rien n'est rendu.
+  // Purely decorative: under reduced motion, a frozen shower would only be a
+  // noise of strokes. Nothing is rendered.
   if (reduced) return null
 
   const { className, style } = mergePresentation({}, rest)
@@ -129,8 +130,8 @@ export function Meteors({
               {
                 left: `${String(seeded(index, 0) * 100)}%`,
                 '--o-meteor-duration': `${String(Math.round(duration))}ms`,
-                // Delai negatif : chaque meteore est deja quelque part sur
-                // sa course au premier rendu.
+                // Negative delay: each meteor is already somewhere along its
+                // course on the first render.
                 '--o-meteor-delay': `${String(-Math.round(seeded(index, 2) * duration))}ms`,
                 '--o-meteor-length': `${String(Math.round(60 + seeded(index, 3) * 90))}px`,
                 '--o-meteor-travel': `${String(Math.round(400 + seeded(index, 4) * 400))}px`,

@@ -44,12 +44,12 @@
       "step": 50
     },
     {
-      "name": "contour",
+      "name": "stroke",
       "type": "string",
       "description": "Couleur du contour."
     },
     {
-      "name": "remplissage",
+      "name": "fill",
       "type": "string",
       "description": "Couleur du remplissage."
     }

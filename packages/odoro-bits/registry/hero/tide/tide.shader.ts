@@ -1,29 +1,30 @@
 /**
- * Shaders de la maree : une nappe soulevee par une houle de bruit.
+ * Shaders of the tide: a sheet lifted by a swell of noise.
  *
- * ## L'idee
+ * ## The idea
  *
- * Un plan dont chaque sommet monte de la valeur d'un bruit tridimensionnel lu
- * en (x, y, temps). Deux couches : une houle large, lente, et une ondulation
- * fine qui la traverse en biais — la seconde empeche la premiere de se lire
- * comme un drap qui respire.
+ * A plane each of whose vertices rises by the value of a three-dimensional
+ * noise read at (x, y, time). Two layers: a wide, slow swell, and a fine
+ * ripple crossing it at an angle — the second one keeps the first from reading
+ * as a sheet that breathes.
  *
- * La normale vient de deux differences finies sur la hauteur : ce que le
- * relief fait a la lumiere, il le fait aussi aux reflets, et c'est la seule
- * chose qui donne du volume a une nappe sans texture.
+ * The normal comes from two finite differences on the height: what the relief
+ * does to the light, it also does to the reflections, and that is the only
+ * thing that gives volume to a sheet without a texture.
  *
- * ## Pourquoi une brume
+ * ## Why a haze
  *
- * Un plan fini a un bord, et un bord se voit. La couleur est fondue dans celle
- * du fond avec la distance : l'horizon disparait avant d'atteindre le bord de
- * la geometrie, et la nappe parait sans fin.
+ * A finite plane has an edge, and an edge shows. The colour is blended into
+ * the background colour with distance: the horizon vanishes before reaching
+ * the edge of the geometry, and the sheet looks endless.
  *
- * Le bruit est fourni par le moteur (`NOISE_FUNCTIONS_3D`), prefixe au vertex.
+ * The noise is supplied by the engine (`NOISE_FUNCTIONS_3D`), prefixed to the
+ * vertex.
  *
  * @module
  */
 
-/** Vertex shader : houle, differences finies, normale. */
+/** Vertex shader: swell, finite differences, normal. */
 export const TIDE_VERTEX = /* glsl */ `
 uniform float uTime;
 uniform float uAmplitude;
@@ -38,8 +39,8 @@ varying float vHeight;
 float tide(vec2 at) {
   vec3 field = vec3(at * uFrequency, uTime * uSpeed);
   float swell = odoroFbm3(field, uOctaves) - 0.5;
-  // L'ondulation fine glisse en biais et bat plus vite : deux rythmes qui ne
-  // se recouvrent jamais, donc jamais de respiration reguliere.
+  // The fine ripple slides at an angle and beats faster: two rhythms that
+  // never overlap, so never a regular breathing.
   vec3 fine = vec3(
     at * uFrequency * 3.0 + vec2(uTime * uSpeed * 0.6, uTime * uSpeed * 0.25),
     uTime * uSpeed * 1.7
@@ -52,8 +53,8 @@ void main() {
   float height = tide(position.xy) * uAmplitude;
   vec3 displaced = vec3(position.xy, height);
 
-  // Normale d'un champ de hauteur z = h(x, y) : (-dh/dx, -dh/dy, 1), a un
-  // facteur pres. Deux lectures voisines suffisent.
+  // Normal of a height field z = h(x, y): (-dh/dx, -dh/dy, 1), up to a factor.
+  // Two neighbouring reads are enough.
   float epsilon = 0.05;
   float alongX = tide(position.xy + vec2(epsilon, 0.0)) * uAmplitude;
   float alongY = tide(position.xy + vec2(0.0, epsilon)) * uAmplitude;
@@ -68,7 +69,7 @@ void main() {
 }
 `
 
-/** Fragment shader : couleur par hauteur, lumiere rasante, crete, brume. */
+/** Fragment shader: colour by height, grazing light, crest, haze. */
 export const TIDE_FRAGMENT = /* glsl */ `
 precision highp float;
 
@@ -85,24 +86,25 @@ void main() {
   vec3 normal = normalize(vNormal);
   vec3 view = normalize(-vViewPosition);
 
-  // Les creux gardent la couleur du fond, les bosses prennent la teinte.
+  // The hollows keep the background colour, the bumps take the hue.
   float lift = smoothstep(-1.0, 1.0, vHeight);
   vec3 colour = mix(uDeep, uMid, lift);
 
-  // Une lumiere rasante fixe, en espace vue : elle vient d'en haut a gauche
-  // et effleure la nappe, ce qui souligne chaque crete.
+  // A fixed grazing light, in view space: it comes from the top left and
+  // brushes the sheet, which underlines every crest.
   vec3 light = normalize(vec3(-0.4, 0.8, 0.6));
   float diffuse = max(dot(normal, light), 0.0);
   vec3 halfway = normalize(light + view);
   float specular = pow(max(dot(normal, halfway), 0.0), 48.0) * uShine;
   float fresnel = pow(1.0 - max(dot(normal, view), 0.0), 3.0);
 
-  // Les bosses s eclairent d elles-memes : sans cette lueur, une nappe sombre
-  // vue en rasant n est qu un relief gris.
+  // The bumps light themselves: without this glow, a dark sheet seen at a
+  // grazing angle is nothing but grey relief.
   float glow = pow(lift, 3.0) * 0.35 * uShine;
   colour = colour * (0.45 + 0.65 * diffuse) + uCrest * (specular + fresnel * 0.35 * uShine + glow);
 
-  // Brume : la nappe se fond dans le fond bien avant le bord du plan.
+  // Haze: the sheet blends into the background well before the edge of the
+  // plane.
   float distance = length(vViewPosition);
   float fog = smoothstep(3.5, 11.0, distance);
   colour = mix(colour, uDeep, fog);

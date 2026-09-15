@@ -1,30 +1,29 @@
 /**
- * Controle segmente a glissiere : un choix parmi quelques options, dans un
- * rail creux ou une glissiere en relief vient se poser sous l'option choisie.
+ * Segmented control with a slider: one choice among a few options, in a
+ * hollow rail where a raised slider comes to rest under the chosen option.
  *
- * ## Ce sont des boutons radio, pas des onglets
+ * ## These are radio buttons, not tabs
  *
- * Les onglets a pastille changent de vue : ce qu'ils montrent est ailleurs
- * dans la page, et leur semantique est `tablist`. Un controle segmente
- * choisit une valeur — un tri, une unite, une periode — et ce qu'il montre,
- * c'est son propre etat. C'est un `radiogroup`, et il en suit les regles :
- * les fleches deplacent la selection elle-meme, pas seulement le focus, et
- * une seule option est dans l'ordre de tabulation.
+ * Tabs with a pill change the view: what they show is elsewhere in the page,
+ * and their semantics is `tablist`. A segmented control picks a value — a
+ * sort, a unit, a period — and what it shows is its own state. It is a
+ * `radiogroup`, and it follows the rules of one: the arrows move the
+ * selection itself, not only the focus, and a single option is in the
+ * tab order.
  *
- * ## La glissiere est un relief sur un creux
+ * ## The slider is a relief on a hollow
  *
- * Les onglets posent une pastille pleine, de la teinte de marque, sur une
- * barre plate. Ici le rail est creuse — un voile de l'encre courante — et la
- * glissiere est une surface de theme, posee dessus avec une ombre courte :
- * une piece qui coulisse dans une rainure. L'option choisie n'a pas besoin
- * de couleur pour se distinguer, elle est en relief.
+ * Tabs lay a solid pill, in the brand hue, on a flat bar. Here the rail is
+ * hollowed out — a veil of the current ink — and the slider is a theme
+ * surface, laid on top with a short shadow: a part sliding in a groove. The
+ * chosen option does not need colour to stand out, it is in relief.
  *
- * ## Le trajet depasse un peu sa cible
+ * ## The travel slightly overshoots its target
  *
- * La courbe emphatique du systeme porte un leger depassement : la glissiere
- * arrive, deborde d'un pixel ou deux, et se cale. C'est ce qui la fait
- * peser — une transition lineaire donnerait un rectangle qui se deplace,
- * pas une piece qui coulisse.
+ * The emphasized curve of the system carries a light overshoot: the slider
+ * arrives, goes a pixel or two past, and settles. That is what gives it
+ * weight — a linear transition would give a rectangle that moves, not a
+ * part that slides.
  *
  * @module
  */
@@ -40,43 +39,43 @@ import {
   type ReactNode,
 } from 'react'
 
-/** Une option du controle. */
+/** One option of the control. */
 export interface SegmentOption {
-  /** Valeur rendue par `onChange`. */
+  /** Value returned by `onChange`. */
   readonly value: string
-  /** Libelle affiche. */
+  /** Displayed label. */
   readonly label: string
-  /** Icone placee avant le libelle. */
+  /** Icon placed before the label. */
   readonly icon?: ReactNode
-  /** Option presente mais non choisissable. */
+  /** Option present but not selectable. */
   readonly disabled?: boolean
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface SegmentedControlOwnProps {
-  /** Les options, dans l'ordre d'affichage. */
+  /** The options, in display order. */
   options: readonly SegmentOption[]
-  /** Nom du groupe pour les lecteurs d'ecran. */
+  /** Group name for screen readers. */
   label: string
-  /** Option choisie, en mode controle. */
+  /** Chosen option, in controlled mode. */
   value?: string
-  /** Option choisie au montage, en mode non controle. Par defaut, la premiere. */
+  /** Option chosen on mount, in uncontrolled mode. By default, the first one. */
   defaultValue?: string
-  /** Appele quand l'utilisateur choisit une option. */
+  /** Called when the user picks an option. */
   onChange?: (value: string) => void
-  /** Les options se partagent la largeur a parts egales. @defaultValue false */
+  /** The options share the width in equal parts. @defaultValue false */
   full?: boolean
-  /** Neutralise le groupe entier. @defaultValue false */
+  /** Neutralises the whole group. @defaultValue false */
   disabled?: boolean
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type SegmentedControlProps = Customisable<SegmentedControlOwnProps>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-segmented-control'
 
-/** Pose le rail, la glissiere et les options, une fois par document. */
+/** Applies the rail, the slider and the options, once per document. */
 function ensureSegmentRules(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -103,7 +102,7 @@ function ensureSegmentRules(): void {
     '[data-o-seg] [role="radio"][aria-checked="true"]{opacity:1}',
     '[data-o-seg] [role="radio"]:focus-visible{outline:2px solid currentColor;outline-offset:-2px}',
     '[data-o-seg] [role="radio"]:disabled{opacity:0.3;cursor:not-allowed}',
-    // La glissiere : une surface en relief, posee dans le creux.
+    // The slider: a raised surface, laid in the hollow.
     '[data-o-seg-thumb]{',
     'position:absolute;inset-block:3px;left:0;z-index:0;width:0;',
     'border-radius:calc(0.75rem - 3px);background:var(--o-theme-surface);',
@@ -112,8 +111,8 @@ function ensureSegmentRules(): void {
     'transition:transform var(--o-duration-slow) var(--o-ease-emphasized),',
     'width var(--o-duration-slow) var(--o-ease-emphasized),scale 120ms linear;',
     '}',
-    // La pression ecrase un peu la piece ; `scale` ne se dispute pas avec la
-    // translation qui la place.
+    // The press squashes the part a little; `scale` does not fight with the
+    // translation that places it.
     '[data-o-seg]:has([role="radio"]:active) [data-o-seg-thumb]{scale:0.96}',
     '@media (prefers-reduced-motion:reduce){[data-o-seg-thumb]{transition:none}}',
   ].join('')
@@ -121,27 +120,27 @@ function ensureSegmentRules(): void {
 }
 
 /**
- * Choix parmi quelques options, avec une glissiere.
+ * Choice among a few options, with a slider.
  *
  * @example
  * <SegmentedControl
- *   label="Periode"
+ *   label="Period"
  *   options={[
- *     { value: 'jour', label: 'Jour' },
- *     { value: 'semaine', label: 'Semaine' },
- *     { value: 'mois', label: 'Mois' },
+ *     { value: 'day', label: 'Day' },
+ *     { value: 'week', label: 'Week' },
+ *     { value: 'month', label: 'Month' },
  *   ]}
- *   defaultValue="semaine"
+ *   defaultValue="week"
  * />
  *
  * @example
- * // Mode controle, pleine largeur, une option fermee.
+ * // Controlled mode, full width, one option closed.
  * <SegmentedControl
- *   label="Livraison"
+ *   label="Delivery"
  *   options={[
  *     { value: 'standard', label: 'Standard' },
  *     { value: 'express', label: 'Express' },
- *     { value: 'retrait', label: 'Retrait', disabled: true },
+ *     { value: 'pickup', label: 'Pickup', disabled: true },
  *   ]}
  *   value={mode}
  *   onChange={setMode}
@@ -178,7 +177,7 @@ export function SegmentedControl({
       hostRef.current?.querySelectorAll<HTMLButtonElement>('[role="radio"]') ?? [],
     )
 
-  /** Pose la glissiere sous l'option choisie. Sans option, elle se replie. */
+  /** Places the slider under the chosen option. Without one, it folds away. */
   const place = (): void => {
     const thumb = thumbRef.current
     const target = radios()[currentIndex]
@@ -191,8 +190,8 @@ export function SegmentedControl({
     thumb.style.transform = `translateX(${String(target.offsetLeft)}px)`
   }
 
-  // Avant la peinture, pour que la glissiere soit deja sous son option au
-  // premier affichage ; puis a chaque choix, et si le rail change de taille.
+  // Before paint, so that the slider is already under its option on the first
+  // display; then on every choice, and if the rail changes size.
   useLayoutEffect(() => {
     place()
     const host = hostRef.current
@@ -203,7 +202,7 @@ export function SegmentedControl({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentIndex, options, full])
 
-  /** Les fleches deplacent le choix lui-meme, en sautant les options fermees. */
+  /** The arrows move the choice itself, skipping the closed options. */
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>): void => {
     if (enabled.length === 0) return
     const at = enabled.findIndex((option) => option.value === current)

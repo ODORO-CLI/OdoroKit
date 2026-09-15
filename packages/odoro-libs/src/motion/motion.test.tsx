@@ -11,33 +11,33 @@ import { motionDuration, motionEasing, resolveDuration, resolveEasing } from './
 import { useAnimate } from './useAnimate.js'
 import { usePresence } from './usePresence.js'
 
-/** Recupere les options de la derniere animation lancee sur un element. */
+/** Retrieves the options of the last animation started on an element. */
 function lastTiming(element: Element): KeyframeAnimationOptions {
   const spy = element.animate as unknown as ReturnType<typeof vi.fn>
   const call = spy.mock.calls.at(-1)
   return (call?.[1] ?? {}) as KeyframeAnimationOptions
 }
 
-describe('tokens de mouvement', () => {
-  it('convertit les durees des design tokens en millisecondes', () => {
+describe('motion tokens', () => {
+  it('converts the design token durations into milliseconds', () => {
     expect(motionDuration.instant).toBe(0)
     expect(motionDuration.base).toBe(200)
     expect(motionDuration.slow).toBe(320)
   })
 
-  it('resout une duree nommee ou numerique', () => {
+  it('resolves a named or numeric duration', () => {
     expect(resolveDuration('slow')).toBe(320)
     expect(resolveDuration(450)).toBe(450)
   })
 
-  it('resout une courbe nommee et laisse passer une valeur CSS', () => {
+  it('resolves a named curve and lets a CSS value through', () => {
     expect(resolveEasing('entrance')).toBe(motionEasing.entrance)
     expect(resolveEasing('steps(4, end)')).toBe('steps(4, end)')
   })
 })
 
-describe('manipulation des styles', () => {
-  it('applique puis retire des proprietes inline', () => {
+describe('style manipulation', () => {
+  it('applies then removes inline properties', () => {
     const element = document.createElement('div')
     applyStyles(element, { opacity: 0, backgroundColor: 'red' })
     expect(element.style.opacity).toBe('0')
@@ -61,7 +61,7 @@ describe('useAnimate', () => {
     )
   }
 
-  it('lance une animation avec la duree et la courbe demandees', async () => {
+  it('starts an animation with the requested duration and curve', async () => {
     render(<Box />)
     const box = screen.getByTestId('box')
     vi.spyOn(box, 'animate')
@@ -73,7 +73,7 @@ describe('useAnimate', () => {
     expect(lastTiming(box).fill).toBe('both')
   })
 
-  it('ramene la duree a zero sous prefers-reduced-motion', async () => {
+  it('brings the duration down to zero under prefers-reduced-motion', async () => {
     setReducedMotion(true)
     render(<Box />)
     const box = screen.getByTestId('box')
@@ -82,12 +82,12 @@ describe('useAnimate', () => {
     box.click()
 
     await waitFor(() => expect(box.animate).toHaveBeenCalled())
-    // L'animation est neutralisee, mais elle a bien lieu : l'etat final est
-    // applique.
+    // The animation is neutralized, but it does take place: the final state is
+    // applied.
     expect(lastTiming(box).duration).toBe(0)
   })
 
-  it('resout la promesse meme lorsque l animation est annulee', async () => {
+  it('resolves the promise even when the animation is cancelled', async () => {
     function Cancelling(): ReactElement {
       const [ref, controls] = useAnimate<HTMLDivElement>()
       const [done, setDone] = useState(false)
@@ -114,7 +114,7 @@ describe('useAnimate', () => {
     await waitFor(() => expect(screen.getByText('resolue')).toBeDefined())
   })
 
-  it('ne fait rien si la ref n est pas attachee', async () => {
+  it('does nothing if the ref is not attached', async () => {
     function Detached(): ReactElement {
       const [, controls] = useAnimate<HTMLDivElement>()
       const [done, setDone] = useState(false)
@@ -136,17 +136,17 @@ describe('useAnimate', () => {
 })
 
 describe('Reveal', () => {
-  it('rend le contenu visible avant toute intersection', () => {
+  it('renders the content visible before any intersection', () => {
     render(<Reveal>Contenu</Reveal>)
     expect(screen.getByText('Contenu')).toBeDefined()
   })
 
-  it('applique l etat de depart en couche layout', () => {
+  it('applies the starting state in the layout layer', () => {
     render(<Reveal data-testid="cible">Contenu</Reveal>)
     expect(screen.getByTestId('cible').style.opacity).toBe('0')
   })
 
-  it('anime a l entree dans le viewport', async () => {
+  it('animates on entry into the viewport', async () => {
     render(<Reveal data-testid="cible">Contenu</Reveal>)
     const target = screen.getByTestId('cible')
     vi.spyOn(target, 'animate')
@@ -157,7 +157,7 @@ describe('Reveal', () => {
     expect(lastTiming(target).delay).toBe(0)
   })
 
-  it('retire le style de depart une fois l animation terminee', async () => {
+  it('removes the starting style once the animation is over', async () => {
     render(<Reveal data-testid="cible">Contenu</Reveal>)
     const target = screen.getByTestId('cible')
 
@@ -166,13 +166,13 @@ describe('Reveal', () => {
     await waitFor(() => expect(target.style.opacity).toBe(''))
   })
 
-  it('n applique aucun etat de depart sous prefers-reduced-motion', () => {
+  it('applies no starting state under prefers-reduced-motion', () => {
     setReducedMotion(true)
     render(<Reveal data-testid="cible">Contenu</Reveal>)
     expect(screen.getByTestId('cible').style.opacity).toBe('')
   })
 
-  it('n applique aucun etat de depart quand elle est desactivee', () => {
+  it('applies no starting state when it is disabled', () => {
     render(
       <Reveal data-testid="cible" disabled>
         Contenu
@@ -181,7 +181,7 @@ describe('Reveal', () => {
     expect(screen.getByTestId('cible').style.opacity).toBe('')
   })
 
-  it('rend l element demande et transmet les attributs', () => {
+  it('renders the requested element and passes the attributes on', () => {
     render(
       <Reveal as="section" className="o-p-4" aria-label="bloc">
         Contenu
@@ -192,7 +192,7 @@ describe('Reveal', () => {
     expect(section.className).toBe('o-p-4')
   })
 
-  it('rejoue l animation a chaque entree quand once vaut false', async () => {
+  it('replays the animation on every entry when once is false', async () => {
     render(
       <Reveal data-testid="cible" once={false}>
         Contenu
@@ -211,7 +211,7 @@ describe('Reveal', () => {
 })
 
 describe('Stagger', () => {
-  it('decale le retard de chaque enfant', async () => {
+  it('offsets the delay of each child', async () => {
     render(
       <Stagger step={50} data-testid="liste">
         <span>un</span>
@@ -230,7 +230,7 @@ describe('Stagger', () => {
     expect(items.map((item) => lastTiming(item).delay)).toEqual([0, 50, 100])
   })
 
-  it('plafonne le retard cumule', async () => {
+  it('caps the cumulated delay', async () => {
     render(
       <Stagger step={100} maxDelay={150} data-testid="liste">
         <span>un</span>
@@ -248,7 +248,7 @@ describe('Stagger', () => {
     expect(items.map((item) => lastTiming(item).delay)).toEqual([0, 100, 150])
   })
 
-  it('rend tous ses enfants', () => {
+  it('renders all its children', () => {
     render(
       <Stagger>
         <span>un</span>
@@ -273,19 +273,19 @@ describe('usePresence', () => {
     )
   }
 
-  it('rend l element present des le depart, sans animation d entree', () => {
+  it('renders the element present from the start, without entrance animation', () => {
     const { rerender } = render(<Panel open />)
     expect(screen.getByTestId('panneau').dataset['status']).toBe('entered')
     rerender(<Panel open />)
     expect(screen.getByTestId('panneau')).toBeDefined()
   })
 
-  it('ne rend rien quand l element est absent', () => {
+  it('renders nothing when the element is absent', () => {
     render(<Panel open={false} />)
     expect(screen.queryByTestId('panneau')).toBeNull()
   })
 
-  it('maintient l element monte pendant sa sortie, puis le demonte', async () => {
+  it('keeps the element mounted during its exit, then unmounts it', async () => {
     const { rerender } = render(<Panel open />)
     expect(screen.getByTestId('panneau')).toBeDefined()
 
@@ -295,7 +295,7 @@ describe('usePresence', () => {
     await waitFor(() => expect(screen.queryByTestId('panneau')).toBeNull())
   })
 
-  it('anime l entree quand l element apparait', async () => {
+  it('animates the entrance when the element appears', async () => {
     const { rerender } = render(<Panel open={false} />)
     rerender(<Panel open />)
 
@@ -304,14 +304,14 @@ describe('usePresence', () => {
     await waitFor(() => expect(panel.dataset['status']).toBe('entered'))
   })
 
-  it('demonte immediatement sous prefers-reduced-motion', () => {
+  it('unmounts immediately under prefers-reduced-motion', () => {
     setReducedMotion(true)
     const { rerender } = render(<Panel open />)
     rerender(<Panel open={false} />)
     expect(screen.queryByTestId('panneau')).toBeNull()
   })
 
-  it('joue l animation d entree au premier rendu si initial vaut true', () => {
+  it('plays the entrance animation on the first render if initial is true', () => {
     function Eager(): ReactElement | null {
       const { ref, isMounted, status } = usePresence<HTMLDivElement>(true, {
         initial: true,
@@ -325,9 +325,9 @@ describe('usePresence', () => {
 })
 
 describe('Animate', () => {
-  it('joue une animation au montage a partir de from et to', async () => {
-    // L'animation part au montage : la doublure doit etre posee sur le
-    // prototype, avant que l'element n'existe.
+  it('plays an animation on mount from from and to', async () => {
+    // The animation starts on mount: the stub must be set on the
+    // prototype, before the element exists.
     const animate = vi.spyOn(Element.prototype, 'animate')
 
     render(<Animate from={{ opacity: 0 }} data-testid="cible" duration="fast" />)
@@ -338,14 +338,14 @@ describe('Animate', () => {
     expect((options as KeyframeAnimationOptions).duration).toBe(motionDuration.fast)
   })
 
-  it('ne joue rien sans keyframes ni from', async () => {
+  it('plays nothing without keyframes nor from', async () => {
     const animate = vi.spyOn(Element.prototype, 'animate')
     render(<Animate data-testid="cible" />)
     await waitFor(() => expect(screen.getByTestId('cible')).toBeDefined())
     expect(animate).not.toHaveBeenCalled()
   })
 
-  it('privilegie keyframes sur from et to', async () => {
+  it('favors keyframes over from and to', async () => {
     const animate = vi.spyOn(Element.prototype, 'animate')
     const keyframes = [{ transform: 'rotate(0deg)' }, { transform: 'rotate(360deg)' }]
 
@@ -355,7 +355,7 @@ describe('Animate', () => {
     expect(animate.mock.calls[0]?.[0]).toBe(keyframes)
   })
 
-  it('rejoue l animation au changement de trigger', async () => {
+  it('replays the animation on trigger change', async () => {
     function Host(): ReactElement {
       const [count, setCount] = useState(0)
       return (
@@ -375,7 +375,7 @@ describe('Animate', () => {
     await waitFor(() => expect(target.animate).toHaveBeenCalledTimes(1))
   })
 
-  it('respecte la propriete play', async () => {
+  it('respects the play property', async () => {
     const animate = vi.spyOn(Element.prototype, 'animate')
     render(<Animate from={{ opacity: 0 }} play={false} data-testid="cible" />)
     await waitFor(() => expect(screen.getByTestId('cible')).toBeDefined())

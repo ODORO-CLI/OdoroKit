@@ -1,49 +1,48 @@
 /**
- * Pression : le pointeur deforme la police elle-meme, axe par axe.
+ * Pressure: the pointer deforms the font itself, axis by axis.
  *
- * ## Deux axes, deux distances
+ * ## Two axes, two distances
  *
- * Une police variable n'a pas des graisses, elle a des axes continus. Les
- * deux plus repandus sont `wght`, la graisse, et `wdth`, la chasse. Ce
- * composant les branche sur deux distances differentes : l'ecart **vertical**
- * au pointeur commande la graisse, l'ecart **horizontal** commande la chasse.
+ * A variable font does not have weights, it has continuous axes. The two most
+ * widespread are `wght`, the weight, and `wdth`, the width. This component
+ * wires them onto two different distances: the **vertical** gap to the pointer
+ * commands the weight, the **horizontal** gap commands the width.
  *
- * Le geste devient alors lisible. Monter ou descendre epaissit ou amincit la
- * ligne entiere ; aller vers la droite etire les lettres qu'on approche et
- * laisse retomber celles qu'on quitte. Brancher les deux axes sur la meme
- * distance radiale aurait donne une simple bosse, et le pointeur n'aurait
- * plus qu'une seule chose a dire.
+ * The gesture then becomes readable. Moving up or down thickens or thins the
+ * whole line; moving to the right stretches the letters being approached and
+ * lets those being left behind fall back. Wiring both axes onto the same
+ * radial distance would have given a plain bump, and the pointer would have
+ * only one thing left to say.
  *
- * ## La police est sondee, pas supposee
+ * ## The font is probed, not assumed
  *
- * `font-variation-settings` est reconnu par tous les navigateurs ; encore
- * faut-il que la police chargee ait les axes. Une reserve invisible est donc
- * posee dans l'element, avec la police heritee, et mesuree a deux extremes de
- * chaque axe. Si la largeur ne bouge pas, l'axe n'existe pas.
+ * `font-variation-settings` is supported by every browser; the loaded font
+ * still has to have the axes. An invisible probe is therefore placed inside
+ * the element, with the inherited font, and measured at two extremes of each
+ * axis. If the width does not move, the axis does not exist.
  *
- * Sans `wght`, le repli est la graisse discrete : la valeur continue est
- * arrondie a la centaine, et le navigateur choisit la coupe la plus proche
- * dans la famille. Sans `wdth`, la chasse est simplement laissee tranquille —
- * mieux vaut un axe qui ne repond pas qu'un etirement simule qui deformerait
- * les glyphes.
+ * Without `wght`, the fallback is discrete weight: the continuous value is
+ * rounded to the hundred, and the browser picks the closest cut in the family.
+ * Without `wdth`, the width is simply left alone — an axis that does not
+ * answer is better than a simulated stretch that would distort the glyphs.
  *
- * ## Une seule mesure de boite par image
+ * ## A single box measurement per frame
  *
- * Les centres des lettres sont releves une fois, en coordonnees de l'element,
- * et remesures quand il change de taille ou quand la police finit d'arriver.
- * Par image, il ne reste qu'une lecture de boite — celle de l'element — et un
- * calcul par lettre. Lire la boite de chaque lettre a chaque image
- * declencherait autant de mises en page forcees qu'il y a de caracteres.
+ * The centres of the letters are read once, in coordinates of the element, and
+ * measured again when it changes size or when the font finishes arriving. Per
+ * frame, all that is left is one box read — that of the element — and one
+ * computation per letter. Reading the box of each letter on every frame would
+ * trigger as many forced layouts as there are characters.
  *
- * ## Le decoupage est un artifice d'affichage
+ * ## The split is a display device
  *
- * Le texte complet figure une fois, d'un seul tenant ; les lettres sont
- * retirees de l'arbre d'accessibilite.
+ * The complete text appears once, in one piece; the letters are removed from
+ * the accessibility tree.
  *
- * ## Mouvement reduit
+ * ## Reduced motion
  *
- * Le texte est rendu tel quel, sans decoupage et sans reglage d'axe : c'est
- * l'etat de repos, celui ou le pointeur n'est nulle part.
+ * The text is rendered as it is, with no split and no axis setting: it is the
+ * resting state, the one where the pointer is nowhere.
  *
  * @module
  */
@@ -57,40 +56,40 @@ import {
 } from '@odoro-cli/engine'
 import { useEffect, useRef, type ElementType, type ReactElement } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface TextPressureOwnProps {
-  /** Texte a mettre sous pression. */
+  /** Text to put under pressure. */
   children: string
-  /** Balise rendue. @defaultValue 'span' */
+  /** Rendered tag. @defaultValue 'span' */
   as?: ElementType
-  /** Graisse au repos, sur l'axe `wght`. @defaultValue 200 */
-  graisseBasse?: number
-  /** Graisse sous le pointeur, sur l'axe `wght`. @defaultValue 900 */
-  graisseHaute?: number
-  /** Etirement maximal sur l'axe `wdth`, en points de chasse. @defaultValue 25 */
-  chasse?: number
-  /** Portee de la pression, en pixels. @defaultValue 260 */
-  rayon?: number
-  /** Vitesse de rattrapage du pointeur. Plus haut, plus sec. @defaultValue 6 */
+  /** Weight at rest, on the `wght` axis. @defaultValue 200 */
+  minWeight?: number
+  /** Weight under the pointer, on the `wght` axis. @defaultValue 900 */
+  maxWeight?: number
+  /** Maximum stretch on the `wdth` axis, in width points. @defaultValue 25 */
+  stretch?: number
+  /** Reach of the pressure, in pixels. @defaultValue 260 */
+  radius?: number
+  /** Catch-up speed of the pointer. The higher, the snappier. @defaultValue 6 */
   speed?: number
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type TextPressureProps = Customisable<TextPressureOwnProps, 'span'>
 
-/** Espace insecable : une espace ordinaire s'ecrase dans un bloc en ligne. */
-const NBSP = ' '
+/** No-break space: an ordinary space collapses inside an inline block. */
+const NBSP = '\u00A0'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-text-pressure'
 
-/** Chasse de reference : celle de la coupe normale. */
-const CHASSE_REPOS = 100
+/** Reference width: that of the normal cut. */
+const REST_WIDTH = 100
 
-/** Ecart de largeur, en pixels, au-dela duquel un axe est repute exister. */
-const SONDE_SEUIL = 0.5
+/** Width gap, in pixels, beyond which an axis is deemed to exist. */
+const PROBE_THRESHOLD = 0.5
 
-/** Pose les regles de la pression, une fois par document. */
+/** Sets the pressure rules, once per document. */
 function ensurePressureRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -104,189 +103,185 @@ function ensurePressureRule(): void {
   document.head.append(style)
 }
 
-/** Ce que la sonde a trouve dans la police heritee. */
+/** What the probe found in the inherited font. */
 interface Axes {
-  /** L'axe de graisse repond. */
-  readonly graisse: boolean
-  /** L'axe de chasse repond. */
-  readonly chasse: boolean
+  /** The weight axis answers. */
+  readonly weight: boolean
+  /** The width axis answers. */
+  readonly width: boolean
 }
 
 /**
- * Mesure les axes de la police heritee par un element.
+ * Measures the axes of the font inherited by an element.
  *
- * La reserve est un enfant de l'element : elle herite donc exactement de la
- * police qui sera deformee, y compris si la page en change plus bas dans
- * l'arbre.
+ * The probe is a child of the element: it therefore inherits exactly the font
+ * that will be deformed, including if the page changes it further down the
+ * tree.
  */
-function sonderAxes(hote: HTMLElement): Axes {
+function probeAxes(host: HTMLElement): Axes {
   if (
     typeof CSS === 'undefined' ||
     !CSS.supports('font-variation-settings', "'wght' 400")
   ) {
-    return { graisse: false, chasse: false }
+    return { weight: false, width: false }
   }
 
-  const sonde = document.createElement('span')
-  sonde.setAttribute('aria-hidden', 'true')
-  sonde.textContent = 'HAMBURGEFONS'
-  sonde.style.cssText =
+  const probe = document.createElement('span')
+  probe.setAttribute('aria-hidden', 'true')
+  probe.textContent = 'HAMBURGEFONS'
+  probe.style.cssText =
     'position:absolute;left:0;top:0;visibility:hidden;white-space:pre;pointer-events:none'
-  hote.append(sonde)
+  host.append(probe)
 
-  const mesurer = (reglage: string): number => {
-    sonde.style.fontVariationSettings = reglage
-    return sonde.getBoundingClientRect().width
+  const measure = (setting: string): number => {
+    probe.style.fontVariationSettings = setting
+    return probe.getBoundingClientRect().width
   }
 
-  const graisse = Math.abs(mesurer("'wght' 900") - mesurer("'wght' 100")) > SONDE_SEUIL
-  const chasse = Math.abs(mesurer("'wdth' 125") - mesurer("'wdth' 75")) > SONDE_SEUIL
+  const weight = Math.abs(measure("'wght' 900") - measure("'wght' 100")) > PROBE_THRESHOLD
+  const width = Math.abs(measure("'wdth' 125") - measure("'wdth' 75")) > PROBE_THRESHOLD
 
-  sonde.remove()
-  return { graisse, chasse }
+  probe.remove()
+  return { weight, width }
 }
 
 /**
- * Met un texte sous la pression du pointeur, en police variable.
+ * Puts a text under the pressure of the pointer, in a variable font.
  *
  * @example
  * <TextPressure as="h1" className="o-text-6xl">
- *   Sous pression
+ *   Under pressure
  * </TextPressure>
  *
  * @example
- * // Graisse seule, sur une portee courte.
- * <TextPressure chasse={0} rayon={120} graisseBasse={300}>Serre</TextPressure>
+ * // Weight alone, over a short reach.
+ * <TextPressure stretch={0} radius={120} minWeight={300}>Tight</TextPressure>
  */
 export function TextPressure({
   children,
   as: Tag = 'span',
-  graisseBasse = 200,
-  graisseHaute = 900,
-  chasse = 25,
-  rayon = 260,
+  minWeight = 200,
+  maxWeight = 900,
+  stretch = 25,
+  radius = 260,
   speed = 6,
   ...rest
 }: TextPressureProps): ReactElement {
   const { reduced } = useMotionState()
-  const hote = useRef<HTMLElement | null>(null)
+  const host = useRef<HTMLElement | null>(null)
 
   ensurePressureRule()
 
   useEffect(() => {
-    const element = hote.current
+    const element = host.current
     if (element === null || reduced) return
 
-    const lettres = [...element.querySelectorAll<HTMLElement>('[data-o-pressure-letter]')]
-    if (lettres.length === 0) return
+    const letters = [...element.querySelectorAll<HTMLElement>('[data-o-pressure-letter]')]
+    if (letters.length === 0) return
 
-    const axes = sonderAxes(element)
+    const axes = probeAxes(element)
 
-    // Centres en coordonnees de l'element : ils ne bougent ni au defilement
-    // ni quand la page se deplace, seulement quand la ligne se recompose.
-    let centres = lettres.map(() => ({ x: 0, y: 0 }))
-    const relever = (): void => {
-      const cadre = element.getBoundingClientRect()
-      centres = lettres.map((lettre) => {
-        const boite = lettre.getBoundingClientRect()
+    // Centres in coordinates of the element: they move neither on scroll nor
+    // when the page shifts, only when the line recomposes.
+    let centres = letters.map(() => ({ x: 0, y: 0 }))
+    const readCentres = (): void => {
+      const frame = element.getBoundingClientRect()
+      centres = letters.map((letter) => {
+        const box = letter.getBoundingClientRect()
         return {
-          x: boite.left - cadre.left + boite.width / 2,
-          y: boite.top - cadre.top + boite.height / 2,
+          x: box.left - frame.left + box.width / 2,
+          y: box.top - frame.top + box.height / 2,
         }
       })
     }
-    relever()
+    readCentres()
 
-    const observateur = new ResizeObserver(relever)
-    observateur.observe(element)
-    // Une police qui arrive apres coup change toutes les largeurs : sans
-    // cette relecture, la pression viserait a cote pour toujours.
-    void document.fonts?.ready.then(relever)
+    const observer = new ResizeObserver(readCentres)
+    observer.observe(element)
+    // A font that arrives after the fact changes every width: without this
+    // re-read, the pressure would aim beside the mark forever.
+    void document.fonts?.ready.then(readCentres)
 
-    // Cible brute et point amorti : le pointeur saute d'un evenement a
-    // l'autre, la pression, elle, glisse.
-    const cible = { x: Number.NEGATIVE_INFINITY, y: Number.NEGATIVE_INFINITY }
+    // Raw target and damped point: the pointer jumps from one event to the
+    // next, the pressure glides.
+    const target = { x: Number.NEGATIVE_INFINITY, y: Number.NEGATIVE_INFINITY }
     const point = { x: Number.NEGATIVE_INFINITY, y: Number.NEGATIVE_INFINITY }
 
-    const bouger = (evenement: PointerEvent): void => {
-      const cadre = element.getBoundingClientRect()
-      cible.x = evenement.clientX - cadre.left
-      cible.y = evenement.clientY - cadre.top
+    const onMove = (event: PointerEvent): void => {
+      const frame = element.getBoundingClientRect()
+      target.x = event.clientX - frame.left
+      target.y = event.clientY - frame.top
       if (!Number.isFinite(point.x)) {
-        // Premiere arrivee : la pression se pose la ou elle est, elle ne
-        // traverse pas l'ecran depuis l'infini.
-        point.x = cible.x
-        point.y = cible.y
+        // First arrival: the pressure settles where it is, it does not cross
+        // the screen from infinity.
+        point.x = target.x
+        point.y = target.y
       }
     }
-    window.addEventListener('pointermove', bouger, { passive: true })
+    window.addEventListener('pointermove', onMove, { passive: true })
 
-    // Dernieres valeurs ecrites par lettre : sans elles, chaque image reecrit
-    // un reglage identique et invalide la mise en forme pour rien.
-    const derniereGraisse = lettres.map(() => Number.NaN)
-    const derniereChasse = lettres.map(() => Number.NaN)
+    // Last values written per letter: without them, every frame rewrites an
+    // identical setting and invalidates the layout for nothing.
+    const lastWeight = letters.map(() => Number.NaN)
+    const lastWidth = letters.map(() => Number.NaN)
 
-    const abonnement = clock.subscribe(
+    const subscription = clock.subscribe(
       ({ delta }) => {
         if (!Number.isFinite(point.x)) return
 
-        const facteur = 1 - Math.exp(-speed * delta)
-        point.x += (cible.x - point.x) * facteur
-        point.y += (cible.y - point.y) * facteur
+        const factor = 1 - Math.exp(-speed * delta)
+        point.x += (target.x - point.x) * factor
+        point.y += (target.y - point.y) * factor
 
-        const portee = Math.max(1, rayon)
+        const reach = Math.max(1, radius)
 
-        for (let index = 0; index < lettres.length; index += 1) {
-          const lettre = lettres[index]
+        for (let index = 0; index < letters.length; index += 1) {
+          const letter = letters[index]
           const centre = centres[index]
-          if (lettre === undefined || centre === undefined) continue
+          if (letter === undefined || centre === undefined) continue
 
-          // Vertical pour la graisse, horizontal pour la chasse : voir
-          // l'en-tete du module.
-          const partGraisse = Math.max(0, 1 - Math.abs(point.y - centre.y) / portee)
-          const partChasse = Math.max(0, 1 - Math.abs(point.x - centre.x) / portee)
+          // Vertical for the weight, horizontal for the width: see the module
+          // header.
+          const weightShare = Math.max(0, 1 - Math.abs(point.y - centre.y) / reach)
+          const widthShare = Math.max(0, 1 - Math.abs(point.x - centre.x) / reach)
 
-          const graisse = graisseBasse + (graisseHaute - graisseBasse) * partGraisse
-          const largeur = CHASSE_REPOS + chasse * partChasse
+          const weight = minWeight + (maxWeight - minWeight) * weightShare
+          const width = REST_WIDTH + stretch * widthShare
 
-          const bougeGraisse = !(
-            Math.abs(graisse - (derniereGraisse[index] ?? Number.NaN)) < 1
-          )
-          const bougeChasse = !(
-            Math.abs(largeur - (derniereChasse[index] ?? Number.NaN)) < 0.2
-          )
-          if (!bougeGraisse && !bougeChasse) continue
-          derniereGraisse[index] = graisse
-          derniereChasse[index] = largeur
+          const weightMoves = !(Math.abs(weight - (lastWeight[index] ?? Number.NaN)) < 1)
+          const widthMoves = !(Math.abs(width - (lastWidth[index] ?? Number.NaN)) < 0.2)
+          if (!weightMoves && !widthMoves) continue
+          lastWeight[index] = weight
+          lastWidth[index] = width
 
-          if (axes.graisse) {
-            lettre.style.fontVariationSettings = axes.chasse
-              ? `'wght' ${graisse.toFixed(0)}, 'wdth' ${largeur.toFixed(1)}`
-              : `'wght' ${graisse.toFixed(0)}`
+          if (axes.weight) {
+            letter.style.fontVariationSettings = axes.width
+              ? `'wght' ${weight.toFixed(0)}, 'wdth' ${width.toFixed(1)}`
+              : `'wght' ${weight.toFixed(0)}`
           } else {
-            // Repli : la graisse continue est arrondie a la centaine, et la
-            // famille fournit la coupe la plus proche.
-            lettre.style.fontWeight = String(Math.round(graisse / 100) * 100)
+            // Fallback: the continuous weight is rounded to the hundred, and
+            // the family supplies the closest cut.
+            letter.style.fontWeight = String(Math.round(weight / 100) * 100)
           }
         }
       },
-      { name: 'pression du texte', priority: CLOCK_PRIORITY.default },
+      { name: 'text pressure', priority: CLOCK_PRIORITY.default },
     )
 
     return () => {
-      abonnement.unsubscribe()
-      observateur.disconnect()
-      window.removeEventListener('pointermove', bouger)
-      for (const lettre of lettres) {
-        lettre.style.removeProperty('font-variation-settings')
-        lettre.style.removeProperty('font-weight')
+      subscription.unsubscribe()
+      observer.disconnect()
+      window.removeEventListener('pointermove', onMove)
+      for (const letter of letters) {
+        letter.style.removeProperty('font-variation-settings')
+        letter.style.removeProperty('font-weight')
       }
     }
-  }, [reduced, children, graisseBasse, graisseHaute, chasse, rayon, speed])
+  }, [reduced, children, minWeight, maxWeight, stretch, radius, speed])
 
   const { className, style } = mergePresentation({}, rest)
 
-  // Mouvement reduit : le texte est la, au repos, sans decoupage.
+  // Reduced motion: the text is there, at rest, with no split.
   if (reduced) {
     return (
       <Tag {...rest} className={className} style={style}>
@@ -295,18 +290,18 @@ export function TextPressure({
     )
   }
 
-  const lettres = [...children]
+  const letters = [...children]
 
   return (
-    <Tag {...rest} ref={hote} className={className} style={style} data-o-pressure="">
-      {/* Le texte complet, d'un seul tenant, pour les lecteurs d'ecran. */}
+    <Tag {...rest} ref={host} className={className} style={style} data-o-pressure="">
+      {/* The complete text, in one piece, for screen readers. */}
       <span className="o-sr-only">{children}</span>
       <span aria-hidden>
-        {lettres.map((lettre, index) => (
-          <span key={`${lettre}-${String(index)}`} data-o-pressure-letter="">
-            {/* Une espace ordinaire s'ecrase dans un bloc en ligne :
-                l'insecable garde sa largeur. */}
-            {lettre === ' ' ? NBSP : lettre}
+        {letters.map((letter, index) => (
+          <span key={`${letter}-${String(index)}`} data-o-pressure-letter="">
+            {/* An ordinary space collapses inside an inline block: the
+                no-break one keeps its width. */}
+            {letter === ' ' ? NBSP : letter}
           </span>
         ))}
       </span>

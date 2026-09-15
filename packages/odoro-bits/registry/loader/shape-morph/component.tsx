@@ -1,34 +1,33 @@
 /**
- * Rond, carre, triangle : une forme pleine passe de l'un a l'autre et
- * revient, par interpolation d'un seul chemin SVG.
+ * Circle, square, triangle: a solid shape goes from one to the next and back,
+ * by interpolating a single SVG path.
  *
- * ## Trois formes, une seule grammaire
+ * ## Three shapes, a single grammar
  *
- * Un navigateur ne sait interpoler deux traces que s'ils ont exactement la
- * meme suite de commandes. Les trois formes sont donc ecrites avec quatre
- * courbes cubiques chacune, meme quand la forme n'en a pas besoin. Le carre
- * est quatre courbes dont les points de controle sont alignes sur les
- * cotes ; le triangle en a une de trop, posee sur son cote gauche comme un
- * sommet plat. Le rond est le seul a les employer toutes vraiment.
+ * A browser can only interpolate two paths if they have exactly the same
+ * sequence of commands. The three shapes are therefore written with four cubic
+ * curves each, even when the shape does not need them. The square is four
+ * curves whose control points are aligned on the sides; the triangle has one
+ * too many, laid on its left side like a flat vertex. The circle is the only
+ * one to really use them all.
  *
- * C'est ce qui permet a la forme de couler d'un etat a l'autre au lieu de
- * sauter : les angles du carre naissent des tangentes du rond, le quatrieme
- * sommet du triangle s'aplatit dans son cote.
+ * That is what lets the shape flow from one state to the next instead of
+ * jumping: the corners of the square are born from the tangents of the circle,
+ * the fourth vertex of the triangle flattens into its side.
  *
- * L'interpolation est confiee a SMIL, natif dans le SVG : aucun JavaScript
- * apres le premier rendu, et pas de filtre. Chaque forme tient un temps
- * avant la transition suivante : sans les paliers, l'oeil ne verrait jamais
- * une forme nette.
+ * The interpolation is handed to SMIL, native in SVG: no JavaScript after the
+ * first render, and no filter. Each shape holds for a while before the next
+ * transition: without the plateaus, the eye would never see a crisp shape.
  *
- * ## Un statut, pas un dessin
+ * ## A status, not a drawing
  *
- * L'element porte `role="status"` et un libelle pour les lecteurs d'ecran :
- * l'attente est une information, pas une decoration. Le dessin est retire
- * de l'arbre d'accessibilite.
+ * The element carries `role="status"` and a label for screen readers: waiting
+ * is information, not decoration. The drawing is removed from the
+ * accessibility tree.
  *
- * SMIL ignore la preference de mouvement reduit : c'est donc le composant
- * qui la lit, et qui n'insere pas l'animation quand elle est active. Il
- * reste un rond plein, la premiere forme du cycle.
+ * SMIL ignores the reduced motion preference: so it is the component that
+ * reads it, and that does not insert the animation when it is on. What remains
+ * is a solid circle, the first shape of the cycle.
  *
  * @module
  */
@@ -36,14 +35,14 @@
 import { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-shape-morph'
 
 /**
- * Les trois traces, dans une vue de 100 unites.
+ * The three paths, in a view of 100 units.
  *
- * Tous partent du coin haut droit et tournent dans le sens horaire, avec
- * quatre courbes cubiques : c'est la condition de l'interpolation.
+ * All of them start from the top right corner and turn clockwise, with four
+ * cubic curves: that is the condition for the interpolation.
  */
 const CIRCLE =
   'M 78.28 21.72 C 93.9 37.34 93.9 62.66 78.28 78.28 C 62.66 93.9 37.34 93.9 21.72 78.28 C 6.1 62.66 6.1 37.34 21.72 21.72 C 37.34 6.1 62.66 6.1 78.28 21.72 Z'
@@ -52,13 +51,13 @@ const SQUARE =
 const TRIANGLE =
   'M 50 20 C 62 40.67 74 61.33 86 82 C 62 82 38 82 14 82 C 20 71.67 26 61.33 32 51 C 38 40.67 44 30.33 50 20 Z'
 
-/** La suite des formes et des paliers, de 0 a 1 sur le cycle. */
+/** The sequence of shapes and plateaus, from 0 to 1 over the cycle. */
 const VALUES = [CIRCLE, CIRCLE, SQUARE, SQUARE, TRIANGLE, TRIANGLE, CIRCLE].join(';')
 const KEY_TIMES = '0;0.22;0.33;0.55;0.66;0.88;1'
-/** Une acceleration douce sur chaque transition, y compris les paliers. */
+/** A gentle easing on every transition, plateaus included. */
 const KEY_SPLINES = Array.from({ length: 6 }, () => '0.4 0 0.2 1').join(';')
 
-/** Pose le cadre, une fois par document. */
+/** Sets up the frame, once per document. */
 function ensureShapeMorphRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -72,36 +71,36 @@ function ensureShapeMorphRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** Props of the component itself. */
 export interface ShapeMorphOwnProps {
-  /** Cote de la zone de dessin, en pixels. @defaultValue 40 */
+  /** Side of the drawing area, in pixels. @defaultValue 40 */
   size?: number
-  /** Duree d'un cycle complet, en millisecondes. @defaultValue 2400 */
+  /** Duration of a complete cycle, in milliseconds. @defaultValue 2400 */
   speed?: number
-  /** Couleur de la forme. @defaultValue la couleur du texte */
+  /** Colour of the shape. @defaultValue the text colour */
   color?: string
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */
+  /** Label announced to screen readers. @defaultValue 'Loading' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All the props. */
 export type ShapeMorphProps = Customisable<ShapeMorphOwnProps, 'span'>
 
 /**
- * Signale une attente par une forme qui passe du rond au carre au triangle.
+ * Signals a wait through a shape going from circle to square to triangle.
  *
  * @example
  * <ShapeMorph />
  *
  * @example
- * // Plus grand, plus lent, dans la teinte de marque.
+ * // Bigger, slower, in the brand hue.
  * <ShapeMorph size={64} speed={3600} color="var(--o-palette-brand-500)" />
  */
 export function ShapeMorph({
   size = 40,
   speed = 2400,
   color = 'currentColor',
-  label = 'Chargement',
+  label = 'Loading',
   ...rest
 }: ShapeMorphProps): ReactElement {
   ensureShapeMorphRule()

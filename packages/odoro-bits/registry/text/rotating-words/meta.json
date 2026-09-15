@@ -50,7 +50,7 @@
       "step": 20
     },
     {
-      "name": "sens",
+      "name": "direction",
       "type": "'haut' | 'bas'",
       "default": "haut",
       "description": "Sens du mouvement."

@@ -1,5 +1,5 @@
 /**
- * Bouton.
+ * Button.
  *
  * @module
  */
@@ -17,8 +17,8 @@ import { useAnimate } from '../motion/useAnimate.js'
 import { cx, variants } from '../styles/cx.js'
 
 /**
- * Classes du bouton, exposees pour habiller un `<a>` ou un `<Link>` a
- * l'identique sans dupliquer la table de variantes.
+ * Button classes, exposed to style an `<a>` or a `<Link>` identically without
+ * duplicating the variant table.
  *
  * @example
  * <Link to="/docs" className={buttonClasses({ tone: 'secondary' })}>Docs</Link>
@@ -52,42 +52,42 @@ export const buttonClasses = variants({
   defaults: { tone: 'primary', size: 'md', block: 'false' },
 })
 
-/** Proprietes de {@link Button}. */
+/** Properties of {@link Button}. */
 export interface ButtonProps extends Omit<
   ButtonHTMLAttributes<HTMLButtonElement>,
   'className'
 > {
-  /** Registre visuel. @defaultValue 'primary' */
+  /** Visual register. @defaultValue 'primary' */
   tone?: 'primary' | 'secondary' | 'ghost' | 'danger'
-  /** Taille. @defaultValue 'md' */
+  /** Size. @defaultValue 'md' */
   size?: 'sm' | 'md' | 'lg'
-  /** Occupe toute la largeur disponible. @defaultValue false */
+  /** Takes up the whole available width. @defaultValue false */
   block?: boolean
   /**
-   * Affiche un indicateur de chargement et neutralise le bouton. Le libelle
-   * reste en place : sa disparition ferait sauter la mise en page et priverait
-   * les lecteurs d'ecran du contexte.
+   * Shows a loading indicator and neutralizes the button. The label stays in
+   * place: its disappearance would make the layout jump and would deprive
+   * screen readers of the context.
    */
   loading?: boolean
-  /** Element decoratif place avant le libelle. */
+  /** Decorative element placed before the label. */
   startSlot?: ReactNode
-  /** Element decoratif place apres le libelle. */
+  /** Decorative element placed after the label. */
   endSlot?: ReactNode
-  /** Classes additionnelles. */
+  /** Additional classes. */
   className?: string
-  /** Ref vers l'element natif. */
+  /** Ref to the native element. */
   ref?: Ref<HTMLButtonElement>
   /**
-   * Joue une breve pression a l'activation.
+   * Plays a brief press on activation.
    *
-   * Neutralise sous `prefers-reduced-motion`.
+   * Neutralized under `prefers-reduced-motion`.
    *
    * @defaultValue true
    */
   press?: boolean
 }
 
-/** Indicateur de chargement. Purement decoratif : l'etat est porte par ARIA. */
+/** Loading indicator. Purely decorative: the state is carried by ARIA. */
 function Spinner(): ReactElement {
   return (
     <svg
@@ -118,15 +118,15 @@ function Spinner(): ReactElement {
 }
 
 /**
- * Bouton d'action.
+ * Action button.
  *
- * Le libelle reste visible pendant le chargement ; l'etat est annonce par
- * `aria-busy` et l'activation est bloquee par `aria-disabled` plutot que par
- * `disabled`, ce qui garde le bouton focusable et donc annoncable.
+ * The label stays visible during the loading; the state is announced by
+ * `aria-busy` and the activation is blocked by `aria-disabled` rather than by
+ * `disabled`, which keeps the button focusable and therefore announceable.
  *
  * @example
  * <Button tone="danger" size="sm" loading={pending} onClick={remove}>
- *   Supprimer
+ *   Delete
  * </Button>
  */
 export function Button({

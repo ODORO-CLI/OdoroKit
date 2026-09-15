@@ -1,21 +1,21 @@
 /**
- * Halo de pointeur sur une carte.
+ * Pointer halo on a card.
  *
- * ## Deux variables, pas un rendu
+ * ## Two variables, not a render
  *
- * La position du halo change a chaque mouvement du pointeur. La porter dans
- * l'etat React ferait un rendu par evenement — plusieurs dizaines par seconde
- * pendant tout le survol — pour deplacer un degrade que le compositeur sait
- * bouger seul.
+ * The position of the halo changes on every movement of the pointer. Carrying
+ * it in React state would mean one render per event — several dozen per second
+ * over the whole hover — to move a gradient that the compositor knows how to
+ * move on its own.
  *
- * Deux variables CSS sont donc ecrites sur l'element, et le degrade les suit.
- * React ne rend qu'une fois, au montage.
+ * Two CSS variables are therefore written on the element, and the gradient
+ * follows them. React renders once only, at mount.
  *
- * ## Pas de boucle non plus
+ * ## No loop either
  *
- * Contrairement a l'attraction, ce halo n'a pas besoin d'amortissement : il
- * est **sous** le pointeur, et tout retard se verrait comme un decalage. Il
- * suit donc l'evenement directement — le seul cas ou c'est la bonne reponse.
+ * Unlike the attraction, this halo needs no damping: it is **under** the
+ * pointer, and any lag would show as an offset. It therefore follows the event
+ * directly — the only case where that is the right answer.
  *
  * @module
  */
@@ -29,25 +29,25 @@ import {
   type ReactNode,
 } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface SpotlightOwnProps {
-  /** Contenu de la carte. */
+  /** Content of the card. */
   children: ReactNode
-  /** Diametre du halo, en pixels. @defaultValue 320 */
+  /** Diameter of the halo, in pixels. @defaultValue 320 */
   size?: number
-  /** Couleur du halo. Une valeur, pas un role. */
+  /** Colour of the halo. A value, not a role. */
   color?: string
-  /** Eclaire aussi la bordure. @defaultValue true */
+  /** Also lights the border. @defaultValue true */
   border?: boolean
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type SpotlightProps = Customisable<SpotlightOwnProps>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-spotlight'
 
-/** Pose les regles du halo, une fois par document. */
+/** Sets the halo rules, once per document. */
 function ensureSpotlightRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -62,8 +62,8 @@ function ensureSpotlightRule(): void {
     'background:radial-gradient(var(--o-spot-size) circle at var(--o-spot-x) var(--o-spot-y),var(--o-spot-color),transparent 70%)',
     '}',
     '[data-o-spotlight][data-o-spotlight-on]::before{opacity:1}',
-    // La bordure eclairee emploie un masque : un degrade peint le contour
-    // sans qu'il faille superposer un second element.
+    // The lit border uses a mask: a gradient paints the outline without
+    // needing a second element superimposed.
     '[data-o-spotlight-border]::after{',
     'content:"";position:absolute;inset:0;pointer-events:none;',
     'border-radius:inherit;padding:1px;opacity:0;transition:opacity 200ms linear;',
@@ -78,11 +78,11 @@ function ensureSpotlightRule(): void {
 }
 
 /**
- * Eclaire une carte sous le pointeur.
+ * Lights a card under the pointer.
  *
  * @example
  * <Spotlight className="o-rounded-xl o-border-w-1 o-p-6">
- *   <h3>Une carte</h3>
+ *   <h3>A card</h3>
  * </Spotlight>
  */
 export function Spotlight({

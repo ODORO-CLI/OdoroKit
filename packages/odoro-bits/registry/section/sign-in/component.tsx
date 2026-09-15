@@ -1,36 +1,36 @@
 /**
- * Parcours de connexion en trois ecrans : adresse, code, confirmation.
+ * Sign-in flow in three screens: address, code, confirmation.
  *
- * ## Ce que ce composant n'est pas
+ * ## What this component is not
  *
- * Ce n'est pas un client d'authentification. Il ne connait ni jeton, ni
- * session, ni fournisseur : il enchaine trois ecrans et previent l'application
- * a chaque etape. Ce qui part sur le reseau, ce qui revient, et ce qu'il faut
- * en faire regarde l'application — qui posera son message d'erreur par `error`
- * et bloquera l'envoi par `pending`.
+ * It is not an authentication client. It knows neither token, nor session, nor
+ * provider: it chains three screens and warns the application at each step.
+ * What goes out on the network, what comes back, and what has to be done with
+ * it is the business of the application — which will set its error message
+ * through `error` and block the sending through `pending`.
  *
- * La frontiere est volontaire. Un composant qui appellerait lui-meme une API
- * imposerait sa forme de reponse, ses codes d'erreur et sa gestion de session
- * a tout projet qui l'installe, alors qu'il est copie precisement pour etre
- * possede.
+ * The boundary is deliberate. A component that would call an API itself would
+ * impose its response shape, its error codes and its session handling on every
+ * project that installs it, whereas it is copied precisely to be owned.
  *
- * ## Pourquoi l'entree seule est animee
+ * ## Why only the entrance is animated
  *
- * L'implementation d'origine faisait sortir un ecran avant d'entrer le
- * suivant, avec une machine de presence. Il n'y en a pas ici : le registre ne
- * depend que du moteur, et la librairie qui porte `usePresence` est facultative
- * pour un projet d'accueil.
+ * The original implementation made a screen leave before the next one entered,
+ * with a presence machine. There is none here: the registry depends only on
+ * the engine, and the library that carries `usePresence` is optional for a
+ * landing project.
  *
- * L'ecran sortant est donc retire, et l'entrant anime. La perte est reelle et
- * elle est petite ; la dependance evitee, elle, aurait ete portee par tous.
+ * The leaving screen is therefore removed, and the entering one animated. The
+ * loss is real and it is small; the avoided dependency, on the other hand,
+ * would have been carried by all.
  *
- * ## Le champ de code
+ * ## The code field
  *
- * Six champs d'un caractere sont un piege d'accessibilite classique : sans
- * etiquette, un lecteur d'ecran annonce six zones anonymes. Chacun porte donc
- * la sienne, le premier declare `one-time-code` pour que le remplissage
- * automatique du systeme fonctionne, et un collage se repartit sur toute la
- * rangee — le cas le plus courant, et celui qu'on oublie.
+ * Six one character fields are a classic accessibility trap: without a label,
+ * a screen reader announces six anonymous areas. Each one therefore carries
+ * its own, the first declares `one-time-code` so that the automatic filling of
+ * the system works, and a paste spreads over the whole row — the most common
+ * case, and the one that gets forgotten.
  *
  * @module
  */
@@ -51,71 +51,70 @@ import {
 
 import { DotMatrix } from '@registre/background/DotMatrix'
 
-/** Etape courante du parcours. */
+/** Current step of the flow. */
 export type SignInStep = 'email' | 'code' | 'success'
 
-/** Proprietes propres au composant. */
+/** Properties of the component itself. */
 export interface SignInOwnProps {
   /**
-   * Ecran affiche, impose par l'application.
+   * Screen displayed, imposed by the application.
    *
-   * ## Pourquoi cette prop existe
+   * ## Why this prop exists
    *
-   * Sans elle, le composant avance seul des que le code est complet — donc
-   * aussi quand il est **faux**. L'application recoit `onCodeSubmit`, part
-   * verifier, et pendant ce temps l'utilisateur lit deja « Vous y etes ». Le
-   * message d'erreur arrive sur un ecran de reussite, ce qui est pire que pas
-   * de message du tout.
+   * Without it, the component moves on by itself as soon as the code is
+   * complete — so also when it is **wrong**. The application receives
+   * `onCodeSubmit`, goes off to check, and during that time the user is
+   * already reading "You are in". The error message lands on a success screen,
+   * which is worse than no message at all.
    *
-   * Fournie, elle rend le parcours controle : le composant signale, et c'est
-   * l'application qui decide de l'ecran. Absente, il avance seul — ce qui
-   * convient a une demonstration, pas a une vraie authentification.
+   * Provided, it makes the flow controlled: the component reports, and it is
+   * the application that decides on the screen. Absent, it moves on by itself
+   * — which suits a demonstration, not a real authentication.
    */
   step?: SignInStep
-  /** Nombre de caracteres du code. @defaultValue 6 */
+  /** Number of characters of the code. @defaultValue 6 */
   codeLength?: number
-  /** Titre du premier ecran. */
+  /** Title of the first screen. */
   title?: ReactNode
-  /** Sous-titre du premier ecran. */
+  /** Subtitle of the first screen. */
   subtitle?: ReactNode
   /**
-   * Fournisseurs externes, rendus au-dessus du separateur.
+   * External providers, rendered above the separator.
    *
-   * C'est un emplacement plutot qu'une liste de props : un bouton de
-   * fournisseur porte une marque, un libelle et un appel qui n'appartiennent
-   * qu'a l'application.
+   * It is a slot rather than a list of props: a provider button carries a
+   * brand, a label and a call that belong only to the application.
    */
   providers?: ReactNode
-  /** Mentions legales, rendues sous le formulaire. */
+  /** Legal notices, rendered under the form. */
   legal?: ReactNode
-  /** Message d'erreur affiche sous le champ actif. */
+  /** Error message displayed under the active field. */
   error?: string
-  /** Suspend les envois pendant un appel en cours. @defaultValue false */
+  /** Suspends the sendings during a call in flight. @defaultValue false */
   pending?: boolean
-  /** Appele quand l'adresse est soumise. */
+  /** Called when the address is submitted. */
   onEmailSubmit?: (email: string) => void
-  /** Appele quand le code est complet. */
+  /** Called when the code is complete. */
   onCodeSubmit?: (code: string) => void
-  /** Appele quand un nouvel envoi est demande. */
+  /** Called when a new sending is requested. */
   onResend?: () => void
-  /** Appele a chaque changement d'ecran. */
+  /** Called on every screen change. */
   onStepChange?: (step: SignInStep) => void
-  /** Appele depuis le dernier ecran. */
+  /** Called from the last screen. */
   onDone?: () => void
 }
 
-/** Toutes les proprietes. */
+/** All the properties. */
 export type SignInProps = Customisable<SignInOwnProps, 'section'>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-sign-in'
 
 /**
- * Pose l'animation d'entree, une fois par document.
+ * Sets the entrance animation, once per document.
  *
- * Le mouvement reduit est traite dans la feuille plutot qu'en JavaScript : une
- * requete media n'a pas besoin d'etre reevaluee, et la regle reste vraie meme
- * si le reglage change apres le montage.
+ * Reduced motion is handled in the stylesheet rather than in JavaScript: a
+ * media query does not need to be reevaluated, and the rule stays true even if
+ * the setting changes after the mount.
  */
 function ensureSignInRule(): void {
   if (typeof document === 'undefined') return
@@ -132,42 +131,42 @@ function ensureSignInRule(): void {
   document.head.append(style)
 }
 
-/** Ce que la region vivante annonce a chaque changement d'ecran. */
+/** What the live region announces on every screen change. */
 const STEP_ANNOUNCEMENT: Readonly<Record<SignInStep, string>> = {
-  email: 'Saisissez votre adresse electronique.',
-  code: 'Un code vous a ete envoye. Saisissez-le.',
-  success: 'Connexion reussie.',
+  email: 'Enter your email address.',
+  code: 'A code has been sent to you. Enter it.',
+  success: 'Signed in.',
 }
 
-/** Ne retient que les chiffres d'une chaine collee. */
+/** Keeps only the digits of a pasted string. */
 function digitsOf(value: string): string {
   return value.replace(/\D/g, '')
 }
 
 /**
- * Parcours de connexion.
+ * Sign-in flow.
  *
  * @example
  * <SignIn
- *   onEmailSubmit={(adresse) => envoyerCode(adresse)}
- *   onCodeSubmit={(code) => verifier(code)}
- *   error={probleme}
- *   pending={enCours}
+ *   onEmailSubmit={(address) => sendCode(address)}
+ *   onCodeSubmit={(code) => verify(code)}
+ *   error={problem}
+ *   pending={busy}
  * />
  *
  * @example
- * // Les fournisseurs et les mentions sont des emplacements : ils appartiennent
- * // a l'application, avec son routeur et ses marques.
+ * // The providers and the notices are slots: they belong to the application,
+ * // with its router and its brands.
  * <SignIn
- *   providers={<button onClick={google}>Continuer avec Google</button>}
- *   legal={<Link to="/conditions">Conditions</Link>}
+ *   providers={<button onClick={google}>Continue with Google</button>}
+ *   legal={<Link to="/terms">Terms</Link>}
  * />
  */
 export function SignIn({
   step: imposedStep,
   codeLength = 6,
-  title = 'Content de vous revoir',
-  subtitle = 'Entrez votre adresse pour recevoir un code.',
+  title = 'Good to see you again',
+  subtitle = 'Enter your address to receive a code.',
   providers,
   legal,
   error,
@@ -181,9 +180,9 @@ export function SignIn({
 }: SignInProps): ReactElement {
   const { reduced } = useMotionState()
   const [ownStep, setOwnStep] = useState<SignInStep>('email')
-  // L'application l'emporte quand elle se prononce. Le composant garde tout de
-  // meme son propre etat : elle peut cesser de le faire a tout moment, et le
-  // parcours doit reprendre ou il en etait plutot que de repartir a zero.
+  // The application wins when it speaks up. The component nonetheless keeps
+  // its own state: it may stop doing so at any moment, and the flow has to
+  // resume where it was rather than start again from zero.
   const step = imposedStep ?? ownStep
   const [email, setEmail] = useState('')
   const [code, setCode] = useState<readonly string[]>(() =>
@@ -201,24 +200,24 @@ export function SignIn({
     [onStepChange],
   )
 
-  // La rangee suit la longueur demandee. Sans cela, `useState` n'ayant lu son
-  // initialisation qu'une fois, un changement de `codeLength` laisserait une
-  // rangee de l'ancienne taille : le code ne serait jamais reconnu complet, et
-  // le formulaire resterait bloque sans rien dire.
+  // The row follows the requested length. Without that, `useState` having read
+  // its initialisation only once, a change of `codeLength` would leave a row
+  // of the former size: the code would never be recognised as complete, and
+  // the form would stay stuck without saying anything.
   useEffect(() => {
     setCode((current) =>
       current.length === codeLength
         ? current
         : Array.from({ length: codeLength }, () => ''),
     )
-    // La table des refs suit elle aussi : raccourcie, elle retiendrait sinon
-    // des elements retires du document, que rien ne viendrait relacher.
+    // The table of refs follows too: shortened, it would otherwise hold on to
+    // elements removed from the document, that nothing would come to release.
     inputs.current.length = codeLength
   }, [codeLength])
 
-  // Le premier champ du code recoit le focus a l'arrivee sur l'ecran. Sans
-  // cela, il faut viser une case de huit pixels de large pour commencer a
-  // taper — et au clavier seul, tabuler jusqu'a elle.
+  // The first field of the code receives the focus on arrival on the screen.
+  // Without that, one has to aim at a box eight pixels wide to start typing —
+  // and with the keyboard alone, tab all the way to it.
   useEffect(() => {
     if (step !== 'code') return
     inputs.current[0]?.focus()
@@ -231,13 +230,13 @@ export function SignIn({
     goTo('code')
   }
 
-  /** Ecrit la rangee, et signale le code des qu'il est complet. */
+  /** Writes the row, and reports the code as soon as it is complete. */
   const commit = (next: readonly string[]): void => {
     setCode(next)
     if (next.some((digit) => digit === '')) return
     onCodeSubmit?.(next.join(''))
-    // La trame s'inverse pendant que l'ecran final arrive : le retour dure le
-    // temps de la propagation, pas celui d'un delai arbitraire.
+    // The pattern reverses while the final screen arrives: the feedback lasts
+    // the time of the propagation, not the one of an arbitrary delay.
     goTo('success')
   }
 
@@ -266,9 +265,9 @@ export function SignIn({
   }
 
   /**
-   * Un code arrive presque toujours par collage, depuis un courriel ou une
-   * notification. Colle dans la premiere case, il n'y laisserait qu'un
-   * caractere : la rangee entiere doit l'absorber.
+   * A code almost always arrives by paste, from an email or a notification.
+   * Pasted in the first box, it would leave only one character there: the
+   * whole row has to absorb it.
    */
   const pasteAt = (index: number, event: ClipboardEvent<HTMLInputElement>): void => {
     const pasted = digitsOf(event.clipboardData.getData('text'))
@@ -298,9 +297,10 @@ export function SignIn({
     rest,
   )
 
-  // L'ecran entrant glisse depuis le cote d'ou il vient : en arriere pour le
-  // retour, en avant pour la suite. Sous mouvement reduit, il n'y a pas de
-  // cote — la feuille neutralise l'animation, et la variable ne sert plus.
+  // The entering screen slides from the side it comes from: backwards for the
+  // return, forwards for the next one. Under reduced motion, there is no side
+  // — the stylesheet neutralises the animation, and the variable no longer
+  // serves.
   const from = step === 'email' ? '-2rem' : '2rem'
 
   return (
@@ -311,8 +311,8 @@ export function SignIn({
         speed={step === 'success' ? 0.9 : 0.6}
       />
 
-      {/* Assombrissement des bords : le texte se lit sur la trame sans qu'elle
-          disparaisse. */}
+      {/* Darkening of the edges: the text reads over the pattern without it
+          disappearing. */}
       <div
         aria-hidden
         className="o-absolute o-inset-0 o-bg-gradient-to-b o-from-zinc-950 o-via-transparent o-to-zinc-950 o-pointer-events-none"
@@ -339,7 +339,7 @@ export function SignIn({
                   {providers}
                   <div className="o-flex o-items-center o-gap-4">
                     <span aria-hidden className="o-h-px o-flex-1 o-bg-zinc-800" />
-                    <span className="o-text-sm o-text-zinc-500">ou</span>
+                    <span className="o-text-sm o-text-zinc-500">or</span>
                     <span aria-hidden className="o-h-px o-flex-1 o-bg-zinc-800" />
                   </div>
                 </div>
@@ -347,7 +347,7 @@ export function SignIn({
 
               <form onSubmit={submitEmail} className="o-flex o-flex-col o-gap-3">
                 <label htmlFor="o-sign-in-email" className="o-sr-only">
-                  Adresse electronique
+                  Email address
                 </label>
                 <div className="o-relative">
                   <input
@@ -361,7 +361,7 @@ export function SignIn({
                     onChange={(event) => setEmail(event.target.value)}
                     aria-invalid={error !== undefined}
                     aria-describedby={error === undefined ? undefined : 'o-sign-in-error'}
-                    placeholder="vous@exemple.fr"
+                    placeholder="you@example.com"
                     className="o-w-full o-rounded-full o-border-w-1 o-border-zinc-800 o-bg-transparent o-py-3 o-pl-5 o-pr-14 o-text-center o-text-zinc-50 focus:o-border-zinc-500 focus:o-outline-none"
                   />
                   <button
@@ -369,7 +369,7 @@ export function SignIn({
                     disabled={pending}
                     className="o-absolute o-right-1.5 o-top-1.5 o-flex o-h-9 o-w-9 o-items-center o-justify-center o-rounded-full o-bg-zinc-800 o-text-zinc-50 hover:o-bg-zinc-700 focus:o-outline-none disabled:o-opacity-50"
                   >
-                    <span className="o-sr-only">Continuer</span>
+                    <span className="o-sr-only">Continue</span>
                     <span aria-hidden>&rarr;</span>
                   </button>
                 </div>
@@ -385,22 +385,22 @@ export function SignIn({
             <div className="o-flex o-flex-col o-gap-6">
               <div className="o-flex o-flex-col o-gap-2">
                 <h1 className="o-text-4xl o-font-bold o-tracking-tight o-text-zinc-50">
-                  Un code vous attend
+                  A code is waiting for you
                 </h1>
                 <p className="o-text-base o-text-zinc-400">
-                  Envoye a <span className="o-text-zinc-200">{email}</span>.
+                  Sent to <span className="o-text-zinc-200">{email}</span>.
                 </p>
               </div>
 
               <div
                 role="group"
-                aria-label={`Code de connexion, ${String(codeLength)} chiffres`}
+                aria-label={`Sign-in code, ${String(codeLength)} digits`}
                 className="o-flex o-items-center o-justify-center o-gap-2 o-rounded-full o-border-w-1 o-border-zinc-800 o-px-5 o-py-4"
               >
                 {code.map((digit, index) => (
                   <input
-                    // Les cases n'ont pas d'identite propre : leur position est
-                    // leur seule cle, et la rangee ne se reordonne jamais.
+                    // The boxes have no identity of their own: their position
+                    // is their only key, and the row never reorders.
                     key={index}
                     ref={(element) => {
                       inputs.current[index] = element
@@ -411,7 +411,7 @@ export function SignIn({
                     maxLength={1}
                     disabled={pending}
                     value={digit}
-                    aria-label={`Chiffre ${String(index + 1)}`}
+                    aria-label={`Digit ${String(index + 1)}`}
                     onChange={(event) => changeAt(index, event.target.value)}
                     onKeyDown={(event) => keyAt(index, event)}
                     onPaste={(event) => pasteAt(index, event)}
@@ -426,7 +426,7 @@ export function SignIn({
                   onClick={back}
                   className="o-rounded-full o-border-w-1 o-border-zinc-800 o-px-6 o-py-3 o-text-zinc-300 hover:o-text-zinc-50"
                 >
-                  Retour
+                  Back
                 </button>
                 <button
                   type="button"
@@ -434,7 +434,7 @@ export function SignIn({
                   disabled={pending}
                   className="o-flex-1 o-rounded-full o-bg-zinc-50 o-px-6 o-py-3 o-font-medium o-text-zinc-950 hover:o-bg-zinc-200 disabled:o-opacity-50"
                 >
-                  Renvoyer le code
+                  Resend the code
                 </button>
               </div>
 
@@ -448,25 +448,25 @@ export function SignIn({
             <div className="o-flex o-flex-col o-gap-6">
               <div className="o-flex o-flex-col o-gap-2">
                 <h1 className="o-text-4xl o-font-bold o-tracking-tight o-text-zinc-50">
-                  Vous y etes
+                  You are in
                 </h1>
-                <p className="o-text-base o-text-zinc-400">Bienvenue.</p>
+                <p className="o-text-base o-text-zinc-400">Welcome.</p>
               </div>
               <button
                 type="button"
                 onClick={onDone}
                 className="o-w-full o-rounded-full o-bg-zinc-50 o-px-6 o-py-3 o-font-medium o-text-zinc-950 hover:o-bg-zinc-200"
               >
-                Continuer
+                Continue
               </button>
             </div>
           ) : null}
 
-          {/* Le changement d'ecran et l'erreur sont annonces : sans cela, une
-              navigation au clavier ne signale rien du tout. Le texte est une
-              phrase et non l'identifiant de l'etape : un lecteur d'ecran
-              prononcerait « etape code », ce qui ne veut rien dire pour
-              quelqu'un qui n'a pas le code sous les yeux. */}
+          {/* The screen change and the error are announced: without that, a
+              keyboard navigation reports nothing at all. The text is a
+              sentence and not the identifier of the step: a screen reader
+              would pronounce "step code", which means nothing to someone who
+              does not have the code in front of them. */}
           <p
             id="o-sign-in-error"
             role="status"

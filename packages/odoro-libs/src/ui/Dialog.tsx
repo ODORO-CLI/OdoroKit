@@ -1,13 +1,13 @@
 /**
- * Boite de dialogue modale.
+ * Modal dialog box.
  *
- * Batie sur l'element `<dialog>` natif ouvert en mode modal. Le navigateur
- * fournit alors le piegeage du focus, la fermeture par Echap, l'inertie du
- * reste de la page et la couche superieure — quatre comportements qu'une
- * reimplementation en JavaScript rate presque toujours dans un cas limite.
+ * Built on the native `<dialog>` element opened in modal mode. The browser
+ * then provides focus trapping, closing with Escape, the inertness of the
+ * rest of the page and the top layer — four behaviors that a JavaScript
+ * reimplementation almost always gets wrong in some edge case.
  *
- * La seule chose que le natif ne sait pas faire est de retarder la fermeture
- * le temps d'une animation de sortie : c'est le role de `usePresence`.
+ * The only thing the native element cannot do is delay the closing for the
+ * duration of an exit animation: that is the role of `usePresence`.
  *
  * @module
  */
@@ -27,45 +27,45 @@ import {
 import { usePresence } from '../motion/usePresence.js'
 import { cx } from '../styles/cx.js'
 
-/** Proprietes de {@link Dialog}. */
+/** Properties of {@link Dialog}. */
 export interface DialogProps extends Omit<
   HTMLAttributes<HTMLDialogElement>,
   'className' | 'title'
 > {
-  /** Etat d'ouverture, pilote par l'application. */
+  /** Open state, driven by the application. */
   open: boolean
   /**
-   * Appele lorsque l'utilisateur demande la fermeture : bouton, touche Echap,
-   * ou clic sur l'arriere-plan.
+   * Called when the user asks to close: button, Escape key, or click on the
+   * backdrop.
    */
   onClose: () => void
   /**
-   * Titre de la boite. Relie a l'element par `aria-labelledby` : c'est ce que
-   * les lecteurs d'ecran annoncent a l'ouverture.
+   * Title of the box. Tied to the element by `aria-labelledby`: this is what
+   * screen readers announce on opening.
    */
   title: ReactNode
-  /** Description facultative, annoncee apres le titre. */
+  /** Optional description, announced after the title. */
   description?: ReactNode
-  /** Contenu. */
+  /** Content. */
   children?: ReactNode
-  /** Pied de la boite, typiquement des boutons d'action. */
+  /** Footer of the box, typically action buttons. */
   footer?: ReactNode
-  /** Ferme la boite au clic sur l'arriere-plan. @defaultValue true */
+  /** Closes the box on a click on the backdrop. @defaultValue true */
   closeOnBackdrop?: boolean
-  /** Classes additionnelles appliquees a l'element `<dialog>`. */
+  /** Additional classes applied to the `<dialog>` element. */
   className?: string
 }
 
 /**
- * Boite de dialogue modale accessible.
+ * Accessible modal dialog box.
  *
  * @example
  * <Dialog
  *   open={open}
  *   onClose={() => setOpen(false)}
- *   title="Supprimer le projet"
- *   description="Cette action est irreversible."
- *   footer={<Button tone="danger" onClick={remove}>Supprimer</Button>}
+ *   title="Delete the project"
+ *   description="This action is irreversible."
+ *   footer={<Button tone="danger" onClick={remove}>Delete</Button>}
  * />
  */
 export function Dialog({
@@ -89,7 +89,7 @@ export function Dialog({
   const closeRef = useRef(onClose)
   closeRef.current = onClose
 
-  // `showModal()` ne peut etre appele qu'une fois l'element dans le document.
+  // `showModal()` can only be called once the element is in the document.
   useEffect(() => {
     const dialog = ref.current
     if (dialog === null || !isMounted) return
@@ -100,9 +100,9 @@ export function Dialog({
     }
   }, [ref, isMounted])
 
-  // La touche Echap declenche l'evenement `cancel` du natif : on l'intercepte
-  // pour passer par l'etat applicatif, sinon la boite se fermerait sans
-  // animation et sans que l'application le sache.
+  // The Escape key fires the native `cancel` event: we intercept it to go
+  // through the application state, otherwise the box would close without an
+  // animation and without the application knowing about it.
   const handleCancel = useCallback((event: SyntheticEvent<HTMLDialogElement>) => {
     event.preventDefault()
     closeRef.current()
@@ -111,8 +111,8 @@ export function Dialog({
   const handleClick = useCallback(
     (event: MouseEvent<HTMLDialogElement>) => {
       if (!closeOnBackdrop) return
-      // Un clic sur l'arriere-plan a pour cible le `<dialog>` lui-meme : le
-      // contenu est dans un enfant, donc tout clic interieur a une autre cible.
+      // A click on the backdrop targets the `<dialog>` itself: the content is
+      // in a child, so any click inside has another target.
       if (event.target === ref.current) closeRef.current()
     },
     [closeOnBackdrop, ref],

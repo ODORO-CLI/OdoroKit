@@ -1,34 +1,33 @@
 /**
- * Shader des tuiles de Truchet.
+ * Shader of the Truchet tiles.
  *
- * ## L'idee mathematique
+ * ## The mathematical idea
  *
- * Une tuile de Truchet porte deux quarts de cercle, centres sur deux coins
- * opposes, de rayon une demi-tuile : quelle que soit son orientation, ses
- * arcs rejoignent ceux des voisines, et le pavage forme des courbes fermees
- * sans qu'aucune tuile ne connaisse les autres.
+ * A Truchet tile carries two quarter circles, centred on two opposite
+ * corners, of radius half a tile: whatever its orientation, its arcs meet
+ * those of its neighbours, and the tiling forms closed curves without any
+ * tile knowing the others.
  *
- * Chaque tuile a une orientation de depart hachee, et pivote d'un quart de
- * tour a chaque periode. Le pivot est anime : un tiers de periode de
- * rotation, puis le repos. Une cascade diagonale retarde chaque tuile sur
- * sa voisine, si bien que le pavage se recompose en vague plutot que d'un
- * coup.
+ * Every tile has a hashed starting orientation, and pivots by a quarter turn
+ * at every period. The pivot is animated: a third of a period of rotation,
+ * then rest. A diagonal cascade delays each tile behind its neighbour, so
+ * that the tiling recomposes itself as a wave rather than all at once.
  *
- * La couleur est attachee a l'arc, pas au coin : quand la tuile pivote, la
- * couleur tourne avec elle, et les courbes du pavage changent de teinte la
- * ou elles se raccordent autrement.
+ * The colour is attached to the arc, not to the corner: when the tile pivots,
+ * the colour turns with it, and the curves of the tiling change hue where
+ * they join up differently.
  *
  * ## Uniforms
  *
- * - `uTime` — temps en secondes, fourni par le moteur.
- * - `uResolution` — taille du canevas en pixels, fournie par le moteur.
- * - `uColorA` — le fond.
- * - `uColorB` — le premier arc.
- * - `uColorC` — le second arc.
- * - `uSpeed` — periodes par seconde.
- * - `uDensity` — nombre de tuiles sur la hauteur.
- * - `uThickness` — epaisseur des arcs, en fraction de la tuile.
- * - `uStagger` — retard diagonal entre deux tuiles voisines, en periodes.
+ * - `uTime` — time in seconds, supplied by the engine.
+ * - `uResolution` — canvas size in pixels, supplied by the engine.
+ * - `uColorA` — the background.
+ * - `uColorB` — the first arc.
+ * - `uColorC` — the second arc.
+ * - `uSpeed` — periods per second.
+ * - `uDensity` — number of tiles over the height.
+ * - `uThickness` — thickness of the arcs, as a fraction of the tile.
+ * - `uStagger` — diagonal delay between two neighbouring tiles, in periods.
  */
 export const TRUCHET_FRAGMENT = /* glsl */ `
 precision highp float;
@@ -45,8 +44,8 @@ uniform float uDensity;
 uniform float uThickness;
 uniform float uStagger;
 
-// Nombre pseudo-aleatoire : projection sur une direction arbitraire, sinus
-// amplifie, partie fractionnaire.
+// Pseudo-random number: projection onto an arbitrary direction, amplified
+// sine, fractional part.
 float truchetHash(vec2 p) {
   return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
 }
@@ -64,9 +63,9 @@ void main() {
   vec2 cell = floor(p);
   vec2 local = fract(p) - 0.5;
 
-  // La cascade : chaque tuile est en retard sur sa voisine diagonale. La
-  // partie entiere compte les quarts de tour faits, la partie fractionnaire
-  // anime celui en cours pendant son premier tiers.
+  // The cascade: every tile lags behind its diagonal neighbour. The integer
+  // part counts the quarter turns already made, the fractional part animates
+  // the one under way during its first third.
   float phase = uTime * uSpeed - (cell.x + cell.y) * uStagger;
   float turns = floor(phase);
   float progress = smoothstep(0.0, 0.34, fract(phase));
@@ -76,7 +75,7 @@ void main() {
 
   vec2 q = truchetRotate(local, angle);
 
-  // Les deux arcs : quarts de cercle centres sur deux coins opposes.
+  // The two arcs: quarter circles centred on two opposite corners.
   float d1 = abs(length(q - vec2(-0.5, -0.5)) - 0.5);
   float d2 = abs(length(q - vec2(0.5, 0.5)) - 0.5);
 
@@ -85,7 +84,7 @@ void main() {
   float arc1 = 1.0 - smoothstep(halfWidth - px, halfWidth + px, d1);
   float arc2 = 1.0 - smoothstep(halfWidth - px, halfWidth + px, d2);
 
-  // Pendant le pivot, la tuile s'assombrit un peu : l'oeil suit la vague.
+  // During the pivot, the tile darkens a little: the eye follows the wave.
   float moving = progress * (1.0 - progress) * 4.0;
 
   vec3 colour = mix(uColorA, uColorB, 0.06 * moving);
