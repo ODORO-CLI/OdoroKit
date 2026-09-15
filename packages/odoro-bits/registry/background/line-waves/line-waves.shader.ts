@@ -1,34 +1,33 @@
 /**
- * Shader des lignes en houle.
+ * Shader of the line waves.
  *
- * ## L'idee mathematique
+ * ## The mathematical idea
  *
- * Le cadre est decoupe en bandes horizontales, une ligne par bande. Chaque
- * ligne est un y = f(x) : la somme de deux sinus non harmoniques, dephases
- * selon l'indice de la bande. Le dephasage est ce qui fait la figure : a un
- * instant donne, les cretes des lignes voisines ne sont pas alignees, et
- * l'oeil lit une nappe diagonale qui glisse alors que chaque ligne ne fait
- * que monter et descendre.
+ * The frame is cut into horizontal bands, one line per band. Each line is a
+ * y = f(x): the sum of two non-harmonic sines, phase-shifted by the index of
+ * the band. The phase offset is what makes the figure: at a given instant, the
+ * crests of neighbouring lines are not aligned, and the eye reads a diagonal
+ * sheet sliding past while each line only ever moves up and down.
  *
- * Le fragment ne connait que sa bande et ses deux voisines : l'amplitude est
- * exprimee en hauteurs de bande et bornee a une, donc une ligne ne s'eloigne
- * jamais de plus d'une bande de son axe. Trois evaluations par fragment,
- * quel que soit le nombre de lignes.
+ * The fragment knows only its own band and its two neighbours: the amplitude is
+ * expressed in band heights and clamped to one, so a line never strays further
+ * than one band from its axis. Three evaluations per fragment, whatever the
+ * number of lines.
  *
- * La distance a la ligne est divisee par la norme de sa pente : sans cela,
- * le trait s'epaissit la ou il est plat et s'amincit la ou il monte.
+ * The distance to the line is divided by the norm of its slope: without that,
+ * the stroke thickens where it is flat and thins where it climbs.
  *
  * ## Uniforms
  *
- * - `uTime` — temps en secondes, fourni par le moteur.
- * - `uResolution` — taille du canevas en pixels, fournie par le moteur.
- * - `uColorA` — le fond.
- * - `uColorB` — l'encre des lignes.
- * - `uColorC` — l'eclat des cretes.
- * - `uCount` — nombre de lignes.
- * - `uAmplitude` — hauteur de la houle, en hauteurs de bande.
- * - `uSpeed` — vitesse de la houle.
- * - `uThickness` — epaisseur du trait, en fraction de la hauteur.
+ * - `uTime` — time in seconds, supplied by the engine.
+ * - `uResolution` — canvas size in pixels, supplied by the engine.
+ * - `uColorA` — the background.
+ * - `uColorB` — the ink of the lines.
+ * - `uColorC` — the glint of the crests.
+ * - `uCount` — number of lines.
+ * - `uAmplitude` — height of the swell, in band heights.
+ * - `uSpeed` — speed of the swell.
+ * - `uThickness` — thickness of the stroke, as a fraction of the height.
  */
 export const LINE_WAVES_FRAGMENT = /* glsl */ `
 precision highp float;
@@ -45,14 +44,14 @@ uniform float uAmplitude;
 uniform float uSpeed;
 uniform float uThickness;
 
-// Deux sinus non harmoniques : le rapport 4/9 ne retombe jamais en phase
-// dans le cadre, donc la houle ne se repete pas a l'oeil.
-float houle(float x, float t, float phase) {
+// Two non-harmonic sines: the 4/9 ratio never falls back into phase within the
+// frame, so the swell does not repeat to the eye.
+float swell(float x, float t, float phase) {
   return sin(x * 4.0 - t + phase) * 0.7 + sin(x * 9.0 + t * 0.6 - phase * 1.7) * 0.3;
 }
 
-// Derivee de la houle par rapport a x, pour normaliser l'epaisseur.
-float pente(float x, float t, float phase) {
+// Derivative of the swell with respect to x, to normalise the thickness.
+float slopeOf(float x, float t, float phase) {
   return cos(x * 4.0 - t + phase) * 2.8 + cos(x * 9.0 + t * 0.6 - phase * 1.7) * 2.7;
 }
 
@@ -72,23 +71,23 @@ void main() {
   float ink = 0.0;
   float crest = 0.0;
 
-  // La bande du fragment et ses deux voisines : l'amplitude est bornee a une
-  // hauteur de bande, une ligne ne va jamais plus loin.
+  // The fragment's band and its two neighbours: the amplitude is clamped to one
+  // band height, a line never goes further than that.
   for (int k = -1; k <= 1; k += 1) {
     float i = band + float(k);
     if (i < 0.0 || i >= count) continue;
 
     float phase = i * 0.55;
-    float wave = houle(x, t, phase);
+    float wave = swell(x, t, phase);
     float centre = (i + 0.5) * pitch + wave * amplitude;
 
-    // La pente est en unites de cadre : l'amplitude y entre, l'aspect aussi.
-    float slope = pente(x, t, phase) * amplitude * aspect;
+    // The slope is in frame units: the amplitude enters it, and so does the aspect.
+    float slope = slopeOf(x, t, phase) * amplitude * aspect;
     float d = abs(vUv.y - centre) / sqrt(1.0 + slope * slope);
 
     float line = 1.0 - smoothstep(thickness - px, thickness + px, d);
     ink = max(ink, line);
-    // La crete : la ou la houle est au plus haut, le trait s'eclaire.
+    // The crest: where the swell is at its highest, the stroke lights up.
     crest = max(crest, line * smoothstep(0.3, 1.0, wave));
   }
 

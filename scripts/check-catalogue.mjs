@@ -1,22 +1,22 @@
 /**
- * Verifie que tout ce qui est publie figure dans la documentation.
+ * Checks that everything published appears in the documentation.
  *
- * ## Pourquoi ce controle existe
+ * ## Why this check exists
  *
- * Un composant absent du site n'a pratiquement pas d'existence : personne ne
- * peut le decouvrir, et le seul moyen d'apprendre qu'il est la est de lire le
- * registre a la main. L'oubli ne casse rien, ne fait echouer aucun test, et se
- * remarque des mois plus tard — ou jamais.
+ * A component absent from the site has practically no existence: nobody can
+ * discover it, and the only way to learn it is there is to read the registry
+ * by hand. The omission breaks nothing, fails no test, and gets noticed
+ * months later — or never.
  *
- * Trois inventaires sont compares a ce que le playground rend reellement :
- * les entrees du registre, les composants d'interface, et les pages declarees
- * dans la navigation.
+ * Three inventories are compared against what the playground actually
+ * renders: the registry entries, the interface components, and the pages
+ * declared in the navigation.
  *
- * Usage :
+ * Usage:
  *
  *   node scripts/check-catalogue.mjs [url]
  *
- * Le serveur de developpement du playground doit tourner a cette adresse.
+ * The playground development server must be running at that address.
  */
 
 import { readdirSync, readFileSync } from 'node:fs'
@@ -24,7 +24,7 @@ import { join } from 'node:path'
 
 const base = (process.argv[2] ?? 'http://localhost:5190').replace(/\/$/, '')
 
-/** Entrees du registre, lues dans l'arborescence source. */
+/** Registry entries, read from the source tree. */
 function registryEntries() {
   const root = 'packages/odoro-bits/registry'
   const entries = []
@@ -39,7 +39,7 @@ function registryEntries() {
       entries.push({
         id: `${category.name}/${name.name}`,
         title: meta.title,
-        // Le nom du composant installe : c'est lui qu'une page importe.
+        // The name of the installed component: it is the one a page imports.
         component: (meta.files[0]?.target ?? '')
           .split('/')
           .pop()
@@ -51,7 +51,7 @@ function registryEntries() {
   return entries
 }
 
-/** Composants exportes par la librairie d'interface. */
+/** Components exported by the interface library. */
 function uiComponents() {
   const source = readFileSync('packages/odoro-libs/src/ui/index.ts', 'utf8')
   return [...source.matchAll(/^\s*(?:export \{\s*)?([A-Z][A-Za-z]+),?$/gm)]
@@ -68,10 +68,10 @@ const { chromium } = await import('playwright')
 const browser = await chromium.launch()
 const page = await browser.newPage()
 
-// La documentation commence a `/docs`, pas a la racine : celle-ci porte
-// desormais la vitrine, qui n'a volontairement pas de colonne laterale. Partir
-// de `/` ne trouverait aucun lien, et le controle declarerait tout absent —
-// ce qu'il a fait, la premiere fois.
+// The documentation starts at `/docs`, not at the root: the root now carries
+// the showcase, which deliberately has no side column. Starting from `/` would
+// find no link, and the check would declare everything absent — which is what
+// it did, the first time.
 await page.goto(`${base}/docs`, { waitUntil: 'networkidle' })
 const paths = await page.evaluate(() =>
   [...document.querySelectorAll('nav[aria-label="Documentation"] a')].map(
@@ -79,7 +79,7 @@ const paths = await page.evaluate(() =>
   ),
 )
 
-/** Tout le texte rendu par la documentation, page par page. */
+/** All the text rendered by the documentation, page by page. */
 let corpus = ''
 for (const path of paths) {
   await page.goto(`${base}${path}`, { waitUntil: 'networkidle' })
@@ -89,17 +89,17 @@ for (const path of paths) {
 await browser.close()
 
 const lower = corpus.toLowerCase()
-const missing = { registre: [], ui: [] }
+const missing = { registry: [], ui: [] }
 
 for (const entry of registryEntries()) {
-  // Une entree est consideree presente si son identifiant, son titre ou le nom
-  // du composant installe apparait quelque part dans la documentation.
+  // An entry is considered present if its identifier, its title or the name of
+  // the installed component appears somewhere in the documentation.
   const found =
     lower.includes(entry.id.toLowerCase()) ||
     lower.includes(String(entry.title).toLowerCase()) ||
     lower.includes(String(entry.component).toLowerCase())
 
-  if (!found) missing.registre.push(`${entry.id} (${String(entry.title)})`)
+  if (!found) missing.registry.push(`${entry.id} (${String(entry.title)})`)
 }
 
 for (const name of uiComponents()) {
@@ -108,15 +108,15 @@ for (const name of uiComponents()) {
 
 const total = registryEntries().length + uiComponents().length
 console.log(
-  `${String(paths.length)} pages parcourues, ${String(total)} elements inventories.`,
+  `${String(paths.length)} pages walked, ${String(total)} elements inventoried.`,
 )
 
-const gaps = missing.registre.length + missing.ui.length
+const gaps = missing.registry.length + missing.ui.length
 if (gaps === 0) {
-  console.log('\nTout ce qui est publie figure dans la documentation.\n')
+  console.log('\nEverything published appears in the documentation.\n')
 } else {
-  console.error(`\n${String(gaps)} element(s) absent(s) de la documentation :\n`)
-  for (const id of missing.registre) console.error(`  · registre — ${id}`)
+  console.error(`\n${String(gaps)} element(s) absent from the documentation:\n`)
+  for (const id of missing.registry) console.error(`  · registry — ${id}`)
   for (const name of missing.ui) console.error(`  · interface — ${name}`)
   console.error('')
   process.exitCode = 1

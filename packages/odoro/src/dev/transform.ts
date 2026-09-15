@@ -1,17 +1,16 @@
 /**
- * Transformation des modules servis en developpement.
+ * Transformation of the modules served in development.
  *
- * Le navigateur ne sait lire ni TypeScript, ni JSX, ni les specificateurs
- * d'import nus (`import React from 'react'`). Chaque module demande est donc
- * compile a la volee et ses imports sont reecrits en URL que le serveur sait
- * resoudre.
+ * The browser can read neither TypeScript, nor JSX, nor bare import specifiers
+ * (`import React from 'react'`). Every requested module is therefore compiled
+ * on the fly and its imports are rewritten into URLs the server knows how to
+ * resolve.
  *
- * La reecriture n'est pas faite a coups d'expressions regulieres — une chaine
- * de caracteres contenant le mot `import` suffirait a la mettre en defaut.
- * On s'appuie sur le resolveur du compilateur lui-meme : chaque import est
- * resolu puis **marque externe**, de sorte que rien n'est inline mais que tous
- * les chemins ressortent reecrits, avec la meme exactitude qu'une compilation
- * complete.
+ * The rewriting is not done with regular expressions — a string containing the
+ * word `import` would be enough to defeat it. We lean on the resolver of the
+ * bundler itself: every import is resolved then **marked external**, so that
+ * nothing is inlined but all the paths come out rewritten, with the same
+ * accuracy as a full build.
  *
  * @module
  */
@@ -21,25 +20,28 @@ import { relative, resolve } from 'node:path'
 import { type Plugin, build } from 'esbuild'
 
 import type { ResolvedConfig } from '../config.js'
+import { esbuildPluginsFrom } from '../plugins.js'
+import { sourcePlugin } from '../shared/source.js'
+import { readSuffix } from '../shared/suffixes.js'
 
-/** Prefixe des URL servant les dependances pre-compilees. */
+/** Prefix of the URLs serving the prebundled dependencies. */
 export const DEPS_PREFIX = '/@deps/'
 
-/** Prefixe des URL internes au moteur. */
+/** Prefix of the URLs internal to the engine. */
 export const INTERNAL_PREFIX = '/@odoro/'
 
 /**
- * Extensions d'un module compile par le serveur.
+ * Extensions of a module compiled by the server.
  *
- * Elles servent a reconnaitre l'apparition d'un fichier source, que le graphe
- * ne peut pas connaitre puisqu'il n'existait pas encore.
+ * They serve to recognise the appearance of a source file, which the graph
+ * cannot know about since it did not exist yet.
  */
 export const SOURCE_EXTENSIONS = ['.ts', '.tsx', '.js', '.jsx', '.mjs', '.cjs'] as const
 
-/** Extensions traitees comme des feuilles de style. */
+/** Extensions handled as stylesheets. */
 export const STYLE_EXTENSIONS = ['.css'] as const
 
-/** Extensions traitees comme des ressources statiques importables. */
+/** Extensions handled as importable static assets. */
 export const ASSET_EXTENSIONS = [
   '.svg',
   '.png',
@@ -56,22 +58,22 @@ export const ASSET_EXTENSIONS = [
 ] as const
 
 /**
- * Nom de fichier compile correspondant a un specificateur de dependance.
+ * Compiled file name matching a dependency specifier.
  *
- * Le nom est **aplati** : c'est ce qui rend l'URL servie exempte de segment de
- * dossier. Un module servi sous `/@deps/react-dom/client` resoudrait son propre
- * `import './chunk-X.js'` en `/@deps/react-dom/chunk-X.js`, alors que le
- * fragment est depose a la racine du cache.
+ * The name is **flattened**: that is what makes the served URL free of any
+ * directory segment. A module served under `/@deps/react-dom/client` would
+ * resolve its own `import './chunk-X.js'` to `/@deps/react-dom/chunk-X.js`,
+ * whereas the chunk is dropped at the root of the cache.
  *
  * @example
  * depFileName('react-dom/client') // 'react-dom_client.js'
- * depFileName('@scope/paquet')    // 'scope_paquet.js'
+ * depFileName('@scope/package')   // 'scope_package.js'
  */
 export function depFileName(specifier: string): string {
   return `${specifier.replace(/^@/, '').split('/').join('_')}.js`
 }
 
-/** Indique si un specificateur designe un paquet plutot qu'un fichier. */
+/** Tells whether a specifier designates a package rather than a file. */
 export function isBareSpecifier(specifier: string): boolean {
   return (
     !specifier.startsWith('.') &&
@@ -84,18 +86,18 @@ export function isBareSpecifier(specifier: string): boolean {
   )
 }
 
-/** Indique si un chemin porte l'une des extensions donnees. */
+/** Tells whether a path carries one of the given extensions. */
 export function hasExtension(path: string, extensions: readonly string[]): boolean {
   const clean = path.split('?')[0] ?? path
   return extensions.some((extension) => clean.toLowerCase().endsWith(extension))
 }
 
 /**
- * Convertit un chemin de fichier absolu en URL servie par le serveur.
+ * Converts an absolute file path into a URL served by the server.
  *
- * Un fichier interieur a la racine devient une URL relative a celle-ci ; un
- * fichier exterieur — le cas d'une dependance liee en workspace — passe par le
- * prefixe `/@fs/`, qui porte son chemin absolu.
+ * A file inside the root becomes a URL relative to it; a file outside — the
+ * case of a workspace-linked dependency — goes through the `/@fs/` prefix,
+ * which carries its absolute path.
  */
 export function fileToUrl(file: string, root: string): string {
   const relativePath = relative(root, file).split('\\').join('/')
@@ -103,7 +105,7 @@ export function fileToUrl(file: string, root: string): string {
   return `/@fs/${file.split('\\').join('/').replace(/^\//, '')}`
 }
 
-/** Convertit une URL servie par le serveur en chemin de fichier absolu. */
+/** Converts a URL served by the server into an absolute file path. */
 export function urlToFile(url: string, root: string): string {
   const path = (url.split('?')[0] ?? url).split('#')[0] ?? url
   if (path.startsWith('/@fs/')) {
@@ -113,7 +115,7 @@ export function urlToFile(url: string, root: string): string {
   return resolve(root, `.${path}`)
 }
 
-/** Applique les alias de configuration a un specificateur. */
+/** Applies the configuration aliases to a specifier. */
 export function applyAlias(specifier: string, config: ResolvedConfig): string {
   for (const [prefix, target] of Object.entries(config.alias)) {
     if (specifier === prefix || specifier.startsWith(`${prefix}/`)) {
@@ -127,17 +129,17 @@ export function applyAlias(specifier: string, config: ResolvedConfig): string {
   return specifier
 }
 
-/** Resultat d'une transformation de module. */
+/** Result of a module transformation. */
 export interface TransformResult {
-  /** Code JavaScript pret a etre servi. */
+  /** JavaScript code ready to be served. */
   code: string
-  /** Fichiers dont ce module depend directement, en chemins absolus. */
+  /** Files this module depends on directly, as absolute paths. */
   dependencies: string[]
 }
 
 /**
- * Plugin qui externalise tout import apres l'avoir resolu, en reecrivant son
- * chemin en URL.
+ * Plugin that externalises every import after resolving it, rewriting its path
+ * into a URL.
  */
 function externalizeImports(config: ResolvedConfig, dependencies: Set<string>): Plugin {
   return {
@@ -146,7 +148,7 @@ function externalizeImports(config: ResolvedConfig, dependencies: Set<string>): 
       builder.onResolve({ filter: /.*/ }, async (args) => {
         if (args.kind === 'entry-point') return null
 
-        // Deuxieme passage : on laisse le resolveur natif faire son travail.
+        // Second pass: we let the native resolver do its work.
         if (
           (args.pluginData as { resolving?: boolean } | undefined)?.resolving === true
         ) {
@@ -157,12 +159,31 @@ function externalizeImports(config: ResolvedConfig, dependencies: Set<string>): 
           return { path: args.path, external: true }
         }
 
+        // A suffixed import keeps its suffix in the URL: it is what tells the
+        // server what to return — a worker, a text, an address — for a file
+        // which, without it, would be served as an ordinary module.
+        const suffixed = readSuffix(args.path)
+        if (suffixed !== undefined) {
+          const target = await builder.resolve(applyAlias(suffixed.path, config), {
+            kind: 'import-statement',
+            resolveDir: args.resolveDir,
+            importer: args.importer,
+            pluginData: { resolving: true },
+          })
+          if (target.errors.length === 0) {
+            dependencies.add(target.path)
+            return {
+              path: `${fileToUrl(target.path, config.root)}?${suffixed.suffix}`,
+              external: true,
+            }
+          }
+        }
+
         const aliased = applyAlias(args.path, config)
 
-        // Une feuille de style ou une ressource importee depuis un paquet
-        // (`@odoro-cli/libs/styles.css`) doit etre servie comme un fichier, pas
-        // cherchee dans le cache de dependances, qui ne contient que du
-        // JavaScript.
+        // A stylesheet or an asset imported from a package
+        // (`@odoro-cli/libs/styles.css`) must be served as a file, not looked up
+        // in the dependency cache, which holds only JavaScript.
         const isFileLike =
           hasExtension(aliased, STYLE_EXTENSIONS) ||
           hasExtension(aliased, ASSET_EXTENSIONS)
@@ -179,8 +200,8 @@ function externalizeImports(config: ResolvedConfig, dependencies: Set<string>): 
         })
 
         if (resolved.errors.length > 0) {
-          // Un import irresoluble ne doit pas faire echouer toute la page :
-          // le navigateur signalera l'echec sur ce seul module.
+          // An unresolvable import must not bring down the whole page: the
+          // browser will report the failure on that single module.
           return { path: args.path, external: true }
         }
 
@@ -196,14 +217,14 @@ function externalizeImports(config: ResolvedConfig, dependencies: Set<string>): 
 }
 
 /**
- * Compile un module et reecrit ses imports.
+ * Compiles a module and rewrites its imports.
  *
- * @param file Chemin absolu du fichier source.
- * @param config Configuration resolue du projet.
- * @param env Valeurs exposees au client via `import.meta.env`.
+ * @param file Absolute path of the source file.
+ * @param config Resolved configuration of the project.
+ * @param env Values exposed to the client through `import.meta.env`.
  *
  * @example
- * const { code } = await transformModule('/projet/src/main.tsx', config, env)
+ * const { code } = await transformModule('/project/src/main.tsx', config, env)
  */
 export async function transformModule(
   file: string,
@@ -211,6 +232,13 @@ export async function transformModule(
   env: Record<string, string | boolean>,
 ): Promise<TransformResult> {
   const dependencies = new Set<string>()
+
+  // A file reached by a pattern is a dependency of the module like any other:
+  // without that, adding a post to the directory of a blog would trigger
+  // nothing, and it would only show up on a server restart.
+  const onMatch = (matched: string): void => {
+    dependencies.add(matched)
+  }
 
   const result = await build({
     entryPoints: [file],
@@ -229,39 +257,48 @@ export async function transformModule(
       'process.env.NODE_ENV': JSON.stringify('development'),
       ...config.define,
     },
-    plugins: [externalizeImports(config, dependencies)],
+    plugins: [
+      externalizeImports(config, dependencies),
+      sourcePlugin({
+        root: config.root,
+        plugins: config.plugins,
+        dev: true,
+        onMatch,
+      }),
+      ...esbuildPluginsFrom(config.plugins),
+    ],
   })
 
   const code = result.outputFiles[0]?.text
   if (code === undefined) {
-    throw new Error(`[odoro] La compilation de "${file}" n'a produit aucun code.`)
+    throw new Error(`[odoro] The build of "${file}" produced no code.`)
   }
 
   return { code, dependencies: [...dependencies] }
 }
 
 /**
- * Enveloppe une feuille de style dans un module JavaScript qui l'injecte, et
- * la remplace a chaud lors d'une mise a jour.
+ * Wraps a stylesheet in a JavaScript module that injects it, and replaces it
+ * hot on an update.
  *
- * Une feuille remplacee sans rechargement est le gain le plus immediat du
- * developpement a chaud : l'etat de l'application est integralement conserve.
+ * A stylesheet replaced without a reload is the most immediate gain of hot
+ * development: the state of the application is entirely preserved.
  *
  * @example
  * const module = wrapStyle('/src/App.css', 'body { margin: 0 }')
  */
-/** Un identifiant que l'on peut exporter par son nom. */
-const IDENTIFIANT = /^[A-Za-z_$][A-Za-z0-9_$]*$/
+/** An identifier that can be exported by its name. */
+const IDENTIFIER = /^[A-Za-z_$][A-Za-z0-9_$]*$/
 
 /**
- * Les mots que le langage se reserve : ils ne peuvent pas nommer un export.
+ * The words the language reserves: they cannot name an export.
  *
- * La liste est complete, mode strict compris — un module l'est toujours. Elle
- * l'est parce qu'une omission ne se voit pas a la lecture : un `package.json`
- * porte une cle `private`, et `export const private` est une erreur de
- * syntaxe qui casse le module entier, donc la page.
+ * The list is complete, strict mode included — a module always is one. It is
+ * complete because an omission does not show on reading: a `package.json`
+ * carries a `private` key, and `export const private` is a syntax error that
+ * breaks the whole module, hence the page.
  */
-const RESERVES = new Set([
+const RESERVED = new Set([
   'arguments',
   'await',
   'break',
@@ -313,27 +350,26 @@ const RESERVES = new Set([
 ])
 
 /**
- * Rend un fichier JSON sous forme de module.
+ * Returns a JSON file as a module.
  *
- * ## Pourquoi il faut l'envelopper
+ * ## Why it has to be wrapped
  *
- * `import { dependencies } from './package.json'` est une forme courante, que
- * la compilation resout : esbuild integre le JSON et en tire des exports
- * nommes.
+ * `import { dependencies } from './package.json'` is a common form, which the
+ * build resolves: esbuild inlines the JSON and derives named exports from it.
  *
- * Le serveur de developpement, lui, servait le fichier tel quel. Un module ne
- * peut pas charger du JSON sans attribut d'import, et le navigateur echoue sur
+ * The development server, for its part, served the file as it was. A module
+ * cannot load JSON without an import attribute, and the browser fails on
  *
  *     Failed to load module script: Expected a JavaScript-or-Wasm module script
  *     but the server responded with a MIME type of "application/json".
  *
- * La page reste blanche, et le message ne dit pas quel import est en cause.
+ * The page stays blank, and the message does not say which import is at fault.
  *
- * ## Les exports nommes, et pourquoi tous n'y sont pas
+ * ## The named exports, and why not all of them are there
  *
- * Une cle qui n'est pas un identifiant — `lint:fix`, `@odoro-cli/libs` — ne
- * peut pas nommer un export. Elle reste joignable par l'export par defaut, qui
- * porte l'objet entier : c'est exactement ce que fait la compilation.
+ * A key that is not an identifier — `lint:fix`, `@odoro-cli/libs` — cannot name
+ * an export. It stays reachable through the default export, which carries the
+ * whole object: that is exactly what the build does.
  *
  * @example
  * wrapJson('{"a":1,"b-c":2}')
@@ -341,36 +377,36 @@ const RESERVES = new Set([
  * // export const a = 1
  */
 export function wrapJson(json: string): string {
-  let valeur: unknown
+  let value: unknown
   try {
-    valeur = JSON.parse(json)
+    value = JSON.parse(json)
   } catch {
-    // Un JSON illisible reste une erreur du projet : on la laisse remonter au
-    // navigateur sous une forme qu'il sait afficher, plutot que de servir un
-    // module qui echouerait plus loin, sans rapport apparent.
-    return 'throw new SyntaxError("JSON illisible")'
+    // Unreadable JSON stays a project error: we let it reach the browser in a
+    // shape it knows how to display, rather than serve a module that would fail
+    // further on, with no apparent connection.
+    return 'throw new SyntaxError("unreadable JSON")'
   }
 
-  const lignes = ['export default ' + json.trim()]
+  const lines = ['export default ' + json.trim()]
 
-  if (typeof valeur === 'object' && valeur !== null && !Array.isArray(valeur)) {
-    for (const [cle, contenu] of Object.entries(valeur)) {
-      if (!IDENTIFIANT.test(cle) || RESERVES.has(cle)) continue
-      lignes.push('export const ' + cle + ' = ' + JSON.stringify(contenu))
+  if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+    for (const [key, content] of Object.entries(value)) {
+      if (!IDENTIFIER.test(key) || RESERVED.has(key)) continue
+      lines.push('export const ' + key + ' = ' + JSON.stringify(content))
     }
   }
 
-  return lignes.join('\n')
+  return lines.join('\n')
 }
 
 /**
- * Ce que le navigateur annonce quand il va faire de la ressource autre chose
- * qu'une page.
+ * What the browser announces when it is going to make the resource something
+ * other than a page.
  *
- * Une navigation porte `document`. Tout le reste ci-dessous est une ressource
- * que le document reclame, et a laquelle rendre du HTML n'a aucun sens.
+ * A navigation carries `document`. Everything else below is a resource the
+ * document asks for, and to which returning HTML makes no sense.
  */
-const DESTINATIONS_RESSOURCE = new Set([
+const ASSET_DESTINATIONS = new Set([
   'script',
   'style',
   'image',
@@ -385,81 +421,80 @@ const DESTINATIONS_RESSOURCE = new Set([
 ])
 
 /**
- * La requete vise-t-elle une ressource, et non une page ?
+ * Does the request target an asset, and not a page?
  *
- * ## Pourquoi la question se pose
+ * ## Why the question arises
  *
- * Le repli d'application monopage rend le document pour toute route inconnue :
- * c'est ce qui permet au routeur client de decider de la suite. Il le faisait
- * des que le chemin n'avait pas d'extension — ce qui est le cas d'une route,
- * mais aussi d'un module importe par un chemin qui n'en porte pas.
+ * The single-page application fallback returns the document for any unknown
+ * route: that is what lets the client router decide what comes next. It did so
+ * as soon as the path had no extension — which is the case of a route, but also
+ * of a module imported through a path that carries none.
  *
- * Un `<script type="module">` qui recoit du HTML echoue sur :
+ * A `<script type="module">` that receives HTML fails on:
  *
  *     Failed to load module script: Expected a JavaScript module script but
  *     the server responded with a MIME type of "text/html".
  *
- * Le message ne nomme ni le fichier ni la raison. Un 404 les nomme tous les
- * deux.
+ * The message names neither the file nor the reason. A 404 names both.
  *
- * ## Ce qui les distingue
+ * ## What tells them apart
  *
- * Le navigateur le dit : `Sec-Fetch-Dest` vaut `document` pour une navigation
- * et `script`, `style`, `image`… pour une ressource. Absent — un `curl`, un
- * client ancien —, on ne tranche pas : le repli reste, puisque c'est le
- * comportement qu'attend une adresse tapee a la main.
+ * The browser says so: `Sec-Fetch-Dest` is `document` for a navigation and
+ * `script`, `style`, `image`… for an asset. When absent — a `curl`, an old
+ * client — we do not decide: the fallback stays, since that is the behaviour a
+ * hand-typed address expects.
  *
  * @example
- * estUneRessource({ 'sec-fetch-dest': 'script' })   // true
- * estUneRessource({ 'sec-fetch-dest': 'document' }) // false
- * estUneRessource({})                               // false
+ * isAssetRequest({ 'sec-fetch-dest': 'script' })   // true
+ * isAssetRequest({ 'sec-fetch-dest': 'document' }) // false
+ * isAssetRequest({})                               // false
  */
-export function estUneRessource(
-  entetes: Readonly<Record<string, string | string[] | undefined>>,
+export function isAssetRequest(
+  headers: Readonly<Record<string, string | string[] | undefined>>,
 ): boolean {
-  const destination = entetes['sec-fetch-dest']
-  return typeof destination === 'string' && DESTINATIONS_RESSOURCE.has(destination)
+  const destination = headers['sec-fetch-dest']
+  return typeof destination === 'string' && ASSET_DESTINATIONS.has(destination)
 }
 
 /**
- * La requete demande-t-elle la feuille pour elle-meme ?
+ * Does the request ask for the stylesheet for itself?
  *
- * ## Deux usages, une seule adresse
+ * ## Two uses, a single address
  *
- * `import './a.css'` attend un **module** qui injecte la feuille : c'est ce
- * qui permet de la remplacer a chaud sans recharger la page.
+ * `import './a.css'` expects a **module** that injects the stylesheet: that is
+ * what allows replacing it hot without reloading the page.
  *
- * `<link rel="stylesheet" href="./a.css">` attend la **feuille**. Servir le
- * module a sa place lui donne du JavaScript la ou il attend du CSS, et le
- * navigateur refuse avec un « strict MIME checking » qui ne nomme pas la
- * cause. C'etait le sort de toute feuille reliee par une balise, celle des
- * bibliotheques comprise.
+ * `<link rel="stylesheet" href="./a.css">` expects the **stylesheet**. Serving
+ * the module in its place gives it JavaScript where it expects CSS, and the
+ * browser refuses with a "strict MIME checking" that does not name the cause.
+ * That was the fate of every stylesheet linked by a tag, the library ones
+ * included.
  *
- * ## Ce qui les distingue
+ * ## What tells them apart
  *
- * Le navigateur le dit : `Sec-Fetch-Dest` vaut `style` pour une balise et
- * `script` pour un import. L'en-tete est envoye par tous les navigateurs qui
- * appliquent cette verification — donc par tous ceux que la question concerne.
+ * The browser says so: `Sec-Fetch-Dest` is `style` for a tag and `script` for
+ * an import. The header is sent by every browser that applies this check —
+ * therefore by all of those the question concerns.
  *
- * `?direct` reste accepte : c'est la convention ecrite a la main, et des pages
- * l'emploient deja.
+ * `?direct` is still accepted: it is the hand-written convention, and pages
+ * already use it.
  *
  * @example
- * feuilleDemandee({ 'sec-fetch-dest': 'style' }, '/a.css')  // true
- * feuilleDemandee({ 'sec-fetch-dest': 'script' }, '/a.css') // false
- * feuilleDemandee({}, '/a.css?direct')                      // true
+ * wantsStylesheet({ 'sec-fetch-dest': 'style' }, '/a.css')  // true
+ * wantsStylesheet({ 'sec-fetch-dest': 'script' }, '/a.css') // false
+ * wantsStylesheet({}, '/a.css?direct')                      // true
  */
-export function feuilleDemandee(
-  entetes: Readonly<Record<string, string | string[] | undefined>>,
+export function wantsStylesheet(
+  headers: Readonly<Record<string, string | string[] | undefined>>,
   url: string,
 ): boolean {
   if (url.includes('?direct')) return true
-  if (entetes['sec-fetch-dest'] === 'style') return true
+  if (headers['sec-fetch-dest'] === 'style') return true
 
-  // Repli pour les clients sans `Sec-Fetch-Dest` — un `curl`, un ancien
-  // navigateur : on lit ce qu'ils acceptent.
-  const accepte = entetes['accept']
-  return typeof accepte === 'string' && accepte.includes('text/css')
+  // Fallback for clients without `Sec-Fetch-Dest` — a `curl`, an old browser:
+  // we read what they accept.
+  const accepted = headers['accept']
+  return typeof accepted === 'string' && accepted.includes('text/css')
 }
 
 export function wrapStyle(url: string, css: string): string {
@@ -476,15 +511,15 @@ element.textContent = css
 
 import.meta.hot?.accept()
 import.meta.hot?.dispose(() => {
-  // La feuille suivante recreera l'element : le retirer evite d'empiler les
-  // regles mortes a chaque rechargement.
+  // The next stylesheet will recreate the element: removing it avoids stacking
+  // dead rules on every reload.
   element?.remove()
 })
 `
 }
 
 /**
- * Produit le module JavaScript representant une ressource statique importee.
+ * Produces the JavaScript module representing an imported static asset.
  *
  * @example
  * wrapAsset('/src/logo.svg') // 'export default "/src/logo.svg"'

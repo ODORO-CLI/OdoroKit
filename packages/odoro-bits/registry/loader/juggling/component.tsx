@@ -1,35 +1,34 @@
 /**
- * Jonglage : trois balles passent d'une main a l'autre, une passe basse
- * dans un sens, un grand arc dans l'autre.
+ * Juggling: three balls pass from one hand to the other, a low pass one way, a
+ * tall arc the other.
  *
- * ## Pourquoi une douche, et pas une cascade
+ * ## Why a shower, and not a cascade
  *
- * La figure classique — la cascade, ou chaque balle decrit le meme arc dans
- * les deux sens — ne se laisse pas rejouer par trois copies decalees d'une
- * meme animation : deux balles finissent par se croiser au meme point, a la
- * meme hauteur, et se traversent. La douche, elle, n'a pas ce probleme :
- * une main envoie haut, l'autre rend bas et vite, les deux trajets ne se
- * rencontrent jamais. C'est aussi la figure la plus lisible a cette taille,
- * parce que l'oeil suit un seul grand arc.
+ * The classic figure — the cascade, where every ball describes the same arc in
+ * both directions — does not let itself be replayed by three offset copies of
+ * a single animation: two balls end up crossing at the same point, at the same
+ * height, and pass through each other. The shower does not have that problem:
+ * one hand throws high, the other returns low and fast, and the two paths
+ * never meet. It is also the most legible figure at this size, because the eye
+ * follows a single tall arc.
  *
- * Chaque balle porte deux animations sur deux elements emboites : le
- * deplacement horizontal, lineaire — rien ne freine une balle de cote — et
- * le deplacement vertical, en `ease-out` a la montee et `ease-in` a la
- * descente, ce qui est une parabole a peu de chose pres. Les separer permet
- * de leur donner des courbes differentes ; une seule animation devrait
- * choisir.
+ * Each ball carries two animations on two nested elements: the horizontal
+ * movement, linear — nothing slows a ball down sideways — and the vertical
+ * movement, `ease-out` on the way up and `ease-in` on the way down, which is a
+ * parabola near enough. Separating them makes it possible to give them
+ * different curves; a single animation would have to choose.
  *
- * Les balles restent un instant dans chaque main avant de repartir : sans
- * ce temps de prise, elles rebondiraient au lieu d'etre lancees.
+ * The balls stay a moment in each hand before setting off again: without that
+ * catching time, they would bounce instead of being thrown.
  *
- * ## Un statut, pas un dessin
+ * ## A status, not a drawing
  *
- * L'element porte `role="status"` et un libelle pour les lecteurs d'ecran :
- * l'attente est une information, pas une decoration. Les balles sont
- * retirees de l'arbre d'accessibilite.
+ * The element carries `role="status"` and a label for screen readers: waiting
+ * is information, not decoration. The balls are removed from the accessibility
+ * tree.
  *
- * Sous mouvement reduit, les trois balles sont posees en ligne, en bas : la
- * figure se lit encore, seul le lancer s'arrete.
+ * Under reduced motion, the three balls sit in a line, at the bottom: the
+ * figure still reads, only the throwing stops.
  *
  * @module
  */
@@ -37,22 +36,22 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-juggling'
 
-/** Nombre de balles. */
+/** Number of balls. */
 const BALLS = 3
 
-/** Distance entre les deux mains, en diametres de balle. */
+/** Distance between the two hands, in ball diameters. */
 const SPAN = 3
 
-/** Hauteur du grand arc, en diametres de balle. */
+/** Height of the tall arc, in ball diameters. */
 const ARC = 3
 
-/** Hauteur de la passe basse, en part du grand arc. */
+/** Height of the low pass, as a share of the tall arc. */
 const PASS = 0.35
 
-/** Pose les balles et leurs deux trajets, une fois par document. */
+/** Sets up the balls and their two paths, once per document. */
 function ensureJugglingRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -65,8 +64,8 @@ function ensureJugglingRule(): void {
     `width:calc(var(--o-juggle-size) * ${String(SPAN + 1)});`,
     `height:calc(var(--o-juggle-size) * ${String(ARC + 1)});`,
     '}',
-    // L'element exterieur porte le trajet horizontal ; au repos, chaque
-    // balle a sa place en bas, pour que les trois ne se superposent pas.
+    // The outer element carries the horizontal path; at rest, each ball has
+    // its own place at the bottom, so that the three do not overlap.
     '[data-o-juggle-path]{',
     'position:absolute;left:0;bottom:0;',
     'width:var(--o-juggle-size);height:var(--o-juggle-size);',
@@ -74,22 +73,22 @@ function ensureJugglingRule(): void {
     'animation:o-juggling-across var(--o-juggle-speed) linear infinite;',
     'animation-delay:var(--o-juggle-delay);',
     '}',
-    // L'element interieur porte la hauteur, avec ses propres courbes.
+    // The inner element carries the height, with its own curves.
     '[data-o-juggle-ball]{',
     'display:block;width:100%;height:100%;',
     'border-radius:50%;background:var(--o-juggle-color);',
     'animation:o-juggling-height var(--o-juggle-speed) infinite;',
     'animation-delay:var(--o-juggle-delay);',
     '}',
-    // Passe basse de gauche a droite, prise, grand arc de droite a gauche,
-    // prise. Le trajet est lineaire : rien ne freine une balle de cote.
+    // Low pass from left to right, catch, tall arc from right to left, catch.
+    // The path is linear: nothing slows a ball down sideways.
     '@keyframes o-juggling-across{',
     '0%,6%{transform:translateX(0)}',
     `26%,36%{transform:translateX(calc(var(--o-juggle-size) * ${String(SPAN)}))}`,
     '92%,100%{transform:translateX(0)}',
     '}',
-    // Montee en ralentissant, descente en accelerant : une parabole a peu
-    // de chose pres, et deux hauteurs differentes selon le sens.
+    // Rising while slowing, falling while speeding up: a parabola near enough,
+    // and two different heights depending on the direction.
     '@keyframes o-juggling-height{',
     '0%,6%{transform:translateY(0);animation-timing-function:ease-out}',
     `16%{transform:translateY(calc(var(--o-juggle-size) * -${String(ARC * PASS)}));animation-timing-function:ease-in}`,
@@ -97,7 +96,7 @@ function ensureJugglingRule(): void {
     `64%{transform:translateY(calc(var(--o-juggle-size) * -${String(ARC)}));animation-timing-function:ease-in}`,
     '92%,100%{transform:translateY(0)}',
     '}',
-    // Trois balles posees en ligne : la figure est dite, sans lancer.
+    // Three balls sitting in a line: the figure is stated, without throwing.
     '@media (prefers-reduced-motion:reduce){',
     '[data-o-juggle-path],[data-o-juggle-ball]{animation:none}',
     '[data-o-juggle-ball]{transform:none}',
@@ -106,36 +105,36 @@ function ensureJugglingRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** Props of the component itself. */
 export interface JugglingOwnProps {
-  /** Diametre d'une balle, en pixels. @defaultValue 10 */
+  /** Diameter of a ball, in pixels. @defaultValue 10 */
   size?: number
-  /** Duree d'un tour complet d'une balle, en millisecondes. @defaultValue 1800 */
+  /** Duration of a complete turn of one ball, in milliseconds. @defaultValue 1800 */
   speed?: number
-  /** Couleur des balles. @defaultValue la couleur du texte */
+  /** Colour of the balls. @defaultValue the text colour */
   color?: string
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */
+  /** Label announced to screen readers. @defaultValue 'Loading' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All the props. */
 export type JugglingProps = Customisable<JugglingOwnProps, 'span'>
 
 /**
- * Signale une attente par trois balles jonglees.
+ * Signals a wait through three juggled balls.
  *
  * @example
  * <Juggling />
  *
  * @example
- * // Plus grosses, plus lentes, dans la teinte de marque.
+ * // Bigger, slower, in the brand hue.
  * <Juggling size={14} speed={2600} color="var(--o-palette-brand-500)" />
  */
 export function Juggling({
   size = 10,
   speed = 1800,
   color = 'currentColor',
-  label = 'Chargement',
+  label = 'Loading',
   ...rest
 }: JugglingProps): ReactElement {
   ensureJugglingRule()
@@ -165,8 +164,8 @@ export function Juggling({
           data-o-juggle-path=""
           style={
             {
-              // Un tiers de tour d'ecart, en negatif : les trois balles
-              // sont en l'air ou en main des la premiere image.
+              // A third of a turn apart, negative: the three balls are already
+              // in the air or in hand on the first frame.
               '--o-juggle-delay': `${String(Math.round((-speed * ball) / BALLS))}ms`,
               '--o-juggle-rest': `${String((size * SPAN * ball) / (BALLS - 1))}px`,
             } as CSSProperties

@@ -1,80 +1,80 @@
 /**
- * Resolution du graphe de dependances du registre.
+ * Resolution of the dependency graph of the registry.
  *
- * Une entree peut en reclamer d'autres — un hook partage, un utilitaire. Il
- * faut donc, avant d'ecrire quoi que ce soit chez l'utilisateur, savoir
- * exactement quelles entrees installer et dans quel ordre.
+ * An entry may require others — a shared hook, a utility. Before writing
+ * anything into the user project, we therefore have to know exactly which
+ * entries to install and in what order.
  *
- * ## Les cycles
+ * ## The cycles
  *
- * Rien n'interdit structurellement a deux entrees de se reclamer l'une
- * l'autre, et un parcours naif s'y perdrait indefiniment. Le cycle est donc
- * detecte, et **signale avec le chemin qui le compose** : une erreur qui dit
- * seulement « cycle detecte » oblige a le chercher a la main.
+ * Nothing structurally forbids two entries from requiring each other, and a
+ * naive walk would get lost in them forever. The cycle is therefore detected,
+ * and **reported with the path that makes it up**: an error that says only
+ * "cycle detected" forces you to look for it by hand.
  *
- * ## L'ordre
+ * ## The order
  *
- * Les dependances sont installees avant ce qui les reclame. Cela n'a pas
- * d'importance pour l'ecriture de fichiers, qui est independante, mais cela en
- * a pour ce que l'utilisateur voit defiler : une liste ou les dependances
- * apparaissent apres leur consommateur se lit comme une erreur.
+ * The dependencies are installed before what requires them. That does not
+ * matter for writing files, which is independent, but it does matter for what
+ * the user sees scrolling by: a list where the dependencies appear after their
+ * consumer reads like an error.
  *
  * @module
  */
 
 import type { RegistryMeta } from './schema.js'
 
-/** Ce qu'il faut savoir d'une entree pour resoudre le graphe. */
+/** What has to be known about an entry to resolve the graph. */
 export interface ResolvableEntry {
-  /** Identifiant complet, sous la forme `categorie/nom`. */
+  /** Full identifier, in the form `category/name`. */
   readonly id: string
-  /** Entrees reclamees par celle-ci. */
+  /** Entries required by this one. */
   readonly registryDependencies: readonly string[]
 }
 
-/** Resultat d'une resolution reussie. */
+/** Result of a successful resolution. */
 export interface ResolvedGraph {
-  /** Entrees a installer, dependances d'abord. */
+  /** Entries to install, dependencies first. */
   readonly order: readonly string[]
-  /** Entrees ajoutees qui n'avaient pas ete demandees. */
+  /** Entries added that had not been asked for. */
   readonly implied: readonly string[]
 }
 
-/** Ce qui a empeche la resolution. */
+/** What prevented the resolution. */
 export type ResolutionProblem =
   | {
-      readonly kind: 'introuvable'
+      readonly kind: 'missing'
       readonly id: string
       readonly requiredBy: string | null
     }
   | { readonly kind: 'cycle'; readonly path: readonly string[] }
 
-/** Resultat d'une resolution. */
+/** Result of a resolution. */
 export type ResolutionResult =
   | { readonly ok: true; readonly graph: ResolvedGraph }
   | { readonly ok: false; readonly problems: readonly ResolutionProblem[] }
 
 /**
- * Met un probleme de resolution en phrase lisible.
+ * Turns a resolution problem into a readable sentence.
  *
  * @example
  * describeProblem({ kind: 'cycle', path: ['a', 'b', 'a'] })
- * // 'Cycle de dependances : a → b → a'
+ * // 'Dependency cycle: a → b → a'
  */
 export function describeProblem(problem: ResolutionProblem): string {
   if (problem.kind === 'cycle') {
-    return `Cycle de dependances : ${problem.path.join(' → ')}`
+    return `Dependency cycle: ${problem.path.join(' → ')}`
   }
   return problem.requiredBy === null
-    ? `Entree introuvable : ${problem.id}`
-    : `Entree introuvable : ${problem.id}, reclamee par ${problem.requiredBy}`
+    ? `Entry not found: ${problem.id}`
+    : `Entry not found: ${problem.id}, required by ${problem.requiredBy}`
 }
 
 /**
- * Resout les dependances d'un ensemble d'entrees demandees.
+ * Resolves the dependencies of a set of requested entries.
  *
- * @param requested Identifiants demandes par l'utilisateur.
- * @param available Toutes les entrees connues, indexees par identifiant.
+ * @param requested Identifiers requested by the user.
+ * @param available Every known entry, indexed by identifier.
  *
  * @example
  * const result = resolveGraph(['hero/canopy'], catalogue)
@@ -87,9 +87,9 @@ export function resolveGraph(
   const problems: ResolutionProblem[] = []
   const order: string[] = []
 
-  /** Entrees entierement traitees. */
+  /** Entries fully processed. */
   const done = new Set<string>()
-  /** Entrees en cours de traitement, dans l'ordre du parcours. */
+  /** Entries being processed, in walk order. */
   const path: string[] = []
   const onPath = new Set<string>()
 
@@ -97,8 +97,8 @@ export function resolveGraph(
     if (done.has(id)) return
 
     if (onPath.has(id)) {
-      // Le chemin est conserve depuis la premiere occurrence : c'est lui qui
-      // rend l'erreur exploitable.
+      // The path is kept from the first occurrence: it is what makes the error
+      // usable.
       const start = path.indexOf(id)
       problems.push({ kind: 'cycle', path: [...path.slice(start), id] })
       return
@@ -106,7 +106,7 @@ export function resolveGraph(
 
     const entry = available.get(id)
     if (entry === undefined) {
-      problems.push({ kind: 'introuvable', id, requiredBy })
+      problems.push({ kind: 'missing', id, requiredBy })
       return
     }
 
@@ -121,7 +121,7 @@ export function resolveGraph(
     path.pop()
 
     done.add(id)
-    // Ajoute apres ses dependances : l'ordre est celui de l'installation.
+    // Added after its dependencies: the order is the installation order.
     order.push(id)
   }
 
@@ -140,10 +140,10 @@ export function resolveGraph(
 }
 
 /**
- * Verifie l'integrite d'un catalogue entier.
+ * Checks the integrity of a whole catalogue.
  *
- * Emploi typique : la validation du registre avant publication, ou toutes les
- * entrees sont resolues d'un coup plutot qu'une par une.
+ * Typical use: the validation of the registry before publication, where every
+ * entry is resolved at once rather than one by one.
  *
  * @example
  * const problems = validateCatalogue(catalogue)
@@ -157,7 +157,7 @@ export function validateCatalogue(
 }
 
 /**
- * Construit un catalogue a partir d'entrees completes.
+ * Builds a catalogue from complete entries.
  *
  * @example
  * const catalogue = toCatalogue(metas)

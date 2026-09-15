@@ -1,9 +1,9 @@
 /**
- * API programmatique du moteur Odoro.
+ * Programmatic API of the Odoro engine.
  *
- * Le meme moteur est utilisable depuis un script, ce qui sert notamment aux
- * tests d'integration : demarrer un serveur, compiler un projet et verifier le
- * resultat sans passer par un sous-processus.
+ * The same engine is usable from a script, which serves integration tests in
+ * particular: start a server, build a project and check the result without
+ * going through a subprocess.
  *
  * @example
  * import { buildProject, loadConfig, startDevServer } from 'odoro'
@@ -18,10 +18,32 @@ export {
   defineConfig,
   loadConfig,
   type BuildConfig,
+  type HttpsConfig,
   type OdoroConfig,
+  type PrerenderConfig,
+  type ResolvedBuild,
   type ResolvedConfig,
+  type ResolvedPrerender,
   type ServerConfig,
 } from './config.js'
+
+export type {
+  HtmlContext,
+  ServerContext,
+  TransformContext,
+  Middleware,
+  OdoroPlugin,
+} from './plugins.js'
+
+export { loadEnv, clientEnv, type LoadedEnv } from './shared/env.js'
+export { hasGlob, transformGlob } from './shared/glob.js'
+export {
+  buildManifest,
+  chunksFor,
+  type ManifestEntry,
+  type Manifest,
+} from './build/manifest.js'
+export { prerender, type RouteRender, type PrerenderOutput } from './build/prerender.js'
 
 export { startDevServer, type DevServer } from './dev/server.js'
 export {

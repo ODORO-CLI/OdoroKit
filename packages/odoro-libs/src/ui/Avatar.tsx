@@ -1,5 +1,5 @@
 /**
- * Avatar avec repli en initiales, et groupe superpose.
+ * Avatar with an initials fallback, and an overlapping group.
  *
  * @module
  */
@@ -17,10 +17,10 @@ import {
 
 import { cx } from '../styles/cx.js'
 
-/** Taille d'un avatar. */
+/** Size of an avatar. */
 export type AvatarSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl'
 
-/** Gabarits : dimensions et corps de texte des initiales. */
+/** Templates: dimensions and body text of the initials. */
 const SIZE_CLASSES: Readonly<Record<AvatarSize, string>> = {
   xs: 'o-h-6 o-w-6 o-text-xs',
   sm: 'o-h-8 o-w-8 o-text-xs',
@@ -30,7 +30,7 @@ const SIZE_CLASSES: Readonly<Record<AvatarSize, string>> = {
 }
 
 /**
- * Initiales de repli : premiere lettre des deux premiers mots du nom.
+ * Fallback initials: first letter of the first two words of the name.
  *
  * @example
  * initialsOf('Jean Dupont') // 'JD'
@@ -45,33 +45,33 @@ function initialsOf(name: string): string {
     .toUpperCase()
 }
 
-/** Proprietes de {@link Avatar}. */
+/** Properties of {@link Avatar}. */
 export interface AvatarProps extends Omit<HTMLAttributes<HTMLSpanElement>, 'className'> {
-  /** Adresse de l'image. Sans elle, les initiales sont affichees d'emblee. */
+  /** Address of the image. Without it, the initials are displayed right away. */
   src?: string
-  /** Texte alternatif de l'image, repris comme libelle du repli. */
+  /** Alternative text of the image, reused as the label of the fallback. */
   alt: string
-  /** Nom dont sont tirees les initiales de repli. */
+  /** Name the fallback initials are taken from. */
   name?: string
-  /** Taille. @defaultValue 'md' */
+  /** Size. @defaultValue 'md' */
   size?: AvatarSize
-  /** Forme. @defaultValue 'circle' */
+  /** Shape. @defaultValue 'circle' */
   shape?: 'circle' | 'square'
-  /** Classes additionnelles. */
+  /** Additional classes. */
   className?: string
-  /** Ref vers l'element conteneur. */
+  /** Ref to the container element. */
   ref?: Ref<HTMLSpanElement>
 }
 
 /**
- * Avatar : image si elle charge, initiales sinon.
+ * Avatar: the image if it loads, the initials otherwise.
  *
- * L'echec de chargement bascule sur les initiales sans laisser l'icone
- * d'image cassee du navigateur. Le repli porte `role="img"` et le libelle
- * `alt`, pour rester annonce comme l'image qu'il remplace.
+ * A load failure falls back to the initials without leaving the broken image
+ * icon of the browser. The fallback carries `role="img"` and the `alt` label,
+ * so that it stays announced as the image it replaces.
  *
  * @example
- * <Avatar src={user.photoUrl} alt="Photo de Jean Dupont" name="Jean Dupont" />
+ * <Avatar src={user.photoUrl} alt="Photo of Jean Dupont" name="Jean Dupont" />
  */
 export function Avatar({
   src,
@@ -85,8 +85,8 @@ export function Avatar({
 }: AvatarProps): ReactElement {
   const [failed, setFailed] = useState(false)
 
-  // Une nouvelle adresse repart de zero : l'echec de la precedente ne la
-  // concerne pas.
+  // A new address starts over from scratch: the failure of the previous one
+  // does not concern it.
   useEffect(() => {
     setFailed(false)
   }, [src])
@@ -116,37 +116,37 @@ export function Avatar({
           onError={() => setFailed(true)}
         />
       ) : (
-        // `aria-hidden` : le libelle est deja porte par le conteneur, les
-        // initiales ne sont qu'un dessin.
+        // `aria-hidden`: the label is already carried by the container, the
+        // initials are only a drawing.
         <span aria-hidden="true">{initials}</span>
       )}
     </span>
   )
 }
 
-/** Proprietes de {@link AvatarGroup}. */
+/** Properties of {@link AvatarGroup}. */
 export interface AvatarGroupProps extends Omit<
   HTMLAttributes<HTMLDivElement>,
   'className'
 > {
-  /** Avatars a superposer, du premier plan vers l'arriere. */
+  /** Avatars to overlap, from the foreground towards the back. */
   children?: ReactNode
   /**
-   * Nombre maximal d'avatars affiches. Au-dela, une pastille "+N" du meme
-   * gabarit resume le reste.
+   * Maximum number of displayed avatars. Beyond that, a "+N" pill of the same
+   * template sums up the rest.
    */
   max?: number
-  /** Gabarit de la pastille "+N", a aligner sur celui des avatars. @defaultValue 'md' */
+  /** Template of the "+N" pill, to align with the avatars one. @defaultValue 'md' */
   size?: AvatarSize
-  /** Classes additionnelles. */
+  /** Additional classes. */
   className?: string
 }
 
 /**
- * Rangee d'avatars superposes.
+ * Row of overlapping avatars.
  *
- * Le chevauchement passe par un `marginInlineStart` negatif en style inline :
- * la feuille utilitaire ne fournit pas de marges negatives.
+ * The overlap goes through a negative `marginInlineStart` in an inline style:
+ * the utility stylesheet does not provide negative margins.
  *
  * @example
  * <AvatarGroup max={3}>
@@ -173,7 +173,7 @@ export function AvatarGroup({
   return (
     <div {...rest} className={cx('o-flex o-items-center', className)}>
       {visible.map((item, index) => (
-        // Le lisere de surface detache chaque avatar de celui qu'il recouvre.
+        // The surface hairline detaches each avatar from the one it covers.
         <span
           key={index}
           className="o-inline-flex o-rounded-full o-border-w-2 o-border-white dark:o-border-zinc-900"

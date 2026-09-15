@@ -1,42 +1,43 @@
 /**
- * Particules : le titre s'assemble depuis une nuee, puis redevient du texte.
+ * Particles: the heading assembles itself out of a cloud, then becomes text
+ * again.
  *
- * ## Le canevas est un echafaudage, pas le rendu final
+ * ## The canvas is scaffolding, not the final rendering
  *
- * La nuee est peinte sur un canevas pose au-dessus du titre, pendant la duree
- * de l'assemblage — quelques secondes — puis elle s'efface et le texte reel
- * reprend sa place. Rien ne reste a la charge du navigateur ensuite : ni
- * boucle, ni surface, ni contexte.
+ * The cloud is painted on a canvas laid over the heading, for the duration of
+ * the assembly — a few seconds — then it clears and the real text takes its
+ * place back. Nothing is left on the browser's hands afterwards: no loop, no
+ * surface, no context.
  *
- * C'est pour cela que le titre reel est ecrit dans le flux et qu'il donne sa
- * boite au composant. Il n'est rendu transparent **que pendant** la nuee : si
- * le canevas manque, si le contexte 2D est refuse, si la mesure echoue, le
- * titre est simplement la.
+ * That is why the real heading is written in the flow and gives the component
+ * its box. It is made transparent **only during** the cloud: if the canvas is
+ * missing, if the 2D context is refused, if the measurement fails, the heading
+ * is simply there.
  *
- * ## Les cibles viennent du texte lui-meme
+ * ## The targets come from the text itself
  *
- * Le titre est dessine une fois hors champ, dans sa propre police et a sa
- * propre taille, et le canal alpha est echantillonne au pas demande : chaque
- * point couvert devient la destination d'une particule. Aucune forme n'est
- * decrite a la main — changer la police change la nuee.
+ * The heading is drawn once off screen, in its own font and at its own size,
+ * and the alpha channel is sampled at the requested step: every covered point
+ * becomes the destination of a particle. No shape is described by hand —
+ * changing the font changes the cloud.
  *
- * ## Le fondu final n'est pas une coquetterie
+ * ## The final cross-fade is not a flourish
  *
- * Une nuee de carres, meme parfaitement rangee, n'est pas un glyphe : le
- * passage de l'une a l'autre serait un saut. Les deux se croisent donc sur
- * deux dixiemes de seconde, ce qui rend le raccord invisible sans rien devoir
- * mesurer au pixel pres.
+ * A cloud of squares, however perfectly arranged, is not a glyph: the passage
+ * from one to the other would be a jump. The two therefore cross over two
+ * tenths of a second, which makes the seam invisible without having to measure
+ * anything to the pixel.
  *
- * ## Une ligne, un titre
+ * ## One line, one heading
  *
- * L'echantillonnage suppose un texte qui tient sur une ligne : c'est le cas
- * d'usage — un titre. Un paragraphe donnerait des dizaines de milliers de
- * particules pour un effet illisible.
+ * The sampling assumes a text that fits on one line: that is the use case — a
+ * heading. A paragraph would give tens of thousands of particles for an
+ * unreadable effect.
  *
- * ## Mouvement reduit
+ * ## Reduced motion
  *
- * Aucune nuee, aucun canevas : le titre est la, assemble. C'est l'etat
- * d'arrivee.
+ * No cloud, no canvas: the heading is there, assembled. That is the arrival
+ * state.
  *
  * @module
  */
@@ -60,42 +61,42 @@ import {
 
 import { useInView } from '@registre/hooks/useInView'
 
-/** Ce qui declenche l'assemblage. */
-export type ParticleTextDeclenchement = 'montage' | 'vue' | 'survol'
+/** What triggers the assembly. */
+export type ParticleTextTrigger = 'mount' | 'view' | 'hover'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface ParticleTextOwnProps {
-  /** Texte a assembler. Une chaine, tenant sur une ligne. */
+  /** Text to assemble. A string, fitting on one line. */
   children: string
-  /** Balise rendue. @defaultValue 'span' */
+  /** Rendered tag. @defaultValue 'span' */
   as?: ElementType
-  /** Pas d'echantillonnage, en pixels. Plus bas, plus dense. @defaultValue 5 */
+  /** Sampling step, in pixels. The lower, the denser. @defaultValue 5 */
   step?: number
-  /** Duree du vol d'une particule, en millisecondes. @defaultValue 1400 */
+  /** Duration of the flight of one particle, in milliseconds. @defaultValue 1400 */
   duration?: number
-  /** Etalement des departs, en millisecondes. @defaultValue 600 */
+  /** Spread of the departures, in milliseconds. @defaultValue 600 */
   spread?: number
   /**
-   * Quand assembler.
+   * When to assemble.
    *
-   * @defaultValue 'vue'
+   * @defaultValue 'view'
    */
-  declenchement?: ParticleTextDeclenchement
+  trigger?: ParticleTextTrigger
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type ParticleTextProps = Customisable<ParticleTextOwnProps, 'span'>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-particle-text'
 
-/** Plafond de particules : au-dela, le cout croit sans que l'oeil y gagne. */
-const PARTICULES_MAX = 2400
+/** Ceiling on particles: beyond it, the cost grows without the eye gaining. */
+const MAX_PARTICLES = 2400
 
-/** Duree du croisement entre la nuee et le texte, en millisecondes. */
-const FONDU_MS = 240
+/** Duration of the cross-fade between the cloud and the text, in milliseconds. */
+const FADE_MS = 240
 
-/** Pose les regles du calque, une fois par document. */
+/** Sets the layer rules, once per document. */
 function ensureParticleRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -105,7 +106,7 @@ function ensureParticleRule(): void {
   style.textContent = [
     '[data-o-particle]{position:relative;display:inline-block}',
     '[data-o-particle-source]{display:inline-block}',
-    // L'original n'est transparent que pendant la nuee.
+    // The original is only transparent during the cloud.
     '[data-o-particle-hidden]{color:transparent}',
     '[data-o-particle-layer]{',
     'position:absolute;inset:0;width:100%;height:100%;pointer-events:none;',
@@ -114,14 +115,14 @@ function ensureParticleRule(): void {
   document.head.append(style)
 }
 
-/** Sortie franche puis amortie : la particule arrive, elle ne freine pas. */
-function amorti(t: number): number {
-  const reste = 1 - t
-  return 1 - reste * reste * reste
+/** Sharp then damped ease out: the particle arrives, it does not brake. */
+function damped(t: number): number {
+  const rest = 1 - t
+  return 1 - rest * rest * rest
 }
 
 /**
- * Assemble un titre depuis une nuee de particules.
+ * Assembles a heading out of a cloud of particles.
  *
  * @example
  * <ParticleText as="h1" className="o-text-6xl o-font-black">
@@ -129,8 +130,8 @@ function amorti(t: number): number {
  * </ParticleText>
  *
  * @example
- * // Une nuee dense et lente, rejouee a chaque survol.
- * <ParticleText step={3} duration={2400} declenchement="survol">Atelier</ParticleText>
+ * // A dense and slow cloud, replayed on every hover.
+ * <ParticleText step={3} duration={2400} trigger="hover">Workshop</ParticleText>
  */
 export function ParticleText({
   children,
@@ -138,184 +139,184 @@ export function ParticleText({
   step = 5,
   duration = 1400,
   spread = 600,
-  declenchement = 'vue',
+  trigger = 'view',
   ...rest
 }: ParticleTextProps): ReactElement {
   const { reduced } = useMotionState()
-  const { ref: refHote, vu } = useInView<HTMLElement>({
-    immediat: declenchement === 'montage',
+  const { ref: hostRef, inView } = useInView<HTMLElement>({
+    immediate: trigger === 'mount',
   })
 
-  const refSource = useRef<HTMLSpanElement | null>(null)
-  const refCanevas = useRef<HTMLCanvasElement | null>(null)
-  const [enCours, setEnCours] = useState(false)
+  const sourceRef = useRef<HTMLSpanElement | null>(null)
+  const canvasRef = useRef<HTMLCanvasElement | null>(null)
+  const [running, setRunning] = useState(false)
 
   ensureParticleRule()
 
   useEffect(() => {
     if (reduced) return
 
-    const hote = refHote.current
-    const source = refSource.current
-    const canevas = refCanevas.current
-    if (hote === null || source === null || canevas === null) return
+    const host = hostRef.current
+    const source = sourceRef.current
+    const canvas = canvasRef.current
+    if (host === null || source === null || canvas === null) return
 
-    let abonnement: ClockSubscription | null = null
+    let subscription: ClockSubscription | null = null
 
-    const arreter = (): void => {
-      abonnement?.unsubscribe()
-      abonnement = null
-      const ctx = canevas.getContext('2d')
-      ctx?.clearRect(0, 0, canevas.width, canevas.height)
-      setEnCours(false)
+    const stop = (): void => {
+      subscription?.unsubscribe()
+      subscription = null
+      const ctx = canvas.getContext('2d')
+      ctx?.clearRect(0, 0, canvas.width, canvas.height)
+      setRunning(false)
     }
 
-    const jouer = (): void => {
-      abonnement?.unsubscribe()
-      abonnement = null
+    const play = (): void => {
+      subscription?.unsubscribe()
+      subscription = null
 
-      const boite = source.getBoundingClientRect()
-      if (boite.width < 8 || boite.height < 8) return
+      const box = source.getBoundingClientRect()
+      if (box.width < 8 || box.height < 8) return
 
-      const ctx = canevas.getContext('2d', { willReadFrequently: true })
+      const ctx = canvas.getContext('2d', { willReadFrequently: true })
       if (ctx === null) return
 
-      // Deux fois la resolution suffit : au-dela, on peint quatre fois plus de
-      // pixels pour une difference que l'ecran ne montre pas.
-      const echelle = Math.min(2, window.devicePixelRatio || 1)
-      const largeur = Math.max(1, Math.round(boite.width * echelle))
-      const hauteur = Math.max(1, Math.round(boite.height * echelle))
-      canevas.width = largeur
-      canevas.height = hauteur
+      // Twice the resolution is enough: beyond that, four times as many pixels
+      // are painted for a difference the screen does not show.
+      const scale = Math.min(2, window.devicePixelRatio || 1)
+      const width = Math.max(1, Math.round(box.width * scale))
+      const height = Math.max(1, Math.round(box.height * scale))
+      canvas.width = width
+      canvas.height = height
 
-      const habillage = getComputedStyle(source)
-      const encre = habillage.color
-      const corps = Number.parseFloat(habillage.fontSize) * echelle
+      const dressing = getComputedStyle(source)
+      const ink = dressing.color
+      const fontSize = Number.parseFloat(dressing.fontSize) * scale
 
       ctx.setTransform(1, 0, 0, 1, 0, 0)
       ctx.globalAlpha = 1
-      ctx.clearRect(0, 0, largeur, hauteur)
+      ctx.clearRect(0, 0, width, height)
       ctx.textAlign = 'center'
       ctx.textBaseline = 'middle'
-      ctx.font = `${habillage.fontStyle} ${habillage.fontWeight} ${String(corps)}px ${habillage.fontFamily}`
-      ctx.fillStyle = encre
-      ctx.fillText(children, largeur / 2, hauteur / 2)
+      ctx.font = `${dressing.fontStyle} ${dressing.fontWeight} ${String(fontSize)}px ${dressing.fontFamily}`
+      ctx.fillStyle = ink
+      ctx.fillText(children, width / 2, height / 2)
 
-      const pixels = ctx.getImageData(0, 0, largeur, hauteur).data
-      ctx.clearRect(0, 0, largeur, hauteur)
+      const pixels = ctx.getImageData(0, 0, width, height).data
+      ctx.clearRect(0, 0, width, height)
 
-      const pas = Math.max(2, Math.round(step * echelle))
-      const cibles: number[] = []
-      for (let y = 0; y < hauteur; y += pas) {
-        for (let x = 0; x < largeur; x += pas) {
-          if ((pixels[(y * largeur + x) * 4 + 3] ?? 0) > 128) cibles.push(x, y)
+      const pitch = Math.max(2, Math.round(step * scale))
+      const targets: number[] = []
+      for (let y = 0; y < height; y += pitch) {
+        for (let x = 0; x < width; x += pitch) {
+          if ((pixels[(y * width + x) * 4 + 3] ?? 0) > 128) targets.push(x, y)
         }
       }
 
-      const total = cibles.length / 2
+      const total = targets.length / 2
       if (total === 0) return
 
-      // Un pas sur deux, sur trois… plutot qu'un tirage : la nuee garde sa
-      // repartition, elle ne se troue pas par endroits.
-      const saut = Math.max(1, Math.ceil(total / PARTICULES_MAX))
-      const compte = Math.floor((total + saut - 1) / saut)
+      // Every other step, every third… rather than a random draw: the cloud
+      // keeps its distribution, it does not go patchy in places.
+      const skip = Math.max(1, Math.ceil(total / MAX_PARTICLES))
+      const count = Math.floor((total + skip - 1) / skip)
 
-      const cible = new Float32Array(compte * 2)
-      const depart = new Float32Array(compte * 2)
-      const retard = new Float32Array(compte)
+      const target = new Float32Array(count * 2)
+      const start = new Float32Array(count * 2)
+      const delay = new Float32Array(count)
 
-      const rayon = Math.max(largeur, hauteur)
-      for (let index = 0; index < compte; index += 1) {
-        const lu = index * saut * 2
-        cible[index * 2] = cibles[lu] ?? 0
-        cible[index * 2 + 1] = cibles[lu + 1] ?? 0
+      const radius = Math.max(width, height)
+      for (let index = 0; index < count; index += 1) {
+        const read = index * skip * 2
+        target[index * 2] = targets[read] ?? 0
+        target[index * 2 + 1] = targets[read + 1] ?? 0
 
         const angle = Math.random() * Math.PI * 2
-        const distance = rayon * (0.6 + Math.random() * 0.7)
-        depart[index * 2] = largeur / 2 + Math.cos(angle) * distance
-        depart[index * 2 + 1] = hauteur / 2 + Math.sin(angle) * distance
-        retard[index] = Math.random() * spread
+        const distance = radius * (0.6 + Math.random() * 0.7)
+        start[index * 2] = width / 2 + Math.cos(angle) * distance
+        start[index * 2 + 1] = height / 2 + Math.sin(angle) * distance
+        delay[index] = Math.random() * spread
       }
 
-      const taille = Math.max(1, pas * 0.72)
-      const debut = performance.now()
-      let revele = false
-      let instantFondu = 0
+      const size = Math.max(1, pitch * 0.72)
+      const began = performance.now()
+      let revealed = false
+      let fadeStartedAt = 0
 
-      setEnCours(true)
+      setRunning(true)
 
-      abonnement = clock.subscribe(
+      subscription = clock.subscribe(
         () => {
-          const ecoule = performance.now() - debut
+          const elapsed = performance.now() - began
 
-          if (!revele && ecoule > spread + duration) {
-            revele = true
-            instantFondu = ecoule
-            // Le texte reel revient pendant que la nuee s'efface : les deux se
-            // croisent, et le raccord ne se voit pas.
-            setEnCours(false)
+          if (!revealed && elapsed > spread + duration) {
+            revealed = true
+            fadeStartedAt = elapsed
+            // The real text comes back while the cloud fades out: the two
+            // cross over, and the seam does not show.
+            setRunning(false)
           }
 
-          const opacite = revele ? 1 - (ecoule - instantFondu) / FONDU_MS : 1
-          if (opacite <= 0) {
-            arreter()
+          const opacity = revealed ? 1 - (elapsed - fadeStartedAt) / FADE_MS : 1
+          if (opacity <= 0) {
+            stop()
             return
           }
 
-          ctx.clearRect(0, 0, largeur, hauteur)
-          ctx.globalAlpha = opacite
-          ctx.fillStyle = encre
+          ctx.clearRect(0, 0, width, height)
+          ctx.globalAlpha = opacity
+          ctx.fillStyle = ink
 
-          for (let index = 0; index < compte; index += 1) {
-            const avance = Math.min(
+          for (let index = 0; index < count; index += 1) {
+            const progress = Math.min(
               1,
-              Math.max(0, (ecoule - (retard[index] ?? 0)) / duration),
+              Math.max(0, (elapsed - (delay[index] ?? 0)) / duration),
             )
-            const part = amorti(avance)
-            const ax = depart[index * 2] ?? 0
-            const ay = depart[index * 2 + 1] ?? 0
-            const bx = cible[index * 2] ?? 0
-            const by = cible[index * 2 + 1] ?? 0
-            ctx.fillRect(ax + (bx - ax) * part, ay + (by - ay) * part, taille, taille)
+            const part = damped(progress)
+            const ax = start[index * 2] ?? 0
+            const ay = start[index * 2 + 1] ?? 0
+            const bx = target[index * 2] ?? 0
+            const by = target[index * 2 + 1] ?? 0
+            ctx.fillRect(ax + (bx - ax) * part, ay + (by - ay) * part, size, size)
           }
         },
-        { name: 'titre en particules', priority: CLOCK_PRIORITY.default },
+        { name: 'particle heading', priority: CLOCK_PRIORITY.default },
       )
     }
 
-    if (declenchement === 'survol') {
-      const entrer = (): void => {
-        jouer()
+    if (trigger === 'hover') {
+      const onEnter = (): void => {
+        play()
       }
-      hote.addEventListener('pointerenter', entrer)
+      host.addEventListener('pointerenter', onEnter)
       return () => {
-        hote.removeEventListener('pointerenter', entrer)
-        arreter()
+        host.removeEventListener('pointerenter', onEnter)
+        stop()
       }
     }
 
-    if (vu) jouer()
-    return arreter
-  }, [refHote, reduced, vu, children, step, duration, spread, declenchement])
+    if (inView) play()
+    return stop
+  }, [hostRef, reduced, inView, children, step, duration, spread, trigger])
 
   const { className, style } = mergePresentation({}, rest)
 
   return (
     <Tag
       {...rest}
-      ref={refHote}
+      ref={hostRef}
       className={className}
       style={style as CSSProperties}
       data-o-particle=""
     >
       <span
-        ref={refSource}
+        ref={sourceRef}
         data-o-particle-source=""
-        {...(enCours ? { 'data-o-particle-hidden': '' } : {})}
+        {...(running ? { 'data-o-particle-hidden': '' } : {})}
       >
         {children}
       </span>
-      <canvas ref={refCanevas} aria-hidden="true" data-o-particle-layer="" />
+      <canvas ref={canvasRef} aria-hidden="true" data-o-particle-layer="" />
     </Tag>
   )
 }

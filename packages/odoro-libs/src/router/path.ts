@@ -1,25 +1,25 @@
 /**
- * Utilitaires de manipulation de chemins d'URL.
+ * Utilities for handling URL paths.
  *
- * Ces fonctions sont pures et sans dependance au DOM : elles sont testables
- * isolement et reutilisables cote serveur.
+ * These functions are pure and have no DOM dependency: they are testable in
+ * isolation and reusable on the server side.
  *
  * @module
  */
 
-/** Decomposition d'une URL relative en ses trois parties. */
+/** Breakdown of a relative URL into its three parts. */
 export interface ParsedPath {
-  /** Chemin, toujours prefixe par `/`. */
+  /** Path, always prefixed by `/`. */
   pathname: string
-  /** Chaine de requete, prefixee par `?` si non vide. */
+  /** Query string, prefixed by `?` when not empty. */
   search: string
-  /** Fragment, prefixe par `#` si non vide. */
+  /** Fragment, prefixed by `#` when not empty. */
   hash: string
 }
 
 /**
- * Normalise un pathname : garantit un `/` initial et supprime le `/` final
- * ainsi que les segments vides dus a des `//` consecutifs.
+ * Normalizes a pathname: guarantees a leading `/` and removes the trailing
+ * `/` as well as the empty segments caused by consecutive `//`.
  *
  * @example
  * normalizePathname('users//42/') // '/users/42'
@@ -31,7 +31,7 @@ export function normalizePathname(pathname: string): string {
 }
 
 /**
- * Concatene des fragments de chemin en un pathname normalise.
+ * Concatenates path fragments into a normalized pathname.
  *
  * @example
  * joinPaths('/app', 'users', ':id') // '/app/users/:id'
@@ -43,7 +43,7 @@ export function joinPaths(...parts: readonly (string | undefined)[]): string {
 }
 
 /**
- * Decoupe une URL relative en pathname / search / hash.
+ * Splits a relative URL into pathname / search / hash.
  *
  * @example
  * parsePath('/blog?page=2#top')
@@ -74,7 +74,7 @@ export function parsePath(to: string): ParsedPath {
 }
 
 /**
- * Recompose une URL relative a partir de ses parties.
+ * Rebuilds a relative URL from its parts.
  *
  * @example
  * createPath({ pathname: '/blog', search: '?page=2', hash: '' }) // '/blog?page=2'
@@ -87,11 +87,11 @@ export function createPath({ pathname, search, hash }: Partial<ParsedPath>): str
 }
 
 /**
- * Resout une cible de navigation, potentiellement relative, contre le chemin
- * courant. Gere `/absolu`, `relatif`, `./relatif` et `../parent`.
+ * Resolves a navigation target, possibly relative, against the current path.
+ * Handles `/absolute`, `relative`, `./relative` and `../parent`.
  *
- * @param to Cible de navigation.
- * @param fromPathname Pathname servant de base aux cibles relatives.
+ * @param to Navigation target.
+ * @param fromPathname Pathname used as the base for relative targets.
  *
  * @example
  * resolvePath('../settings', '/users/42/profile') // pathname '/users/42/settings'

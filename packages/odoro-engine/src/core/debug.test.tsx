@@ -14,23 +14,23 @@ afterEach(() => {
 })
 
 describe('isDebugRequested', () => {
-  it('reconnait le parametre', () => {
+  it('recognises the parameter', () => {
     expect(isDebugRequested('https://site.fr/?odoro-debug')).toBe(true)
     expect(isDebugRequested('https://site.fr/?a=1&odoro-debug=1')).toBe(true)
   })
 
-  it('reste discret sans le parametre', () => {
+  it('stays quiet without the parameter', () => {
     expect(isDebugRequested('https://site.fr/')).toBe(false)
-    expect(isDebugRequested('https://site.fr/?autre=1')).toBe(false)
+    expect(isDebugRequested('https://site.fr/?other=1')).toBe(false)
   })
 
-  it('absorbe une URL invalide', () => {
-    expect(isDebugRequested('pas une url')).toBe(false)
+  it('absorbs an invalid URL', () => {
+    expect(isDebugRequested('not a url')).toBe(false)
   })
 })
 
-describe('releve', () => {
-  it('rapporte les abonnes et les ressources', () => {
+describe('reading', () => {
+  it('reports the subscribers and the resources', () => {
     clock.subscribe(() => undefined, { name: 'aurora', priority: CLOCK_PRIORITY.render })
     registry.register({ kind: 'surface', name: 'aurora', dispose: vi.fn() })
 
@@ -41,8 +41,8 @@ describe('releve', () => {
   })
 })
 
-describe('panneau', () => {
-  it('ne rend rien sans demande explicite', () => {
+describe('panel', () => {
+  it('renders nothing without an explicit request', () => {
     const { container } = render(
       <OdoroEngine>
         <OdoroDebugPanel />
@@ -51,7 +51,7 @@ describe('panneau', () => {
     expect(container.querySelector('[data-odoro-debug]')).toBeNull()
   })
 
-  it('affiche l etat quand il est force', () => {
+  it('displays the state when it is forced', () => {
     registry.register({ kind: 'surface', name: 'aurora', dispose: vi.fn() })
 
     render(
@@ -60,14 +60,14 @@ describe('panneau', () => {
       </OdoroEngine>,
     )
 
-    expect(screen.getByText('images par seconde')).toBeDefined()
+    expect(screen.getByText('frames per second')).toBeDefined()
     expect(screen.getByText('1 / 2')).toBeDefined()
     expect(screen.getAllByText('aurora').length).toBeGreaterThan(0)
   })
 
-  it('reste hors de l arbre d accessibilite', () => {
-    // C'est un instrument de mesure : il n'a rien a annoncer a un lecteur
-    // d'ecran, et son bruit masquerait le contenu reel.
+  it('stays out of the accessibility tree', () => {
+    // This is a measuring instrument: it has nothing to announce to a screen
+    // reader, and its noise would mask the real content.
     const { container } = render(
       <OdoroEngine>
         <OdoroDebugPanel force />
@@ -77,7 +77,7 @@ describe('panneau', () => {
     expect(panel?.getAttribute('aria-hidden')).toBe('true')
   })
 
-  it('n intercepte aucun clic', () => {
+  it('intercepts no click', () => {
     const { container } = render(
       <OdoroEngine>
         <OdoroDebugPanel force />

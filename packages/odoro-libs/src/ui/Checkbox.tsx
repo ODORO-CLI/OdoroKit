@@ -1,5 +1,5 @@
 /**
- * Case a cocher dessinee au-dessus de l'input natif.
+ * Checkbox drawn on top of the native input.
  *
  * @module
  */
@@ -20,44 +20,44 @@ import {
 
 import { cx } from '../styles/cx.js'
 
-/** Proprietes de {@link Checkbox}. */
+/** Properties of {@link Checkbox}. */
 export interface CheckboxProps extends Omit<
   InputHTMLAttributes<HTMLInputElement>,
   'className' | 'type' | 'size' | 'children'
 > {
-  /** Libelle de la case. Obligatoire : une case sans libelle est inutilisable. */
+  /** Label of the box. Required: a box without a label is unusable. */
   label: ReactNode
-  /** Complement affiche sous le libelle. */
+  /** Complement displayed under the label. */
   description?: ReactNode
   /**
-   * Etat intermediaire (« certains elements coches »). Purement visuel et
-   * ARIA : il ne change pas la valeur soumise, et un clic repasse par le cycle
-   * natif coche / decoche.
+   * Intermediate state ("some items checked"). Purely visual and ARIA: it
+   * does not change the submitted value, and a click goes back through the
+   * native checked / unchecked cycle.
    *
    * @defaultValue false
    */
   indeterminate?: boolean
-  /** Classes additionnelles appliquees a la boite dessinee. */
+  /** Additional classes applied to the drawn box. */
   className?: string
-  /** Classes additionnelles appliquees au conteneur. */
+  /** Additional classes applied to the container. */
   wrapperClassName?: string
-  /** Ref vers l'element natif. */
+  /** Ref to the native element. */
   ref?: Ref<HTMLInputElement>
 }
 
 /**
- * Case a cocher.
+ * Checkbox.
  *
- * L'input natif reste dans la page (masque par `o-sr-only`) : clavier, formu-
- * laires et lecteurs d'ecran passent par lui ; la boite visible n'est qu'un
- * dessin `aria-hidden`. Aucun selecteur utilitaire ne cible « l'input voisin a
- * le focus » : l'anneau de focus est donc pose par l'etat React, alimente par
- * `onFocus` / `onBlur` de l'input.
+ * The native input stays in the page (hidden by `o-sr-only`): keyboard,
+ * forms and screen readers go through it; the visible box is only an
+ * `aria-hidden` drawing. No utility selector targets "the neighboring input
+ * has the focus": the focus ring is therefore applied by the React state, fed
+ * by the `onFocus` / `onBlur` of the input.
  *
  * @example
  * <Checkbox
- *   label="Se souvenir de moi"
- *   description="La session reste ouverte 30 jours."
+ *   label="Remember me"
+ *   description="The session stays open for 30 days."
  *   defaultChecked
  * />
  */
@@ -81,24 +81,24 @@ export function Checkbox({
   const inputId = id ?? generatedId
   const descriptionId = `${inputId}-description`
 
-  // L'etat interne suit l'input en mode non controle ; la prop `checked`
-  // l'emporte des qu'elle est fournie.
+  // The internal state follows the input in uncontrolled mode; the `checked`
+  // prop wins as soon as it is provided.
   const [internal, setInternal] = useState(defaultChecked ?? false)
   const isChecked = checked ?? internal
   const [focused, setFocused] = useState(false)
 
   const innerRef = useRef<HTMLInputElement | null>(null)
 
-  // `indeterminate` n'existe pas en attribut HTML : seul le DOM le porte.
+  // `indeterminate` does not exist as an HTML attribute: only the DOM carries it.
   useEffect(() => {
     if (innerRef.current !== null) innerRef.current.indeterminate = indeterminate
   }, [indeterminate])
 
   const handleChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
-      // Un navigateur ne delivre pas de clic a un input desactive, mais un
-      // clic programmatique (tests, `element.click()`) passe outre : le garde
-      // rend l'etat desactive fiable dans les deux cas.
+      // A browser does not deliver a click to a disabled input, but a
+      // programmatic click (tests, `element.click()`) goes through: the guard
+      // makes the disabled state reliable in both cases.
       if (disabled) return
       if (checked === undefined) setInternal(event.target.checked)
       onChange?.(event)

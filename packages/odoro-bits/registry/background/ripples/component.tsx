@@ -1,22 +1,22 @@
 /**
- * Gouttes : des trains d'anneaux amortis qui interferent.
+ * Drops: trains of damped rings that interfere.
  *
- * ## Le principe
+ * ## The principle
  *
- * Chaque goutte est un sinus de la distance a son centre, eteint par une exponentielle de cette meme distance ; les ondes se somment et interferent.
+ * Each drop is a sine of the distance to its centre, faded out by an exponential of that same distance; the waves sum together and interfere.
  *
- * Les centres sont tires du rang de la goutte, jamais du temps : le motif est stable, seule l onde avance.
+ * The centres are drawn from the rank of the drop, never from the time: the pattern is stable, only the wave travels.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur — les recopier ici en ferait autant
- * de versions a maintenir qu'il y a de fonds.
+ * It carries only what sets it apart: its shader, its settings and its fallback.
+ * Reading the tokens, converting them to floats and re-reading them when the
+ * theme changes all come from the engine — copying that here would leave as many
+ * versions to maintain as there are backgrounds.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en
- * accorde qu'une par backend — et sous mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface — it grants only one per
+ * backend — and under reduced motion.
  *
  * @module
  */
@@ -33,46 +33,46 @@ import { type ReactElement } from 'react'
 
 import { RIPPLES_FRAGMENT } from './ripples.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface RipplesControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to this component. */
 export interface RipplesOwnProps {
-  /** Vitesse de propagation des anneaux. @defaultValue 1 */
+  /** Speed at which the rings propagate. @defaultValue 1 */
   speed?: number
-  /** Nombre de gouttes. @defaultValue 6 */
+  /** Number of drops. @defaultValue 6 */
   drops?: number
-  /** Amortissement : plus haut, plus les anneaux restent pres du centre. @defaultValue 2.5 */
+  /** Damping: the higher it is, the closer the rings stay to the centre. @defaultValue 2.5 */
   decay?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<RipplesControls>
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type RipplesProps = Customisable<RipplesOwnProps>
 
-/** Tokens employes par defaut : l'eau au repos, les cretes, les creux. */
+/** Tokens used by default: the water at rest, the crests, the troughs. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-cyan-400',
   '--o-palette-teal-300',
 ] as const
 
-/** Repli par defaut : un degrade fige, dans les memes tons. */
+/** Default fallback: a frozen gradient, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-b o-from-zinc-50 dark:o-from-sky-950 o-to-zinc-50 dark:o-to-zinc-950'
 
 /**
- * Gouttes.
+ * Drops.
  *
  * @example
  * <div className="o-relative o-min-h-screen">
@@ -94,8 +94,8 @@ export function Ripples({
     colors,
     uniforms: { uSpeed: speed, uDrops: drops, uDecay: decay },
     name: 'ripples',
-    // Chaque goutte ajoute un sinus et une exponentielle par fragment : c'est
-    // le reglage qui pese, donc celui qui est borne.
+    // Each drop adds one sine and one exponential per fragment: it is the
+    // setting that weighs, so it is the one that is bounded.
     degrade: (quality) => ({
       uDrops: quality === 'low' ? Math.min(drops, 3) : drops,
     }),

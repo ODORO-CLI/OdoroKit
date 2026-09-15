@@ -1,35 +1,35 @@
 /**
- * Halo lumineux : une lueur diffuse qui suit le pointeur, et s'etire quand il file.
+ * Glowing halo: a diffuse light that follows the pointer, and stretches when it flies.
  *
- * ## Une lumiere, pas un contour
+ * ## A light, not an outline
  *
- * Le curseur a halo dessine un anneau : un objet, avec un bord. Celui-ci n'a
- * pas de bord du tout — c'est un degrade radial qui s'eteint avant d'atteindre
- * ses limites, donc une lumiere posee sur la page. On ne le lit pas comme un
- * curseur de remplacement mais comme un eclairage, et c'est pour cela qu'il ne
- * masque jamais le curseur du systeme.
+ * The halo cursor draws a ring: an object, with an edge. This one has no edge
+ * at all — it is a radial gradient that dies out before reaching its bounds,
+ * hence a light laid over the page. It does not read as a replacement cursor
+ * but as lighting, and that is why it never hides the system cursor.
  *
- * ## L'etirement vient de la vitesse, pas d'un ressort de plus
+ * ## The stretch comes from the speed, not from one more spring
  *
- * La position est amortie ; la **vitesse** de cette position amortie est la
- * seule donnee supplementaire. Elle donne un angle et une longueur : la lueur
- * s'allonge dans le sens du deplacement et s'affine en travers, a volume
- * constant. Un deuxieme corps qui traine aurait donne une comete a deux
- * elements ; une seule transformation suffit, et elle se compose.
+ * The position is damped; the **speed** of that damped position is the only
+ * extra datum. It gives an angle and a length: the glow lengthens along the
+ * direction of travel and thins across it, at constant volume. A second body
+ * that trailed would have given a two-element comet; a single transform is
+ * enough, and it composites.
  *
- * L'etirement est plafonne. Sans plafond, un aller-retour brusque produit une
- * barre de lumiere qui traverse l'ecran — une seconde d'inattention devient un
+ * The stretch is capped. Without a cap, a brusque back and forth produces a
+ * bar of light crossing the screen — a second of inattention becomes an
  * artefact.
  *
- * ## Ce que la boucle ecrit
+ * ## What the loop writes
  *
- * Une transformation, et rien d'autre. La taille, la couleur et l'opacite sont
- * posees une fois : elles ne dependent que des proprietes.
+ * One transform, and nothing else. The size, the colour and the opacity are
+ * applied once: they depend only on the properties.
  *
- * ## Ou il ne se montre pas
+ * ## Where it does not show itself
  *
- * Sans pointeur fin, aucun element n'est cree. Sous mouvement reduit non plus :
- * une lueur qui suit est un agrement continu, sans etat final a poser.
+ * Without a fine pointer, no element is created. Nor under reduced motion: a
+ * glow that follows is a continuous embellishment, with no final state to
+ * apply.
  *
  * @module
  */
@@ -49,40 +49,40 @@ import {
   type ReactNode,
 } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface GlowCursorOwnProps {
   /**
-   * Zone eclairee.
+   * Lit area.
    *
-   * Fournie, la lueur n'ecoute qu'elle et y est coupee. Absente, elle prend la
-   * page entiere, en couche fixe qui n'intercepte rien.
+   * Provided, the glow listens only to it and is clipped to it. Absent, it
+   * takes the whole page, as a fixed layer that intercepts nothing.
    */
   children?: ReactNode
-  /** Diametre de la lueur au repos, en pixels. @defaultValue 320 */
+  /** Diameter of the glow at rest, in pixels. @defaultValue 320 */
   size?: number
-  /** Vitesse de rattrapage. Plus bas, plus la lueur traine. @defaultValue 6 */
+  /** Catch-up speed. The lower, the more the glow trails. @defaultValue 6 */
   speed?: number
-  /** Force de la lueur, de zero a un. @defaultValue 0.55 */
+  /** Strength of the glow, from zero to one. @defaultValue 0.55 */
   intensity?: number
-  /** Etirement dans le sens du deplacement, de zero a un. @defaultValue 0.5 */
+  /** Stretch along the direction of travel, from zero to one. @defaultValue 0.5 */
   trail?: number
-  /** Couleur de la lueur. Une valeur, pas un role. */
+  /** Colour of the glow. A value, not a role. */
   color?: string
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type GlowCursorProps = Customisable<GlowCursorOwnProps>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-glow-cursor'
 
-/** Teinte par defaut de la lueur : la couleur de marque. */
+/** Default hue of the glow: the brand colour. */
 const DEFAULT_COLOR = 'var(--o-palette-brand-500)'
 
-/** Allongement maximal, en fraction du diametre. Voir l'en-tete. */
+/** Maximum lengthening, as a fraction of the diameter. See the header. */
 const MAX_STRETCH = 0.8
 
-/** Pose les regles de la lueur, une fois par document. */
+/** Sets the glow rules, once per document. */
 function ensureGlowCursorRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -90,9 +90,9 @@ function ensureGlowCursorRule(): void {
   const style = document.createElement('style')
   style.id = STYLE_ID
   style.textContent = [
-    // La position de la zone vit dans une regle sans specificite : une
-    // classe de l appelant — `o-absolute` pour la poser dans un cadre —
-    // doit pouvoir la remplacer, ce qu'un style en ligne interdirait.
+    // The positioning of the area lives in a rule with no specificity: a
+    // class from the caller — `o-absolute` to place it inside a frame —
+    // must be able to replace it, which an inline style would forbid.
     ':where([data-o-glow-host="zone"]){position:relative;overflow:hidden}',
     ':where([data-o-glow-host="page"]){position:fixed;inset:0;z-index:9998;pointer-events:none}',
     '[data-o-glow-layer]{',
@@ -105,14 +105,14 @@ function ensureGlowCursorRule(): void {
 }
 
 /**
- * Pose une lueur qui suit le pointeur.
+ * Lays a glow that follows the pointer.
  *
  * @example
- * // Sur la page entiere.
+ * // Over the whole page.
  * <GlowCursor />
  *
  * @example
- * // Sur un heros sombre : large, paresseuse, tres etiree.
+ * // On a dark hero: wide, lazy, heavily stretched.
  * <GlowCursor size={480} speed={3} trail={0.9}>
  *   <section className="o-p-16">…</section>
  * </GlowCursor>
@@ -135,7 +135,7 @@ export function GlowCursor({
   useEffect(() => {
     if (host === null || reduced) return
     if (typeof window === 'undefined') return
-    // Pointeur grossier : rien a eclairer, rien n'est cree.
+    // Coarse pointer: nothing to light, nothing is created.
     if (!window.matchMedia('(pointer: fine)').matches) return
 
     const away = -size
@@ -151,8 +151,8 @@ export function GlowCursor({
     glow.style.height = `${String(size)}px`
     glow.style.margin = `${String(-size / 2)}px`
     glow.style.opacity = Math.min(1, Math.max(0, intensity)).toFixed(3)
-    // La lueur s'eteint avant son bord : c'est ce qui la fait lire comme une
-    // lumiere et non comme un disque flou.
+    // The glow dies out before its edge: that is what makes it read as a
+    // light and not as a blurred disc.
     glow.style.background = `radial-gradient(circle, ${color} 0%, color-mix(in oklab, ${color} 35%, transparent) 40%, transparent 72%)`
     layer.append(glow)
 
@@ -200,8 +200,8 @@ export function GlowCursor({
         x += stepX
         y += stepY
 
-        // La vitesse de l'image, ramenee au diametre : un deplacement d'un
-        // demi-diametre en une image donne l'etirement maximal.
+        // The speed of the frame, brought back to the diameter: a movement of
+        // half a diameter in one frame gives the maximum stretch.
         const travelled = Math.hypot(stepX, stepY)
         const stretch = Math.min(MAX_STRETCH, (travelled / (size * 0.5)) * trail)
         const angle = (Math.atan2(stepY, stepX) * 180) / Math.PI
@@ -209,12 +209,12 @@ export function GlowCursor({
         glow.style.transform = [
           `translate3d(${x.toFixed(1)}px,${y.toFixed(1)}px,0)`,
           `rotate(${angle.toFixed(1)}deg)`,
-          // Volume a peu pres constant : ce qu'elle gagne en long, elle le
-          // perd en large.
+          // Roughly constant volume: what it gains lengthwise, it loses
+          // crosswise.
           `scale(${(1 + stretch).toFixed(3)},${(1 - stretch * 0.45).toFixed(3)})`,
         ].join(' ')
       },
-      { name: 'glow-cursor : lueur', priority: CLOCK_PRIORITY.default },
+      { name: 'glow-cursor : glow', priority: CLOCK_PRIORITY.default },
     )
 
     return () => {

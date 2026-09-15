@@ -1,34 +1,33 @@
 /**
- * Toile de fils : des points relies a leurs voisins, une toile qui vibre sous le pointeur.
+ * Web of threads: points linked to their neighbours, a web that vibrates under the pointer.
  *
- * ## Pourquoi une scene, et pas un shader plein ecran
+ * ## Why a scene, and not a fullscreen shader
  *
- * Un shader de fragment sait dessiner des lignes definies par une formule ;
- * il ne sait pas relier soixante points a leurs voisins les plus proches —
- * il faudrait que chaque fragment parcoure toutes les paires. Une scene
- * porte la toile comme une geometrie de segments, dont seuls les sommets
- * bougent : c'est le cas ou les lignes du moteur 3D coutent moins cher que
- * leur equivalent par fragment.
+ * A fragment shader knows how to draw lines defined by a formula; it does not
+ * know how to link sixty points to their nearest neighbours — every fragment
+ * would have to walk through all the pairs. A scene carries the web as a
+ * geometry of segments, of which only the vertices move: this is the case
+ * where the 3D engine's lines cost less than their per-fragment equivalent.
  *
- * ## Comment la toile est tissee
+ * ## How the web is woven
  *
- * Les points sont tires une fois, de facon deterministe, dans un rectangle
- * normalise ; chaque point est relie a ses voisins dans un rayon donne, avec
- * un plafond de liens par point pour que les zones denses ne deviennent pas
- * des taches. Les liens sont fixes : ce sont leurs extremites qui bougent.
+ * The points are drawn once, deterministically, inside a normalised
+ * rectangle; each point is linked to its neighbours within a given radius,
+ * with a cap on links per point so that dense areas do not turn into blots.
+ * The links are fixed: it is their endpoints that move.
  *
- * Le rectangle est mis a l'echelle du champ de la camera a chaque image :
- * la toile suit le cadre quand il se redimensionne, sans etre retissee.
+ * The rectangle is scaled to the camera's field on every frame: the web
+ * follows the frame when it is resized, without being rewoven.
  *
- * ## A quoi ce fond reagit
+ * ## What this background reacts to
  *
- * Au deplacement du pointeur, avec amortissement : les points a portee sont
- * repousses et tremblent, et les fils qui les portent s'eclairent. A la
- * sortie du cadre, le hook ramene la cible au centre et la toile se detend.
+ * To the pointer moving, with damping: the points within reach are pushed
+ * away and tremble, and the threads that carry them light up. On leaving the
+ * frame, the hook brings the target back to the centre and the web relaxes.
  *
- * ## Sous mouvement reduit
+ * ## Under reduced motion
  *
- * La scene est refusee par le moteur et le repli statique s'affiche.
+ * The scene is refused by the engine and the static fallback is shown.
  *
  * @module
  */
@@ -46,63 +45,62 @@ import { useEffect, useRef, useState, type ReactElement } from 'react'
 import { usePointerDamped } from '@registre/hooks/usePointerDamped'
 import { usePoster } from '@registre/hooks/usePoster'
 
-/** Proprietes propres au composant. */
+/** Props specific to this component. */
 export interface WebThreadsOwnProps {
-  /** Nombre de points. @defaultValue 80 */
+  /** Number of points. @defaultValue 80 */
   points?: number
-  /** Rayon de liaison entre points, en unites de scene. @defaultValue 1.1 */
+  /** Linking radius between points, in scene units. @defaultValue 1.1 */
   radius?: number
-  /** Amplitude du tremblement au repos. @defaultValue 0.4 */
+  /** Amplitude of the tremble at rest. @defaultValue 0.4 */
   vibration?: number
-  /** Portee du pointeur, en unites de scene. @defaultValue 1.4 */
+  /** Reach of the pointer, in scene units. @defaultValue 1.4 */
   reach?: number
-  /** Tokens : le fond, les fils, les noeuds. */
+  /** Tokens: the background, the threads, the nodes. */
   colors?: readonly [string, string, string]
-  /** Classes du repli. */
+  /** Fallback classes. */
   poster?: string
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type WebThreadsProps = Customisable<WebThreadsOwnProps>
 
-/** Tokens employes par defaut. */
+/** Tokens used by default. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-theme-muted',
   '--o-palette-brand-500',
 ] as const
 
-/** Repli par defaut : une teinte figee, dans les memes tons. */
+/** Default fallback: a frozen tint, in the same tones. */
 const DEFAULT_POSTER = 'o-bg-zinc-50 dark:o-bg-zinc-950'
 
 /**
- * Nombre de points en qualite basse.
+ * Number of points at low quality.
  *
- * Le cout est dans les liens, et le nombre de liens croit plus vite que le
- * nombre de points. Diviser les points par deux divise les liens par pres de
- * quatre.
+ * The cost is in the links, and the number of links grows faster than the
+ * number of points. Halving the points divides the links by nearly four.
  */
 const LOW_POINTS = 40
 
-/** Liens au plus par point : au-dela, les zones denses deviennent des taches. */
+/** Links at most per point: beyond that, dense areas turn into blots. */
 const MAX_LINKS = 5
 
-/** Hauteur visible a la distance de la camera, pour son angle de 45 degres. */
+/** Visible height at the camera's distance, for its 45 degree angle. */
 const VIEW_HEIGHT = 2 * 5 * Math.tan((45 / 2) * (Math.PI / 180))
 
-/** Ce que la scene garde entre la construction et les images. */
+/** What the scene keeps between construction and frames. */
 interface Web {
-  /** Positions normalisees, dans [-1, 1], tirees une fois. */
+  /** Normalised positions, within [-1, 1], drawn once. */
   readonly base: Float32Array
-  /** Positions courantes, en unites de scene, amorties. */
+  /** Current positions, in scene units, damped. */
   readonly current: Float32Array
-  /** Paires d'indices de points, un lien par paire. */
+  /** Pairs of point indices, one link per pair. */
   readonly links: Uint16Array
-  /** Tampon de sommets des segments. */
+  /** Vertex buffer of the segments. */
   readonly linePositions: Float32Array
-  /** Tampon de couleurs des segments. */
+  /** Colour buffer of the segments. */
   readonly lineColours: Float32Array
-  /** Tampon de sommets des noeuds. */
+  /** Vertex buffer of the nodes. */
   readonly nodePositions: Float32Array
   readonly lineAttribute: { needsUpdate: boolean }
   readonly lineColourAttribute: { needsUpdate: boolean }
@@ -112,14 +110,14 @@ interface Web {
   }
 }
 
-/** Nombre pseudo-aleatoire deterministe : la toile est la meme a chaque montage. */
+/** Deterministic pseudo-random number: the web is the same on every mount. */
 function hash(seed: number): number {
   const x = Math.sin(seed * 12.9898 + 78.233) * 43758.5453
   return x - Math.floor(x)
 }
 
 /**
- * Toile de fils.
+ * Web of threads.
  *
  * @example
  * <div className="o-relative o-h-96 o-overflow-hidden o-rounded-xl">
@@ -139,20 +137,20 @@ export function WebThreads({
   const { theme } = useMotionState()
   const [host, setHost] = useState<HTMLDivElement | null>(null)
 
-  const pointer = usePointerDamped({ host, speed: 5, name: 'toile : pointeur' })
+  const pointer = usePointerDamped({ host, speed: 5, name: 'web : pointer' })
 
   const web = useRef<Web | null>(null)
   const context = useRef<SceneContext | null>(null)
 
-  // Les couleurs sont lues par ref dans la boucle : un changement de theme
-  // les remplace sans reconstruire la scene.
+  // The colours are read by ref inside the loop: a theme change replaces them
+  // without rebuilding the scene.
   const shades = useRef<readonly ShaderColour[]>([])
 
   const settings = useRef({ vibration, reach })
   settings.current = { vibration, reach }
 
   const { ref, ready, refused } = useScene<HTMLDivElement>({
-    name: 'toile',
+    name: 'web',
     setup: (scene: SceneContext) => {
       context.current = scene
       const { three, renderer, quality } = scene
@@ -160,9 +158,10 @@ export function WebThreads({
       shades.current = colors.map((token) => readTokenColour(token, ref.current))
       const [bg, thread, node] = shades.current
 
-      // Le fond de la scene est le fond de la page. Le token est en sRGB et
-      // le moteur encode sa couleur d'effacement du lineaire vers le sRGB :
-      // sans la conversion inverse, le fond ressort un cran plus clair.
+      // The background of the scene is the background of the page. The token
+      // is in sRGB and the engine encodes its clear colour from linear to
+      // sRGB: without the inverse conversion, the background comes out one
+      // notch lighter.
       renderer.setClearColor(
         new three.Color(bg?.[0] ?? 0, bg?.[1] ?? 0, bg?.[2] ?? 0).convertSRGBToLinear(),
         1,
@@ -170,17 +169,17 @@ export function WebThreads({
 
       const count = quality === 'low' ? Math.min(points, LOW_POINTS) : points
 
-      // Les points, tires une fois dans un rectangle normalise un peu plus
-      // large que le cadre : la toile deborde, aucun bord n'est visible.
+      // The points, drawn once inside a normalised rectangle a little wider
+      // than the frame: the web overflows, and no edge is visible.
       const base = new Float32Array(count * 2)
       for (let index = 0; index < count; index += 1) {
         base[index * 2] = (hash(index + 1) * 2 - 1) * 1.15
         base[index * 2 + 1] = (hash(index + 101) * 2 - 1) * 1.15
       }
 
-      // Les liens : chaque paire a portee, avec un plafond par point. Les
-      // distances sont mesurees dans le repere de la scene au montage — la
-      // toile n'est pas retissee au redimensionnement, seulement etiree.
+      // The links: every pair within reach, with a cap per point. The
+      // distances are measured in the scene frame at mount time — the web is
+      // not rewoven on a resize, only stretched.
       const hostElement = ref.current
       const aspect =
         hostElement === null
@@ -214,8 +213,8 @@ export function WebThreads({
       lineGeometry.setAttribute('position', lineAttribute)
       lineGeometry.setAttribute('color', lineColourAttribute)
 
-      // Les couleurs viennent des sommets : c'est ce qui permet d'eclairer un
-      // fil pres du pointeur sans un materiau par fil.
+      // The colours come from the vertices: that is what makes it possible to
+      // light a thread near the pointer without one material per thread.
       const lineMaterial = new three.LineBasicMaterial({
         vertexColors: true,
         transparent: true,
@@ -237,20 +236,20 @@ export function WebThreads({
       nodeMaterial.color.setRGB(node?.[0] ?? 0, node?.[1] ?? 0, node?.[2] ?? 0)
 
       const group = new three.Group()
-      group.name = 'toile'
+      group.name = 'web'
       group.add(new three.LineSegments(lineGeometry, lineMaterial))
       group.add(new three.Points(nodeGeometry, nodeMaterial))
       scene.scene.add(group)
 
-      // Les fils prennent d'abord leur couleur de repos.
+      // The threads first take their resting colour.
       for (let index = 0; index < segments * 2; index += 1) {
         lineColours[index * 3] = thread?.[0] ?? 0
         lineColours[index * 3 + 1] = thread?.[1] ?? 0
         lineColours[index * 3 + 2] = thread?.[2] ?? 0
       }
 
-      // Les positions courantes partent des positions de repos : sans cela,
-      // la toile convergerait depuis le centre a la premiere image.
+      // The current positions start from the resting positions: without that,
+      // the web would converge from the centre on the first frame.
       const current = new Float32Array(count * 2)
       for (let index = 0; index < count; index += 1) {
         current[index * 2] = (base[index * 2] ?? 0) * width * 0.5
@@ -277,40 +276,40 @@ export function WebThreads({
     },
 
     frame: ({ camera }, { time, delta }) => {
-      const toile = web.current
-      if (toile === null) return
-      const { vibration: tremble, reach: portee } = settings.current
+      const net = web.current
+      if (net === null) return
+      const { vibration: tremble, reach: range } = settings.current
       const [, thread, node] = shades.current
 
-      // L'echelle suit le cadre : la toile est etiree, jamais retissee.
+      // The scale follows the frame: the web is stretched, never rewoven.
       const halfWidth = (VIEW_HEIGHT * camera.aspect) / 2
       const halfHeight = VIEW_HEIGHT / 2
 
-      // Le pointeur, du repere du hook (centre, y vers le bas) vers la scene.
+      // The pointer, from the hook's frame (centred, y downwards) to the scene.
       const px = pointer.current.x * halfWidth
       const py = -pointer.current.y * halfHeight
 
-      const count = toile.base.length / 2
+      const count = net.base.length / 2
       const ease = 1 - Math.exp(-delta * 6)
 
       for (let index = 0; index < count; index += 1) {
-        const bx = (toile.base[index * 2] ?? 0) * halfWidth
-        const by = (toile.base[index * 2 + 1] ?? 0) * halfHeight
+        const bx = (net.base[index * 2] ?? 0) * halfWidth
+        const by = (net.base[index * 2 + 1] ?? 0) * halfHeight
 
-        // Le tremblement de repos : deux sinus de frequences propres au point,
-        // jamais un tirage par image — ce dernier ne produirait que du bruit.
+        // The resting tremble: two sines at frequencies specific to the point,
+        // never a draw per frame — that would only produce noise.
         const jx = Math.sin(time * (0.6 + hash(index + 7) * 0.8) + index) * 0.08 * tremble
         const jy =
           Math.cos(time * (0.5 + hash(index + 13) * 0.9) + index * 1.7) * 0.08 * tremble
 
-        // Le pointeur repousse ce qui est a portee, et le fait vibrer.
+        // The pointer pushes away whatever is within reach, and makes it vibrate.
         let ox = 0
         let oy = 0
         const dx = bx + jx - px
         const dy = by + jy - py
         const distance = Math.hypot(dx, dy)
-        if (distance < portee && distance > 0.0001) {
-          const near = 1 - distance / portee
+        if (distance < range && distance > 0.0001) {
+          const near = 1 - distance / range
           const push = near * near * 0.5
           const shiver = Math.sin(time * 38 + index * 2.3) * near * 0.05
           ox = (dx / distance) * push + shiver
@@ -319,63 +318,63 @@ export function WebThreads({
 
         const tx = bx + jx + ox
         const ty = by + jy + oy
-        const cx = toile.current[index * 2] ?? tx
-        const cy = toile.current[index * 2 + 1] ?? ty
-        toile.current[index * 2] = cx + (tx - cx) * ease
-        toile.current[index * 2 + 1] = cy + (ty - cy) * ease
+        const cx = net.current[index * 2] ?? tx
+        const cy = net.current[index * 2 + 1] ?? ty
+        net.current[index * 2] = cx + (tx - cx) * ease
+        net.current[index * 2 + 1] = cy + (ty - cy) * ease
 
-        toile.nodePositions[index * 3] = toile.current[index * 2] ?? 0
-        toile.nodePositions[index * 3 + 1] = toile.current[index * 2 + 1] ?? 0
-        toile.nodePositions[index * 3 + 2] = 0
+        net.nodePositions[index * 3] = net.current[index * 2] ?? 0
+        net.nodePositions[index * 3 + 1] = net.current[index * 2 + 1] ?? 0
+        net.nodePositions[index * 3 + 2] = 0
       }
 
-      const segments = toile.links.length / 2
+      const segments = net.links.length / 2
       for (let segment = 0; segment < segments; segment += 1) {
-        const a = toile.links[segment * 2] ?? 0
-        const b = toile.links[segment * 2 + 1] ?? 0
-        const ax = toile.current[a * 2] ?? 0
-        const ay = toile.current[a * 2 + 1] ?? 0
-        const bx = toile.current[b * 2] ?? 0
-        const by = toile.current[b * 2 + 1] ?? 0
+        const a = net.links[segment * 2] ?? 0
+        const b = net.links[segment * 2 + 1] ?? 0
+        const ax = net.current[a * 2] ?? 0
+        const ay = net.current[a * 2 + 1] ?? 0
+        const bx = net.current[b * 2] ?? 0
+        const by = net.current[b * 2 + 1] ?? 0
 
-        toile.linePositions[segment * 6] = ax
-        toile.linePositions[segment * 6 + 1] = ay
-        toile.linePositions[segment * 6 + 2] = 0
-        toile.linePositions[segment * 6 + 3] = bx
-        toile.linePositions[segment * 6 + 4] = by
-        toile.linePositions[segment * 6 + 5] = 0
+        net.linePositions[segment * 6] = ax
+        net.linePositions[segment * 6 + 1] = ay
+        net.linePositions[segment * 6 + 2] = 0
+        net.linePositions[segment * 6 + 3] = bx
+        net.linePositions[segment * 6 + 4] = by
+        net.linePositions[segment * 6 + 5] = 0
 
-        // Le fil s'eclaire selon la proximite du pointeur a son milieu.
+        // The thread lights up with how close the pointer is to its midpoint.
         const mx = (ax + bx) / 2 - px
         const my = (ay + by) / 2 - py
-        const glow = Math.max(0, 1 - Math.hypot(mx, my) / portee)
+        const glow = Math.max(0, 1 - Math.hypot(mx, my) / range)
         for (let end = 0; end < 2; end += 1) {
           const at = (segment * 2 + end) * 3
-          toile.lineColours[at] =
+          net.lineColours[at] =
             (thread?.[0] ?? 0) + ((node?.[0] ?? 0) - (thread?.[0] ?? 0)) * glow
-          toile.lineColours[at + 1] =
+          net.lineColours[at + 1] =
             (thread?.[1] ?? 0) + ((node?.[1] ?? 0) - (thread?.[1] ?? 0)) * glow
-          toile.lineColours[at + 2] =
+          net.lineColours[at + 2] =
             (thread?.[2] ?? 0) + ((node?.[2] ?? 0) - (thread?.[2] ?? 0)) * glow
         }
       }
 
-      toile.lineAttribute.needsUpdate = true
-      toile.lineColourAttribute.needsUpdate = true
-      toile.nodeAttribute.needsUpdate = true
+      net.lineAttribute.needsUpdate = true
+      net.lineColourAttribute.needsUpdate = true
+      net.nodeAttribute.needsUpdate = true
     },
   })
 
-  // Le theme a bascule : les tokens sont relus et les couleurs remplacees en
-  // place. Les fils lisent la ref a l'image suivante ; les noeuds et le fond
-  // sont peints ici, parce qu'ils ne sont pas relus par image.
+  // The theme has toggled: the tokens are read again and the colours replaced
+  // in place. The threads read the ref on the next frame; the nodes and the
+  // background are painted here, because they are not read back per frame.
   useEffect(() => {
     const scene = context.current
-    const toile = web.current
-    if (scene === null || toile === null || host === null) return
+    const net = web.current
+    if (scene === null || net === null || host === null) return
     shades.current = colors.map((token) => readTokenColour(token, host))
     const [bg, , node] = shades.current
-    toile.nodeMaterial.color.setRGB(node?.[0] ?? 0, node?.[1] ?? 0, node?.[2] ?? 0)
+    net.nodeMaterial.color.setRGB(node?.[0] ?? 0, node?.[1] ?? 0, node?.[2] ?? 0)
     scene.renderer.setClearColor(
       new scene.three.Color(
         bg?.[0] ?? 0,

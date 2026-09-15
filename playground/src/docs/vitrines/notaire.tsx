@@ -37,7 +37,7 @@
 
 import { useMotionState } from '@odoro-cli/engine'
 import { Icon } from '@odoro-cli/icons'
-import { ArrowDown, ArrowUpRight, Scale } from '@odoro-cli/icons/filaire'
+import { ArrowDown, ArrowUpRight, Scale } from '@odoro-cli/icons/outline'
 import { useMemo, useState, type ReactElement } from 'react'
 
 import { BlurWords } from '@/odoro/text/BlurWords.jsx'

@@ -55,7 +55,11 @@ function Cadre({
       <button
         type="button"
         onClick={onRejouer}
-        className="o-absolute o-bottom-3 o-right-3 o-z-10 o-rounded-md o-border-w-1 o-border-current/20 o-bg-white/80 dark:o-bg-zinc-900/80 o-px-3 o-py-1 o-text-xs o-font-medium"
+        className="o-absolute o-bottom-3 o-right-3 o-z-10 o-rounded-md o-border-w-1 o-px-3 o-py-1 o-text-xs o-font-medium"
+        style={{
+          borderColor: 'color-mix(in oklab, currentColor 20%, transparent)',
+          backgroundColor: 'color-mix(in oklab, var(--o-theme-surface) 80%, transparent)',
+        }}
       >
         Rejouer
       </button>
@@ -119,7 +123,11 @@ export function CadreRideau({
         onClick={() => {
           setCle((v) => v + 1)
         }}
-        className="o-absolute o-bottom-3 o-right-3 o-z-10 o-rounded-md o-border-w-1 o-border-current/20 o-bg-white/80 dark:o-bg-zinc-900/80 o-px-3 o-py-1 o-text-xs o-font-medium"
+        className="o-absolute o-bottom-3 o-right-3 o-z-10 o-rounded-md o-border-w-1 o-px-3 o-py-1 o-text-xs o-font-medium"
+        style={{
+          borderColor: 'color-mix(in oklab, currentColor 20%, transparent)',
+          backgroundColor: 'color-mix(in oklab, var(--o-theme-surface) 80%, transparent)',
+        }}
       >
         Rejouer
       </button>

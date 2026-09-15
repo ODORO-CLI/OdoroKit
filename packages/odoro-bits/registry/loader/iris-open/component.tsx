@@ -1,55 +1,54 @@
 /**
- * Rideau a lames pivotantes, comme le diaphragme d'un objectif.
+ * Curtain of pivoting blades, like the diaphragm of a camera lens.
  *
- * ## Pourquoi des lames, alors qu'un `clip-path` suffirait
+ * ## Why blades, when a `clip-path` would do
  *
- * `curtain-wipe` ouvre un disque parfait avec une seule forme animee. C'est le
- * choix economique, et c'est le bon quand on veut un trou. Ce n'est pas le bon
- * quand on veut un **mecanisme** : un vrai diaphragme n'a pas d'ouverture
- * ronde, il a un polygone a n cotes, et ce polygone tourne en s'ouvrant parce
- * que chaque lame pivote autour de son axe.
+ * `curtain-wipe` opens a perfect disc with a single animated shape. That is the
+ * cheap choice, and it is the right one when what you want is a hole. It is not
+ * the right one when what you want is a **mechanism**: a real diaphragm has no
+ * round aperture, it has an n-sided polygon, and that polygon turns as it opens
+ * because each blade pivots around its own axis.
  *
- * On garde donc les lames. Chacune est une plaque ancree par son coin au
- * centre et tournee de sa part du tour ; leur recouvrement ferme l'ecran.
- * A la sortie, elles glissent vers l'exterieur pendant que l'ensemble tourne :
- * l'ouverture est un polygone qui grandit **en tournant**. Aucun `clip-path`
- * n'aurait donne cela sans recalculer ses sommets a chaque image.
+ * So we keep the blades. Each one is a plate anchored by its corner at the
+ * center and rotated by its share of the turn; their overlap closes the screen.
+ * On the way out they slide outwards while the whole assembly rotates: the
+ * aperture is a polygon that grows **while turning**. No `clip-path` would have
+ * given that without recomputing its vertices on every frame.
  *
- * ## La lame est carree, et sa taille est mesuree
+ * ## The blade is square, and its size is measured
  *
- * Une lame dimensionnee en pourcentages du cadre n'est carree que sur un cadre
- * carre. Ailleurs, sa course en `translate` — elle aussi en pourcentages —
- * avance beaucoup dans un sens et peu dans l'autre : sur une banniere large,
- * l'ouverture est finie au tiers de la duree dans une direction et pas
- * commencee dans l'autre.
+ * A blade sized in percentages of the frame is only square on a square frame.
+ * Anywhere else its `translate` travel — in percentages too — advances a lot
+ * along one axis and little along the other: on a wide banner the aperture is
+ * finished a third of the way through the duration in one direction and not
+ * started in the other.
  *
- * On mesure donc le cadre une fois, au montage, et on en tire un rayon : la
- * lame est un carre de trois rayons de cote, sa course vaut un rayon sur chaque
- * axe local. La geometrie devient exacte quel que soit le format, et
- * l'ouverture occupe toute la duree annoncee. Un `ResizeObserver` refait le
- * calcul si le cadre change de taille — une lecture de mise en page par
- * redimensionnement, jamais par image.
+ * So we measure the frame once, on mount, and derive a radius from it: the
+ * blade is a square three radii on a side, and its travel is one radius on each
+ * local axis. The geometry becomes exact whatever the aspect ratio, and the
+ * opening takes up the whole announced duration. A `ResizeObserver` redoes the
+ * computation if the frame changes size — a layout read per resize, never per
+ * frame.
  *
- * ## Quatre lames au minimum
+ * ## Four blades at the minimum
  *
- * Une plaque ancree par son coin couvre un quart de tour. En dessous de quatre
- * lames, leur somme ne ferme plus le cercle et des coins de page apparaissent
- * avant l'ouverture. La borne n'est donc pas une preference : c'est la
- * condition pour que le rideau couvre.
+ * A plate anchored by its corner covers a quarter turn. Below four blades their
+ * sum no longer closes the circle and corners of the page show through before
+ * the opening. The bound is therefore not a preference: it is the condition for
+ * the curtain to cover.
  *
- * ## La sortie part au DEBUT, pas apres
+ * ## The exit leaves at the START, not after
  *
- * `onDone` est appele au moment ou les lames **commencent** a s'ecarter. Le
- * contenu entre par l'ouverture pendant qu'elle grandit ; attendre la fin
- * donnerait un diaphragme, un temps mort, puis une page — trois temps la ou
- * l'on en voulait un.
+ * `onDone` is called the moment the blades **begin** to part. The content comes
+ * in through the aperture while it grows; waiting for the end would give a
+ * diaphragm, a dead beat, then a page — three beats where we wanted one.
  *
- * ## Contenu ou plein ecran
+ * ## Contained or full screen
  *
- * Par defaut le rideau est `fixed`, couvre la fenetre et verrouille le
- * defilement du document. Avec `contained`, il devient `absolute`, se resout
- * contre le premier ancetre positionne et laisse le defilement tranquille :
- * un cadre de maquette n'a aucune raison de figer la page qui l'entoure.
+ * By default the curtain is `fixed`, covers the window and locks the document
+ * scroll. With `contained`, it becomes `absolute`, resolves against the first
+ * positioned ancestor and leaves scrolling alone: a mockup frame has no reason
+ * to freeze the page around it.
  *
  * @module
  */
@@ -64,50 +63,49 @@ import {
   type ReactNode,
 } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface IrisOpenOwnProps {
-  /** Le fond des lames. @defaultValue le fond du theme */
+  /** The background of the blades. @defaultValue the theme background */
   background?: string
-  /** L'encre du libelle. @defaultValue l'encre du theme */
+  /** The ink of the label. @defaultValue the theme ink */
   ink?: string
-  /** Ce qui s'affiche au centre pendant l'attente : un nom, une marque. */
+  /** What shows in the center during the wait: a name, a brand. */
   label?: ReactNode
   /**
-   * Ce que les lecteurs d'ecran annoncent. Chaine vide pour n'annoncer que le
-   * libelle.
+   * What screen readers announce. Empty string to announce the label only.
    *
-   * @defaultValue 'Chargement'
+   * @defaultValue 'Loading'
    */
   status?: string
-  /** Nombre de lames. Quatre au minimum, voir l'en-tete. @defaultValue 6 */
+  /** Number of blades. Four at the minimum, see the header. @defaultValue 6 */
   blades?: number
-  /** Rotation de l'ensemble pendant l'ouverture, en degres. @defaultValue 26 */
+  /** Rotation of the whole assembly during the opening, in degrees. @defaultValue 26 */
   turn?: number
-  /** Combien de temps le diaphragme reste ferme, en millisecondes. @defaultValue 1200 */
+  /** How long the diaphragm stays closed, in milliseconds. @defaultValue 1200 */
   holdMs?: number
-  /** Duree de l'ouverture, en millisecondes. @defaultValue 1000 */
+  /** Duration of the opening, in milliseconds. @defaultValue 1000 */
   exitMs?: number
   /**
-   * Etat controle : le rideau couvre tant que c'est `true`, et sort au premier
-   * `false`. Renseigne, il remplace `holdMs`.
+   * Controlled state: the curtain covers as long as this is `true`, and exits on
+   * the first `false`. When provided, it replaces `holdMs`.
    */
   open?: boolean
-  /** Couvre le parent positionne plutot que la fenetre. @defaultValue false */
+  /** Covers the positioned parent rather than the window. @defaultValue false */
   contained?: boolean
-  /** Appele au **debut** de la sortie. Voir l'en-tete du module. */
+  /** Called at the **start** of the exit. See the module header. */
   onDone?: () => void
 }
 
-/** Toutes les proprietes. */
+/** All the properties. */
 export type IrisOpenProps = Customisable<IrisOpenOwnProps, 'div'>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-iris-open'
 
-/** En dessous, les lames ne ferment plus le cercle. Voir l'en-tete. */
+/** Below this, the blades no longer close the circle. See the header. */
 const MIN_BLADES = 4
 
-/** Pose les regles du diaphragme, une fois par document. */
+/** Applies the diaphragm rules, once per document. */
 function ensureIrisOpenRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -121,16 +119,17 @@ function ensureIrisOpenRule(): void {
     '}',
     '[data-o-iris][data-o-iris-contained]{position:absolute}',
     '[data-o-iris][data-o-iris-out]{pointer-events:none}',
-    // Le moyeu porte la rotation d'ensemble ; les lames portent leur propre
-    // glissement. Separer les deux evite de recomposer une matrice par lame a
-    // chaque image.
+    // The hub carries the rotation of the whole assembly; the blades carry
+    // their own slide. Separating the two avoids recomposing one matrix per
+    // blade on every frame.
     '[data-o-iris-hub]{',
     'position:absolute;inset:0;',
     'transition:transform var(--o-iris-exit) cubic-bezier(0.65,0,0.35,1);',
     '}',
     '[data-o-iris-out] [data-o-iris-hub]{transform:rotate(var(--o-iris-turn))}',
-    // La lame est ancree par son coin au centre exact : c'est ce qui lui fait
-    // couvrir un quart de tour, et ce qui rend la borne de quatre necessaire.
+    // The blade is anchored by its corner at the exact center: that is what
+    // makes it cover a quarter turn, and what makes the bound of four
+    // necessary.
     '[data-o-iris-blade]{',
     'position:absolute;left:50%;top:50%;',
     'width:var(--o-iris-size);height:var(--o-iris-size);',
@@ -151,20 +150,20 @@ function ensureIrisOpenRule(): void {
 }
 
 /**
- * Ferme la page derriere un diaphragme, puis l'ouvre en tournant.
+ * Closes the page behind a diaphragm, then opens it with a turn.
  *
  * @example
- * <IrisOpen label="Odoro" onDone={ouvrir} />
+ * <IrisOpen label="Odoro" onDone={reveal} />
  *
  * @example
- * // Huit lames et une rotation franche : le mecanisme se voit davantage.
- * <IrisOpen blades={8} turn={45} exitMs={1200} onDone={ouvrir} />
+ * // Eight blades and a decided rotation: the mechanism shows more.
+ * <IrisOpen blades={8} turn={45} exitMs={1200} onDone={reveal} />
  */
 export function IrisOpen({
   background = 'var(--o-theme-bg)',
   ink = 'var(--o-theme-fg)',
   label,
-  status = 'Chargement',
+  status = 'Loading',
   blades = 6,
   turn = 26,
   holdMs = 1200,
@@ -175,138 +174,138 @@ export function IrisOpen({
   ...rest
 }: IrisOpenProps): ReactElement | null {
   const { reduced } = useMotionState()
-  const [sortant, setSortant] = useState(false)
-  const [parti, setParti] = useState(false)
-  const hote = useRef<HTMLDivElement>(null)
+  const [exiting, setExiting] = useState(false)
+  const [gone, setGone] = useState(false)
+  const host = useRef<HTMLDivElement>(null)
 
-  const annonce = useRef(false)
-  const rappel = useRef(onDone)
-  rappel.current = onDone
+  const announced = useRef(false)
+  const callback = useRef(onDone)
+  callback.current = onDone
 
   ensureIrisOpenRule()
 
-  // La mesure. Elle est ecrite dans les variables du noeud plutot que dans
-  // l'etat : rien du cote de React ne depend de sa valeur, et un rendu par
-  // redimensionnement serait du travail pour rien.
+  // The measurement. It is written into the variables of the node rather than
+  // into state: nothing on the React side depends on its value, and a render
+  // per resize would be work for nothing.
   useEffect(() => {
-    const noeud = hote.current
-    if (noeud === null) return
+    const node = host.current
+    if (node === null) return
 
-    const mesurer = (): void => {
-      const rayon = Math.hypot(noeud.clientWidth, noeud.clientHeight) / 2
-      noeud.style.setProperty('--o-iris-size', `${String(rayon * 3)}px`)
-      noeud.style.setProperty('--o-iris-travel', `${String(rayon)}px`)
+    const measure = (): void => {
+      const radius = Math.hypot(node.clientWidth, node.clientHeight) / 2
+      node.style.setProperty('--o-iris-size', `${String(radius * 3)}px`)
+      node.style.setProperty('--o-iris-travel', `${String(radius)}px`)
     }
 
-    mesurer()
+    measure()
 
-    const observateur = new ResizeObserver(mesurer)
-    observateur.observe(noeud)
+    const observer = new ResizeObserver(measure)
+    observer.observe(node)
 
     return () => {
-      observateur.disconnect()
+      observer.disconnect()
     }
   }, [])
 
   useEffect(() => {
-    const annoncer = (): void => {
-      if (annonce.current) return
-      annonce.current = true
-      rappel.current?.()
+    const announce = (): void => {
+      if (announced.current) return
+      announced.current = true
+      callback.current?.()
     }
 
-    // Mouvement reduit : la sortie est immediate. Le diaphragme n'apportait
-    // qu'un geste, et le geste est ce qu'on nous demande d'omettre.
+    // Reduced motion: the exit is immediate. The diaphragm brought nothing but
+    // a gesture, and the gesture is what we are being asked to leave out.
     if (reduced) {
-      annoncer()
-      setParti(true)
+      announce()
+      setGone(true)
       return
     }
 
     if (open !== undefined) {
       if (!open) {
-        setSortant(true)
-        annoncer()
+        setExiting(true)
+        announce()
       }
       return
     }
 
-    const minuteur = window.setTimeout(() => {
-      setSortant(true)
-      annoncer()
+    const timer = window.setTimeout(() => {
+      setExiting(true)
+      announce()
     }, holdMs)
 
     return () => {
-      window.clearTimeout(minuteur)
+      window.clearTimeout(timer)
     }
   }, [reduced, open, holdMs])
 
-  // Un minuteur plutot que `transitionend` : l'evenement remonte depuis
-  // n'importe laquelle des lames, et celui du libelle arriverait avant elles.
+  // A timer rather than `transitionend`: the event bubbles up from any one of
+  // the blades, and the label's own would arrive before them.
   useEffect(() => {
-    if (!sortant) return
+    if (!exiting) return
 
-    const minuteur = window.setTimeout(() => {
-      setParti(true)
+    const timer = window.setTimeout(() => {
+      setGone(true)
     }, exitMs + 40)
 
     return () => {
-      window.clearTimeout(minuteur)
+      window.clearTimeout(timer)
     }
-  }, [sortant, exitMs])
+  }, [exiting, exitMs])
 
   useEffect(() => {
-    if (contained || parti || reduced) return
+    if (contained || gone || reduced) return
 
-    // Un verrou COMPTE, et non memorise. Deux rideaux peuvent se chevaucher
-    // — rechargement a chaud, navigation, rendu concurrent — et le second
-    // memoriserait alors la valeur posee par le premier, « hidden », pour la
-    // restaurer en sortant : la page resterait bloquee sans erreur ni trace.
-    const racine = document.documentElement
-    const verrous = Number(racine.dataset['oPorteVerrous'] ?? '0')
-    if (verrous === 0) racine.dataset['oPorteAvant'] = racine.style.overflow
-    racine.dataset['oPorteVerrous'] = String(verrous + 1)
-    racine.style.overflow = 'hidden'
+    // A lock that COUNTS, rather than one that memorises. Two curtains can
+    // overlap — hot reload, navigation, concurrent rendering — and the second
+    // would then memorise the value set by the first, "hidden", to restore it
+    // on the way out: the page would stay stuck with no error and no trace.
+    const root = document.documentElement
+    const locks = Number(root.dataset['oGateLocks'] ?? '0')
+    if (locks === 0) root.dataset['oGatePrevious'] = root.style.overflow
+    root.dataset['oGateLocks'] = String(locks + 1)
+    root.style.overflow = 'hidden'
 
-    let rendu = false
-    const rendreLaMain = (): void => {
-      if (rendu) return
-      rendu = true
-      const reste = Number(racine.dataset['oPorteVerrous'] ?? '1') - 1
-      if (reste > 0) {
-        racine.dataset['oPorteVerrous'] = String(reste)
+    let released = false
+    const release = (): void => {
+      if (released) return
+      released = true
+      const remaining = Number(root.dataset['oGateLocks'] ?? '1') - 1
+      if (remaining > 0) {
+        root.dataset['oGateLocks'] = String(remaining)
         return
       }
-      racine.style.overflow = racine.dataset['oPorteAvant'] ?? ''
-      delete racine.dataset['oPorteVerrous']
-      delete racine.dataset['oPorteAvant']
+      root.style.overflow = root.dataset['oGatePrevious'] ?? ''
+      delete root.dataset['oGateLocks']
+      delete root.dataset['oGatePrevious']
     }
 
-    // Le garde-fou. Plus long que le plafond de n importe quel rideau, donc
-    // invisible en marche normale : il n existe que pour qu un retard ne
-    // puisse jamais laisser la page sans defilement.
-    const secours = window.setTimeout(rendreLaMain, 8000)
+    // The safety net. Longer than the ceiling of any curtain, so invisible in
+    // normal running: it exists only so that a delay can never leave the page
+    // without scrolling.
+    const safety = window.setTimeout(release, 8000)
 
     return () => {
-      window.clearTimeout(secours)
-      rendreLaMain()
+      window.clearTimeout(safety)
+      release()
     }
-  }, [contained, parti, reduced])
+  }, [contained, gone, reduced])
 
-  if (parti) return null
+  if (gone) return null
 
   const { className, style } = mergePresentation({}, rest)
-  const nombre = Math.max(MIN_BLADES, Math.round(blades))
-  const pas = 360 / nombre
+  const count = Math.max(MIN_BLADES, Math.round(blades))
+  const step = 360 / count
 
-  const styleRideau = {
+  const curtainStyle = {
     ...style,
     '--o-iris-bg': background,
     '--o-iris-ink': ink,
     '--o-iris-exit': `${String(exitMs)}ms`,
     '--o-iris-turn': `${String(turn)}deg`,
-    // Le repli d'avant la mesure : assez grand pour couvrir n'importe quel
-    // cadre a l'image ou le rideau apparait, avant que l'effet ne mesure.
+    // The fallback from before the measurement: big enough to cover any frame
+    // on the paint where the curtain appears, before the effect measures.
     '--o-iris-size': '200vmax',
     '--o-iris-travel': '100vmax',
   } as CSSProperties
@@ -314,20 +313,20 @@ export function IrisOpen({
   return (
     <div
       {...rest}
-      ref={hote}
+      ref={host}
       className={className}
-      style={styleRideau}
+      style={curtainStyle}
       data-o-iris=""
-      {...(sortant ? { 'data-o-iris-out': '' } : {})}
+      {...(exiting ? { 'data-o-iris-out': '' } : {})}
       {...(contained ? { 'data-o-iris-contained': '' } : {})}
     >
-      {/* Les lames sont du decor : elles ne doivent pas etre lues. */}
+      {/* The blades are decoration: they must not be read out. */}
       <div data-o-iris-hub="" aria-hidden="true">
-        {Array.from({ length: nombre }, (_, index) => (
+        {Array.from({ length: count }, (_, index) => (
           <div
             key={index}
             data-o-iris-blade=""
-            style={{ '--o-iris-a': `${String(index * pas)}deg` } as CSSProperties}
+            style={{ '--o-iris-a': `${String(index * step)}deg` } as CSSProperties}
           />
         ))}
       </div>

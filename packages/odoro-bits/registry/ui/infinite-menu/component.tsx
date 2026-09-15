@@ -1,43 +1,43 @@
 /**
- * Menu infini : les liens sont poses sur une roue qui tourne a la molette et
- * au glisser, sans fin, et se cale toujours sur un cran.
+ * Infinite menu: the links sit on a wheel that turns with the scroll wheel and
+ * with a drag, endlessly, and always settles on a notch.
  *
- * ## Une roue, pas une liste qui boucle
+ * ## A wheel, not a list that loops
  *
- * Chaque lien occupe un angle fixe sur un cylindre couche, `rotateX` puis
- * `translateZ`, et la roue entiere a une seule rotation. Tourner d'un tour
- * complet ramene exactement le premier lien : l'infini n'est pas simule par
- * des copies, il est la geometrie. Ce qui est derriere la roue est cache par
- * son opacite — le cosinus de son angle — et retire des cibles de clic.
+ * Each link takes a fixed angle on a lying cylinder, `rotateX` then
+ * `translateZ`, and the whole wheel has a single rotation. Turning one full
+ * turn brings back exactly the first link: the infinity is not simulated with
+ * copies, it is the geometry. What sits behind the wheel is hidden by its
+ * opacity — the cosine of its angle — and pulled out of the click targets.
  *
- * ## La roue a une masse, et un cran
+ * ## The wheel has a mass, and a notch
  *
- * Trois etats se succedent. Pendant le glisser, la rotation suit la main.
- * Au lacher, elle garde la vitesse mesuree sur les derniers mouvements et la
- * perd par frottement. Une fois lente, elle vise le cran le plus proche et
- * le rejoint par amortissement exponentiel — la meme formule que le pointeur
- * amorti, pour la meme raison : un mouvement identique quelle que soit la
- * cadence d'affichage. La molette, elle, ne pousse pas la roue : elle
- * deplace le cran vise, d'un lien par tranche de defilement. C'est ce qui
- * la rend precise a la molette et vivante a la main.
+ * Three states follow one another. During the drag, the rotation follows the
+ * hand. On release, it keeps the speed measured over the last moves and loses
+ * it to friction. Once slow, it aims at the nearest notch and joins it by
+ * exponential damping — the same formula as the damped pointer, for the same
+ * reason: an identical motion whatever the display rate. The scroll wheel, for
+ * its part, does not push the wheel: it moves the aimed notch, one link per
+ * scroll step. That is what makes it precise on the scroll wheel and alive in
+ * the hand.
  *
- * ## Rien n'est ecrit quand rien ne bouge
+ * ## Nothing is written when nothing moves
  *
- * La boucle du moteur lit l'angle et ecrit une transformation par lien ; des
- * que la roue est calee, elle cesse d'ecrire. React ne rend qu'au montage et
- * au changement de props.
+ * The engine loop reads the angle and writes one transform per link; as soon
+ * as the wheel has settled, it stops writing. React renders on mount and on a
+ * props change only.
  *
- * ## Le lien de devant est le seul dans l'ordre de tabulation
+ * ## The front link is the only one in the tab order
  *
- * Tab entre sur le lien de devant ; les fleches tournent la roue et suivent
- * le focus ; Home et End vont aux extremites ; Entree suit le lien. Un lien
- * de derriere qui recoit le focus — par Maj+Tab par exemple — fait tourner
- * la roue jusqu'a lui.
+ * Tab enters on the front link; the arrows turn the wheel and follow the
+ * focus; Home and End go to the ends; Enter follows the link. A link at the
+ * back that takes focus — through Shift+Tab for instance — turns the wheel up
+ * to itself.
  *
- * ## Sous mouvement reduit
+ * ## Under reduced motion
  *
- * Pas d'elan, pas de lissage : la roue saute de cran en cran. Tourner reste
- * possible, parce que tourner est le seul moyen d'atteindre les liens.
+ * No momentum, no smoothing: the wheel jumps from notch to notch. Turning
+ * stays possible, because turning is the only way to reach the links.
  *
  * @module
  */
@@ -59,39 +59,39 @@ import {
   type ReactNode,
 } from 'react'
 
-/** Un element de navigation. */
+/** A navigation item. */
 export interface NavItem {
-  /** Libelle affiche. */
+  /** Displayed label. */
   readonly label: string
-  /** Cible du lien. Sans cible, l'element est un bouton. */
+  /** Target of the link. Without a target, the item is a button. */
   readonly href?: string
-  /** Icone placee avant le libelle. */
+  /** Icon placed before the label. */
   readonly icon?: ReactNode
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to the component. */
 export interface InfiniteMenuOwnProps {
-  /** Les liens, dans l'ordre de la roue. Trois au moins pour que la roue ait un sens. */
+  /** The links, in wheel order. Three at least for the wheel to mean anything. */
   items: readonly NavItem[]
-  /** Rayon de la roue, en pixels. @defaultValue 140 */
+  /** Radius of the wheel, in pixels. @defaultValue 140 */
   radius?: number
-  /** Vitesse a laquelle la roue rejoint son cran. Plus haut, plus sec. @defaultValue 8 */
+  /** Speed at which the wheel joins its notch. Higher is drier. @defaultValue 8 */
   speed?: number
-  /** Index de la page courante. */
+  /** Index of the current page. */
   active?: number
-  /** Appele quand l'utilisateur choisit un lien. */
+  /** Called when the user picks a link. */
   onActiveChange?: (index: number) => void
-  /** Nom du bloc pour les lecteurs d'ecran. @defaultValue 'Navigation' */
+  /** Name of the block for screen readers. @defaultValue 'Navigation' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All the props. */
 export type InfiniteMenuProps = Customisable<InfiniteMenuOwnProps, 'nav'>
 
-/** Identifiant de la feuille injectee. */
+/** Id of the injected stylesheet. */
 const STYLE_ID = 'o-infinite-menu'
 
-/** Pose la scene, la roue et ses liens, une fois par document. */
+/** Sets the scene, the wheel and its links, once per document. */
 function ensureWheelRules(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -104,8 +104,8 @@ function ensureWheelRules(): void {
     'perspective:900px;touch-action:none;cursor:grab;user-select:none;',
     '}',
     '[data-o-wheel][data-o-wheel-drag]{cursor:grabbing}',
-    // Deux filets qui marquent le cran de devant : c'est la que la roue se
-    // cale, et le seul endroit ou un lien est entierement lisible.
+    // Two rules marking the front notch: this is where the wheel settles, and
+    // the only place where a link is entirely legible.
     '[data-o-wheel]::before,[data-o-wheel]::after{',
     'content:"";position:absolute;left:50%;width:min(60%,18rem);height:1px;',
     'background:var(--o-theme-line);transform:translateX(-50%);pointer-events:none;',
@@ -130,7 +130,7 @@ function ensureWheelRules(): void {
   document.head.append(style)
 }
 
-/** Ramene un angle dans ]-180, 180]. */
+/** Brings an angle back into ]-180, 180]. */
 function wrap(angle: number): number {
   let value = angle % 360
   if (value > 180) value -= 360
@@ -139,22 +139,22 @@ function wrap(angle: number): number {
 }
 
 /**
- * Roue de liens infinie, a la molette et au glisser.
+ * Infinite wheel of links, driven by the scroll wheel and by dragging.
  *
  * @example
  * <InfiniteMenu
  *   className="o-h-72"
  *   items={[
- *     { label: 'Expositions', href: '/expositions' },
+ *     { label: 'Exhibitions', href: '/exhibitions' },
  *     { label: 'Collections', href: '/collections' },
- *     { label: 'Visites', href: '/visites' },
- *     { label: 'Boutique', href: '/boutique' },
+ *     { label: 'Tours', href: '/tours' },
+ *     { label: 'Shop', href: '/shop' },
  *   ]}
  * />
  *
  * @example
- * // Une roue plus large, qui se cale plus sec.
- * <InfiniteMenu items={liens} radius={220} speed={14} />
+ * // A wider wheel, that settles more drily.
+ * <InfiniteMenu items={links} radius={220} speed={14} />
  */
 export function InfiniteMenu({
   items,
@@ -181,7 +181,7 @@ export function InfiniteMenu({
   const links = (): HTMLElement[] =>
     Array.from(host?.querySelectorAll<HTMLElement>('[data-o-wheel-item]') ?? [])
 
-  /** Vise le cran d'un lien, par le chemin le plus court. */
+  /** Aims at the notch of a link, by the shortest path. */
   const aim = (index: number): void => {
     const wanted = index * step
     const delta = wrap(wanted - (target.current % 360))
@@ -194,8 +194,8 @@ export function InfiniteMenu({
 
     let last = Number.NaN
     let accumulated = 0
-    // React vient peut-etre de reposer les tabindex : le cran de devant est a
-    // re-marquer, quel qu'il soit.
+    // React may just have reset the tabindex values: the front notch has to be
+    // marked again, whichever it is.
     front.current = -1
     let dragStartY = 0
     let dragStartAngle = 0
@@ -203,7 +203,7 @@ export function InfiniteMenu({
     let lastTime = 0
     const pxPerStep = Math.max(40, 2 * radius * Math.sin((step * Math.PI) / 360))
 
-    /** Ecrit une transformation par lien, et marque celui de devant. */
+    /** Writes one transform per link, and marks the front one. */
     const paint = (): void => {
       const elements = links()
       let nearest = 0
@@ -233,7 +233,7 @@ export function InfiniteMenu({
       ({ delta }) => {
         if (!dragging.current) {
           if (Math.abs(velocity.current) > 2) {
-            // Elan : la roue garde sa vitesse et la perd par frottement.
+            // Momentum: the wheel keeps its speed and loses it to friction.
             angle.current += velocity.current * delta
             velocity.current *= Math.exp(-3 * delta)
             target.current = Math.round(angle.current / step) * step
@@ -250,12 +250,12 @@ export function InfiniteMenu({
         last = angle.current
         paint()
       },
-      { priority: CLOCK_PRIORITY.render, name: 'menu infini' },
+      { priority: CLOCK_PRIORITY.render, name: 'infinite menu' },
     )
 
-    // La molette deplace le cran vise, jamais la roue elle-meme. Elle est
-    // ecoutee sans passivite : sans cela, la page defilerait sous la roue a
-    // chaque cran.
+    // The scroll wheel moves the aimed notch, never the wheel itself. It is
+    // listened to without passivity: without that, the page would scroll under
+    // the wheel at every notch.
     const onWheel = (event: WheelEvent): void => {
       event.preventDefault()
       accumulated += event.deltaY
@@ -284,7 +284,7 @@ export function InfiniteMenu({
       if (Math.abs(dy) > 4) moved.current = true
       angle.current = dragStartAngle - (dy / pxPerStep) * step
       const dt = Math.max(event.timeStamp - lastTime, 1) / 1000
-      // Vitesse en degres par seconde, lissee sur les derniers mouvements.
+      // Speed in degrees per second, smoothed over the last moves.
       const instant = ((-(event.clientY - lastY) / pxPerStep) * step) / dt
       velocity.current = velocity.current * 0.6 + instant * 0.4
       lastY = event.clientY
@@ -297,7 +297,7 @@ export function InfiniteMenu({
       host.removeAttribute('data-o-wheel-drag')
       if (host.hasPointerCapture(event.pointerId))
         host.releasePointerCapture(event.pointerId)
-      // Un lacher sans elan, ou sous mouvement reduit : cran le plus proche.
+      // A release without momentum, or under reduced motion: nearest notch.
       if (reduced || Math.abs(velocity.current) < 60) {
         velocity.current = 0
         target.current = Math.round(angle.current / step) * step
@@ -365,8 +365,8 @@ export function InfiniteMenu({
               {item.label}
             </>
           )
-          // Un clic qui suit un glisser n'est pas un choix ; un clic sur un
-          // lien de cote amene ce lien devant, sans le suivre.
+          // A click that follows a drag is not a choice; a click on a link at
+          // the side brings that link to the front, without following it.
           const onClick = (event: { preventDefault: () => void }): void => {
             if (moved.current) {
               moved.current = false

@@ -1,32 +1,32 @@
 /**
- * Constellation : des points relies par un segment quand ils sont proches ;
- * le pointeur les attire.
+ * Constellation: points joined by a segment when they come close; the
+ * pointer draws them in.
  *
- * ## Pourquoi des points et des lignes, et pas un shader
+ * ## Why points and lines, and not a shader
  *
- * Les segments sont le coeur de l'effet, et un segment relie deux
- * particules : un shader de fragment, qui ne connait que le pixel courant,
- * devrait retrouver pour chaque pixel toutes les paires susceptibles de
- * passer par la — un cout en n carre par pixel. Sur le processeur, le meme n
- * carre se paie une fois par image, pour une centaine de points, et produit
- * une liste de segments que le moteur trace en un appel : un tampon de
- * lignes preallouee pour toutes les paires possibles, dont seule la plage
- * vivante est dessinee. C'est la technique la plus simple qui tienne la
- * cadence.
+ * The segments are the heart of the effect, and a segment joins two
+ * particles: a fragment shader, which knows only the current pixel, would
+ * have to recover for every pixel all the pairs that might run through it
+ * — a cost of n squared per pixel. On the processor, the same n squared is
+ * paid once per frame, for a hundred or so points, and yields a list of
+ * segments the engine draws in one call: a line buffer preallocated for
+ * every possible pair, of which only the live range is drawn. It is the
+ * simplest technique that holds the frame
+ * rate.
  *
- * ## Le mouvement
+ * ## The movement
  *
- * Chaque point suit un point d'ancrage qui erre lentement — deux sinus de
- * frequences non multiples — par un ressort amorti. Le pointeur ajoute une
- * traction qui decroit avec la distance : les points s'inclinent vers lui,
- * puis reviennent a leur ancre. Sans l'ancre, ils finiraient tous sous le
- * curseur.
+ * Each point follows an anchor point that wanders slowly — two sines of
+ * non-multiple frequencies — through a damped spring. The pointer adds a
+ * pull that falls off with distance: the points lean towards it, then come
+ * back to their anchor. Without the anchor they would all end up under the
+ * cursor.
  *
- * ## Les couleurs
+ * ## The colours
  *
- * L'intensite d'un segment decroit avec sa longueur, par un melange vers la
- * couleur du fond — pas vers le noir, qui sur un theme clair rendrait les
- * segments faibles plus sombres que les forts.
+ * A segment's intensity falls off with its length, through a mix towards
+ * the background colour — not towards black, which on a light theme would
+ * make the faint segments darker than the strong ones.
  *
  * @module
  */
@@ -44,51 +44,51 @@ import { useEffect, useRef, useState, type ReactElement } from 'react'
 import { usePointerDamped } from '@registre/hooks/usePointerDamped'
 import { usePoster } from '@registre/hooks/usePoster'
 
-/** Proprietes propres au composant. */
+/** Properties specific to this component. */
 export interface ConstellationOwnProps {
-  /** Nombre de points. @defaultValue 110 */
+  /** Number of points. @defaultValue 110 */
   count?: number
-  /** Distance en dessous de laquelle deux points sont relies. @defaultValue 0.9 */
+  /** Distance below which two points are joined. @defaultValue 0.9 */
   distance?: number
-  /** Force de traction du pointeur. Zero la coupe. @defaultValue 1 */
+  /** Pull strength of the pointer. Zero cuts it. @defaultValue 1 */
   attract?: number
-  /** Vitesse de l'errance. @defaultValue 0.6 */
+  /** Speed of the wandering. @defaultValue 0.6 */
   speed?: number
-  /** Tokens : le fond, les points, les segments. */
+  /** Tokens: the background, the points, the segments. */
   colors?: readonly [string, string, string]
-  /** Classes du repli. */
+  /** Fallback classes. */
   poster?: string
 }
 
-/** Toutes les proprietes. */
+/** Every property. */
 export type ConstellationProps = Customisable<ConstellationOwnProps>
 
-/** Tokens employes par defaut. */
+/** Tokens used by default. */
 const DEFAULT_TOKENS = ['--o-theme-bg', '--o-theme-fg', '--o-palette-brand-500'] as const
 
-/** Repli par defaut : une teinte figee, dans les memes tons. */
+/** Default fallback: a frozen hue, in the same tones. */
 const DEFAULT_POSTER = 'o-bg-zinc-50 dark:o-bg-zinc-950'
 
 /**
- * Nombre de points en qualite basse.
+ * Number of points at low quality.
  *
- * Le cout est en n carre : le diviser par deux divise le travail par quatre.
+ * The cost is n squared: halving it divides the work by four.
  */
 const LOW_COUNT = 55
 
-/** Demi-hauteur visible a la distance de la camera, en unites de scene. */
+/** Visible half-height at the camera's distance, in scene units. */
 const HALF_HEIGHT = Math.tan((45 / 2) * (Math.PI / 180)) * 5
 
-/** Un point : sa position, sa vitesse, et l'ancre qu'il suit. */
+/** A point: its position, its velocity, and the anchor it follows. */
 interface Node {
   x: number
   y: number
   vx: number
   vy: number
-  /** Centre de l'errance de l'ancre. */
+  /** Centre of the anchor's wandering. */
   ax: number
   ay: number
-  /** Phases des deux sinus de l'errance. */
+  /** Phases of the two sines of the wandering. */
   p1: number
   p2: number
 }
@@ -98,7 +98,7 @@ type Attribute = InstanceType<Three['BufferAttribute']>
 type Geometry = InstanceType<Three['BufferGeometry']>
 type PointsMaterial = InstanceType<Three['PointsMaterial']>
 
-/** Ce que la boucle reecrit a chaque image. */
+/** What the loop rewrites every frame. */
 interface Buffers {
   readonly points: Attribute
   readonly lines: Attribute
@@ -127,14 +127,14 @@ export function Constellation({
   const { theme } = useMotionState()
   const [host, setHost] = useState<HTMLElement | null>(null)
 
-  const pointer = usePointerDamped({ host, speed: 3, name: 'constellation : pointeur' })
+  const pointer = usePointerDamped({ host, speed: 3, name: 'constellation : pointer' })
 
   const nodes = useRef<Node[]>([])
   const buffers = useRef<Buffers | null>(null)
   const material = useRef<PointsMaterial | null>(null)
   const context = useRef<SceneContext | null>(null)
 
-  /** Couleurs lues, partagees avec la boucle : le fond et les segments. */
+  /** Colours read, shared with the loop: the background and the segments. */
   const shades = useRef<{ bg: ShaderColour; line: ShaderColour }>({
     bg: [0, 0, 0],
     line: [0, 0, 0],
@@ -184,8 +184,8 @@ export function Constellation({
       dots.color.setRGB(dot?.[0] ?? 0, dot?.[1] ?? 0, dot?.[2] ?? 0)
       material.current = dots
 
-      // Toutes les paires possibles, allouees une fois : deux sommets par
-      // segment, une couleur par sommet. Seule la plage vivante est tracee.
+      // Every possible pair, allocated once: two vertices per segment, one
+      // colour per vertex. Only the live range is drawn.
       const pairs = (total * (total - 1)) / 2
       const lines = new three.BufferAttribute(new Float32Array(pairs * 6), 3)
       lines.setUsage(three.DynamicDrawUsage)
@@ -231,7 +231,7 @@ export function Constellation({
       const field = nodes.current
       let index = 0
       for (const node of field) {
-        // L'ancre erre : deux sinus par axe, de frequences non multiples.
+        // The anchor wanders: two sines per axis, of non-multiple frequencies.
         const tx =
           node.ax +
           0.35 * Math.sin(t * 0.41 + node.p1) +
@@ -241,11 +241,11 @@ export function Constellation({
           0.35 * Math.cos(t * 0.37 + node.p2) +
           0.18 * Math.cos(t * 0.83 + node.p1)
 
-        // Ressort amorti vers l'ancre.
+        // Damped spring towards the anchor.
         let ax = (tx - node.x) * 3 - node.vx * 2
         let ay = (ty - node.y) * 3 - node.vy * 2
 
-        // La traction du pointeur, nulle au-dela de deux unites.
+        // The pointer's pull, zero beyond two units.
         if (attract > 0) {
           const dx = px - node.x
           const dy = py - node.y
@@ -267,8 +267,8 @@ export function Constellation({
       }
       live.points.needsUpdate = true
 
-      // Les segments : une paire par couple a portee, colore selon la
-      // longueur par un melange vers le fond.
+      // The segments: one pair per couple within reach, coloured by length
+      // through a mix towards the background.
       const { bg, line } = shades.current
       const reach2 = distance * distance
       let vertex = 0
@@ -301,8 +301,8 @@ export function Constellation({
     },
   })
 
-  // Le theme a bascule : les tokens sont relus et les couleurs repeintes en
-  // place. La scene n'est pas reconstruite.
+  // The theme has flipped: the tokens are re-read and the colours repainted in
+  // place. The scene is not rebuilt.
   useEffect(() => {
     const scene = context.current
     const dots = material.current

@@ -1,13 +1,13 @@
 /**
- * Shaders de fond plein cadre.
+ * Full-frame background shaders.
  *
- * Les primitives — bruit, sommet plein ecran — vivent dans le module voisin.
- * Ici, ce sont des compositions : chacune repond a une intention visuelle
- * precise, et toutes recoivent `uTime` et `uResolution` du moteur.
+ * The primitives — noise, fullscreen vertex — live in the neighbouring module.
+ * Here they are compositions: each answers a precise visual intent, and all of
+ * them receive `uTime` and `uResolution` from the engine.
  *
- * Aucune n'est reprise d'ailleurs. La mathematique de chacune est expliquee la
- * ou elle se trouve, ce qui est aussi la seule facon de pouvoir la modifier
- * plus tard sans la reinventer.
+ * None is taken from elsewhere. The mathematics of each is explained where it
+ * lives, which is also the only way to be able to modify it later without
+ * reinventing it.
  *
  * @module
  */
@@ -15,20 +15,20 @@
 import { NOISE_FUNCTIONS } from './shaders.js'
 
 /**
- * Ondes : des bandes qui ondulent et se replient.
+ * Waves: bands that undulate and fold back.
  *
- * ## Pourquoi trois sinus
+ * ## Why three sines
  *
- * Une seule fonction sinus donne une vague reguliere, donc mecanique. Trois
- * sinus de frequences non multiples se superposent sans jamais se remettre en
- * phase : le motif ne se repete plus a l'oeil, alors qu'il reste parfaitement
- * deterministe.
+ * A single sine function gives a regular, and therefore mechanical, wave.
+ * Three sines of non-multiple frequencies superpose without ever coming back
+ * into phase: the pattern no longer repeats to the eye, while staying
+ * perfectly deterministic.
  *
- * Le bord de chaque bande est adouci sur une largeur exprimee en fraction
- * d'ecran, pas en unites du motif : il reste donc net a toute taille de
- * surface, au lieu de s'epaissir quand on agrandit.
+ * The edge of each band is softened over a width expressed as a fraction of
+ * the screen, not in pattern units: it therefore stays crisp at any surface
+ * size, instead of thickening when you enlarge.
  *
- * Uniformes : `uColorA`, `uColorB`, `uSpeed`, `uScale` (nombre de bandes),
+ * Uniforms: `uColorA`, `uColorB`, `uSpeed`, `uScale` (number of bands),
  * `uAmplitude`.
  */
 export const WAVES_FRAGMENT = /* glsl */ `
@@ -74,18 +74,18 @@ void main() {
 `
 
 /**
- * Champ de points : une grille de disques qui respirent.
+ * Dot field: a grid of breathing discs.
  *
- * ## Pourquoi une grille repliee plutot que des points dessines
+ * ## Why a folded grid rather than drawn points
  *
- * Dessiner mille points demanderait mille objets, mille positions et autant de
- * travail par image. Replier l'espace sur lui-meme donne la meme grille en une
- * soustraction : chaque pixel calcule sa distance au centre de **sa** cellule,
- * sans jamais savoir qu'il y en a d'autres.
+ * Drawing a thousand points would require a thousand objects, a thousand
+ * positions and as much work per frame. Folding space onto itself gives the
+ * same grid in one subtraction: every pixel computes its distance to the
+ * centre of **its** cell, without ever knowing that there are others.
  *
- * Le cout ne depend donc pas du nombre de points.
+ * The cost therefore does not depend on the number of points.
  *
- * Uniformes : `uColorA`, `uColorB`, `uSpeed`, `uScale` (densite), `uRadius`.
+ * Uniforms: `uColorA`, `uColorB`, `uSpeed`, `uScale` (density), `uRadius`.
  */
 export const DOTS_FRAGMENT = /* glsl */ `
 precision highp float;
@@ -109,8 +109,8 @@ void main() {
   vec2 cell = floor(p);
   vec2 local = fract(p) - 0.5;
 
-  // Chaque cellule respire a son propre rythme : sans ce decalage, toute la
-  // grille pulserait a l'unisson, ce qui se lit comme un clignotement.
+  // Every cell breathes at its own rhythm: without this offset, the whole grid
+  // would pulse in unison, which reads as a flicker.
   float phase = odoroHash(cell) * 6.28318;
   float pulse = 0.5 + 0.5 * sin(uTime * uSpeed + phase);
 
@@ -122,20 +122,20 @@ void main() {
 `
 
 /**
- * Faisceaux : des rais de lumiere obliques.
+ * Beams: oblique shafts of light.
  *
- * ## Le repere incline
+ * ## The tilted frame
  *
- * Les faisceaux ne sont pas traces en diagonale : c'est l'espace qui est
- * tourne avant que des bandes verticales n'y soient dessinees. Une rotation de
- * coordonnees coute deux multiplications, la ou raisonner sur des droites
- * obliques couterait bien davantage — en calcul comme en lisibilite.
+ * The beams are not drawn diagonally: it is space that is rotated before
+ * vertical bands are drawn in it. A coordinate rotation costs two
+ * multiplications, where reasoning about oblique lines would cost far more —
+ * in computation as in readability.
  *
- * L'attenuation vers le bas emploie une puissance plutot qu'une droite : la
- * lumiere ne decroit pas lineairement, et l'oeil le sait.
+ * The attenuation towards the bottom uses a power rather than a straight line:
+ * light does not decay linearly, and the eye knows it.
  *
- * Uniformes : `uColorA`, `uColorB`, `uSpeed`, `uScale` (nombre de rais),
- * `uAngle` en radians.
+ * Uniforms: `uColorA`, `uColorB`, `uSpeed`, `uScale` (number of shafts),
+ * `uAngle` in radians.
  */
 export const BEAMS_FRAGMENT = /* glsl */ `
 precision highp float;
@@ -160,8 +160,8 @@ void main() {
   float s = sin(uAngle);
   vec2 turned = vec2(p.x * c - p.y * s, p.x * s + p.y * c);
 
-  // Le bruit deplace legerement chaque rai : des bandes parfaitement
-  // regulieres se lisent comme une texture, pas comme de la lumiere.
+  // The noise slightly displaces each shaft: perfectly regular bands read as a
+  // texture, not as light.
   float drift = odoroNoise(vec2(turned.x * 2.0, uTime * uSpeed * 0.3)) - 0.5;
   float bands = sin((turned.x + drift * 0.3) * uScale + uTime * uSpeed);
 
@@ -173,18 +173,18 @@ void main() {
 `
 
 /**
- * Nappe : quelques taches de couleur qui derivent et se melangent.
+ * Mesh: a few patches of colour that drift and blend.
  *
- * ## Pourquoi trois centres suffisent
+ * ## Why three centres are enough
  *
- * Un degrade en nappe est presque toujours fait de trois ou quatre taches.
- * Au-dela, elles se recouvrent partout et le resultat tend vers une moyenne
- * uniforme : on paie du calcul pour perdre le motif.
+ * A mesh gradient is almost always made of three or four patches. Beyond that,
+ * they overlap everywhere and the result tends towards a uniform average: you
+ * pay computation to lose the pattern.
  *
- * Les trois centres decrivent des ellipses de periodes non multiples, si bien
- * que la composition ne revient jamais exactement au meme etat.
+ * The three centres describe ellipses of non-multiple periods, so that the
+ * composition never comes back to exactly the same state.
  *
- * Uniformes : `uColorA`, `uColorB`, `uColorC`, `uSpeed`, `uScale` (etendue).
+ * Uniforms: `uColorA`, `uColorB`, `uColorC`, `uSpeed`, `uScale` (extent).
  */
 export const MESH_FRAGMENT = /* glsl */ `
 precision highp float;
@@ -217,8 +217,8 @@ void main() {
   float wc = odoroBlob(p, c, uScale);
   float total = wa + wb + wc;
 
-  // La somme des poids depasse un la ou les taches se recouvrent : sans
-  // normalisation, ces zones saturent au lieu de se melanger.
+  // The sum of the weights exceeds one where the patches overlap: without
+  // normalisation, those areas saturate instead of blending.
   vec3 blended = (uColorA * wa + uColorB * wb + uColorC * wc) / max(total, 0.001);
 
   gl_FragColor = vec4(mix(uColorA, blended, clamp(total, 0.0, 1.0)), 1.0);

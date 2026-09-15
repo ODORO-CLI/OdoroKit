@@ -6,7 +6,7 @@ import {
   supportsViewTransitions,
 } from './viewTransition.js'
 
-/** Installe une implementation factice de l'API View Transitions. */
+/** Installs a fake implementation of the View Transitions API. */
 function stubViewTransition(): {
   start: ReturnType<typeof vi.fn>
   finished: Promise<void>
@@ -24,7 +24,7 @@ function stubViewTransition(): {
   return { start, finished }
 }
 
-/** Force la reponse de `matchMedia` pour `prefers-reduced-motion`. */
+/** Forces the answer of `matchMedia` for `prefers-reduced-motion`. */
 function stubReducedMotion(matches: boolean): void {
   vi.spyOn(window, 'matchMedia').mockReturnValue({
     matches,
@@ -43,18 +43,18 @@ afterEach(() => {
 })
 
 describe('supportsViewTransitions', () => {
-  it('retourne false quand l API est absente', () => {
+  it('returns false when the API is missing', () => {
     expect(supportsViewTransitions()).toBe(false)
   })
 
-  it('retourne true quand l API est presente', () => {
+  it('returns true when the API is present', () => {
     stubViewTransition()
     expect(supportsViewTransitions()).toBe(true)
   })
 })
 
 describe('prefersReducedMotion', () => {
-  it('reflete la media query', () => {
+  it('reflects the media query', () => {
     stubReducedMotion(true)
     expect(prefersReducedMotion()).toBe(true)
     stubReducedMotion(false)
@@ -63,13 +63,13 @@ describe('prefersReducedMotion', () => {
 })
 
 describe('runViewTransition', () => {
-  it('execute le commit directement quand l API est absente', () => {
+  it('runs the commit directly when the API is missing', () => {
     const commit = vi.fn()
     runViewTransition(commit)
     expect(commit).toHaveBeenCalledTimes(1)
   })
 
-  it('passe par l API quand elle est disponible', () => {
+  it('goes through the API when it is available', () => {
     const { start } = stubViewTransition()
     stubReducedMotion(false)
     const commit = vi.fn()
@@ -80,7 +80,7 @@ describe('runViewTransition', () => {
     expect(commit).toHaveBeenCalledTimes(1)
   })
 
-  it('contourne l API quand les animations sont reduites', () => {
+  it('bypasses the API when the animations are reduced', () => {
     const { start } = stubViewTransition()
     stubReducedMotion(true)
     const commit = vi.fn()
@@ -91,7 +91,7 @@ describe('runViewTransition', () => {
     expect(commit).toHaveBeenCalledTimes(1)
   })
 
-  it('contourne l API quand la transition est desactivee', () => {
+  it('bypasses the API when the transition is disabled', () => {
     const { start } = stubViewTransition()
     stubReducedMotion(false)
     const commit = vi.fn()
@@ -102,8 +102,8 @@ describe('runViewTransition', () => {
     expect(commit).toHaveBeenCalledTimes(1)
   })
 
-  it('avale le rejet d une transition interrompue', async () => {
-    const rejected = Promise.reject(new Error('interrompue'))
+  it('swallows the rejection of an interrupted transition', async () => {
+    const rejected = Promise.reject(new Error('interrupted'))
     Object.defineProperty(document, 'startViewTransition', {
       value: (callback: () => void) => {
         callback()

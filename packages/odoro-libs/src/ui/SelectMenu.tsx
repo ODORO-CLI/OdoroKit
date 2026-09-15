@@ -1,34 +1,34 @@
 /**
- * Liste deroulante riche, avec recherche.
+ * Rich dropdown list, with search.
  *
- * ## Pourquoi elle ne remplace pas `Select`
+ * ## Why it does not replace `Select`
  *
- * `Select` habille un `<select>` natif. Il herite donc gratuitement du menu
- * du systeme, de la saisie au clavier, du comportement sur mobile, et il ne
- * peut pas se desynchroniser d'un formulaire. C'est le bon choix par defaut,
- * et il le restera.
+ * `Select` styles a native `<select>`. It therefore inherits for free the
+ * menu of the system, the keyboard typing, the behavior on mobile, and it
+ * cannot desynchronize from a form. It is the right default choice, and it
+ * will stay so.
  *
- * Ce composant-ci existe pour ce que le natif ne permet pas : des options
- * riches — une icone, une description, un statut — et une recherche quand la
- * liste depasse la dizaine. Le prix est que tout doit etre reconstruit, et
- * c'est precisement ce que la plupart des implementations oublient a moitie.
+ * This component exists for what the native one does not allow: rich
+ * options — an icon, a description, a status — and a search when the list
+ * goes beyond a dozen entries. The price is that everything has to be
+ * rebuilt, and that is precisely what most implementations half forget.
  *
- * ## Ce qui est reconstruit
+ * ## What is rebuilt
  *
- * Le motif `combobox` de l'ARIA, entierement. Le champ porte le role et
- * l'etat d'ouverture ; la liste porte le sien ; l'option active est designee
- * par `aria-activedescendant` plutot que par le focus, parce que le focus doit
- * rester dans le champ pour que la frappe continue d'y arriver.
+ * The `combobox` pattern of ARIA, entirely. The field carries the role and
+ * the open state; the list carries its own; the active option is designated
+ * by `aria-activedescendant` rather than by the focus, because the focus has
+ * to stay in the field so that the typing keeps reaching it.
  *
- * Les fleches deplacent l'option active, `Entree` la choisit, `Echap` ferme,
- * `Origine` et `Fin` sautent aux extremites. La liste defile pour garder
- * l'option active visible — sans quoi le clavier deplacerait une selection
- * qu'on ne voit pas.
+ * The arrows move the active option, `Enter` chooses it, `Escape` closes,
+ * `Home` and `End` jump to the ends. The list scrolls to keep the active
+ * option visible — without which the keyboard would move a selection that
+ * cannot be seen.
  *
- * ## Ce qui reste au natif
+ * ## What is left to the native element
  *
- * La valeur est portee par un `<input type="hidden">`. Un formulaire ordinaire
- * la soumet donc sans savoir que le champ n'est pas un `<select>`.
+ * The value is carried by an `<input type="hidden">`. An ordinary form
+ * therefore submits it without knowing that the field is not a `<select>`.
  *
  * @module
  */
@@ -44,56 +44,56 @@ import {
 
 import { cx } from '../styles/cx.js'
 
-/** Une option de la liste. */
+/** One option of the list. */
 export interface SelectMenuOption {
-  /** Valeur soumise. */
+  /** Submitted value. */
   readonly value: string
-  /** Libelle affiche et recherche. */
+  /** Label displayed and searched. */
   readonly label: string
-  /** Complement affiche sous le libelle. */
+  /** Complement displayed under the label. */
   readonly description?: string
-  /** Element decoratif affiche a gauche. */
+  /** Decorative element displayed on the left. */
   readonly icon?: ReactNode
-  /** Option presente mais non selectionnable. */
+  /** Option present but not selectable. */
   readonly disabled?: boolean
 }
 
-/** Proprietes de {@link SelectMenu}. */
+/** Properties of {@link SelectMenu}. */
 export interface SelectMenuProps {
-  /** Options proposees. */
+  /** Offered options. */
   options: readonly SelectMenuOption[]
-  /** Valeur choisie. */
+  /** Chosen value. */
   value?: string | null
-  /** Appele quand la valeur change. */
+  /** Called when the value changes. */
   onValueChange?: (value: string) => void
-  /** Nom du champ, pour la soumission du formulaire. */
+  /** Name of the field, for the form submission. */
   name?: string
-  /** Libelle du champ. */
+  /** Label of the field. */
   label?: ReactNode
-  /** Texte affiche quand rien n'est choisi. @defaultValue 'Choisir…' */
+  /** Text displayed when nothing is chosen. @defaultValue 'Choose…' */
   placeholder?: string
-  /** Affiche un champ de recherche. @defaultValue false */
+  /** Displays a search field. @defaultValue false */
   searchable?: boolean
-  /** Texte affiche quand la recherche ne rend rien. @defaultValue 'Aucun resultat' */
+  /** Text displayed when the search returns nothing. @defaultValue 'No result' */
   emptyLabel?: string
-  /** Desactive le champ. */
+  /** Disables the field. */
   disabled?: boolean
-  /** Message d'erreur. Sa presence marque le champ comme invalide. */
+  /** Error message. Its presence marks the field as invalid. */
   error?: string
-  /** Classes additionnelles. */
+  /** Additional classes. */
   className?: string
 }
 
 /**
- * Liste deroulante riche.
+ * Rich dropdown list.
  *
  * @example
  * <SelectMenu
- *   label="Environnement"
+ *   label="Environment"
  *   searchable
  *   options={[
- *     { value: 'prod', label: 'Production', description: 'Trafic reel' },
- *     { value: 'staging', label: 'Recette' },
+ *     { value: 'prod', label: 'Production', description: 'Real traffic' },
+ *     { value: 'staging', label: 'Staging' },
  *   ]}
  *   value={env}
  *   onValueChange={setEnv}
@@ -105,9 +105,9 @@ export function SelectMenu({
   onValueChange,
   name,
   label,
-  placeholder = 'Choisir…',
+  placeholder = 'Choose…',
   searchable = false,
-  emptyLabel = 'Aucun resultat',
+  emptyLabel = 'No result',
   disabled = false,
   error,
   className,
@@ -129,9 +129,9 @@ export function SelectMenu({
   )
   const chosen = options.find((option) => option.value === value)
 
-  // Fermeture au clic exterieur. Le `pointerdown` plutot que le `click` :
-  // fermer au relachement laisserait le menu ouvert pendant tout un
-  // glissement commence ailleurs.
+  // Closing on an outside click. `pointerdown` rather than `click`: closing on
+  // the release would leave the menu open for the whole duration of a drag
+  // started elsewhere.
   useEffect(() => {
     if (!open) return
 
@@ -142,22 +142,22 @@ export function SelectMenu({
     return () => document.removeEventListener('pointerdown', onDown)
   }, [open])
 
-  // Le champ de recherche prend le focus a l'ouverture ; sinon il reste sur le
-  // declencheur, ou les fleches continuent d'arriver.
+  // The search field takes the focus on opening; otherwise it stays on the
+  // trigger, where the arrows keep arriving.
   useEffect(() => {
     if (open && searchable) search.current?.focus()
     if (!open) setQuery('')
   }, [open, searchable])
 
-  // L'option active doit rester visible : le clavier deplacerait sinon une
-  // selection hors du champ de vision.
+  // The active option has to stay visible: the keyboard would otherwise move
+  // a selection out of the field of view.
   useEffect(() => {
     if (!open) return
     const element = list.current?.querySelector(`[data-index="${String(active)}"]`)
     element?.scrollIntoView({ block: 'nearest' })
   }, [open, active])
 
-  /** Retient une option, ferme, et rend le focus au declencheur. */
+  /** Keeps an option, closes, and gives the focus back to the trigger. */
   const choose = (option: SelectMenuOption): void => {
     if (option.disabled === true) return
     onValueChange?.(option.value)
@@ -165,7 +165,7 @@ export function SelectMenu({
     field.current?.focus()
   }
 
-  /** Deplace l'option active en sautant les options desactivees. */
+  /** Moves the active option, skipping the disabled options. */
   const move = (direction: 1 | -1): void => {
     if (shown.length === 0) return
     let next = active
@@ -299,8 +299,8 @@ export function SelectMenu({
                   ref={search}
                   type="text"
                   value={query}
-                  placeholder="Rechercher…"
-                  aria-label="Rechercher dans la liste"
+                  placeholder="Search…"
+                  aria-label="Search the list"
                   onChange={(event) => {
                     setQuery(event.target.value)
                     setActive(0)

@@ -1,5 +1,5 @@
 /**
- * Commande `odoro create` : creation d'un projet.
+ * The `odoro create` command: creation of a project.
  *
  * @module
  */
@@ -13,9 +13,9 @@ import colors from 'picocolors'
 
 import {
   MODULES,
-  MODULES_PAR_DEFAUT,
-  lireModules,
-  resoudre,
+  DEFAULT_MODULES,
+  readModules,
+  resolveModules,
   type ModuleId,
 } from '../scaffold/modules.js'
 import { type OverwriteMode, scaffold } from '../scaffold/scaffold.js'
@@ -32,27 +32,27 @@ import {
   validatePackageName,
 } from '../scaffold/utils.js'
 
-/** Options de la commande, telles qu'issues de la ligne de commande. */
+/** Options of the command, as they come from the command line. */
 export interface CreateOptions {
-  /** Nom ou chemin du projet, en argument positionnel. */
+  /** Name or path of the project, as a positional argument. */
   name?: string
-  /** Template a utiliser, sans demander. */
+  /** Template to use, without asking. */
   template?: string
-  /** Gestionnaire de paquets, sans demander. */
+  /** Package manager, without asking. */
   pm?: string
-  /** Initialise un depot git. */
+  /** Initialises a git repository. */
   git?: boolean
-  /** Installe les dependances. */
+  /** Installs the dependencies. */
   install?: boolean
-  /** Accepte toutes les valeurs par defaut sans rien demander. */
+  /** Accepts every default value without asking anything. */
   yes?: boolean
   /**
-   * Modules retenus, sous la forme `libs,router,icons`, sans demander.
+   * Modules kept, in the form `libs,router,icons`, without asking.
    *
-   * `aucun` n'en retient aucun : un projet React nu, sans style Odoro.
+   * `none` keeps none of them: a bare React project, without Odoro styling.
    */
   modules?: string
-  /** Conduite a tenir si le dossier cible n'est pas vide. */
+  /** What to do when the target directory is not empty. */
   overwrite?: OverwriteMode
 }
 
@@ -66,17 +66,17 @@ import {
 } from './database.js'
 
 /**
- * Combien de lignes de sortie garder pour expliquer un echec.
+ * How many output lines to keep to explain a failure.
  *
- * Assez pour que la cause y figure — un gestionnaire de paquets la dit dans ses
- * dernieres lignes — et pas au point de noyer le terminal.
+ * Enough for the cause to be in there — a package manager says it in its last
+ * lines — and not so many as to drown the terminal.
  */
-const DERNIERES_LIGNES = 8
+const LAST_LINES = 8
 
-/** Au-dela, une ligne de sortie est coupee pour ne pas faire defiler la barre. */
-const LARGEUR_LIGNE = 64
+/** Beyond this, an output line is cut so as not to scroll the progress bar. */
+const LINE_WIDTH = 64
 
-/** Descriptions affichees dans le selecteur de template. */
+/** Descriptions shown in the template picker. */
 const TEMPLATE_LABELS: Readonly<Record<string, string>> = {
   'react-ts': 'Single-page app — React, TypeScript, Odoro router and motion',
   'react-ts-server':
@@ -84,12 +84,12 @@ const TEMPLATE_LABELS: Readonly<Record<string, string>> = {
 }
 
 /**
- * Demande comment le projet obtient sa base.
+ * Asks how the project gets its database.
  *
- * Trois voies, dont deux fonctionnent aujourd'hui. La troisieme — le
- * provisionnement par la plateforme — attend `@odoro-cli/cloud-sdk` ; elle est
- * proposee et annoncee comme telle plutot que masquee, pour que le chemin
- * existe des maintenant dans la tete de celui qui cree un projet.
+ * Three ways, two of which work today. The third — provisioning by the platform
+ * — is waiting for `@odoro-cli/cloud-sdk`; it is offered and announced as such
+ * rather than hidden, so that the path exists from now on in the mind of
+ * whoever creates a project.
  */
 async function askDatabase(): Promise<DatabaseOutcome> {
   const choice = ensure(
@@ -114,20 +114,20 @@ async function askDatabase(): Promise<DatabaseOutcome> {
 
   if (choice === 'provider') {
     prompts.log.warn(PROVIDER_PENDING)
-    return { choice, note: 'Lancez `odoro db:create` des que la plateforme est la.' }
+    return { choice, note: 'Run `odoro db:create` as soon as the platform is there.' }
   }
 
   if (choice === 'later') {
     return {
       choice,
-      note: 'Aucune base : le client demarrera, et /api/ready repondra 503 en disant ce qui manque.',
+      note: 'No database: the client will start, and /api/ready will answer 503 saying what is missing.',
     }
   }
 
   const url = ensure(
     await prompts.text({
       message: 'PostgreSQL URL',
-      placeholder: 'postgres://utilisateur:motdepasse@hote:5432/base?sslmode=require',
+      placeholder: 'postgres://user:password@host:5432/database?sslmode=require',
       validate: (value) => checkDatabaseUrl(value ?? ''),
     }),
   )
@@ -135,162 +135,166 @@ async function askDatabase(): Promise<DatabaseOutcome> {
   return {
     choice,
     url: url.trim(),
-    // Seule la forme a ete verifiee : le dire, plutot que de laisser croire
-    // que la connexion a ete etablie.
-    note: 'Forme de l URL verifiee. La connexion sera etablie au premier demarrage.',
+    // Only the shape was checked: say so, rather than letting one believe the
+    // connection was established.
+    note: 'URL shape checked. The connection will be established on the first start.',
   }
 }
 
 /**
- * Demande ce que le projet embarque.
+ * Asks what the project ships with.
  *
- * ## Une liste a cocher, et non une suite de oui/non
+ * ## A checklist, and not a series of yes/no questions
  *
- * Les modules ne dependent pas les uns des autres — sauf le routeur, qui vit
- * dans les bibliotheques — et les poser en questions successives ferait cinq
- * ecrans pour un choix qui tient en un. La liste montre en plus, d'un coup
- * d'oeil, ce que le projet **n'aura pas**, ce qu'une suite de questions cache.
+ * The modules do not depend on one another — except the router, which lives in
+ * the libraries — and turning them into successive questions would make five
+ * screens for a choice that fits in one. The list also shows, at a glance, what
+ * the project **will not have**, which a series of questions hides.
  *
- * ## Rien n'est obligatoire
+ * ## Nothing is mandatory
  *
- * On peut tout decocher. Le projet part alors sans feuille de style Odoro et
- * sans routeur, en React nu — c'est un choix legitime pour qui apporte son
- * propre systeme, et il valait mieux le rendre vrai que d'afficher une case
- * verrouillee. `required: false` est donc voulu : la liste vide est une
- * reponse, pas une erreur.
+ * Everything can be unticked. The project then starts without the Odoro
+ * stylesheet and without the router, in bare React — a legitimate choice for
+ * someone bringing their own system, and it was better to make it true than to
+ * display a locked box. `required: false` is therefore deliberate: the empty
+ * list is an answer, not an error.
  *
- * @returns Les modules retenus, ou `undefined` si la saisie est refusee.
+ * @returns The modules kept, or `undefined` when the input is refused.
  */
 async function askModules(
   options: CreateOptions,
 ): Promise<readonly ModuleId[] | undefined> {
   if (options.modules !== undefined) {
-    const lu = lireModules(options.modules)
-    if (lu.erreur !== undefined) {
-      prompts.cancel(lu.erreur)
+    const read = readModules(options.modules)
+    if (read.error !== undefined) {
+      prompts.cancel(read.error)
       return undefined
     }
-    return annoncer(resoudre(lu.modules))
+    return announce(resolveModules(read.modules))
   }
 
-  if (options.yes === true) return MODULES_PAR_DEFAUT
+  if (options.yes === true) return DEFAULT_MODULES
 
-  const choisis = ensure(
+  const chosen = ensure(
     await prompts.multiselect<ModuleId>({
       message: 'What goes in the project?',
-      initialValues: [...MODULES_PAR_DEFAUT],
+      initialValues: [...DEFAULT_MODULES],
       required: false,
-      options: MODULES.map((m) => ({ value: m.id, label: m.label, hint: m.hint })),
+      options: MODULES.map((module) => ({
+        value: module.id,
+        label: module.label,
+        hint: module.hint,
+      })),
     }),
   )
 
-  return annoncer(resoudre(choisis))
+  return announce(resolveModules(chosen))
 }
 
-/** Dit ce que la resolution a du retirer, puis rend la selection retenue. */
-function annoncer(resolution: ReturnType<typeof resoudre>): readonly ModuleId[] {
-  for (const mot of resolution.avertissements) prompts.log.warn(mot)
+/** Says what the resolution had to remove, then returns the selection kept. */
+function announce(resolution: ReturnType<typeof resolveModules>): readonly ModuleId[] {
+  for (const warning of resolution.warnings) prompts.log.warn(warning)
   return resolution.modules
 }
 
 /**
- * Installe les dependances en montrant ou en est le gestionnaire.
+ * Installs the dependencies while showing where the manager is.
  *
- * ## Pourquoi ce n'est plus un \`execSync\` muet
+ * ## Why this is no longer a silent \`execSync\`
  *
- * L'installation est de loin l'etape la plus longue — dix a soixante
- * secondes selon le reseau. Une ligne figee pendant ce temps ne dit pas si
- * quelque chose avance, si le reseau est tombe, ou si le terminal attend une
- * reponse. On finit par appuyer sur une touche pour voir.
+ * The install is by far the longest step — ten to sixty seconds depending on
+ * the network. A line frozen during that time does not say whether something is
+ * moving, whether the network went down, or whether the terminal is waiting for
+ * an answer. One ends up pressing a key to see.
  *
- * Le processus est donc lance en flux : chaque ligne qu'il ecrit remonte, et
- * la derniere est affichee a cote du minuteur. On voit le gestionnaire
- * resoudre, telecharger, lier — et l'on sait, a tout instant, que ce n'est
- * pas bloque.
+ * The process is therefore run as a stream: every line it writes comes back,
+ * and the last one is shown next to the timer. You see the manager resolve,
+ * download, link — and you know, at every moment, that it is not stuck.
  *
- * ## En cas d'echec, on montre la fin
+ * ## On failure, we show the end
  *
- * \`stdio: 'ignore'\` jetait la sortie : un echec laissait un « relancez a la
- * main » sans dire pourquoi. Les dernieres lignes sont gardees, et
- * reaffichees — c'est la ou le gestionnaire explique ce qui l'a arrete.
+ * \`stdio: 'ignore'\` threw the output away: a failure left a "run it by hand"
+ * without saying why. The last lines are kept, and shown again — that is where
+ * the manager explains what stopped it.
  *
- * @returns \`true\` si l'installation a abouti.
+ * @returns \`true\` when the install succeeded.
  */
-async function installerDependances(
+async function installDependencies(
   target: string,
   manager: PackageManager,
 ): Promise<boolean> {
-  const [commande, ...args] = installCommand(manager).split(' ')
-  if (commande === undefined) return false
+  const [command, ...args] = installCommand(manager).split(' ')
+  if (command === undefined) return false
 
-  const barre = prompts.spinner({ indicator: 'timer' })
-  barre.start(`Installing dependencies with ${manager}`)
+  const bar = prompts.spinner({ indicator: 'timer' })
+  bar.start(`Installing dependencies with ${manager}`)
 
-  // Les dernieres lignes, et elles seules : une installation bavarde en ecrit
-  // des milliers, et n'en garder que la fin suffit a expliquer un echec.
-  const fin: string[] = []
-  const garder = (bloc: string): void => {
-    for (const ligne of bloc.split('\n')) {
-      const propre = ligne.trim()
-      // Les lignes sans contenu sont sautees : un gestionnaire met en forme
-      // ses avertissements sur plusieurs lignes, et afficher une accolade
-      // seule a cote du minuteur ne dit rien de ce qui avance.
-      if (propre === '' || !/[a-z0-9]/i.test(propre)) continue
-      fin.push(propre)
-      if (fin.length > DERNIERES_LIGNES) fin.shift()
-      // Tronquee : une ligne plus large que le terminal le ferait defiler, et
-      // la barre sauterait a chaque mise a jour.
-      barre.message(`${manager} · ${propre.slice(0, LARGEUR_LIGNE)}`)
+  // The last lines, and only them: a chatty install writes thousands of them,
+  // and keeping only the end is enough to explain a failure.
+  const tail: string[] = []
+  const keep = (block: string): void => {
+    for (const line of block.split('\n')) {
+      const clean = line.trim()
+      // Lines without content are skipped: a manager formats its warnings over
+      // several lines, and showing a lone brace next to the timer says nothing
+      // about what is moving.
+      if (clean === '' || !/[a-z0-9]/i.test(clean)) continue
+      tail.push(clean)
+      if (tail.length > LAST_LINES) tail.shift()
+      // Truncated: a line wider than the terminal would scroll it, and the bar
+      // would jump on every update.
+      bar.message(`${manager} · ${clean.slice(0, LINE_WIDTH)}`)
     }
   }
 
   const code = await new Promise<number>((resolve_) => {
-    // \`shell\` sur Windows : \`npm\` y est un script, et \`spawn\` sans shell ne
-    // sait pas l'executer.
-    const processus = spawn(commande, args, {
+    // \`shell\` on Windows: \`npm\` is a script there, and \`spawn\` without a shell
+    // cannot run it.
+    const child = spawn(command, args, {
       cwd: target,
       shell: process.platform === 'win32',
     })
-    processus.stdout?.setEncoding('utf8').on('data', garder)
-    processus.stderr?.setEncoding('utf8').on('data', garder)
-    processus.on('error', () => {
+    child.stdout?.setEncoding('utf8').on('data', keep)
+    child.stderr?.setEncoding('utf8').on('data', keep)
+    child.on('error', () => {
       resolve_(-1)
     })
-    processus.on('close', (sortie) => {
-      resolve_(sortie ?? -1)
+    child.on('close', (status) => {
+      resolve_(status ?? -1)
     })
   })
 
   if (code === 0) {
-    barre.stop(`Dependencies installed with ${manager}`)
+    bar.stop(`Dependencies installed with ${manager}`)
     return true
   }
 
-  // Le second argument marque la ligne comme un echec : elle sort en rouge,
-  // au lieu de ressembler a une etape reussie de plus.
-  barre.stop(`${manager} install failed`, 1)
-  for (const ligne of fin) prompts.log.error(colors.dim(ligne))
+  // The second argument marks the line as a failure: it comes out in red,
+  // instead of looking like one more successful step.
+  bar.stop(`${manager} install failed`, 1)
+  for (const line of tail) prompts.log.error(colors.dim(line))
   return false
 }
+
 /**
- * La version de la CLI qui tourne, lue dans son propre manifeste.
+ * The version of the CLI that is running, read from its own manifest.
  *
- * Figee dans une constante, elle serait juste le jour ou on l'ecrit et fausse a
- * la publication suivante.
+ * Frozen in a constant, it would be right the day it is written and wrong at
+ * the next publication.
  */
-function versionCli(): string {
+function cliVersion(): string {
   try {
-    const manifeste = join(dirname(templatesRoot()), 'package.json')
-    const { version } = JSON.parse(readFileSync(manifeste, 'utf8')) as { version: string }
+    const manifest = join(dirname(templatesRoot()), 'package.json')
+    const { version } = JSON.parse(readFileSync(manifest, 'utf8')) as { version: string }
     return version
   } catch {
-    // Une creation doit aboutir meme si le manifeste est illisible : on
-    // n'affiche alors pas de numero plutot que d'en inventer un.
+    // A creation must succeed even when the manifest cannot be read: we then
+    // show no number rather than invent one.
     return '?'
   }
 }
 
-/** Interrompt proprement si l'utilisateur annule une question. */
+/** Stops cleanly when the user cancels a question. */
 function ensure<T>(value: T | symbol): T {
   if (prompts.isCancel(value)) {
     prompts.cancel('Cancelled.')
@@ -300,23 +304,23 @@ function ensure<T>(value: T | symbol): T {
 }
 
 /**
- * Cree un projet a partir d'un template.
+ * Creates a project from a template.
  *
- * @returns Le code de sortie du processus.
+ * @returns The exit code of the process.
  *
  * @example
- * await createCommand({ name: 'mon-site', template: 'react-ts', yes: true })
+ * await createCommand({ name: 'my-site', template: 'react-ts', yes: true })
  */
 export async function createCommand(options: CreateOptions): Promise<number> {
   const root = templatesRoot()
   const templates = availableTemplates(root)
   const defaultTemplate = templates[0] ?? 'react-ts'
 
-  // Bleu et non magenta : c'est la teinte de la marque, celle du signe et du
-  // site. Le numero de version est affiche parce que c'est la premiere chose
-  // qu'on demande quand quelque chose se passe mal.
+  // Blue and not magenta: it is the hue of the brand, the one of the mark and
+  // of the site. The version number is shown because it is the first thing one
+  // asks for when something goes wrong.
   prompts.intro(
-    `${colors.bgBlue(colors.black(' ODORO '))} ${colors.dim(`v${versionCli()}`)}`,
+    `${colors.bgBlue(colors.black(' ODORO '))} ${colors.dim(`v${cliVersion()}`)}`,
   )
 
   const rawName =
@@ -326,7 +330,7 @@ export async function createCommand(options: CreateOptions): Promise<number> {
       : ensure(
           await prompts.text({
             message: 'Project name',
-            placeholder: 'mon-site',
+            placeholder: 'my-site',
             defaultValue: 'odoro-app',
             validate: (value) =>
               value === '' ? undefined : validatePackageName(toPackageName(value)),
@@ -342,11 +346,11 @@ export async function createCommand(options: CreateOptions): Promise<number> {
     return 1
   }
 
-  // Piege courant : le dossier existe deja. Ecraser sans demander detruirait
-  // du travail ; refuser sans alternative obligerait a tout recommencer.
+  // Common trap: the directory already exists. Overwriting without asking would
+  // destroy work; refusing without an alternative would force starting over.
   let overwrite = options.overwrite
   const state = inspectTarget(target)
-  if (state === 'occupe' && overwrite === undefined) {
+  if (state === 'occupied' && overwrite === undefined) {
     if (options.yes === true) {
       prompts.cancel(
         `Folder "${basename(target)}" is not empty. Pass --overwrite or --merge.`,
@@ -358,15 +362,15 @@ export async function createCommand(options: CreateOptions): Promise<number> {
       await prompts.select({
         message: `Folder "${basename(target)}" is not empty.`,
         options: [
-          { value: 'annuler', label: 'Cancel' },
+          { value: 'cancel', label: 'Cancel' },
           { value: 'fusionner', label: 'Merge — overwrites files of the same name' },
           { value: 'ecraser', label: 'Empty the folder, then create the project' },
         ],
       }),
     )
 
-    if (choice === 'annuler') {
-      prompts.cancel('Creation annulee.')
+    if (choice === 'cancel') {
+      prompts.cancel('Creation cancelled.')
       return 0
     }
     overwrite = choice as OverwriteMode
@@ -417,7 +421,7 @@ export async function createCommand(options: CreateOptions): Promise<number> {
     return 1
   }
 
-  // La base ne se demande que pour un template qui en a un besoin.
+  // The database is only asked about for a template that needs one.
   const database =
     template === 'react-ts-server' && options.yes !== true
       ? await askDatabase()
@@ -469,41 +473,42 @@ export async function createCommand(options: CreateOptions): Promise<number> {
     await writeDatabaseUrl(target, database.url)
     prompts.log.success('Database URL written to .env')
 
-    const risque = await assertEnvIgnored(target)
-    if (risque !== undefined) prompts.log.warn(risque)
+    const risk = await assertEnvIgnored(target)
+    if (risk !== undefined) prompts.log.warn(risk)
   }
 
   if (database !== undefined) prompts.log.info(database.note)
 
-  // Le registre ne s'installe pas : ses entrees sont copiees dans le projet.
-  // Ce qu'il faut donc preparer, c'est la destination. `odoro.json` porte le
-  // dossier d'arrivee, le prefixe d'import deduit du tsconfig, et l'adresse du
-  // registre ; sans lui, la premiere commande `odoro add` s'arreterait pour
-  // poser trois questions dont on connait deja les reponses.
+  // The registry does not get installed: its entries are copied into the
+  // project. What has to be prepared is therefore the destination.
+  // `odoro.json` carries the landing directory, the import prefix inferred from
+  // the tsconfig, and the address of the registry; without it, the first
+  // `odoro add` command would stop to ask three questions whose answers are
+  // already known.
   //
-  // `yes` est passe : la creation vient de faire ses demandes, et en
-  // enchainer d'autres ferait payer deux fois le meme choix.
+  // `yes` is passed: the creation has just asked its questions, and chaining
+  // more would make the same choice be paid for twice.
   if (modules.includes('registre')) {
     const { initCommand } = await import('../add/commands.js')
     const code = await initCommand({ root: target, yes: true })
     if (code !== 0) {
-      // Un registre non configure ne compromet pas le projet : tout le reste
-      // est ecrit, et la commande se relance a la main.
+      // An unconfigured registry does not compromise the project: everything
+      // else is written, and the command can be run again by hand.
       prompts.log.warn(
         'The registry could not be configured. Run `odoro init` in the project.',
       )
     }
   }
 
-  const installe = withInstall ? await installerDependances(target, manager) : false
+  const installed = withInstall ? await installDependencies(target, manager) : false
 
   const steps = [
     `cd ${basename(target)}`,
-    // Si l'installation a echoue, la commande revient dans les etapes : le
-    // projet est ecrit, il ne lui manque que ses dependances.
-    ...(installe ? [] : [installCommand(manager)]),
-    // `odoro.json` vient d'etre ecrit : ce qui reste a montrer, c'est la
-    // commande qui s'en sert.
+    // When the install failed, the command comes back into the steps: the
+    // project is written, it is only missing its dependencies.
+    ...(installed ? [] : [installCommand(manager)]),
+    // `odoro.json` has just been written: what remains to show is the command
+    // that uses it.
     ...(modules.includes('registre') ? ['odoro add text/count-up'] : []),
     runCommand(manager, 'dev'),
   ]

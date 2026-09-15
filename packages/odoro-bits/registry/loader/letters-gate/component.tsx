@@ -1,57 +1,58 @@
 /**
- * Rideau dont le mot s'assemble lettre a lettre, puis se rabat comme un
- * couvercle.
+ * A curtain whose word assembles letter by letter, then folds down like a
+ * lid.
  *
- * ## Le mot est l'attente
+ * ## The word is the wait
  *
- * Les autres rideaux occupent le temps par une forme ou par une barre. Celui-ci
- * l'occupe par un **mot** : chaque caractere arrive a son tour, et la duree du
- * rideau se lit dans le nom qui se construit. C'est le seul du lot ou l'objet
- * regarde pendant l'attente est le contenu lui-meme, pas un decor pose devant.
+ * The other curtains fill the time with a shape or with a bar. This one
+ * fills it with a **word**: each character arrives in turn, and the length
+ * of the curtain reads in the name being built. It is the only one of the
+ * set where the object watched during the wait is the content itself, not a
+ * decoration set in front of it.
  *
- * Cela a une consequence de conception : la longueur du mot **est** un reglage
- * de duree. Un nom de cinq lettres et un de douze ne tiennent pas l'ecran le
- * meme temps, et c'est voulu — il vaut mieux une entree qui epouse la marque
- * qu'une duree fixe dans laquelle on l'aurait fait entrer de force.
+ * That has a design consequence: the length of the word **is** a duration
+ * setting. A five-letter name and a twelve-letter one do not hold the screen
+ * for the same time, and it is meant that way — better an entrance that fits
+ * the brand than a fixed duration the brand was forced into.
  *
- * ## L'horloge du moteur, pas un `setInterval`
+ * ## The engine clock, not a `setInterval`
  *
- * Les lettres avancent sur la boucle unique du moteur. Un intervalle bat contre
- * la cadence de l'ecran : les caracteres arriveraient a des instants qui ne
- * tombent pas sur les images, et l'un sur trois paraitrait en retard d'une
- * frame. Et deux boucles concurrentes dans une page rendent dans un ordre
- * indetermine, ce qui est le defaut que l'horloge unique existe pour empecher.
+ * The letters advance on the engine's single loop. An interval beats against
+ * the screen's cadence: the characters would arrive at moments that do not
+ * fall on frames, and one in three would look a frame late. And two
+ * competing loops in one page render in an undefined order, which is the
+ * very fault the single clock exists to prevent.
  *
- * Rien n'est ecrit dans l'etat React : la boucle pose un attribut sur le
- * caractere qui vient d'arriver, c'est-a-dire une ecriture par lettre, et non
- * un rendu par image.
+ * Nothing is written to React state: the loop sets an attribute on the
+ * character that has just arrived, that is to say one write per letter, and
+ * not a render per frame.
  *
- * ## Le texte reel, et ce que les lecteurs d'ecran entendent
+ * ## The real text, and what screen readers hear
  *
- * Les caracteres sont des elements separes, ce qui est necessaire pour les
- * animer un par un — et illisible pour un lecteur d'ecran, qui epellerait. Le
- * mot est donc aussi present d'un seul tenant dans la region de statut, hors
- * de l'ecran, et la version decoupee est marquee comme decorative. Le texte est
- * bien dans le document, une fois pour l'oeil, une fois pour l'oreille.
+ * The characters are separate elements, which is necessary to animate them
+ * one by one — and unreadable for a screen reader, which would spell them
+ * out. The word is therefore also present in one piece in the status region,
+ * off screen, and the split version is marked as decorative. The text is
+ * indeed in the document, once for the eye, once for the ear.
  *
- * ## La sortie : un couvercle, pas une translation
+ * ## The exit: a lid, not a translation
  *
- * La plaque bascule autour de son bord superieur et se rabat vers l'arriere,
- * dans une perspective. Les lettres, elles, partent vers le haut en ordre
- * decale, un peu avant la plaque : elles quittent la scene par ou la plaque va
- * s'ouvrir, ce qui donne un seul mouvement au lieu de deux.
+ * The plate tips around its top edge and folds backwards, in perspective.
+ * The letters, for their part, leave upwards in staggered order, slightly
+ * before the plate: they quit the stage through the very place the plate is
+ * about to open, which gives a single movement instead of two.
  *
- * ## La sortie part au DEBUT, pas apres
+ * ## The exit starts at the BEGINNING, not after
  *
- * `onDone` est appele quand la plaque **commence** a basculer. Le contenu entre
- * pendant l'ouverture du couvercle ; attendre la fin donnerait un rideau, un
- * temps mort, puis une page.
+ * `onDone` is called when the plate **starts** to tip. The content enters
+ * while the lid opens; waiting for the end would give a curtain, a dead
+ * beat, then a page.
  *
- * ## Contenu ou plein ecran
+ * ## Contained or full screen
  *
- * Par defaut le rideau est `fixed`, couvre la fenetre et verrouille le
- * defilement du document. Avec `contained`, il devient `absolute`, se resout
- * contre le premier ancetre positionne et ne touche plus au defilement.
+ * By default the curtain is `fixed`, covers the window and locks the
+ * document's scrolling. With `contained`, it becomes `absolute`, resolves
+ * against the first positioned ancestor and no longer touches scrolling.
  *
  * @module
  */
@@ -64,48 +65,49 @@ import {
 } from '@odoro-cli/engine'
 import { useEffect, useRef, useState, type CSSProperties, type ReactElement } from 'react'
 
-/** Proprietes propres au composant. */
+/** Props specific to the component. */
 export interface LettersGateOwnProps {
-  /** Le fond de la plaque. @defaultValue le fond du theme */
+  /** The plate background. @defaultValue the theme background */
   background?: string
-  /** L'encre du mot. @defaultValue l'encre du theme */
+  /** The ink of the word. @defaultValue the theme ink */
   ink?: string
-  /** Le mot qui s'assemble. @defaultValue 'ODORO' */
+  /** The word that assembles. @defaultValue 'ODORO' */
   word?: string
   /**
-   * Ce que les lecteurs d'ecran annoncent avant le mot. Chaine vide pour
-   * n'annoncer que le mot.
+   * What screen readers announce before the word. Empty string to announce
+   * the word only.
    *
-   * @defaultValue 'Chargement'
+   * @defaultValue 'Loading'
    */
   status?: string
-  /** Temps entre deux caracteres, en millisecondes. @defaultValue 130 */
+  /** Time between two characters, in milliseconds. @defaultValue 130 */
   letterMs?: number
-  /** Pause apres le dernier caractere, en millisecondes. @defaultValue 650 */
+  /** Pause after the last character, in milliseconds. @defaultValue 650 */
   holdMs?: number
-  /** Duree du rabattement, en millisecondes. @defaultValue 900 */
+  /** Duration of the fold-down, in milliseconds. @defaultValue 900 */
   exitMs?: number
   /**
-   * Etat controle : le rideau attend tant que c'est `true`, meme le mot
-   * assemble, et sort au premier `false`. Renseigne, il remplace `holdMs`.
+   * Controlled state: the curtain waits as long as this is `true`, even with
+   * the word assembled, and exits on the first `false`. When set, it
+   * replaces `holdMs`.
    */
   open?: boolean
-  /** Couvre le parent positionne plutot que la fenetre. @defaultValue false */
+  /** Covers the positioned parent rather than the window. @defaultValue false */
   contained?: boolean
-  /** Appele au **debut** de la sortie. Voir l'en-tete du module. */
+  /** Called at the **start** of the exit. See the module header. */
   onDone?: () => void
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type LettersGateProps = Customisable<LettersGateOwnProps, 'div'>
 
-/** Identifiant de la feuille injectee. */
+/** Id of the injected stylesheet. */
 const STYLE_ID = 'o-letters-gate'
 
-/** Decalage entre deux lettres au depart, en millisecondes. */
+/** Offset between two letters on the way out, in milliseconds. */
 const EXIT_STAGGER = 45
 
-/** Pose les regles du mot et du couvercle, une fois par document. */
+/** Sets the rules of the word and of the lid, once per document. */
 function ensureLettersGateRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -113,8 +115,8 @@ function ensureLettersGateRule(): void {
   const style = document.createElement('style')
   style.id = STYLE_ID
   style.textContent = [
-    // La perspective vit sur la scene : c'est elle qui fait du rabattement une
-    // rotation dans l'espace plutot qu'un ecrasement.
+    // The perspective lives on the stage: it is what makes the fold-down a
+    // rotation in space rather than a flattening.
     '[data-o-letg]{',
     'position:fixed;inset:0;z-index:9999;overflow:hidden;',
     'perspective:1600px;color:var(--o-letg-ink);',
@@ -139,8 +141,8 @@ function ensureLettersGateRule(): void {
     'transition:opacity 260ms ease,transform 260ms cubic-bezier(0.2,0,0,1);',
     '}',
     '[data-o-letg-ch][data-o-letg-on]{opacity:1;transform:none}',
-    // A la sortie, les lettres remontent en ordre decale : elles quittent la
-    // scene par ou le couvercle va s'ouvrir.
+    // On the way out, the letters rise in staggered order: they quit the
+    // stage through the very place the lid is about to open.
     '[data-o-letg-out] [data-o-letg-ch]{',
     'opacity:0;transform:translateY(-0.5em);',
     'transition:opacity 220ms ease var(--o-letg-d),',
@@ -151,20 +153,20 @@ function ensureLettersGateRule(): void {
 }
 
 /**
- * Assemble un mot, puis rabat la plaque qui le portait.
+ * Assembles a word, then folds down the plate that carried it.
  *
  * @example
- * <LettersGate word="ODORO" onDone={ouvrir} />
+ * <LettersGate word="ODORO" onDone={reveal} />
  *
  * @example
- * // Controle : le mot reste affiche jusqu'a ce que la scene soit dessinee.
- * <LettersGate word="ATELIER" open={!sceneDessinee} onDone={ouvrir} />
+ * // Controlled: the word stays on screen until the scene is drawn.
+ * <LettersGate word="ATELIER" open={!sceneDrawn} onDone={reveal} />
  */
 export function LettersGate({
   background = 'var(--o-theme-bg)',
   ink = 'var(--o-theme-fg)',
   word = 'ODORO',
-  status = 'Chargement',
+  status = 'Loading',
   letterMs = 130,
   holdMs = 650,
   exitMs = 900,
@@ -174,143 +176,143 @@ export function LettersGate({
   ...rest
 }: LettersGateProps): ReactElement | null {
   const { reduced } = useMotionState()
-  const [sortant, setSortant] = useState(false)
-  const [parti, setParti] = useState(false)
-  const caracteres = useRef<(HTMLSpanElement | null)[]>([])
+  const [exiting, setExiting] = useState(false)
+  const [gone, setGone] = useState(false)
+  const characters = useRef<(HTMLSpanElement | null)[]>([])
 
-  // Dans une ref : la sortie ne s'annonce qu'une fois, et un rendu de plus ne
-  // doit pas rejouer le rappel.
-  const annonce = useRef(false)
-  const rappel = useRef(onDone)
-  rappel.current = onDone
+  // In a ref: the exit is announced only once, and one more render must not
+  // replay the callback.
+  const announced = useRef(false)
+  const callback = useRef(onDone)
+  callback.current = onDone
 
-  // `open` vit dans une ref parce que la boucle le lit a chaque image. Le
-  // mettre en dependance de l'effet relancerait l'assemblage du mot chaque
-  // fois que l'appelant change d'avis.
-  const ouvert = useRef(open)
-  ouvert.current = open
+  // `open` lives in a ref because the loop reads it on every frame. Making
+  // it a dependency of the effect would restart the assembly of the word
+  // every time the caller changes its mind.
+  const opened = useRef(open)
+  opened.current = open
 
   ensureLettersGateRule()
 
-  const lettres = [...word]
-  const nbLettres = lettres.length
+  const letters = [...word]
+  const letterCount = letters.length
 
   useEffect(() => {
-    const annoncer = (): void => {
-      if (annonce.current) return
-      annonce.current = true
-      rappel.current?.()
+    const announce = (): void => {
+      if (announced.current) return
+      announced.current = true
+      callback.current?.()
     }
 
-    // Mouvement reduit : la sortie est immediate. Un mot qui s'assemble est
-    // exactement le mouvement que la preference demande d'omettre, et le
-    // rideau n'apportait que lui.
+    // Reduced motion: the exit is immediate. A word that assembles is
+    // exactly the movement the preference asks to omit, and the curtain
+    // brought nothing but that.
     if (reduced) {
-      annoncer()
-      setParti(true)
+      announce()
+      setGone(true)
       return
     }
 
-    const total = nbLettres
-    let ecoule = 0
-    let poses = 0
+    const total = letterCount
+    let elapsed = 0
+    let placed = 0
 
-    const abonnement = clock.subscribe(
+    const subscription = clock.subscribe(
       ({ delta }) => {
-        ecoule += delta * 1000
+        elapsed += delta * 1000
 
-        // Une ecriture par lettre, pas une par image : on n'entre dans la
-        // boucle d'ecriture que lorsque le compte a change.
-        const attendus = Math.min(total, Math.floor(ecoule / Math.max(1, letterMs)))
-        while (poses < attendus) {
-          caracteres.current[poses]?.setAttribute('data-o-letg-on', '')
-          poses += 1
+        // One write per letter, not one per frame: we only enter the write
+        // loop once the count has changed.
+        const expected = Math.min(total, Math.floor(elapsed / Math.max(1, letterMs)))
+        while (placed < expected) {
+          characters.current[placed]?.setAttribute('data-o-letg-on', '')
+          placed += 1
         }
 
-        if (poses < total) return
+        if (placed < total) return
 
-        // Le mot est assemble. Sans `open`, la pause decide ; avec, c'est
-        // l'appelant, et le mot reste affiche aussi longtemps qu'il le faut.
-        const fini =
-          ouvert.current === undefined
-            ? ecoule >= total * letterMs + holdMs
-            : ouvert.current === false
+        // The word is assembled. Without `open`, the pause decides; with it,
+        // the caller does, and the word stays on screen as long as needed.
+        const finished =
+          opened.current === undefined
+            ? elapsed >= total * letterMs + holdMs
+            : opened.current === false
 
-        if (!fini) return
+        if (!finished) return
 
-        abonnement.unsubscribe()
-        setSortant(true)
-        annoncer()
+        subscription.unsubscribe()
+        setExiting(true)
+        announce()
       },
       { name: 'letters-gate' },
     )
 
     return () => {
-      abonnement.unsubscribe()
+      subscription.unsubscribe()
     }
-  }, [reduced, letterMs, holdMs, nbLettres])
+  }, [reduced, letterMs, holdMs, letterCount])
 
-  // Un minuteur plutot que `transitionend` : les lettres partent en ordre
-  // decale, et le premier evenement arrive quand la plaque n'a pas bouge.
+  // A timer rather than `transitionend`: the letters leave in staggered
+  // order, and the first event arrives when the plate has not moved.
   useEffect(() => {
-    if (!sortant) return
+    if (!exiting) return
 
-    const minuteur = window.setTimeout(
+    const timer = window.setTimeout(
       () => {
-        setParti(true)
+        setGone(true)
       },
-      exitMs + nbLettres * EXIT_STAGGER + 40,
+      exitMs + letterCount * EXIT_STAGGER + 40,
     )
 
     return () => {
-      window.clearTimeout(minuteur)
+      window.clearTimeout(timer)
     }
-  }, [sortant, exitMs, nbLettres])
+  }, [exiting, exitMs, letterCount])
 
-  // Le verrou de defilement, seulement quand le rideau couvre la fenetre.
+  // The scroll lock, only when the curtain covers the window.
   useEffect(() => {
-    if (contained || parti || reduced) return
+    if (contained || gone || reduced) return
 
-    // Un verrou COMPTE, et non memorise. Deux rideaux peuvent se chevaucher
-    // — rechargement a chaud, navigation, rendu concurrent — et le second
-    // memoriserait alors la valeur posee par le premier, « hidden », pour la
-    // restaurer en sortant : la page resterait bloquee sans erreur ni trace.
-    const racine = document.documentElement
-    const verrous = Number(racine.dataset['oPorteVerrous'] ?? '0')
-    if (verrous === 0) racine.dataset['oPorteAvant'] = racine.style.overflow
-    racine.dataset['oPorteVerrous'] = String(verrous + 1)
-    racine.style.overflow = 'hidden'
+    // A COUNTED lock, not a remembered one. Two curtains can overlap — hot
+    // reload, navigation, concurrent rendering — and the second would then
+    // remember the value set by the first, "hidden", to restore it on the
+    // way out: the page would stay stuck with no error and no trace.
+    const root = document.documentElement
+    const locks = Number(root.dataset['oGateLocks'] ?? '0')
+    if (locks === 0) root.dataset['oGatePrevious'] = root.style.overflow
+    root.dataset['oGateLocks'] = String(locks + 1)
+    root.style.overflow = 'hidden'
 
-    let rendu = false
-    const rendreLaMain = (): void => {
-      if (rendu) return
-      rendu = true
-      const reste = Number(racine.dataset['oPorteVerrous'] ?? '1') - 1
-      if (reste > 0) {
-        racine.dataset['oPorteVerrous'] = String(reste)
+    let released = false
+    const release = (): void => {
+      if (released) return
+      released = true
+      const remaining = Number(root.dataset['oGateLocks'] ?? '1') - 1
+      if (remaining > 0) {
+        root.dataset['oGateLocks'] = String(remaining)
         return
       }
-      racine.style.overflow = racine.dataset['oPorteAvant'] ?? ''
-      delete racine.dataset['oPorteVerrous']
-      delete racine.dataset['oPorteAvant']
+      root.style.overflow = root.dataset['oGatePrevious'] ?? ''
+      delete root.dataset['oGateLocks']
+      delete root.dataset['oGatePrevious']
     }
 
-    // Le garde-fou. Plus long que le plafond de n importe quel rideau, donc
-    // invisible en marche normale : il n existe que pour qu un retard ne
-    // puisse jamais laisser la page sans defilement.
-    const secours = window.setTimeout(rendreLaMain, 8000)
+    // The guardrail. Longer than the ceiling of any curtain, so invisible in
+    // normal operation: it exists only so that a delay can never leave the
+    // page without scrolling.
+    const safety = window.setTimeout(release, 8000)
 
     return () => {
-      window.clearTimeout(secours)
-      rendreLaMain()
+      window.clearTimeout(safety)
+      release()
     }
-  }, [contained, parti, reduced])
+  }, [contained, gone, reduced])
 
-  if (parti) return null
+  if (gone) return null
 
   const { className, style } = mergePresentation({}, rest)
 
-  const styleScene = {
+  const sceneStyle = {
     ...style,
     '--o-letg-bg': background,
     '--o-letg-ink': ink,
@@ -321,13 +323,13 @@ export function LettersGate({
     <div
       {...rest}
       className={className}
-      style={styleScene}
+      style={sceneStyle}
       data-o-letg=""
-      {...(sortant ? { 'data-o-letg-out': '' } : {})}
+      {...(exiting ? { 'data-o-letg-out': '' } : {})}
       {...(contained ? { 'data-o-letg-contained': '' } : {})}
     >
       <div data-o-letg-plate="">
-        {/* Le fond est du decor : il ne doit pas etre lu. */}
+        {/* The background is decoration: it must not be read. */}
         <div data-o-letg-face="" aria-hidden="true" />
 
         <div role="status">
@@ -335,20 +337,20 @@ export function LettersGate({
             {status.length > 0 ? `${status} ${word}` : word}
           </span>
 
-          {/* Le mot decoupe est decoratif : lu tel quel, il serait epele. */}
+          {/* The split word is decorative: read as is, it would be spelled out. */}
           <span data-o-letg-word="" aria-hidden="true">
-            {lettres.map((caractere, index) => (
+            {letters.map((character, index) => (
               <span
                 key={index}
-                ref={(noeud) => {
-                  caracteres.current[index] = noeud
+                ref={(node) => {
+                  characters.current[index] = node
                 }}
                 data-o-letg-ch=""
                 style={
                   { '--o-letg-d': `${String(index * EXIT_STAGGER)}ms` } as CSSProperties
                 }
               >
-                {caractere}
+                {character}
               </span>
             ))}
           </span>

@@ -1,33 +1,33 @@
 /**
- * Shader de l'iridescence.
+ * Iridescence shader.
  *
- * ## L'idee mathematique
+ * ## The mathematical idea
  *
- * Une nacre : une surface qui ondule doucement, et dont la teinte depend de
- * l'angle sous lequel on la regarde. La surface est une somme de sinus
- * directionnels a grande longueur d'onde, dont le gradient se calcule a la
- * main — pas de lecture decalee, la derivee d'un sinus est connue. Le
- * gradient donne une normale ; l'inclinaison de la normale et la hauteur
- * donnent une phase, et la phase fait tourner la teinte entre deux tokens.
+ * A mother-of-pearl: a surface that ripples gently, and whose hue depends
+ * on the angle it is looked at from. The surface is a sum of directional
+ * sines with a long wavelength, whose gradient is computed by hand — no
+ * offset lookup, the derivative of a sine is known. The gradient gives a
+ * normal; the tilt of the normal and the height give a phase, and the phase
+ * turns the hue between two tokens.
  *
- * Ce qui fait la nacre plutot que le film de savon ou la nappe d'essence :
- * tout est doux. Les bandes sont larges, le melange est un cosinus sans
- * franges sombres, et la lumiere est un reflet large et un reflet etroit
- * poses par addition bornee, jamais par assombrissement. Sur un fond clair,
- * la nappe reste pastel ; sur un fond sombre, elle luit.
+ * What makes mother-of-pearl rather than a soap film or an oil sheet:
+ * everything is soft. The bands are wide, the blend is a cosine with no dark
+ * fringes, and the light is one broad highlight and one narrow highlight
+ * laid down by bounded addition, never by darkening. On a light background,
+ * the sheet stays pastel; on a dark background, it glows.
  *
  * ## Uniforms
  *
- * - `uTime` — temps en secondes, fourni par le moteur.
- * - `uResolution` — taille du canevas en pixels, fournie par le moteur.
- * - `uColorA` — le fond.
- * - `uColorB` — la premiere teinte de la nacre.
- * - `uColorC` — la seconde teinte, et le reflet.
- * - `uSpeed` — vitesse de l'ondulation.
- * - `uScale` — echelle des ondes ; plus haut, plus serre.
- * - `uShimmer` — force des reflets.
- * - `uBands` — tours de teinte sur toute la hauteur de la surface.
- * - `uDetail` — nombre d'ondes sommees, et donc leur cout.
+ * - `uTime` — time in seconds, supplied by the engine.
+ * - `uResolution` — canvas size in pixels, supplied by the engine.
+ * - `uColorA` — the background.
+ * - `uColorB` — the first hue of the pearl.
+ * - `uColorC` — the second hue, and the highlight.
+ * - `uSpeed` — speed of the ripple.
+ * - `uScale` — scale of the waves; higher is tighter.
+ * - `uShimmer` — strength of the highlights.
+ * - `uBands` — hue turns over the whole height of the surface.
+ * - `uDetail` — number of waves summed, and so their cost.
  */
 export const IRIDESCENCE_FRAGMENT = /* glsl */ `
 precision highp float;
@@ -45,8 +45,8 @@ uniform float uShimmer;
 uniform float uBands;
 uniform float uDetail;
 
-// Une onde directionnelle : la hauteur, et son gradient dans le meme calcul.
-vec3 nacreOnde(vec2 p, vec2 dir, float freq, float phase, float amp) {
+// A directional wave: the height, and its gradient in the same computation.
+vec3 pearlWave(vec2 p, vec2 dir, float freq, float phase, float amp) {
   float arg = dot(p, dir) * freq + phase;
   return vec3(sin(arg) * amp, cos(arg) * amp * freq * dir);
 }
@@ -55,39 +55,39 @@ void main() {
   float aspect = uResolution.x / max(uResolution.y, 1.0);
   vec2 p = vec2(vUv.x * aspect, vUv.y) * max(uScale, 0.2);
   float t = uTime * uSpeed;
-  int ondes = int(clamp(uDetail, 1.0, 4.0));
+  int waves = int(clamp(uDetail, 1.0, 4.0));
 
-  // La surface : jusqu'a quatre ondes, aux directions et frequences non
-  // alignees pour que le motif ne se repete pas.
-  vec3 champ = nacreOnde(p, normalize(vec2(1.0, 0.6)), 1.8, t * 0.9, 0.5);
-  if (ondes >= 2) champ += nacreOnde(p, normalize(vec2(-0.4, 1.0)), 2.6, -t * 0.7 + 1.3, 0.3);
-  if (ondes >= 3) champ += nacreOnde(p, normalize(vec2(0.9, -0.3)), 3.9, t * 1.1 + 2.1, 0.15);
-  if (ondes >= 4) champ += nacreOnde(p, normalize(vec2(0.2, 0.9)), 6.1, -t * 0.5 + 0.4, 0.07);
+  // The surface: up to four waves, with directions and frequencies that are
+  // not aligned so that the pattern does not repeat.
+  vec3 field = pearlWave(p, normalize(vec2(1.0, 0.6)), 1.8, t * 0.9, 0.5);
+  if (waves >= 2) field += pearlWave(p, normalize(vec2(-0.4, 1.0)), 2.6, -t * 0.7 + 1.3, 0.3);
+  if (waves >= 3) field += pearlWave(p, normalize(vec2(0.9, -0.3)), 3.9, t * 1.1 + 2.1, 0.15);
+  if (waves >= 4) field += pearlWave(p, normalize(vec2(0.2, 0.9)), 6.1, -t * 0.5 + 0.4, 0.07);
 
-  float hauteur = champ.x;
-  vec3 n = normalize(vec3(-champ.yz * 0.8, 1.0));
+  float height = field.x;
+  vec3 n = normalize(vec3(-field.yz * 0.8, 1.0));
 
-  // La teinte : une phase faite de la hauteur et de l'inclinaison. Le
-  // cosinus tourne entre les deux tokens sans jamais creuser de frange.
-  float phase = hauteur * uBands * 3.14159 + n.x * 3.0 + n.y * 1.5 + t * 0.3;
-  vec3 teinte = mix(uColorB, uColorC, 0.5 + 0.5 * cos(phase));
+  // The hue: a phase made of the height and of the tilt. The cosine turns
+  // between the two tokens without ever hollowing out a fringe.
+  float phase = height * uBands * 3.14159 + n.x * 3.0 + n.y * 1.5 + t * 0.3;
+  vec3 tint = mix(uColorB, uColorC, 0.5 + 0.5 * cos(phase));
 
-  // La presence : la nacre couvre tout, mais plus dense sur les cretes.
-  float presence = 0.32 + 0.38 * smoothstep(-0.8, 0.8, hauteur);
+  // The presence: the pearl covers everything, but denser on the crests.
+  float presence = 0.32 + 0.38 * smoothstep(-0.8, 0.8, height);
 
-  // La lumiere : un reflet large et un reflet etroit, d'une lampe fixe.
-  vec3 lumiere = normalize(vec3(-0.5, 0.6, 0.65));
-  vec3 h = normalize(lumiere + vec3(0.0, 0.0, 1.0));
+  // The light: one broad highlight and one narrow one, from a fixed lamp.
+  vec3 light = normalize(vec3(-0.5, 0.6, 0.65));
+  vec3 h = normalize(light + vec3(0.0, 0.0, 1.0));
   float specular = max(dot(n, h), 0.0);
-  float large = pow(specular, 6.0) * 0.25;
-  float etroit = pow(specular, 40.0) * 0.5;
+  float broad = pow(specular, 6.0) * 0.25;
+  float narrow = pow(specular, 40.0) * 0.5;
 
-  // Un balayage lent en diagonale, comme un reflet de fenetre qui passe.
-  float balayage = pow(max(sin((p.x + p.y) * 1.2 - uTime * 0.25), 0.0), 8.0) * 0.2;
+  // A slow diagonal sweep, like the reflection of a window going by.
+  float sweep = pow(max(sin((p.x + p.y) * 1.2 - uTime * 0.25), 0.0), 8.0) * 0.2;
 
-  vec3 colour = mix(uColorA, teinte, presence);
-  colour += mix(uColorB, uColorC, 0.5) * large * uShimmer;
-  colour += uColorC * (etroit + balayage) * uShimmer;
+  vec3 colour = mix(uColorA, tint, presence);
+  colour += mix(uColorB, uColorC, 0.5) * broad * uShimmer;
+  colour += uColorC * (narrow + sweep) * uShimmer;
 
   gl_FragColor = vec4(clamp(colour, 0.0, 1.0), 1.0);
 }

@@ -4,7 +4,7 @@
   "type": "module",
   "license": "UNLICENSED",
   "author": "BouBouw",
-  "description": "Socle back-end Odoro : noyau Express typé, conteneur de services, modules, erreurs RFC 9457.",
+  "description": "Odoro back-end foundation: typed Express kernel, service container, modules, RFC 9457 errors.",
   "engines": {
     "node": ">=22"
   },

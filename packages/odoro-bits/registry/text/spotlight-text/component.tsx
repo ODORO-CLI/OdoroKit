@@ -1,27 +1,26 @@
 /**
- * Projecteur : le texte n'apparait en pleine couleur que sous un halo qui
- * suit le pointeur.
+ * Spotlight: the text only appears in full colour under a halo that follows
+ * the pointer.
  *
- * ## Des variables CSS, pas des rendus React
+ * ## CSS variables, not React renders
  *
- * Le halo bouge a chaque mouvement du pointeur — en passer la position par un
- * etat React declencherait un rendu par evenement, pour deplacer un degrade
- * que React ne dessine meme pas. La position est donc ecrite directement dans
- * deux variables CSS, et le masque `radial-gradient` la lit tout seul.
+ * The halo moves on every movement of the pointer — passing its position
+ * through React state would trigger one render per event, to move a gradient
+ * that React does not even draw. The position is therefore written directly
+ * into two CSS variables, and the `radial-gradient` mask reads it on its own.
  *
- * Le noir et le transparent du masque ne sont pas des couleurs : un masque ne
- * lit que l'alpha. Le texte, lui, reste en `currentColor`.
+ * The black and the transparent of the mask are not colours: a mask reads only
+ * the alpha. The text itself stays in `currentColor`.
  *
- * ## Le texte reste lisible, toujours
+ * ## The text stays readable, always
  *
- * Hors survol, le texte de base garde un remplissage attenue mais present —
- * un titre qui disparait completement hors du halo est un jeu, pas un titre.
- * Sur les ecrans sans pointeur fin, la regle attenuee ne s'applique jamais :
- * le texte est simplement plein, et l'effet n'existe pas. Meme chose sous
- * mouvement reduit.
+ * Outside a hover, the base text keeps a faded but present fill — a heading
+ * that disappears completely outside the halo is a game, not a heading. On
+ * screens without a fine pointer, the faded rule never applies: the text is
+ * simply full, and the effect does not exist. Same thing under reduced motion.
  *
- * Le calque plein est une copie `aria-hidden` : pour un lecteur d'ecran, il
- * n'y a qu'un texte.
+ * The full layer is an `aria-hidden` copy: for a screen reader, there is only
+ * one text.
  *
  * @module
  */
@@ -35,30 +34,29 @@ import {
   type ReactElement,
 } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface SpotlightTextOwnProps {
-  /** Texte a eclairer. */
+  /** Text to light. */
   children: string
-  /** Balise rendue. @defaultValue 'span' */
+  /** Rendered tag. @defaultValue 'span' */
   as?: ElementType
-  /** Rayon du halo, en pixels. @defaultValue 120 */
+  /** Radius of the halo, in pixels. @defaultValue 120 */
   radius?: number
-  /** Opacite du texte hors du halo, de 0 a 1. @defaultValue 0.25 */
+  /** Opacity of the text outside the halo, from 0 to 1. @defaultValue 0.25 */
   rest?: number
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type SpotlightTextProps = Customisable<SpotlightTextOwnProps, 'span'>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-spotlight-text'
 
 /**
- * Pose les regles du projecteur, une fois par document.
+ * Sets the spotlight rules, once per document.
  *
- * Tout ce qui attenue ou masque vit sous la requete de media : un ecran
- * tactile ne verra jamais un texte a moitie efface qu'aucun pointeur ne peut
- * reveler.
+ * Everything that fades or masks lives under the media query: a touch screen
+ * will never see a half-erased text that no pointer can reveal.
  */
 function ensureSpotlightRule(): void {
   if (typeof document === 'undefined') return
@@ -85,16 +83,16 @@ function ensureSpotlightRule(): void {
 }
 
 /**
- * Revele un texte massif sous un halo qui suit le pointeur.
+ * Reveals a massive text under a halo that follows the pointer.
  *
  * @example
  * <SpotlightText as="h1" className="o-text-5xl o-font-extrabold">
- *   Cherchez bien
+ *   Look closely
  * </SpotlightText>
  *
  * @example
- * // Halo large, texte presque efface au repos.
- * <SpotlightText radius={220} rest={0.1}>Dans le noir</SpotlightText>
+ * // Wide halo, text almost erased at rest.
+ * <SpotlightText radius={220} rest={0.1}>In the dark</SpotlightText>
  */
 export function SpotlightText({
   children,
@@ -136,7 +134,8 @@ export function SpotlightText({
 
   const { className, style } = mergePresentation({}, restProps)
 
-  // Mouvement reduit : le texte est plein, sans calque ni ecoute du pointeur.
+  // Reduced motion: the text is full, with neither layer nor pointer
+  // listening.
   if (reduced) {
     return (
       <Tag {...restProps} className={className} style={style}>
@@ -156,7 +155,7 @@ export function SpotlightText({
   return (
     <Tag {...restProps} ref={host} className={className} style={spotStyle} data-o-spot="">
       <span data-o-spot-dim="">{children}</span>
-      {/* La copie pleine, sous le masque. Cachee aux lecteurs d'ecran. */}
+      {/* The full copy, under the mask. Hidden from screen readers. */}
       <span aria-hidden data-o-spot-full="">
         {children}
       </span>

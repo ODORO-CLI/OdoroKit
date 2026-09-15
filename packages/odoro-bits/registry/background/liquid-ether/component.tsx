@@ -1,35 +1,35 @@
 /**
- * Ether liquide : un fluide vaporeux que le pointeur pousse.
+ * Liquid ether: a vaporous fluid the pointer pushes.
  *
- * ## Pourquoi un champ analytique, et pas un ping-pong de textures
+ * ## Why an analytic field, and not a texture ping-pong
  *
- * Un vrai fluide s'ecrit avec deux cibles de rendu qu'on echange a chaque
- * image : la vitesse de l'image precedente est relue pour advecter celle de
- * la suivante. La surface arbitree du moteur ne prete qu'un programme et un
- * quadrilatere, sans cible de rendu ni retour d'image — c'est ce qui la rend
- * legere, et ce que tous les fonds de cette famille partagent.
+ * A real fluid is written with two render targets swapped every frame: the
+ * velocity of the previous frame is read back to advect the next one. The
+ * engine's arbitrated surface only lends one program and one quad, with no
+ * render target and no frame feedback — that is what makes it light, and what
+ * every background of this family shares.
  *
- * Plutot que de contourner le moteur avec un programme brut et deux cibles a
- * gerer, le fond garde une memoire courte a sa place : douze depots dates,
- * chacun une position et une vitesse, sommes a chaque fragment en un champ
- * de deplacement qui advecte le bruit. Rien ne se conserve d'une image a
- * l'autre, mais un geste de la main dure moins que douze depots, et l'oeil
- * ne voit que la vapeur qui suit.
+ * Rather than working around the engine with a raw program and two targets to
+ * manage, the background keeps a short memory in its place: twelve dated drops,
+ * each a position and a velocity, summed at each fragment into a displacement
+ * field that advects the noise. Nothing is conserved from one frame to the
+ * next, but a gesture of the hand lasts less than twelve drops, and the eye
+ * only ever sees the vapour that follows.
  *
- * ## Le pont pointeur → shader
+ * ## The pointer → shader bridge
  *
- * Aucun rendu React par image : deux tableaux stables — quarante-huit
- * flottants pour les depots, douze pour leurs dates — sont mutes en place a
- * chaque deplacement, et la surface relit ses uniforms a chaque image.
+ * No React render per frame: two stable arrays — forty-eight floats for the
+ * drops, twelve for their dates — are mutated in place on every move, and the
+ * surface re-reads its uniforms every frame.
  *
- * La vitesse est celle du geste, mesuree entre deux echantillons dans le
- * temps de l'horloge du moteur — le meme que `uTime` du shader, sans quoi
- * l'age des depots serait faux. Un deplacement trop court n'est pas depose :
- * il ne ferait qu'user le tampon.
+ * The velocity is that of the gesture, measured between two samples in the time
+ * of the engine clock — the same as the shader's `uTime`, without which the age
+ * of the drops would be wrong. A move that is too short is not dropped: it
+ * would only wear out the buffer.
  *
- * ## Sous mouvement reduit
+ * ## Under reduced motion
  *
- * La surface est refusee par le moteur et le repli statique s'affiche.
+ * The surface is refused by the engine and the static fallback is shown.
  *
  * @module
  */
@@ -48,69 +48,68 @@ import { useEffect, useRef, useState, type ReactElement } from 'react'
 
 import { LIQUID_ETHER_FRAGMENT } from './liquid-ether.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface LiquidEtherControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to this component. */
 export interface LiquidEtherOwnProps {
-  /** Vitesse de la derive sans pointeur. @defaultValue 0.1 */
+  /** Speed of the drift without a pointer. @defaultValue 0.1 */
   speed?: number
-  /** Rayon d'un depot, en hauteurs de cadre. @defaultValue 0.22 */
+  /** Radius of a drop, in frame heights. @defaultValue 0.22 */
   radius?: number
-  /** Force de la poussee sur le bruit. @defaultValue 0.8 */
+  /** Strength of the push on the noise. @defaultValue 0.8 */
   strength?: number
-  /** Duree de vie d'un depot, en secondes. @defaultValue 2.5 */
+  /** Lifetime of a drop, in seconds. @defaultValue 2.5 */
   life?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<LiquidEtherControls>
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type LiquidEtherProps = Customisable<LiquidEtherOwnProps>
 
-/** Tokens employes par defaut : le fond, la vapeur, la trace. */
+/** Tokens used by default: the background, the vapour, the trail. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-violet-500',
   '--o-palette-cyan-300',
 ] as const
 
-/** Repli par defaut : un degrade fige, dans les memes tons. */
+/** Default fallback: a frozen gradient, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-tr o-from-zinc-50 dark:o-from-zinc-950 o-via-violet-300 dark:o-via-violet-900 o-to-zinc-50 dark:o-to-zinc-950'
 
-/** Nombre de depots vivants a la fois. */
+/** Number of drops live at once. */
 const SLOTS = 12
 
-/** Deplacement minimal, en fraction du cadre, pour deposer. */
+/** Minimal move, as a fraction of the frame, before dropping. */
 const MIN_STEP = 0.012
 
-/** Vitesse maximale retenue, en cadres par seconde : un geste sec sature. */
+/** Maximum velocity kept, in frames per second: a sharp gesture saturates. */
 const MAX_VELOCITY = 3
 
 /**
- * Detail du bruit hors qualite basse.
+ * Noise detail outside low quality.
  *
- * Deux sommes d'octaves par fragment, apres les douze depots : les octaves
- * sont le seul levier de cout qui reste, et il n'a pas besoin d'etre une
- * prop pour etre retrograde.
+ * Two octave sums per fragment, after the twelve drops: the octaves are the
+ * only cost lever left, and it does not need to be a prop to be degraded.
  */
 const OCTAVES = 4
 
-/** Detail du bruit en qualite basse. */
+/** Noise detail at low quality. */
 const LOW_OCTAVES = 2
 
 /**
- * Ether liquide.
+ * Liquid ether.
  *
  * @example
  * <div className="o-relative o-min-h-screen">
@@ -130,14 +129,14 @@ export function LiquidEther({
 }: LiquidEtherProps): ReactElement {
   const [host, setHost] = useState<HTMLDivElement | null>(null)
 
-  // Tampons stables, mutes en place : douze fois (x, y, vx, vy), et douze
-  // dates. Une date a -1000 donne un age enorme, donc un depot inerte.
+  // Stable buffers, mutated in place: twelve times (x, y, vx, vy), and twelve
+  // dates. A date at -1000 gives a huge age, hence an inert drop.
   const uTrail = useRef<number[]>(Array.from({ length: SLOTS * 4 }, () => 0)).current
   const uStamps = useRef<number[]>(Array.from({ length: SLOTS }, () => -1000)).current
 
-  // Le temps de l'horloge du moteur — le meme que uTime du shader.
+  // The time of the engine clock — the same as the shader's uTime.
   const lastTime = useRef(0)
-  // Le dernier echantillon, pour mesurer la vitesse du geste.
+  // The last sample, to measure the speed of the gesture.
   const last = useRef<{ x: number; y: number; time: number } | null>(null)
 
   useEffect(() => {
@@ -145,7 +144,7 @@ export function LiquidEther({
       ({ time }) => {
         lastTime.current = time
       },
-      { priority: CLOCK_PRIORITY.input, name: 'liquid-ether : horloge' },
+      { priority: CLOCK_PRIORITY.input, name: 'liquid-ether : clock' },
     )
     return () => subscription.unsubscribe()
   }, [])
@@ -156,13 +155,13 @@ export function LiquidEther({
     const onMove = (event: PointerEvent): void => {
       const bounds = host.getBoundingClientRect()
       const x = (event.clientX - bounds.left) / Math.max(bounds.width, 1)
-      // vUv a son origine en bas : l'axe vertical de l'ecran est inverse.
+      // vUv has its origin at the bottom: the vertical screen axis is flipped.
       const y = 1 - (event.clientY - bounds.top) / Math.max(bounds.height, 1)
       const time = lastTime.current
 
       const previous = last.current
-      // Premier echantillon, ou reprise apres une pause : rien a deposer, la
-      // vitesse n'aurait pas de sens.
+      // First sample, or resuming after a pause: nothing to drop, the velocity
+      // would make no sense.
       if (previous === null || time - previous.time > 0.5) {
         last.current = { x, y, time }
         return
@@ -181,7 +180,7 @@ export function LiquidEther({
         vy = (vy / magnitude) * MAX_VELOCITY
       }
 
-      // Tampon circulaire : tout se decale d'un cran, le nouveau depot en tete.
+      // Ring buffer: everything shifts by one slot, the new drop at the head.
       for (let i = SLOTS - 1; i > 0; i -= 1) {
         uTrail[i * 4] = uTrail[(i - 1) * 4] ?? 0
         uTrail[i * 4 + 1] = uTrail[(i - 1) * 4 + 1] ?? 0

@@ -1,25 +1,27 @@
 /**
- * Bouton a maree : le fond monte derriere le libelle au survol.
+ * Tide button: the background rises behind the label on hover.
  *
- * ## Le calque deborde volontairement
+ * ## The layer overflows on purpose
  *
- * Le calque colore mesure cent dix pour cent de la hauteur du bouton, et la
- * courbe d'arrivee depasse legerement sa cible avant de s'y poser. Sans ce
- * surplus de matiere, le rebond decouvrirait une bande de fond nu au sommet
- * du bouton — un artefact d'une frame, mais visible a chaque survol.
+ * The coloured layer measures one hundred and ten percent of the height of
+ * the button, and the arrival curve slightly overshoots its target before
+ * settling on it. Without that surplus of matter, the bounce would uncover a
+ * band of bare background at the top of the button — an artefact of one
+ * frame, but visible on every hover.
  *
- * ## Le libelle change de couleur au croisement
+ * ## The label changes colour at the crossing
  *
- * Le texte passe de la couleur courante a celle prevue pour le calque, avec
- * une transition plus courte que la montee et un leger retard : il bascule
- * au moment ou la vague le traverse, pas avant. Deux couches de texte en
- * `mix-blend-mode` feraient plus spectaculaire, mais le rendu depend alors
- * du fond de la page — une transition de couleur est previsible partout.
+ * The text goes from the current colour to the one meant for the layer, with
+ * a transition shorter than the rise and a slight delay: it flips at the
+ * moment the wave goes through it, not before. Two layers of text in
+ * `mix-blend-mode` would look more spectacular, but the output then depends
+ * on the background of the page — a colour transition is predictable
+ * everywhere.
  *
- * ## Sous mouvement reduit, la maree devient un fondu
+ * ## Under reduced motion, the tide becomes a fade
  *
- * L'information — le bouton repond au survol — reste ; seul le deplacement
- * disparait. Le calque ne bouge plus, il apparait.
+ * The information — the button answers a hover — stays; only the movement
+ * goes away. The layer no longer moves, it shows up.
  *
  * @module
  */
@@ -27,23 +29,23 @@
 import { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'
 import { type CSSProperties, type ReactElement, type ReactNode } from 'react'
 
-/** Proprietes propres au composant. */
+/** Props specific to the component. */
 export interface LiquidButtonOwnProps {
-  /** Libelle du bouton. */
+  /** Label of the button. */
   children: ReactNode
-  /** Duree de la montee du calque, en millisecondes. @defaultValue 450 */
+  /** Duration of the rise of the layer, in milliseconds. @defaultValue 450 */
   duration?: number
-  /** Sens d'arrivee du calque colore. @defaultValue 'up' */
+  /** Direction the coloured layer arrives from. @defaultValue 'up' */
   direction?: 'up' | 'left'
 }
 
-/** Toutes les proprietes. */
+/** All the props. */
 export type LiquidButtonProps = Customisable<LiquidButtonOwnProps, 'button'>
 
-/** Identifiant de la feuille injectee. */
+/** Id of the injected stylesheet. */
 const STYLE_ID = 'o-liquid-button'
 
-/** Pose les regles du bouton, une fois par document. */
+/** Sets the rules of the button, once per document. */
 function ensureLiquidRules(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -57,19 +59,19 @@ function ensureLiquidRules(): void {
     'background:transparent;color:inherit;font:inherit;',
     '}',
 
-    // Le calque : plus grand que le bouton, gare hors champ.
+    // The layer: larger than the button, parked out of sight.
     '[data-o-liquid]::before{',
     'content:"";position:absolute;inset:-5%;z-index:-1;',
     'background:var(--o-liquid-fill);',
     'transform:var(--o-liquid-rest);',
-    // La courbe depasse sa cible puis s y pose : c est le rebond elastique.
+    // The curve overshoots its target then settles on it: that is the elastic bounce.
     'transition:transform var(--o-liquid-duration) cubic-bezier(0.32,1.35,0.4,1);',
     '}',
     '[data-o-liquid][data-o-liquid-dir="up"]{--o-liquid-rest:translateY(103%)}',
     '[data-o-liquid][data-o-liquid-dir="left"]{--o-liquid-rest:translateX(103%)}',
     '[data-o-liquid]:is(:hover,:focus-visible)::before{transform:translate(0,0)}',
 
-    // Le libelle bascule de couleur quand la vague le traverse.
+    // The label flips colour when the wave goes through it.
     '[data-o-liquid]>span{',
     'position:relative;z-index:1;display:inline-block;',
     'transition:color calc(var(--o-liquid-duration) / 2) linear;',
@@ -77,7 +79,7 @@ function ensureLiquidRules(): void {
     '}',
     '[data-o-liquid]:is(:hover,:focus-visible)>span{color:var(--o-liquid-ink)}',
 
-    // Mouvement reduit : le calque ne monte plus, il apparait.
+    // Reduced motion: the layer no longer rises, it shows up.
     '@media (prefers-reduced-motion:reduce){',
     '[data-o-liquid]::before{transform:translate(0,0);opacity:0;',
     'transition:opacity 200ms linear}',
@@ -88,14 +90,14 @@ function ensureLiquidRules(): void {
 }
 
 /**
- * Bouton dont le fond monte au survol, comme une maree.
+ * Button whose background rises on hover, like a tide.
  *
  * @example
- * <LiquidButton onClick={envoyer}>Envoyer</LiquidButton>
+ * <LiquidButton onClick={send}>Send</LiquidButton>
  *
  * @example
- * // Le calque arrive par la droite, plus lentement.
- * <LiquidButton direction="left" duration={700}>Nous suivre</LiquidButton>
+ * // The layer arrives from the right, more slowly.
+ * <LiquidButton direction="left" duration={700}>Follow us</LiquidButton>
  */
 export function LiquidButton({
   children,

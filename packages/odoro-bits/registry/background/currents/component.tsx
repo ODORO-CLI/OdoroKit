@@ -1,24 +1,24 @@
 /**
- * Courants : des filaments de bruit etires le long d'un champ d'ecoulement.
+ * Currents: filaments of noise stretched along a flow field.
  *
- * ## Le principe
+ * ## The principle
  *
- * Un premier bruit a grande echelle donne en chaque point un angle
- * d'ecoulement ; le point de lecture est advecte le long de cet angle, tourne
- * dans le repere local et etire — le bruit fin, lu dans ce repere anisotrope,
- * s'allonge en filaments qui suivent le champ sans qu'aucune ligne ne soit
- * tracee.
+ * A first noise at large scale gives, at every point, a flow angle; the
+ * lookup point is advected along that angle, rotated into the local frame
+ * and stretched — the fine noise, read in that anisotropic frame, stretches
+ * into filaments that follow the field without a single line being
+ * drawn.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur — les recopier ici en ferait autant
- * de versions a maintenir qu'il y a de fonds.
+ * It carries only what sets it apart: its shader, its settings and its fallback.
+ * Reading the tokens, converting them to floats and re-reading them when the
+ * theme changes all come from the engine — copying them here would leave as
+ * many versions to maintain as there are backgrounds.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en
- * accorde qu'une par backend — et sous mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface — it grants only one
+ * per backend — and under reduced motion.
  *
  * @module
  */
@@ -35,46 +35,46 @@ import { type ReactElement } from 'react'
 
 import { CURRENTS_FRAGMENT } from './currents.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface CurrentsControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to this component. */
 export interface CurrentsOwnProps {
-  /** Vitesse d'advection. @defaultValue 0.2 */
+  /** Advection speed. @defaultValue 0.2 */
   speed?: number
-  /** Echelle du bruit. Plus haut, plus fin. @defaultValue 3 */
+  /** Noise scale. Higher is finer. @defaultValue 3 */
   scale?: number
-  /** Anisotropie. Plus haut, filaments plus longs. @defaultValue 6 */
+  /** Anisotropy. Higher means longer filaments. @defaultValue 6 */
   stretch?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<CurrentsControls>
 }
 
-/** Toutes les proprietes. */
+/** Every property. */
 export type CurrentsProps = Customisable<CurrentsOwnProps>
 
-/** Tokens employes par defaut : l'eau profonde, les courants, les filaments. */
+/** Tokens used by default: the deep water, the currents, the filaments. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-teal-400',
   '--o-palette-cyan-200',
 ] as const
 
-/** Repli par defaut : un degrade fige, dans les memes tons. */
+/** Default fallback: a frozen gradient, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-b o-from-zinc-50 dark:o-from-blue-950 o-to-teal-950'
 
 /**
- * Courants.
+ * Currents.
  *
  * @example
  * <div className="o-relative o-min-h-screen">
@@ -96,9 +96,9 @@ export function Currents({
     colors,
     uniforms: { uSpeed: speed, uScale: scale, uStretch: stretch, uDetail: 4 },
     name: 'currents',
-    // Le champ d'ecoulement garde ses trois octaves — sans lui, plus de
-    // courant du tout. Ce sont les octaves du bruit fin qui pesent, donc
-    // c'est elles qui sont bornees.
+    // The flow field keeps its three octaves — without it, no current at all.
+    // It is the octaves of the fine noise that weigh, so those are the ones
+    // that are capped.
     degrade: (quality) => ({
       uDetail: quality === 'low' ? 2 : 4,
     }),

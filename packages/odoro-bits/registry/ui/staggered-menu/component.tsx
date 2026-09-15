@@ -1,34 +1,34 @@
 /**
- * Menu decale : un menu plein ecran ouvert par un bouton. Des bandes de
- * couleur balaient l'ecran, le panneau les suit, et les liens montent un a
- * un.
+ * Staggered menu: a fullscreen menu opened by a button. Color bands sweep
+ * across the screen, the panel follows them, and the links rise one after
+ * another.
  *
- * ## Trois temps, un seul attribut
+ * ## Three beats, a single attribute
  *
- * L'ouverture est un attribut pose sur l'hote. A partir de la, la feuille
- * fait tout : chaque bande part avec un retard qui depend de son rang, le
- * panneau part apres la derniere bande, chaque lien apres le panneau. C'est
- * la meme mecanique que le chargeur a rideau — un plan qui en cache un autre
- * — mais lue de l'autre sens : ici les plans arrivent, et la page reste
- * derriere.
+ * Opening is an attribute set on the host. From there the stylesheet does
+ * everything: each band leaves with a delay that depends on its rank, the
+ * panel leaves after the last band, each link after the panel. It is the
+ * same mechanism as the curtain loader — one plane hiding another — but
+ * read the other way round: here the planes arrive, and the page stays
+ * behind.
  *
- * A la fermeture les retards tombent : tout repart ensemble, vite. Un menu
- * qui met autant de temps a se fermer qu'a s'ouvrir fait attendre quelqu'un
- * qui a deja decide.
+ * On closing the delays drop: everything leaves together, fast. A menu that
+ * takes as long to close as it takes to open keeps someone waiting who has
+ * already decided.
  *
- * ## Les liens montent depuis un masque
+ * ## The links rise out of a mask
  *
- * Chaque lien est dans une ligne a `overflow: hidden`, et arrive par une
- * translation verticale : il semble sortir du papier plutot que d'apparaitre.
- * Le texte est dans le DOM des le depart ; seul le trajet est visuel.
+ * Each link sits in a row with `overflow: hidden`, and arrives through a
+ * vertical translation: it seems to come out of the paper rather than to appear.
+ * The text is in the DOM from the start; only the travel is visual.
  *
- * ## Ce qu'un menu plein ecran doit au clavier
+ * ## What a fullscreen menu owes to the keyboard
  *
- * Le bouton porte `aria-expanded` et `aria-controls`. Ouvert, le focus va au
- * premier lien ; Tab tourne a l'interieur du menu, jamais derriere lui ;
- * Echap ferme ; le focus revient au bouton. Le defilement de la page est
- * bloque tant que le menu couvre la fenetre — et seulement dans ce cas : un
- * menu contenu dans un cadre ne touche pas au document.
+ * The button carries `aria-expanded` and `aria-controls`. Once open, focus goes
+ * to the first link; Tab cycles inside the menu, never behind it; Escape
+ * closes; focus returns to the button. Page scrolling is locked as long as
+ * the menu covers the window — and only in that case: a menu contained in a
+ * frame does not touch the document.
  *
  * @module
  */
@@ -45,58 +45,58 @@ import {
   type ReactNode,
 } from 'react'
 
-/** Un element de navigation. */
+/** A navigation item. */
 export interface NavItem {
-  /** Libelle affiche. */
+  /** Displayed label. */
   readonly label: string
-  /** Cible du lien. Sans cible, l'element est un bouton. */
+  /** Target of the link. Without a target, the item is a button. */
   readonly href?: string
-  /** Icone placee avant le libelle. */
+  /** Icon placed before the label. */
   readonly icon?: ReactNode
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface StaggeredMenuOwnProps {
-  /** Les liens, dans l'ordre d'affichage. */
+  /** The links, in display order. */
   items: readonly NavItem[]
   /**
-   * Tokens des bandes qui precedent le panneau, dans l'ordre de passage.
+   * Tokens of the bands that precede the panel, in sweep order.
    *
-   * @defaultValue marque, puis encre du theme
+   * @defaultValue brand, then theme ink
    */
   colors?: readonly string[]
-  /** Bord par lequel bandes et panneau entrent. @defaultValue 'right' */
+  /** Edge the bands and the panel enter from. @defaultValue 'right' */
   side?: 'right' | 'left'
-  /** Decalage entre deux liens, en millisecondes. @defaultValue 70 */
+  /** Offset between two links, in milliseconds. @defaultValue 70 */
   stagger?: number
-  /** Couvre le parent positionne plutot que la fenetre. @defaultValue false */
+  /** Covers the positioned parent rather than the window. @defaultValue false */
   contained?: boolean
-  /** Etat ouvert, en mode controle. */
+  /** Open state, in controlled mode. */
   open?: boolean
-  /** Appele quand l'utilisateur ouvre ou ferme. */
+  /** Called when the user opens or closes. */
   onOpenChange?: (open: boolean) => void
-  /** Index de la page courante. */
+  /** Index of the current page. */
   active?: number
-  /** Appele quand l'utilisateur choisit un lien. */
+  /** Called when the user picks a link. */
   onActiveChange?: (index: number) => void
-  /** Nom du bloc de navigation pour les lecteurs d'ecran. @defaultValue 'Menu' */
+  /** Name of the navigation block for screen readers. @defaultValue 'Menu' */
   label?: string
-  /** Contenu du bouton. @defaultValue 'Menu' ferme, 'Fermer' ouvert */
+  /** Content of the button. @defaultValue 'Menu' closed, 'Close' open */
   trigger?: ReactNode
-  /** Ce qui occupe le bas du panneau : reseaux, mentions. */
+  /** What fills the bottom of the panel: social links, legal notices. */
   footer?: ReactNode
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type StaggeredMenuProps = Customisable<StaggeredMenuOwnProps>
 
-/** Bandes par defaut : la marque, puis l'encre du theme. */
+/** Default bands: the brand, then the theme ink. */
 const DEFAULT_COLORS: readonly string[] = ['--o-palette-brand-500', '--o-theme-fg']
 
-/** Identifiant de la feuille injectee. */
+/** Id of the injected stylesheet. */
 const STYLE_ID = 'o-staggered-menu'
 
-/** Pose le bouton, le voile, les bandes, le panneau et les liens, une fois par document. */
+/** Sets up the button, the veil, the bands, the panel and the links, once per document. */
 function ensureStaggeredRules(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -112,8 +112,8 @@ function ensureStaggeredRules(): void {
     'color:inherit;font:inherit;cursor:pointer;',
     '}',
     '[data-o-stag-trigger]:focus-visible{outline:2px solid currentColor;outline-offset:2px}',
-    // Le bouton passe au-dessus du voile quand celui-ci est ouvert, pour
-    // rester cliquable et lisible sur le panneau.
+    // The button rises above the veil while the veil is open, so that it stays
+    // clickable and legible on top of the panel.
     '[data-o-stag][data-o-stag-open] [data-o-stag-trigger]{position:relative;z-index:1011;color:var(--o-theme-fg)}',
     '[data-o-stag-veil]{',
     'position:fixed;inset:0;z-index:1010;overflow:hidden;',
@@ -164,25 +164,25 @@ function ensureStaggeredRules(): void {
   document.head.append(style)
 }
 
-/** Ce qui peut recevoir le focus dans le voile. */
+/** What can take focus inside the veil. */
 const FOCUSABLE = 'a[href],button:not([disabled]),[tabindex]:not([tabindex="-1"])'
 
 /**
- * Menu plein ecran a bandes et liens decales.
+ * Fullscreen menu with bands and staggered links.
  *
  * @example
  * <StaggeredMenu
  *   items={[
- *     { label: 'Accueil', href: '/' },
- *     { label: 'Projets', href: '/projets' },
+ *     { label: 'Home', href: '/' },
+ *     { label: 'Projects', href: '/projects' },
  *     { label: 'Studio', href: '/studio' },
  *     { label: 'Contact', href: '/contact' },
  *   ]}
  * />
  *
  * @example
- * // Dans un cadre de maquette, entrant par la gauche.
- * <StaggeredMenu items={liens} contained side="left" colors={['--o-palette-sky-500']} />
+ * // Inside a mockup frame, entering from the left.
+ * <StaggeredMenu items={links} contained side="left" colors={['--o-palette-sky-500']} />
  */
 export function StaggeredMenu({
   items,
@@ -221,9 +221,9 @@ export function StaggeredMenu({
   const panelDelay = bandDelay * colors.length
   const linkDelay = reduced ? 0 : stagger
 
-  // Ouvert : le focus va au premier lien une fois le panneau arrive, et le
-  // document ne defile plus si le menu couvre la fenetre. Ferme : tout est
-  // rendu, focus compris.
+  // Open: focus goes to the first link once the panel has arrived, and the
+  // document no longer scrolls if the menu covers the window. Closed:
+  // everything is handed back, focus included.
   useEffect(() => {
     if (!isOpen) return
 
@@ -241,10 +241,10 @@ export function StaggeredMenu({
       window.clearTimeout(timer)
       if (!contained) root.style.overflow = previous
 
-      // Les refs sont lues **a la fermeture**, et c'est voulu : on veut savoir
-      // ou le focus se trouve maintenant, et le rendre au declencheur tel qu'il
-      // est maintenant. Les copier a l'ouverture de l'effet, comme la regle le
-      // suggere, rendrait le focus a un noeud qui n'est peut-etre plus dans le
+      // The refs are read **on closing**, and that is deliberate: the point is
+      // to know where focus sits right now, and to hand it back to the trigger
+      // as it is right now. Copying them when the effect opens, as the rule
+      // suggests, would hand focus back to a node that may no longer be in the
       // document.
       /* eslint-disable react-hooks/exhaustive-deps */
       const host = hostRef.current
@@ -264,8 +264,8 @@ export function StaggeredMenu({
       return
     }
 
-    // Tab tourne entre le bouton et le contenu du voile : rien derriere le
-    // menu n'est atteignable tant qu'il est ouvert.
+    // Tab cycles between the button and the veil content: nothing behind the
+    // menu is reachable while it is open.
     if (event.key === 'Tab') {
       const inside = Array.from(
         veilRef.current?.querySelectorAll<HTMLElement>(FOCUSABLE) ?? [],
@@ -324,7 +324,7 @@ export function StaggeredMenu({
         aria-controls={veilId}
         onClick={() => setOpen(!isOpen)}
       >
-        {trigger ?? (isOpen ? 'Fermer' : 'Menu')}
+        {trigger ?? (isOpen ? 'Close' : 'Menu')}
       </button>
       <div id={veilId} ref={veilRef} data-o-stag-veil="">
         {colors.map((token, index) => (

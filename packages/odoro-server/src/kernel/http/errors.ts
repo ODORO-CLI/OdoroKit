@@ -1,40 +1,40 @@
 /**
- * Erreurs, et leur traduction en réponses HTTP.
+ * Errors, and their translation into HTTP responses.
  *
- * ## Le format
+ * ## The format
  *
- * Les réponses d'erreur suivent la RFC 9457, `application/problem+json` : un
- * `type`, un `title`, un `status`, un `detail`, et les extensions qu'on veut.
- * Ce n'est pas un choix esthétique — c'est un format que le client sait
- * discriminer sans convention maison, ce dont la phase 4 dépend.
+ * The error responses follow RFC 9457, `application/problem+json`: a
+ * `type`, a `title`, a `status`, a `detail`, and whatever extensions one wants.
+ * This is not an aesthetic choice — it is a format the client knows how to
+ * discriminate without a house convention, which phase 4 depends on.
  *
- * ## Ce qui ne doit jamais sortir
+ * ## What must never come out
  *
- * Une erreur imprévue en production rend un identifiant de corrélation et
- * rien d'autre. Pas de trace d'exécution, pas de message de pilote SQL, pas de
- * nom de table, pas de nom de contrainte.
+ * An unexpected error in production gives a correlation identifier and
+ * nothing else. No stack trace, no SQL driver message, no
+ * table name, no constraint name.
  *
- * La raison est concrète : un message d'ORM cite volontiers la requête, donc
- * la structure des tables, donc de quoi écrire une injection utile. Un nom de
- * contrainte violée dit qu'une adresse existe déjà — c'est une énumération de
- * comptes offerte par le gestionnaire d'erreurs, sans que personne ne l'ait
- * voulu.
+ * The reason is concrete: an ORM message readily quotes the query, therefore
+ * the structure of the tables, therefore enough to write a useful injection. A
+ * violated constraint name says that an address already exists — that is an enumeration of
+ * accounts offered by the error handler, without anyone having
+ * wanted it.
  *
- * La trace complète va dans les journaux, sous le même identifiant. Celui qui
- * exploite la voit ; celui qui appelle ne voit que l'identifiant à citer.
+ * The complete trace goes into the logs, under the same identifier. Whoever
+ * operates sees it; whoever calls only sees the identifier to quote.
  *
- * ## Pourquoi une hiérarchie plutôt qu'un code
+ * ## Why a hierarchy rather than a code
  *
- * Une classe par famille se `catch` par type, se teste par `instanceof`, et
- * l'éditeur sait la suivre. Un champ `code: string` mène à des comparaisons de
- * chaînes disséminées, qu'aucun renommage ne rattrape.
+ * A class per family is caught by type, is tested by `instanceof`, and
+ * the editor knows how to follow it. A `code: string` field leads to comparisons of
+ * strings scattered around, which no rename catches up with.
  *
  * @module
  */
 
 import type { NextFunction, Request, Response } from 'express'
 
-/** Les familles d'erreurs que l'API distingue. */
+/** The error families the API distinguishes. */
 export const ERROR_KINDS = [
   'VALIDATION',
   'UNAUTHORIZED',
@@ -46,10 +46,10 @@ export const ERROR_KINDS = [
   'INTERNAL',
 ] as const
 
-/** Famille d'une erreur, telle que le client la discrimine. */
+/** Family of an error, as the client discriminates it. */
 export type ErrorKind = (typeof ERROR_KINDS)[number]
 
-/** Statut HTTP de chaque famille. */
+/** HTTP status of each family. */
 const STATUS: Readonly<Record<ErrorKind, number>> = {
   VALIDATION: 422,
   UNAUTHORIZED: 401,
@@ -61,59 +61,59 @@ const STATUS: Readonly<Record<ErrorKind, number>> = {
   INTERNAL: 500,
 }
 
-/** Une erreur de validation, champ par champ. */
+/** A validation error, field by field. */
 export interface FieldError {
-  /** Chemin du champ, en notation pointée : `adresse.ville`. */
+  /** Path of the field, in dotted notation: `address.city`. */
   readonly field: string
-  /** Message destiné à être affiché tel quel. */
+  /** Message meant to be displayed as it is. */
   readonly message: string
 }
 
 /**
- * Le corps d'une réponse d'erreur, tel que le client le reçoit.
+ * The body of an error response, as the client receives it.
  *
- * Il est exporté parce que le client généré de la phase 4 en dérive ses types
- * d'erreur : c'est le contrat, pas un détail de sérialisation.
+ * It is exported because the generated client of phase 4 derives its error
+ * types from it: it is the contract, not a serialisation detail.
  */
 export interface ProblemDocument {
-  /** URI identifiant le type de problème. */
+  /** URI identifying the type of problem. */
   readonly type: string
-  /** Résumé court, stable pour un même `type`. */
+  /** Short summary, stable for a given `type`. */
   readonly title: string
-  /** Statut HTTP, répété dans le corps comme la RFC le demande. */
+  /** HTTP status, repeated in the body as the RFC asks. */
   readonly status: number
-  /** Description de cette occurrence. */
+  /** Description of this occurrence. */
   readonly detail: string
-  /** Famille, pour la discrimination côté client. */
+  /** Family, for the discrimination on the client side. */
   readonly kind: ErrorKind
-  /** Identifiant de corrélation, présent sur toute réponse d'erreur. */
+  /** Correlation identifier, present on every error response. */
   readonly correlationId: string
-  /** Erreurs par champ, sur une erreur de validation seulement. */
+  /** Errors by field, on a validation error only. */
   readonly errors?: readonly FieldError[]
-  /** Secondes à attendre, sur une limitation de débit seulement. */
+  /** Seconds to wait, on a rate limit only. */
   readonly retryAfter?: number
 }
 
 /**
- * Erreur destinée au client.
+ * Error meant for the client.
  *
- * Tout ce qui en hérite est **prévu** : son message est écrit pour être lu par
- * l'appelant, et traverse tel quel jusqu'en production. Ce qui n'en hérite pas
- * est imprévu, et ne traverse pas.
+ * Everything that inherits from it is **expected**: its message is written to be read by
+ * the caller, and goes through as it is all the way to production. What does not inherit from it
+ * is unexpected, and does not go through.
  */
 export class ApiError extends Error {
-  /** Type d'URI, dérivé de la famille. */
+  /** URI type, derived from the family. */
   readonly type: string
 
   constructor(
     readonly kind: ErrorKind,
     message: string,
     readonly options: {
-      /** Erreurs par champ. */
+      /** Errors by field. */
       readonly errors?: readonly FieldError[]
-      /** Secondes avant nouvelle tentative. */
+      /** Seconds before a new attempt. */
       readonly retryAfter?: number
-      /** Cause d'origine, journalisée, jamais transmise. */
+      /** Original cause, logged, never passed on. */
       readonly cause?: unknown
     } = {},
   ) {
@@ -122,99 +122,99 @@ export class ApiError extends Error {
     this.type = `https://odoro.dev/problems/${kind.toLowerCase().replace(/_/g, '-')}`
   }
 
-  /** Statut HTTP correspondant. */
+  /** Matching HTTP status. */
   get status(): number {
     return STATUS[this.kind]
   }
 }
 
-/** Entrée refusée par un schéma. */
+/** Input refused by a schema. */
 export class ValidationError extends ApiError {
-  constructor(errors: readonly FieldError[], message = 'La requete est invalide.') {
+  constructor(errors: readonly FieldError[], message = 'The request is invalid.') {
     super('VALIDATION', message, { errors })
   }
 }
 
-/** Aucune identité, ou identité expirée. */
+/** No identity, or expired identity. */
 export class UnauthorizedError extends ApiError {
-  constructor(message = 'Authentification requise.') {
+  constructor(message = 'Authentication required.') {
     super('UNAUTHORIZED', message)
   }
 }
 
 /**
- * Identité connue, droits insuffisants.
+ * Known identity, insufficient rights.
  *
- * À ne pas confondre avec {@link UnauthorizedError} : le client de la phase 4
- * déconnecte sur un 401 et n'agit pas sur un 403. Confondre les deux produit
- * une déconnexion à chaque écran interdit.
+ * Not to be confused with {@link UnauthorizedError}: the client of phase 4
+ * signs out on a 401 and does not act on a 403. Confusing the two produces
+ * a sign-out on every forbidden screen.
  */
 export class ForbiddenError extends ApiError {
-  constructor(message = 'Action non autorisee.') {
+  constructor(message = 'Action not allowed.') {
     super('FORBIDDEN', message)
   }
 }
 
-/** Ressource absente. */
+/** Missing resource. */
 export class NotFoundError extends ApiError {
-  constructor(message = 'Ressource introuvable.') {
+  constructor(message = 'Resource not found.') {
     super('NOT_FOUND', message)
   }
 }
 
-/** État incompatible : adresse déjà prise, version périmée. */
+/** Incompatible state: address already taken, stale version. */
 export class ConflictError extends ApiError {
-  constructor(message = 'Conflit avec l etat courant.') {
+  constructor(message = 'Conflict with the current state.') {
     super('CONFLICT', message)
   }
 }
 
-/** Trop de tentatives. */
+/** Too many attempts. */
 export class RateLimitError extends ApiError {
-  constructor(retryAfter: number, message = 'Trop de tentatives.') {
+  constructor(retryAfter: number, message = 'Too many attempts.') {
     super('RATE_LIMIT', message, { retryAfter })
   }
 }
 
 /**
- * Une dependance manque, le service ne peut pas travailler.
+ * A dependency is missing, the service cannot work.
  *
- * A distinguer de {@link ApiError} en 500 : un 503 dit que la demande etait
- * valide et que le service est momentanement incapable d'y repondre. C'est ce
- * qu'un repartiteur lit pour cesser d'envoyer du trafic — la ou un 500 le
- * laisserait continuer, puisqu'il signale une requete fautive et non un
- * service en peine.
+ * To be distinguished from {@link ApiError} in 500: a 503 says that the demand was
+ * valid and that the service is momentarily unable to answer it. That is what
+ * a load balancer reads to stop sending traffic — where a 500 would
+ * let it carry on, since it reports a faulty request and not a
+ * service in trouble.
  *
- * C'est aussi ce que rend `/ready` tant qu'il manque quelque chose.
+ * It is also what `/ready` gives as long as something is missing.
  */
 export class ServiceUnavailableError extends ApiError {
-  constructor(message = 'Service momentanement indisponible.', retryAfter?: number) {
+  constructor(message = 'Service momentarily unavailable.', retryAfter?: number) {
     super('UNAVAILABLE', message, retryAfter === undefined ? {} : { retryAfter })
   }
 }
 
-/** Titres, stables pour un même type. */
+/** Titles, stable for a given type. */
 const TITLES: Readonly<Record<ErrorKind, string>> = {
-  VALIDATION: 'Requete invalide',
-  UNAUTHORIZED: 'Authentification requise',
-  FORBIDDEN: 'Acces refuse',
-  NOT_FOUND: 'Introuvable',
-  CONFLICT: 'Conflit',
-  RATE_LIMIT: 'Trop de requetes',
-  UNAVAILABLE: 'Service indisponible',
-  INTERNAL: 'Erreur interne',
+  VALIDATION: 'Invalid request',
+  UNAUTHORIZED: 'Authentication required',
+  FORBIDDEN: 'Access denied',
+  NOT_FOUND: 'Not found',
+  CONFLICT: 'Conflict',
+  RATE_LIMIT: 'Too many requests',
+  UNAVAILABLE: 'Service unavailable',
+  INTERNAL: 'Internal error',
 }
 
-/** Ce dont le gestionnaire a besoin. */
+/** What the handler needs. */
 export interface ErrorHandlerOptions {
   /**
-   * Laisse passer le message et la trace des erreurs imprévues.
+   * Lets the message and the trace of the unexpected errors through.
    *
-   * Vrai en développement seulement. Le défaut est faux : une inversion par
-   * omission doit pencher du côté qui ne divulgue rien.
+   * True in development only. The default is false: an inversion by
+   * omission must lean towards the side that divulges nothing.
    */
   readonly exposeInternals?: boolean
-  /** Journalise l'erreur avec son identifiant de corrélation. */
+  /** Logs the error with its correlation identifier. */
   readonly log: (entry: {
     readonly correlationId: string
     readonly error: unknown
@@ -223,12 +223,12 @@ export interface ErrorHandlerOptions {
 }
 
 /**
- * Construit le gestionnaire d'erreurs.
+ * Builds the error handler.
  *
- * Il se place **en dernier**, après toutes les routes : Express reconnaît un
- * gestionnaire d'erreurs à ses quatre paramètres, et ne l'appelle que pour ce
- * qui a été passé à `next(error)` — ou, en Express 5, pour toute promesse
- * rejetée dans un handler.
+ * It is placed **last**, after every route: Express recognises an
+ * error handler by its four parameters, and only calls it for what
+ * has been passed to `next(error)` — or, in Express 5, for any promise
+ * rejected in a handler.
  *
  * @example
  * app.use(createErrorHandler({ log: (e) => logger.error(e) }))
@@ -242,8 +242,8 @@ export function createErrorHandler(options: ErrorHandlerOptions) {
     response: Response,
     next: NextFunction,
   ): void {
-    // Une réponse déjà commencée ne peut plus devenir un document d'erreur :
-    // les en-têtes sont partis. Express sait fermer la connexion proprement.
+    // A response already begun can no longer become an error document:
+    // the headers are gone. Express knows how to close the connection cleanly.
     if (response.headersSent) {
       next(error)
       return
@@ -266,7 +266,7 @@ export function createErrorHandler(options: ErrorHandlerOptions) {
   }
 }
 
-/** Traduit une erreur prévue. */
+/** Translates an expected error. */
 function describe(error: ApiError, correlationId: string): ProblemDocument {
   return {
     type: error.type,
@@ -283,11 +283,11 @@ function describe(error: ApiError, correlationId: string): ProblemDocument {
 }
 
 /**
- * Traduit une erreur imprévue.
+ * Translates an unexpected error.
  *
- * En production, `detail` ne contient que l'identifiant à citer. Le message
- * d'origine reste dans les journaux : il peut nommer une table, une contrainte
- * ou une requête, et chacun de ces trois renseigne un attaquant.
+ * In production, `detail` only holds the identifier to quote. The original
+ * message stays in the logs: it may name a table, a constraint
+ * or a query, and each of these three informs an attacker.
  */
 function describeInternal(
   error: unknown,
@@ -296,7 +296,7 @@ function describeInternal(
 ): ProblemDocument {
   const detail = exposeInternals
     ? `${error instanceof Error ? error.message : String(error)} (${correlationId})`
-    : `Une erreur interne est survenue. Citez l identifiant ${correlationId} au support.`
+    : `An internal error occurred. Quote the identifier ${correlationId} to support.`
 
   return {
     type: 'https://odoro.dev/problems/internal',
@@ -308,26 +308,26 @@ function describeInternal(
   }
 }
 
-/** En-tête portant l'identifiant de corrélation. */
+/** Header carrying the correlation identifier. */
 export const CORRELATION_HEADER = 'x-request-id'
 
-/** Lit l'identifiant posé par le middleware de journalisation. */
+/** Reads the identifier set by the logging middleware. */
 function readCorrelationId(request: Request): string {
   const header = request.get(CORRELATION_HEADER)
-  return header ?? 'inconnu'
+  return header ?? 'unknown'
 }
 
 /**
- * Route non appariée.
+ * Unmatched route.
  *
- * Placé après les routes et avant le gestionnaire d'erreurs : sans lui,
- * Express rend sa page HTML par défaut, qui n'est ni `problem+json` ni
- * discriminable par le client.
+ * Placed after the routes and before the error handler: without it,
+ * Express gives its default HTML page, which is neither `problem+json` nor
+ * discriminable by the client.
  */
 export function notFoundHandler(
   _request: Request,
   _response: Response,
   next: NextFunction,
 ): void {
-  next(new NotFoundError('Aucune route ne correspond a cette adresse.'))
+  next(new NotFoundError('No route matches this address.'))
 }

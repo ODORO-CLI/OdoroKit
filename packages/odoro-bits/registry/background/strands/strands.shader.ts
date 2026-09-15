@@ -1,34 +1,34 @@
 /**
- * Shader des meches.
+ * Shader for the strands.
  *
- * ## L'idee mathematique
+ * ## The mathematical idea
  *
- * Chaque meche est un x = f(y) ancre en bas du cadre : sa position
- * horizontale est celle de sa colonne, plus un balancement qui grandit avec
- * la hauteur — nul a la racine, plein a la pointe. C'est cette croissance
- * en puissance de y qui fait l'algue : la base tient, la pointe suit le
- * courant avec retard.
+ * Each strand is an x = f(y) anchored at the bottom of the frame: its
+ * horizontal position is that of its column, plus a sway that grows with
+ * height — nil at the root, full at the tip. It is this growth as a power of
+ * y that makes the seaweed: the base holds, the tip follows the current with
+ * a lag.
  *
- * Le retard vient du balancement lui-meme, un sinus dont la phase depend de
- * y : la pointe n'est pas au meme instant de l'oscillation que le milieu, et
- * la meche ondule au lieu de pencher.
+ * The lag comes from the sway itself, a sine whose phase depends on y: the
+ * tip is not at the same instant of the oscillation as the middle, and the
+ * strand undulates instead of leaning.
  *
- * Le fragment ne connait que sa colonne et ses deux voisines : le balancement
- * est borne a une largeur de colonne. Chaque meche a une hauteur propre, une
- * epaisseur qui s'amincit vers la pointe, et la distance au trait est divisee
- * par la norme de la pente pour que l'amincissement soit le seul a jouer.
+ * The fragment knows only its own column and its two neighbours: the sway is
+ * bounded to one column width. Each strand has its own height, a thickness
+ * that tapers towards the tip, and the distance to the stroke is divided by
+ * the norm of the slope so that the tapering is the only thing at play.
  *
  * ## Uniforms
  *
- * - `uTime` — temps en secondes, fourni par le moteur.
- * - `uResolution` — taille du canevas en pixels, fournie par le moteur.
- * - `uColorA` — le fond.
- * - `uColorB` — le corps des meches.
- * - `uColorC` — leur pointe.
- * - `uCount` — nombre de meches.
- * - `uSway` — amplitude du balancement, en largeurs de colonne.
- * - `uSpeed` — vitesse du courant.
- * - `uThickness` — epaisseur a la racine, en fraction de la largeur.
+ * - `uTime` — time in seconds, supplied by the engine.
+ * - `uResolution` — canvas size in pixels, supplied by the engine.
+ * - `uColorA` — the background.
+ * - `uColorB` — the body of the strands.
+ * - `uColorC` — their tip.
+ * - `uCount` — number of strands.
+ * - `uSway` — amplitude of the sway, in column widths.
+ * - `uSpeed` — speed of the current.
+ * - `uThickness` — thickness at the root, as a fraction of the width.
  */
 export const STRANDS_FRAGMENT = /* glsl */ `
 precision highp float;
@@ -45,8 +45,8 @@ uniform float uSway;
 uniform float uSpeed;
 uniform float uThickness;
 
-// Nombre pseudo-aleatoire : sinus amplifie, partie fractionnaire.
-float mecheHash(float n) {
+// Pseudo-random number: amplified sine, fractional part.
+float strandHash(float n) {
   return fract(sin(n * 12.9898 + 78.233) * 43758.5453123);
 }
 
@@ -62,7 +62,7 @@ void main() {
   float column = floor(vUv.x * count);
   float y = vUv.y;
 
-  // La racine tient, la pointe suit : le balancement croit en y^1.6.
+  // The root holds, the tip follows: the sway grows as y^1.6.
   float profile = pow(y, 1.6);
 
   float body = 0.0;
@@ -72,24 +72,24 @@ void main() {
     float i = column + float(k);
     if (i < 0.0 || i >= count) continue;
 
-    float seed = mecheHash(i);
+    float seed = strandHash(i);
     float phase = seed * 6.2831853;
 
-    // Deux sinus dephases en y : la pointe n'est pas au meme instant de
-    // l'oscillation que le milieu, donc la meche ondule au lieu de pencher.
+    // Two sines phase-shifted in y: the tip is not at the same instant of
+    // the oscillation as the middle, so the strand undulates instead of leaning.
     float wave = sin(y * 3.0 - t + phase) * 0.6 + sin(y * 7.0 - t * 1.4 + phase * 2.3) * 0.4;
     float x = (i + 0.5) * pitch + wave * sway * profile;
 
-    // Derivee en y, pour normaliser l'epaisseur. L'aspect ramene la pente
-    // dans le repere du pixel.
+    // Derivative in y, to normalise the thickness. The aspect brings the slope
+    // back into pixel space.
     float slope = (cos(y * 3.0 - t + phase) * 1.8 + cos(y * 7.0 - t * 1.4 + phase * 2.3) * 2.8)
       * sway * profile * aspect;
 
-    // Chaque meche a sa hauteur, et s'eteint sur ses derniers centimetres.
+    // Each strand has its own height, and fades out over its last stretch.
     float height = 0.5 + seed * 0.45;
     float alive = 1.0 - smoothstep(height - 0.12, height, y);
 
-    // L'epaisseur s'amincit vers la pointe, jamais sous un pixel.
+    // The thickness tapers towards the tip, never below one pixel.
     float thickness = max(uThickness * (1.0 - 0.75 * y / height), px);
     float d = abs(vUv.x - x) / sqrt(1.0 + slope * slope);
     float line = (1.0 - smoothstep(thickness - px, thickness + px, d)) * alive;
@@ -98,7 +98,7 @@ void main() {
     tip = max(tip, line * smoothstep(height * 0.5, height, y));
   }
 
-  // Le fond s'assombrit vers la racine, comme une eau plus profonde.
+  // The background darkens towards the root, like deeper water.
   vec3 colour = mix(uColorA, uColorB, (1.0 - y) * 0.12);
   colour = mix(colour, uColorB, body);
   colour = mix(colour, uColorC, tip * 0.85);

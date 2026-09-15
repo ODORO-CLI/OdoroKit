@@ -1,11 +1,11 @@
 /**
- * Le conteneur, et surtout ses promesses de typage.
+ * The container, and above all its typing promises.
  *
- * Les assertions de valeur ne disent pas grand-chose d'un conteneur : ce qui
- * compte est ce que TypeScript en sait. Les cas de typage sont donc verifies
- * a la compilation, par des expressions qui ne compileraient pas si
- * l'inference etait perdue — `tsc --noEmit` fait echouer la suite avant meme
- * qu'elle s'execute.
+ * The value assertions do not say much about a container: what
+ * matters is what TypeScript knows about it. The typing cases are therefore checked
+ * at compilation, by expressions that would not compile if
+ * the inference were lost — `tsc --noEmit` fails the suite before it even
+ * runs.
  *
  * @module
  */
@@ -15,69 +15,69 @@ import { describe, expect, it, vi } from 'vitest'
 import { createContainer } from './container.js'
 
 describe('resolution', () => {
-  it('rend le service enregistre', () => {
-    const c = createContainer().register('nombre', () => 42)
-    expect(c.get('nombre')).toBe(42)
+  it('gives the registered service', () => {
+    const c = createContainer().register('number', () => 42)
+    expect(c.get('number')).toBe(42)
   })
 
-  it('infere le type sans annotation', () => {
+  it('infers the type without annotation', () => {
     const c = createContainer()
-      .register('nom', () => 'odoro')
-      .register('taille', (c) => c.get('nom').length)
+      .register('name', () => 'odoro')
+      .register('size', (c) => c.get('name').length)
 
-    // `.length` n'existerait pas si `get('nom')` rendait `unknown` : la ligne
-    // ci-dessus est elle-meme l'assertion de typage.
-    expect(c.get('taille')).toBe(5)
+    // `.length` would not exist if `get('name')` gave `unknown`: the line
+    // above is itself the typing assertion.
+    expect(c.get('size')).toBe(5)
 
-    const nom: string = c.get('nom')
-    expect(nom).toBe('odoro')
+    const name: string = c.get('name')
+    expect(name).toBe('odoro')
   })
 
-  it('laisse une fabrique lire les services deja enregistres', () => {
+  it('lets a factory read the services already registered', () => {
     const c = createContainer()
-      .register('base', () => ({ url: 'postgres://' }))
-      .register('client', (c) => ({ cible: c.get('base').url }))
+      .register('database', () => ({ url: 'postgres://' }))
+      .register('client', (c) => ({ target: c.get('database').url }))
 
-    expect(c.get('client')).toEqual({ cible: 'postgres://' })
+    expect(c.get('client')).toEqual({ target: 'postgres://' })
   })
 
-  it('refuse une cle inconnue a l execution aussi', () => {
+  it('refuses an unknown key at runtime as well', () => {
     const c = createContainer().register('a', () => 1)
-    // La cle est interdite par le type ; ce chemin reste atteignable depuis du
-    // JavaScript, et le message doit nommer ce qui existe.
+    // The key is forbidden by the type; this path stays reachable from
+    // JavaScript, and the message must name what exists.
     expect(() => (c as { get: (k: string) => unknown }).get('b')).toThrow(
-      /Service inconnu/,
+      /Unknown service/,
     )
   })
 
-  it('refuse un double enregistrement', () => {
+  it('refuses a double registration', () => {
     const c = createContainer().register('a', () => 1)
     expect(() =>
       (c as { register: (k: string, f: () => unknown) => unknown }).register(
         'a',
         () => 2,
       ),
-    ).toThrow(/deja enregistre/)
+    ).toThrow(/already registered/)
   })
 })
 
-describe('portees', () => {
-  it('ne construit un singleton qu une fois', () => {
-    const fabrique = vi.fn(() => ({ id: Math.random() }))
-    const c = createContainer().register('service', fabrique)
+describe('scopes', () => {
+  it('builds a singleton only once', () => {
+    const factory = vi.fn(() => ({ id: Math.random() }))
+    const c = createContainer().register('service', factory)
 
     expect(c.get('service')).toBe(c.get('service'))
-    expect(fabrique).toHaveBeenCalledTimes(1)
+    expect(factory).toHaveBeenCalledTimes(1)
   })
 
-  it('partage le singleton avec les enfants', () => {
+  it('shares the singleton with the children', () => {
     const c = createContainer().register('service', () => ({}))
-    const requete = c.scope()
+    const scoped = c.scope()
 
-    expect(requete.get('service')).toBe(c.get('service'))
+    expect(scoped.get('service')).toBe(c.get('service'))
   })
 
-  it('reconstruit un service de requete dans chaque enfant', () => {
+  it('rebuilds a request service in each child', () => {
     const c = createContainer().register('trace', () => ({}), 'request')
 
     const a = c.scope()
@@ -87,129 +87,129 @@ describe('portees', () => {
     expect(a.get('trace')).toBe(a.get('trace'))
   })
 
-  it('refuse qu un singleton capture un service de requete', () => {
-    // Le defaut que cette regle previent : le singleton, construit pendant la
-    // premiere requete, garderait la trace de cette requete-la pour toutes les
-    // suivantes. Rien n'echouerait — le journal ecrirait simplement sous le
-    // mauvais identifiant, et cela ne se verrait qu'en relisant des traces qui
-    // n'ont pas de sens.
+  it('refuses that a singleton captures a request service', () => {
+    // The flaw this rule prevents: the singleton, built during the
+    // first request, would keep the trace of that very request for all the
+    // following ones. Nothing would fail — the log would simply write under the
+    // wrong identifier, and that would only be seen by rereading traces that
+    // make no sense.
     const c = createContainer()
       .register('trace', () => ({ id: Math.random() }), 'request')
-      .register('journal', (c) => ({ lire: () => c.get('trace') }))
+      .register('logger', (c) => ({ read: () => c.get('trace') }))
 
-    // La lecture est differee dans une fermeture : elle a lieu bien apres la
-    // construction du singleton. C'est le cas courant, et celui qu'une
-    // surveillance de la pile de construction laisserait passer.
-    expect(() => c.scope().get('journal').lire()).toThrow(/Dependance captive/)
+    // The read is deferred in a closure: it takes place well after the
+    // construction of the singleton. It is the common case, and the one a
+    // watch on the construction stack would let through.
+    expect(() => c.scope().get('logger').read()).toThrow(/Captive dependency/)
   })
 
-  it('refuse aussi la capture immediate', () => {
+  it('refuses the immediate capture as well', () => {
     const c = createContainer()
       .register('trace', () => ({}), 'request')
-      .register('journal', (c) => ({ trace: c.get('trace') }))
+      .register('logger', (c) => ({ trace: c.get('trace') }))
 
-    expect(() => c.scope().get('journal')).toThrow(/Dependance captive/)
+    expect(() => c.scope().get('logger')).toThrow(/Captive dependency/)
   })
 
-  it('nomme les deux services dans le refus', () => {
+  it('names both services in the refusal', () => {
     const c = createContainer()
       .register('trace', () => ({}), 'request')
-      .register('journal', (c) => c.get('trace'))
+      .register('logger', (c) => c.get('trace'))
 
-    expect(() => c.scope().get('journal')).toThrow(/"journal".*"trace"/s)
+    expect(() => c.scope().get('logger')).toThrow(/"logger".*"trace"/s)
   })
 
-  it('laisse un service de requete en lire un autre', () => {
+  it('lets a request service read another one', () => {
     const c = createContainer()
       .register('trace', () => ({ id: 1 }), 'request')
-      .register('journal', (c) => ({ lire: () => c.get('trace') }), 'request')
+      .register('logger', (c) => ({ read: () => c.get('trace') }), 'request')
 
     const a = c.scope()
     const b = c.scope()
 
-    expect(a.get('journal').lire()).toBe(a.get('trace'))
-    expect(b.get('journal').lire()).toBe(b.get('trace'))
-    expect(a.get('journal').lire()).not.toBe(b.get('journal').lire())
+    expect(a.get('logger').read()).toBe(a.get('trace'))
+    expect(b.get('logger').read()).toBe(b.get('trace'))
+    expect(a.get('logger').read()).not.toBe(b.get('logger').read())
   })
 })
 
 describe('cycles', () => {
-  it('nomme le cycle plutot que de deborder la pile', () => {
+  it('names the cycle rather than overflowing the stack', () => {
     const c = createContainer().register('a', () => 1)
 
-    // Le type interdit d'ecrire un cycle : une fabrique ne voit que les cles
-    // deja enregistrees. Il reste constructible en contournant le type, et le
-    // message doit alors montrer le chemin.
-    const brut = c as unknown as {
+    // The type forbids writing a cycle: a factory only sees the keys
+    // already registered. It stays constructible by working around the type, and the
+    // message must then show the path.
+    const raw = c as unknown as {
       register: (k: string, f: (r: { get: (k: string) => unknown }) => unknown) => void
       get: (k: string) => unknown
     }
-    brut.register('b', (r) => r.get('c'))
-    brut.register('c', (r) => r.get('b'))
+    raw.register('b', (r) => r.get('c'))
+    raw.register('c', (r) => r.get('b'))
 
-    expect(() => brut.get('b')).toThrow(/Cycle de dependances.*b -> c -> b/s)
+    expect(() => raw.get('b')).toThrow(/Dependency cycle.*b -> c -> b/s)
   })
 })
 
-describe('liberation', () => {
-  it('libere les services qui le declarent, en ordre inverse', async () => {
-    const ordre: string[] = []
+describe('release', () => {
+  it('releases the services that declare it, in reverse order', async () => {
+    const order: string[] = []
     const c = createContainer()
-      .register('base', () => ({ dispose: () => void ordre.push('base') }))
-      .register('cache', () => ({ dispose: () => void ordre.push('cache') }))
+      .register('database', () => ({ dispose: () => void order.push('database') }))
+      .register('cache', () => ({ dispose: () => void order.push('cache') }))
 
-    c.get('base')
+    c.get('database')
     c.get('cache')
     await c.dispose()
 
-    // `cache` a ete construit apres `base` : il est libere avant.
-    expect(ordre).toEqual(['cache', 'base'])
+    // `cache` was built after `database`: it is released before.
+    expect(order).toEqual(['cache', 'database'])
   })
 
-  it('ignore les services sans dispose', async () => {
-    const c = createContainer().register('simple', () => ({ valeur: 1 }))
-    c.get('simple')
+  it('ignores the services without dispose', async () => {
+    const c = createContainer().register('plain', () => ({ value: 1 }))
+    c.get('plain')
     await expect(c.dispose()).resolves.toBeUndefined()
   })
 
-  it('attend les liberations asynchrones', async () => {
-    let ferme = false
+  it('waits for the asynchronous releases', async () => {
+    let closed = false
     const c = createContainer().register('pool', () => ({
       dispose: async () => {
         await new Promise((resolve) => setTimeout(resolve, 5))
-        ferme = true
+        closed = true
       },
     }))
 
     c.get('pool')
     await c.dispose()
-    expect(ferme).toBe(true)
+    expect(closed).toBe(true)
   })
 
-  it('ne libere que sa portee, pas celle du parent', async () => {
-    const ordre: string[] = []
+  it('only releases its own scope, not the one of the parent', async () => {
+    const order: string[] = []
     const c = createContainer()
-      .register('global', () => ({ dispose: () => void ordre.push('global') }))
+      .register('global', () => ({ dispose: () => void order.push('global') }))
       .register(
-        'parRequete',
-        () => ({ dispose: () => void ordre.push('requete') }),
+        'perRequest',
+        () => ({ dispose: () => void order.push('request') }),
         'request',
       )
 
-    const requete = c.scope()
-    requete.get('global')
-    requete.get('parRequete')
+    const scoped = c.scope()
+    scoped.get('global')
+    scoped.get('perRequest')
 
-    await requete.dispose()
-    expect(ordre).toEqual(['requete'])
+    await scoped.dispose()
+    expect(order).toEqual(['request'])
 
     await c.dispose()
-    expect(ordre).toEqual(['requete', 'global'])
+    expect(order).toEqual(['request', 'global'])
   })
 })
 
-describe('inventaire', () => {
-  it('liste les cles visibles, parent compris', () => {
+describe('inventory', () => {
+  it('lists the visible keys, parent included', () => {
     const c = createContainer()
       .register('a', () => 1)
       .register('b', () => 2)

@@ -1,23 +1,23 @@
 /**
- * Grille : un quadrillage qui derive, sans contexte graphique.
+ * Grid: a mesh that drifts, with no graphics context.
  *
- * ## Pourquoi celui-ci n'emploie pas WebGL
+ * ## Why this one does not use WebGL
  *
- * Un quadrillage est une repetition reguliere de deux traits. Deux degrades
- * repetes le decrivent exactement, et le compositeur du navigateur les dessine
- * sans qu'aucun JavaScript ne s'execute. Prendre une surface graphique pour
- * cela reviendrait a payer treize kilo-octets et un contexte — dont le
- * navigateur ne distribue qu'un nombre limite — pour un resultat identique.
+ * A grid is a regular repetition of two strokes. Two repeated gradients
+ * describe it exactly, and the browser compositor draws them without a line
+ * of JavaScript running. Taking a graphics surface for that would mean
+ * paying thirteen kilobytes and a context — of which the browser hands out
+ * only a limited number — for an identical result.
  *
- * La consequence pratique compte autant que le principe : l'arbitre n'accorde
- * qu'une surface par backend, si bien que deux fonds en shader ne peuvent pas
- * coexister sur une page. Celui-ci se pose autant de fois qu'on veut.
+ * The practical consequence counts as much as the principle: the arbiter
+ * grants only one surface per backend, so two shader backgrounds cannot
+ * coexist on a page. This one can be placed as many times as one likes.
  *
- * ## L'attenuation vers les bords
+ * ## The fade towards the edges
  *
- * Un quadrillage qui s'arrete net au bord de son conteneur se lit comme une
- * texture posee dessus. Un masque radial le fait disparaitre progressivement,
- * ce qui le fait appartenir a la page plutot que s'y superposer.
+ * A grid that stops dead at the edge of its container reads as a texture
+ * laid on top. A radial mask makes it fade away gradually, which makes it
+ * belong to the page rather than sit over it.
  *
  * @module
  */
@@ -25,27 +25,27 @@
 import { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'
 import { type CSSProperties, type ReactElement } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to this component. */
 export interface GridLinesOwnProps {
-  /** Pas du quadrillage, en pixels. @defaultValue 48 */
+  /** Grid pitch, in pixels. @defaultValue 48 */
   size?: number
-  /** Epaisseur des traits, en pixels. @defaultValue 1 */
+  /** Stroke thickness, in pixels. @defaultValue 1 */
   thickness?: number
-  /** Couleur des traits. */
+  /** Stroke colour. */
   color?: string
-  /** Duree d'un cycle de derive, en secondes. Zero pour l'immobiliser. @defaultValue 0 */
+  /** Duration of one drift cycle, in seconds. Zero to hold it still. @defaultValue 0 */
   speed?: number
-  /** Attenue la grille vers les bords. @defaultValue true */
+  /** Fades the grid towards the edges. @defaultValue true */
   fade?: boolean
 }
 
-/** Toutes les proprietes. */
+/** Every property. */
 export type GridLinesProps = Customisable<GridLinesOwnProps>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-grid-lines'
 
-/** Pose la derive, une fois par document. */
+/** Applies the drift, once per document. */
 function ensureGridRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -53,8 +53,8 @@ function ensureGridRule(): void {
   const style = document.createElement('style')
   style.id = STYLE_ID
   style.textContent = [
-    // La derive parcourt exactement un pas : au terme du cycle, le motif est
-    // superposable a lui-meme et la boucle ne se voit pas.
+    // The drift travels exactly one pitch: at the end of the cycle, the
+    // pattern is superimposable on itself and the loop does not show.
     '@keyframes o-grid-drift{to{background-position:var(--o-grid-size) var(--o-grid-size)}}',
     '[data-o-grid-drift]{animation:o-grid-drift var(--o-grid-duration) linear infinite}',
     '@media (prefers-reduced-motion:reduce){[data-o-grid-drift]{animation:none}}',
@@ -63,7 +63,7 @@ function ensureGridRule(): void {
 }
 
 /**
- * Quadrillage de fond.
+ * Background grid.
  *
  * @example
  * <div className="o-relative o-min-h-screen">

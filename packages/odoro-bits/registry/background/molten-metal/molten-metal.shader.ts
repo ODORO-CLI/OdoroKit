@@ -1,33 +1,33 @@
 /**
- * Shader du metal en fusion.
+ * Shader of the molten metal.
  *
- * ## L'idee mathematique
+ * ## The mathematical idea
  *
- * Un bain de metal chaud : une croute qui se fend, et sous elle une matiere
- * qui rougeoie. Le champ de chaleur est un bruit fractal a deplacement de
- * domaine — deux passes, pour que les coulees s'enroulent au lieu de
- * derouler des nappes — et il derive tres lentement, comme un liquide lourd.
+ * A bath of hot metal: a crust that cracks, and under it a matter glowing red.
+ * The heat field is a fractal noise with domain warping — two passes, so that
+ * the flows coil instead of unrolling sheets — and it drifts very slowly, like
+ * a heavy liquid.
  *
- * La couleur est une rampe a trois arrets : le fond pour la croute, une
- * teinte chaude pour le metal, une teinte claire pour le coeur du bain. Les
- * veines sont les lignes de niveau du champ, la ou la croute se fend et
- * laisse voir la chaleur. Le relief vient de deux lectures decalees du
- * champ, qui donnent une normale ; un eclairage rasant en fait une pate.
+ * The colour is a ramp with three stops: the background for the crust, a warm
+ * hue for the metal, a light hue for the core of the bath. The veins are the
+ * level lines of the field, where the crust cracks and lets the heat show. The
+ * relief comes from two offset reads of the field, which give a normal; a
+ * grazing light turns it into a paste.
  *
- * Sur un fond clair, le bain garde ses teintes chaudes : la croute est le
- * fond lui-meme, jamais le fond assombri.
+ * On a light background, the bath keeps its warm hues: the crust is the
+ * background itself, never the background darkened.
  *
  * ## Uniforms
  *
- * - `uTime` — temps en secondes, fourni par le moteur.
- * - `uResolution` — taille du canevas en pixels, fournie par le moteur.
- * - `uColorA` — le fond, la croute.
- * - `uColorB` — le metal chaud.
- * - `uColorC` — le coeur du bain, et les veines.
- * - `uSpeed` — vitesse de la coulee.
- * - `uScale` — echelle du champ ; plus haut, plus fin.
- * - `uHeat` — part du bain qui est en fusion.
- * - `uOctaves` — detail du bruit, et donc son cout.
+ * - `uTime` — time in seconds, supplied by the engine.
+ * - `uResolution` — canvas size in pixels, supplied by the engine.
+ * - `uColorA` — the background, the crust.
+ * - `uColorB` — the hot metal.
+ * - `uColorC` — the core of the bath, and the veins.
+ * - `uSpeed` — speed of the flow.
+ * - `uScale` — scale of the field; higher is finer.
+ * - `uHeat` — share of the bath that is molten.
+ * - `uOctaves` — detail of the noise, and therefore its cost.
  */
 export const MOLTEN_METAL_FRAGMENT = /* glsl */ `
 precision highp float;
@@ -44,13 +44,13 @@ uniform float uScale;
 uniform float uHeat;
 uniform float uOctaves;
 
-// Nombre pseudo-aleatoire : projection sur une direction arbitraire, sinus
-// amplifie, partie fractionnaire.
+// Pseudo-random number: projection onto an arbitrary direction, amplified sine,
+// fractional part.
 float metalHash(vec2 p) {
   return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
 }
 
-// Bruit de valeur : interpolation lissee entre les quatre coins de la cellule.
+// Value noise: smoothed interpolation between the four corners of the cell.
 float metalNoise(vec2 p) {
   vec2 cell = floor(p);
   vec2 local = fract(p);
@@ -64,7 +64,7 @@ float metalNoise(vec2 p) {
   return mix(mix(a, b, smoothed.x), mix(c, d, smoothed.x), smoothed.y);
 }
 
-// Somme d'octaves : chaque passe deux fois plus fine et deux fois plus faible.
+// Sum of octaves: each pass twice as fine and twice as weak.
 float metalFbm(vec2 p, int octaves) {
   float total = 0.0;
   float amplitude = 0.5;
@@ -81,8 +81,8 @@ float metalFbm(vec2 p, int octaves) {
   return total / max(normalisation, 0.0001);
 }
 
-// Le champ de chaleur : deux deplacements de domaine, puis le bruit.
-float metalChaleur(vec2 p, float t, int octaves) {
+// The heat field: two domain warps, then the noise.
+float metalHeat(vec2 p, float t, int octaves) {
   vec2 q = vec2(
     metalFbm(p + vec2(t, 0.0), octaves),
     metalFbm(p + vec2(5.2, 1.3) - t * 0.7, octaves)
@@ -100,40 +100,40 @@ void main() {
   int octaves = int(clamp(uOctaves, 1.0, 5.0));
   float t = uTime * uSpeed;
 
-  // Trois lectures du champ : la valeur, et deux decalages pour le relief.
+  // Three reads of the field: the value, and two offsets for the relief.
   float e = 0.02;
-  float chaleur = metalChaleur(p, t, octaves);
-  float cx = metalChaleur(p + vec2(e, 0.0), t, octaves);
-  float cy = metalChaleur(p + vec2(0.0, e), t, octaves);
+  float heat = metalHeat(p, t, octaves);
+  float cx = metalHeat(p + vec2(e, 0.0), t, octaves);
+  float cy = metalHeat(p + vec2(0.0, e), t, octaves);
 
-  // Un battement lent : le bain respire.
-  chaleur += 0.05 * sin(uTime * 1.5 + chaleur * 8.0);
+  // A slow beat: the bath breathes.
+  heat += 0.05 * sin(uTime * 1.5 + heat * 8.0);
 
-  // La rampe : la croute, puis le metal, puis le coeur. La chaleur reglee
-  // deplace les seuils, et donc la part du bain qui est en fusion.
-  float fusion = clamp(uHeat, 0.0, 1.0);
-  float metal = smoothstep(0.68 - fusion * 0.25, 0.86 - fusion * 0.2, chaleur);
-  float coeur = smoothstep(0.8 - fusion * 0.15, 0.98 - fusion * 0.1, chaleur);
+  // The ramp: the crust, then the metal, then the core. The heat setting moves
+  // the thresholds, and therefore the share of the bath that is molten.
+  float molten = clamp(uHeat, 0.0, 1.0);
+  float metal = smoothstep(0.68 - molten * 0.25, 0.86 - molten * 0.2, heat);
+  float core = smoothstep(0.8 - molten * 0.15, 0.98 - molten * 0.1, heat);
 
-  // Les veines : les lignes de niveau du champ, la ou la croute se fend.
-  float veine = 1.0 - smoothstep(0.0, 0.025, abs(chaleur - (0.62 - fusion * 0.2)));
-  veine *= 1.0 - metal;
+  // The veins: the level lines of the field, where the crust cracks.
+  float vein = 1.0 - smoothstep(0.0, 0.025, abs(heat - (0.62 - molten * 0.2)));
+  vein *= 1.0 - metal;
 
-  // Le relief : le gradient du champ pour normale, une lumiere rasante.
-  vec3 n = normalize(vec3(-(cx - chaleur), -(cy - chaleur), e * 1.5));
-  vec3 lumiere = normalize(vec3(-0.6, 0.5, 0.5));
-  float diffus = max(dot(n, lumiere), 0.0);
-  vec3 h = normalize(lumiere + vec3(0.0, 0.0, 1.0));
-  float reflet = pow(max(dot(n, h), 0.0), 24.0);
+  // The relief: the gradient of the field as the normal, a grazing light.
+  vec3 n = normalize(vec3(-(cx - heat), -(cy - heat), e * 1.5));
+  vec3 lightDir = normalize(vec3(-0.6, 0.5, 0.5));
+  float diffuse = max(dot(n, lightDir), 0.0);
+  vec3 h = normalize(lightDir + vec3(0.0, 0.0, 1.0));
+  float highlight = pow(max(dot(n, h), 0.0), 24.0);
 
-  vec3 colour = mix(uColorA, uColorB, metal * (0.7 + 0.3 * diffus));
-  colour = mix(colour, uColorC, coeur * (0.6 + 0.4 * diffus));
-  colour = mix(colour, uColorC, veine * 0.7);
+  vec3 colour = mix(uColorA, uColorB, metal * (0.7 + 0.3 * diffuse));
+  colour = mix(colour, uColorC, core * (0.6 + 0.4 * diffuse));
+  colour = mix(colour, uColorC, vein * 0.7);
 
-  // L'eclat : le coeur rayonne, et la pate accroche la lumiere.
-  colour += uColorC * coeur * coeur * 0.3;
-  colour += uColorB * veine * 0.2;
-  colour += mix(uColorB, uColorC, 0.5) * reflet * metal * 0.25;
+  // The glow: the core radiates, and the paste catches the light.
+  colour += uColorC * core * core * 0.3;
+  colour += uColorB * vein * 0.2;
+  colour += mix(uColorB, uColorC, 0.5) * highlight * metal * 0.25;
 
   gl_FragColor = vec4(clamp(colour, 0.0, 1.0), 1.0);
 }

@@ -1,29 +1,29 @@
 /**
- * Courbure cathodique : un tube bombe, son verre qui decompose la lumiere,
- * sa grille d'ouverture et sa vignette qui respire.
+ * Cathode-ray warp: a bulged tube, its glass splitting the light, its
+ * aperture grille and its breathing vignette.
  *
- * ## Le principe
+ * ## The principle
  *
- * Le bombement se lit a l'envers, par une seule formule : les coordonnees
- * centrees, etirees avec le carre de leur distance au centre. Les coins de
- * l'image sortent du cadre et la silhouette devient un coussin. Pres des
- * bords, les deux teintes du signal sont lues a deux positions ecartees.
+ * The bulge is read backwards, through a single formula: the centred
+ * coordinates, stretched with the square of their distance to the centre.
+ * The image's corners leave the frame and the silhouette becomes a
+ * pincushion. Near the edges, the signal's two hues are read apart.
  *
- * Ce qui distingue cette entree de `scanlines` : pas de lignes
- * horizontales, pas de barre qui roule, pas de grain — une geometrie de
- * tube, une grille verticale et un verre. La vignette ramene vers le fond,
- * jamais vers le noir : un tube eteint est de la couleur du theme.
+ * What sets this entry apart from `scanlines`: no horizontal lines, no
+ * rolling bar, no grain — a tube geometry, a vertical grille and a pane of
+ * glass. The vignette pulls back towards the background, never towards
+ * black: a tube that is off takes the colour of the theme.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur — les recopier ici en ferait autant
- * de versions a maintenir qu'il y a de fonds.
+ * It carries only what sets it apart: its shader, its settings and its fallback.
+ * Reading the tokens, converting them to floats and re-reading them when the
+ * theme changes all come from the engine — copying them here would leave as
+ * many versions to maintain as there are backgrounds.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en
- * accorde qu'une par backend — et sous mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface — it grants only one
+ * per backend — and under reduced motion.
  *
  * @module
  */
@@ -40,48 +40,48 @@ import { type ReactElement } from 'react'
 
 import { CRT_WARP_FRAGMENT } from './crt-warp.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface CrtWarpControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to this component. */
 export interface CrtWarpOwnProps {
-  /** Bombement du tube. Zero le rend plat. @defaultValue 0.25 */
+  /** Bulge of the tube. Zero makes it flat. @defaultValue 0.25 */
   curve?: number
-  /** Nombre de colonnes de la grille d'ouverture sur la largeur. @defaultValue 160 */
+  /** Number of aperture-grille columns across the width. @defaultValue 160 */
   lines?: number
-  /** Ecart des teintes pres des bords. @defaultValue 0.6 */
+  /** Separation of the hues near the edges. @defaultValue 0.6 */
   aberration?: number
-  /** Vitesse du signal. @defaultValue 0.5 */
+  /** Speed of the signal. @defaultValue 0.5 */
   speed?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<CrtWarpControls>
 }
 
-/** Toutes les proprietes. */
+/** Every property. */
 export type CrtWarpProps = Customisable<CrtWarpOwnProps>
 
-/** Tokens employes par defaut : le tube eteint, les deux teintes du signal. */
+/** Tokens used by default: the tube switched off, the signal's two hues. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-teal-500',
   '--o-palette-orange-400',
 ] as const
 
-/** Repli par defaut : un degrade fige, dans les memes tons. */
+/** Default fallback: a frozen gradient, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-b o-from-zinc-50 dark:o-from-zinc-950 o-via-teal-100 dark:o-via-teal-950 o-to-zinc-50 dark:o-to-zinc-950'
 
 /**
- * Courbure cathodique.
+ * Cathode-ray warp.
  *
  * @example
  * <div className="o-relative o-min-h-screen">
@@ -104,9 +104,9 @@ export function CrtWarp({
     colors,
     uniforms: { uCurve: curve, uLines: lines, uAberration: aberration, uSpeed: speed },
     name: 'crt-warp',
-    // Une grille serree scintille a densite de pixels reduite, et l'ecart
-    // des teintes y devient un simple flou : en qualite basse, la grille
-    // s'espace et l'ecart se coupe.
+    // A tight grille shimmers at reduced pixel density, and the separation of
+    // the hues becomes plain blur there: at low quality the grille spreads out
+    // and the separation is cut.
     degrade: (quality) => ({
       uLines: quality === 'low' ? Math.min(lines, 80) : lines,
       uAberration: quality === 'low' ? 0 : aberration,

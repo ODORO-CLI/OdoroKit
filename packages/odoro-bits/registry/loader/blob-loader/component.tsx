@@ -1,37 +1,37 @@
 /**
- * Blob qui se deforme : une masse centrale laisse partir un bourgeon, le
- * cou s'etire, se rompt, puis le bourgeon revient se fondre.
+ * Blob that deforms: a central mass lets a bud go, the neck stretches,
+ * breaks, then the bud comes back and melts in again.
  *
- * ## Deux cercles qui n'en font qu'un
+ * ## Two circles that make only one
  *
- * Le dessin ne contient que deux cercles. Ce qui les soude est un filtre :
- * un flou gaussien etale leurs bords l'un vers l'autre, puis une matrice de
- * couleur multiplie fortement l'alpha et le decale vers le bas. Tout ce qui
- * etait a demi transparent devient franchement opaque ou franchement vide,
- * et le seuil ainsi pose retaille un contour net autour des deux formes
- * melangees. La ou leurs halos se recouvrent, un cou apparait ; quand ils
- * s'eloignent assez, il s'amincit et casse.
+ * The drawing contains nothing but two circles. What welds them together is
+ * a filter: a Gaussian blur spreads their edges toward one another, then a
+ * color matrix multiplies alpha heavily and shifts it down. Everything that
+ * was half transparent becomes frankly opaque or frankly empty, and the
+ * threshold thus set carves a crisp contour back around the two mingled
+ * shapes. Where their halos overlap, a neck appears; when they move far
+ * enough apart, it thins out and snaps.
  *
- * Aucune interpolation de trace, donc, et aucun calcul par image : la
- * deformation est un effet de bord de la distance entre deux cercles.
+ * No path interpolation, then, and no per-frame computation: the
+ * deformation is a side effect of the distance between two circles.
  *
- * Le noyau se retracte quand le bourgeon s'ecarte et se regonfle quand il
- * revient. C'est une petite tricherie de conservation de matiere, mais
- * l'oeil l'attend : sans elle, le blob semble fabriquer de la substance.
+ * The core retracts when the bud moves away and swells again when it comes
+ * back. It is a small cheat on the conservation of matter, but the eye
+ * expects it: without it, the blob seems to manufacture substance.
  *
- * La region du filtre est elargie d'un quart de part et d'autre : par
- * defaut elle serre la boite englobante de trop pres, et le flou serait
- * coupe net sur ses bords.
+ * The filter region is widened by a quarter on either side: by default it
+ * hugs the bounding box too closely, and the blur would be cut off square
+ * on its edges.
  *
- * ## Un statut, pas un dessin
+ * ## A status, not a drawing
  *
- * L'element porte `role="status"` et un libelle pour les lecteurs d'ecran :
- * l'attente est une information, pas une decoration. Le dessin est retire
- * de l'arbre d'accessibilite.
+ * The element carries `role="status"` and a label for screen readers: the
+ * wait is information, not decoration. The drawing is removed from the
+ * accessibility tree.
  *
- * Sous mouvement reduit, le bourgeon reste au centre : les deux cercles
- * sont concentriques et le filtre n'en rend qu'une seule masse ronde,
- * immobile.
+ * Under reduced motion, the bud stays in the center: the two circles are
+ * concentric and the filter renders only a single round mass, quite
+ * still.
  *
  * @module
  */
@@ -39,17 +39,17 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import { useId, type CSSProperties, type ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Id of the injected stylesheet. */
 const STYLE_ID = 'o-blob-loader'
 
 /**
- * Matrice de seuil : les couleurs passent telles quelles, l'alpha est
- * multiplie puis abaisse. Le produit vaut un au-dela d'environ un demi et
- * zero en deca : le degrade du flou redevient un bord.
+ * Threshold matrix: the colors pass through unchanged, alpha is multiplied
+ * then lowered. The product is one beyond about a half and zero below it:
+ * the gradient of the blur becomes an edge again.
  */
 const THRESHOLD = '1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 20 -10'
 
-/** Pose le blob, son bourgeon et sa respiration, une fois par document. */
+/** Sets the blob, its bud and its breathing, once per document. */
 function ensureBlobRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -62,8 +62,8 @@ function ensureBlobRule(): void {
     '[data-o-blob-arm],[data-o-blob-bud],[data-o-blob-core]{',
     'transform-box:view-box;transform-origin:50px 50px;',
     '}',
-    // Le bras tourne d'un tour par cycle ; le bourgeon sort et rentre deux
-    // fois pendant ce tour, soit une rupture a chaque demi-tour.
+    // The arm turns one turn per cycle; the bud goes out and comes back twice
+    // during that turn, so one break every half turn.
     '[data-o-blob-arm]{',
     'animation:o-blob-loader-turn var(--o-blob-speed) linear infinite;',
     '}',
@@ -89,42 +89,42 @@ function ensureBlobRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** The component's own props. */
 export interface BlobLoaderOwnProps {
-  /** Cote de la zone de dessin, en pixels. @defaultValue 56 */
+  /** Side of the drawing area, in pixels. @defaultValue 56 */
   size?: number
-  /** Duree d'un tour du bourgeon, en millisecondes. @defaultValue 2800 */
+  /** Duration of one turn of the bud, in milliseconds. @defaultValue 2800 */
   speed?: number
-  /** Couleur du blob. @defaultValue la couleur du texte */
+  /** Color of the blob. @defaultValue the text color */
   color?: string
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */
+  /** Label announced to screen readers. @defaultValue 'Loading' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type BlobLoaderProps = Customisable<BlobLoaderOwnProps, 'span'>
 
 /**
- * Signale une attente par une masse qui bourgeonne et se ressoude.
+ * Signals a wait with a mass that buds and welds itself back together.
  *
  * @example
  * <BlobLoader />
  *
  * @example
- * // Plus grand, plus lent, dans la teinte de marque.
+ * // Bigger, slower, in the brand hue.
  * <BlobLoader size={96} speed={4200} color="var(--o-palette-brand-500)" />
  */
 export function BlobLoader({
   size = 56,
   speed = 2800,
   color = 'currentColor',
-  label = 'Chargement',
+  label = 'Loading',
   ...rest
 }: BlobLoaderProps): ReactElement {
   ensureBlobRule()
 
-  // Un identifiant par instance : deux blobs sur la meme page ne doivent
-  // pas se partager un filtre.
+  // One id per instance: two blobs on the same page must not share a
+  // filter.
   const goo = `o-blob-loader-${useId().replace(/[^a-zA-Z0-9_-]/g, '')}`
 
   const { className, style } = mergePresentation({}, rest)

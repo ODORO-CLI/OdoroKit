@@ -1,33 +1,32 @@
 /**
- * Shader du labyrinthe.
+ * Shader of the maze.
  *
- * ## L'idee mathematique
+ * ## The mathematical idea
  *
- * Le labyrinthe est celui d'une ligne de BASIC celebre : dans chaque cellule,
- * une diagonale montante ou descendante, tiree a pile ou face. Les
- * diagonales se raccordent aux coins, et l'oeil y lit des couloirs.
+ * The maze is the one from a famous line of BASIC: in each cell, a rising or a
+ * falling diagonal, drawn by a coin toss. The diagonals join at the corners,
+ * and the eye reads corridors in them.
  *
- * Le dessin est date : une epoque entiere par periode, et dans chaque epoque
- * un front qui balaie le cadre en diagonale, de bas en haut et de gauche a
- * droite. Devant le front, la cellule montre le trait de l'epoque
- * precedente ; derriere, celui de l'epoque en cours. Dans la cellule que le
- * front traverse, le nouveau trait s'allonge d'un bout a l'autre pendant que
- * l'ancien s'efface par le meme bout, et une tete lumineuse marque la pointe
- * du trait en train de naitre.
+ * The drawing is dated: one whole epoch per period, and within each epoch a
+ * front sweeping the frame diagonally, from bottom to top and from left to
+ * right. Ahead of the front, the cell shows the stroke of the previous epoch;
+ * behind it, the stroke of the current one. In the cell the front is crossing,
+ * the new stroke grows from one end to the other while the old one is erased
+ * from the same end, and a bright head marks the tip of the stroke being born.
  *
- * Rien n'est memorise d'image en image : l'age suffit a savoir ce que chaque
- * cellule doit montrer.
+ * Nothing is kept from frame to frame: the age is enough to know what each cell
+ * must show.
  *
  * ## Uniforms
  *
- * - `uTime` — temps en secondes, fourni par le moteur.
- * - `uResolution` — taille du canevas en pixels, fournie par le moteur.
- * - `uColorA` — le fond.
- * - `uColorB` — les traits.
- * - `uColorC` — la tete qui dessine.
- * - `uPeriod` — duree d'un dessin complet, en secondes.
- * - `uDensity` — nombre de cellules sur la hauteur.
- * - `uThickness` — epaisseur des traits, en fraction de la cellule.
+ * - `uTime` — time in seconds, supplied by the engine.
+ * - `uResolution` — canvas size in pixels, supplied by the engine.
+ * - `uColorA` — the background.
+ * - `uColorB` — the strokes.
+ * - `uColorC` — the head doing the drawing.
+ * - `uPeriod` — duration of a complete drawing, in seconds.
+ * - `uDensity` — number of cells across the height.
+ * - `uThickness` — thickness of the strokes, as a fraction of the cell.
  */
 export const MAZE_FRAGMENT = /* glsl */ `
 precision highp float;
@@ -43,17 +42,17 @@ uniform float uPeriod;
 uniform float uDensity;
 uniform float uThickness;
 
-// Nombre pseudo-aleatoire : projection sur une direction arbitraire, sinus
-// amplifie, partie fractionnaire.
+// Pseudo-random number: projection onto an arbitrary direction, amplified sine,
+// fractional part.
 float mazeHash(vec2 p) {
   return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
 }
 
-// Le trait d'une cellule a une epoque : sa distance au fragment, et
-// l'abscisse du fragment le long du trait, de 0 a 1.
-vec2 mazeTrait(vec2 f, vec2 cell, float epoch) {
+// The stroke of a cell at a given epoch: its distance to the fragment, and the
+// abscissa of the fragment along the stroke, from 0 to 1.
+vec2 mazeStroke(vec2 f, vec2 cell, float epoch) {
   float rising = step(0.5, mazeHash(cell + epoch * 17.0));
-  // Montante : de (0,0) a (1,1). Descendante : de (0,1) a (1,0).
+  // Rising: from (0,0) to (1,1). Falling: from (0,1) to (1,0).
   float d = mix(abs(f.x + f.y - 1.0), abs(f.x - f.y), rising) * 0.7071068;
   float s = mix((f.x + 1.0 - f.y) * 0.5, (f.x + f.y) * 0.5, rising);
   return vec2(d, s);
@@ -69,24 +68,24 @@ void main() {
   float phase = uTime / max(uPeriod, 0.5);
   float epoch = floor(phase);
 
-  // Le front, en unites de diagonale : il part avant la premiere cellule et
-  // finit apres la derniere, pour que chaque trait soit dessine en entier.
+  // The front, in diagonal units: it starts before the first cell and ends
+  // after the last one, so that every stroke is drawn in full.
   float diagonals = scale * aspect + scale + 2.0;
   float front = fract(phase) * diagonals - 1.0;
   float draw = clamp(front - (cell.x + cell.y), 0.0, 1.0);
 
-  vec2 fresh = mazeTrait(f, cell, epoch);
-  vec2 old = mazeTrait(f, cell, epoch - 1.0);
+  vec2 fresh = mazeStroke(f, cell, epoch);
+  vec2 old = mazeStroke(f, cell, epoch - 1.0);
 
   float px = scale / max(uResolution.y, 1.0) * 1.5;
   float halfWidth = max(uThickness, 0.01) * 0.5;
 
-  // Le nouveau trait existe jusqu'a l'abscisse du front ; l'ancien au-dela.
+  // The new stroke exists up to the abscissa of the front; the old one beyond.
   float newLine = (1.0 - smoothstep(halfWidth - px, halfWidth + px, fresh.x)) * step(fresh.y, draw);
   float oldLine = (1.0 - smoothstep(halfWidth - px, halfWidth + px, old.x)) * step(draw, old.y);
   float line = max(newLine, oldLine);
 
-  // La tete : au bout du trait qui nait, seulement dans la cellule traversee.
+  // The head: at the tip of the stroke being born, only in the crossed cell.
   float active = step(0.001, draw) * step(draw, 0.999);
   float rising = step(0.5, mazeHash(cell + epoch * 17.0));
   vec2 headPos = mix(vec2(draw, 1.0 - draw), vec2(draw, draw), rising);

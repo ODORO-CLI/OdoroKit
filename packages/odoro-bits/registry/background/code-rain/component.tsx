@@ -1,27 +1,27 @@
 /**
- * Pluie de code : des colonnes de glyphes qui tombent, une tete lumineuse
- * et une trainee qui s'eteint.
+ * Code rain: columns of falling glyphs, a bright head and a trail that
+ * fades out.
  *
- * ## Le principe
+ * ## The principle
  *
- * Chaque colonne porte une goutte a sa propre vitesse ; l'age d'une ligne
- * derriere la tete donne son intensite. Les glyphes sont des masques de bits
- * sur trois par cinq, dessines par le shader : aucune police, aucune
- * texture, et une cellule change de caractere a son propre rythme.
+ * Each column carries a drop at its own speed; a row's age behind the head
+ * gives its intensity. The glyphs are bit masks on three by five, drawn by
+ * the shader: no font, no texture, and a cell changes character at its own
+ * rhythm.
  *
- * Ce qui distingue cette entree de `rain` : des caracteres, pas des gouttes
- * d'eau ; et de `faulty-terminal` : ici tout tombe, rien ne se tape.
+ * What sets this entry apart from `rain`: characters, not drops of water;
+ * and from `faulty-terminal`: here everything falls, nothing is typed.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur — les recopier ici en ferait autant
- * de versions a maintenir qu'il y a de fonds.
+ * It carries only what sets it apart: its shader, its settings and its fallback.
+ * Reading the tokens, converting them to floats and re-reading them when the
+ * theme changes all come from the engine — copying them here would leave as
+ * many versions to maintain as there are backgrounds.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en
- * accorde qu'une par backend — et sous mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface — it grants only one
+ * per backend — and under reduced motion.
  *
  * @module
  */
@@ -38,43 +38,43 @@ import { type ReactElement } from 'react'
 
 import { CODE_RAIN_FRAGMENT } from './code-rain.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface CodeRainControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to this component. */
 export interface CodeRainOwnProps {
-  /** Nombre de colonnes sur la largeur. Borne a cent vingt par le shader. @defaultValue 40 */
+  /** Number of columns across the width. Capped at a hundred and twenty by the shader. @defaultValue 40 */
   columns?: number
-  /** Vitesse de chute. @defaultValue 1 */
+  /** Falling speed. @defaultValue 1 */
   speed?: number
-  /** Longueur de la trainee, en lignes. @defaultValue 8 */
+  /** Length of the trail, in rows. @defaultValue 8 */
   trail?: number
-  /** Cadence des changements de glyphe, par seconde. @defaultValue 3 */
+  /** Rate of glyph changes, per second. @defaultValue 3 */
   mutate?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<CodeRainControls>
 }
 
-/** Toutes les proprietes. */
+/** Every property. */
 export type CodeRainProps = Customisable<CodeRainOwnProps>
 
-/** Tokens employes par defaut : le fond, la trainee, la tete. */
+/** Tokens used by default: the background, the trail, the head. */
 const DEFAULT_TOKENS = ['--o-theme-bg', '--o-palette-green-500', '--o-theme-fg'] as const
 
-/** Repli par defaut : une teinte figee, dans les memes tons. */
+/** Default fallback: a frozen hue, in the same tones. */
 const DEFAULT_FALLBACK = 'o-bg-zinc-50 dark:o-bg-zinc-950'
 
 /**
- * Pluie de code.
+ * Code rain.
  *
  * @example
  * <div className="o-relative o-min-h-screen">
@@ -97,8 +97,8 @@ export function CodeRain({
     colors,
     uniforms: { uColumns: columns, uSpeed: speed, uTrail: trail, uMutate: mutate },
     name: 'code-rain',
-    // Des glyphes de trois pixels de large scintillent a densite de pixels
-    // reduite : en qualite basse, les colonnes s'elargissent.
+    // Glyphs three pixels wide shimmer at reduced pixel density: at low
+    // quality the columns grow wider.
     degrade: (quality) => ({
       uColumns: quality === 'low' ? Math.min(columns, 24) : columns,
     }),

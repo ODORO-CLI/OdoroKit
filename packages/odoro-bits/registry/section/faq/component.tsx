@@ -1,28 +1,28 @@
 /**
- * Questions frequentes.
+ * Frequently asked questions.
  *
- * ## Le repliage est natif, et ce n'est pas une facilite
+ * ## The folding is native, and that is not a shortcut
  *
- * `<details>` apporte gratuitement ce qu'une version en JavaScript doit
- * reconstruire : l'ouverture au clavier, l'etat annonce aux technologies
- * d'assistance, et — le point que presque tout le monde manque — la
- * **recherche dans la page**. Un navigateur ouvre un `<details>` ferme quand le
- * texte cherche s'y trouve. Une reponse cachee derriere un `useState` reste
- * introuvable.
+ * `<details>` gives for free what a JavaScript version has to
+ * rebuild : opening from the keyboard, the state announced to assistive
+ * technologies, and — the point that almost everyone misses — **find in
+ * page**. A browser opens a closed `<details>` when the searched text is
+ * inside it. An answer hidden behind a `useState` stays impossible to
+ * find.
  *
- * ## L'ouverture unique se fait sans etat
+ * ## Opening one at a time takes no state
  *
- * Un attribut `name` partage suffit : le navigateur ferme alors les autres de
- * lui-meme, exactement comme des boutons radio. C'est recent, et la degradation
- * est douce — la ou il n'est pas compris, plusieurs reponses restent ouvertes,
- * ce qui n'a jamais empeche personne de lire.
+ * A shared `name` attribute is enough : the browser then closes the others by
+ * itself, exactly like radio buttons. It is recent, and the degradation is
+ * gentle — where it is not understood, several answers stay open, which has
+ * never stopped anyone from reading.
  *
- * ## L'animation de hauteur
+ * ## The height animation
  *
- * Elle passe par `interpolate-size`, qui permet d'animer vers `auto`. La ou
- * elle manque, le repliage est instantane — et c'est tres bien : mesurer la
- * hauteur a la main pour l'animer demande un observateur, un rendu supplementaire
- * et une resynchronisation a chaque changement de contenu.
+ * It goes through `interpolate-size`, which allows animating towards `auto`.
+ * Where it is missing, the folding is instant — and that is quite fine :
+ * measuring the height by hand to animate it needs an observer, an extra render
+ * and a resynchronisation on every content change.
  *
  * @module
  */
@@ -30,31 +30,31 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import { useId, type ReactElement, type ReactNode } from 'react'
 
-/** Une question et sa reponse. */
+/** A question and its answer. */
 export interface FaqItem {
-  /** Question posee. */
+  /** Question asked. */
   readonly question: string
-  /** Reponse. */
+  /** Answer. */
   readonly answer: ReactNode
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface FaqOwnProps {
-  /** Les questions, dans l'ordre d'affichage. */
+  /** The questions, in display order. */
   items: readonly FaqItem[]
-  /** N'ouvre qu'une question a la fois. @defaultValue false */
+  /** Opens only one question at a time. @defaultValue false */
   single?: boolean
-  /** Intitule de la section. */
+  /** Name of the section. */
   title?: ReactNode
 }
 
-/** Toutes les proprietes. */
+/** All the properties. */
 export type FaqProps = Customisable<FaqOwnProps, 'section'>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-faq'
 
-/** Pose l'animation de hauteur, une fois par document. */
+/** Sets the height animation, once per document. */
 function ensureFaqRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -62,8 +62,8 @@ function ensureFaqRule(): void {
   const style = document.createElement('style')
   style.id = STYLE_ID
   style.textContent = [
-    // `interpolate-size` autorise l'animation vers `auto`. Sans lui, la regle
-    // est simplement sans effet et le repliage est instantane.
+    // `interpolate-size` allows the animation towards `auto`. Without it, the
+    // rule simply has no effect and the folding is instant.
     '@supports (interpolate-size: allow-keywords){',
     '[data-o-faq]{interpolate-size:allow-keywords}',
     '[data-o-faq] details::details-content{',
@@ -78,14 +78,14 @@ function ensureFaqRule(): void {
 }
 
 /**
- * Liste de questions repliables.
+ * List of foldable questions.
  *
  * @example
  * <Faq
- *   title="Questions frequentes"
+ *   title="Frequently asked questions"
  *   single
  *   items={[
- *     { question: 'Pourquoi copier plutot que dependre ?', answer: <p>Parce que…</p> },
+ *     { question: 'Why copy rather than depend ?', answer: <p>Because…</p> },
  *   ]}
  * />
  */
@@ -108,8 +108,8 @@ export function Faq({ items, single = false, title, ...rest }: FaqProps): ReactE
         {items.map((item) => (
           <details
             key={item.question}
-            // Un `name` partage suffit a n'en ouvrir qu'une : le navigateur
-            // ferme les autres, sans qu'aucun etat ne soit tenu.
+            // A shared `name` is enough to open only one of them : the browser
+            // closes the others, with no state held anywhere.
             name={single ? group : undefined}
             className="o-border-b o-border-zinc-200 dark:o-border-zinc-800"
           >

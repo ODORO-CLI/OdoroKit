@@ -1,30 +1,29 @@
 /**
- * Barre en cartes : une barre compacte qui se deploie en une rangee de
- * cartes teintees, chacune un lien, entrant l'une apres l'autre.
+ * Card nav: a compact bar that unfolds into a row of tinted cards, each one a
+ * link, entering one after the other.
  *
- * ## La hauteur n'est jamais mesuree
+ * ## The height is never measured
  *
- * Animer une hauteur oblige d'ordinaire a la lire d'abord — un `scrollHeight`
- * apres rendu, une valeur qui vieillit au premier changement de police. Ici
- * le panneau est une rangee de grille qui passe de `0fr` a `1fr` : le
- * navigateur interpole une fraction, et la hauteur suit ce que le contenu
- * fait, quelle qu'elle soit. La seule contrainte est un `overflow: hidden`
- * sur l'enfant direct, avec `min-height: 0` pour que la rangee puisse
- * vraiment se fermer.
+ * Animating a height usually forces one to read it first — a `scrollHeight`
+ * after render, a value that goes stale at the first font change. Here the
+ * panel is a grid row going from `0fr` to `1fr`: the browser interpolates a
+ * fraction, and the height follows whatever the content does, whatever that
+ * is. The only constraint is an `overflow: hidden` on the direct child, with
+ * `min-height: 0` so that the row can really close.
  *
- * ## Les cartes entrent apres le panneau, pas avec lui
+ * ## The cards enter after the panel, not with it
  *
- * Chaque carte porte son index en variable, et son retard en decoule. Le
- * panneau s'ouvre d'abord, les cartes montent dedans l'une apres l'autre :
- * c'est ce decalage qui fait lire l'ouverture comme un deploiement plutot
- * que comme un simple agrandissement.
+ * Each card carries its index in a variable, and its delay follows from it.
+ * The panel opens first, the cards rise inside it one after the other: it is
+ * that offset which makes the opening read as an unfolding rather than as a
+ * plain enlargement.
  *
- * ## Fermee, la rangee est retiree de l'arbre d'accessibilite
+ * ## Closed, the row is removed from the accessibility tree
  *
- * Une carte a hauteur nulle reste tabulable et annoncee. `visibility` la
- * retire, avec le meme retard que la fermeture, pour que le trajet se voie.
+ * A card of zero height stays tabbable and announced. `visibility` removes
+ * it, with the same delay as the closing, so that the travel is seen.
  *
- * ## Le bouton dit son etat, Echap ferme, le focus revient
+ * ## The button states its state, Escape closes, focus comes back
  *
  * @module
  */
@@ -41,60 +40,60 @@ import {
   type ReactNode,
 } from 'react'
 
-/** Une carte de navigation. */
+/** One navigation card. */
 export interface CardNavItem {
-  /** Libelle affiche. */
+  /** Displayed label. */
   readonly label: string
-  /** Cible du lien. Sans cible, la carte est un bouton. */
+  /** Target of the link. With no target, the card is a button. */
   readonly href?: string
-  /** Icone placee en haut de la carte. */
+  /** Icon placed at the top of the card. */
   readonly icon?: ReactNode
-  /** Une ligne sous le libelle. */
+  /** One line under the label. */
   readonly description?: string
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface CardNavOwnProps {
-  /** Les cartes, dans l'ordre d'affichage. */
+  /** The cards, in display order. */
   items: readonly CardNavItem[]
-  /** Ce qui occupe la gauche de la barre : une marque, un titre. */
+  /** What occupies the left of the bar: a brand, a title. */
   brand?: ReactNode
-  /** Ce qui occupe la droite de la barre, avant le bouton : un appel a l'action. */
+  /** What occupies the right of the bar, before the button: a call to action. */
   cta?: ReactNode
   /**
-   * Tokens de teinte, distribues aux cartes en boucle.
+   * Hue tokens, handed out to the cards in a loop.
    *
-   * @defaultValue marque, ciel, emeraude
+   * @defaultValue brand, sky, emerald
    */
   colors?: readonly string[]
-  /** Decalage d'entree entre deux cartes, en millisecondes. @defaultValue 60 */
+  /** Entry offset between two cards, in milliseconds. @defaultValue 60 */
   stagger?: number
-  /** Etat ouvert, en mode controle. */
+  /** Open state, in controlled mode. */
   open?: boolean
-  /** Appele quand l'utilisateur ouvre ou ferme. */
+  /** Called when the user opens or closes. */
   onOpenChange?: (open: boolean) => void
-  /** Index de la page courante. */
+  /** Index of the current page. */
   active?: number
-  /** Appele quand l'utilisateur choisit une carte. */
+  /** Called when the user picks a card. */
   onActiveChange?: (index: number) => void
-  /** Intitule du bouton pour les lecteurs d'ecran. @defaultValue 'Menu' */
+  /** Name of the button for screen readers. @defaultValue 'Menu' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type CardNavProps = Customisable<CardNavOwnProps, 'nav'>
 
-/** Teintes par defaut. */
+/** Default hues. */
 const DEFAULT_COLORS: readonly string[] = [
   '--o-palette-brand-500',
   '--o-palette-sky-500',
   '--o-palette-emerald-500',
 ]
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-card-nav'
 
-/** Pose la barre, le panneau et les cartes, une fois par document. */
+/** Applies the bar, the panel and the cards, once per document. */
 function ensureCardNavRules(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -115,8 +114,8 @@ function ensureCardNavRules(): void {
     '}',
     '[data-o-cardnav-toggle]:hover{background:color-mix(in oklab,currentColor 8%,transparent)}',
     '[data-o-cardnav-toggle]:focus-visible{outline:2px solid currentColor;outline-offset:-2px}',
-    // Trois barres qui deviennent une croix : la premiere et la troisieme
-    // pivotent sur le centre, la mediane s'efface.
+    // Three bars that turn into a cross: the first and the third pivot on the
+    // centre, the middle one fades out.
     '[data-o-cardnav-burger]{position:relative;display:block;width:1.125rem;height:0.75rem}',
     '[data-o-cardnav-burger] i{',
     'position:absolute;left:0;right:0;height:2px;border-radius:1px;background:currentColor;',
@@ -128,7 +127,7 @@ function ensureCardNavRules(): void {
     '[data-o-cardnav][data-o-cardnav-open] [data-o-cardnav-burger] i:nth-child(1){transform:translateY(5px) rotate(45deg)}',
     '[data-o-cardnav][data-o-cardnav-open] [data-o-cardnav-burger] i:nth-child(2){opacity:0}',
     '[data-o-cardnav][data-o-cardnav-open] [data-o-cardnav-burger] i:nth-child(3){transform:translateY(-5px) rotate(-45deg)}',
-    // Le panneau : une rangee qui passe de zero a une fraction.
+    // The panel: a row that goes from zero to a fraction.
     '[data-o-cardnav-panel]{',
     'display:grid;grid-template-rows:0fr;',
     'transition:grid-template-rows calc(var(--o-duration-slow) * 1.4) cubic-bezier(0.2,0,0,1);',
@@ -173,21 +172,21 @@ function ensureCardNavRules(): void {
 }
 
 /**
- * Barre qui se deploie en cartes.
+ * Bar that unfolds into cards.
  *
  * @example
  * <CardNav
- *   brand={<strong>Atelier</strong>}
+ *   brand={<strong>Studio</strong>}
  *   items={[
- *     { label: 'Travaux', href: '/travaux', description: 'Ce que nous avons livre.' },
- *     { label: 'Studio', href: '/studio', description: 'Qui nous sommes.' },
- *     { label: 'Contact', href: '/contact', description: 'Parlons de votre projet.' },
+ *     { label: 'Work', href: '/work', description: 'What we have shipped.' },
+ *     { label: 'Studio', href: '/studio', description: 'Who we are.' },
+ *     { label: 'Contact', href: '/contact', description: 'Let us talk about your project.' },
  *   ]}
  * />
  *
  * @example
- * // Une autre gamme, et un appel a l'action a droite.
- * <CardNav items={liens} colors={['--o-palette-fuchsia-500']} cta={<a href="/devis">Devis</a>} />
+ * // Another range, and a call to action on the right.
+ * <CardNav items={links} colors={['--o-palette-fuchsia-500']} cta={<a href="/quote">Quote</a>} />
  */
 export function CardNav({
   items,
@@ -221,7 +220,7 @@ export function CardNav({
       hostRef.current?.querySelectorAll<HTMLElement>('[data-o-cardnav-card]') ?? [],
     )
 
-  // Ferme, le focus revient au bouton s'il etait sur une carte.
+  // Closed, focus returns to the button if it was on a card.
   useEffect(() => {
     const host = hostRef.current
     if (host === null || isOpen) return

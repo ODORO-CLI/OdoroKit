@@ -1,26 +1,25 @@
 /**
- * Sable qui coule : des filets de grains qui tombent sur un tas.
+ * Flowing sand: streams of grains falling onto a heap.
  *
- * ## Le principe
+ * ## The principle
  *
- * Pas de nappe : une grille fine dont chaque cellule tire au sort un grain.
- * Un filet est cette grille qui defile vers le bas, a sa vitesse propre, avec
- * une densite qui s'effiloche loin de l'axe ; le tas, en bas, est la meme
- * grille immobile, sous un profil de bosses elevees par chaque filet. Les
- * grains disparaissent a la surface du tas, et un peu de poussiere s'y
- * souleve.
+ * No sheet: a fine grid whose every cell draws a grain by lot. A stream is
+ * that grid scrolling downwards, at its own speed, with a density that frays
+ * out far from the axis; the heap, at the bottom, is the same grid held
+ * still, under a profile of mounds raised by each stream. The grains vanish
+ * at the surface of the heap, and a little dust rises there.
  *
- * Ce qui distingue cette entree de `dunes` : celle-ci est un relief eclaire,
- * une surface continue ; ici tout est grain, et tout tombe.
+ * What sets this entry apart from `dunes`: that one is a lit relief, a
+ * continuous surface; here everything is grain, and everything falls.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur.
+ * It carries only what sets it apart: its shader, its settings and its fallback.
+ * Reading the tokens, converting them to floats and re-reading them when the
+ * theme changes all come from the engine.
  *
- * Le repli est affiche pendant le chargement du backend, quand WebGL manque,
- * quand l'arbitre refuse la surface et sous mouvement reduit.
+ * The fallback is shown while the backend loads, when WebGL is missing, when
+ * the arbiter refuses the surface and under reduced motion.
  *
  * @module
  */
@@ -37,48 +36,48 @@ import { type ReactElement } from 'react'
 
 import { SAND_FLOW_FRAGMENT } from './sand-flow.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface SandFlowControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to this component. */
 export interface SandFlowOwnProps {
-  /** Nombre de filets. Borne a six par le shader. @defaultValue 3 */
+  /** Number of streams. Bounded at six by the shader. @defaultValue 3 */
   streams?: number
-  /** Nombre de grains par hauteur de cadre. @defaultValue 110 */
+  /** Number of grains per frame height. @defaultValue 110 */
   grain?: number
-  /** Vitesse de chute. @defaultValue 1 */
+  /** Falling speed. @defaultValue 1 */
   speed?: number
-  /** Hauteur du tas, en hauteurs de cadre. @defaultValue 0.22 */
+  /** Height of the heap, in frame heights. @defaultValue 0.22 */
   heap?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<SandFlowControls>
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type SandFlowProps = Customisable<SandFlowOwnProps>
 
-/** Tokens employes par defaut : le fond, le sable, les grains clairs. */
+/** Tokens used by default: the background, the sand, the bright grains. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-amber-500',
   '--o-palette-yellow-200',
 ] as const
 
-/** Repli par defaut : le tas fige en degrade, dans les memes tons. */
+/** Default fallback: the heap frozen into a gradient, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-t o-from-amber-300 dark:o-from-amber-900 o-via-zinc-50 dark:o-via-zinc-950 o-to-zinc-50 dark:o-to-zinc-950'
 
 /**
- * Sable qui coule.
+ * Flowing sand.
  *
  * @example
  * <div className="o-relative o-min-h-screen">
@@ -101,8 +100,8 @@ export function SandFlow({
     colors,
     uniforms: { uStreams: streams, uGrain: grain, uSpeed: speed, uHeap: heap },
     name: 'sand-flow',
-    // Un grain plus fin que le pixel scintille a densite reduite : en qualite
-    // basse, les grains grossissent plutot que de disparaitre.
+    // A grain finer than the pixel shimmers at a reduced density: at low
+    // quality, the grains grow rather than disappear.
     degrade: (quality) => ({
       uGrain: quality === 'low' ? Math.min(grain, 70) : grain,
     }),

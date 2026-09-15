@@ -1,18 +1,18 @@
 /**
- * Interoperabilite entre modules CommonJS et modules natifs.
+ * Interoperability between CommonJS modules and native modules.
  *
- * Le probleme, en une phrase : un paquet CommonJS compile en module ESM ne
- * ressort qu'avec un export `default`. Le compilateur sait parfaitement lire
- * `exports.useState = ...` **a l'interieur** d'un bundle, mais il ne peut pas
- * deviner statiquement la liste des noms a declarer a la frontiere du module.
- * Le navigateur, lui, exige que `import { useState } from '/@deps/react.js'`
- * corresponde a un export declare — sans quoi il refuse de lier le module,
- * avant meme de l'executer.
+ * The problem, in one sentence: a CommonJS package compiled into an ESM module
+ * only comes out with a `default` export. The bundler knows perfectly well how
+ * to read `exports.useState = ...` **inside** a bundle, but it cannot
+ * statically guess the list of names to declare at the module boundary. The
+ * browser, for its part, requires `import { useState } from '/@deps/react.js'`
+ * to match a declared export — otherwise it refuses to link the module, before
+ * even running it.
  *
- * La parade consiste a enumerer les exports du paquet **dans Node**, au moment
- * de la pre-compilation, puis a generer un module intermediaire qui les
- * re-exporte nommement. C'est le seul moment ou cette liste est connaissable
- * de facon fiable : a l'execution, il est trop tard.
+ * The workaround is to enumerate the exports of the package **in Node**, at
+ * prebundling time, then generate an intermediate module that re-exports them
+ * by name. That is the only moment when this list is reliably knowable: at
+ * runtime, it is too late.
  *
  * @module
  */
@@ -21,23 +21,23 @@ import { existsSync, readFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { dirname, join } from 'node:path'
 
-/** Ce qu'il faut savoir d'une dependance pour la servir correctement. */
+/** What has to be known about a dependency to serve it correctly. */
 export interface DepFormat {
-  /** Specificateur d'origine. */
+  /** Original specifier. */
   readonly specifier: string
   /**
-   * `true` si le paquet est en CommonJS et exige donc un module intermediaire
-   * declarant ses exports nommes.
+   * `true` when the package is CommonJS and therefore requires an intermediate
+   * module declaring its named exports.
    */
   readonly needsInterop: boolean
-  /** Exports nommes detectes, hors `default`. */
+  /** Named exports detected, `default` excluded. */
   readonly namedExports: readonly string[]
 }
 
-/** Identifiants JavaScript valides, seuls re-exportables nommement. */
+/** Valid JavaScript identifiers, the only ones re-exportable by name. */
 const IDENTIFIER = /^[A-Za-z_$][A-Za-z0-9_$]*$/
 
-/** Mots reserves, qui ne peuvent pas devenir des noms de liaison. */
+/** Reserved words, which cannot become binding names. */
 const RESERVED = new Set([
   'break',
   'case',
@@ -82,8 +82,8 @@ const RESERVED = new Set([
 ])
 
 /**
- * Determine le format d'un fichier selon les regles de Node : l'extension
- * d'abord, puis le champ `type` du `package.json` le plus proche.
+ * Determines the format of a file according to the Node rules: the extension
+ * first, then the `type` field of the nearest `package.json`.
  */
 function isCommonJsFile(file: string): boolean {
   if (file.endsWith('.mjs')) return false
@@ -109,19 +109,19 @@ function isCommonJsFile(file: string): boolean {
 }
 
 /**
- * Analyse une dependance et determine si elle demande un module intermediaire.
+ * Inspects a dependency and determines whether it needs an intermediate module.
  *
- * L'analyse charge le paquet dans Node pour lire ses exports. C'est le seul
- * moyen fiable — l'analyse statique d'un fichier CommonJS minifie echoue sur
- * les formes indirectes — mais cela reste faillible : un paquet concu pour le
- * seul navigateur peut echouer au chargement. L'echec est donc absorbe, et la
- * dependance traitee comme un module natif.
+ * The inspection loads the package in Node to read its exports. That is the
+ * only reliable way — static analysis of a minified CommonJS file fails on the
+ * indirect forms — but it stays fallible: a package designed for the browser
+ * alone can fail to load. The failure is therefore absorbed, and the dependency
+ * treated as a native module.
  *
- * @param specifier Specificateur du paquet, par exemple `react-dom/client`.
- * @param root Racine du projet, d'ou la resolution est effectuee.
+ * @param specifier Specifier of the package, for example `react-dom/client`.
+ * @param root Project root, from which resolution is performed.
  *
  * @example
- * inspectDependency('react', '/projet')
+ * inspectDependency('react', '/project')
  * // { needsInterop: true, namedExports: ['useState', 'useEffect', ...] }
  */
 export function inspectDependency(specifier: string, root: string): DepFormat {
@@ -133,8 +133,8 @@ export function inspectDependency(specifier: string, root: string): DepFormat {
   try {
     resolved = require.resolve(specifier)
   } catch {
-    // Un paquet exclusivement ESM n'est pas resoluble par `require` : c'est
-    // precisement le cas ou aucun intermediaire n'est necessaire.
+    // A pure ESM package is not resolvable by `require`: that is precisely the
+    // case where no intermediate is needed.
     return plain
   }
 
@@ -158,11 +158,11 @@ export function inspectDependency(specifier: string, root: string): DepFormat {
 }
 
 /**
- * Produit le module intermediaire d'une dependance CommonJS.
+ * Produces the intermediate module of a CommonJS dependency.
  *
- * La destructuration en position d'export est du JavaScript standard : elle
- * declare autant de liaisons exportees que de noms, ce qui satisfait le
- * navigateur, tout en ne lisant l'objet qu'une seule fois.
+ * Destructuring in export position is standard JavaScript: it declares as many
+ * exported bindings as there are names, which satisfies the browser, while
+ * reading the object only once.
  *
  * @example
  * renderInteropProxy({ specifier: 'react', needsInterop: true, namedExports: ['useState'] })

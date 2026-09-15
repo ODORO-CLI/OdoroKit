@@ -1,40 +1,38 @@
 /**
- * Heros video : le defilement fait avancer la video, image par image.
+ * Video hero: scrolling walks the video forward, frame by frame.
  *
- * ## Le verrou de page a ete retire, et c'est le point important
+ * ## The page lock was removed, and that is the important point
  *
- * L'implementation d'origine posait `position: fixed` sur `document.body` et
- * captait la molette pour la detourner vers `video.currentTime`. Son propre
- * commentaire l'assumait : « aucune soupape dans un sens ni dans l'autre ».
+ * The original implementation set `position: fixed` on `document.body` and
+ * captured the wheel to divert it towards `video.currentTime`. Its own comment
+ * owned up to it: "no escape valve in either direction".
  *
- * Cela produit un cul-de-sac. Une page ainsi verrouillee ne se quitte pas au
- * clavier — ni `Page suivante`, ni `Fin`, ni `Tab` ne font quoi que ce soit,
- * puisque la page ne defile plus. Un lecteur d'ecran n'a plus de document a
- * parcourir. Une tablette sans molette n'a que le geste tactile, lui aussi
- * capte. Et la barre de defilement disparait, donc rien n'indique qu'il se
- * passe quelque chose.
+ * That produces a dead end. A page locked that way cannot be left by keyboard
+ * — neither `Page Down`, nor `End`, nor `Tab` do anything at all, since the
+ * page no longer scrolls. A screen reader has no document left to walk. A
+ * tablet without a wheel only has the touch gesture, which is captured too.
+ * And the scrollbar disappears, so nothing indicates that anything is
+ * happening.
  *
- * Le meme rendu s'obtient sans rien verrouiller : une enveloppe haute de
- * plusieurs hauteurs de fenetre, une scene collante a l'interieur, et la
- * progression du defilement — reelle — qui pilote la video. Le defilement
- * clavier fonctionne, la barre indique ou l'on en est, et quitter la section
- * consiste a continuer de defiler.
+ * The same output is obtained without locking anything: a wrapper several
+ * window heights tall, a sticky scene inside it, and the scroll progress — the
+ * real one — driving the video. Keyboard scrolling works, the bar shows where
+ * one is at, and leaving the section consists in carrying on scrolling.
  *
- * ## La file d'attente des recherches
+ * ## The seek queue
  *
- * `currentTime` ne se pose pas a chaque image : une recherche en cours ignore
- * les suivantes, et les demandes s'empilent jusqu'a ce que la video parte en
- * arriere. La derniere valeur demandee est donc retenue, et appliquee au
- * `seeked` suivant — une recherche a la fois, toujours vers la position la plus
- * recente. C'est la seule facon d'obtenir un defilement fluide, et elle vient
- * de l'implementation d'origine.
+ * `currentTime` cannot be set on every frame: a seek in flight ignores the
+ * following ones, and the requests pile up until the video runs backwards. The
+ * last requested value is therefore held, and applied on the next `seeked` —
+ * one seek at a time, always towards the most recent position. It is the only
+ * way to get smooth scrubbing, and it comes from the original implementation.
  *
- * ## Ce que la video doit etre
+ * ## What the video has to be
  *
- * Une video ordinaire ne se parcourt pas image par image : sans images cles
- * rapprochees, chaque recherche decode depuis la precedente, et le rendu
- * saccade. Un encodage a intervalle court — une image cle toutes les dix a
- * quinze images — est ce qui fait la difference entre l'effet et son echec.
+ * An ordinary video cannot be walked frame by frame: without closely spaced
+ * keyframes, every seek decodes from the previous one, and the output stutters.
+ * An encoding at a short interval — a keyframe every ten to fifteen frames — is
+ * what makes the difference between the effect and its failure.
  *
  * @module
  */
@@ -49,67 +47,67 @@ import {
 } from '@odoro-cli/engine'
 import { useEffect, useRef, useState, type ReactElement, type ReactNode } from 'react'
 
-/** Proprietes propres au composant. */
+/** Props of the component itself. */
 export interface ScrollVideoOwnProps {
-  /** Source de la video. Obligatoire : le registre n'en embarque aucune. */
+  /** Source of the video. Required: the registry ships none. */
   src: string
-  /** Image affichee tant que la video n'est pas decodable. */
+  /** Image displayed as long as the video is not decodable. */
   poster?: string
-  /** Titre, efface a mesure que la video avance. */
+  /** Title, faded out as the video advances. */
   title?: ReactNode
-  /** Phrase revelee a la fin de la course. */
+  /** Sentence revealed at the end of the run. */
   tagline?: ReactNode
-  /** Invitation a defiler, effacee au premier mouvement. @defaultValue 'Defiler' */
+  /** Invitation to scroll, faded out on the first movement. @defaultValue 'Scroll' */
   hint?: ReactNode
   /**
-   * Longueur de la course, en hauteurs de fenetre. Trois signifie qu'il faut
-   * trois ecrans de defilement pour parcourir la video entiere.
+   * Length of the run, in window heights. Three means it takes three screens
+   * of scrolling to walk through the whole video.
    *
    * @defaultValue 3
    */
   range?: number
   /**
-   * Vitesse de rattrapage de la position visee. Plus haut, plus sec.
+   * Catch-up speed towards the aimed position. Higher is sharper.
    *
    * @defaultValue 6
    */
   ease?: number
-  /** Texte de remplacement de la video, pour ce qui ne peut pas la lire. */
+  /** Replacement text for the video, for whatever cannot play it. */
   description?: string
 }
 
-/** Toutes les proprietes. */
+/** All the props. */
 export type ScrollVideoProps = Customisable<ScrollVideoOwnProps, 'section'>
 
-/** Borne une valeur entre zero et un. */
+/** Clamps a value between zero and one. */
 function unit(value: number): number {
   return Math.min(1, Math.max(0, value))
 }
 
 /**
- * Ecart en deca duquel une recherche n'a pas lieu d'etre, en secondes.
+ * Gap below which a seek has no reason to happen, in seconds.
  *
- * Un soixantieme de seconde est la duree d'une image : demander moins que cela
- * ne change aucun pixel, et coute un aller-retour de decodage.
+ * A sixtieth of a second is the length of a frame: asking for less than that
+ * changes no pixel, and costs a decoding round trip.
  */
 const SEEK_EPSILON = 1 / 60
 
-/** `HTMLMediaElement.HAVE_CURRENT_DATA` : l'image courante est decodee. */
+/** `HTMLMediaElement.HAVE_CURRENT_DATA`: the current frame is decoded. */
 const HAVE_CURRENT_DATA = 2
 
 /**
- * Heros dont la video avance avec le defilement.
+ * Hero whose video advances with the scrolling.
  *
  * @example
  * <ScrollVideo
  *   src="/videos/ville.mp4"
  *   poster="/videos/ville.jpg"
  *   title="La ville s ouvre"
- *   tagline="Chaque porte est deja ouverte."
+ *   tagline="Every door is already open."
  * />
  *
  * @example
- * // Une course plus longue laisse plus de defilement pour la meme video.
+ * // A longer run leaves more scrolling for the same video.
  * <ScrollVideo src="/videos/atelier.mp4" range={5} />
  */
 export function ScrollVideo({
@@ -117,7 +115,7 @@ export function ScrollVideo({
   poster,
   title,
   tagline,
-  hint = 'Defiler',
+  hint = 'Scroll',
   range = 3,
   ease = 6,
   description,
@@ -132,16 +130,16 @@ export function ScrollVideo({
 
   const [loaded, setLoaded] = useState(false)
 
-  /** Position visee, ecrite par le defilement, lue par la boucle. */
+  /** Aimed position, written by the scrolling, read by the loop. */
   const target = useRef(0)
-  /** Position affichee, rapprochee de la cible a chaque image. */
+  /** Displayed position, brought closer to the target on every frame. */
   const shown = useRef(0)
 
   const { ref } = useScrollScrub<HTMLDivElement>(
     (progress) => {
       target.current = progress
-      // Sous mouvement reduit, la progression arrive une fois, a un : il n'y a
-      // pas de boucle pour la reprendre, donc elle est appliquee ici meme.
+      // Under reduced motion, the progress arrives once, at one: there is no
+      // loop to pick it up, so it is applied right here.
       if (reduced) {
         shown.current = progress
         paint(progress)
@@ -151,10 +149,10 @@ export function ScrollVideo({
   )
 
   /**
-   * Applique une progression a tout ce qui en depend.
+   * Applies a progress value to everything that depends on it.
    *
-   * Declaree comme fonction du composant plutot que memorisee : elle ne lit que
-   * des refs, et ne referme donc sur aucune valeur qui vieillirait.
+   * Declared as a function of the component rather than memoised: it only reads
+   * refs, and so closes over no value that would go stale.
    */
   function paint(progress: number): void {
     const element = video.current
@@ -185,7 +183,7 @@ export function ScrollVideo({
     if (bar !== null) bar.style.transform = `scaleX(${progress.toFixed(4)})`
   }
 
-  // La recherche, et la boucle qui l'alimente.
+  // The seeking, and the loop that feeds it.
   useEffect(() => {
     const element = video.current
     if (element === null) return
@@ -194,15 +192,15 @@ export function ScrollVideo({
     let waiting: number | null = null
 
     /**
-     * Demande une position. Une seule recherche a la fois ; la derniere
-     * demandee pendant qu'une autre court est appliquee des sa fin.
+     * Requests a position. One seek at a time; the last one requested while
+     * another is running is applied as soon as it ends.
      */
     const seek = (time: number): void => {
-      // Redemander la position courante ne declenche pas `seeked` partout : le
-      // drapeau resterait leve, la file ne se viderait plus, et le parcours se
-      // figerait definitivement. On ne demande donc que ce qui bouge vraiment.
-      // Le cas se produit des que la video est immobile, c'est-a-dire des que
-      // l'utilisateur s'arrete de defiler — donc a chaque fois.
+      // Requesting the current position again does not fire `seeked`
+      // everywhere: the flag would stay raised, the queue would never drain,
+      // and the scrubbing would freeze for good. So we only ask for what really
+      // moves. The case happens as soon as the video is still, that is to say
+      // as soon as the user stops scrolling — so every time.
       if (Math.abs(element.currentTime - time) < SEEK_EPSILON) return
 
       if (seeking) {
@@ -223,8 +221,8 @@ export function ScrollVideo({
 
     const onLoaded = (): void => {
       setLoaded(true)
-      // La duree n'etait pas connue quand la premiere progression est arrivee :
-      // on la rejoue, sans quoi la video resterait sur son image de depart.
+      // The duration was not known when the first progress value arrived: we
+      // replay it, otherwise the video would stay on its starting frame.
       if (reduced) seek((element.duration || 0) * 0.92)
       paint(shown.current)
     }
@@ -232,10 +230,10 @@ export function ScrollVideo({
     element.addEventListener('seeked', onSeeked)
     element.addEventListener('loadeddata', onLoaded)
 
-    // La video peut deja etre decodable : en cache, ou remontee apres un
-    // changement de prop. L'evenement est alors passe avant l'ecoute, et sans
-    // ce rattrapage il ne reviendra jamais — la video resterait a l'opacite
-    // nulle, sur une page qui parait vide.
+    // The video may already be decodable: cached, or remounted after a prop
+    // change. The event has then passed before the listener, and without this
+    // catch-up it will never come back — the video would stay at zero opacity,
+    // on a page that looks empty.
     if (element.readyState >= HAVE_CURRENT_DATA) onLoaded()
 
     if (reduced) {
@@ -247,9 +245,9 @@ export function ScrollVideo({
 
     const subscription = clock.subscribe(
       ({ delta }) => {
-        // Rattrapage exponentiel exprime en fonction du temps ecoule : une
-        // fraction constante irait deux fois plus vite sur un ecran a cent
-        // vingt images par seconde.
+        // Exponential catch-up expressed as a function of the elapsed time: a
+        // constant fraction would go twice as fast on a screen at a hundred and
+        // twenty frames per second.
         const factor = 1 - Math.exp(-ease * delta)
         shown.current += (target.current - shown.current) * factor
 
@@ -267,8 +265,8 @@ export function ScrollVideo({
       element.removeEventListener('seeked', onSeeked)
       element.removeEventListener('loadeddata', onLoaded)
     }
-    // `paint` ne figure pas dans les dependances : elle ne lit que des refs, et
-    // ne referme donc sur aucune valeur qui vieillirait entre deux rendus.
+    // `paint` does not appear in the dependencies: it only reads refs, and so
+    // closes over no value that would go stale between two renders.
   }, [ease, reduced])
 
   const { className, style } = mergePresentation({ className: 'o-relative' }, rest)
@@ -278,8 +276,8 @@ export function ScrollVideo({
       {...rest}
       ref={ref}
       className={className}
-      // La hauteur de l'enveloppe **est** la longueur de la course : c'est elle
-      // que le declencheur mesure, et elle seule.
+      // The height of the wrapper **is** the length of the run: it is what the
+      // trigger measures, and it alone.
       style={{ height: `${String(Math.max(1, range + 1) * 100)}vh`, ...style }}
     >
       <div className="o-sticky o-top-0 o-h-screen o-w-full o-overflow-hidden o-bg-zinc-50 dark:o-bg-zinc-950">
@@ -290,10 +288,10 @@ export function ScrollVideo({
           muted
           playsInline
           preload="auto"
-          // Sans description, la video ne porte aucune information que le titre
-          // ne porte deja : l'annoncer comme un media anonyme ajoute du bruit
-          // sans rien apprendre. Avec une description, elle devient un contenu
-          // a part entiere et reste dans l'arbre d'accessibilite.
+          // Without a description, the video carries no information the title
+          // does not already carry: announcing it as an anonymous media adds
+          // noise without teaching anything. With a description, it becomes
+          // content in its own right and stays in the accessibility tree.
           aria-label={description}
           aria-hidden={description === undefined}
           className="o-absolute o-inset-0 o-h-full o-w-full o-object-cover o-will-change-transform"
@@ -354,8 +352,8 @@ export function ScrollVideo({
           </svg>
         </div>
 
-        {/* Le fil de progression : la seule indication de l'avancee dans la
-            video, la barre du navigateur mesurant la page et non la course. */}
+        {/* The progress thread: the only indication of how far one is into the
+            video, since the browser bar measures the page and not the run. */}
         <div
           aria-hidden
           className="o-absolute o-bottom-0 o-h-0.5 o-w-full o-bg-zinc-200 dark:o-bg-zinc-800"

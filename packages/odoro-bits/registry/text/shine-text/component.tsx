@@ -1,26 +1,25 @@
 /**
- * Reflet : une bande claire traverse le texte, en boucle.
+ * Shine: a bright band crosses the text, on a loop.
  *
- * ## Zero JavaScript a l'execution
+ * ## Zero JavaScript at runtime
  *
- * L'effet tient dans un degrade decoupe sur la forme des lettres, dont la
- * position est animee. Le compositeur du navigateur s'en charge seul : aucune
- * boucle, aucun abonnement, aucun rendu React apres le premier.
+ * The effect fits into a gradient clipped to the shape of the letters, whose
+ * position is animated. The browser's compositor handles it alone: no loop, no
+ * subscription, no React render after the first.
  *
- * C'est la demonstration de la frontiere posee par le moteur. Cet effet est
- * visuellement proche de ce qu'un shader ferait, et il ne demande pas une
- * ligne de moteur — parce qu'il ne recalcule rien : il decrit une animation
- * une fois, puis se tait.
+ * It is the demonstration of the boundary drawn by the engine. This effect is
+ * visually close to what a shader would do, and it does not ask for a single
+ * line of engine — because it recomputes nothing: it describes an animation
+ * once, then falls silent.
  *
- * ## La contrepartie du decoupage
+ * ## The trade-off of the clipping
  *
- * `background-clip: text` peint le texte avec le fond, ce qui suppose de
- * rendre la couleur du texte transparente. Un navigateur qui ne saurait pas le
- * faire afficherait donc un texte invisible — pas « sans reflet »,
- * **invisible**.
+ * `background-clip: text` paints the text with the background, which requires
+ * making the text colour transparent. A browser that could not do it would
+ * therefore show invisible text — not "without a shine", **invisible**.
  *
- * La regle est donc posee derriere une requete de support. Sans elle, le texte
- * garde sa couleur et perd seulement son reflet, ce qui est le bon sens de la
+ * The rule is therefore placed behind a support query. Without it, the text
+ * keeps its colour and only loses its shine, which is the right way round for
  * degradation.
  *
  * @module
@@ -29,33 +28,33 @@
 import { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'
 import { useId, type CSSProperties, type ElementType, type ReactElement } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface ShineTextOwnProps {
-  /** Texte a habiller. */
+  /** Text to dress. */
   children: string
-  /** Balise rendue. @defaultValue 'span' */
+  /** Rendered tag. @defaultValue 'span' */
   as?: ElementType
-  /** Couleur du texte au repos. Par defaut, celle heritee. */
+  /** Colour of the text at rest. By default, the inherited one. */
   from?: string
-  /** Couleur du reflet. @defaultValue blanc */
+  /** Colour of the shine. @defaultValue white */
   shine?: string
-  /** Duree d'un passage, en millisecondes. @defaultValue 3000 */
+  /** Duration of one pass, in milliseconds. @defaultValue 3000 */
   duration?: number
-  /** Largeur du reflet, en pourcentage de la largeur du texte. @defaultValue 30 */
+  /** Width of the shine, as a percentage of the width of the text. @defaultValue 30 */
   width?: number
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type ShineTextProps = Customisable<ShineTextOwnProps, 'span'>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-shine-text'
 
 /**
- * Pose l'animation, une fois par document.
+ * Sets the animation, once per document.
  *
- * Le decoupage est enferme dans une requete de support : la ou il n'est pas
- * compris, le texte garde sa couleur et perd seulement son reflet.
+ * The clipping is shut inside a support query: where it is not understood, the
+ * text keeps its colour and only loses its shine.
  */
 function ensureShineRule(): void {
   if (typeof document === 'undefined') return
@@ -79,7 +78,7 @@ function ensureShineRule(): void {
 }
 
 /**
- * Fait passer un reflet sur un texte.
+ * Sends a shine across a text.
  *
  * @example
  * <ShineText as="h1" className="o-text-5xl o-font-extrabold">
@@ -87,9 +86,9 @@ function ensureShineRule(): void {
  * </ShineText>
  *
  * @example
- * // Les couleurs sont libres : ce sont des valeurs, pas des roles.
+ * // The colours are free: they are values, not roles.
  * <ShineText from="var(--o-palette-zinc-500)" shine="var(--o-palette-amber-300)">
- *   Nouveaute
+ *   New
  * </ShineText>
  */
 export function ShineText({
@@ -112,8 +111,8 @@ export function ShineText({
     '--o-shine-from': from,
     '--o-shine-color': shine,
     '--o-shine-duration': `${String(duration)}ms`,
-    // La largeur du reflet joue sur l'ecart entre les deux jalons sombres du
-    // degrade : plus ils se rapprochent, plus la bande est etroite.
+    // The width of the shine plays on the gap between the two dark stops of
+    // the gradient: the closer they come, the narrower the band.
     '--o-shine-width': `${String(width)}%`,
   } as CSSProperties
 

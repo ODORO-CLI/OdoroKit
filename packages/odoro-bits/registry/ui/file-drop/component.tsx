@@ -1,28 +1,28 @@
 /**
- * Zone de depot : elle se souleve quand un fichier la survole.
+ * Drop zone: it lifts when a file hovers over it.
  *
- * ## L'input natif fait le vrai travail
+ * ## The native input does the real work
  *
- * Le glisser-deposer est une surcouche : le chemin fiable — clavier, mobile,
- * lecteurs d'ecran, gestionnaires de fichiers — est un `input type="file"`
- * ordinaire, present et focusable, simplement retire de l'ecran. La zone
- * entiere est son label : cliquer n'importe ou ouvre le selecteur.
+ * Drag and drop is an extra layer: the reliable path — keyboard, mobile,
+ * screen readers, file managers — is an ordinary `input type="file"`, present
+ * and focusable, simply taken off the screen. The whole zone is its label:
+ * clicking anywhere opens the picker.
  *
- * ## Les pointilles sont quatre degrades, pas une bordure
+ * ## The dashes are four gradients, not a border
  *
- * `border-style: dashed` ne s'anime pas. Les pointilles sont donc peints en
- * arriere-plan — deux degrades repetes pour les bords horizontaux, deux
- * pour les verticaux — et c'est leur `background-position` qui defile. La
- * marche ne tourne que pendant le survol d'un fichier : une fourmi qui
- * defile en permanence est une distraction, pas une invitation. Sous
- * mouvement reduit, elle ne tourne jamais — la bordure reste, l'etat
- * souleve aussi.
+ * `border-style: dashed` does not animate. The dashes are therefore
+ * painted in the background — two repeated gradients for the horizontal
+ * edges, two for the vertical ones — and it is their `background-position`
+ * that scrolls. The march only runs while a file hovers: an ant line
+ * scrolling all the time is a distraction, not an invitation. Under
+ * reduced motion, it never runs — the border stays, and so does the
+ * lifted state.
  *
- * ## Le compteur de survol, ou pourquoi `dragleave` ment
+ * ## The hover counter, or why `dragleave` lies
  *
- * `dragleave` se declenche en passant sur chaque enfant de la zone. Sans
- * compteur d'entrees et de sorties, la zone clignoterait a chaque
- * traversee de texte.
+ * `dragleave` fires when passing over every child of the zone. Without a
+ * counter of entries and exits, the zone would blink on every crossing over
+ * a piece of text.
  *
  * @module
  */
@@ -38,23 +38,23 @@ import {
   type ReactNode,
 } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface FileDropOwnProps {
-  /** Accepte plusieurs fichiers a la fois. @defaultValue true */
+  /** Accepts several files at once. @defaultValue true */
   multiple?: boolean
-  /** Appele avec les fichiers deposes ou choisis. */
+  /** Called with the dropped or chosen files. */
   onFiles?: (files: readonly File[]) => void
-  /** Invitation affichee dans la zone. @defaultValue 'Deposez vos fichiers ici' */
+  /** Invitation shown in the zone. @defaultValue 'Drop your files here' */
   children?: ReactNode
 }
 
-/** Toutes les proprietes. */
+/** All the properties. */
 export type FileDropProps = Customisable<FileDropOwnProps, 'label'>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-file-drop'
 
-/** Pose la zone, ses pointilles et leur marche, une fois par document. */
+/** Places the zone, its dashes and their march, once per document. */
 function ensureDropRules(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -67,7 +67,7 @@ function ensureDropRules(): void {
     'position:relative;display:flex;flex-direction:column;align-items:center;',
     'justify-content:center;gap:0.5rem;cursor:pointer;',
     'border-radius:1rem;padding:2.5rem 2rem;text-align:center;',
-    // Quatre degrades : deux bords horizontaux, deux verticaux.
+    // Four gradients: two horizontal edges, two vertical ones.
     'background-image:',
     'repeating-linear-gradient(90deg,var(--o-drop-edge) 0 8px,transparent 8px 16px),',
     'repeating-linear-gradient(90deg,var(--o-drop-edge) 0 8px,transparent 8px 16px),',
@@ -87,8 +87,8 @@ function ensureDropRules(): void {
     '@keyframes o-drop-march{',
     'to{background-position:16px 0,-16px 100%,0 -16px,100% 16px}',
     '}',
-    // Mouvement reduit : la bordure s allume mais ne defile jamais, et la
-    // zone ne se souleve pas.
+    // Reduced motion: the border lights up but never scrolls, and the zone
+    // does not lift.
     '@media (prefers-reduced-motion:reduce){',
     '[data-o-drop][data-o-drop-over="true"]{animation:none;transform:none}',
     '}',
@@ -97,21 +97,21 @@ function ensureDropRules(): void {
 }
 
 /**
- * Zone de depot de fichiers, posee sur un input natif.
+ * File drop zone, placed over a native input.
  *
  * @example
- * <FileDrop onFiles={televerser} />
+ * <FileDrop onFiles={upload} />
  *
  * @example
- * // Un seul fichier, et une invitation propre au contexte.
- * <FileDrop multiple={false} onFiles={([fichier]) => ouvrir(fichier)}>
- *   Glissez votre CV ici
+ * // A single file, and an invitation of its own to the context.
+ * <FileDrop multiple={false} onFiles={([file]) => open(file)}>
+ *   Drag your resume here
  * </FileDrop>
  */
 export function FileDrop({
   multiple = true,
   onFiles,
-  children = 'Deposez vos fichiers ici',
+  children = 'Drop your files here',
   ...rest
 }: FileDropProps): ReactElement {
   const { reduced } = useMotionState()
@@ -174,15 +174,15 @@ export function FileDrop({
         type="file"
         multiple={multiple}
         className="o-sr-only"
-        aria-label="Choisir des fichiers"
+        aria-label="Choose files"
         onChange={(event) => {
           accept([...(event.target.files ?? [])])
-          // La meme selection deux fois de suite doit redeclencher l evenement.
+          // The same selection twice in a row must fire the event again.
           event.target.value = ''
         }}
       />
       <span className="o-font-medium">{children}</span>
-      <span className="o-text-sm o-opacity-70">ou cliquez pour parcourir</span>
+      <span className="o-text-sm o-opacity-70">or click to browse</span>
       {names.length > 0 ? (
         <ul aria-live="polite" className="o-mt-2 o-text-sm o-opacity-70">
           {names.map((name) => (

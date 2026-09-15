@@ -1,26 +1,26 @@
 /**
- * Meches : des brins ancres en bas du cadre, qui ondulent comme des algues.
+ * Strands: filaments anchored at the bottom of the frame, waving like seaweed.
  *
- * ## Le principe
+ * ## The principle
  *
- * Une meche par colonne, un x = f(y) dont le balancement croit avec la
- * hauteur : la racine tient, la pointe suit le courant avec retard. Chaque
- * meche a sa hauteur, son epaisseur qui s'amincit, sa phase propre.
+ * One strand per column, an x = f(y) whose sway grows with height: the root
+ * holds, the tip follows the current with a lag. Each strand has its own
+ * height, its own thickness that tapers, its own phase.
  *
- * Ce qui distingue cette entree de ses cousines : les brins sont verticaux
- * et ancres, le mouvement est un balancement lateral, et l'epaisseur varie
- * le long du brin.
+ * What sets this entry apart from its cousins: the filaments are vertical
+ * and anchored, the motion is a sideways sway, and the thickness varies
+ * along the filament.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur — les recopier ici en ferait autant
- * de versions a maintenir qu'il y a de fonds.
+ * It carries only what sets it apart: its shader, its settings and its fallback.
+ * Reading the tokens, converting them to floats and re-reading them when the
+ * theme changes all come from the engine — copying that here would leave as many
+ * versions to maintain as there are backgrounds.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en
- * accorde qu'une par backend — et sous mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface — it grants only one per
+ * backend — and under reduced motion.
  *
  * @module
  */
@@ -37,57 +37,57 @@ import { type ReactElement } from 'react'
 
 import { STRANDS_FRAGMENT } from './strands.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface StrandsControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to this component. */
 export interface StrandsOwnProps {
-  /** Nombre de meches. Borne a quarante par le shader. @defaultValue 18 */
+  /** Number of strands. Capped at forty by the shader. @defaultValue 18 */
   count?: number
-  /** Amplitude du balancement, en largeurs de colonne. @defaultValue 0.7 */
+  /** Amplitude of the sway, in column widths. @defaultValue 0.7 */
   sway?: number
-  /** Vitesse du courant. @defaultValue 0.6 */
+  /** Speed of the current. @defaultValue 0.6 */
   speed?: number
-  /** Epaisseur a la racine, en fraction de la largeur. @defaultValue 0.006 */
+  /** Thickness at the root, as a fraction of the width. @defaultValue 0.006 */
   thickness?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<StrandsControls>
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type StrandsProps = Customisable<StrandsOwnProps>
 
-/** Tokens employes par defaut : le fond, le corps des meches, leur pointe. */
+/** Tokens used by default: the background, the body of the strands, their tip. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-teal-700',
   '--o-palette-teal-300',
 ] as const
 
-/** Repli par defaut : un degrade fige, dans les memes tons. */
+/** Default fallback: a frozen gradient, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-t o-from-teal-950 o-to-zinc-50 dark:o-to-zinc-950'
 
 /**
- * Nombre de meches en qualite basse.
+ * Number of strands at low quality.
  *
- * Trois colonnes sont evaluees par fragment quel que soit leur nombre. Ce qui
- * coute, c'est un trait d'un pixel a densite reduite, qui scintille quand les
- * meches sont serrees : moins de meches, plus d'espace, et le trait tient.
+ * Three columns are evaluated per fragment whatever their number. What costs
+ * is a one-pixel stroke at reduced density, which shimmers when the strands
+ * are tightly packed: fewer strands, more room, and the stroke holds.
  */
 const LOW_COUNT = 10
 
 /**
- * Meches.
+ * Strands.
  *
  * @example
  * <div className="o-relative o-min-h-screen">

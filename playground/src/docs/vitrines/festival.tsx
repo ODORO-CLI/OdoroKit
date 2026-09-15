@@ -33,7 +33,7 @@
  */
 
 import { Icon } from '@odoro-cli/icons'
-import { ArrowRight, Ticket, TriangleAlert } from '@odoro-cli/icons/filaire'
+import { ArrowRight, Ticket, TriangleAlert } from '@odoro-cli/icons/outline'
 import { useMotionState } from '@odoro-cli/engine'
 import { useState, type CSSProperties, type ReactElement, type ReactNode } from 'react'
 

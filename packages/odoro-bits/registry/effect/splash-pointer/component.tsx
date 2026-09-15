@@ -1,38 +1,37 @@
 /**
- * Eclaboussure : au clic, des gouttes partent et retombent.
+ * Splash: on click, drops fly out and fall back.
  *
- * ## Une balistique, pas une rosace
+ * ## A ballistic, not a rosette
  *
- * Les etincelles partent en ligne droite et s'eteignent : c'est un eclat. Une
- * eclaboussure, elle, a un poids — les gouttes montent, ralentissent, puis
- * tombent, et celles qui partent a plat retombent plus loin que celles qui
- * partent haut. Sans cette courbe, on retrouve une rosace reguliere, qui se
- * lit comme un mecanisme.
+ * Sparks fly out in a straight line and die out: that is a flash. A splash, on
+ * the other hand, has weight — the drops rise, slow down, then fall, and those
+ * that leave flat land further away than those that leave high. Without that
+ * curve, one gets an even rosette back, which reads as a mechanism.
  *
- * La courbe n'est pas simulee image par image. Chaque goutte recoit une
- * vitesse initiale, et sa trajectoire est **echantillonnee** en cinq points
- * remis a l'API Web Animations sous forme d'images-cles. Le navigateur
- * interpole entre elles sur son propre fil : rien ne tourne dans le fil
- * principal, et la boucle du moteur n'est pas sollicitee du tout.
+ * The curve is not simulated frame by frame. Each drop is given an initial
+ * velocity, and its trajectory is **sampled** into five points handed to the
+ * Web Animations API as keyframes. The browser interpolates between them on
+ * its own thread: nothing runs on the main thread, and the engine loop is not
+ * called upon at all.
  *
- * ## Les gouttes vivent dans le DOM, pas dans l'etat
+ * ## The drops live in the DOM, not in state
  *
- * Chaque impact cree ses elements, les lance, et les retire a la fin de leur
- * animation. Les porter dans l'etat de React imposerait deux rendus par clic
- * pour des objets que personne ne lit : ils sont decoratifs, ephemeres, et
- * leur cycle de vie est exactement celui de leur animation.
+ * Each impact creates its elements, launches them, and removes them at the end
+ * of their animation. Carrying them in React state would impose two renders
+ * per click for objects that nobody reads: they are decorative, ephemeral, and
+ * their lifecycle is exactly that of their animation.
  *
- * ## L'onde d'impact
+ * ## The impact ring
  *
- * Une couronne part avec les gouttes et s'efface plus vite qu'elles. Elle
- * fait le lien entre le point clique et la gerbe : sans elle, les gouttes ont
- * l'air de venir de nulle part.
+ * A crown leaves with the drops and fades faster than they do. It makes the
+ * link between the clicked point and the spray: without it, the drops look as
+ * if they came from nowhere.
  *
- * ## Ou elle ne se montre pas
+ * ## Where it does not show itself
  *
- * Sans pointeur fin, aucun element n'est cree. Sous mouvement reduit non
- * plus : une eclaboussure est un geste entier, et le geste est ce qu'on nous
- * demande d'omettre.
+ * Without a fine pointer, no element is created. Nor under reduced motion: a
+ * splash is an entire gesture, and the gesture is what we are asked to leave
+ * out.
  *
  * @module
  */
@@ -46,46 +45,46 @@ import {
   type ReactNode,
 } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface SplashPointerOwnProps {
-  /** Zone qui recoit les clics. */
+  /** Area that receives the clicks. */
   children: ReactNode
-  /** Nombre de gouttes par impact. @defaultValue 14 */
+  /** Number of drops per impact. @defaultValue 14 */
   drops?: number
-  /** Portee horizontale des gouttes, en pixels. @defaultValue 90 */
+  /** Horizontal reach of the drops, in pixels. @defaultValue 90 */
   spread?: number
-  /** Duree du vol, en millisecondes. @defaultValue 700 */
+  /** Duration of the flight, in milliseconds. @defaultValue 700 */
   duration?: number
-  /** Poids des gouttes : plus haut, plus elles retombent vite. @defaultValue 1.4 */
+  /** Weight of the drops: the higher, the faster they fall back. @defaultValue 1.4 */
   gravity?: number
-  /** Couleur des gouttes. Une valeur, pas un role. @defaultValue la couleur du texte */
+  /** Colour of the drops. A value, not a role. @defaultValue the text colour */
   color?: string
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type SplashPointerProps = Customisable<SplashPointerOwnProps>
 
-/** Au-dela, la gerbe devient une tache et chaque clic coute pour rien. */
+/** Beyond this, the spray becomes a smudge and every click costs for nothing. */
 const MAX_DROPS = 28
 
-/** Points ou la trajectoire est echantillonnee. Voir l'en-tete du module. */
+/** Points where the trajectory is sampled. See the module header. */
 const SAMPLES = 5
 
 /**
- * Fait eclabousser chaque clic sur sa zone.
+ * Makes every click on its area splash.
  *
- * L'enveloppe est transparente : elle se pose autour d'un bouton, d'une
- * carte ou d'une zone entiere, sans rien changer a leur mise en page.
+ * The wrapper is transparent: it goes around a button, a card or a whole area,
+ * without changing anything to their layout.
  *
  * @example
  * <SplashPointer>
- *   <button type="button" className="o-px-6 o-py-3">Envoyer</button>
+ *   <button type="button" className="o-px-6 o-py-3">Send</button>
  * </SplashPointer>
  *
  * @example
- * // Gerbe ample et lourde, teintee.
+ * // Wide and heavy spray, tinted.
  * <SplashPointer drops={22} spread={140} gravity={2.2} color="var(--o-palette-brand-500)">
- *   <div className="o-p-10">Toute la carte repond</div>
+ *   <div className="o-p-10">The whole card responds</div>
  * </SplashPointer>
  */
 export function SplashPointer({
@@ -103,7 +102,7 @@ export function SplashPointer({
   useEffect(() => {
     if (host === null || reduced) return
     if (typeof window === 'undefined') return
-    // Pointeur grossier : rien ne s'abonne, aucun element n'est cree.
+    // Coarse pointer: nothing subscribes, no element is created.
     if (!window.matchMedia('(pointer: fine)').matches) return
 
     const total = Math.max(3, Math.min(MAX_DROPS, Math.round(drops)))
@@ -114,7 +113,7 @@ export function SplashPointer({
       const x = event.clientX - box.left
       const y = event.clientY - box.top
 
-      // La couronne d'impact, plus breve que les gouttes.
+      // The impact crown, briefer than the drops.
       const ring = document.createElement('span')
       ring.setAttribute('aria-hidden', 'true')
       ring.setAttribute('data-o-splash', '')
@@ -142,14 +141,14 @@ export function SplashPointer({
       wave.onfinish = () => ring.remove()
 
       for (let index = 0; index < total; index += 1) {
-        // Reparti sur le tour, puis brouille : une roue parfaite se lirait
-        // comme un mecanisme. Le tirage a lieu au clic, cote client seulement,
-        // il ne peut donc pas creer d'ecart d'hydratation.
+        // Spread around the turn, then scrambled: a perfect wheel would read
+        // as a mechanism. The draw happens on the click, client side only, so
+        // it cannot create a hydration mismatch.
         const angle = ((index + Math.random() * 0.7) / total) * Math.PI * 2
         const power = spread * (0.55 + Math.random() * 0.7)
         const speedX = Math.cos(angle) * power
-        // Toutes les gouttes partent vers le haut : c'est la gravite qui les
-        // ramene, et c'est de la que vient la courbe.
+        // Every drop leaves upwards: it is gravity that brings them back, and
+        // that is where the curve comes from.
         const speedY = -Math.abs(Math.sin(angle)) * power * 0.9 - power * 0.35
         const side = 3 + Math.random() * 4
 
@@ -191,8 +190,7 @@ export function SplashPointer({
     host.addEventListener('pointerdown', onPointerDown)
     return () => {
       host.removeEventListener('pointerdown', onPointerDown)
-      // Les gouttes en vol appartiennent a cette instance : elles partent avec
-      // elle.
+      // The drops still in flight belong to this instance: they leave with it.
       for (const orphan of host.querySelectorAll('[data-o-splash]')) orphan.remove()
     }
   }, [host, reduced, drops, spread, duration, gravity, color])
@@ -204,8 +202,9 @@ export function SplashPointer({
       {...rest}
       ref={setHost}
       className={className}
-      // Les gouttes sont absolues dans la zone et coupees a ses bords : sans le
-      // debordement cache, une gerbe pres du bord s'etalerait sur la page.
+      // The drops are absolute inside the area and clipped at its edges:
+      // without the hidden overflow, a spray near the edge would spill over
+      // the page.
       style={{ position: 'relative', overflow: 'hidden', ...style } as CSSProperties}
     >
       {children}

@@ -1,33 +1,33 @@
 /**
- * Anneau tournant : un seul arc court sur une piste attenuee.
+ * Spinning ring: a single short arc running on a dimmed track.
  *
- * ## Une piste et un arc sur le meme element
+ * ## A track and an arc on the same element
  *
- * Deux bordures, un seul element. La piste est la bordure entiere, peinte a
- * faible opacite sur les quatre cotes ; l'arc est le cote haut, repeint a
- * pleine couleur. Le compositeur fait tourner l'ensemble : la piste est
- * symetrique, on ne voit donc bouger que l'arc. Aucun JavaScript apres le
- * premier rendu, et rien a synchroniser puisqu'il n'y a qu'une animation.
+ * Two borders, a single element. The track is the whole border, painted at low
+ * opacity on all four sides; the arc is the top side, repainted at full
+ * colour. The compositor spins the whole thing: the track is symmetrical, so
+ * the only thing seen moving is the arc. No JavaScript after the first render,
+ * and nothing to synchronise since there is only one animation.
  *
- * La piste n'est pas un ornement : sans elle, un arc seul flotte et l'oeil
- * ne sait pas ou est le centre. Avec elle, la figure est un cercle complet
- * dont une portion s'eclaire — c'est ce que l'on reconnait comme « ca
- * charge » avant meme le premier tour.
+ * The track is not an ornament: without it, a lone arc floats and the eye does
+ * not know where the centre is. With it, the figure is a complete circle one
+ * portion of which lights up — that is what one recognises as "it is loading"
+ * even before the first turn.
  *
- * ## L'epaisseur change le caractere
+ * ## The thickness changes the character
  *
- * A deux pixels c'est un filet discret dans un bouton ; a huit, une piece
- * d'interface a part entiere au centre d'une page vide. C'est pour cela que
- * l'epaisseur est un reglage et non une constante deduite de la taille.
+ * At two pixels it is a discreet hairline inside a button; at eight, a piece
+ * of interface in its own right at the centre of an empty page. That is why
+ * the thickness is a setting and not a constant derived from the size.
  *
- * ## Un statut, pas un dessin
+ * ## A status, not a drawing
  *
- * L'element porte `role="status"` et un libelle pour les lecteurs d'ecran :
- * l'attente est une information, pas une decoration. L'anneau, lui, est
- * retire de l'arbre d'accessibilite.
+ * The element carries `role="status"` and a label for screen readers: waiting
+ * is information, not decoration. The ring itself is removed from the
+ * accessibility tree.
  *
- * Sous mouvement reduit, l'arc reste en haut de la piste : la figure se lit
- * encore comme un chargeur, seul le mouvement s'arrete.
+ * Under reduced motion, the arc stays at the top of the track: the figure
+ * still reads as a loader, only the movement stops.
  *
  * @module
  */
@@ -35,10 +35,10 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-ring-spinner'
 
-/** Pose l'anneau et sa rotation, une fois par document. */
+/** Sets up the ring and its rotation, once per document. */
 function ensureRingRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -56,8 +56,8 @@ function ensureRingRule(): void {
     'animation:o-ring-spinner-spin var(--o-ring-speed) linear infinite;',
     '}',
     '@keyframes o-ring-spinner-spin{from{transform:rotate(0turn)}to{transform:rotate(1turn)}}',
-    // L'arc s'arrete en haut : c'est la position que l'oeil attend d'un
-    // chargeur au repos.
+    // The arc stops at the top: that is the position the eye expects of a
+    // loader at rest.
     '@media (prefers-reduced-motion:reduce){',
     '[data-o-ring-arc]{animation:none;transform:none}',
     '}',
@@ -65,31 +65,31 @@ function ensureRingRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** Props of the component itself. */
 export interface RingSpinnerOwnProps {
-  /** Diametre de l'anneau, en pixels. @defaultValue 40 */
+  /** Diameter of the ring, in pixels. @defaultValue 40 */
   size?: number
-  /** Epaisseur du trait, en pixels. @defaultValue 4 */
+  /** Thickness of the stroke, in pixels. @defaultValue 4 */
   thickness?: number
-  /** Duree d'un tour, en millisecondes. @defaultValue 900 */
+  /** Duration of one turn, in milliseconds. @defaultValue 900 */
   speed?: number
-  /** Couleur de l'arc. @defaultValue la couleur du texte */
+  /** Colour of the arc. @defaultValue the text colour */
   color?: string
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */
+  /** Label announced to screen readers. @defaultValue 'Loading' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All the props. */
 export type RingSpinnerProps = Customisable<RingSpinnerOwnProps, 'span'>
 
 /**
- * Signale une attente par un arc qui parcourt une piste.
+ * Signals a wait through an arc running along a track.
  *
  * @example
  * <RingSpinner />
  *
  * @example
- * // Un filet fin, dans la teinte de marque, pour un bouton.
+ * // A thin hairline, in the brand hue, for a button.
  * <RingSpinner size={16} thickness={2} color="var(--o-palette-brand-500)" />
  */
 export function RingSpinner({
@@ -97,7 +97,7 @@ export function RingSpinner({
   thickness = 4,
   speed = 900,
   color = 'currentColor',
-  label = 'Chargement',
+  label = 'Loading',
   ...rest
 }: RingSpinnerProps): ReactElement {
   ensureRingRule()
@@ -107,8 +107,8 @@ export function RingSpinner({
   const loaderStyle = {
     ...style,
     '--o-ring-size': `${String(size)}px`,
-    // Deux traits doivent tenir dans le diametre : au-dela, l'anneau se
-    // remplirait et l'arc disparaitrait.
+    // Two strokes have to fit inside the diameter: beyond that, the ring would
+    // fill up and the arc would disappear.
     '--o-ring-thickness': `${String(Math.min(thickness, size / 2))}px`,
     '--o-ring-speed': `${String(speed)}ms`,
     '--o-ring-color': color,

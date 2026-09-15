@@ -1,33 +1,32 @@
 /**
- * Shader du pave isometrique.
+ * Isometric tile shader.
  *
- * ## L'idee mathematique
+ * ## The mathematical idea
  *
- * Un cube vu en isometrie est un hexagone a sommet en haut, coupe en trois
- * losanges qui se rejoignent au centre : la face du dessus, la droite, la
- * gauche. Le pavage est donc une grille hexagonale — deux grilles
- * rectangulaires decalees d'une demi-maille, dont on garde la cellule la plus
- * proche — et la face se lit dans l'angle du fragment autour du centre de
- * l'hexagone.
+ * A cube seen in isometry is a hexagon with a vertex on top, cut into three
+ * rhombi that meet at the centre: the top face, the right one, the left one.
+ * The tiling is therefore a hexagonal grid — two rectangular grids offset by
+ * half a cell, of which the nearer cell is kept — and the face is read from
+ * the angle of the fragment around the centre of the hexagon.
  *
- * Les trois faces recoivent trois ombres fixes, comme sous une lumiere qui
- * vient d'en haut a gauche. C'est cette difference d'ombres qui fait le
- * relief : sans elle, le pavage est plat.
+ * The three faces get three fixed shades, as under a light coming from the
+ * upper left. It is that difference of shades that makes the relief: without
+ * it, the tiling is flat.
  *
- * L'allumage est un sinus de phase propre a chaque cube, seuille : une part
- * reglable des cubes est allumee a chaque instant, et ce ne sont jamais les
- * memes. Un tirage par image ne donnerait que du bruit.
+ * The lighting is a sine of a phase proper to each cube, thresholded: an
+ * adjustable share of the cubes is lit at any moment, and never the same
+ * ones. A draw per frame would give nothing but noise.
  *
  * ## Uniforms
  *
- * - `uTime` — temps en secondes, fourni par le moteur.
- * - `uResolution` — taille du canevas en pixels, fournie par le moteur.
- * - `uColorA` — le fond.
- * - `uColorB` — l'ombre des faces, melangee au fond.
- * - `uColorC` — l'allumage.
- * - `uSpeed` — vitesse de l'allumage.
- * - `uDensity` — nombre de cubes sur la hauteur.
- * - `uLit` — part des cubes allumes a un instant donne.
+ * - `uTime` — time in seconds, supplied by the engine.
+ * - `uResolution` — canvas size in pixels, supplied by the engine.
+ * - `uColorA` — the background.
+ * - `uColorB` — the shading of the faces, mixed into the background.
+ * - `uColorC` — the lighting.
+ * - `uSpeed` — speed of the lighting.
+ * - `uDensity` — number of cubes over the height.
+ * - `uLit` — share of the cubes lit at any given moment.
  */
 export const ISOMETRIC_GRID_FRAGMENT = /* glsl */ `
 precision highp float;
@@ -43,15 +42,15 @@ uniform float uSpeed;
 uniform float uDensity;
 uniform float uLit;
 
-// Nombre pseudo-aleatoire : projection sur une direction arbitraire, sinus
-// amplifie, partie fractionnaire.
+// Pseudo-random number: projection onto an arbitrary direction, amplified
+// sine, fractional part.
 float isoHash(vec2 p) {
   return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
 }
 
-// Grille hexagonale a sommet en haut : coordonnees locales (xy) et
-// identifiant de cellule (zw). Les deux grilles rectangulaires sont evaluees,
-// la plus proche gagne.
+// Hexagonal grid with a vertex on top: local coordinates (xy) and cell
+// identifier (zw). Both rectangular grids are evaluated, the nearer one
+// wins.
 vec4 isoHex(vec2 uv) {
   const vec2 s = vec2(1.0, 1.7320508);
   vec4 hc = floor(vec4(uv, uv - vec2(0.5, 1.0)) / s.xyxy) + 0.5;
@@ -68,8 +67,8 @@ void main() {
   vec2 local = hex.xy;
   vec2 id = hex.zw;
 
-  // La face se lit dans l'angle : dessus entre 30 et 150 degres, droite en
-  // dessous de 30, gauche au-dela de 150.
+  // The face is read from the angle: top between 30 and 150 degrees, right
+  // below 30, left beyond 150.
   float angle = atan(local.y, local.x);
   float top = step(0.5235988, angle) * step(angle, 2.6179939);
   float right = step(angle, 0.5235988) * step(-1.5707963, angle);
@@ -77,14 +76,14 @@ void main() {
 
   float shade = top * 1.0 + right * 0.62 + left * 0.38;
 
-  // L'arete de l'hexagone, en distance hexagonale : un filet sombre qui
-  // separe les cubes.
+  // The edge of the hexagon, in hexagonal distance: a dark line that
+  // separates the cubes.
   float hexDist = max(abs(local.x) * 0.8660254 + abs(local.y) * 0.5, abs(local.y));
   float px = scale / max(uResolution.y, 1.0) * 1.5;
   float edge = smoothstep(0.5 - px * 2.0, 0.5, hexDist);
 
-  // Les trois aretes interieures, du centre vers les sommets a 30, 150 et
-  // 270 degres : la distance a chaque demi-droite.
+  // The three inner edges, from the centre towards the vertices at 30, 150
+  // and 270 degrees: the distance to each half-line.
   float seam = 1.0;
   for (int i = 0; i < 3; i += 1) {
     float a = 0.5235988 + float(i) * 2.0943951;
@@ -94,7 +93,7 @@ void main() {
   }
   float inner = smoothstep(px * 2.0, 0.0, seam);
 
-  // Allumage : un sinus de phase propre, seuille par la part demandee.
+  // Lighting: a sine of its own phase, thresholded by the requested share.
   float phase = isoHash(id);
   float wave = 0.5 + 0.5 * sin(uTime * uSpeed * 2.0 + phase * 12.566);
   float lit = smoothstep(1.0 - uLit, 1.0 - uLit * 0.5, wave) * step(0.001, uLit);

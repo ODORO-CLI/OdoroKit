@@ -1,10 +1,10 @@
 /**
- * Format et resolution du registre de composants.
+ * Format and resolution of the component registry.
  *
- * Ce module est le **contrat** entre le registre qui publie et le client qui
- * telecharge. Une seule definition, employee aux deux bouts : le registre
- * valide ce qu'il produit, le client valide ce qu'il recoit d'un serveur qu'il
- * ne controle pas.
+ * This module is the **contract** between the registry that publishes and the
+ * client that downloads. A single definition, used at both ends: the registry
+ * validates what it produces, the client validates what it receives from a
+ * server it does not control.
  *
  * @example
  * import { parseMeta, resolveGraph } from 'odoro/registry'

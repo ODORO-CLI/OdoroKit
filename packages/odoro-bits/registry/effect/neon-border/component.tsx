@@ -1,32 +1,32 @@
 /**
- * Liseré de néon : un arc lumineux qui fait le tour d'un cadre.
+ * Neon edging: a luminous arc that travels around a frame.
  *
- * ## Pourquoi un dégradé conique ne suffit pas
+ * ## Why a conic gradient is not enough
  *
- * C'est la difficulté du composant, et elle n'est pas évidente. Faire tourner
- * un `conic-gradient` autour d'un rectangle donne un arc dont la **vitesse
- * apparente** n'est pas constante : l'angle avance régulièrement, mais un degré
- * parcourt beaucoup plus de bord près des coins d'un rectangle allongé qu'au
- * milieu d'un grand côté. Le résultat file sur les petits côtés et traîne sur
- * les longs.
+ * This is the difficulty of the component, and it is not obvious. Rotating a
+ * `conic-gradient` around a rectangle gives an arc whose **apparent speed** is
+ * not constant: the angle advances evenly, but one degree covers far more edge
+ * near the corners of an elongated rectangle than in the middle of a long
+ * side. The result races along the short sides and drags along the long ones.
  *
- * L'arc est donc construit à l'envers. On avance à pas constant **le long du
- * périmètre**, on convertit chaque échantillon en angle vu du centre, et on en
- * fait les arrêts du dégradé. La correction est faite là où la déformation
- * naît, et l'arc garde la même longueur de bord partout.
+ * The arc is therefore built the other way round. We advance at a constant
+ * step **along the perimeter**, convert each sample into an angle as seen from
+ * the centre, and make those the stops of the gradient. The correction is made
+ * where the distortion is born, and the arc keeps the same edge length
+ * everywhere.
  *
- * ## Deux mouvements, et un seul chemin
+ * ## Two movements, and a single path
  *
- * `continuous` fait glisser l'arc sans arrêt. `step` le fait sauter d'un coin
- * au suivant, avec une courbe qui le lance et le rattrape. Ce sont deux façons
- * de calculer une position sur le périmètre, pas deux composants : tout le
- * reste — la construction de l'arc, les couches de halo — est commun.
+ * `continuous` slides the arc without a pause. `step` makes it jump from one
+ * corner to the next, with a curve that launches it and catches it. These are
+ * two ways of computing a position on the perimeter, not two components: all
+ * the rest — the construction of the arc, the halo layers — is shared.
  *
- * ## Le halo est en trois couches
+ * ## The halo is in three layers
  *
- * Une seule, floue, donne une tache. Trois — courte et dense, moyenne, longue
- * et diffuse — donnent la lumière qui déborde du tube. C'est le même principe
- * qu'une enseigne : le verre, la lueur proche, et le mur derrière.
+ * A single, blurred one gives a smudge. Three — short and dense, medium, long
+ * and diffuse — give the light that spills out of the tube. It is the same
+ * principle as a shop sign: the glass, the nearby glow, and the wall behind.
  *
  * @module
  */
@@ -40,47 +40,47 @@ import {
 } from '@odoro-cli/engine'
 import { useEffect, useState, type CSSProperties, type ReactElement } from 'react'
 
-/** Façon dont l'arc parcourt le cadre. */
+/** The way the arc travels around the frame. */
 export type NeonMovement = 'continuous' | 'step'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface NeonBorderOwnProps {
-  /** Rayon des coins, en pixels. @defaultValue 24 */
+  /** Radius of the corners, in pixels. @defaultValue 24 */
   radius?: number
-  /** Epaisseur du trait, en pixels. @defaultValue 2 */
+  /** Thickness of the stroke, in pixels. @defaultValue 2 */
   thickness?: number
-  /** Longueur de l'arc, en pour cent du demi-perimetre. @defaultValue 50 */
+  /** Length of the arc, as a percentage of the half-perimeter. @defaultValue 50 */
   length?: number
-  /** Intensite du halo, de 0 a 100. @defaultValue 100 */
+  /** Intensity of the halo, from 0 to 100. @defaultValue 100 */
   glow?: number
-  /** Mouvement de l'arc. @defaultValue 'continuous' */
+  /** Movement of the arc. @defaultValue 'continuous' */
   movement?: NeonMovement
-  /** Duree d'un tour, en millisecondes. @defaultValue 4000 */
+  /** Duration of one turn, in milliseconds. @defaultValue 4000 */
   duration?: number
-  /** Token de la couleur du neon. */
+  /** Token of the neon colour. */
   color?: string
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type NeonBorderProps = Customisable<NeonBorderOwnProps>
 
-/** Token employe par defaut. */
+/** Token used by default. */
 const DEFAULT_TOKEN = '--o-palette-amber-400'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-neon-border'
 
-/** Nombre d'echantillons de l'arc. Au-dela, la courbe ne gagne rien de visible. */
+/** Number of samples of the arc. Beyond that, the curve gains nothing visible. */
 const SAMPLES = 24
 
-/** Les trois couches du halo : flou, opacite, portee. */
+/** The three layers of the halo: blur, opacity, reach. */
 const LAYERS = [
   { blur: 8, alpha: 0.5 },
   { blur: 15, alpha: 0.3 },
   { blur: 57, alpha: 0.18 },
 ] as const
 
-/** Pose les regles du lisere, une fois par document. */
+/** Sets the edging rules, once per document. */
 function ensureNeonRules(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -90,8 +90,8 @@ function ensureNeonRules(): void {
   style.textContent = [
     '[data-o-neon]{position:absolute;inset:0;pointer-events:none;',
     'border-radius:var(--o-neon-radius);padding:var(--o-neon-thickness);',
-    // Le masque ne garde que la couronne : le dégradé remplit tout le cadre,
-    // et c'est ce masque qui en fait un trait plutôt qu'un aplat.
+    // The mask keeps only the crown: the gradient fills the whole frame, and
+    // it is this mask that turns it into a stroke rather than a flat fill.
     '-webkit-mask:linear-gradient(black,black) content-box exclude,linear-gradient(black,black);',
     'mask:linear-gradient(black,black) content-box exclude,linear-gradient(black,black);',
     '-webkit-mask-composite:xor;mask-composite:exclude}',
@@ -105,9 +105,9 @@ function ensureNeonRules(): void {
 }
 
 /**
- * Un point du perimetre d'un rectangle, parcouru a pas constant.
+ * A point on the perimeter of a rectangle, travelled at a constant step.
  *
- * @param u Position sur le tour, de 0 a 1.
+ * @param u Position around the turn, from 0 to 1.
  */
 function perimeterPoint(u: number, w: number, h: number): readonly [number, number] {
   const d = (((u % 1) + 1) % 1) * 2 * (w + h)
@@ -117,13 +117,13 @@ function perimeterPoint(u: number, w: number, h: number): readonly [number, numb
   return [0, h - (d - w * 2 - h)]
 }
 
-/** L'angle sous lequel ce point est vu du centre, en degres. */
+/** The angle under which this point is seen from the centre, in degrees. */
 function perimeterAngle(u: number, w: number, h: number): number {
   const [x, y] = perimeterPoint(u, w, h)
   return (Math.atan2(x - w / 2, h / 2 - y) * 180) / Math.PI
 }
 
-/** Le tour auquel se trouve le coin numero `k`. */
+/** The lap at which corner number `k` sits. */
 function cornerLap(k: number, w: number, h: number): number {
   const p = 2 * (w + h)
   const at = [0, w / p, (w + h) / p, (w * 2 + h) / p]
@@ -131,15 +131,15 @@ function cornerLap(k: number, w: number, h: number): number {
 }
 
 /**
- * Le degrade conique de l'arc, a une position donnee du perimetre.
+ * The conic gradient of the arc, at a given position on the perimeter.
  *
- * Les arrets sont echantillonnes **le long du bord** et convertis en angles :
- * c'est ce qui donne a l'arc la meme longueur de bord partout, au lieu de le
- * voir filer sur les petits cotes.
+ * The stops are sampled **along the edge** and converted into angles: that is
+ * what gives the arc the same edge length everywhere, instead of seeing it
+ * race along the short sides.
  *
- * L'accumulation des ecarts, plutot que les angles bruts, evite la coupure a
- * plus ou moins cent quatre-vingts degres, qui produirait un arc retourne une
- * fois par tour.
+ * Accumulating the gaps, rather than the raw angles, avoids the cut at plus or
+ * minus one hundred and eighty degrees, which would produce a flipped arc once
+ * per turn.
  */
 function buildArc(
   lap: number,
@@ -171,8 +171,8 @@ function buildArc(
     }
     previous = angle
 
-    // La tete est pleine, la queue s'eteint : sans quoi l'arc est un segment
-    // qui apparait et disparait, au lieu d'une lumiere qui passe.
+    // The head is full, the tail dies out: without that the arc is a segment
+    // that appears and disappears, instead of a light passing by.
     const t = Math.abs(f - 0.5) * 2
     const k = solid >= 1 ? 1 : t <= solid ? 1 : 1 - (t - solid) / (1 - solid)
     const eased = k * k * (3 - 2 * k)
@@ -189,10 +189,10 @@ function buildArc(
 }
 
 /**
- * Une courbe de Bezier a un parametre, resolue par Newton.
+ * A one-parameter Bezier curve, solved by Newton.
  *
- * Employee pour le mouvement par pas : l'arc doit partir vite et se poser
- * doucement sur le coin suivant, ce qu'une interpolation lineaire ne fait pas.
+ * Used for the step movement: the arc must leave fast and settle gently on the
+ * next corner, which a linear interpolation does not do.
  */
 function ease(t: number): number {
   const x = Math.max(0, Math.min(1, t))
@@ -213,18 +213,18 @@ function ease(t: number): number {
 }
 
 /**
- * Lisere de neon autour d'un cadre.
+ * Neon edging around a frame.
  *
- * Il se pose dans un parent positionne, qu'il remplit.
+ * It is laid inside a positioned parent, which it fills.
  *
  * @example
  * <div className="o-relative o-rounded-2xl o-p-8">
  *   <NeonBorder radius={16} />
- *   <p>Le contenu, par-dessus.</p>
+ *   <p>The content, on top.</p>
  * </div>
  *
  * @example
- * // Par pas : l'arc saute d'un coin au suivant.
+ * // By steps: the arc jumps from one corner to the next.
  * <NeonBorder movement="step" duration={2400} color="--o-palette-sky-400" />
  */
 export function NeonBorder({
@@ -242,8 +242,8 @@ export function NeonBorder({
 
   ensureNeonRules()
 
-  // La couleur n'est jamais lue : le token entre tel quel dans le degrade, et
-  // suit donc le theme sans qu'aucun effet n'ait a le relire.
+  // The colour is never read: the token goes into the gradient as it is, and
+  // therefore follows the theme without any effect having to read it back.
   useEffect(() => {
     if (host === null) return
 
@@ -254,8 +254,9 @@ export function NeonBorder({
       host.style.setProperty('--o-neon-arc', buildArc(lap, length, width, height, color))
     }
 
-    // Mesure d'abord : l'arc depend des proportions du cadre, et un cadre qui
-    // change de forme sans nouvelle mesure verrait sa correction devenir fausse.
+    // Measure first: the arc depends on the proportions of the frame, and a
+    // frame that changes shape without a new measurement would see its
+    // correction become wrong.
     const measure = (): void => {
       width = host.clientWidth
       height = host.clientHeight
@@ -266,8 +267,8 @@ export function NeonBorder({
       typeof ResizeObserver === 'undefined' ? undefined : new ResizeObserver(measure)
     observer?.observe(host)
 
-    // Sous mouvement reduit, l'arc est pose une fois et ne bouge plus : le
-    // cadre garde son lisere, il ne tourne pas.
+    // Under reduced motion, the arc is laid once and no longer moves: the
+    // frame keeps its edging, it does not turn.
     if (reduced) {
       paint(0)
       return () => observer?.disconnect()
@@ -281,8 +282,8 @@ export function NeonBorder({
           paint(turns)
           return
         }
-        // Par pas : la partie entiere designe le coin atteint, la fraction le
-        // trajet vers le suivant, lisse par la courbe.
+        // By steps: the integer part names the corner reached, the fraction
+        // the journey towards the next, smoothed by the curve.
         const index = Math.floor(turns * 4)
         const from = cornerLap(index, width, height)
         const to = cornerLap(index + 1, width, height)
@@ -328,7 +329,7 @@ export function NeonBorder({
           }
         />
       ))}
-      {/* Le tube lui-meme, net, par-dessus ses trois halos. */}
+      {/* The tube itself, crisp, over its three halos. */}
       <span data-o-neon-layer="core" />
     </div>
   )

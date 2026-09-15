@@ -1,41 +1,42 @@
 /**
- * Curseur maison : un point exact, un halo qui le rattrape.
+ * Custom cursor: an exact dot, a halo that catches up with it.
  *
- * ## Le retard est tout l'effet
+ * ## The lag is the whole effect
  *
- * Un curseur dessine qui suit le pointeur au pixel pres n'apporte rien : il
- * remplace une fleche par un rond. Ce qui donne l'impression d'une matiere,
- * c'est **l'ecart** — le point est exact, le halo arrive un dixieme de seconde
- * plus tard, et cet ecart se creuse quand on va vite.
+ * A drawn cursor that follows the pointer to the pixel brings nothing: it
+ * replaces an arrow with a circle. What gives the impression of a substance is
+ * **the gap** — the dot is exact, the halo arrives a tenth of a second later,
+ * and that gap widens when you move fast.
  *
- * L'amortissement est independant de la frequence d'images :
+ * The damping is independent of the frame rate:
  *
- *     k = 1 - exp(-vitesse * dt)
+ *     k = 1 - exp(-speed * dt)
  *
- * Un `lerp` a coefficient fixe irait deux fois plus vite sur un ecran a 120 Hz
- * que sur un ecran a 60 — le meme composant n'aurait pas le meme poids selon la
- * machine. Ici la constante de temps est une duree, pas un nombre d'images.
+ * A `lerp` with a fixed coefficient would go twice as fast on a 120 Hz screen
+ * as on a 60 Hz one — the same component would not have the same weight
+ * depending on the machine. Here the time constant is a duration, not a number
+ * of frames.
  *
- * ## Il ne re-rend jamais
+ * ## It never re-renders
  *
- * Les positions sont ecrites directement dans le style des deux elements,
- * depuis la boucle. Les faire passer par l'etat de React declencherait un rendu
- * de l'arbre a chaque mouvement de souris — c'est-a-dire le plus souvent
- * possible, pour deux `transform`.
+ * The positions are written directly into the style of the two elements, from
+ * the loop. Routing them through React state would trigger a render of the
+ * tree on every mouse movement — that is, as often as possible, for two
+ * `transform`s.
  *
- * `translate3d` et non `left`/`top` : la premiere forme est composee, la
- * seconde declenche une mise en page.
+ * `translate3d` and not `left`/`top`: the first form is composited, the second
+ * triggers a layout.
  *
- * ## Il disparait au doigt
+ * ## It disappears under a finger
  *
- * Sur un ecran tactile il n'y a pas de pointeur a suivre, et un halo colle
- * quelque part serait un objet mort a l'ecran. `(pointer: coarse)` le retire
- * entierement — pas seulement le cache : le composant ne s'abonne meme pas.
+ * On a touch screen there is no pointer to follow, and a halo stuck somewhere
+ * would be a dead object on the screen. `(pointer: coarse)` removes it
+ * entirely — not merely hides it: the component does not even subscribe.
  *
- * ## En mouvement reduit, il perd son retard, pas son existence
+ * ## Under reduced motion, it loses its lag, not its existence
  *
- * Le halo colle au point. On retire le mouvement superflu ; on ne retire pas un
- * repere que la personne suit des yeux.
+ * The halo sticks to the dot. We remove the superfluous movement; we do not
+ * remove a landmark that the person follows with their eyes.
  *
  * @module
  */
@@ -43,60 +44,60 @@
 import { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'
 import { useEffect, useRef, type CSSProperties, type ReactElement } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface CursorHaloOwnProps {
-  /** Diametre du point, en pixels. @defaultValue 6 */
+  /** Diameter of the dot, in pixels. @defaultValue 6 */
   dotSize?: number
-  /** Diametre du halo au repos, en pixels. @defaultValue 34 */
+  /** Diameter of the halo at rest, in pixels. @defaultValue 34 */
   haloSize?: number
   /**
-   * Vitesse a laquelle le halo rejoint le point.
+   * Speed at which the halo joins the dot.
    *
-   * Une constante de temps inverse : plus c'est haut, plus il colle. Autour de
-   * 8, l'ecart se sent sans trainer.
+   * An inverse time constant: the higher, the closer it sticks. Around 8, the
+   * gap is felt without dragging.
    *
    * @defaultValue 8
    */
   speed?: number
   /**
-   * De combien le halo grossit au survol d'un element interactif.
+   * How much the halo grows when hovering an interactive element.
    *
    * @defaultValue 1.8
    */
   hoverScale?: number
   /**
-   * Ce qui compte comme interactif.
+   * What counts as interactive.
    *
    * @defaultValue 'a, button, [role="button"], input, select, textarea, summary'
    */
   interactive?: string
   /**
-   * Limiter le curseur a une zone.
+   * Confining the cursor to one area.
    *
-   * Absent, il vaut pour la fenetre entiere — le cas courant. Fourni, il
-   * n'ecoute que cet element : c'est ainsi qu'on donne un curseur propre a un
-   * heros sans l'imposer au reste de la page.
+   * Absent, it holds for the whole window — the common case. Provided, it
+   * listens only to that element: this is how a hero gets a cursor of its own
+   * without imposing it on the rest of the page.
    */
   host?: { readonly current: HTMLElement | null }
   /**
-   * Cacher le curseur natif.
+   * Hiding the native cursor.
    *
-   * Faux par defaut, et c'est deliberé : le curseur du systeme change de forme
-   * selon ce qu'il survole — texte, lien, redimensionnement — et le remplacer
-   * prive de tous ces signaux. On ne le cache que quand le halo les reprend.
+   * False by default, and deliberately so: the system cursor changes shape
+   * depending on what it hovers — text, link, resize — and replacing it strips
+   * away all of those signals. We only hide it when the halo takes them over.
    *
    * @defaultValue false
    */
   hideNative?: boolean
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type CursorHaloProps = Customisable<CursorHaloOwnProps, 'div'>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-cursor-halo'
 
-/** Pose les regles du curseur, une fois par document. */
+/** Sets the cursor rules, once per document. */
 function ensureCursorRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -107,8 +108,8 @@ function ensureCursorRule(): void {
     '[data-o-cursor]{position:fixed;inset:0;z-index:9998;pointer-events:none}',
     '[data-o-cursor-dot],[data-o-cursor-ring]{',
     'position:fixed;top:0;left:0;border-radius:9999px;',
-    // `will-change` sur les deux : ils bougent a chaque image, et sans lui le
-    // navigateur les repromeut a chaque fois.
+    // `will-change` on both: they move on every frame, and without it the
+    // browser re-promotes them each time.
     'will-change:transform;pointer-events:none;',
     '}',
     '[data-o-cursor-dot]{background:currentColor}',
@@ -117,23 +118,23 @@ function ensureCursorRule(): void {
     'transition:width 220ms ease,height 220ms ease,opacity 220ms ease;',
     '}',
     '[data-o-cursor-hide]{cursor:none}',
-    // Au doigt, rien. Le composant ne s'abonne pas non plus — la regle n'est
-    // qu'une seconde barriere.
+    // Under a finger, nothing. The component does not subscribe either — the
+    // rule is only a second barrier.
     '@media (pointer:coarse){[data-o-cursor]{display:none}}',
   ].join('')
   document.head.append(style)
 }
 
 /**
- * Remplace le curseur par un point et son halo.
+ * Replaces the cursor with a dot and its halo.
  *
- * A poser une seule fois, au niveau de la page.
+ * To be placed once only, at page level.
  *
  * @example
  * <CursorHalo />
  *
  * @example
- * // Colle davantage, grossit plus, et prend la main sur le curseur natif.
+ * // Sticks closer, grows more, and takes over the native cursor.
  * <CursorHalo speed={14} hoverScale={2.4} hideNative />
  */
 export function CursorHalo({
@@ -147,91 +148,91 @@ export function CursorHalo({
   ...rest
 }: CursorHaloProps): ReactElement {
   const { reduced } = useMotionState()
-  const refPoint = useRef<HTMLDivElement | null>(null)
-  const refHalo = useRef<HTMLDivElement | null>(null)
+  const dotRef = useRef<HTMLDivElement | null>(null)
+  const haloRef = useRef<HTMLDivElement | null>(null)
 
   ensureCursorRule()
 
   useEffect(() => {
-    // Pas de pointeur fin : on ne s'abonne a rien. Verifier ici plutot que de
-    // se contenter de la regle CSS evite une boucle d'images qui tourne pour un
-    // element invisible.
+    // No fine pointer: we subscribe to nothing. Checking here rather than
+    // relying on the CSS rule alone avoids a frame loop running for an
+    // invisible element.
     if (typeof window === 'undefined') return
     if (window.matchMedia('(pointer: coarse)').matches) return
 
-    const point = refPoint.current
-    const halo = refHalo.current
-    if (point === null || halo === null) return
+    const dot = dotRef.current
+    const halo = haloRef.current
+    if (dot === null || halo === null) return
 
-    // Hors de l'ecran au depart : sans cela, les deux elements apparaissent
-    // dans le coin superieur gauche jusqu'au premier mouvement.
+    // Off screen to begin with: without this, the two elements appear in the
+    // top left corner until the first movement.
     let x = -100
     let y = -100
     let hx = -100
     let hy = -100
-    let vu = false
+    let seen = false
 
-    const surSouris = (evenement: PointerEvent) => {
-      // Un ancetre porteur d'un `transform` devient le bloc conteneur des
-      // descendants `fixed` : les coordonnees de la fenetre ne s'y appliquent
-      // plus, et il faut retrancher l'origine de la zone. Sans cela le curseur
-      // suit juste dans une page ordinaire et derive de la hauteur du cadre
-      // dans une page de documentation.
-      const cadre = host?.current?.getBoundingClientRect()
-      x = evenement.clientX - (cadre?.left ?? 0)
-      y = evenement.clientY - (cadre?.top ?? 0)
+    const onMouse = (event: PointerEvent) => {
+      // An ancestor carrying a `transform` becomes the containing block of its
+      // `fixed` descendants: window coordinates no longer apply there, and the
+      // origin of the area has to be subtracted. Without this the cursor
+      // merely follows in an ordinary page and drifts by the height of the
+      // frame inside a documentation page.
+      const frame = host?.current?.getBoundingClientRect()
+      x = event.clientX - (frame?.left ?? 0)
+      y = event.clientY - (frame?.top ?? 0)
 
-      if (!vu) {
-        // Le halo se pose sur le point au tout premier mouvement, faute de quoi
-        // il traverserait l'ecran en diagonale depuis son point de depart.
+      if (!seen) {
+        // The halo lands on the dot at the very first movement, failing which
+        // it would cross the screen diagonally from its starting point.
         hx = x
         hy = y
-        vu = true
-        point.style.opacity = '1'
+        seen = true
+        dot.style.opacity = '1'
         halo.style.opacity = '1'
       }
     }
 
-    const surCible = (evenement: Event) => {
-      const cible = evenement.target
-      const dessus = cible instanceof Element && cible.closest(interactive) !== null
-      halo.style.width = `${String(dessus ? haloSize * hoverScale : haloSize)}px`
-      halo.style.height = `${String(dessus ? haloSize * hoverScale : haloSize)}px`
+    const onTarget = (event: Event) => {
+      const target = event.target
+      const over = target instanceof Element && target.closest(interactive) !== null
+      halo.style.width = `${String(over ? haloSize * hoverScale : haloSize)}px`
+      halo.style.height = `${String(over ? haloSize * hoverScale : haloSize)}px`
     }
 
     const surface: HTMLElement | Window = host?.current ?? window
-    surface.addEventListener('pointermove', surSouris as EventListener, { passive: true })
-    surface.addEventListener('pointerover', surCible, { passive: true })
+    surface.addEventListener('pointermove', onMouse as EventListener, { passive: true })
+    surface.addEventListener('pointerover', onTarget, { passive: true })
 
-    let image = 0
-    let dernier = performance.now()
+    let frame = 0
+    let last = performance.now()
 
-    const pas = (maintenant: number) => {
-      const dt = Math.min((maintenant - dernier) / 1000, 0.1)
-      dernier = maintenant
+    const step = (now: number) => {
+      const dt = Math.min((now - last) / 1000, 0.1)
+      last = now
 
-      // Amortissement independant de la frequence d'images : voir l'en-tete.
+      // Frame-rate independent damping: see the header.
       const k = reduced ? 1 : 1 - Math.exp(-speed * dt)
       hx += (x - hx) * k
       hy += (y - hy) * k
 
-      point.style.transform = `translate3d(${String(x)}px,${String(y)}px,0) translate(-50%,-50%)`
+      dot.style.transform = `translate3d(${String(x)}px,${String(y)}px,0) translate(-50%,-50%)`
       halo.style.transform = `translate3d(${String(hx)}px,${String(hy)}px,0) translate(-50%,-50%)`
 
-      image = requestAnimationFrame(pas)
+      frame = requestAnimationFrame(step)
     }
 
-    image = requestAnimationFrame(pas)
+    frame = requestAnimationFrame(step)
 
     return () => {
-      surface.removeEventListener('pointermove', surSouris as EventListener)
-      surface.removeEventListener('pointerover', surCible)
-      cancelAnimationFrame(image)
+      surface.removeEventListener('pointermove', onMouse as EventListener)
+      surface.removeEventListener('pointerover', onTarget)
+      cancelAnimationFrame(frame)
     }
   }, [reduced, speed, haloSize, hoverScale, interactive, host])
 
-  // La classe qui masque le curseur natif vit sur la racine du document : la
-  // poser sur cet element ne couvrirait que sa propre surface, qui est vide.
+  // The class that hides the native cursor lives on the document root: setting
+  // it on this element would only cover its own surface, which is empty.
   useEffect(() => {
     if (!hideNative || typeof document === 'undefined') return
     document.documentElement.setAttribute('data-o-cursor-hide', '')
@@ -245,12 +246,12 @@ export function CursorHalo({
   return (
     <div {...rest} className={className} style={style as CSSProperties} data-o-cursor="">
       <div
-        ref={refPoint}
+        ref={dotRef}
         data-o-cursor-dot=""
         style={{ width: dotSize, height: dotSize, opacity: 0 } as CSSProperties}
       />
       <div
-        ref={refHalo}
+        ref={haloRef}
         data-o-cursor-ring=""
         style={{ width: haloSize, height: haloSize, opacity: 0 } as CSSProperties}
       />

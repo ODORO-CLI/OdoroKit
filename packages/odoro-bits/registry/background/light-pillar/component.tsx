@@ -1,24 +1,24 @@
 /**
- * Colonne de lumiere : une colonne verticale qui respire : un coeur gaussien net, un halo exponentiel sans fin, des stries qui montent.
+ * Light pillar: a vertical column that breathes: a sharp gaussian core, an endless exponential halo, streaks that climb.
  *
- * ## Le principe
+ * ## The principle
  *
- * Une colonne, c'est une distance a un axe : une gaussienne etroite pour
- * le coeur, une exponentielle large pour le halo, parce qu'une seule
- * courbe ne fait pas a la fois le centre net et la traine sans fin de la
- * lumiere. La largeur respire sur deux periodes non multiples, et un
- * bruit 1D de la hauteur fait couler la lumiere dans la colonne.
+ * A column is a distance to an axis: a narrow gaussian for the core, a
+ * wide exponential for the halo, because a single curve cannot give both
+ * the sharp centre and the endless trail of light. The width breathes on
+ * two periods that are not multiples, and a 1D noise of the height makes
+ * the light flow inside the column.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur — les recopier ici en ferait autant
- * de versions a maintenir qu'il y a de fonds.
+ * It carries only what sets it apart: its shader, its settings and its fallback.
+ * Reading the tokens, converting them to floats and re-reading them when the
+ * theme changes all come from the engine — copying them here would leave as
+ * many versions to maintain as there are backgrounds.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en
- * accorde qu'une par backend — et sous mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface — it grants only one
+ * per backend — and under reduced motion.
  *
  * @module
  */
@@ -35,59 +35,59 @@ import { type ReactElement } from 'react'
 
 import { LIGHT_PILLAR_FRAGMENT } from './light-pillar.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface LightPillarControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to this component. */
 export interface LightPillarOwnProps {
-  /** Position horizontale de l axe, en fraction du cadre. @defaultValue 0.5 */
+  /** Horizontal position of the axis, as a fraction of the frame. @defaultValue 0.5 */
   x?: number
-  /** Largeur du coeur, en fraction de la hauteur. @defaultValue 0.12 */
+  /** Width of the core, as a fraction of the height. @defaultValue 0.12 */
   width?: number
-  /** Vitesse de la respiration. @defaultValue 0.6 */
+  /** Speed of the breathing. @defaultValue 0.6 */
   breath?: number
-  /** Etendue du halo. @defaultValue 0.8 */
+  /** Extent of the halo. @defaultValue 0.8 */
   glow?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<LightPillarControls>
 }
 
-/** Toutes les proprietes. */
+/** Every property. */
 export type LightPillarProps = Customisable<LightPillarOwnProps>
 
-/** Tokens employes par defaut : le fond, le halo, le coeur. */
+/** Tokens used by default: the background, the halo, the core. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-sky-400',
   '--o-palette-amber-200',
 ] as const
 
-/** Repli par defaut : un degrade fige, dans les memes tons. */
+/** Default fallback: a frozen gradient, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-r o-from-zinc-50 dark:o-from-zinc-950 o-via-sky-200 dark:o-via-sky-900 o-to-zinc-50 dark:o-to-zinc-950'
 
 /**
- * Detail hors qualite basse.
+ * Detail outside low quality.
  *
- * La colonne ne coute rien ; ce sont les harmoniques des stries qui
- * pesent, donc c'est elles qui sont bornees.
+ * The column costs nothing; it is the harmonics of the streaks which
+ * weigh, so those are what gets capped.
  */
 const DETAIL = 3
 
-/** Detail en qualite basse. */
+/** Detail at low quality. */
 const LOW_DETAIL = 1
 
 /**
- * Colonne de lumiere.
+ * Light pillar.
  *
  * @example
  * <div className="o-relative o-min-h-screen">

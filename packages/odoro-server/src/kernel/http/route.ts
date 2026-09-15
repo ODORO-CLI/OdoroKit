@@ -1,36 +1,36 @@
 /**
- * Définition de route typée.
+ * Typed route definition.
  *
- * ## Une seule déclaration, quatre consommateurs
+ * ## One single declaration, four consumers
  *
- * Une route déclare sa méthode, son chemin, sa garde, ses schémas d'entrée et
- * de sortie, et son handler. De cette déclaration dérivent :
+ * A route declares its method, its path, its guard, its input and output
+ * schemas, and its handler. From this declaration derive:
  *
- * 1. le montage sur Express, avec validation avant le handler ;
- * 2. le typage du handler, sans annotation ;
- * 3. le client TypeScript du front ;
- * 4. la spécification OpenAPI, et la table de `odoro routes`.
+ * 1. the mounting on Express, with validation before the handler;
+ * 2. the typing of the handler, without annotation;
+ * 3. the TypeScript client of the front end;
+ * 4. the OpenAPI specification, and the table of `odoro routes`.
  *
- * C'est la raison d'être de ce fichier : rien de ce qui précède ne doit être
- * écrit deux fois. Une documentation rédigée à la main dérive en trois
- * semaines ; un type recopié dérive au premier renommage.
+ * That is the reason for this file: nothing of the above must be
+ * written twice. A documentation written by hand drifts in three
+ * weeks; a copied type drifts on the first rename.
  *
- * ## Pourquoi les schémas sont des données, pas des appels
+ * ## Why the schemas are data, not calls
  *
- * `input` et `output` sont des schémas Zod posés dans un objet, et non des
- * appels de méthode chaînés. La différence compte pour le générateur : un
- * objet se lit sans exécuter la route, alors qu'une chaîne d'appels demande
- * d'instrumenter l'exécution pour savoir ce qui a été déclaré.
+ * `input` and `output` are Zod schemas set in an object, and not
+ * chained method calls. The difference matters for the generator: an
+ * object is read without running the route, whereas a chain of calls asks
+ * for instrumenting the execution to know what has been declared.
  *
- * ## La garde est obligatoire
+ * ## The guard is mandatory
  *
- * `auth` n'a pas de valeur par défaut. Écrire une route oblige à décider si
- * elle est publique, et le dire. Un défaut à `'public'` ferait de l'oubli une
- * route ouverte ; un défaut à `'required'` ferait de l'oubli une route morte,
- * ce qui est moins grave mais reste un défaut silencieux.
+ * `auth` has no default value. Writing a route forces one to decide whether
+ * it is public, and to say it. A default of `'public'` would make of the oversight an
+ * open route; a default of `'required'` would make of the oversight a dead route,
+ * which is less serious but remains a silent flaw.
  *
- * Le champ est donc requis, et `odoro routes` affiche la colonne — c'est le
- * seul moyen rapide de repérer une route mutative laissée publique.
+ * The field is therefore required, and `odoro routes` shows the column — it is the
+ * only quick way to spot a mutating route left public.
  *
  * @module
  */
@@ -39,55 +39,101 @@ import type { z } from 'zod'
 
 import type { Container } from '../container.js'
 
-/** Méthodes HTTP acceptées. */
+/** Accepted HTTP methods. */
 export const METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'] as const
 
-/** Méthode d'une route. */
+/** Method of a route. */
 export type Method = (typeof METHODS)[number]
 
-/** Ce qu'une route exige de l'appelant. */
+/** What a route requires from the caller. */
 export type AuthRequirement =
-  /** Aucune identité requise. */
+  /** No identity required. */
   | 'public'
-  /** Une session valide est requise ; sinon 401. */
+  /** A valid session is required; otherwise 401. */
   | 'required'
-  /** L'identité est lue si elle existe, sans être exigée. */
+  /** The identity is read if it exists, without being required. */
   | 'optional'
 
-/** L'identité résolue par la garde. */
+/** The identity resolved by the guard. */
 export interface Identity {
-  /** Identifiant de l'utilisateur. */
+  /** Identifier of the user. */
   readonly id: string
-  /** Identifiant de la session en cours. */
+  /** Identifier of the session in progress. */
   readonly sessionId: string
   /**
-   * Organisation courante, quand le contexte en désigne une.
+   * Current organization, when the context designates one.
    *
-   * Elle vaut `undefined` tant qu'aucune organisation n'est sélectionnée. Les
-   * politiques la reçoivent et décident : ce n'est pas au routeur de trancher
-   * ce qu'une absence signifie.
+   * It is `undefined` as long as no organization is selected. The
+   * policies receive it and decide: it is not up to the router to settle
+   * what an absence means.
    */
   readonly organizationId: string | undefined
 }
 
-/** Ce qu'un handler reçoit. */
-export interface HandlerContext<Input, Services> {
-  /** Entrée validée : corps, paramètres d'URL et chaîne de requête réunis. */
-  readonly input: Input
+/** How a cookie is written. */
+export interface CookieOptions {
   /**
-   * L'identité.
+   * Keeps the cookie out of reach of scripts.
    *
-   * Non nulle quand `auth` vaut `'required'` — la garde a déjà refusé sinon.
-   * Possiblement absente quand elle vaut `'optional'` ou `'public'`.
+   * @defaultValue true — a session cookie readable by a script is a session
+   *   stolen by the first cross-site injection.
+   */
+  readonly httpOnly?: boolean
+  /**
+   * Sends it over HTTPS only.
+   *
+   * @defaultValue true outside development, where there is no certificate.
+   */
+  readonly secure?: boolean
+  /** @defaultValue 'lax' */
+  readonly sameSite?: 'strict' | 'lax' | 'none'
+  /** @defaultValue '/' */
+  readonly path?: string
+  /** Lifetime in seconds. Absent, the cookie dies with the browser session. */
+  readonly maxAge?: number
+}
+
+/**
+ * Writing the cookies of a response.
+ *
+ * ## Why the handler does not touch the response
+ *
+ * Everything else a handler produces is its return value, validated against a
+ * schema. A cookie cannot be: it is a header, and it has to be written before
+ * the body. Handing over the whole response object to set one would open the
+ * door to a handler writing its own status, its own body, and escaping the
+ * output contract entirely.
+ *
+ * So the cookies are collected, and the mounting writes them. A handler states
+ * an intent; it does not drive the transport.
+ */
+export interface Cookies {
+  /** Writes a cookie. */
+  set(name: string, value: string, options?: CookieOptions): void
+  /** Deletes a cookie, by expiring it. */
+  clear(name: string, options?: Pick<CookieOptions, 'path'>): void
+}
+
+/** What a handler receives. */
+export interface HandlerContext<Input, Services> {
+  /** Validated input: body, URL parameters and query string merged. */
+  readonly input: Input
+  /** The cookies of the response. */
+  readonly cookies: Cookies
+  /**
+   * The identity.
+   *
+   * Non null when `auth` is `'required'` — the guard has already refused otherwise.
+   * Possibly absent when it is `'optional'` or `'public'`.
    */
   readonly user: Identity
-  /** Le conteneur de la requête. */
+  /** The container of the request. */
   readonly c: Container<Services>
-  /** Annulation, quand le client raccroche. */
+  /** Cancellation, when the client hangs up. */
   readonly signal: AbortSignal
 }
 
-/** Le même contexte, pour une route sans identité garantie. */
+/** The same context, for a route without guaranteed identity. */
 export interface OpenHandlerContext<Input, Services> extends Omit<
   HandlerContext<Input, Services>,
   'user'
@@ -96,38 +142,38 @@ export interface OpenHandlerContext<Input, Services> extends Omit<
 }
 
 /**
- * Une route, telle qu'elle est déclarée.
+ * A route, as it is declared.
  *
- * Le type est volontairement large ici — les paramètres précis vivent dans
- * {@link route}, qui les infère. Cette forme est celle que le montage, la CLI
- * et le générateur consomment.
+ * The type is deliberately wide here — the precise parameters live in
+ * {@link route}, which infers them. This shape is the one the mounting, the CLI
+ * and the generator consume.
  */
 export interface RouteDefinition {
-  /** Nom canonique, en notation pointée : `account.updateProfile`. */
+  /** Canonical name, in dotted notation: `account.updateProfile`. */
   readonly name: string
   readonly method: Method
-  /** Chemin Express, paramètres compris : `/account/:id`. */
+  /** Express path, parameters included: `/account/:id`. */
   readonly path: string
   readonly auth: AuthRequirement
-  /** Schéma d'entrée. Absent, la route n'accepte rien. */
+  /** Input schema. Absent, the route accepts nothing. */
   readonly input?: z.ZodType
-  /** Schéma de sortie. Sert au typage du client et à la sérialisation. */
+  /** Output schema. Serves the typing of the client and the serialisation. */
   readonly output?: z.ZodType
   /**
-   * Politique appliquée, par nom.
+   * Applied policy, by name.
    *
-   * Purement déclaratif ici : c'est le module d'autorisation qui l'applique.
-   * Le nom figure dans `odoro routes`, ce qui rend visible une route mutative
-   * sans politique.
+   * Purely declarative here: it is the authorization module that applies it.
+   * The name appears in `odoro routes`, which makes a mutating route
+   * without a policy visible.
    */
   readonly policy?: string
-  /** Résumé d'une ligne, repris dans OpenAPI. */
+  /** One-line summary, taken up in OpenAPI. */
   readonly summary?: string
-  /** Le traitement. */
+  /** The processing. */
   readonly handler: (context: never) => unknown
 }
 
-/** Ce que {@link route} accepte. */
+/** What {@link route} accepts. */
 export interface RouteOptions<
   Input extends z.ZodType | undefined,
   Output extends z.ZodType | undefined,
@@ -149,14 +195,14 @@ export interface RouteOptions<
   ) => Promise<OutputOf<Output>> | OutputOf<Output>
 }
 
-/** Le type d'entrée d'une route, ou `undefined` si elle n'en déclare pas. */
+/** The input type of a route, or `undefined` if it declares none. */
 type InputOf<Input> = Input extends z.ZodType ? z.infer<Input> : undefined
 
-/** Le type de sortie d'une route. */
+/** The output type of a route. */
 type OutputOf<Output> = Output extends z.ZodType ? z.infer<Output> : void
 
 /**
- * Déclare une route.
+ * Declares a route.
  *
  * @example
  * export const updateProfile = route({
@@ -183,18 +229,18 @@ export function route<
 }
 
 /**
- * Ce qu'une route mutative doit avoir.
+ * What a mutating route must have.
  *
- * Une route qui change l'état et n'exige ni identité ni politique est presque
- * toujours un oubli. Presque : un formulaire de contact, une inscription, une
- * demande de réinitialisation sont légitimement publics et mutatifs.
+ * A route that changes the state and requires neither identity nor policy is almost
+ * always an oversight. Almost: a contact form, a sign-up,
+ * a reset request are legitimately public and mutating.
  *
- * Le noyau ne peut donc pas refuser ces routes — il les **signale**, et la
- * déclaration doit alors dire explicitement que c'est voulu.
+ * The kernel therefore cannot refuse these routes — it **reports** them, and the
+ * declaration must then say explicitly that it is intended.
  */
 export const MUTATING_METHODS: readonly Method[] = ['POST', 'PUT', 'PATCH', 'DELETE']
 
-/** Une route mutative laissée publique sans mention explicite. */
+/** A mutating route left public without an explicit mention. */
 export interface OpenMutationWarning {
   readonly name: string
   readonly method: Method
@@ -202,11 +248,11 @@ export interface OpenMutationWarning {
 }
 
 /**
- * Repère les routes mutatives publiques.
+ * Spots the public mutating routes.
  *
- * Alimente `odoro routes` et un test du noyau. Chercher ces routes à l'œil
- * dans le code ne fonctionne pas : elles ne se distinguent des autres que par
- * l'absence d'un champ.
+ * Feeds `odoro routes` and a test of the kernel. Looking for these routes by eye
+ * in the code does not work: they only differ from the others by
+ * the absence of a field.
  */
 export function findOpenMutations(
   routes: readonly RouteDefinition[],

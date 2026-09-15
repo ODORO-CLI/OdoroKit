@@ -1,10 +1,10 @@
 /**
- * Tokens d'animation exprimes dans les unites attendues par le moteur.
+ * Motion tokens expressed in the units expected by the engine.
  *
- * Les design tokens sont des chaines CSS (`'200ms'`) ; l'API d'animation du
- * navigateur attend des millisecondes numeriques. Ce module fait la conversion
- * une fois pour toutes, a partir de la meme source de verite — il n'y a jamais
- * deux valeurs a tenir synchronisees.
+ * Design tokens are CSS strings (`'200ms'`); the browser animation API
+ * expects numeric milliseconds. This module does the conversion
+ * once and for all, from the same source of truth — there are never
+ * two values to keep in sync.
  *
  * @module
  */
@@ -12,19 +12,19 @@
 import { duration, easing } from '../styles/tokens.js'
 
 /**
- * Convertit une duree CSS en millisecondes.
+ * Converts a CSS duration into milliseconds.
  *
- * @throws {Error} Si l'unite n'est ni `ms` ni `s`.
+ * @throws {Error} If the unit is neither `ms` nor `s`.
  */
 function toMilliseconds(value: string): number {
   const match = /^([\d.]+)(ms|s)$/.exec(value.trim())
-  if (match === null) throw new Error(`[odoro/motion] Duree illisible : "${value}".`)
+  if (match === null) throw new Error(`[odoro/motion] Unreadable duration: "${value}".`)
   const amount = Number(match[1])
   return match[2] === 's' ? amount * 1000 : amount
 }
 
 /**
- * Echelle de durees en millisecondes, derivee des design tokens.
+ * Duration scale in milliseconds, derived from the design tokens.
  *
  * @example
  * motionDuration.base // 200
@@ -37,27 +37,27 @@ export const motionDuration: Readonly<Record<keyof typeof duration, number>> =
   )
 
 /**
- * Courbes de Bezier, directement utilisables comme `easing`.
+ * Bezier curves, directly usable as `easing`.
  *
  * @example
  * motionEasing.entrance // 'cubic-bezier(0, 0, 0, 1)'
  */
 export const motionEasing = easing
 
-/** Nom d'une duree de l'echelle. */
+/** Name of a duration on the scale. */
 export type MotionDuration = keyof typeof motionDuration
 
-/** Nom d'une courbe de l'echelle. */
+/** Name of a curve on the scale. */
 export type MotionEasing = keyof typeof motionEasing
 
-/** Duree acceptee par les composants : un nom de token ou des millisecondes. */
+/** Duration accepted by the components: a token name or milliseconds. */
 export type DurationInput = MotionDuration | number
 
-/** Courbe acceptee par les composants : un nom de token ou une valeur CSS. */
+/** Curve accepted by the components: a token name or a CSS value. */
 export type EasingInput = MotionEasing | (string & Record<never, never>)
 
 /**
- * Resout une duree fournie par l'appelant en millisecondes.
+ * Resolves a duration provided by the caller into milliseconds.
  *
  * @example
  * resolveDuration('slow') // 320
@@ -68,7 +68,7 @@ export function resolveDuration(input: DurationInput): number {
 }
 
 /**
- * Resout une courbe fournie par l'appelant en valeur CSS.
+ * Resolves a curve provided by the caller into a CSS value.
  *
  * @example
  * resolveEasing('exit')          // 'cubic-bezier(0.3, 0, 1, 1)'

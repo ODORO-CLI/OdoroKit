@@ -1,22 +1,22 @@
 /**
- * Conteneur de services typé.
+ * Typed service container.
  *
- * ## La promesse, et comment elle est tenue
+ * ## The promise, and how it is kept
  *
- * `c.get('mailer')` doit rendre le type exact de ce qui a été enregistré sous
- * cette clé, sans annotation. Une clé inconnue doit être une erreur de
- * compilation, pas une valeur `undefined` découverte en production.
+ * `c.get('mailer')` must give the exact type of what was registered under
+ * that key, without annotation. An unknown key must be a compilation
+ * error, not an `undefined` value discovered in production.
  *
- * Un conteneur classique — une `Map<string, unknown>` avec un `get<T>()`
- * générique — ne tient aucune des deux promesses : le type est fourni par
- * l'appelant, donc il ment dès qu'il se trompe, et n'importe quelle chaîne
- * passe.
+ * A classic container — a `Map<string, unknown>` with a generic
+ * `get<T>()` — keeps neither promise: the type is supplied by
+ * the caller, so it lies as soon as he gets it wrong, and any string
+ * goes through.
  *
- * La technique employée ici est l'**accumulation de type par le retour**.
- * Chaque `register` rend un conteneur dont le paramètre de type contient une
- * clé de plus, associée au type de retour de la fabrique. Le type se construit
- * donc à mesure que les enregistrements s'écrivent, et TypeScript l'infère
- * seul.
+ * The technique used here is **type accumulation through the return**.
+ * Each `register` gives a container whose type parameter holds one
+ * key more, tied to the return type of the factory. The type is therefore built
+ * as the registrations are written, and TypeScript infers it
+ * on its own.
  *
  * ```ts
  * const c = createContainer()
@@ -25,74 +25,74 @@
  * // c : Container<{ logger: Logger; mailer: Mailer }>
  * ```
  *
- * La conséquence est une contrainte d'écriture : **l'ordre compte**. Une
- * fabrique ne peut lire que des clés déjà enregistrées, puisque celles qui
- * viennent après n'existent pas encore dans le type. C'est une gêne réelle, et
- * c'est aussi ce qui rend les cycles impossibles à écrire — un cycle de
- * dépendances devient une erreur de compilation plutôt qu'un dépassement de
- * pile au démarrage.
+ * The consequence is a writing constraint: **the order matters**. A
+ * factory can only read keys already registered, since those that
+ * come after do not exist in the type yet. It is a real nuisance, and
+ * it is also what makes cycles impossible to write — a cycle of
+ * dependencies becomes a compilation error rather than a stack
+ * overflow at startup.
  *
- * ## La dépendance captive, et pourquoi elle est interdite
+ * ## The captive dependency, and why it is forbidden
  *
- * Un singleton qui lirait un service par requête capturerait celui de la
- * **première** requête, et le garderait pour toutes les suivantes. Le
- * programme continue de fonctionner, écrit dans le mauvais journal, sous le
- * mauvais identifiant de corrélation, avec la mauvaise transaction. Aucune
- * erreur ne remonte, et le défaut ne se voit qu'en lisant des traces qui n'ont
- * pas de sens.
+ * A singleton that would read a per-request service would capture the one of the
+ * **first** request, and would keep it for all the following ones. The
+ * program keeps working, writes in the wrong log, under the
+ * wrong correlation identifier, with the wrong transaction. No
+ * error comes up, and the flaw is only seen by reading traces that make
+ * no sense.
  *
- * Le conteneur refuse donc cette lecture, en nommant les deux services. La
- * restriction porte sur le **résolveur** confié à la fabrique, et non sur un
- * moment de la construction : une première version surveillait la pile des
- * constructions en cours, et ne voyait donc que la capture immédiate. Or le
- * cas courant est différé — `() => c.get('trace')` dans une fermeture s'évalue
- * bien après que la fabrique a rendu la main, quand la pile est vide.
+ * The container therefore refuses that read, naming both services. The
+ * restriction bears on the **resolver** handed to the factory, and not on a
+ * moment of the construction: a first version watched the stack of the
+ * constructions in progress, and therefore only saw the immediate capture. Yet
+ * the common case is deferred — `() => c.get('trace')` in a closure is evaluated
+ * well after the factory has handed back control, when the stack is empty.
  *
- * Un résolveur restreint attrape les deux, puisqu'il reste restreint aussi
- * longtemps que la fermeture le retient.
+ * A restricted resolver catches both, since it stays restricted as
+ * long as the closure holds it.
  *
- * Ce qu'il faut faire à la place : passer la valeur en paramètre d'appel, ou
- * la faire circuler par `AsyncLocalStorage` — c'est déjà ainsi que le client
- * transactionnel voyage.
+ * What to do instead: pass the value as a call parameter, or
+ * make it travel through `AsyncLocalStorage` — that is already how the
+ * transactional client travels.
  *
- * ## Pourquoi aucun décorateur
+ * ## Why no decorator
  *
- * L'injection par décorateurs et métadonnées de réflexion demande
- * `emitDecoratorMetadata`, ne fonctionne pas sur les types structurels, et
- * résout par nom de classe à l'exécution. Le premier renommage silencieux
- * casse la résolution sans que rien ne compile en erreur. Ici, tout ce qui
- * relie un service à un autre est une expression ordinaire que l'éditeur sait
- * suivre.
+ * Injection through decorators and reflection metadata asks for
+ * `emitDecoratorMetadata`, does not work on structural types, and
+ * resolves by class name at runtime. The first silent rename
+ * breaks the resolution without anything compiling to an error. Here, everything that
+ * ties a service to another is an ordinary expression the editor knows how to
+ * follow.
  *
  * @module
  */
 
-/** Ce qu'une fabrique reçoit : le conteneur tel qu'il est à cet instant. */
+/** What a factory receives: the container as it is at that instant. */
 export interface Resolver<Services> {
-  /** Rend le service enregistré sous cette clé. */
+  /** Gives the service registered under this key. */
   get: <Key extends keyof Services>(key: Key) => Services[Key]
 }
 
-/** Fabrique un service à partir de ceux déjà enregistrés. */
+/** Builds a service from those already registered. */
 export type Factory<Services, Value> = (resolver: Resolver<Services>) => Value
 
-/** Portée d'un service. */
+/** Scope of a service. */
 export type Scope = 'singleton' | 'request'
 
 /**
- * Conteneur immuable en type, mutable en valeur.
+ * Container immutable in type, mutable in value.
  *
- * `register` rend un conteneur au type élargi. L'objet sous-jacent est le
- * même : ce sont les types qui s'accumulent, pas les allocations.
+ * `register` gives a container of widened type. The underlying object is the
+ * same: it is the types that accumulate, not the allocations.
  */
 export interface Container<Services = Record<never, never>> extends Resolver<Services> {
   /**
-   * Enregistre un service.
+   * Registers a service.
    *
-   * @param key Clé, littérale, qui devient une propriété du type.
-   * @param factory Fabrique, appelée au plus une fois en portée singleton.
-   * @param scope `singleton` par défaut ; `request` reconstruit le service à
-   *   chaque requête, dans le conteneur enfant qu'elle ouvre.
+   * @param key Key, literal, which becomes a property of the type.
+   * @param factory Factory, called at most once in singleton scope.
+   * @param scope `singleton` by default; `request` rebuilds the service on
+   *   each request, in the child container it opens.
    */
   register: <Key extends string, Value>(
     key: Key extends keyof Services ? never : Key,
@@ -101,32 +101,32 @@ export interface Container<Services = Record<never, never>> extends Resolver<Ser
   ) => Container<Services & { readonly [K in Key]: Value }>
 
   /**
-   * Ouvre un conteneur enfant, pour la durée d'une requête.
+   * Opens a child container, for the length of a request.
    *
-   * Les services `singleton` sont partagés avec le parent — c'est ce que
-   * signifie « singleton ». Les services `request` sont reconstruits, et
-   * n'existent que le temps de l'enfant.
+   * The `singleton` services are shared with the parent — that is what
+   * "singleton" means. The `request` services are rebuilt, and
+   * only exist for the lifetime of the child.
    */
   scope: () => Container<Services>
 
-  /** Les clés enregistrées, pour le diagnostic et la CLI. */
+  /** The registered keys, for the diagnostics and the CLI. */
   keys: () => readonly string[]
 
   /**
-   * Libère les services de cette portée ayant déclaré un `dispose`.
+   * Releases the services of this scope that declared a `dispose`.
    *
-   * Appelé à la fin d'une requête pour un conteneur enfant, et à l'arrêt du
-   * processus pour la racine.
+   * Called at the end of a request for a child container, and at the shutdown of the
+   * process for the root.
    */
   dispose: () => Promise<void>
 }
 
-/** Ce qu'un service peut exposer pour être libéré proprement. */
+/** What a service can expose to be released cleanly. */
 interface Disposable {
   dispose: () => void | Promise<void>
 }
 
-/** Un service est-il libérable ? */
+/** Is a service releasable? */
 function isDisposable(value: unknown): value is Disposable {
   return (
     typeof value === 'object' &&
@@ -136,33 +136,33 @@ function isDisposable(value: unknown): value is Disposable {
   )
 }
 
-/** Enregistrement interne. */
+/** Internal registration. */
 interface Entry {
   readonly factory: Factory<Record<string, unknown>, unknown>
   readonly scope: Scope
 }
 
-/** Une construction en cours, pour le diagnostic des cycles et des captives. */
+/** A construction in progress, for the diagnostics of the cycles and of the captives. */
 interface Building {
   readonly key: string
   readonly scope: Scope
 }
 
-/** État partagé entre un conteneur et ses enfants. */
+/** State shared between a container and its children. */
 interface State {
   readonly entries: Map<string, Entry>
   readonly instances: Map<string, unknown>
   /**
-   * Pile des constructions en cours, portée par la racine seule.
+   * Stack of the constructions in progress, held by the root alone.
    *
-   * Elle traverse les portées : c'est ce qui permet de voir qu'un singleton en
-   * cours de construction demande un service par requête.
+   * It crosses the scopes: that is what makes it possible to see that a singleton in
+   * the course of construction asks for a per-request service.
    */
   readonly building: Building[]
   readonly parent: State | undefined
 }
 
-/** La racine d'une chaîne de portées. */
+/** The root of a chain of scopes. */
 function rootOf(state: State): State {
   let current = state
   while (current.parent !== undefined) current = current.parent
@@ -170,34 +170,34 @@ function rootOf(state: State): State {
 }
 
 /**
- * Trouve l'enregistrement d'une clé, en remontant vers la racine.
+ * Finds the registration of a key, walking up towards the root.
  *
- * Un enfant ne redéclare rien : il hérite de la table du parent et ne diffère
- * que par ses instances.
+ * A child redeclares nothing: it inherits the table of the parent and only differs
+ * by its instances.
  */
 function lookup(state: State, key: string): Entry | undefined {
   return state.entries.get(key) ?? (state.parent && lookup(state.parent, key))
 }
 
 /**
- * Le conteneur où une instance doit vivre.
+ * The container where an instance must live.
  *
- * Un singleton résolu depuis un enfant est construit **dans la racine** : sans
- * cela, chaque requête en obtiendrait un exemplaire, ce qui n'est plus un
- * singleton mais un service par requête portant le mauvais nom.
+ * A singleton resolved from a child is built **in the root**: without
+ * that, each request would get a copy of it, which is no longer a
+ * singleton but a per-request service bearing the wrong name.
  */
 function home(state: State, scope: Scope): State {
   return scope === 'request' ? state : rootOf(state)
 }
 
-/** Construit le conteneur autour d'un état. */
+/** Builds the container around a state. */
 function build<Services>(state: State): Container<Services> {
   /**
-   * Le résolveur confié à une fabrique.
+   * The resolver handed to a factory.
    *
-   * Un singleton en reçoit un restreint, qui refuse les services par requête —
-   * pour toujours, et pas seulement pendant sa construction. C'est ce qui
-   * attrape la capture différée : la fermeture garde ce résolveur-là.
+   * A singleton receives a restricted one, which refuses the per-request services —
+   * for good, and not only during its construction. That is what
+   * catches the deferred capture: the closure keeps that very resolver.
    */
   const resolverFor = (
     ownerKey: string,
@@ -212,10 +212,10 @@ function build<Services>(state: State): Container<Services> {
         const name = String(key)
         if (lookup(state, name)?.scope === 'request') {
           throw new Error(
-            `Dependance captive : le singleton "${ownerKey}" demande "${name}", ` +
-              `qui vit le temps d'une requete. Il capturerait la premiere ` +
-              `requete et la garderait pour toutes les suivantes. Passez la ` +
-              `valeur en parametre d'appel, ou faites-la circuler par ` +
+            `Captive dependency: the singleton "${ownerKey}" asks for "${name}", ` +
+              `which lives for the length of one request. It would capture the first ` +
+              `request and keep it for all the following ones. Pass the ` +
+              `value as a call parameter, or make it travel through ` +
               `AsyncLocalStorage.`,
           )
         }
@@ -227,10 +227,10 @@ function build<Services>(state: State): Container<Services> {
   const resolve = (key: string): unknown => {
     const entry = lookup(state, key)
     if (entry === undefined) {
-      // Le type interdit déjà ce cas ; il reste atteignable depuis du
-      // JavaScript non typé, et un message clair vaut mieux qu'`undefined`.
+      // The type already forbids this case; it stays reachable from
+      // untyped JavaScript, and a clear message is worth more than `undefined`.
       throw new Error(
-        `Service inconnu : "${key}". Enregistres : ${[...allKeys(state)].join(', ')}`,
+        `Unknown service: "${key}". Registered: ${[...allKeys(state)].join(', ')}`,
       )
     }
 
@@ -238,13 +238,13 @@ function build<Services>(state: State): Container<Services> {
     const cached = owner.instances.get(key)
     if (cached !== undefined) return cached
 
-    // La pile vit dans la racine : elle doit traverser les portées pour voir
-    // qu'un singleton demande un service par requête.
+    // The stack lives in the root: it must cross the scopes to see
+    // that a singleton asks for a per-request service.
     const stack = rootOf(state).building
 
     if (stack.some((frame) => frame.key === key)) {
       throw new Error(
-        `Cycle de dependances sur "${key}" : ${[...stack.map((f) => f.key), key].join(' -> ')}`,
+        `Dependency cycle on "${key}": ${[...stack.map((f) => f.key), key].join(' -> ')}`,
       )
     }
 
@@ -264,13 +264,13 @@ function build<Services>(state: State): Container<Services> {
     register: (key, factory, scope = 'singleton') => {
       const name = String(key)
       if (state.entries.has(name)) {
-        throw new Error(`Service deja enregistre : "${name}"`)
+        throw new Error(`Service already registered: "${name}"`)
       }
       state.entries.set(name, {
         factory: factory as Factory<Record<string, unknown>, unknown>,
         scope,
       })
-      // Le même objet, élargi en type seulement : `register` ne copie rien.
+      // The same object, widened in type only: `register` copies nothing.
       return container as never
     },
 
@@ -278,8 +278,8 @@ function build<Services>(state: State): Container<Services> {
       build<Services>({
         entries: new Map(),
         instances: new Map(),
-        // La pile de construction est celle de la racine ; ce tableau n'est
-        // jamais lu, il satisfait la forme de l'etat.
+        // The construction stack is the one of the root; this array is
+        // never read, it satisfies the shape of the state.
         building: [],
         parent: state,
       }),
@@ -287,8 +287,8 @@ function build<Services>(state: State): Container<Services> {
     keys: () => [...allKeys(state)],
 
     dispose: async () => {
-      // Ordre inverse de construction : un service libère ses dépendances
-      // après lui, jamais avant.
+      // Reverse order of construction: a service releases its dependencies
+      // after it, never before.
       const values = [...state.instances.values()].reverse()
       state.instances.clear()
       for (const value of values) {
@@ -300,7 +300,7 @@ function build<Services>(state: State): Container<Services> {
   return container
 }
 
-/** Toutes les clés visibles depuis un état, la racine comprise. */
+/** Every key visible from a state, the root included. */
 function allKeys(state: State): Set<string> {
   const keys = new Set<string>()
   let current: State | undefined = state
@@ -312,7 +312,7 @@ function allKeys(state: State): Set<string> {
 }
 
 /**
- * Ouvre un conteneur vide.
+ * Opens an empty container.
  *
  * @example
  * const container = createContainer()
@@ -320,10 +320,10 @@ function allKeys(state: State): Set<string> {
  *   .register('logger', (c) => createLogger(c.get('config')))
  *
  * const logger = container.get('logger')
- * //    ^ Logger, sans annotation
+ * //    ^ Logger, without annotation
  *
  * container.get('mailer')
- * //            ^ erreur de compilation : la cle n'existe pas
+ * //            ^ compilation error: the key does not exist
  */
 export function createContainer(): Container {
   return build({
@@ -334,5 +334,5 @@ export function createContainer(): Container {
   })
 }
 
-/** Le type des services d'un conteneur, pour annoter ce qui le reçoit. */
+/** The type of the services of a container, to annotate what receives it. */
 export type ServicesOf<C> = C extends Container<infer Services> ? Services : never

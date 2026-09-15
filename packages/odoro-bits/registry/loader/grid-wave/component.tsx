@@ -1,28 +1,27 @@
 /**
- * Grille en vague : seize points se soulevent et grossissent le long d'une
- * diagonale, une vague qui traverse le carre.
+ * Grid wave: sixteen dots lift and grow along a diagonal, a wave crossing the
+ * square.
  *
- * ## Sept fronts pour seize points
+ * ## Seven fronts for sixteen dots
  *
- * Dans un carre de quatre par quatre, les points d'une meme anti-diagonale
- * — ceux dont la somme ligne plus colonne est egale — forment un front. Il
- * y en a sept, du coin haut gauche au coin bas droit. Le delai d'un point
- * est celui de son front : la vague avance d'un front a la fois, en biais,
- * et non point par point. C'est ce qui la distingue de `grid-fade`, dont
- * l'onde part du centre et ne se deplace pas.
+ * In a four by four square, the dots on one anti-diagonal — those whose row
+ * plus column sum is equal — form a front. There are seven of them, from the
+ * top left corner to the bottom right corner. The delay of a dot is that of
+ * its front: the wave advances one front at a time, at an angle, and not dot
+ * by dot. That is what sets it apart from `grid-fade`, whose ripple starts
+ * from the centre and does not travel.
  *
- * La vague souleve les points autant qu'elle les grossit : un simple
- * changement d'echelle se lirait comme un scintillement, la montee donne un
- * relief, une crete qui passe.
+ * The wave lifts the dots as much as it grows them: a plain change of scale
+ * would read as a flicker, the rise gives relief, a crest going by.
  *
- * ## Un statut, pas un dessin
+ * ## A status, not a drawing
  *
- * L'element porte `role="status"` et un libelle pour les lecteurs d'ecran :
- * l'attente est une information, pas une decoration. Les points sont retires
- * de l'arbre d'accessibilite.
+ * The element carries `role="status"` and a label for screen readers: the
+ * wait is information, not decoration. The dots are removed from the
+ * accessibility tree.
  *
- * Sous mouvement reduit, la grille reste plate, tous les points a leur taille
- * de repos : elle se lit encore comme un chargeur, seule la vague s'arrete.
+ * Under reduced motion, the grid stays flat, all the dots at their rest size:
+ * it still reads as a loader, only the wave stops.
  *
  * @module
  */
@@ -30,16 +29,16 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-grid-wave'
 
-/** Cote de la grille, en points. */
+/** Side of the grid, in dots. */
 const SIDE = 4
 
-/** Nombre de fronts diagonaux : les sommes ligne plus colonne possibles. */
+/** Number of diagonal fronts: the possible row plus column sums. */
 const FRONTS = SIDE * 2 - 1
 
-/** Pose la grille et sa vague, une fois par document. */
+/** Applies the grid and its wave, once per document. */
 function ensureGridWaveRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -47,7 +46,7 @@ function ensureGridWaveRule(): void {
   const style = document.createElement('style')
   style.id = STYLE_ID
   style.textContent = [
-    // Un peu de marge en haut : la crete monte dedans sans deborder.
+    // A little margin at the top: the crest rises into it without overflowing.
     '[data-o-grid-wave]{',
     'display:inline-grid;grid-template-columns:repeat(4,var(--o-gwave-size));',
     'gap:var(--o-gwave-size);padding-top:var(--o-gwave-size);',
@@ -58,13 +57,13 @@ function ensureGridWaveRule(): void {
     'animation:o-grid-wave-crest var(--o-gwave-speed) ease-in-out infinite;',
     'animation-delay:var(--o-gwave-delay);',
     '}',
-    // La crete est courte : un point n'est souleve qu'un tiers du cycle,
-    // le reste du temps il attend a plat que la vague revienne.
+    // The crest is short: a dot is only lifted for a third of the cycle, the
+    // rest of the time it waits flat for the wave to come back.
     '@keyframes o-grid-wave-crest{',
     '0%,30%,100%{transform:translate3d(0,0,0) scale(1);opacity:0.45}',
     '15%{transform:translate3d(0,calc(var(--o-gwave-size) * -0.8),0) scale(1.5);opacity:1}',
     '}',
-    // Une grille plate et pleine : elle dit encore « attente », sans vague.
+    // A flat, full grid: it still says "waiting", with no wave.
     '@media (prefers-reduced-motion:reduce){',
     '[data-o-grid-wave-dot]{animation:none;transform:none;opacity:1}',
     '}',
@@ -72,36 +71,36 @@ function ensureGridWaveRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface GridWaveOwnProps {
-  /** Diametre d'un point au repos, en pixels. @defaultValue 6 */
+  /** Diameter of one dot at rest, in pixels. @defaultValue 6 */
   size?: number
-  /** Duree d'un passage complet de la vague, en millisecondes. @defaultValue 1400 */
+  /** Duration of one complete pass of the wave, in milliseconds. @defaultValue 1400 */
   speed?: number
-  /** Couleur des points. @defaultValue la couleur du texte */
+  /** Colour of the dots. @defaultValue the text colour */
   color?: string
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */
+  /** Label announced to screen readers. @defaultValue 'Loading' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All the properties. */
 export type GridWaveProps = Customisable<GridWaveOwnProps, 'span'>
 
 /**
- * Signale une attente par une vague diagonale sur une grille de points.
+ * Signals a wait with a diagonal wave over a grid of dots.
  *
  * @example
  * <GridWave />
  *
  * @example
- * // Plus gros, plus lent, dans la teinte de marque.
+ * // Larger, slower, in the brand hue.
  * <GridWave size={10} speed={2000} color="var(--o-palette-brand-500)" />
  */
 export function GridWave({
   size = 6,
   speed = 1400,
   color = 'currentColor',
-  label = 'Chargement',
+  label = 'Loading',
   ...rest
 }: GridWaveProps): ReactElement {
   ensureGridWaveRule()
@@ -133,9 +132,10 @@ export function GridWave({
             data-o-grid-wave-dot=""
             style={
               {
-                // Le premier front a le plus d'avance, le dernier part de
-                // zero : la vague va du coin haut gauche au coin bas droit,
-                // en negatif pour etre deja en route a la premiere image.
+                // The first front is the furthest ahead, the last starts from
+                // zero: the wave goes from the top left corner to the bottom
+                // right corner, negatively so it is already under way on the
+                // first frame.
                 '--o-gwave-delay': `${String(Math.round((-speed * (FRONTS - 1 - front)) / FRONTS))}ms`,
               } as CSSProperties
             }

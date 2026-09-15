@@ -24,7 +24,7 @@
       "description": "Balise rendue."
     },
     {
-      "name": "rayon",
+      "name": "radius",
       "type": "number",
       "default": 180,
       "unit": "px",
@@ -34,7 +34,7 @@
       "step": 10
     },
     {
-      "name": "graisseBasse",
+      "name": "minWeight",
       "type": "number",
       "default": 300,
       "description": "Graisse loin du pointeur, sur l axe wght.",
@@ -43,7 +43,7 @@
       "step": 25
     },
     {
-      "name": "graisseHaute",
+      "name": "maxWeight",
       "type": "number",
       "default": 800,
       "description": "Graisse sous le pointeur, sur l axe wght.",

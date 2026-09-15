@@ -1,8 +1,8 @@
 /**
- * Composant racine du routeur.
+ * Root component of the router.
  *
- * Il possede l'historique, publie l'emplacement courant, orchestre les View
- * Transitions et restaure la position de defilement.
+ * It owns the history, publishes the current location, orchestrates the View
+ * Transitions and restores the scroll position.
  *
  * @module
  */
@@ -40,18 +40,18 @@ import {
   supportsViewTransitions,
 } from './viewTransition.js'
 
-/** Proprietes de {@link Router}. */
+/** Props of {@link Router}. */
 export interface RouterProps {
-  /** Arbre de l'application. */
+  /** Tree of the application. */
   children: ReactNode
   /**
-   * Historique a utiliser. Par defaut, l'historique du navigateur — ou un
-   * historique en memoire lorsque `window` n'existe pas (rendu serveur).
+   * History to use. By default, the browser history — or an in-memory history
+   * when `window` does not exist (server-side rendering).
    */
   history?: RouterHistory
   /**
-   * Active les View Transitions pour toutes les navigations. Chaque `<Link>`
-   * ou appel a `navigate` peut deroger a ce reglage.
+   * Enables the View Transitions for every navigation. Each `<Link>` or call
+   * to `navigate` may depart from this setting.
    *
    * @defaultValue true
    */
@@ -59,10 +59,10 @@ export interface RouterProps {
 }
 
 /**
- * Enregistre en continu la position de defilement de l'entree d'historique
- * courante, afin de pouvoir la restaurer au retour arriere.
+ * Continuously records the scroll position of the current history entry, so
+ * that it can be restored when going back.
  *
- * L'ecriture est amortie par `requestAnimationFrame` : au plus une par frame.
+ * The write is amortized by `requestAnimationFrame`: at most one per frame.
  */
 function useScrollTracking(history: RouterHistory, key: string): void {
   const keyRef = useRef(key)
@@ -89,8 +89,8 @@ function useScrollTracking(history: RouterHistory, key: string): void {
 }
 
 /**
- * Applique la politique de defilement apres chaque navigation : restauration
- * au retour arriere, ancre si l'URL en contient une, haut de page sinon.
+ * Applies the scroll policy after every navigation: restoration when going
+ * back, anchor when the URL holds one, top of the page otherwise.
  */
 function useScrollPolicy(
   history: RouterHistory,
@@ -124,14 +124,14 @@ function useScrollPolicy(
     }
 
     window.scrollTo(0, 0)
-    // La politique ne depend que de l'entree atteinte : `key` suffit a
-    // l'identifier, le reste est lu au moment de l'application.
+    // The policy only depends on the entry that was reached: `key` is enough
+    // to identify it, the rest is read at the moment it is applied.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key])
 }
 
 /**
- * Fournit le contexte de navigation a l'application.
+ * Provides the navigation context to the application.
  *
  * @example
  * <Router>
@@ -182,9 +182,9 @@ export function Router({
         return
       }
 
-      // Le DOM doit avoir change quand le callback de la transition rend la
-      // main : `flushSync` force React a commiter de facon synchrone, et le
-      // prechargement garantit qu'aucun composant ne suspendra pendant ce
+      // The DOM must have changed when the callback of the transition hands
+      // control back: `flushSync` forces React to commit synchronously, and
+      // the preloading guarantees that no component will suspend during that
       // commit.
       const start = (): void => runViewTransition(() => flushSync(commit))
 
@@ -204,10 +204,10 @@ export function Router({
     [history, navigate, viewTransition],
   )
 
-  // `before` : l'historique a change, la nouvelle page n'a pas encore rendu.
-  // L'abonnement passe par l'historique et non par le rendu, pour couvrir de
-  // la meme facon un clic, un `navigate` et un retour arriere du navigateur —
-  // ce dernier ne traverse jamais `navigate`.
+  // `before`: the history has changed, the new page has not rendered yet.
+  // The subscription goes through the history and not through the render, so
+  // as to cover a click, a `navigate` and a browser back the same way — the
+  // latter never goes through `navigate`.
   useEffect(
     () =>
       history.subscribe(() => {
@@ -218,8 +218,8 @@ export function Router({
     [history],
   )
 
-  // `after` : la nouvelle page a rendu. Un effet passif s'execute apres la
-  // peinture, ce qui est le premier instant ou une mesure a un sens.
+  // `after`: the new page has rendered. A passive effect runs after the
+  // paint, which is the first instant where a measurement makes sense.
   const announced = useRef<string | null>(null)
   useEffect(() => {
     const to = location.pathname

@@ -9,18 +9,18 @@ import { buildRegistry } from './build-registry.js'
 import { collectRegistry } from './collect.js'
 import { validateRegistry } from './validate.js'
 
-/** Racine du vrai registre, depuis la racine du paquet. */
+/** Root of the real registry, from the root of the package. */
 const REAL_ROOT = 'registry'
 
 let root = ''
 /**
- * Sortie de compilation, volontairement hors du registre : la placer dedans
- * ferait relire les artefacts comme s'ils etaient des composants.
+ * Compilation output, deliberately outside the registry: putting it inside
+ * would have the artefacts read back as if they were components.
  */
 let out = ''
 
 beforeEach(async () => {
-  const temporary = await mkdtemp(join(tmpdir(), 'odoro-registre-'))
+  const temporary = await mkdtemp(join(tmpdir(), 'odoro-registry-'))
   root = join(temporary, 'registry')
   out = join(temporary, 'dist')
   await mkdir(root, { recursive: true })
@@ -31,28 +31,28 @@ afterEach(async () => {
 })
 
 /**
- * Source d'un composant conforme au contrat de personnalisation.
+ * Source of a component compliant with the customisation contract.
  *
- * Elle accepte `className` : la validation l'exige de toute entree qui rend un
- * element, et une fixture qui ne le ferait pas testerait un cas que le
- * registre refuse.
+ * It accepts `className`: the validation demands it of every entry that
+ * renders an element, and a fixture that did not would test a case the
+ * registry refuses.
  */
 const SOURCE = 'export const Demo = ({ className }) => <div className={className} />\n'
 
-/** Entree minimale valide, a deriver dans chaque test. */
+/** Minimal valid entry, to derive in each test. */
 function meta(overrides: Partial<RegistryMetaInput> = {}): RegistryMetaInput {
   return {
     name: 'demo',
     category: 'text',
     title: 'Demo',
-    description: 'Une entree de test.',
+    description: 'A test entry.',
     files: [{ path: 'component.tsx', target: 'text/Demo.tsx' }],
     perf: { tier: 'light' },
     ...overrides,
   }
 }
 
-/** Ecrit un dossier de composant complet dans le registre temporaire. */
+/** Writes a complete component directory into the temporary registry. */
 async function writeEntry(
   category: string,
   name: string,
@@ -67,8 +67,8 @@ async function writeEntry(
   }
 }
 
-describe('lecture du registre', () => {
-  it('lit une entree et inline son source', async () => {
+describe('registry reading', () => {
+  it('reads an entry and inlines its source', async () => {
     await writeEntry('text', 'demo', meta())
 
     const result = await collectRegistry(root)
@@ -80,41 +80,41 @@ describe('lecture du registre', () => {
     expect(result.entries[0]?.sources['component.tsx']).toContain('export const Demo')
   })
 
-  it('accepte un registre vide', async () => {
+  it('accepts an empty registry', async () => {
     const result = await collectRegistry(root)
     expect(result.ok).toBe(true)
   })
 
-  it('signale une racine inexistante plutot que de lever', async () => {
+  it('reports a root that does not exist rather than throwing', async () => {
     const result = await collectRegistry(join(root, 'absent'))
     expect(result.ok).toBe(false)
     if (result.ok) return
-    expect(result.problems[0]).toMatch(/introuvable/)
+    expect(result.problems[0]).toMatch(/not found/)
   })
 
-  it('signale un dossier sans meta.json', async () => {
-    await mkdir(join(root, 'text', 'oubli'), { recursive: true })
+  it('reports a directory without meta.json', async () => {
+    await mkdir(join(root, 'text', 'forgotten'), { recursive: true })
 
     const result = await collectRegistry(root)
     expect(result.ok).toBe(false)
     if (result.ok) return
-    expect(result.problems[0]).toMatch(/aucun meta\.json/)
+    expect(result.problems[0]).toMatch(/no meta\.json/)
   })
 
-  it('signale un JSON illisible sans faire tomber la lecture', async () => {
-    await mkdir(join(root, 'text', 'casse'), { recursive: true })
-    await writeFile(join(root, 'text', 'casse', 'meta.json'), '{ oups', 'utf8')
+  it('reports unreadable JSON without bringing the reading down', async () => {
+    await mkdir(join(root, 'text', 'broken'), { recursive: true })
+    await writeFile(join(root, 'text', 'broken', 'meta.json'), '{ oops', 'utf8')
 
     const result = await collectRegistry(root)
     expect(result.ok).toBe(false)
     if (result.ok) return
-    expect(result.problems[0]).toMatch(/JSON illisible/)
+    expect(result.problems[0]).toMatch(/unreadable JSON/)
   })
 
-  it('rassemble les problemes de toutes les entrees', async () => {
-    // S'arreter a la premiere erreur imposerait un aller-retour par probleme.
-    await writeEntry('text', 'un', meta({ name: 'un', title: '' }))
-    await writeEntry('text', 'deux', meta({ name: 'deux', description: '' }))
+  it('gathers the problems of every entry', async () => {
+    // Stopping at the first error would impose one round trip per problem.
+    await writeEntry('text', 'one', meta({ name: 'one', title: '' }))
+    await writeEntry('text', 'two', meta({ name: 'two', description: '' }))
 
     const result = await collectRegistry(root)
     expect(result.ok).toBe(false)
@@ -123,39 +123,39 @@ describe('lecture du registre', () => {
   })
 })
 
-describe('ce que le schema ne peut pas voir', () => {
-  it('signale un fichier declare mais absent', async () => {
+describe('what the schema cannot see', () => {
+  it('reports a file declared but absent', async () => {
     await writeEntry('text', 'demo', meta(), {})
 
     const result = await collectRegistry(root)
     expect(result.ok).toBe(false)
     if (result.ok) return
-    expect(result.problems[0]).toMatch(/"component\.tsx" est introuvable/)
+    expect(result.problems[0]).toMatch(/"component\.tsx" was not found/)
   })
 
-  it('signale un nom qui ne correspond pas au dossier', async () => {
-    // Le dossier est l'identifiant reel : un ecart rendrait l'entree
-    // introuvable a l'adresse ou tout le monde la cherche.
-    await writeEntry('text', 'demo', meta({ name: 'autre-chose' }))
+  it('reports a name that does not match the directory', async () => {
+    // The directory is the real identifier: a gap would make the entry not to
+    // be found at the address where everybody looks for it.
+    await writeEntry('text', 'demo', meta({ name: 'something-else' }))
 
     const result = await collectRegistry(root)
     expect(result.ok).toBe(false)
     if (result.ok) return
-    expect(result.problems[0]).toMatch(/ne correspond pas au dossier/)
+    expect(result.problems[0]).toMatch(/does not match the directory/)
   })
 
-  it('signale une categorie qui ne correspond pas au dossier', async () => {
+  it('reports a category that does not match the directory', async () => {
     await writeEntry('effect', 'demo', meta())
 
     const result = await collectRegistry(root)
     expect(result.ok).toBe(false)
     if (result.ok) return
-    expect(result.problems.join()).toMatch(/categorie declaree/)
+    expect(result.problems.join()).toMatch(/declared category/)
   })
 })
 
-describe('validation complete', () => {
-  it('ne signale rien sur un registre sain', async () => {
+describe('complete validation', () => {
+  it('reports nothing on a healthy registry', async () => {
     await writeEntry('hooks', 'use-base', meta({ name: 'use-base', category: 'hooks' }))
     await writeEntry('text', 'demo', meta({ registryDependencies: ['hooks/use-base'] }))
 
@@ -164,31 +164,33 @@ describe('validation complete', () => {
     expect(report.count).toBe(2)
   })
 
-  it('echoue sur une dependance de registre qui pointe dans le vide', async () => {
+  it('fails on a registry dependency that points into the void', async () => {
     await writeEntry('text', 'demo', meta({ registryDependencies: ['hooks/absent'] }))
 
     const report = await validateRegistry(root)
     expect(report.problems).toHaveLength(1)
-    expect(report.problems[0]).toMatch(/Entree introuvable : hooks\/absent/)
+    // Message produced by `odoro/registry`, out of the scope of this pass.
+    expect(report.problems[0]).toMatch(/Entry not found: hooks\/absent/)
   })
 
-  it('echoue sur un cycle et en donne le chemin', async () => {
+  it('fails on a cycle and gives its path', async () => {
     await writeEntry(
       'text',
-      'un',
-      meta({ name: 'un', registryDependencies: ['text/deux'] }),
+      'one',
+      meta({ name: 'one', registryDependencies: ['text/two'] }),
     )
     await writeEntry(
       'text',
-      'deux',
-      meta({ name: 'deux', registryDependencies: ['text/un'] }),
+      'two',
+      meta({ name: 'two', registryDependencies: ['text/one'] }),
     )
 
     const report = await validateRegistry(root)
-    expect(report.problems[0]).toMatch(/Cycle de dependances : text\/(un|deux) →/)
+    // Message produced by `odoro/registry`, out of the scope of this pass.
+    expect(report.problems[0]).toMatch(/Dependency cycle: text\/(one|two) →/)
   })
 
-  it('echoue sur un composant couteux sans repli', async () => {
+  it('fails on a costly component without a fallback', async () => {
     await writeEntry(
       'hero',
       'demo',
@@ -200,27 +202,28 @@ describe('validation complete', () => {
     )
 
     const report = await validateRegistry(root)
-    expect(report.problems.join()).toMatch(/repli visuel/)
+    // Message produced by `odoro/registry`, out of the scope of this pass.
+    expect(report.problems.join()).toMatch(/visual fallback/)
     expect(report.count).toBe(0)
   })
 
-  it('ne resout pas le graphe quand la lecture a echoue', async () => {
-    // Sinon la dependance de l'entree illisible serait signalee comme
-    // introuvable — un second message qui n'est que l'echo du premier.
+  it('does not resolve the graph when the reading failed', async () => {
+    // Otherwise the dependency of the unreadable entry would be reported as
+    // not found — a second message that is only the echo of the first.
     await writeEntry(
       'text',
-      'un',
-      meta({ name: 'un', registryDependencies: ['text/deux'] }),
+      'one',
+      meta({ name: 'one', registryDependencies: ['text/two'] }),
     )
-    await writeEntry('text', 'deux', meta({ name: 'deux', title: '' }))
+    await writeEntry('text', 'two', meta({ name: 'two', title: '' }))
 
     const report = await validateRegistry(root)
     expect(report.problems).toHaveLength(1)
   })
 })
 
-/** Le catalogue que le site lit : une compilation d'essai ne doit pas y toucher. */
-const CATALOGUE_DU_SITE = join(
+/** The catalogue the site reads: a throwaway compilation must not touch it. */
+const SITE_CATALOGUE = join(
   '..',
   '..',
   'playground',
@@ -229,8 +232,8 @@ const CATALOGUE_DU_SITE = join(
   'catalogue.generated.ts',
 )
 
-describe('compilation des artefacts', () => {
-  it('ecrit un fichier par entree et un index', async () => {
+describe('artefact compilation', () => {
+  it('writes one file per entry and an index', async () => {
     await writeEntry('hooks', 'use-base', meta({ name: 'use-base', category: 'hooks' }))
     await writeEntry('text', 'demo', meta({ registryDependencies: ['hooks/use-base'] }))
 
@@ -247,21 +250,22 @@ describe('compilation des artefacts', () => {
     ])
   })
 
-  it('n ecrit rien hors du dossier de sortie sans qu on le demande', async () => {
+  it('writes nothing outside the output directory unless asked', async () => {
     await writeEntry('text', 'demo', meta())
 
-    // La depose dans le playground emprunte des chemins relatifs au dossier
-    // courant. Declenchee depuis un test, elle a deja ecrase le catalogue du
-    // site avec le contenu d'un registre d'essai — sans qu'aucun test
-    // n'echoue, puisque le registre compile, lui, etait correct.
-    const avant = await readFile(CATALOGUE_DU_SITE, 'utf8')
+    // The drop into the playground borrows paths relative to the current
+    // directory. Triggered from a test, it has already overwritten the
+    // catalogue of the site with the content of a throwaway registry —
+    // without any test failing, since the compiled registry, itself, was
+    // correct.
+    const before = await readFile(SITE_CATALOGUE, 'utf8')
 
     await buildRegistry(root, out)
 
-    expect(await readFile(CATALOGUE_DU_SITE, 'utf8')).toBe(avant)
+    expect(await readFile(SITE_CATALOGUE, 'utf8')).toBe(before)
   })
 
-  it('inline le source dans le fichier de l entree', async () => {
+  it('inlines the source in the file of the entry', async () => {
     await writeEntry('text', 'demo', meta())
 
     await buildRegistry(root, out)
@@ -275,7 +279,7 @@ describe('compilation des artefacts', () => {
     })
   })
 
-  it('ne laisse pas de detail de mise en depot dans l artefact', async () => {
+  it('leaves no repository-layout detail in the artefact', async () => {
     await writeEntry('text', 'demo', meta())
 
     await buildRegistry(root, out)
@@ -286,9 +290,9 @@ describe('compilation des artefacts', () => {
     expect(published['directory']).toBeUndefined()
   })
 
-  it('laisse l index sans code source', async () => {
-    // L'index est consulte souvent ; y inliner le code ferait grossir une
-    // reponse qui n'en a pas l'usage.
+  it('leaves the index without source code', async () => {
+    // The index is consulted often; inlining the code in it would inflate a
+    // response that has no use for it.
     await writeEntry('text', 'demo', meta())
 
     await buildRegistry(root, out, { now: new Date('2026-01-01T00:00:00.000Z') })
@@ -304,7 +308,7 @@ describe('compilation des artefacts', () => {
         name: 'demo',
         category: 'text',
         title: 'Demo',
-        description: 'Une entree de test.',
+        description: 'A test entry.',
         tier: 'light',
         backend: false,
         registryDependencies: [],
@@ -312,8 +316,8 @@ describe('compilation des artefacts', () => {
     ])
   })
 
-  it('efface une entree retiree du depot', async () => {
-    // Sans cela, elle resterait servie indefiniment.
+  it('erases an entry removed from the repository', async () => {
+    // Without that, it would stay served indefinitely.
     await writeEntry('text', 'demo', meta())
     await buildRegistry(root, out)
 
@@ -323,18 +327,19 @@ describe('compilation des artefacts', () => {
     await expect(readFile(join(out, 'text', 'demo.json'), 'utf8')).rejects.toThrow()
   })
 
-  it('refuse de compiler un registre invalide', async () => {
+  it('refuses to compile an invalid registry', async () => {
     await writeEntry('text', 'demo', meta({ registryDependencies: ['hooks/absent'] }))
 
     const result = await buildRegistry(root, out)
     expect(result.ok).toBe(false)
     if (result.ok) return
-    expect(result.problems[0]).toMatch(/introuvable/)
+    // Message produced by `odoro/registry`, out of the scope of this pass.
+    expect(result.problems[0]).toMatch(/not found/)
   })
 })
 
-describe('le registre reel', () => {
-  it('est valide', async () => {
+describe('the real registry', () => {
+  it('is valid', async () => {
     const report = await validateRegistry(REAL_ROOT)
     expect(report.problems).toEqual([])
     expect(report.count).toBeGreaterThan(0)

@@ -1,27 +1,26 @@
 /**
- * Points qui se poursuivent : une tete et sa trainee tournent en file sur un
- * cercle.
+ * Chasing dots: a head and its trail turn in single file on a circle.
  *
- * ## Une seule rotation, quatre points poses
+ * ## One rotation, four dots set in place
  *
- * Faire tourner quatre points separement demanderait quatre animations
- * synchronisees au degre pres — et la moindre derive les desalignerait.
- * Ici un seul element tourne : le plateau. Les points y sont poses une fois,
- * chacun a son angle, et ne bougent plus. La poursuite est un effet de
- * placement, pas de mouvement.
+ * Turning four dots separately would take four animations synchronised to
+ * the degree — and the slightest drift would knock them out of line. Here a
+ * single element turns: the plate. The dots are set on it once, each at its
+ * angle, and never move again. The chase is an effect of placement, not of
+ * movement.
  *
- * Les points decroissent en taille et en opacite de la tete a la queue :
- * c'est ce degrade qui donne un sens de marche. Quatre points identiques
- * tourneraient sans qu'on sache lequel mene.
+ * The dots decrease in size and in opacity from the head to the tail: it is
+ * that gradient which gives a direction of travel. Four identical dots would
+ * turn without one knowing which one leads.
  *
- * ## Un statut, pas un dessin
+ * ## A status, not a drawing
  *
- * L'element porte `role="status"` et un libelle pour les lecteurs d'ecran :
- * l'attente est une information, pas une decoration. Le plateau et ses
- * points sont retires de l'arbre d'accessibilite.
+ * The element carries `role="status"` and a label for screen readers: the
+ * wait is information, not decoration. The plate and its dots are removed
+ * from the accessibility tree.
  *
- * Sous mouvement reduit, le plateau s'arrete : la file — une tete et sa
- * trainee — se lit encore comme un chargeur, seul le tour s'arrete.
+ * Under reduced motion, the plate stops: the file — a head and its trail —
+ * still reads as a loader, only the turn stops.
  *
  * @module
  */
@@ -29,10 +28,10 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Id of the injected stylesheet. */
 const STYLE_ID = 'o-chasing-dots'
 
-/** Pose le plateau et ses points, une fois par document. */
+/** Sets the plate and its dots, once per document. */
 function ensureChaseRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -48,8 +47,9 @@ function ensureChaseRule(): void {
     'position:absolute;inset:0;',
     'animation:o-chasing-dots-spin var(--o-chase-speed) linear infinite;',
     '}',
-    // Chaque point part du centre, tourne a son angle, puis s'ecarte
-    // jusqu'au bord : le rayon vient de la translation, pas d'un calcul.
+    // Each dot starts at the centre, turns to its angle, then moves out to
+    // the edge: the radius comes from the translation, not from a
+    // computation.
     '[data-o-chasing-dot]{',
     'position:absolute;top:50%;left:50%;',
     'width:var(--o-chase-dot);height:var(--o-chase-dot);',
@@ -59,8 +59,8 @@ function ensureChaseRule(): void {
     'transform:rotate(var(--o-chase-angle)) translate3d(0,calc(var(--o-chase-size) / -2 + var(--o-chase-dot) / 2),0);',
     '}',
     '@keyframes o-chasing-dots-spin{from{transform:rotate(0turn)}to{transform:rotate(1turn)}}',
-    // La file immobile reste une tete et sa trainee : la figure se lit
-    // encore comme un chargeur.
+    // The still file remains a head and its trail: the figure still reads as
+    // a loader.
     '@media (prefers-reduced-motion:reduce){',
     '[data-o-chasing-plate]{animation:none}',
     '}',
@@ -68,36 +68,36 @@ function ensureChaseRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to the component. */
 export interface ChasingDotsOwnProps {
-  /** Diametre du cercle parcouru, en pixels. @defaultValue 40 */
+  /** Diameter of the circle travelled, in pixels. @defaultValue 40 */
   size?: number
-  /** Duree d'un tour complet, en millisecondes. @defaultValue 1000 */
+  /** Duration of one complete turn, in milliseconds. @defaultValue 1000 */
   speed?: number
-  /** Couleur des points. @defaultValue la couleur du texte */
+  /** Colour of the dots. @defaultValue the text colour */
   color?: string
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */
+  /** Label announced to screen readers. @defaultValue 'Loading' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type ChasingDotsProps = Customisable<ChasingDotsOwnProps, 'span'>
 
 /**
- * Signale une attente par une file de points qui tourne.
+ * Signals a wait with a file of dots that turns.
  *
  * @example
  * <ChasingDots />
  *
  * @example
- * // Plus grand, plus lent, dans la teinte de marque.
+ * // Bigger, slower, in the brand hue.
  * <ChasingDots size={64} speed={1600} color="var(--o-palette-brand-500)" />
  */
 export function ChasingDots({
   size = 40,
   speed = 1000,
   color = 'currentColor',
-  label = 'Chargement',
+  label = 'Loading',
   ...rest
 }: ChasingDotsProps): ReactElement {
   ensureChaseRule()
@@ -111,9 +111,9 @@ export function ChasingDots({
     '--o-chase-color': color,
   } as CSSProperties
 
-  // La tete en premier, puis trois points de plus en plus petits et pales,
-  // chacun trente degres derriere le precedent. Le diametre de la tete vaut
-  // un cinquieme du cercle : assez pour que la trainee ne se recouvre pas.
+  // The head first, then three dots ever smaller and paler, each thirty
+  // degrees behind the previous one. The diameter of the head is a fifth of
+  // the circle: enough for the trail not to overlap itself.
   const dots = [0, 1, 2, 3].map((index) => ({
     angle: `${String(-index * 30)}deg`,
     diameter: Math.max(2, Math.round((size / 5) * (1 - index * 0.2))),

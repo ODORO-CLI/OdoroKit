@@ -1,27 +1,26 @@
 /**
- * Texte en attente, balaye : un mot eteint qu'une bande de pleine encre
- * traverse en boucle.
+ * Waiting text, swept: a dimmed word crossed in a loop by a band of full ink.
  *
- * ## Le texte est eteint, pas le reflet
+ * ## The text is dimmed, not the reflection
  *
- * Un reflet sur un titre ajoute une lueur a un texte deja plein : c'est un
- * ornement. Ici c'est l'inverse, et c'est ce qui en fait un etat d'attente :
- * le texte est peint a un tiers de son encre, et la seule chose pleine est la
- * bande qui le traverse. Tant qu'elle passe, le mot n'est pas « la ». Le
- * meme mecanisme, lu a l'envers, dit une autre chose.
+ * A reflection on a heading adds a glow to text that is already solid: that is
+ * an ornament. Here it is the reverse, and that is what makes it a waiting
+ * state: the text is painted at a third of its ink, and the only solid thing
+ * is the band crossing it. As long as it passes, the word is not "there". The
+ * same mechanism, read backwards, says something else.
  *
- * Le degrade est le fond de l'element, decoupe par ses glyphes ; seule sa
- * position bouge. La bande est etroite et ses bords sont doux : une bande
- * franche se lirait comme un curseur, et un curseur promet une position.
+ * The gradient is the background of the element, clipped by its glyphs; only
+ * its position moves. The band is narrow and its edges are soft: a hard-edged
+ * band would read as a cursor, and a cursor promises a position.
  *
- * ## Un statut, pas un dessin
+ * ## A status, not a drawing
  *
- * L'element porte `role="status"` et un libelle pour les lecteurs d'ecran.
- * Le texte peint est retire de l'arbre d'accessibilite, parce que sa couleur
- * est transparente : il ne serait annonce que comme un doublon du libelle.
+ * The element carries `role="status"` and a label for screen readers. The
+ * painted text is removed from the accessibility tree, because its colour is
+ * transparent: it would only be announced as a duplicate of the label.
  *
- * Sous mouvement reduit, le texte revient a sa pleine encre, sans bande :
- * un mot eteint et fige ne dirait plus l'attente, il dirait « desactive ».
+ * Under reduced motion, the text returns to its full ink, with no band: a
+ * dimmed and frozen word would no longer say waiting, it would say "disabled".
  *
  * @module
  */
@@ -29,10 +28,10 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-text-shimmer-loader'
 
-/** Pose le texte eteint et sa bande, une fois par document. */
+/** Sets up the dimmed text and its band, once per document. */
 function ensureTextShimmerLoaderRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -46,9 +45,9 @@ function ensureTextShimmerLoaderRule(): void {
     '}',
     '[data-o-tsl-text]{',
     'display:inline-block;',
-    // Le fond porte l'encre : le texte lui-meme est transparent et ne sert
-    // que de pochoir. La bande est a 50 % de l'image, ses bords a 12 %
-    // de part et d'autre.
+    // The background carries the ink: the text itself is transparent and only
+    // serves as a stencil. The band sits at 50 % of the image, its edges at
+    // 12 % on either side.
     '--o-tsl-dim:color-mix(in oklab,var(--o-tsl-color) 32%,transparent);',
     'background-image:linear-gradient(100deg,var(--o-tsl-dim) 0 38%,var(--o-tsl-color) 50%,var(--o-tsl-dim) 62% 100%);',
     'background-size:250% 100%;background-repeat:no-repeat;',
@@ -56,8 +55,8 @@ function ensureTextShimmerLoaderRule(): void {
     'color:transparent;',
     'animation:o-tsl-sweep var(--o-tsl-speed) linear infinite;',
     '}',
-    // De 100 % a 0 % : l'image glisse vers la droite, la bande traverse le
-    // mot de gauche a droite.
+    // From 100 % to 0 %: the image slides to the right, the band crosses the
+    // word from left to right.
     '@keyframes o-tsl-sweep{from{background-position:100% 0}to{background-position:0% 0}}',
     '@media (prefers-reduced-motion:reduce){',
     '[data-o-tsl-text]{animation:none;background-image:none;color:var(--o-tsl-color)}',
@@ -66,39 +65,39 @@ function ensureTextShimmerLoaderRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** Props of the component itself. */
 export interface TextShimmerLoaderOwnProps {
-  /** Le texte affiche. @defaultValue 'Chargement' */
+  /** The displayed text. @defaultValue 'Loading' */
   text?: string
-  /** Corps du texte, en pixels. @defaultValue 16 */
+  /** Size of the text, in pixels. @defaultValue 16 */
   size?: number
-  /** Duree d'un passage de la bande, en millisecondes. @defaultValue 1800 */
+  /** Duration of one pass of the band, in milliseconds. @defaultValue 1800 */
   speed?: number
-  /** Couleur du texte et de la bande. @defaultValue la couleur du texte */
+  /** Colour of the text and of the band. @defaultValue the text colour */
   color?: string
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */
+  /** Label announced to screen readers. @defaultValue 'Loading' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All the props. */
 export type TextShimmerLoaderProps = Customisable<TextShimmerLoaderOwnProps, 'span'>
 
 /**
- * Signale une attente par un texte eteint qu'une bande d'encre traverse.
+ * Signals a wait through a dimmed text crossed by a band of ink.
  *
  * @example
  * <TextShimmerLoader />
  *
  * @example
- * // Plus grand, plus lent, dans la teinte de marque.
+ * // Bigger, slower, in the brand hue.
  * <TextShimmerLoader size={24} speed={2600} color="var(--o-palette-brand-500)" />
  */
 export function TextShimmerLoader({
-  text = 'Chargement',
+  text = 'Loading',
   size = 16,
   speed = 1800,
   color = 'currentColor',
-  label = 'Chargement',
+  label = 'Loading',
   ...rest
 }: TextShimmerLoaderProps): ReactElement {
   ensureTextShimmerLoaderRule()

@@ -1,26 +1,26 @@
 /**
- * Carte a lueur : la bordure s'illumine la ou le pointeur passe.
+ * Glow card: the border lights up where the pointer passes.
  *
- * ## Deux variables, pas un rendu
+ * ## Two variables, not a render
  *
- * Comme pour le halo de pointeur, la position de la lueur est ecrite en
- * variables CSS directement sur l'element : React ne rend qu'une fois, au
- * montage, et le degrade suit le pointeur sans qu'un seul rendu ne soit
- * declenche. La lueur est **sur** le trajet du pointeur, donc elle suit
- * l'evenement directement — un amortissement se lirait comme un retard.
+ * As for the pointer halo, the position of the glow is written as CSS
+ * variables directly on the element: React renders only once, at mount, and
+ * the gradient follows the pointer without a single render being triggered.
+ * The glow is **on** the path of the pointer, so it follows the event
+ * directly — a damping would read as a lag.
  *
- * ## Seule la bordure s'allume
+ * ## Only the border lights up
  *
- * Le degrade est peint sur un anneau d'un pixel obtenu par masque : deux
- * calques dont l'intersection est soustraite, il ne reste que le contour.
- * C'est ce qui distingue cette carte du halo : la lumiere ne se repand pas
- * sur le fond, elle court le long du bord.
+ * The gradient is painted on a one pixel ring obtained by a mask: two layers
+ * whose intersection is subtracted, only the outline is left. That is what
+ * distinguishes this card from the halo: the light does not spread over the
+ * background, it runs along the edge.
  *
- * ## Inerte la ou il n'y a pas de pointeur fin
+ * ## Inert where there is no fine pointer
  *
- * Au doigt, il n'y a pas de survol : la lueur n'apparaitrait qu'au moment
- * du toucher, comme un rate. L'effet ne s'installe que si l'appareil a un
- * pointeur fin capable de survol — ailleurs, la carte est une carte.
+ * By finger, there is no hover: the glow would only appear at the moment of
+ * the touch, like a miss. The effect is only installed if the device has a
+ * fine pointer capable of hovering — elsewhere, the card is a card.
  *
  * @module
  */
@@ -34,27 +34,27 @@ import {
   type ReactNode,
 } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties owned by the component. */
 export interface GlowCardOwnProps {
-  /** Contenu de la carte. */
+  /** Content of the card. */
   children: ReactNode
-  /** Rayon de la lueur, en pixels. @defaultValue 200 */
+  /** Radius of the glow, in pixels. @defaultValue 200 */
   radius?: number
-  /** Intensite de la lueur, de zero a un. @defaultValue 0.8 */
+  /** Intensity of the glow, from zero to one. @defaultValue 0.8 */
   strength?: number
-  /** Premiere couleur de la lueur. @defaultValue teinte de marque */
+  /** First color of the glow. @defaultValue brand hue */
   from?: string
-  /** Seconde couleur, vers laquelle la lueur s'eteint. @defaultValue fuchsia */
+  /** Second color, toward which the glow dies out. @defaultValue fuchsia */
   to?: string
 }
 
-/** Toutes les proprietes. */
+/** All the properties. */
 export type GlowCardProps = Customisable<GlowCardOwnProps>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-glow-card'
 
-/** Pose l'anneau et son masque, une fois par document. */
+/** Sets the ring and its mask, once per document. */
 function ensureGlowRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -69,7 +69,7 @@ function ensureGlowRule(): void {
     'opacity:0;transition:opacity 240ms linear;',
     'background:radial-gradient(var(--o-glow-radius) circle at var(--o-glow-x) var(--o-glow-y),',
     'var(--o-glow-from),var(--o-glow-to) 55%,transparent 80%);',
-    // Le masque soustrait l'interieur : le degrade ne peint que l'anneau.
+    // The mask subtracts the inside: the gradient only paints the ring.
     '-webkit-mask:linear-gradient(black 0 0) content-box,linear-gradient(black 0 0);',
     'mask:linear-gradient(black 0 0) content-box,linear-gradient(black 0 0);',
     '-webkit-mask-composite:xor;mask-composite:exclude;',
@@ -80,17 +80,17 @@ function ensureGlowRule(): void {
 }
 
 /**
- * Fait courir une lueur le long de la bordure, sous le pointeur.
+ * Runs a glow along the border, under the pointer.
  *
  * @example
  * <GlowCard className="o-rounded-xl o-border-w-1 o-p-6">
- *   <h3>Une carte</h3>
+ *   <h3>A card</h3>
  * </GlowCard>
  *
  * @example
- * // Une lueur large et discrete.
+ * // A wide and quiet glow.
  * <GlowCard radius={320} strength={0.5} className="o-rounded-2xl o-p-8">
- *   Contenu
+ *   Content
  * </GlowCard>
  */
 export function GlowCard({
@@ -108,9 +108,9 @@ export function GlowCard({
   useEffect(() => {
     if (host === null || reduced) return
 
-    // Pas de pointeur fin, pas de survol : l'effet ne s'installe pas.
-    // Voir l'en-tete du module.
-    if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return
+    // No fine pointer, no hover: the effect is not installed.
+    // See the module header.
+    if (!window.matchMedia('(hover) and (pointer: fine)').matches) return
 
     const onMove = (event: PointerEvent): void => {
       const box = host.getBoundingClientRect()

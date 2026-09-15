@@ -1,48 +1,48 @@
 /**
- * Graisse de proximite : chaque lettre s'epaissit quand le pointeur approche.
+ * Proximity weight: each letter thickens as the pointer comes closer.
  *
- * ## Ce que ce composant fait et que `text-pressure` ne fait pas
+ * ## What this component does that `text-pressure` does not
  *
- * `text-pressure` branche deux axes sur deux directions : c'est un geste, et
- * il vaut pour une ligne d'affiche. Ici il n'y a qu'un seul axe, la graisse,
- * et une seule distance, radiale. En echange, l'effet tient sur un paragraphe
- * entier, sur plusieurs lignes, et se lit comme une loupe : ce qui est pres
- * est lourd, ce qui est loin est leger.
+ * `text-pressure` wires two axes onto two directions: that is a gesture, and
+ * it holds for a poster line. Here there is only one axis, the weight, and a
+ * single distance, radial. In exchange, the effect holds over a whole
+ * paragraph, over several lines, and reads like a magnifying glass: what is
+ * close is heavy, what is far is light.
  *
- * ## La traine vient de la lettre, pas du pointeur
+ * ## The trail comes from the letter, not from the pointer
  *
- * Le point suivi n'est pas amorti : c'est la position brute du pointeur.
- * L'amortissement est place ailleurs — dans chaque lettre, qui rejoint sa
- * graisse cible a son propre rythme. Consequence : une lettre que le pointeur
- * vient de quitter est encore lourde, et le halo laisse une trainee derriere
- * le geste au lieu de le suivre comme une tache rigide.
+ * The tracked point is not damped: it is the raw position of the pointer. The
+ * damping sits elsewhere — in each letter, which reaches its target weight at
+ * its own pace. Consequence: a letter the pointer has just left is still
+ * heavy, and the halo leaves a trail behind the gesture instead of following
+ * it like a rigid blob.
  *
- * C'est le meme amortissement exponentiel qu'ailleurs dans le registre,
- * calcule sur le temps ecoule pour que la traine dure pareil a soixante et a
- * cent vingt images par seconde.
+ * It is the same exponential damping as everywhere else in the registry,
+ * computed on the elapsed time so that the trail lasts the same at sixty and
+ * at a hundred and twenty frames per second.
  *
- * ## La police est sondee, pas supposee
+ * ## The font is probed, not assumed
  *
- * Une reserve invisible est posee dans l'element, avec la police heritee, et
- * mesuree a deux extremes de l'axe `wght`. Si sa largeur ne bouge pas, l'axe
- * n'existe pas : le repli est alors la graisse discrete, arrondie a la
- * centaine, ou le navigateur choisit la coupe la plus proche de la famille.
+ * An invisible probe is placed inside the element, with the inherited font,
+ * and measured at two extremes of the `wght` axis. If its width does not move,
+ * the axis does not exist: the fallback is then discrete weight, rounded to
+ * the hundred, where the browser picks the closest cut of the family.
  *
- * ## Une seule mesure de boite par image
+ * ## A single box measurement per frame
  *
- * Les centres des lettres sont releves une fois, en coordonnees de l'element,
- * et remesures quand il change de taille ou quand la police finit d'arriver.
- * Par image, il ne reste qu'une lecture de boite et un calcul par lettre.
+ * The centres of the letters are read once, in coordinates of the element, and
+ * measured again when it changes size or when the font finishes arriving. Per
+ * frame, all that is left is one box read and one computation per letter.
  *
- * ## Le decoupage est un artifice d'affichage
+ * ## The split is a display device
  *
- * Le texte complet figure une fois, d'un seul tenant ; les lettres sont
- * retirees de l'arbre d'accessibilite.
+ * The complete text appears once, in one piece; the letters are removed from
+ * the accessibility tree.
  *
- * ## Mouvement reduit
+ * ## Reduced motion
  *
- * Le texte est rendu tel quel, a sa graisse de repos et sans decoupage :
- * c'est l'etat ou le pointeur n'est nulle part.
+ * The text is rendered as it is, at its resting weight and with no split: it
+ * is the state where the pointer is nowhere.
  *
  * @module
  */
@@ -56,32 +56,32 @@ import {
 } from '@odoro-cli/engine'
 import { useEffect, useRef, type ElementType, type ReactElement } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface VariableProximityOwnProps {
-  /** Texte a epaissir. */
+  /** Text to thicken. */
   children: string
-  /** Balise rendue. @defaultValue 'p' */
+  /** Rendered tag. @defaultValue 'p' */
   as?: ElementType
-  /** Portee de la loupe, en pixels. @defaultValue 180 */
-  rayon?: number
-  /** Graisse loin du pointeur, sur l'axe `wght`. @defaultValue 300 */
-  graisseBasse?: number
-  /** Graisse sous le pointeur, sur l'axe `wght`. @defaultValue 800 */
-  graisseHaute?: number
-  /** Vitesse a laquelle une lettre rejoint sa graisse. Plus bas, plus longue est la traine. @defaultValue 10 */
+  /** Reach of the magnifying glass, in pixels. @defaultValue 180 */
+  radius?: number
+  /** Weight far from the pointer, on the `wght` axis. @defaultValue 300 */
+  minWeight?: number
+  /** Weight under the pointer, on the `wght` axis. @defaultValue 800 */
+  maxWeight?: number
+  /** Speed at which a letter reaches its weight. The lower, the longer the trail. @defaultValue 10 */
   speed?: number
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type VariableProximityProps = Customisable<VariableProximityOwnProps, 'p'>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-variable-proximity'
 
-/** Ecart de largeur, en pixels, au-dela duquel l'axe est repute exister. */
-const SONDE_SEUIL = 0.5
+/** Width gap, in pixels, beyond which the axis is deemed to exist. */
+const PROBE_THRESHOLD = 0.5
 
-/** Pose les regles de la loupe, une fois par document. */
+/** Sets the magnifying glass rules, once per document. */
 function ensureProximityRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -96,12 +96,12 @@ function ensureProximityRule(): void {
 }
 
 /**
- * Dit si la police heritee par un element repond a l'axe de graisse.
+ * Says whether the font inherited by an element answers the weight axis.
  *
- * La reserve est un enfant de l'element : elle herite donc exactement de la
- * police qui sera deformee.
+ * The probe is a child of the element: it therefore inherits exactly the font
+ * that will be deformed.
  */
-function sonderGraisse(hote: HTMLElement): boolean {
+function probeWeight(host: HTMLElement): boolean {
   if (
     typeof CSS === 'undefined' ||
     !CSS.supports('font-variation-settings', "'wght' 400")
@@ -109,149 +109,149 @@ function sonderGraisse(hote: HTMLElement): boolean {
     return false
   }
 
-  const sonde = document.createElement('span')
-  sonde.setAttribute('aria-hidden', 'true')
-  sonde.textContent = 'HAMBURGEFONS'
-  sonde.style.cssText =
+  const probe = document.createElement('span')
+  probe.setAttribute('aria-hidden', 'true')
+  probe.textContent = 'HAMBURGEFONS'
+  probe.style.cssText =
     'position:absolute;left:0;top:0;visibility:hidden;white-space:pre;pointer-events:none'
-  hote.append(sonde)
+  host.append(probe)
 
-  sonde.style.fontVariationSettings = "'wght' 100"
-  const maigre = sonde.getBoundingClientRect().width
-  sonde.style.fontVariationSettings = "'wght' 900"
-  const gras = sonde.getBoundingClientRect().width
+  probe.style.fontVariationSettings = "'wght' 100"
+  const thin = probe.getBoundingClientRect().width
+  probe.style.fontVariationSettings = "'wght' 900"
+  const bold = probe.getBoundingClientRect().width
 
-  sonde.remove()
-  return Math.abs(gras - maigre) > SONDE_SEUIL
+  probe.remove()
+  return Math.abs(bold - thin) > PROBE_THRESHOLD
 }
 
 /**
- * Epaissit les lettres d'un texte a mesure que le pointeur s'en approche.
+ * Thickens the letters of a text as the pointer comes closer to them.
  *
  * @example
  * <VariableProximity as="p" className="o-text-2xl">
- *   Un composant qu on ne peut pas modifier n est pas a vous.
+ *   A component you cannot modify is not yours.
  * </VariableProximity>
  *
  * @example
- * // Loupe serree, traine longue.
- * <VariableProximity rayon={90} speed={3}>De pres seulement</VariableProximity>
+ * // Tight glass, long trail.
+ * <VariableProximity radius={90} speed={3}>Close up only</VariableProximity>
  */
 export function VariableProximity({
   children,
   as: Tag = 'p',
-  rayon = 180,
-  graisseBasse = 300,
-  graisseHaute = 800,
+  radius = 180,
+  minWeight = 300,
+  maxWeight = 800,
   speed = 10,
   ...rest
 }: VariableProximityProps): ReactElement {
   const { reduced } = useMotionState()
-  const hote = useRef<HTMLElement | null>(null)
+  const host = useRef<HTMLElement | null>(null)
 
   ensureProximityRule()
 
   useEffect(() => {
-    const element = hote.current
+    const element = host.current
     if (element === null || reduced) return
 
-    const lettres = [
+    const letters = [
       ...element.querySelectorAll<HTMLElement>('[data-o-proximity-letter]'),
     ]
-    if (lettres.length === 0) return
+    if (letters.length === 0) return
 
-    const variable = sonderGraisse(element)
+    const variable = probeWeight(element)
 
-    // Centres en coordonnees de l'element : le defilement ne les change pas,
-    // seule une recomposition de la ligne le fait.
-    let centres = lettres.map(() => ({ x: 0, y: 0 }))
-    const relever = (): void => {
-      const cadre = element.getBoundingClientRect()
-      centres = lettres.map((lettre) => {
-        const boite = lettre.getBoundingClientRect()
+    // Centres in coordinates of the element: scrolling does not change them,
+    // only a recomposition of the line does.
+    let centres = letters.map(() => ({ x: 0, y: 0 }))
+    const readCentres = (): void => {
+      const frame = element.getBoundingClientRect()
+      centres = letters.map((letter) => {
+        const box = letter.getBoundingClientRect()
         return {
-          x: boite.left - cadre.left + boite.width / 2,
-          y: boite.top - cadre.top + boite.height / 2,
+          x: box.left - frame.left + box.width / 2,
+          y: box.top - frame.top + box.height / 2,
         }
       })
     }
-    relever()
+    readCentres()
 
-    const observateur = new ResizeObserver(relever)
-    observateur.observe(element)
-    // Une police qui arrive apres coup change toutes les largeurs : sans
-    // cette relecture, la loupe viserait a cote pour toujours.
-    void document.fonts?.ready.then(relever)
+    const observer = new ResizeObserver(readCentres)
+    observer.observe(element)
+    // A font that arrives after the fact changes every width: without this
+    // re-read, the glass would aim beside the mark forever.
+    void document.fonts?.ready.then(readCentres)
 
-    const pointeur = { x: Number.NEGATIVE_INFINITY, y: Number.NEGATIVE_INFINITY }
-    const bouger = (evenement: PointerEvent): void => {
-      const cadre = element.getBoundingClientRect()
-      pointeur.x = evenement.clientX - cadre.left
-      pointeur.y = evenement.clientY - cadre.top
+    const pointer = { x: Number.NEGATIVE_INFINITY, y: Number.NEGATIVE_INFINITY }
+    const onMove = (event: PointerEvent): void => {
+      const frame = element.getBoundingClientRect()
+      pointer.x = event.clientX - frame.left
+      pointer.y = event.clientY - frame.top
     }
-    window.addEventListener('pointermove', bouger, { passive: true })
+    window.addEventListener('pointermove', onMove, { passive: true })
 
-    // Graisse courante de chaque lettre : c'est elle qui porte la traine.
-    const graisses = lettres.map(() => graisseBasse)
-    const ecrites = lettres.map(() => Number.NaN)
+    // Current weight of each letter: it is what carries the trail.
+    const weights = letters.map(() => minWeight)
+    const written = letters.map(() => Number.NaN)
 
-    const abonnement = clock.subscribe(
+    const subscription = clock.subscribe(
       ({ delta }) => {
-        const facteur = 1 - Math.exp(-speed * delta)
-        const portee = Math.max(1, rayon)
-        const vu = Number.isFinite(pointeur.x)
+        const factor = 1 - Math.exp(-speed * delta)
+        const reach = Math.max(1, radius)
+        const seen = Number.isFinite(pointer.x)
 
-        for (let index = 0; index < lettres.length; index += 1) {
-          const lettre = lettres[index]
+        for (let index = 0; index < letters.length; index += 1) {
+          const letter = letters[index]
           const centre = centres[index]
-          const courante = graisses[index]
-          if (lettre === undefined || centre === undefined || courante === undefined) {
+          const current = weights[index]
+          if (letter === undefined || centre === undefined || current === undefined) {
             continue
           }
 
-          let part = 0
-          if (vu) {
-            const dx = pointeur.x - centre.x
-            const dy = pointeur.y - centre.y
-            const brut = Math.max(0, 1 - Math.hypot(dx, dy) / portee)
-            // Adoucissement : un cone laisse voir le bord du rayon, une
-            // courbe en S le fond dans le texte.
-            part = brut * brut * (3 - 2 * brut)
+          let share = 0
+          if (seen) {
+            const dx = pointer.x - centre.x
+            const dy = pointer.y - centre.y
+            const raw = Math.max(0, 1 - Math.hypot(dx, dy) / reach)
+            // Smoothing: a cone lets the edge of the radius show, an S curve
+            // melts it into the text.
+            share = raw * raw * (3 - 2 * raw)
           }
 
-          const visee = graisseBasse + (graisseHaute - graisseBasse) * part
-          const suivante = courante + (visee - courante) * facteur
-          graisses[index] = suivante
+          const aimed = minWeight + (maxWeight - minWeight) * share
+          const next = current + (aimed - current) * factor
+          weights[index] = next
 
-          if (Math.abs(suivante - (ecrites[index] ?? Number.NaN)) < 1) continue
-          ecrites[index] = suivante
+          if (Math.abs(next - (written[index] ?? Number.NaN)) < 1) continue
+          written[index] = next
 
           if (variable) {
-            lettre.style.fontVariationSettings = `'wght' ${suivante.toFixed(0)}`
+            letter.style.fontVariationSettings = `'wght' ${next.toFixed(0)}`
           } else {
-            // Repli : la graisse continue est arrondie a la centaine, et la
-            // famille fournit la coupe la plus proche.
-            lettre.style.fontWeight = String(Math.round(suivante / 100) * 100)
+            // Fallback: the continuous weight is rounded to the hundred, and
+            // the family supplies the closest cut.
+            letter.style.fontWeight = String(Math.round(next / 100) * 100)
           }
         }
       },
-      { name: 'graisse de proximite', priority: CLOCK_PRIORITY.default },
+      { name: 'proximity weight', priority: CLOCK_PRIORITY.default },
     )
 
     return () => {
-      abonnement.unsubscribe()
-      observateur.disconnect()
-      window.removeEventListener('pointermove', bouger)
-      for (const lettre of lettres) {
-        lettre.style.removeProperty('font-variation-settings')
-        lettre.style.removeProperty('font-weight')
+      subscription.unsubscribe()
+      observer.disconnect()
+      window.removeEventListener('pointermove', onMove)
+      for (const letter of letters) {
+        letter.style.removeProperty('font-variation-settings')
+        letter.style.removeProperty('font-weight')
       }
     }
-  }, [reduced, children, rayon, graisseBasse, graisseHaute, speed])
+  }, [reduced, children, radius, minWeight, maxWeight, speed])
 
   const { className, style } = mergePresentation({}, rest)
 
-  // Mouvement reduit : le texte est la, a sa graisse de repos, sans decoupage.
+  // Reduced motion: the text is there, at its resting weight, with no split.
   if (reduced) {
     return (
       <Tag {...rest} className={className} style={style}>
@@ -260,22 +260,22 @@ export function VariableProximity({
     )
   }
 
-  const lettres = [...children]
+  const letters = [...children]
 
   return (
-    <Tag {...rest} ref={hote} className={className} style={style} data-o-proximity="">
-      {/* Le texte complet, d'un seul tenant, pour les lecteurs d'ecran. */}
+    <Tag {...rest} ref={host} className={className} style={style} data-o-proximity="">
+      {/* The complete text, in one piece, for screen readers. */}
       <span className="o-sr-only">{children}</span>
       <span aria-hidden>
-        {lettres.map((lettre, index) =>
-          lettre === ' ' ? (
-            // Une espace reste une espace, hors du bloc en ligne : c'est la
-            // seule facon pour qu'un paragraphe puisse encore aller a la
-            // ligne. Un insecable ferait de tout le texte un seul mot.
-            <span key={`espace-${String(index)}`}> </span>
+        {letters.map((letter, index) =>
+          letter === ' ' ? (
+            // A space stays a space, outside the inline block: it is the only
+            // way for a paragraph to still be able to wrap. A no-break one
+            // would turn the whole text into a single word.
+            <span key={`space-${String(index)}`}> </span>
           ) : (
-            <span key={`${lettre}-${String(index)}`} data-o-proximity-letter="">
-              {lettre}
+            <span key={`${letter}-${String(index)}`} data-o-proximity-letter="">
+              {letter}
             </span>
           ),
         )}

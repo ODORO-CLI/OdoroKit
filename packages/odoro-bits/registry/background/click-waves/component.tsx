@@ -1,26 +1,26 @@
 /**
- * Ondes de clic : chaque clic emet un anneau qui se propage et s'amortit.
+ * Click waves: each click emits a ring that spreads and damps out.
  *
- * ## A quoi ce fond reagit
+ * ## What this background reacts to
  *
- * Au clic — ou au toucher — sur le cadre : chaque appui date une onde dans un
- * tampon circulaire de huit emplacements, et l'anneau se propage depuis le
- * point exact de l'appui. Le deplacement du pointeur, lui, ne change rien.
+ * On a click — or a touch — on the frame: each press timestamps a wave in a
+ * circular buffer of eight slots, and the ring spreads from the exact point
+ * of the press. Moving the pointer, on the other hand, changes nothing.
  *
- * ## Le pont clic → shader
+ * ## The click → shader bridge
  *
- * Aucun rendu React par image : le tampon est un tableau stable de vingt-
- * quatre flottants (huit fois x, y, temps de depart), mute en place a chaque
- * clic. La surface relit ses uniforms a chaque image, l'identite du tableau ne
- * change pas — la mutation suffit.
+ * No React render per frame: the buffer is a stable array of twenty-four
+ * floats (eight times x, y, start time), mutated in place on every click.
+ * The surface re-reads its uniforms every frame, the array's identity never
+ * changes — mutating is enough.
  *
- * Le temps ecrit dans le tampon est celui de l'horloge du moteur, memorise par
- * une souscription en priorite d'entree : c'est le meme temps que `uTime` du
- * shader, sans quoi l'age des clics serait faux.
+ * The time written into the buffer is the engine clock's, recorded by a
+ * subscription at input priority: it is the same time as the shader's `uTime`,
+ * without which the age of the clicks would be wrong.
  *
- * ## Sous mouvement reduit
+ * ## Under reduced motion
  *
- * La surface est refusee par le moteur et le repli statique s'affiche.
+ * The surface is refused by the engine and the static fallback shows.
  *
  * @module
  */
@@ -39,49 +39,49 @@ import { useEffect, useRef, useState, type ReactElement } from 'react'
 
 import { CLICK_WAVES_FRAGMENT } from './click-waves.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface ClickWavesControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to this component. */
 export interface ClickWavesOwnProps {
-  /** Vitesse de propagation des anneaux. @defaultValue 0.45 */
+  /** Propagation speed of the rings. @defaultValue 0.45 */
   speed?: number
-  /** Largeur d'onde des anneaux. @defaultValue 0.09 */
+  /** Wavelength of the rings. @defaultValue 0.09 */
   width?: number
-  /** Vitesse d'extinction des ondes. @defaultValue 1.2 */
+  /** Rate at which the waves fade out. @defaultValue 1.2 */
   decay?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<ClickWavesControls>
 }
 
-/** Toutes les proprietes. */
+/** Every property. */
 export type ClickWavesProps = Customisable<ClickWavesOwnProps>
 
-/** Tokens employes par defaut : le fond, la surface, l'eclat des cretes. */
+/** Tokens used by default: the background, the surface, the glint on the crests. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-cyan-400',
   '--o-palette-sky-200',
 ] as const
 
-/** Repli par defaut : un degrade fige, dans les memes tons. */
+/** Default fallback: a frozen gradient, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-b o-from-zinc-50 dark:o-from-sky-950 o-to-cyan-950'
 
-/** Nombre de clics vivants a la fois. */
+/** Number of clicks live at once. */
 const SLOTS = 8
 
 /**
- * Ondes de clic.
+ * Click waves.
  *
  * @example
  * <div className="o-relative o-min-h-screen">
@@ -100,12 +100,12 @@ export function ClickWaves({
 }: ClickWavesProps): ReactElement {
   const [host, setHost] = useState<HTMLDivElement | null>(null)
 
-  // Tampon stable, mute en place : huit fois (x, y, temps de depart). Un
-  // depart a -1000 donne un age enorme, donc une onde inerte d'office.
+  // Stable buffer, mutated in place: eight times (x, y, start time). A start
+  // at -1000 gives an enormous age, hence a wave inert by default.
   const uClicks = useRef<number[]>(Array.from({ length: SLOTS * 3 }, () => -1000)).current
 
-  // Le temps de l'horloge du moteur — le meme que uTime du shader. C'est lui
-  // qui date les clics ; performance.now() donnerait une autre origine.
+  // The engine clock's time — the same as the shader's uTime. It is what
+  // timestamps the clicks; performance.now() would give another origin.
   const lastTime = useRef(0)
 
   useEffect(() => {
@@ -113,7 +113,7 @@ export function ClickWaves({
       ({ time }) => {
         lastTime.current = time
       },
-      { priority: CLOCK_PRIORITY.input, name: 'click-waves : horloge' },
+      { priority: CLOCK_PRIORITY.input, name: 'click-waves : clock' },
     )
     return () => subscription.unsubscribe()
   }, [])
@@ -124,10 +124,10 @@ export function ClickWaves({
     const onDown = (event: PointerEvent): void => {
       const bounds = host.getBoundingClientRect()
       const x = (event.clientX - bounds.left) / Math.max(bounds.width, 1)
-      // vUv a son origine en bas : l'axe vertical de l'ecran est inverse.
+      // vUv has its origin at the bottom: the screen's vertical axis is flipped.
       const y = 1 - (event.clientY - bounds.top) / Math.max(bounds.height, 1)
 
-      // Tampon circulaire : tout se decale d'un cran, le nouveau clic en tete.
+      // Circular buffer: everything shifts by one, the new click at the head.
       for (let i = SLOTS - 1; i > 0; i -= 1) {
         uClicks[i * 3] = uClicks[(i - 1) * 3] ?? -1000
         uClicks[i * 3 + 1] = uClicks[(i - 1) * 3 + 1] ?? -1000

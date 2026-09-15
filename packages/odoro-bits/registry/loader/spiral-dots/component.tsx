@@ -1,34 +1,34 @@
 /**
- * Points en spirale : quatorze points poses le long d'une spirale
- * s'allument tour a tour, du centre vers l'exterieur.
+ * Spiral dots: fourteen dots laid along a spiral light up in turn, from the
+ * center outwards.
  *
- * ## Pourquoi un SVG
+ * ## Why an SVG
  *
- * Une spirale est une courbe : placer ses points en CSS demanderait de les
- * positionner un par un en pixels absolus, et la figure ne suivrait plus la
- * taille demandee. Dans un `viewBox`, les positions sont calculees une fois
- * en unites de dessin, et le navigateur met le tout a l'echelle.
+ * A spiral is a curve: placing its dots in CSS would mean positioning them
+ * one by one in absolute pixels, and the figure would no longer follow the
+ * size asked for. In a `viewBox`, the positions are computed once in
+ * drawing units, and the browser scales the whole thing.
  *
- * La spirale est d'Archimede : le rayon croit avec l'angle, a pas constant.
- * Les points grossissent en s'eloignant du centre, parce que l'espace entre
- * eux grandit aussi — des points de meme taille laisseraient la spirale se
- * deliter vers l'exterieur.
+ * The spiral is an Archimedean one: the radius grows with the angle, at a
+ * constant pitch. The dots grow bigger as they move away from the center,
+ * because the space between them grows too — dots of the same size would
+ * let the spiral fall apart towards the outside.
  *
- * ## Une seule animation, quatorze phases
+ * ## A single animation, fourteen phases
  *
- * Chaque point joue la meme montee et la meme extinction, avec sa propre
- * avance : le centre a la plus grande, la peripherie part de zero. Le
- * signal semble courir le long du fil, alors qu'aucun point ne bouge.
+ * Every dot plays the same rise and the same fade, with its own lead: the
+ * center has the greatest, the periphery starts from zero. The signal seems
+ * to run along the thread, while no dot moves at all.
  *
- * ## Un statut, pas un dessin
+ * ## A status, not a drawing
  *
- * L'element porte `role="status"` et un libelle pour les lecteurs d'ecran :
- * l'attente est une information, pas une decoration. Le dessin est retire
- * de l'arbre d'accessibilite.
+ * The element carries `role="status"` and a label for screen readers: the
+ * wait is information, not decoration. The drawing is removed from the
+ * accessibility tree.
  *
- * Sous mouvement reduit, la spirale reste dessinee, en degrade fixe du
- * centre pale a la peripherie pleine : la figure se lit encore comme un
- * chargeur, seul le parcours s'arrete.
+ * Under reduced motion, the spiral stays drawn, in a fixed gradient from a
+ * pale center to a solid periphery: the figure still reads as a loader,
+ * only the run stops.
  *
  * @module
  */
@@ -36,13 +36,13 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-spiral-dots'
 
-/** Nombre de points sur la spirale. */
+/** Number of dots on the spiral. */
 const COUNT = 14
 
-/** Pose l'allumage des points, une fois par document. */
+/** Applies the lighting of the dots, once per document. */
 function ensureSpiralRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -53,18 +53,18 @@ function ensureSpiralRule(): void {
     '[data-o-spiral-dots]{display:inline-block;line-height:0}',
     '[data-o-spiral-dot]{',
     'fill:var(--o-spiral-color);',
-    // L'echelle se fait autour du point lui-meme, pas de l'origine du dessin.
+    // The scaling happens around the dot itself, not the drawing origin.
     'transform-box:fill-box;transform-origin:center;',
     'animation:o-spiral-dots-light var(--o-spiral-speed) ease-in-out infinite;',
     'animation-delay:var(--o-spiral-delay);',
     '}',
-    // Un point est allume un cinquieme du cycle : assez court pour qu'on
-    // voie le signal courir, assez long pour que trois points se chevauchent.
+    // A dot is lit for a fifth of the cycle: short enough for the signal to
+    // be seen running, long enough for three dots to overlap.
     '@keyframes o-spiral-dots-light{',
     '0%,20%,100%{opacity:0.2;transform:scale(0.7)}',
     '10%{opacity:1;transform:scale(1.3)}',
     '}',
-    // La spirale entiere, en degrade fixe : elle dit encore « attente ».
+    // The whole spiral, in a fixed gradient: it still says "waiting".
     '@media (prefers-reduced-motion:reduce){',
     '[data-o-spiral-dot]{animation:none;transform:none;opacity:var(--o-spiral-rest)}',
     '}',
@@ -72,26 +72,26 @@ function ensureSpiralRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface SpiralDotsOwnProps {
-  /** Cote du dessin, en pixels. @defaultValue 48 */
+  /** Side of the drawing, in pixels. @defaultValue 48 */
   size?: number
-  /** Duree d'un parcours complet, en millisecondes. @defaultValue 1600 */
+  /** Duration of a complete run, in milliseconds. @defaultValue 1600 */
   speed?: number
-  /** Couleur des points. @defaultValue la couleur du texte */
+  /** Color of the dots. @defaultValue the text color */
   color?: string
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */
+  /** Label announced to screen readers. @defaultValue 'Loading' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All the properties. */
 export type SpiralDotsProps = Customisable<SpiralDotsOwnProps, 'span'>
 
 /**
- * Points de la spirale, en unites du `viewBox` de cent sur cent.
+ * Dots of the spiral, in units of the hundred by hundred `viewBox`.
  *
- * Un tour et demi, du centre a quelques unites du bord. Calcules une fois :
- * ils ne dependent ni de la taille ni de la vitesse.
+ * One turn and a half, from the center to a few units from the edge.
+ * Computed once: they depend neither on the size nor on the speed.
  */
 const DOTS = Array.from({ length: COUNT }, (_, index) => {
   const t = index / (COUNT - 1)
@@ -106,20 +106,20 @@ const DOTS = Array.from({ length: COUNT }, (_, index) => {
 })
 
 /**
- * Signale une attente par un signal qui court le long d'une spirale.
+ * Signals a wait with a signal running along a spiral.
  *
  * @example
  * <SpiralDots />
  *
  * @example
- * // Plus grand, plus lent, dans la teinte de marque.
+ * // Bigger, slower, in the brand hue.
  * <SpiralDots size={96} speed={2600} color="var(--o-palette-brand-500)" />
  */
 export function SpiralDots({
   size = 48,
   speed = 1600,
   color = 'currentColor',
-  label = 'Chargement',
+  label = 'Loading',
   ...rest
 }: SpiralDotsProps): ReactElement {
   ensureSpiralRule()
@@ -151,9 +151,9 @@ export function SpiralDots({
             r={dot.r.toFixed(2)}
             style={
               {
-                // Le centre a le plus d'avance, la peripherie part de zero :
-                // le signal court vers l'exterieur, en negatif pour etre
-                // deja en route a la premiere image.
+                // The center has the greatest lead, the periphery starts
+                // from zero: the signal runs outwards, negative so that it
+                // is already under way on the first frame.
                 '--o-spiral-delay': `${String(Math.round((-speed * (COUNT - 1 - index)) / COUNT))}ms`,
                 '--o-spiral-rest': dot.rest.toFixed(2),
               } as CSSProperties

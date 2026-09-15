@@ -1,24 +1,24 @@
 /**
- * Hyperespace : des etoiles filantes vers la camera, etirees selon la vitesse.
+ * Hyperspace: shooting stars towards the camera, stretched by the speed.
  *
- * ## Le principe
+ * ## The principle
  *
- * Le cadre est lu en polaire depuis son point de fuite, et la distance en
- * logarithme : une cellule de longueur constante y est minuscule au centre et
- * large au bord, ce qui est la perspective d'un objet qui fonce vers l'oeil.
- * La trainee s'allonge avec la vitesse — des points a l'arret, des traits a
- * pleine vitesse.
+ * The frame is read in polar coordinates from its vanishing point, and the
+ * distance as a logarithm: a cell of constant length there is tiny at the
+ * centre and wide at the edge, which is the perspective of an object rushing
+ * towards the eye. The trail lengthens with the speed — dots at a standstill,
+ * strokes at full speed.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur — les recopier ici en ferait autant
- * de versions a maintenir qu'il y a de fonds.
+ * It carries only what sets it apart: its shader, its settings and its fallback.
+ * Reading the tokens, converting them to floats and re-reading them when the
+ * theme changes all come from the engine — copying them here would leave as
+ * many versions to maintain as there are backgrounds.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en
- * accorde qu'une par backend — et sous mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface — it grants only one
+ * per backend — and under reduced motion.
  *
  * @module
  */
@@ -35,53 +35,53 @@ import { type ReactElement } from 'react'
 
 import { HYPERSPACE_FRAGMENT } from './hyperspace.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface HyperspaceControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to this component. */
 export interface HyperspaceOwnProps {
-  /** Vitesse du defilement vers la camera. @defaultValue 1 */
+  /** Speed of the rush towards the camera. @defaultValue 1 */
   speed?: number
-  /** Nombre de rayons sur un tour. @defaultValue 64 */
+  /** Number of rays around one turn. @defaultValue 64 */
   density?: number
-  /** Allongement des trainees, en plus de celui que donne la vitesse. @defaultValue 1 */
+  /** Extra lengthening of the trails, beyond what the speed gives. @defaultValue 1 */
   stretch?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<HyperspaceControls>
 }
 
-/** Toutes les proprietes. */
+/** Every property. */
 export type HyperspaceProps = Customisable<HyperspaceOwnProps>
 
-/** Tokens employes par defaut : le fond, le corps des trainees, leur tete. */
+/** Tokens used by default: the background, the body of the trails, their head. */
 const DEFAULT_TOKENS = ['--o-theme-bg', '--o-palette-indigo-300', '--o-theme-fg'] as const
 
-/** Repli par defaut : un degrade fige, dans les memes tons. */
+/** Default fallback: a frozen gradient, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-b o-from-zinc-50 dark:o-from-zinc-950 o-to-indigo-200 dark:o-to-indigo-950'
 
 /**
- * Couches hors qualite basse.
+ * Layers outside low quality.
  *
- * Chaque couche est une famille de rayons evaluee par fragment : c'est le
- * seul levier de cout, et la troisieme couche est la plus faible.
+ * Each layer is a family of rays evaluated per fragment: it is the only cost
+ * lever, and the third layer is the faintest.
  */
 const LAYERS = 3
 
-/** Couches en qualite basse. */
+/** Layers at low quality. */
 const LOW_LAYERS = 2
 
 /**
- * Hyperespace.
+ * Hyperspace.
  *
  * @example
  * <div className="o-relative o-min-h-screen">

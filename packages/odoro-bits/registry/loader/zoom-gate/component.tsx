@@ -1,38 +1,39 @@
 /**
- * Rideau qui s'eloigne : la marque avance, la plaque recule.
+ * Curtain that moves away: the brand comes forward, the plate retreats.
  *
- * ## Deux mouvements opposes, dans la meme profondeur
+ * ## Two opposite movements, in the same depth
  *
- * Le rideau ne s'efface pas et ne glisse pas : il **recule**, dans une
- * perspective. Au meme instant la marque vient vers l'oeil. Les deux gestes
- * partent ensemble et vont dans des sens contraires, et c'est cette opposition
- * qui fait le tout : la marque grandit, se detache, sort du cadre ; la plaque
- * qui la portait s'enfonce derriere elle et devient un rectangle lointain.
+ * The curtain does not fade and does not slide: it **retreats**, in a
+ * perspective. At the same instant the brand comes towards the eye. The two
+ * gestures leave together and go in opposite directions, and it is that
+ * opposition that makes the whole: the brand grows, detaches itself, leaves the
+ * frame; the plate that carried it sinks behind it and becomes a distant
+ * rectangle.
  *
- * L'effet ne coute rien de plus qu'une translation : `translateZ` est une
- * transformee comme une autre, et la perspective vit sur le conteneur.
+ * The effect costs nothing more than a translation: `translateZ` is a transform
+ * like any other, and the perspective lives on the container.
  *
- * ## Pourquoi l'opacite arrive en retard
+ * ## Why the opacity arrives late
  *
- * Une plaque qui recule ne disparait jamais tout a fait : elle finit en petit
- * rectangle au centre, et un petit rectangle qui reste est plus genant qu'un
- * grand qui s'en va. On la fait donc s'effacer, mais **seulement sur la fin** —
- * le fondu part a la moitie de la course. Fondre des le debut ferait
- * transparaitre la page a travers le rideau et trahirait le montage : on
- * verrait qu'il n'y avait qu'un voile la ou l'on voulait un objet.
+ * A plate that retreats never quite disappears: it ends as a small rectangle in
+ * the center, and a small rectangle that stays is more of a nuisance than a big
+ * one that leaves. So we make it fade, but **only towards the end** — the fade
+ * starts halfway through the travel. Fading from the start would let the page
+ * show through the curtain and would give away the trick: you would see that
+ * there was only a veil where we wanted an object.
  *
- * ## La sortie part au DEBUT, pas apres
+ * ## The exit leaves at the START, not after
  *
- * `onDone` est appele quand la plaque **commence** a reculer. Le contenu entre
- * pendant que le rideau s'eloigne, ce qui est precisement ce que la profondeur
- * raconte : la page etait derriere. Attendre la fin donnerait deux gestes qui
- * se suivent la ou l'on en voulait un seul.
+ * `onDone` is called when the plate **begins** to retreat. The content comes in
+ * while the curtain moves away, which is precisely what the depth is telling:
+ * the page was behind. Waiting for the end would give two gestures one after
+ * the other where we wanted a single one.
  *
- * ## Contenu ou plein ecran
+ * ## Contained or full screen
  *
- * Par defaut le rideau est `fixed`, couvre la fenetre et verrouille le
- * defilement du document. Avec `contained`, il devient `absolute`, se resout
- * contre le premier ancetre positionne et ne touche plus au defilement.
+ * By default the curtain is `fixed`, covers the window and locks the document
+ * scroll. With `contained`, it becomes `absolute`, resolves against the first
+ * positioned ancestor and no longer touches the scroll.
  *
  * @module
  */
@@ -47,47 +48,46 @@ import {
   type ReactNode,
 } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface ZoomGateOwnProps {
-  /** Le fond de la plaque. @defaultValue le fond du theme */
+  /** The background of the plate. @defaultValue the theme background */
   background?: string
-  /** L'encre de la marque. @defaultValue l'encre du theme */
+  /** The ink of the brand. @defaultValue the theme ink */
   ink?: string
-  /** La marque qui avance vers l'oeil : un nom, un logo. */
+  /** The brand that comes towards the eye: a name, a logo. */
   label?: ReactNode
   /**
-   * Ce que les lecteurs d'ecran annoncent. Chaine vide pour n'annoncer que le
-   * libelle.
+   * What screen readers announce. Empty string to announce the label only.
    *
-   * @defaultValue 'Chargement'
+   * @defaultValue 'Loading'
    */
   status?: string
-  /** De combien la marque grandit en partant. @defaultValue 3.2 */
+  /** How much the brand grows as it leaves. @defaultValue 3.2 */
   punch?: number
-  /** Profondeur de recul de la plaque, en pixels. @defaultValue 900 */
+  /** Depth the plate retreats by, in pixels. @defaultValue 900 */
   depth?: number
-  /** Combien de temps la plaque reste en place, en millisecondes. @defaultValue 1200 */
+  /** How long the plate stays in place, in milliseconds. @defaultValue 1200 */
   holdMs?: number
-  /** Duree du recul, en millisecondes. @defaultValue 900 */
+  /** Duration of the retreat, in milliseconds. @defaultValue 900 */
   exitMs?: number
   /**
-   * Etat controle : la plaque couvre tant que c'est `true`, et recule au
-   * premier `false`. Renseigne, il remplace `holdMs`.
+   * Controlled state: the plate covers as long as this is `true`, and retreats
+   * on the first `false`. When provided, it replaces `holdMs`.
    */
   open?: boolean
-  /** Couvre le parent positionne plutot que la fenetre. @defaultValue false */
+  /** Covers the positioned parent rather than the window. @defaultValue false */
   contained?: boolean
-  /** Appele au **debut** de la sortie. Voir l'en-tete du module. */
+  /** Called at the **start** of the exit. See the module header. */
   onDone?: () => void
 }
 
-/** Toutes les proprietes. */
+/** All the properties. */
 export type ZoomGateProps = Customisable<ZoomGateOwnProps, 'div'>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-zoom-gate'
 
-/** Pose les regles de la profondeur, une fois par document. */
+/** Applies the depth rules, once per document. */
 function ensureZoomGateRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -95,9 +95,9 @@ function ensureZoomGateRule(): void {
   const style = document.createElement('style')
   style.id = STYLE_ID
   style.textContent = [
-    // La perspective vit ici, sur la scene : c'est ce qui donne un point de
-    // fuite commun a la plaque et a la marque, donc la sensation qu'elles
-    // partagent le meme espace.
+    // The perspective lives here, on the stage: that is what gives the plate
+    // and the brand a common vanishing point, hence the sense that they share
+    // the same space.
     '[data-o-zoomg]{',
     'position:fixed;inset:0;z-index:9999;overflow:hidden;',
     'perspective:1000px;color:var(--o-zoomg-ink);',
@@ -108,8 +108,8 @@ function ensureZoomGateRule(): void {
     'position:absolute;inset:0;background:var(--o-zoomg-bg);',
     'transform:translateZ(0);',
     'transition:transform var(--o-zoomg-exit) cubic-bezier(0.5,0,0.2,1),',
-    // Le fondu part a la moitie de la course, et ne dure que la moitie.
-    // Voir l'en-tete.
+    // The fade starts halfway through the travel, and lasts only half of it.
+    // See the header.
     'opacity calc(var(--o-zoomg-exit) / 2) linear calc(var(--o-zoomg-exit) / 2);',
     '}',
     '[data-o-zoomg-out] [data-o-zoomg-plate]{',
@@ -127,20 +127,21 @@ function ensureZoomGateRule(): void {
 }
 
 /**
- * Couvre la page d'une plaque, puis l'eloigne pendant que la marque avance.
+ * Covers the page with a plate, then moves it away while the brand comes
+ * forward.
  *
  * @example
- * <ZoomGate label="Odoro" onDone={ouvrir} />
+ * <ZoomGate label="Odoro" onDone={reveal} />
  *
  * @example
- * // Un depart plus violent, et une plaque qui part tres loin.
- * <ZoomGate punch={5} depth={1400} exitMs={1100} onDone={ouvrir} />
+ * // A more violent departure, and a plate that goes very far.
+ * <ZoomGate punch={5} depth={1400} exitMs={1100} onDone={reveal} />
  */
 export function ZoomGate({
   background = 'var(--o-theme-bg)',
   ink = 'var(--o-theme-fg)',
   label,
-  status = 'Chargement',
+  status = 'Loading',
   punch = 3.2,
   depth = 900,
   holdMs = 1200,
@@ -151,109 +152,109 @@ export function ZoomGate({
   ...rest
 }: ZoomGateProps): ReactElement | null {
   const { reduced } = useMotionState()
-  const [sortant, setSortant] = useState(false)
-  const [parti, setParti] = useState(false)
+  const [exiting, setExiting] = useState(false)
+  const [gone, setGone] = useState(false)
 
-  // Dans une ref : la sortie ne s'annonce qu'une fois, et un rendu de plus ne
-  // doit pas rejouer le rappel.
-  const annonce = useRef(false)
-  const rappel = useRef(onDone)
-  rappel.current = onDone
+  // In a ref: the exit announces itself only once, and one more render must not
+  // replay the callback.
+  const announced = useRef(false)
+  const callback = useRef(onDone)
+  callback.current = onDone
 
   ensureZoomGateRule()
 
   useEffect(() => {
-    const annoncer = (): void => {
-      if (annonce.current) return
-      annonce.current = true
-      rappel.current?.()
+    const announce = (): void => {
+      if (announced.current) return
+      announced.current = true
+      callback.current?.()
     }
 
-    // Mouvement reduit : la sortie est immediate. Un zoom est exactement le
-    // genre de mouvement que la preference vise, et le retirer ne coute rien
-    // ici puisque le rideau n'apportait que lui.
+    // Reduced motion: the exit is immediate. A zoom is exactly the kind of
+    // movement the preference is aimed at, and taking it away costs nothing
+    // here since the curtain brought nothing but that.
     if (reduced) {
-      annoncer()
-      setParti(true)
+      announce()
+      setGone(true)
       return
     }
 
     if (open !== undefined) {
       if (!open) {
-        setSortant(true)
-        annoncer()
+        setExiting(true)
+        announce()
       }
       return
     }
 
-    const minuteur = window.setTimeout(() => {
-      setSortant(true)
-      annoncer()
+    const timer = window.setTimeout(() => {
+      setExiting(true)
+      announce()
     }, holdMs)
 
     return () => {
-      window.clearTimeout(minuteur)
+      window.clearTimeout(timer)
     }
   }, [reduced, open, holdMs])
 
-  // Un minuteur plutot que `transitionend` : quatre transitions partent
-  // ensemble, sur deux elements, et la plus courte remonterait ici la premiere.
+  // A timer rather than `transitionend`: four transitions leave together, on
+  // two elements, and the shortest would bubble up here first.
   useEffect(() => {
-    if (!sortant) return
+    if (!exiting) return
 
-    const minuteur = window.setTimeout(() => {
-      setParti(true)
+    const timer = window.setTimeout(() => {
+      setGone(true)
     }, exitMs + 40)
 
     return () => {
-      window.clearTimeout(minuteur)
+      window.clearTimeout(timer)
     }
-  }, [sortant, exitMs])
+  }, [exiting, exitMs])
 
-  // Le verrou de defilement, seulement quand la plaque couvre la fenetre.
+  // The scroll lock, only when the plate covers the window.
   useEffect(() => {
-    if (contained || parti || reduced) return
+    if (contained || gone || reduced) return
 
-    // Un verrou COMPTE, et non memorise. Deux rideaux peuvent se chevaucher
-    // — rechargement a chaud, navigation, rendu concurrent — et le second
-    // memoriserait alors la valeur posee par le premier, « hidden », pour la
-    // restaurer en sortant : la page resterait bloquee sans erreur ni trace.
-    const racine = document.documentElement
-    const verrous = Number(racine.dataset['oPorteVerrous'] ?? '0')
-    if (verrous === 0) racine.dataset['oPorteAvant'] = racine.style.overflow
-    racine.dataset['oPorteVerrous'] = String(verrous + 1)
-    racine.style.overflow = 'hidden'
+    // A lock that COUNTS, rather than one that memorises. Two curtains can
+    // overlap — hot reload, navigation, concurrent rendering — and the second
+    // would then memorise the value set by the first, "hidden", to restore it
+    // on the way out: the page would stay stuck with no error and no trace.
+    const root = document.documentElement
+    const locks = Number(root.dataset['oGateLocks'] ?? '0')
+    if (locks === 0) root.dataset['oGatePrevious'] = root.style.overflow
+    root.dataset['oGateLocks'] = String(locks + 1)
+    root.style.overflow = 'hidden'
 
-    let rendu = false
-    const rendreLaMain = (): void => {
-      if (rendu) return
-      rendu = true
-      const reste = Number(racine.dataset['oPorteVerrous'] ?? '1') - 1
-      if (reste > 0) {
-        racine.dataset['oPorteVerrous'] = String(reste)
+    let released = false
+    const release = (): void => {
+      if (released) return
+      released = true
+      const remaining = Number(root.dataset['oGateLocks'] ?? '1') - 1
+      if (remaining > 0) {
+        root.dataset['oGateLocks'] = String(remaining)
         return
       }
-      racine.style.overflow = racine.dataset['oPorteAvant'] ?? ''
-      delete racine.dataset['oPorteVerrous']
-      delete racine.dataset['oPorteAvant']
+      root.style.overflow = root.dataset['oGatePrevious'] ?? ''
+      delete root.dataset['oGateLocks']
+      delete root.dataset['oGatePrevious']
     }
 
-    // Le garde-fou. Plus long que le plafond de n importe quel rideau, donc
-    // invisible en marche normale : il n existe que pour qu un retard ne
-    // puisse jamais laisser la page sans defilement.
-    const secours = window.setTimeout(rendreLaMain, 8000)
+    // The safety net. Longer than the ceiling of any curtain, so invisible in
+    // normal running: it exists only so that a delay can never leave the page
+    // without scrolling.
+    const safety = window.setTimeout(release, 8000)
 
     return () => {
-      window.clearTimeout(secours)
-      rendreLaMain()
+      window.clearTimeout(safety)
+      release()
     }
-  }, [contained, parti, reduced])
+  }, [contained, gone, reduced])
 
-  if (parti) return null
+  if (gone) return null
 
   const { className, style } = mergePresentation({}, rest)
 
-  const styleScene = {
+  const sceneStyle = {
     ...style,
     '--o-zoomg-bg': background,
     '--o-zoomg-ink': ink,
@@ -266,12 +267,12 @@ export function ZoomGate({
     <div
       {...rest}
       className={className}
-      style={styleScene}
+      style={sceneStyle}
       data-o-zoomg=""
-      {...(sortant ? { 'data-o-zoomg-out': '' } : {})}
+      {...(exiting ? { 'data-o-zoomg-out': '' } : {})}
       {...(contained ? { 'data-o-zoomg-contained': '' } : {})}
     >
-      {/* La plaque est du decor : elle ne doit pas etre lue. */}
+      {/* The plate is decoration: it must not be read out. */}
       <div data-o-zoomg-plate="" aria-hidden="true" />
 
       <div data-o-zoomg-status="" role="status">

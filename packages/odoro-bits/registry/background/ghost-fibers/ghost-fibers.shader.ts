@@ -1,34 +1,34 @@
 /**
- * Shader des fibres fantomes.
+ * Ghost fibers shader.
  *
- * ## L'idee mathematique
+ * ## The mathematical idea
  *
- * Douze fibres, chacune une courbe `y = base + amplitude x sin(x x frequence
- * + phase)` dont la graine fixe l'amplitude, la frequence et la derive. Le
- * fragment ne parcourt pas la courbe : il compare son ordonnee a celle de la
- * fibre au meme abscisse, ce qui suffit tant que les fibres restent proches
- * de l'horizontale.
+ * Twelve fibers, each a curve `y = base + amplitude x sin(x x frequency
+ * + phase)` whose seed fixes the amplitude, the frequency and the drift. The
+ * fragment does not walk the curve: it compares its ordinate with the
+ * fiber's at the same abscissa, which suffices as long as the fibers stay
+ * close to the horizontal.
  *
- * L'attraction est une interpolation, pas une force : au droit du pointeur,
- * l'ordonnee de la fibre est tiree vers la sienne d'une fraction qui vaut une
- * gaussienne de l'ecart en abscisse. La fibre se pince donc autour du curseur
- * et retrouve son trace plus loin, sans discontinuite.
+ * The attraction is an interpolation, not a force: level with the pointer,
+ * the fiber's ordinate is pulled towards its own by a fraction equal to a
+ * gaussian of the gap in abscissa. The fiber therefore pinches around the
+ * cursor and recovers its path further on, without discontinuity.
  *
- * Chaque fibre est peinte deux fois : un coeur tres fin, et une brume large
- * qui la double. C'est ce doublet qui la rend fantome — un trait seul serait
- * un cheveu, une brume seule un nuage.
+ * Each fiber is painted twice: a very fine core, and a broad haze doubling
+ * it. It is that pairing that makes it a ghost — a stroke alone would be a
+ * hair, a haze alone a cloud.
  *
  * ## Uniforms
  *
- * - `uTime` — temps en secondes, fourni par le moteur.
- * - `uResolution` — taille du canevas en pixels, fournie par le moteur.
- * - `uColorA` — le fond.
- * - `uColorB` — les fibres au repos.
- * - `uColorC` — les fibres tirees vers le pointeur.
- * - `uPointer` — position amortie du pointeur, en coordonnees de texture.
- * - `uFibers` — nombre de fibres, borne a douze.
- * - `uBend` — force de l attraction, entre zero et un.
- * - `uSpeed` — vitesse de derive des fibres.
+ * - `uTime` — time in seconds, supplied by the engine.
+ * - `uResolution` — canvas size in pixels, supplied by the engine.
+ * - `uColorA` — the background.
+ * - `uColorB` — the fibers at rest.
+ * - `uColorC` — the fibers pulled towards the pointer.
+ * - `uPointer` — damped pointer position, in texture coordinates.
+ * - `uFibers` — number of fibers, capped at twelve.
+ * - `uBend` — strength of the attraction, between zero and one.
+ * - `uSpeed` — drift speed of the fibers.
  */
 export const GHOST_FIBERS_FRAGMENT = /* glsl */ `
 precision highp float;
@@ -45,7 +45,7 @@ uniform float uFibers;
 uniform float uBend;
 uniform float uSpeed;
 
-// Graine d'une fibre, stable d'une image a l'autre.
+// A fiber's seed, stable from one frame to the next.
 float fiberSeed(float index) {
   return fract(sin(index * 91.37) * 47453.19);
 }
@@ -59,9 +59,9 @@ void main() {
   float veil = 0.0;
   float pulled = 0.0;
 
-  // Borne constante : la specification du langage l'exige. Les fibres au
-  // dela du reglage sont annulees par un masque plutot que par une sortie
-  // de boucle, que les anciennes plateformes refusent.
+  // Constant bound: the language specification demands it. The fibers beyond
+  // the setting are cancelled by a mask rather than by a loop exit, which
+  // older platforms refuse.
   for (int i = 0; i < 12; i += 1) {
     float index = float(i);
     float used = step(index, count - 0.5);
@@ -74,7 +74,7 @@ void main() {
 
     float y = base + amplitude * sin(p.x * frequency + phase);
 
-    // La prise du pointeur : une gaussienne de l'ecart en abscisse.
+    // The pointer's grip: a gaussian of the gap in abscissa.
     float dx = (p.x - m.x) / (0.32 * aspect);
     float grip = exp(-dx * dx) * clamp(uBend, 0.0, 1.0);
     y = mix(y, m.y, grip * 0.9);

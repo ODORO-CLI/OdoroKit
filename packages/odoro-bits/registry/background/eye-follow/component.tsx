@@ -1,32 +1,32 @@
 /**
- * Yeux qui suivent : une grille d'yeux dessines au trait, dont l'iris se
- * tourne vers le curseur et qui clignent chacun a son rythme.
+ * Eyes that follow: a grid of line-drawn eyes whose irises turn towards the
+ * cursor and which blink each at its own pace.
  *
- * ## A quoi ce fond reagit
+ * ## What this background reacts to
  *
- * Au deplacement du pointeur, avec amortissement : chaque oeil calcule la
- * direction de sa cellule vers le curseur et y pose son iris, d'autant plus
- * loin du centre que le curseur est loin, jusqu'a une amplitude bornee. A la
- * sortie du cadre, le hook ramene la cible au centre — tous les yeux
- * reviennent au milieu.
+ * To the pointer's movement, with damping: every eye computes the direction
+ * from its cell towards the cursor and places its iris there, the farther from
+ * the centre the farther the cursor is, up to a bounded amplitude. On leaving
+ * the frame, the hook brings the target back to the centre — every eye returns
+ * to the middle.
  *
- * ## Pourquoi ce fond peut servir de contenu
+ * ## Why this background can stand as content
  *
- * C'est le seul du lot qui ne soit pas une texture : une page qui le pose
- * derriere un titre gagne un regard, pas une matiere. Il vaut donc mieux
- * peu d'yeux et gros que beaucoup et petits — le reglage par defaut se
- * range du premier cote.
+ * It is the only one of the set that is not a texture: a page that places it
+ * behind a title gains a gaze, not a material. Few and large eyes are
+ * therefore worth more than many and small ones — the default setting takes
+ * the first side.
  *
- * ## Le pont pointeur → shader
+ * ## The pointer → shader bridge
  *
- * Aucun rendu React par image : le composant mute en place un tableau stable
- * passe en uniform, et la surface relit ses uniforms a chaque image. La
- * recopie se fait dans la boucle du moteur, en priorite d'entree.
+ * No React render per frame: the component mutates a stable array in place
+ * passed as a uniform, and the surface re-reads its uniforms every frame. The
+ * copy happens inside the engine loop, at input priority.
  *
- * ## Sous mouvement reduit
+ * ## Under reduced motion
  *
- * La surface est refusee par le moteur et le repli statique s'affiche : le
- * suivi du pointeur est un agrement, pas un contenu.
+ * The surface is refused by the engine and the static fallback shows: the
+ * pointer tracking is a nicety, not content.
  *
  * @module
  */
@@ -47,41 +47,41 @@ import { usePointerDamped } from '@registre/hooks/usePointerDamped'
 
 import { EYE_FOLLOW_FRAGMENT } from './eye-follow.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface EyeFollowControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to this component. */
 export interface EyeFollowOwnProps {
-  /** Nombre d'yeux sur la hauteur. Borne a dix par le shader. @defaultValue 3 */
+  /** Number of eyes over the height. Capped at ten by the shader. @defaultValue 3 */
   eyes?: number
-  /** Amplitude du regard, entre zero et un. @defaultValue 0.9 */
+  /** Amplitude of the gaze, between zero and one. @defaultValue 0.9 */
   gaze?: number
-  /** Frequence des clignements. Zero les coupe. @defaultValue 1 */
+  /** Frequency of the blinks. Zero cuts them. @defaultValue 1 */
   blink?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<EyeFollowControls>
 }
 
-/** Toutes les proprietes. */
+/** Every property. */
 export type EyeFollowProps = Customisable<EyeFollowOwnProps>
 
-/** Tokens employes par defaut : le fond, le trait et la pupille, l'iris. */
+/** Tokens used by default: the background, the line and the pupil, the iris. */
 const DEFAULT_TOKENS = ['--o-theme-bg', '--o-theme-fg', '--o-palette-brand-500'] as const
 
-/** Repli par defaut : une teinte figee, dans les memes tons. */
+/** Default fallback: a frozen hue, in the same tones. */
 const DEFAULT_FALLBACK = 'o-bg-zinc-50 dark:o-bg-zinc-950'
 
 /**
- * Yeux qui suivent.
+ * Eyes that follow.
  *
  * @example
  * <div className="o-relative o-min-h-screen">
@@ -100,22 +100,22 @@ export function EyeFollow({
 }: EyeFollowProps): ReactElement {
   const [host, setHost] = useState<HTMLDivElement | null>(null)
 
-  // Tableau stable, mute en place : la surface relit les uniforms a chaque
-  // image, l'identite ne change pas, la mutation suffit — aucun setState.
+  // Stable array, mutated in place: the surface re-reads the uniforms every
+  // frame, the identity never changes, mutating is enough — no setState.
   const uPointer = useRef<number[]>([0.5, 0.5]).current
 
-  // Vitesse 5 : un oeil rattrape vite, mais pas instantanement.
-  const pointer = usePointerDamped({ host, speed: 5, name: 'eye-follow : pointeur' })
+  // Speed 5: an eye catches up fast, but not instantly.
+  const pointer = usePointerDamped({ host, speed: 5, name: 'eye-follow : pointer' })
 
   useEffect(() => {
     const subscription = clock.subscribe(
       () => {
-        // Du repere du hook (centre, y vers le bas) vers celui de la texture
-        // (coin bas-gauche, y vers le haut).
+        // From the hook's frame (centred, y downwards) to the texture's frame
+        // (bottom-left corner, y upwards).
         uPointer[0] = (pointer.current.x + 1) / 2
         uPointer[1] = 1 - (pointer.current.y + 1) / 2
       },
-      { priority: CLOCK_PRIORITY.input, name: 'eye-follow : pont' },
+      { priority: CLOCK_PRIORITY.input, name: 'eye-follow : bridge' },
     )
     return () => subscription.unsubscribe()
   }, [pointer, uPointer])

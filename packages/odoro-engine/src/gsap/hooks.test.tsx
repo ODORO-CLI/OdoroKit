@@ -14,7 +14,7 @@ import {
 import { useSplitText } from './use-split-text.js'
 import { useTimeline, useTween } from './use-timeline.js'
 
-/** Force la reponse du systeme pour `prefers-reduced-motion`. */
+/** Forces the system answer for `prefers-reduced-motion`. */
 function setSystemReduced(reduced: boolean): void {
   window.matchMedia = ((query: string) => ({
     matches: query.includes('prefers-reduced-motion') ? reduced : false,
@@ -29,12 +29,12 @@ function setSystemReduced(reduced: boolean): void {
 }
 
 /**
- * Bascule la politique en mouvement reduit.
+ * Switches the policy to reduced motion.
  *
- * La politique lit la media query **une seule fois**, a l'installation, puis
- * s'abonne a ses evenements — comportement correct en navigateur, ou la
- * `MediaQueryList` signale ses changements. La doublure de test n'en emet
- * aucun : il faut donc reinstaller la politique apres avoir change la reponse.
+ * The policy reads the media query **only once**, on installation, then
+ * subscribes to its events — correct behaviour in a browser, where the
+ * `MediaQueryList` reports its changes. The test stub emits none: the policy
+ * must therefore be reinstalled after changing the answer.
  */
 function forceReduced(): void {
   motionPolicy.dispose()
@@ -55,51 +55,51 @@ afterEach(() => {
 })
 
 describe('useTimeline', () => {
-  function Anime({ onBuild }: { onBuild?: () => void }): ReactElement {
+  function Animated({ onBuild }: { onBuild?: () => void }): ReactElement {
     const { ref } = useTimeline<HTMLDivElement>(
       ({ timeline }) => {
         onBuild?.()
-        timeline.to({ valeur: 0 }, { valeur: 1, duration: 0.2 })
+        timeline.to({ value: 0 }, { value: 1, duration: 0.2 })
       },
       [],
-      { name: 'essai' },
+      { name: 'trial' },
     )
-    return <div ref={ref} data-testid="cible" />
+    return <div ref={ref} data-testid="target" />
   }
 
-  it('construit la timeline au montage', () => {
+  it('builds the timeline on mount', () => {
     const onBuild = vi.fn()
-    render(<Anime onBuild={onBuild} />)
+    render(<Animated onBuild={onBuild} />)
     expect(onBuild).toHaveBeenCalledTimes(1)
     expect(registry.count('timeline')).toBe(1)
   })
 
-  it('revoque la timeline au demontage', () => {
-    const { unmount } = render(<Anime />)
+  it('reverts the timeline on unmount', () => {
+    const { unmount } = render(<Animated />)
     expect(registry.count('timeline')).toBe(1)
     unmount()
     expect(registry.count('timeline')).toBe(0)
   })
 
-  it('ne laisse rien vivre apres cent cycles', () => {
-    // Une animation qui survit a son composant ecrit dans un noeud detache et
-    // retient une reference sur l'arbre React. Le seul symptome est une
-    // consommation memoire qui monte au fil des navigations.
+  it('leaves nothing alive after a hundred cycles', () => {
+    // An animation that survives its component writes into a detached node and
+    // holds a reference on the React tree. The only symptom is a memory usage
+    // that climbs over the course of navigations.
     for (let i = 0; i < 100; i += 1) {
-      const { unmount } = render(<Anime />)
+      const { unmount } = render(<Animated />)
       unmount()
     }
     expect(registry.count('timeline')).toBe(0)
     expect(registry.count()).toBe(0)
   })
 
-  it('applique l etat final sous mouvement reduit', () => {
+  it('applies the final state under reduced motion', () => {
     forceReduced()
 
     let seen: number | undefined
-    function Reduit(): ReactElement {
+    function Reduced(): ReactElement {
       const { ref, timeline } = useTimeline<HTMLDivElement>(({ timeline: created }) => {
-        created.to({ valeur: 0 }, { valeur: 1, duration: 1 })
+        created.to({ value: 0 }, { value: 1, duration: 1 })
         queueMicrotask(() => {
           seen = timeline.current?.progress()
         })
@@ -107,24 +107,24 @@ describe('useTimeline', () => {
       return <div ref={ref} />
     }
 
-    render(<Reduit />)
-    // La timeline n'est pas annulee : elle est avancee a son terme. Un
-    // element qui devait apparaitre apparait, sans transition.
+    render(<Reduced />)
+    // The timeline is not cancelled: it is advanced to its end. An element that
+    // was to appear appears, without a transition.
     expect(seen === undefined || seen === 1).toBe(true)
   })
 
-  it('signale la neutralisation a la fonction de construction', () => {
+  it('reports the neutralisation to the build function', () => {
     forceReduced()
 
     let reduced: boolean | undefined
-    function Sonde(): ReactElement {
+    function Probe(): ReactElement {
       const { ref } = useTimeline<HTMLDivElement>((setup) => {
         reduced = setup.reduced
       }, [])
       return <div ref={ref} />
     }
 
-    render(<Sonde />)
+    render(<Probe />)
     expect(reduced).toBe(true)
   })
 })
@@ -138,14 +138,14 @@ describe('useTween', () => {
     return <div ref={ref} />
   }
 
-  it('enregistre puis libere l animation', () => {
+  it('registers then releases the animation', () => {
     const { unmount } = render(<Rotation />)
     expect(registry.count('timeline')).toBe(1)
     unmount()
     expect(registry.count('timeline')).toBe(0)
   })
 
-  it('ne laisse rien vivre apres cent cycles', () => {
+  it('leaves nothing alive after a hundred cycles', () => {
     for (let i = 0; i < 100; i += 1) {
       const { unmount } = render(<Rotation />)
       unmount()
@@ -156,83 +156,82 @@ describe('useTween', () => {
 
 describe('useScrollScrub', () => {
   /**
-   * Une cible qui n'existe pas encore au premier rendu.
+   * A target that does not exist yet on the first render.
    *
-   * C'est le cas ordinaire d'une barre de progression : elle se pose en tete,
-   * et observe un contenu place plus loin dans l'arbre. React attache les refs
-   * au fil du parcours, donc celle du frere suivant est encore vide quand les
-   * effets s'executent — aucun declencheur n'etait cree, et il ne se passait
-   * rien, sans erreur.
+   * This is the ordinary case of a progress bar: it sits at the top, and
+   * observes content placed further down the tree. React attaches the refs as
+   * it walks, so that of the following sibling is still empty when the effects
+   * run — no trigger was created, and nothing happened, without an error.
    */
-  function Tardive(): ReactElement {
-    const [cible, setCible] = useState<HTMLElement | null>(null)
-    useScrollScrub(() => undefined, { element: cible, name: 'tardive' })
-    return <div ref={setCible} data-testid="cible" />
+  function Late(): ReactElement {
+    const [target, setTarget] = useState<HTMLElement | null>(null)
+    useScrollScrub(() => undefined, { element: target, name: 'late' })
+    return <div ref={setTarget} data-testid="target" />
   }
 
-  it('cree le declencheur quand la cible arrive apres le premier rendu', async () => {
-    render(<Tardive />)
+  it('creates the trigger when the target arrives after the first render', async () => {
+    render(<Late />)
     await waitFor(() => expect(registry.count('scroll-trigger')).toBe(1))
   })
 
-  it('n en cree aucun tant que la cible est absente', async () => {
-    function Jamais(): ReactElement {
-      useScrollScrub(() => undefined, { element: null, name: 'jamais' })
+  it('creates none as long as the target is absent', async () => {
+    function Never(): ReactElement {
+      useScrollScrub(() => undefined, { element: null, name: 'never' })
       return <div />
     }
 
-    render(<Jamais />)
+    render(<Never />)
     await waitFor(() => expect(registry.count()).toBe(0))
   })
 })
 
 describe('scrollingAncestor', () => {
-  /** jsdom ne calcule aucune mise en page : les dimensions sont posees. */
-  function taille(node: HTMLElement, contenu: number, boite: number): void {
-    Object.defineProperty(node, 'scrollHeight', { value: contenu, configurable: true })
-    Object.defineProperty(node, 'clientHeight', { value: boite, configurable: true })
+  /** jsdom computes no layout: the dimensions are set by hand. */
+  function setSize(node: HTMLElement, content: number, box: number): void {
+    Object.defineProperty(node, 'scrollHeight', { value: content, configurable: true })
+    Object.defineProperty(node, 'clientHeight', { value: box, configurable: true })
   }
 
-  it('remonte jusqu au premier ancetre qui defile', () => {
-    const dehors = document.createElement('div')
-    const panneau = document.createElement('div')
-    const contenu = document.createElement('div')
-    const cible = document.createElement('div')
+  it('walks up to the first ancestor that scrolls', () => {
+    const outside = document.createElement('div')
+    const panel = document.createElement('div')
+    const content = document.createElement('div')
+    const target = document.createElement('div')
 
-    panneau.style.overflowY = 'auto'
-    taille(panneau, 900, 300)
+    panel.style.overflowY = 'auto'
+    setSize(panel, 900, 300)
 
-    dehors.append(panneau)
-    panneau.append(contenu)
-    contenu.append(cible)
-    document.body.append(dehors)
+    outside.append(panel)
+    panel.append(content)
+    content.append(target)
+    document.body.append(outside)
 
-    expect(scrollingAncestor(cible)).toBe(panneau)
-    dehors.remove()
+    expect(scrollingAncestor(target)).toBe(panel)
+    outside.remove()
   })
 
-  it('ignore un conteneur qui declare un debordement sans defiler', () => {
-    const panneau = document.createElement('div')
-    const cible = document.createElement('div')
+  it('ignores a container that declares an overflow without scrolling', () => {
+    const panel = document.createElement('div')
+    const target = document.createElement('div')
 
-    // Le piege : `overflow: auto` sur une boite qui contient tout. Le prendre
-    // pour scroller figerait la progression a zero.
-    panneau.style.overflowY = 'auto'
-    taille(panneau, 300, 300)
+    // The trap: `overflow: auto` on a box that contains everything. Taking it
+    // for the scroller would freeze the progress at zero.
+    panel.style.overflowY = 'auto'
+    setSize(panel, 300, 300)
 
-    panneau.append(cible)
-    document.body.append(panneau)
+    panel.append(target)
+    document.body.append(panel)
 
-    expect(scrollingAncestor(cible)).toBeUndefined()
-    panneau.remove()
+    expect(scrollingAncestor(target)).toBeUndefined()
+    panel.remove()
   })
 
-  it('rend la fenetre quand rien ne defile autour', () => {
-    const cible = document.createElement('div')
-    document.body.append(cible)
+  it('returns the window when nothing scrolls around', () => {
+    const target = document.createElement('div')
+    document.body.append(target)
 
-    expect(scrollingAncestor(cible)).toBeUndefined()
-    cible.remove()
+    expect(scrollingAncestor(target)).toBeUndefined()
+    target.remove()
   })
 })
 
@@ -242,21 +241,21 @@ describe('useScrollTrigger', () => {
     return <div ref={ref} data-testid="section" />
   }
 
-  it('enregistre un declencheur', async () => {
+  it('registers a trigger', async () => {
     render(<Section />)
     await waitFor(() => expect(registry.count('scroll-trigger')).toBe(1))
   })
 
-  it('libere le declencheur au demontage', async () => {
+  it('releases the trigger on unmount', async () => {
     const { unmount } = render(<Section />)
     await waitFor(() => expect(registry.count('scroll-trigger')).toBe(1))
     unmount()
     expect(registry.count('scroll-trigger')).toBe(0)
   })
 
-  it('ne cree rien sous mouvement reduit', async () => {
-    // Une animation liee au defilement est pilotee par l'utilisateur ; sous
-    // mouvement reduit, l'element reste simplement dans son etat final.
+  it('creates nothing under reduced motion', async () => {
+    // A scroll-linked animation is driven by the user; under reduced motion,
+    // the element simply stays in its final state.
     forceReduced()
 
     render(<Section />)
@@ -264,7 +263,7 @@ describe('useScrollTrigger', () => {
     expect(registry.count('scroll-trigger')).toBe(0)
   })
 
-  it('ne laisse rien vivre apres cinquante cycles', async () => {
+  it('leaves nothing alive after fifty cycles', async () => {
     for (let i = 0; i < 50; i += 1) {
       const { unmount } = render(<Section />)
       unmount()
@@ -275,59 +274,59 @@ describe('useScrollTrigger', () => {
 })
 
 describe('useSplitText', () => {
-  const TEXTE = 'Un titre revele'
+  const TEXT = 'A revealed heading'
 
-  function Titre({ by = 'chars' as const }): ReactElement {
+  function Heading({ by = 'chars' as const }): ReactElement {
     const { ref, ready } = useSplitText<HTMLHeadingElement>({ by })
     return (
-      <h1 ref={ref} data-testid="titre" data-ready={String(ready)}>
-        {TEXTE}
+      <h1 ref={ref} data-testid="heading" data-ready={String(ready)}>
+        {TEXT}
       </h1>
     )
   }
 
-  it('decoupe le texte et relie le conteneur a son libelle', async () => {
-    const { getByTestId } = render(<Titre />)
-    const titre = getByTestId('titre')
+  it('splits the text and links the container to its label', async () => {
+    const { getByTestId } = render(<Heading />)
+    const heading = getByTestId('heading')
 
-    await waitFor(() => expect(titre.dataset['ready']).toBe('true'))
+    await waitFor(() => expect(heading.dataset['ready']).toBe('true'))
 
-    // Le lecteur d'ecran doit lire une phrase, pas un alphabet.
-    expect(titre.getAttribute('aria-label')).toBe(TEXTE)
-    const fragments = titre.querySelectorAll('[aria-hidden="true"]')
+    // The screen reader must read a sentence, not an alphabet.
+    expect(heading.getAttribute('aria-label')).toBe(TEXT)
+    const fragments = heading.querySelectorAll('[aria-hidden="true"]')
     expect(fragments.length).toBeGreaterThan(0)
   })
 
-  it('restaure le DOM d origine au demontage', async () => {
-    const { getByTestId, unmount } = render(<Titre />)
-    const titre = getByTestId('titre')
-    await waitFor(() => expect(titre.dataset['ready']).toBe('true'))
+  it('restores the original DOM on unmount', async () => {
+    const { getByTestId, unmount } = render(<Heading />)
+    const heading = getByTestId('heading')
+    await waitFor(() => expect(heading.dataset['ready']).toBe('true'))
 
     unmount()
 
-    // Un texte laisse decoupe casserait la selection et le copier-coller bien
-    // apres la disparition de l'animation qui l'avait justifie.
-    expect(titre.textContent).toBe(TEXTE)
-    expect(titre.hasAttribute('aria-label')).toBe(false)
+    // A text left split would break selection and copy-paste long after the
+    // disappearance of the animation that justified it.
+    expect(heading.textContent).toBe(TEXT)
+    expect(heading.hasAttribute('aria-label')).toBe(false)
   })
 
-  it('ne decoupe pas du tout sous mouvement reduit', async () => {
-    // Decouper pour ne rien animer reviendrait a payer tout le cout
-    // d'accessibilite sans aucun benefice.
+  it('does not split at all under reduced motion', async () => {
+    // Splitting in order to animate nothing would amount to paying the whole
+    // accessibility cost for no benefit.
     forceReduced()
 
-    const { getByTestId } = render(<Titre />)
+    const { getByTestId } = render(<Heading />)
     await new Promise((resolve) => setTimeout(resolve, 50))
 
-    const titre = getByTestId('titre')
-    expect(titre.dataset['ready']).toBe('false')
-    expect(titre.textContent).toBe(TEXTE)
-    expect(titre.querySelectorAll('[aria-hidden="true"]').length).toBe(0)
+    const heading = getByTestId('heading')
+    expect(heading.dataset['ready']).toBe('false')
+    expect(heading.textContent).toBe(TEXT)
+    expect(heading.querySelectorAll('[aria-hidden="true"]').length).toBe(0)
   })
 
-  it('ne laisse aucun fragment apres cinquante cycles', async () => {
+  it('leaves no fragment after fifty cycles', async () => {
     for (let i = 0; i < 50; i += 1) {
-      const { unmount } = render(<Titre />)
+      const { unmount } = render(<Heading />)
       unmount()
     }
     await new Promise((resolve) => setTimeout(resolve, 100))

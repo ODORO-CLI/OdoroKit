@@ -1,30 +1,30 @@
 /**
- * La configuration de l'utilisateur, et le jeton qu'elle contient.
+ * The user configuration, and the token it holds.
  *
- * ## Pourquoi le jeton ne vit pas dans le projet
+ * ## Why the token does not live in the project
  *
- * Un jeton de plateforme donne acces a l'administration de tout un parc. Range
- * dans le projet, il finit versionne — pas par negligence, mais parce qu'un
- * `git add .` ne demande l'avis de personne, et qu'un fichier de configuration
- * ressemble a quelque chose qu'on versionne.
+ * A platform token grants access to the administration of a whole fleet. Stored
+ * in the project, it ends up versioned — not through negligence, but because a
+ * `git add .` asks nobody's opinion, and a configuration file looks like
+ * something one versions.
  *
- * Une fois pousse, un secret est a **faire tourner**, pas a retirer d'un
- * historique. Le jeton vit donc dans le dossier de configuration de
- * l'utilisateur, hors de tout depot.
+ * Once pushed, a secret is to be **rotated**, not removed from a history. The
+ * token therefore lives in the configuration directory of the user, outside any
+ * repository.
  *
- * ## Les droits du fichier, et ce qu'on peut en promettre
+ * ## The file permissions, and what can be promised about them
  *
- * Sur un systeme de type Unix, le fichier est cree en `0600` : lisible par son
- * proprietaire seul. Sur Windows, les permissions POSIX n'ont pas d'equivalent
- * exact et `chmod` est sans effet reel — le dire plutot que de laisser croire
- * a une protection qui n'existe pas.
+ * On a Unix-like system, the file is created as `0600`: readable by its owner
+ * alone. On Windows, POSIX permissions have no exact equivalent and `chmod` has
+ * no real effect — better to say so than to let one believe in a protection
+ * that does not exist.
  *
- * ## Un fichier par machine, jamais synchronise
+ * ## One file per machine, never synchronised
  *
- * Le chemin suit les conventions du systeme, ce qui le tient a l'ecart des
- * dossiers que les outils de synchronisation reprennent par defaut. Un jeton
- * qui se retrouve sur trois machines par un dossier partage a triple sa
- * surface d'exposition sans que personne ne l'ait decide.
+ * The path follows the conventions of the system, which keeps it away from the
+ * directories synchronisation tools pick up by default. A token that ends up on
+ * three machines through a shared folder has tripled its exposure without
+ * anybody having decided it.
  *
  * @module
  */
@@ -33,20 +33,20 @@ import { chmod, mkdir, readFile, writeFile } from 'node:fs/promises'
 import { homedir, platform } from 'node:os'
 import { dirname, join } from 'node:path'
 
-/** Ce que la configuration utilisateur retient. */
+/** What the user configuration keeps. */
 export interface UserConfig {
-  /** Jeton de la plateforme, par racine d'API. */
+  /** Platform token, per API root. */
   readonly tokens?: Readonly<Record<string, string>>
-  /** Racine employee par defaut. */
+  /** Root used by default. */
   readonly defaultApiUrl?: string
 }
 
 /**
- * Ou vit la configuration.
+ * Where the configuration lives.
  *
- * `XDG_CONFIG_HOME` d'abord : c'est la variable qui permet a quelqu'un de
- * decider ou ses configurations vont, et l'ignorer reviendrait a lui imposer
- * un choix qu'il a explicitement fait autrement.
+ * `XDG_CONFIG_HOME` first: it is the variable that lets someone decide where
+ * their configurations go, and ignoring it would amount to imposing a choice
+ * they explicitly made otherwise.
  */
 export function configPath(env: NodeJS.ProcessEnv = processEnv()): string {
   const xdg = env['XDG_CONFIG_HOME']
@@ -62,35 +62,35 @@ export function configPath(env: NodeJS.ProcessEnv = processEnv()): string {
   return join(homedir(), '.config', 'odoro', 'config.json')
 }
 
-/** Le seul acces au processus de ce module. */
+/** The only access to the process from this module. */
 function processEnv(): NodeJS.ProcessEnv {
   return process.env
 }
 
-/** Lit la configuration. Rend un objet vide si elle n'existe pas. */
+/** Reads the configuration. Returns an empty object when it does not exist. */
 export async function readUserConfig(path = configPath()): Promise<UserConfig> {
   try {
     return JSON.parse(await readFile(path, 'utf8')) as UserConfig
   } catch {
-    // Absente, illisible ou corrompue : dans les trois cas, on repart d'une
-    // configuration vide plutot que d'empecher toute commande de fonctionner.
+    // Absent, unreadable or corrupt: in all three cases, we start again from an
+    // empty configuration rather than prevent every command from working.
     return {}
   }
 }
 
-/** Ce que l'ecriture rapporte. */
+/** What the write reports. */
 export interface WriteReport {
   readonly path: string
   /**
-   * Les droits restrictifs ont-ils pu etre poses ?
+   * Could the restrictive permissions be set?
    *
-   * Faux sur Windows, ou l'equivalent n'existe pas. L'appelant doit le dire a
-   * l'utilisateur plutot que de laisser croire a une protection absente.
+   * False on Windows, where the equivalent does not exist. The caller must say
+   * so to the user rather than let them believe in an absent protection.
    */
   readonly restricted: boolean
 }
 
-/** Ecrit la configuration, en la reservant a son proprietaire. */
+/** Writes the configuration, reserving it to its owner. */
 export async function writeUserConfig(
   config: UserConfig,
   path = configPath(),
@@ -108,7 +108,7 @@ export async function writeUserConfig(
   }
 }
 
-/** Range un jeton pour une racine d'API. */
+/** Stores a token for an API root. */
 export async function storeToken(
   apiUrl: string,
   token: string,
@@ -127,11 +127,11 @@ export async function storeToken(
 }
 
 /**
- * Retrouve le jeton d'une racine.
+ * Finds the token of a root.
  *
- * La variable d'environnement l'emporte : c'est ce qui permet a une
- * integration continue de fournir un jeton sans ecrire de fichier, et a
- * quelqu'un d'en employer un autre le temps d'une commande.
+ * The environment variable wins: that is what lets a continuous integration
+ * provide a token without writing a file, and someone use another one for the
+ * duration of a command.
  */
 export async function findToken(
   apiUrl: string,
@@ -145,7 +145,7 @@ export async function findToken(
   return config.tokens?.[apiUrl]
 }
 
-/** Retire un jeton. */
+/** Removes a token. */
 export async function forgetToken(
   apiUrl: string,
   path = configPath(),

@@ -1,29 +1,29 @@
 /**
- * Terminal defaillant : un ecran de caracteres qui se tape ligne par ligne,
- * et qui scintille, se dechire et se corrompt par a-coups.
+ * Faulty terminal: a screen of characters typing itself line by line, and
+ * flickering, tearing and corrupting in fits and starts.
  *
- * ## Le principe
+ * ## The principle
  *
- * Un front de frappe avance sur les lignes, un curseur clignote a sa suite,
- * l'ecran s'efface quand il est plein. Les pannes sont hachees par paliers :
- * elles surviennent, tiennent quelques images, cessent. Les glyphes sont des
- * masques de bits sur trois par cinq dessines par le shader : aucune police,
- * aucune texture.
+ * A typing front advances down the lines, a cursor blinks after it, the
+ * screen clears when it is full. The failures are chopped into steps: they
+ * occur, hold for a few frames, stop. The glyphs are bit masks on three by
+ * five drawn by the shader: no font, no
+ * texture.
  *
- * Ce qui distingue cette entree de `code-rain` : rien ne tombe, tout se
- * tape ; et de `scanlines` : ni lignes cathodiques, ni barre qui roule — des
- * caracteres, et leurs pannes.
+ * What sets this entry apart from `code-rain`: nothing falls, everything is
+ * typed; and from `scanlines`: no cathode lines, no rolling bar — characters,
+ * and their failures.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur — les recopier ici en ferait autant
- * de versions a maintenir qu'il y a de fonds.
+ * It carries only what sets it apart: its shader, its settings and its fallback.
+ * Reading the tokens, converting them to floats and re-reading them when the
+ * theme changes all come from the engine — copying them here would leave as
+ * many versions to maintain as there are backgrounds.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en
- * accorde qu'une par backend — et sous mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface — it grants only one
+ * per backend — and under reduced motion.
  *
  * @module
  */
@@ -40,43 +40,43 @@ import { type ReactElement } from 'react'
 
 import { FAULTY_TERMINAL_FRAGMENT } from './faulty-terminal.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface FaultyTerminalControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to this component. */
 export interface FaultyTerminalOwnProps {
-  /** Nombre de colonnes sur la largeur. Borne a cent vingt par le shader. @defaultValue 48 */
+  /** Number of columns across the width. Capped at a hundred and twenty by the shader. @defaultValue 48 */
   columns?: number
-  /** Vitesse de frappe, en lignes par seconde. @defaultValue 1.5 */
+  /** Typing speed, in lines per second. @defaultValue 1.5 */
   speed?: number
-  /** Force du scintillement. Zero le coupe. @defaultValue 0.5 */
+  /** Strength of the flicker. Zero cuts it. @defaultValue 0.5 */
   flicker?: number
-  /** Frequence et amplitude des dechirements. Zero les coupe. @defaultValue 0.5 */
+  /** Frequency and amplitude of the tearing. Zero cuts it. @defaultValue 0.5 */
   tearing?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<FaultyTerminalControls>
 }
 
-/** Toutes les proprietes. */
+/** Every property. */
 export type FaultyTerminalProps = Customisable<FaultyTerminalOwnProps>
 
-/** Tokens employes par defaut : le fond, le phosphore, le curseur. */
+/** Tokens used by default: the background, the phosphor, the cursor. */
 const DEFAULT_TOKENS = ['--o-theme-bg', '--o-palette-amber-500', '--o-theme-fg'] as const
 
-/** Repli par defaut : une teinte figee, dans les memes tons. */
+/** Default fallback: a frozen hue, in the same tones. */
 const DEFAULT_FALLBACK = 'o-bg-zinc-50 dark:o-bg-zinc-950'
 
 /**
- * Terminal defaillant.
+ * Faulty terminal.
  *
  * @example
  * <div className="o-relative o-min-h-screen">
@@ -104,8 +104,8 @@ export function FaultyTerminal({
       uTearing: tearing,
     },
     name: 'faulty-terminal',
-    // Des glyphes de trois pixels de large scintillent a densite de pixels
-    // reduite : en qualite basse, les colonnes s'elargissent.
+    // Glyphs three pixels wide shimmer at reduced pixel density: at low
+    // quality the columns grow wider.
     degrade: (quality) => ({
       uColumns: quality === 'low' ? Math.min(columns, 32) : columns,
     }),

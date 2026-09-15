@@ -1,20 +1,19 @@
 /**
- * Anneaux : des cercles concentriques, en un degrade radial repete.
+ * Rings: concentric circles, as one repeating radial gradient.
  *
- * ## Pourquoi le centre est reglable
+ * ## Why the centre is adjustable
  *
- * Des anneaux centres se lisent comme une cible ; decales vers un coin, ils
- * deviennent une onde qui traverse la page et laissent le centre optique libre
- * pour le contenu. Le point d'emission est donc deux reglages, pas une
- * constante — c'est lui qui decide de ce que le motif raconte.
+ * Centred rings read as a target; offset towards a corner, they become a wave
+ * crossing the page and they leave the optical centre free for the content. The
+ * emission point is therefore two settings, not a constant — it is what decides
+ * what the pattern tells.
  *
- * ## Pourquoi aucun script
+ * ## Why no script
  *
- * Un `repeating-radial-gradient` decrit la serie entiere : un trait, un vide,
- * et la repetition jusqu'au bord est gratuite. Le compositeur dessine tout ;
- * ajouter un canvas ou une surface graphique ne changerait pas un pixel du
- * resultat, mais reserverait un contexte que le navigateur ne distribue qu'en
- * nombre limite.
+ * A `repeating-radial-gradient` describes the entire series: one stroke, one
+ * gap, and repeating to the edge is free. The compositor draws it all; adding a
+ * canvas or a graphics surface would not change a pixel of the result, but
+ * would reserve a context that the browser only hands out in limited numbers.
  *
  * @module
  */
@@ -22,25 +21,25 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import { type CSSProperties, type ReactElement } from 'react'
 
-/** Proprietes propres au composant. */
+/** Props specific to this component. */
 export interface RingsOwnProps {
-  /** Ecart entre deux anneaux, en pixels. @defaultValue 32 */
+  /** Gap between two rings, in pixels. @defaultValue 32 */
   spacing?: number
-  /** Epaisseur du trait, en pixels. @defaultValue 1 */
+  /** Thickness of the stroke, in pixels. @defaultValue 1 */
   thickness?: number
-  /** Position horizontale du centre, entre 0 et 1. @defaultValue 0.5 */
+  /** Horizontal position of the centre, between 0 and 1. @defaultValue 0.5 */
   x?: number
-  /** Position verticale du centre, entre 0 et 1. @defaultValue 0.5 */
+  /** Vertical position of the centre, between 0 and 1. @defaultValue 0.5 */
   y?: number
-  /** Couleur des anneaux. */
+  /** Colour of the rings. */
   color?: string
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type RingsProps = Customisable<RingsOwnProps>
 
 /**
- * Anneaux de fond.
+ * Background rings.
  *
  * @example
  * <div className="o-relative o-min-h-screen">

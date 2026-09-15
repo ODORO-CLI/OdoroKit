@@ -17,7 +17,7 @@ import {
   Route,
   Shapes,
   Zap,
-} from '@odoro-cli/icons/filaire'
+} from '@odoro-cli/icons/outline'
 import { Reveal } from '@odoro-cli/libs/motion'
 import { Link } from '@odoro-cli/libs/router'
 import { type ReactElement, type ReactNode } from 'react'

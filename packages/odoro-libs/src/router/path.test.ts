@@ -15,31 +15,31 @@ describe('normalizePathname', () => {
     ['users', '/users'],
     ['/users/', '/users'],
     ['//users//42//', '/users/42'],
-  ])('normalise %j en %j', (input, expected) => {
+  ])('normalizes %j into %j', (input, expected) => {
     expect(normalizePathname(input)).toBe(expected)
   })
 })
 
 describe('joinPaths', () => {
-  it('concatene des fragments', () => {
+  it('concatenates fragments', () => {
     expect(joinPaths('/app', 'users', ':id')).toBe('/app/users/:id')
   })
 
-  it('ignore les fragments vides ou absents', () => {
+  it('ignores empty or missing fragments', () => {
     expect(joinPaths('/app', undefined, '', 'about')).toBe('/app/about')
   })
 
-  it('retourne la racine si tout est vide', () => {
+  it('returns the root when everything is empty', () => {
     expect(joinPaths('/', undefined)).toBe('/')
   })
 
-  it('aplatit un slash initial du fragment enfant', () => {
+  it('flattens a leading slash of the child fragment', () => {
     expect(joinPaths('/app', '/about')).toBe('/app/about')
   })
 })
 
 describe('parsePath', () => {
-  it('separe pathname, search et hash', () => {
+  it('separates pathname, search and hash', () => {
     expect(parsePath('/blog?page=2#top')).toEqual({
       pathname: '/blog',
       search: '?page=2',
@@ -47,7 +47,7 @@ describe('parsePath', () => {
     })
   })
 
-  it('gere un hash contenant un point d interrogation', () => {
+  it('handles a hash holding a question mark', () => {
     expect(parsePath('/blog#a?b')).toEqual({
       pathname: '/blog',
       search: '',
@@ -55,67 +55,67 @@ describe('parsePath', () => {
     })
   })
 
-  it('gere une entree vide', () => {
+  it('handles an empty input', () => {
     expect(parsePath('')).toEqual({ pathname: '/', search: '', hash: '' })
   })
 
-  it('ignore un search ou un hash vides', () => {
+  it('ignores an empty search or hash', () => {
     expect(parsePath('/a?#')).toEqual({ pathname: '/a', search: '', hash: '' })
   })
 })
 
 describe('createPath', () => {
-  it('recompose une URL complete', () => {
+  it('rebuilds a complete URL', () => {
     expect(createPath({ pathname: '/blog', search: '?page=2', hash: '#top' })).toBe(
       '/blog?page=2#top',
     )
   })
 
-  it('ajoute les prefixes manquants', () => {
+  it('adds the missing prefixes', () => {
     expect(createPath({ pathname: '/blog', search: 'page=2', hash: 'top' })).toBe(
       '/blog?page=2#top',
     )
   })
 
-  it('omet les parties vides', () => {
+  it('omits the empty parts', () => {
     expect(createPath({ pathname: '/blog' })).toBe('/blog')
     expect(createPath({})).toBe('/')
   })
 
-  it('fait l aller-retour avec parsePath', () => {
+  it('round-trips with parsePath', () => {
     const url = '/a/b?x=1#y'
     expect(createPath(parsePath(url))).toBe(url)
   })
 })
 
 describe('resolvePath', () => {
-  it('retourne une cible absolue telle quelle', () => {
+  it('returns an absolute target as is', () => {
     expect(resolvePath('/about', '/users/42').pathname).toBe('/about')
   })
 
-  it('resout une cible relative simple', () => {
+  it('resolves a simple relative target', () => {
     expect(resolvePath('settings', '/users/42').pathname).toBe('/users/42/settings')
   })
 
-  it('resout un prefixe ./', () => {
+  it('resolves a ./ prefix', () => {
     expect(resolvePath('./settings', '/users/42').pathname).toBe('/users/42/settings')
   })
 
-  it('remonte avec ..', () => {
+  it('goes up with ..', () => {
     expect(resolvePath('../settings', '/users/42/profile').pathname).toBe(
       '/users/42/settings',
     )
   })
 
-  it('enchaine plusieurs ..', () => {
+  it('chains several ..', () => {
     expect(resolvePath('../../x', '/a/b/c').pathname).toBe('/a/x')
   })
 
-  it('ne remonte pas au dela de la racine', () => {
+  it('does not go up beyond the root', () => {
     expect(resolvePath('../../../../x', '/a').pathname).toBe('/x')
   })
 
-  it('conserve search et hash de la cible', () => {
+  it('keeps the search and the hash of the target', () => {
     expect(resolvePath('../list?page=2#top', '/users/42')).toEqual({
       pathname: '/users/list',
       search: '?page=2',
@@ -123,7 +123,7 @@ describe('resolvePath', () => {
     })
   })
 
-  it('utilise la racine par defaut', () => {
+  it('uses the root by default', () => {
     expect(resolvePath('about').pathname).toBe('/about')
   })
 })

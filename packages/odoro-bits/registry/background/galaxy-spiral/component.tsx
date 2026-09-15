@@ -1,24 +1,24 @@
 /**
- * Galaxie spirale : des bras de points en rotation lente autour d'un coeur
- * lumineux.
+ * Spiral galaxy: arms of points turning slowly around a bright
+ * core.
  *
- * ## Le principe
+ * ## The principle
  *
- * Le plan est lu en polaire et tordu par le logarithme du rayon : dans ce
- * domaine, une droite devient une spirale logarithmique, et un cosinus de
- * l'angle tordu donne les bras. Les points y sont haches par cellule, mais
- * leur halo est mesure en distance reelle : un disque reste un disque.
+ * The plane is read in polar form and twisted by the logarithm of the
+ * radius: in that domain, a straight line becomes a logarithmic spiral, and
+ * a cosine of the twisted angle gives the arms. The points are hashed there
+ * per cell, but their halo is measured in real distance: a disc stays a disc.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur — les recopier ici en ferait autant
- * de versions a maintenir qu'il y a de fonds.
+ * It carries only what sets it apart: its shader, its settings and its fallback.
+ * Reading the tokens, converting them to floats and re-reading them when the
+ * theme changes all come from the engine — copying them here would leave as
+ * many versions to maintain as there are backgrounds.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en
- * accorde qu'une par backend — et sous mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface — it grants only one
+ * per backend — and under reduced motion.
  *
  * @module
  */
@@ -35,59 +35,59 @@ import { type ReactElement } from 'react'
 
 import { GALAXY_SPIRAL_FRAGMENT } from './galaxy-spiral.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface GalaxySpiralControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to this component. */
 export interface GalaxySpiralOwnProps {
-  /** Vitesse de la rotation. @defaultValue 0.5 */
+  /** Speed of the rotation. @defaultValue 0.5 */
   speed?: number
-  /** Nombre de bras. @defaultValue 2 */
+  /** Number of arms. @defaultValue 2 */
   arms?: number
-  /** Torsion des bras. Plus haut, plus enroules. @defaultValue 3 */
+  /** Twist of the arms. Higher means more tightly wound. @defaultValue 3 */
   twist?: number
-  /** Nombre de cellules radiales. @defaultValue 18 */
+  /** Number of radial cells. @defaultValue 18 */
   density?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<GalaxySpiralControls>
 }
 
-/** Toutes les proprietes. */
+/** Every property. */
 export type GalaxySpiralProps = Customisable<GalaxySpiralOwnProps>
 
-/** Tokens employes par defaut : le fond, les bras, le coeur. */
+/** Tokens used by default: the background, the arms, the core. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-violet-400',
   '--o-palette-amber-200',
 ] as const
 
-/** Repli par defaut : un halo fige, dans les memes tons. */
+/** Default fallback: a frozen halo, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-br o-from-zinc-50 dark:o-from-zinc-950 o-via-violet-200 dark:o-via-violet-950 o-to-zinc-50 dark:o-to-zinc-950'
 
 /**
- * Couches hors qualite basse.
+ * Layers outside low quality.
  *
- * Chaque couche parcourt neuf cellules par fragment, avec un logarithme et
- * un cosinus par cellule : c'est le seul levier de cout du shader.
+ * Each layer sweeps nine cells per fragment, with a logarithm and a cosine
+ * per cell: it is the shader's only lever on cost.
  */
 const LAYERS = 2
 
-/** Couches en qualite basse. */
+/** Layers at low quality. */
 const LOW_LAYERS = 1
 
 /**
- * Galaxie spirale.
+ * Spiral galaxy.
  *
  * @example
  * <div className="o-relative o-min-h-screen">

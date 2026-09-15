@@ -1,38 +1,37 @@
 /**
- * Journal des versions.
+ * Changelog.
  *
- * ## Pourquoi une liste de definitions
+ * ## Why a definition list
  *
- * Un journal est une suite de couples : une version, et ce qu'elle a change.
- * C'est exactement la relation qu'une `<dl>` decrit — le terme et sa
- * description — et c'est la seule structure qui la rende explicite. Une suite
- * de titres et de listes donne le meme dessin et laisse un lecteur d'ecran
- * deviner que « 2.4.0 » se rapporte aux six lignes qui suivent.
+ * A changelog is a sequence of pairs: a version, and what it changed. That is
+ * exactly the relation a `<dl>` describes — the term and its description — and
+ * it is the only structure that makes it explicit. A sequence of headings and
+ * lists gives the same drawing and leaves a screen reader to guess that
+ * "2.4.0" relates to the six lines that follow.
  *
- * Le rangement compte pour autre chose : chercher « quand telle chose a-t-elle
- * change » dans un journal est une operation frequente, et une structure juste
- * la rend possible sans avoir a tout lire.
+ * The ordering counts for something else: looking for "when did such a thing
+ * change" in a changelog is a frequent operation, and a correct structure
+ * makes it possible without having to read everything.
  *
- * ## La date est une date, pas du texte
+ * ## The date is a date, not text
  *
- * `<time>` avec son attribut : c'est ce qui distingue une date d'une chaine
- * qui lui ressemble. Sans lui, « 12/03 » est ambigu dans la moitie du monde.
+ * `<time>` with its attribute: that is what tells a date apart from a string
+ * that looks like one. Without it, "12/03" is ambiguous in half the world.
  *
- * ## Le filtre retire des lignes, pas des versions
+ * ## The filter removes lines, not versions
  *
- * Filtrer par nature — ajouts, corrections, retraits — ne doit pas faire
- * disparaitre une version entiere : on ne saurait plus si elle n'a rien change
- * ou si elle n'existe pas. La version reste donc affichee, et le compte des
- * lignes cachees est dit.
+ * Filtering by kind — additions, fixes, removals — must not make a whole
+ * version disappear: it would no longer be possible to know whether it changed
+ * nothing or does not exist. The version therefore stays displayed, and the
+ * count of hidden lines is told.
  *
- * Les boutons portent `aria-pressed` : ce sont des interrupteurs, pas des
- * actions, et l'etat de chacun doit s'entendre avant d'appuyer.
+ * The buttons carry `aria-pressed`: they are switches, not actions, and the
+ * state of each one has to be heard before pressing.
  *
- * ## La revelation
+ * ## The reveal
  *
- * Une cascade a l'entree dans le champ, en transitions CSS, et rien de plus.
- * Sous mouvement reduit, l'etat de depart n'est pas pose : le journal est
- * simplement la.
+ * A cascade on entry into view, in CSS transitions, and nothing more. Under
+ * reduced motion the starting state is not set: the changelog is simply there.
  *
  * @module
  */
@@ -42,61 +41,61 @@ import { useState, type CSSProperties, type ReactElement, type ReactNode } from 
 
 import { useInView } from '@registre/hooks/useInView'
 
-/** Nature d'un changement. */
-export type ChangeKind = 'ajout' | 'evolution' | 'correction' | 'retrait'
+/** Kind of a change. */
+export type ChangeKind = 'added' | 'changed' | 'fixed' | 'removed'
 
-/** Une ligne du journal. */
+/** One line of the changelog. */
 export interface ChangeNote {
-  /** Nature du changement. */
+  /** Kind of the change. */
   readonly kind: ChangeKind
-  /** Ce qui a change. */
+  /** What changed. */
   readonly text: ReactNode
 }
 
-/** Une version publiee. */
+/** A published version. */
 export interface Release {
-  /** Numero de version, tel qu'il est publie. */
+  /** Version number, as it is published. */
   readonly version: string
-  /** Date affichee. */
+  /** Displayed date. */
   readonly date: string
-  /** Date lisible par une machine, au format `YYYY-MM-DD`. */
+  /** Machine-readable date, in `YYYY-MM-DD` format. */
   readonly dateTime?: string
-  /** Une phrase qui resume la version. */
+  /** One sentence that sums up the version. */
   readonly summary?: ReactNode
-  /** Les changements, dans l'ordre d'importance. */
+  /** The changes, in order of importance. */
   readonly notes: readonly ChangeNote[]
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to the component. */
 export interface ChangelogOwnProps {
-  /** Les versions, de la plus recente a la plus ancienne. */
+  /** The versions, from the most recent to the oldest. */
   releases: readonly Release[]
-  /** Propose les interrupteurs de nature au-dessus du journal. @defaultValue true */
+  /** Offers the kind switches above the changelog. @defaultValue true */
   filterable?: boolean
-  /** Nom de la section, annonce aux technologies d'assistance. */
+  /** Name of the section, announced to assistive technologies. */
   label?: string
-  /** Intitule affiche au-dessus du journal. */
+  /** Heading displayed above the changelog. */
   title?: ReactNode
 }
 
-/** Toutes les proprietes. */
+/** All the props. */
 export type ChangelogProps = Customisable<ChangelogOwnProps, 'section'>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-changelog'
 
-/** Ce que chaque nature affiche, et la teinte qui la porte. */
-const NATURES: Readonly<Record<ChangeKind, { libelle: string; teinte: string }>> = {
-  ajout: { libelle: 'Ajout', teinte: 'var(--o-palette-emerald-600)' },
-  evolution: { libelle: 'Evolution', teinte: 'var(--o-palette-brand-600)' },
-  correction: { libelle: 'Correction', teinte: 'var(--o-palette-amber-600)' },
-  retrait: { libelle: 'Retrait', teinte: 'var(--o-palette-rose-600)' },
+/** What each kind displays, and the hue that carries it. */
+const KINDS: Readonly<Record<ChangeKind, { label: string; hue: string }>> = {
+  added: { label: 'Added', hue: 'var(--o-palette-emerald-600)' },
+  changed: { label: 'Changed', hue: 'var(--o-palette-brand-600)' },
+  fixed: { label: 'Fixed', hue: 'var(--o-palette-amber-600)' },
+  removed: { label: 'Removed', hue: 'var(--o-palette-rose-600)' },
 }
 
-/** Les natures, dans l'ordre des interrupteurs. */
-const ORDRE: readonly ChangeKind[] = ['ajout', 'evolution', 'correction', 'retrait']
+/** The kinds, in the order of the switches. */
+const ORDER: readonly ChangeKind[] = ['added', 'changed', 'fixed', 'removed']
 
-/** Pose les regles du journal, une fois par document. */
+/** Sets the changelog rules, once per document. */
 function ensureChangelogRules(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -109,8 +108,8 @@ function ensureChangelogRules(): void {
     '[data-o-log-entree]+[data-o-log-entree]{border-top:1px solid var(--o-theme-line)}',
     '@media (min-width:48rem){[data-o-log-entree]{',
     'display:grid;grid-template-columns:10rem minmax(0,1fr);gap:1.5rem}',
-    // Le numero reste en vue pendant qu'on lit ses lignes : sur une version a
-    // vingt changements, on ne sait plus laquelle on lit sans cela.
+    // The number stays in view while its lines are read: on a version with
+    // twenty changes, there is no telling which one is being read without it.
     '[data-o-log-entree]>dt{position:sticky;top:1rem;align-self:start}}',
     '[data-o-log-entree]>dd{margin:0}',
 
@@ -124,8 +123,8 @@ function ensureChangelogRules(): void {
     'opacity:0;transform:translateY(14px);',
     'transition:opacity var(--o-duration-slower) var(--o-ease-entrance),',
     'transform var(--o-duration-slower) var(--o-ease-entrance);',
-    'transition-delay:var(--o-log-delai)}',
-    '[data-o-log-vu] [data-o-log-entree]{opacity:1;transform:none}',
+    'transition-delay:var(--o-log-delay)}',
+    '[data-o-log-seen] [data-o-log-entree]{opacity:1;transform:none}',
 
     '@media (prefers-reduced-motion:reduce){',
     '[data-o-log-cache] [data-o-log-entree]{opacity:1;transform:none;transition:none}}',
@@ -134,17 +133,17 @@ function ensureChangelogRules(): void {
 }
 
 /**
- * Un journal des versions filtrable.
+ * A filterable changelog.
  *
  * @example
  * <Changelog
- *   title="Journal"
+ *   title="Changelog"
  *   releases={[
  *     {
  *       version: '2.4.0',
- *       date: '12 mars 2026',
+ *       date: '12 March 2026',
  *       dateTime: '2026-03-12',
- *       notes: [{ kind: 'ajout', text: 'Douze sections entrent au registre.' }],
+ *       notes: [{ kind: 'added', text: 'Twelve sections enter the registry.' }],
  *     },
  *   ]}
  * />
@@ -157,16 +156,16 @@ export function Changelog({
   ...rest
 }: ChangelogProps): ReactElement {
   const { reduced } = useMotionState()
-  const { ref, vu } = useInView<HTMLElement>({ amount: 0.1 })
-  const [retirees, setRetirees] = useState<readonly ChangeKind[]>([])
+  const { ref, inView } = useInView<HTMLElement>({ amount: 0.1 })
+  const [removed, setRemoved] = useState<readonly ChangeKind[]>([])
 
   ensureChangelogRules()
 
-  const basculer = (nature: ChangeKind): void => {
-    setRetirees((precedentes) =>
-      precedentes.includes(nature)
-        ? precedentes.filter((autre) => autre !== nature)
-        : [...precedentes, nature],
+  const toggle = (kind: ChangeKind): void => {
+    setRemoved((previous) =>
+      previous.includes(kind)
+        ? previous.filter((other) => other !== kind)
+        : [...previous, kind],
     )
   }
 
@@ -195,36 +194,36 @@ export function Changelog({
       {filterable && (
         <div
           role="group"
-          aria-label="Natures affichees"
+          aria-label="Kinds displayed"
           className="o-flex o-flex-wrap o-gap-2"
         >
-          {ORDRE.map((nature) => {
-            const active = !retirees.includes(nature)
+          {ORDER.map((kind) => {
+            const active = !removed.includes(kind)
             return (
               <button
-                key={nature}
+                key={kind}
                 type="button"
-                // Un interrupteur, pas une action : son etat doit s'entendre
-                // avant qu'on appuie dessus.
+                // A switch, not an action: its state has to be heard before it
+                // is pressed.
                 aria-pressed={active}
                 onClick={() => {
-                  basculer(nature)
+                  toggle(kind)
                 }}
                 className="o-rounded-full o-px-3 o-py-1 o-text-xs o-font-medium focus:o-ring"
                 style={{
                   cursor: 'pointer',
-                  color: active ? NATURES[nature].teinte : 'var(--o-theme-muted)',
+                  color: active ? KINDS[kind].hue : 'var(--o-theme-muted)',
                   backgroundColor: active
-                    ? `color-mix(in oklab, ${NATURES[nature].teinte} 14%, transparent)`
+                    ? `color-mix(in oklab, ${KINDS[kind].hue} 14%, transparent)`
                     : 'transparent',
                   border: `1px solid ${
                     active
-                      ? `color-mix(in oklab, ${NATURES[nature].teinte} 40%, transparent)`
+                      ? `color-mix(in oklab, ${KINDS[kind].hue} 40%, transparent)`
                       : 'var(--o-theme-line)'
                   }`,
                 }}
               >
-                {NATURES[nature].libelle}
+                {KINDS[kind].label}
               </button>
             )
           })}
@@ -234,20 +233,20 @@ export function Changelog({
       <dl
         data-o-log=""
         data-o-log-cache={reduced ? undefined : ''}
-        data-o-log-vu={vu && !reduced ? '' : undefined}
+        data-o-log-seen={inView && !reduced ? '' : undefined}
       >
         {releases.map((release, index) => {
-          const visibles = release.notes.filter((note) => !retirees.includes(note.kind))
-          const cachees = release.notes.length - visibles.length
+          const shown = release.notes.filter((note) => !removed.includes(note.kind))
+          const hidden = release.notes.length - shown.length
 
           return (
-            // La specification autorise expressement un `div` autour d'un
-            // couple `dt`/`dd` : c'est le seul moyen de les grouper pour la
-            // mise en page sans casser la relation que la liste porte.
+            // The specification expressly allows a `div` around a `dt`/`dd`
+            // pair: it is the only way to group them for the layout without
+            // breaking the relation that the list carries.
             <div
               key={release.version}
               data-o-log-entree=""
-              style={{ '--o-log-delai': `${String(index * 70)}ms` } as CSSProperties}
+              style={{ '--o-log-delay': `${String(index * 70)}ms` } as CSSProperties}
             >
               <dt>
                 <span
@@ -278,16 +277,16 @@ export function Changelog({
                 )}
 
                 <ul data-o-log-notes="">
-                  {visibles.map((note, rang) => (
-                    <li key={`${note.kind}-${String(rang)}`}>
+                  {shown.map((note, rank) => (
+                    <li key={`${note.kind}-${String(rank)}`}>
                       <span
                         data-o-log-pastille=""
                         style={{
-                          color: NATURES[note.kind].teinte,
-                          backgroundColor: `color-mix(in oklab, ${NATURES[note.kind].teinte} 14%, transparent)`,
+                          color: KINDS[note.kind].hue,
+                          backgroundColor: `color-mix(in oklab, ${KINDS[note.kind].hue} 14%, transparent)`,
                         }}
                       >
-                        {NATURES[note.kind].libelle}
+                        {KINDS[note.kind].label}
                       </span>
                       <span className="o-text-sm" style={{ color: 'var(--o-theme-fg)' }}>
                         {note.text}
@@ -297,17 +296,18 @@ export function Changelog({
                 </ul>
 
                 {/*
-                  La version reste affichee meme quand le filtre a tout retire :
-                  la faire disparaitre laisserait croire qu'elle n'existe pas.
+                  The version stays displayed even when the filter has removed
+                  everything: making it disappear would suggest it does not
+                  exist.
                 */}
-                {cachees > 0 && (
+                {hidden > 0 && (
                   <p
                     className="o-mt-2 o-text-xs"
                     style={{ color: 'var(--o-theme-muted)' }}
                   >
-                    {cachees === 1
-                      ? '1 ligne masquee par le filtre.'
-                      : `${String(cachees)} lignes masquees par le filtre.`}
+                    {hidden === 1
+                      ? '1 line hidden by the filter.'
+                      : `${String(hidden)} lines hidden by the filter.`}
                   </p>
                 )}
               </dd>

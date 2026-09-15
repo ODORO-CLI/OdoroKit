@@ -1,29 +1,28 @@
 /**
- * Module d'icones Odoro.
+ * Odoro icon module.
  *
- * ## Cinq jeux, un contrat
+ * ## Five packs, one contract
  *
- * Chaque jeu vit dans son propre sous-module : `@odoro-cli/icons/filaire`,
- * `/compact`, `/classique`, `/etendu`, `/marques`. Aucun n'est reexporte ici —
- * un index qui les rassemblerait tous ferait entrer onze mille exports dans le
- * graphe du bundler pour en afficher trois.
+ * Each pack lives in its own submodule: `@odoro-cli/icons/outline`,
+ * `/compact`, `/classic`, `/extended`, `/brands`. None is re-exported here —
+ * an index gathering them all would bring eleven thousand exports into the
+ * bundler graph in order to display three.
  *
- * ## Choisir un jeu, et s'y tenir
+ * ## Pick a pack, and stick to it
  *
- * Les jeux ne partagent ni grille, ni epaisseur, ni style de dessin. Melanger
- * une icone au trait de vingt-quatre et un glyphe plein de cinq cent douze
- * dans la meme barre d'outils se voit immediatement, meme sans savoir
- * pourquoi.
+ * The packs share neither grid, nor weight, nor drawing style. Mixing a
+ * twenty-four stroked icon and a five hundred and twelve solid glyph in the
+ * same toolbar shows immediately, even without knowing why.
  *
- * Le seul melange qui se defende est un jeu principal plus `marques`, puisque
- * les logos n'ont de toute facon aucun style commun avec le reste.
+ * The only mix that stands up is a main pack plus `brands`, since the logos
+ * have no style in common with the rest anyway.
  *
  * @example
  * import { Icon } from '@odoro-cli/icons'
- * import { Download, Search } from '@odoro-cli/icons/filaire'
+ * import { Download, Search } from '@odoro-cli/icons/outline'
  *
  * <Icon icon={Download} />
- * <Icon icon={Search} size={20} label="Rechercher" />
+ * <Icon icon={Search} size={20} label="Search" />
  *
  * @module
  */

@@ -1,10 +1,10 @@
 /**
- * Les commandes de base : le jeton, et ce qui se passe sans le SDK.
+ * The database commands: the token, and what happens without the SDK.
  *
- * Deux choses comptent ici. Un jeton range dans le projet finirait versionne,
- * et un secret pousse est a faire tourner plutot qu'a retirer d'un historique.
- * Et une commande dont le paquet manque doit dire quoi installer — pas
- * echouer sur une trace que personne ne rattache a une installation absente.
+ * Two things matter here. A token stored in the project would end up versioned,
+ * and a pushed secret is to be rotated rather than removed from a history. And
+ * a command whose package is missing must say what to install — not fail on a
+ * trace nobody connects to an absent install.
  *
  * @module
  */
@@ -25,122 +25,123 @@ import {
 } from '../config/user.js'
 import { SDK_PACKAGE, loadSdk } from './sdk.js'
 
-let dossier: string
-let fichier: string
+let directory: string
+let file: string
 
 beforeEach(async () => {
-  dossier = await mkdtemp(join(tmpdir(), 'odoro-conf-'))
-  fichier = join(dossier, 'config.json')
+  directory = await mkdtemp(join(tmpdir(), 'odoro-conf-'))
+  file = join(directory, 'config.json')
 })
 
 afterEach(async () => {
-  await rm(dossier, { recursive: true, force: true })
+  await rm(directory, { recursive: true, force: true })
 })
 
-describe('emplacement de la configuration', () => {
-  it('suit XDG_CONFIG_HOME quand il est pose', () => {
-    // C'est la variable par laquelle quelqu'un decide ou ses configurations
-    // vont : l'ignorer reviendrait a lui imposer un choix qu'il a explicitement
-    // fait autrement.
-    const chemin = configPath({ XDG_CONFIG_HOME: '/tmp/conf' })
-    expect(chemin.replace(/\\/g, '/')).toBe('/tmp/conf/odoro/config.json')
+describe('location of the configuration', () => {
+  it('follows XDG_CONFIG_HOME when it is set', () => {
+    // It is the variable through which someone decides where their
+    // configurations go: ignoring it would amount to imposing a choice they
+    // explicitly made otherwise.
+    const path = configPath({ XDG_CONFIG_HOME: '/tmp/conf' })
+    expect(path.replace(/\\/g, '/')).toBe('/tmp/conf/odoro/config.json')
   })
 
-  it('reste hors de tout depot', () => {
-    // Un fichier de configuration dans le projet ressemble a quelque chose
-    // qu'on versionne, et un `git add .` ne demande l'avis de personne.
-    const chemin = configPath({})
-    expect(chemin).not.toContain(process.cwd())
+  it('stays outside any repository', () => {
+    // A configuration file in the project looks like something one versions,
+    // and a `git add .` asks nobody's opinion.
+    const path = configPath({})
+    expect(path).not.toContain(process.cwd())
   })
 })
 
-describe('jeton', () => {
-  it('se range et se relit', async () => {
-    await storeToken('https://api.exemple.fr', 'odk_live_abc_secret', fichier)
-    expect(await findToken('https://api.exemple.fr', fichier, {})).toBe(
+describe('token', () => {
+  it('is stored and read back', async () => {
+    await storeToken('https://api.example.dev', 'odk_live_abc_secret', file)
+    expect(await findToken('https://api.example.dev', file, {})).toBe(
       'odk_live_abc_secret',
     )
   })
 
-  it('separe les racines', async () => {
-    await storeToken('https://a.fr', 'odk_live_a_x', fichier)
-    await storeToken('https://b.fr', 'odk_live_b_y', fichier)
+  it('keeps the roots apart', async () => {
+    await storeToken('https://a.dev', 'odk_live_a_x', file)
+    await storeToken('https://b.dev', 'odk_live_b_y', file)
 
-    expect(await findToken('https://a.fr', fichier, {})).toBe('odk_live_a_x')
-    expect(await findToken('https://b.fr', fichier, {})).toBe('odk_live_b_y')
+    expect(await findToken('https://a.dev', file, {})).toBe('odk_live_a_x')
+    expect(await findToken('https://b.dev', file, {})).toBe('odk_live_b_y')
   })
 
-  it('laisse la variable d environnement l emporter', async () => {
-    // Ce qui permet a une integration continue de fournir un jeton sans ecrire
-    // de fichier, et a quelqu'un d'en employer un autre le temps d'une commande.
-    await storeToken('https://api.exemple.fr', 'odk_live_range', fichier)
+  it('lets the environment variable win', async () => {
+    // Which lets a continuous integration provide a token without writing a
+    // file, and someone use another one for the duration of a command.
+    await storeToken('https://api.example.dev', 'odk_live_stored', file)
 
     expect(
-      await findToken('https://api.exemple.fr', fichier, { ODORO_TOKEN: 'odk_live_env' }),
+      await findToken('https://api.example.dev', file, { ODORO_TOKEN: 'odk_live_env' }),
     ).toBe('odk_live_env')
   })
 
-  it('s oublie', async () => {
-    await storeToken('https://api.exemple.fr', 'odk_live_abc_secret', fichier)
-    await forgetToken('https://api.exemple.fr', fichier)
+  it('is forgotten', async () => {
+    await storeToken('https://api.example.dev', 'odk_live_abc_secret', file)
+    await forgetToken('https://api.example.dev', file)
 
-    expect(await findToken('https://api.exemple.fr', fichier, {})).toBeUndefined()
+    expect(await findToken('https://api.example.dev', file, {})).toBeUndefined()
   })
 
-  it('reserve le fichier a son proprietaire', async () => {
-    const rapport = await writeUserConfig({ tokens: { a: 'b' } }, fichier)
+  it('reserves the file to its owner', async () => {
+    const report = await writeUserConfig({ tokens: { a: 'b' } }, file)
 
-    if (rapport.restricted) {
-      const mode = (await stat(fichier)).mode & 0o777
+    if (report.restricted) {
+      const mode = (await stat(file)).mode & 0o777
       expect(mode).toBe(0o600)
     } else {
-      // Sur Windows, l'equivalent POSIX n'existe pas. Le rapport doit le dire
-      // plutot que de laisser croire a une protection absente.
+      // On Windows, the POSIX equivalent does not exist. The report must say so
+      // rather than let one believe in an absent protection.
       expect(process.platform).toBe('win32')
     }
   })
 
-  it('repart d une configuration vide si le fichier est corrompu', async () => {
-    // Une configuration illisible ne doit pas empecher toute commande de
-    // fonctionner : on la remplace, on ne s'y arrete pas.
-    await writeFile(fichier, '{ ceci n est pas du json', 'utf8')
-    expect(await readUserConfig(fichier)).toEqual({})
+  it('starts again from an empty configuration when the file is corrupt', async () => {
+    // An unreadable configuration must not prevent every command from working:
+    // we replace it, we do not stop at it.
+    await writeFile(file, '{ this is not json', 'utf8')
+    expect(await readUserConfig(file)).toEqual({})
   })
 
-  it('conserve ce qui etait deja range', async () => {
-    await writeUserConfig({ defaultApiUrl: 'https://a.fr' }, fichier)
-    await storeToken('https://b.fr', 'odk_live_x', fichier)
+  it('keeps what was already stored', async () => {
+    await writeUserConfig({ defaultApiUrl: 'https://a.dev' }, file)
+    await storeToken('https://b.dev', 'odk_live_x', file)
 
-    const config = await readUserConfig(fichier)
-    expect(config.defaultApiUrl).toBe('https://a.fr')
-    expect(config.tokens?.['https://b.fr']).toBe('odk_live_x')
+    const config = await readUserConfig(file)
+    expect(config.defaultApiUrl).toBe('https://a.dev')
+    expect(config.tokens?.['https://b.dev']).toBe('odk_live_x')
   })
 
-  it('n ecrit le jeton nulle part ailleurs', async () => {
-    await storeToken('https://api.exemple.fr', 'odk_live_tres_secret', fichier)
+  it('writes the token nowhere else', async () => {
+    await storeToken('https://api.example.dev', 'odk_live_very_secret', file)
 
-    const contenu = await readFile(fichier, 'utf8')
-    expect(contenu).toContain('odk_live_tres_secret')
+    const content = await readFile(file, 'utf8')
+    expect(content).toContain('odk_live_very_secret')
 
-    // Et surtout : rien dans le dossier de travail.
-    const dansLeProjet = await readFile(join(process.cwd(), 'package.json'), 'utf8')
-    expect(dansLeProjet).not.toContain('odk_live_tres_secret')
+    // And above all: nothing in the working directory.
+    const inTheProject = await readFile(join(process.cwd(), 'package.json'), 'utf8')
+    expect(inTheProject).not.toContain('odk_live_very_secret')
   })
 })
 
-describe('chargement du SDK', () => {
-  it('explique quoi installer plutot que d echouer', async () => {
-    // Le paquet est volontairement absent de ce depot : la communication entre
-    // les deux depots passe par le paquet publie, dans un seul sens. C'est donc
-    // le chemin degrade qui est le chemin teste.
+describe('loading of the SDK', () => {
+  it('explains what to install rather than failing', async () => {
+    // The package is deliberately absent from this repository: the
+    // communication between the two repositories goes through the published
+    // package, in a single direction. The degraded path is therefore the path
+    // under test.
     const load = await loadSdk()
 
     expect(load.ok).toBe(false)
     if (!load.ok) {
       expect(load.reason).toContain(SDK_PACKAGE)
       expect(load.reason).toContain('npm install')
-      // Et une raison, pas seulement une injonction.
-      expect(load.reason).toContain('telecharge a chaque')
+      // And a reason, not only an instruction.
+      expect(load.reason).toContain('downloaded on every')
     }
   })
 })

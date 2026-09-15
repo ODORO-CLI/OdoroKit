@@ -1,28 +1,28 @@
 /**
- * Revelation floue : les mots passent du flou au net, l'un apres l'autre.
+ * Blur reveal: the words go from blurred to crisp, one after the other.
  *
- * ## `element.animate` plutot qu'une feuille
+ * ## `element.animate` rather than a stylesheet
  *
- * L'effet ne se joue qu'une fois, quand le texte entre dans le champ. Une
- * animation declarative devrait exister avant de savoir quand partir, et il
- * faudrait la retenir par un attribut puis la lacher au bon moment.
- * L'API Web Animations dit la meme chose en une ligne, au moment exact ou
- * l'observateur signale l'entree — et le navigateur la compose comme
- * n'importe quelle animation CSS.
+ * The effect plays only once, when the text enters the viewport. A declarative
+ * animation would have to exist before knowing when to start, and would have
+ * to be held back by an attribute then released at the right moment. The Web
+ * Animations API says the same thing in one line, at the exact moment the
+ * observer signals the entry — and the browser composites it like any CSS
+ * animation.
  *
- * ## Le flou initial n'est pose que si l'effet aura lieu
+ * ## The initial blur is only applied if the effect will happen
  *
- * Le piege classique de ce genre d'effet : cacher le texte en CSS et le
- * reveler en JavaScript. Si le JavaScript ne vient jamais — erreur, lecteur
- * sans script, mouvement reduit — le texte reste invisible. Ici l'etat cache
- * est pose par le meme code qui programme la revelation : sans lui, le texte
- * est simplement la, net.
+ * The classic trap of this kind of effect: hiding the text in CSS and
+ * revealing it in JavaScript. If the JavaScript never comes — an error, a
+ * reader without scripts, reduced motion — the text stays invisible. Here the
+ * hidden state is applied by the very code that schedules the reveal: without
+ * it, the text is simply there, crisp.
  *
- * ## Le decoupage est un artifice d'affichage
+ * ## The split is a display device
  *
- * Les mots sont eclates en elements pour recevoir chacun leur delai. Le
- * conteneur porte donc le texte complet pour les lecteurs d'ecran, et les
- * mots eclates sont retires de l'arbre d'accessibilite.
+ * The words are broken into elements so that each can receive its own delay.
+ * The container therefore carries the complete text for screen readers, and
+ * the split words are removed from the accessibility tree.
  *
  * @module
  */
@@ -30,34 +30,34 @@
 import { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'
 import { useEffect, useRef, type ElementType, type ReactElement } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface BlurRevealOwnProps {
-  /** Texte a reveler. */
+  /** Text to reveal. */
   children: string
-  /** Balise rendue. @defaultValue 'p' */
+  /** Rendered tag. @defaultValue 'p' */
   as?: ElementType
-  /** Delai entre deux mots, en millisecondes. @defaultValue 90 */
+  /** Delay between two words, in milliseconds. @defaultValue 90 */
   step?: number
-  /** Flou de depart, en pixels. @defaultValue 8 */
+  /** Starting blur, in pixels. @defaultValue 8 */
   blur?: number
-  /** Duree de la revelation d'un mot, en millisecondes. @defaultValue 600 */
+  /** Duration of the reveal of one word, in milliseconds. @defaultValue 600 */
   duration?: number
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type BlurRevealProps = Customisable<BlurRevealOwnProps, 'p'>
 
 /**
- * Revele un texte mot a mot, du flou vers le net, a l'entree dans le champ.
+ * Reveals a text word by word, from blurred to crisp, on entering the viewport.
  *
  * @example
  * <BlurReveal as="h2" className="o-text-3xl o-font-bold">
- *   Ce qui compte merite d etre lu
+ *   What matters deserves to be read
  * </BlurReveal>
  *
  * @example
- * // Plus lent, plus flou : pour un titre seul sur son ecran.
- * <BlurReveal step={140} blur={14}>Une entree en matiere</BlurReveal>
+ * // Slower, blurrier: for a heading alone on its screen.
+ * <BlurReveal step={140} blur={14}>An opening</BlurReveal>
  */
 export function BlurReveal({
   children,
@@ -77,8 +77,8 @@ export function BlurReveal({
     const words = element.querySelectorAll<HTMLElement>('[data-o-blur-word]')
     if (words.length === 0) return
 
-    // L'etat cache est pose ici, pas dans le rendu : si ce code ne tourne
-    // pas, le texte reste net et visible. Voir l'en-tete du module.
+    // The hidden state is applied here, not in the render: if this code does
+    // not run, the text stays crisp and visible. See the module header.
     for (const word of words) {
       word.style.opacity = '0'
     }
@@ -125,7 +125,7 @@ export function BlurReveal({
 
   const { className, style } = mergePresentation({}, rest)
 
-  // Mouvement reduit : le texte est la, net, sans decoupage.
+  // Reduced motion: the text is there, crisp, with no split.
   if (reduced) {
     return (
       <Tag {...rest} className={className} style={style}>
@@ -138,7 +138,7 @@ export function BlurReveal({
 
   return (
     <Tag {...rest} ref={host} className={className} style={style}>
-      {/* Le texte complet, d'un seul tenant, pour les lecteurs d'ecran. */}
+      {/* The complete text, in one piece, for screen readers. */}
       <span className="o-sr-only">{children}</span>
       <span aria-hidden>
         {words.map((word, index) => (

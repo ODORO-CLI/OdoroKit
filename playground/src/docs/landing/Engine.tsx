@@ -10,7 +10,7 @@
  */
 
 import { Icon, type IconData } from '@odoro-cli/icons'
-import { Cpu, Layers, Shield } from '@odoro-cli/icons/filaire'
+import { Cpu, Layers, Shield } from '@odoro-cli/icons/outline'
 import { Reveal, Stagger } from '@odoro-cli/libs/motion'
 import { Link } from '@odoro-cli/libs/router'
 import { type ReactElement } from 'react'

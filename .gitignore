@@ -61,6 +61,6 @@ playground/public/instructive/
 playground/src/docs/versions.generated.ts
 
 # Les versions des paquets de la famille, relevees par
-# `packages/odoro/scripts/versions-famille.mjs` avant chaque compilation.
+# `packages/odoro/scripts/family-versions.mjs` avant chaque compilation.
 # Les versionner ferait exister deux verites pour un meme numero.
-packages/odoro/src/scaffold/versions-famille.generated.ts
+packages/odoro/src/scaffold/family-versions.generated.ts

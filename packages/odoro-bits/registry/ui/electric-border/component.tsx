@@ -1,34 +1,34 @@
 /**
- * Bordure electrique : un contour qui crepite, des eclairs qui courent le
- * long du trait dans les deux sens, un halo qui vacille.
+ * Electric border: an outline that crackles, sparks running along the stroke
+ * in both directions, a halo that flickers.
  *
- * ## Pourquoi pas une turbulence
+ * ## Why not a turbulence
  *
- * L'effet d'origine deforme le trait par un `feTurbulence` anime : le bruit
- * est recalcule a chaque image, sur toute la surface du cadre, et un
- * navigateur qui en affiche trois se met a bafouiller. Ce n'est pas un
- * reglage a baisser, c'est un cout par pixel et par image.
+ * The original effect warps the stroke with an animated `feTurbulence`: the
+ * noise is recomputed on every frame, over the whole surface of the frame, and
+ * a browser showing three of them starts to stutter. This is not a setting to
+ * turn down, it is a cost per pixel and per frame.
  *
- * L'electricite est donc ecrite autrement, avec ce qu'un moteur SVG anime
- * pour presque rien : le decalage d'un pointille. Deux traces du meme
- * rectangle portent chacune un motif de tirets irreguliers — courts, longs,
- * espaces sans regularite — et leur `stroke-dashoffset` defile, l'un dans
- * un sens, l'autre dans l'autre. Deux rangees d'eclairs qui se croisent
- * sur un coeur continu : la geometrie ne change pas, seule la phase avance.
+ * The electricity is therefore written otherwise, with what an SVG engine
+ * animates for almost nothing: the offset of a dashed line. Two strokes of the
+ * same rectangle each carry an irregular dash pattern — short, long, spaced
+ * without regularity — and their `stroke-dashoffset` scrolls, one way for one,
+ * the other way for the other. Two rows of sparks crossing over a continuous
+ * core: the geometry does not change, only the phase moves on.
  *
- * ## Le vacillement est par paliers
+ * ## The flicker goes by steps
  *
- * Une lueur electrique ne s'eteint pas en fondu : elle saute. L'opacite du
- * halo suit donc une animation a `steps(1)`, avec des arrets a des instants
- * irreguliers — une baisse breve, un retour, une baisse plus longue. La
- * courbe a ete reglee a l'oeil : trop reguliere, elle fait clignotant ; trop
- * dense, elle fatigue.
+ * An electric glow does not fade out: it jumps. The opacity of the halo
+ * therefore follows a `steps(1)` animation, with stops at irregular
+ * moments — a brief drop, a return, a longer drop. The curve has been
+ * tuned by eye: too regular and it reads as a blinker; too dense and it
+ * tires the eye.
  *
- * ## `pathLength` rend les tirets independants de la taille
+ * ## `pathLength` makes the dashes independent of the size
  *
- * Le rectangle declare un perimetre de cent, quelle que soit sa taille
- * reelle. Un motif de tirets ecrit en centiemes de tour donne donc les memes
- * eclairs sur un bouton et sur une carte, sans rien mesurer.
+ * The rectangle declares a perimeter of one hundred, whatever its real size. A
+ * dash pattern written in hundredths of a turn therefore gives the same sparks
+ * on a button and on a card, with nothing to measure.
  *
  * @module
  */
@@ -36,47 +36,47 @@
 import { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'
 import { type CSSProperties, type ReactElement, type ReactNode } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface ElectricBorderOwnProps {
-  /** Contenu encadre. */
+  /** Framed content. */
   children: ReactNode
   /**
-   * Tokens du courant et des eclairs qui le parcourent.
+   * Tokens of the current and of the sparks running along it.
    *
-   * Deux, dans cet ordre. Le courant fait le halo et le coeur ; les eclairs
-   * sont les tirets clairs qui defilent dessus.
+   * Two, in that order. The current makes the halo and the core; the sparks
+   * are the light dashes scrolling over it.
    */
   colors?: readonly [string, string]
-  /** Epaisseur du trait, en pixels. @defaultValue 2 */
+  /** Thickness of the stroke, in pixels. @defaultValue 2 */
   thickness?: number
-  /** Rayon des angles du cadre, en pixels. @defaultValue 16 */
+  /** Corner radius of the frame, in pixels. @defaultValue 16 */
   radius?: number
-  /** Duree d'un tour des eclairs, en millisecondes. @defaultValue 1400 */
+  /** Duration of one turn of the sparks, in milliseconds. @defaultValue 1400 */
   speed?: number
-  /** Force du halo, de zero a un. @defaultValue 0.8 */
+  /** Strength of the halo, from zero to one. @defaultValue 0.8 */
   intensity?: number
 }
 
-/** Toutes les proprietes. */
+/** All the properties. */
 export type ElectricBorderProps = Customisable<ElectricBorderOwnProps>
 
-/** Tokens employes par defaut. */
+/** Tokens used by default. */
 const DEFAULT_TOKENS = ['--o-palette-sky-400', '--o-palette-white'] as const
 
 /**
- * Motifs de tirets des deux rangees d'eclairs, en centiemes de perimetre.
+ * Dash patterns of the two rows of sparks, in hundredths of the perimeter.
  *
- * Irreguliers a dessein : un motif regulier fait un pointille, pas un arc
- * electrique. Les deux sommes different pour que les rangees ne se
- * superposent jamais exactement.
+ * Irregular on purpose: a regular pattern makes a dotted line, not an
+ * electric arc. The two sums differ so that the rows never overlap
+ * exactly.
  */
 const ARC_A = '1 9 3 17 1 6 4 23 2 12'
 const ARC_B = '2 14 1 7 3 19 1 11 2 27'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-electric-border'
 
-/** Pose le cadre, les traces et leurs animations, une fois par document. */
+/** Places the frame, the strokes and their animations, once per document. */
 function ensureElectricRules(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -87,8 +87,8 @@ function ensureElectricRules(): void {
     '[data-o-elec]{position:relative;display:inline-block;isolation:isolate;',
     'border-radius:var(--o-elec-radius)}',
     '[data-o-elec-content]{position:relative;z-index:1;border-radius:inherit}',
-    // Le SVG est rentre d'une demi-epaisseur : le trait, centre sur le bord
-    // du rectangle, tombe alors exactement sur le bord du cadre.
+    // The SVG is inset by half a thickness: the stroke, centered on the edge
+    // of the rectangle, then falls exactly on the edge of the frame.
     '[data-o-elec-svg]{',
     'position:absolute;z-index:0;pointer-events:none;overflow:visible;',
     'inset:calc(var(--o-elec-w) / 2);',
@@ -104,7 +104,7 @@ function ensureElectricRules(): void {
     'animation:o-elec-run var(--o-elec-speed) linear infinite}',
     '[data-o-elec-trace="arc"][data-o-elec-back]{animation-direction:reverse;opacity:0.7}',
     '@keyframes o-elec-run{to{stroke-dashoffset:-100}}',
-    // Les paliers du vacillement, en fractions de l'intensite de repos.
+    // The steps of the flicker, as fractions of the resting intensity.
     '@keyframes o-elec-flicker{',
     '0%,100%{opacity:calc(var(--o-elec-intensity) * 0.3)}',
     '7%{opacity:calc(var(--o-elec-intensity) * 0.16)}',
@@ -123,17 +123,17 @@ function ensureElectricRules(): void {
 }
 
 /**
- * Encadre un contenu d'un trait electrique.
+ * Frames a content with an electric stroke.
  *
  * @example
  * <ElectricBorder className="o-p-6">
- *   <h3>Offre du moment</h3>
+ *   <h3>Offer of the moment</h3>
  * </ElectricBorder>
  *
  * @example
- * // Courant violet, trait plus epais, angles plus doux.
+ * // Purple current, thicker stroke, softer corners.
  * <ElectricBorder colors={['--o-palette-fuchsia-400', '--o-palette-white']} thickness={3} radius={24}>
- *   <button type="button" className="o-px-6 o-py-3">Activer</button>
+ *   <button type="button" className="o-px-6 o-py-3">Activate</button>
  * </ElectricBorder>
  */
 export function ElectricBorder({
@@ -150,7 +150,7 @@ export function ElectricBorder({
 
   const { className, style } = mergePresentation({}, rest)
 
-  // Le rectangle est rentre d'une demi-epaisseur : son rayon l'est aussi.
+  // The rectangle is inset by half a thickness: so is its radius.
   const rx = Math.max(0, radius - thickness / 2)
 
   const trace = (
@@ -191,7 +191,7 @@ export function ElectricBorder({
       <svg aria-hidden="true" data-o-elec-svg="">
         {trace('halo')}
         {trace('core')}
-        {/* Sous mouvement reduit les eclairs ne courent pas : le coeur suffit. */}
+        {/* Under reduced motion the sparks do not run: the core is enough. */}
         {!reduced && trace('arc', ARC_A)}
         {!reduced && trace('arc', ARC_B, true)}
       </svg>

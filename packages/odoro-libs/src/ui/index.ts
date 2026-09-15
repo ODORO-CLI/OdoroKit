@@ -1,9 +1,9 @@
 /**
- * Composants d'interface d'Odoro.
+ * Odoro interface components.
  *
- * Tous s'appuient exclusivement sur la couche semantique du systeme de style :
- * ils fonctionnent avec `@odoro-cli/libs/styles.css` seul, et se retheme
- * integralement en surchargeant les variables `--o-color-*`.
+ * They all rely exclusively on the semantic layer of the style system:
+ * they work with `@odoro-cli/libs/styles.css` alone, and retheme
+ * entirely by overriding the `--o-color-*` variables.
  *
  * @example
  * import { Button, Card, Dialog, Tabs, useToast } from '@odoro-cli/libs/ui'
@@ -11,7 +11,7 @@
  * @module
  */
 
-// Formulaires.
+// Forms.
 export { Button, buttonClasses, type ButtonProps } from './Button.jsx'
 export { Input, inputClasses, type InputProps } from './Input.jsx'
 export { Textarea, type TextareaProps } from './Textarea.jsx'
@@ -23,7 +23,7 @@ export { RadioGroup, type RadioGroupProps, type RadioItem } from './Radio.jsx'
 export { Switch, switchClasses, type SwitchProps } from './Switch.jsx'
 export { Slider, type SliderProps } from './Slider.jsx'
 
-// Affichage.
+// Display.
 export { Card, cardClasses, type CardProps } from './Card.jsx'
 export {
   Badge,
@@ -55,7 +55,7 @@ export { Accordion, type AccordionItem, type AccordionProps } from './Accordion.
 export { Breadcrumb, type BreadcrumbItem, type BreadcrumbProps } from './Breadcrumb.jsx'
 export { Pagination, type PaginationProps } from './Pagination.jsx'
 
-// Surcouches.
+// Overlays.
 export { Dialog, type DialogProps } from './Dialog.jsx'
 export { Drawer, type DrawerProps, type DrawerSide } from './Drawer.jsx'
 export { Tooltip, type TooltipPlacement, type TooltipProps } from './Tooltip.jsx'

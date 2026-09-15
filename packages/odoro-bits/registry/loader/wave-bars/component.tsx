@@ -1,27 +1,27 @@
 /**
- * Barres en vague : cinq barres fines s'etirent depuis leur centre, l'une
- * apres l'autre, comme une onde qui traverse la rangee.
+ * Wave bars: five thin bars stretch from their center, one after the other,
+ * like a wave crossing the row.
  *
- * ## Une echelle, pas une hauteur
+ * ## A scale, not a height
  *
- * Chaque barre occupe toute la hauteur du conteneur et n'est etiree que par
- * une echelle verticale, depuis son milieu : la mise en page ne bouge jamais,
- * et la figure reste symetrique autour de sa ligne mediane — c'est ce qui la
- * fait lire comme une forme d'onde plutot que comme un histogramme. Un
- * histogramme, c'est `equalizer`, ancre au sol.
+ * Every bar takes the whole height of the container and is stretched only by
+ * a vertical scale, from its middle: the layout never moves, and the figure
+ * stays symmetrical around its median line — that is what makes it read as a
+ * waveform rather than as a histogram. A histogram is `equalizer`, anchored
+ * to the ground.
  *
- * Les cinq barres jouent la meme animation avec un cinquieme de cycle
- * d'ecart, en delai negatif : la vague est deja en route a la premiere image,
- * au lieu de partir d'une rangee plate.
+ * The five bars play the same animation a fifth of a cycle apart, with a
+ * negative delay: the wave is already under way on the first frame, instead
+ * of setting off from a flat row.
  *
- * ## Un statut, pas un dessin
+ * ## A status, not a drawing
  *
- * L'element porte `role="status"` et un libelle pour les lecteurs d'ecran :
- * l'attente est une information, pas une decoration. Les barres sont
- * retirees de l'arbre d'accessibilite.
+ * The element carries `role="status"` and a label for screen readers: the
+ * wait is information, not decoration. The bars are removed from the
+ * accessibility tree.
  *
- * Sous mouvement reduit, les cinq barres restent a mi-hauteur : la forme
- * d'onde se lit encore, seule la vague s'arrete.
+ * Under reduced motion, the five bars stay at half height: the waveform
+ * still reads, only the wave stops.
  *
  * @module
  */
@@ -29,13 +29,13 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-wave-bars'
 
-/** Nombre de barres. */
+/** Number of bars. */
 const BARS = 5
 
-/** Pose les barres et leur vague, une fois par document. */
+/** Applies the bars and their wave, once per document. */
 function ensureWaveBarsRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -58,7 +58,7 @@ function ensureWaveBarsRule(): void {
     '0%,100%{transform:scaleY(0.25)}',
     '50%{transform:scaleY(1)}',
     '}',
-    // Une rangee a mi-hauteur : la forme d'onde reste dite, sans vague.
+    // A row at half height: the waveform is still stated, with no wave.
     '@media (prefers-reduced-motion:reduce){',
     '[data-o-wave-bar]{animation:none;transform:scaleY(0.6)}',
     '}',
@@ -66,36 +66,36 @@ function ensureWaveBarsRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface WaveBarsOwnProps {
-  /** Largeur d'une barre, en pixels. @defaultValue 4 */
+  /** Width of a bar, in pixels. @defaultValue 4 */
   size?: number
-  /** Duree d'un passage complet de la vague, en millisecondes. @defaultValue 1000 */
+  /** Duration of a full pass of the wave, in milliseconds. @defaultValue 1000 */
   speed?: number
-  /** Couleur des barres. @defaultValue la couleur du texte */
+  /** Color of the bars. @defaultValue the text color */
   color?: string
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */
+  /** Label announced to screen readers. @defaultValue 'Loading' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All the properties. */
 export type WaveBarsProps = Customisable<WaveBarsOwnProps, 'span'>
 
 /**
- * Signale une attente par cinq barres traversees d'une vague.
+ * Signals a wait with five bars crossed by a wave.
  *
  * @example
  * <WaveBars />
  *
  * @example
- * // Plus large, plus lent, dans la teinte de marque.
+ * // Wider, slower, in the brand hue.
  * <WaveBars size={6} speed={1600} color="var(--o-palette-brand-500)" />
  */
 export function WaveBars({
   size = 4,
   speed = 1000,
   color = 'currentColor',
-  label = 'Chargement',
+  label = 'Loading',
   ...rest
 }: WaveBarsProps): ReactElement {
   ensureWaveBarsRule()
@@ -125,8 +125,8 @@ export function WaveBars({
           data-o-wave-bar=""
           style={
             {
-              // Un cinquieme de cycle d'ecart, en negatif : la vague est deja
-              // en route a la premiere image.
+              // A fifth of a cycle apart, negative: the wave is already
+              // under way on the first frame.
               '--o-wbars-delay': `${String(Math.round((-speed * bar) / BARS))}ms`,
             } as CSSProperties
           }

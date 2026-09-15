@@ -48,7 +48,7 @@ import {
   Package,
   Repeat,
   Thermometer,
-} from '@odoro-cli/icons/filaire'
+} from '@odoro-cli/icons/outline'
 import { useMemo, useState, type ReactElement } from 'react'
 
 import { nuit } from './communs.jsx'

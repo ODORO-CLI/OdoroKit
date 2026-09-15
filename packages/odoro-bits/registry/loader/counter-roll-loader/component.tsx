@@ -1,37 +1,37 @@
 /**
- * Rouleaux de chiffres : des colonnes qui roulent sans fin, un cran a la
- * fois, chacune a sa phase, comme un compteur qui ne s'arrete pas.
+ * Digit drums: columns that roll endlessly, one notch at a time, each with
+ * its own phase, like a counter that never stops.
  *
- * ## Un cran, puis un arret : c'est ce qui fait le rouleau
+ * ## A notch, then a stop: that is what makes the drum
  *
- * Une colonne qui glisse en continu est un ruban, pas un compteur : on ne
- * lit aucun chiffre. Le rouleau avance d'un chiffre en un mouvement bref,
- * puis s'arrete dessus, dix fois par tour. Les images-cles sont donc au
- * nombre de vingt, deux par chiffre — le depart et l'arrivee du cran — et
- * chaque cran a sa propre acceleration. Un unique `steps(10)` donnerait les
- * arrets, mais des sauts secs entre eux ; c'est le mouvement entre deux
- * arrets qui fait le mecanisme.
+ * A column that slides continuously is a ribbon, not a counter: no digit
+ * can be read. The drum advances by one digit in a brief movement, then
+ * stops on it, ten times per turn. The keyframes therefore number twenty,
+ * two per digit — the start and the arrival of the notch — and every notch
+ * has its own acceleration. A single `steps(10)` would give the stops, but
+ * dry jumps between them; it is the movement between two stops that makes
+ * the mechanism.
  *
- * Chaque rouleau porte onze chiffres, de 0 a 9 puis 0 de nouveau : la
- * derniere image du tour montre le meme chiffre que la premiere, et la
- * boucle ne se voit pas.
+ * Every drum carries eleven digits, from 0 to 9 then 0 again: the last
+ * frame of the turn shows the same digit as the first, and the loop cannot
+ * be seen.
  *
- * Les rouleaux ne sont pas synchrones : un delai negatif, different par
- * colonne, les decale d'une fraction de tour. Trois colonnes qui roulent
- * ensemble ressembleraient a un seul bloc qui saute.
+ * The drums are not synchronous: a negative delay, different per column,
+ * offsets them by a fraction of a turn. Three columns rolling together
+ * would look like a single block jumping.
  *
- * L'odometre de la categorie texte roule jusqu'a une valeur et s'arrete ;
- * celui-ci ne s'arrete jamais, et c'est le point.
+ * The odometer of the text category rolls up to a value and stops; this one
+ * never stops, and that is the point.
  *
- * ## Un statut, pas un dessin
+ * ## A status, not a drawing
  *
- * L'element porte `role="status"` et un libelle pour les lecteurs d'ecran.
- * Les rouleaux sont retires de l'arbre d'accessibilite : un lecteur d'ecran
- * y trouverait onze chiffres par colonne.
+ * The element carries `role="status"` and a label for screen readers. The
+ * drums are removed from the accessibility tree: a screen reader would find
+ * eleven digits per column in them.
  *
- * Sous mouvement reduit, chaque rouleau est a l'arret sur un chiffre, pas
- * tous sur le meme : la figure se lit encore comme un compteur, seul le
- * roulement s'arrete.
+ * Under reduced motion, every drum is stopped on a digit, not all of them
+ * on the same one: the figure still reads as a counter, only the rolling
+ * stops.
  *
  * @module
  */
@@ -39,19 +39,19 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-counter-roll-loader'
 
-/** Hauteur d'une ligne de rouleau, en em. */
+/** Height of one drum line, in em. */
 const LINE = 1.3
 
-/** Part de chaque cran passee en mouvement, le reste etant l'arret. */
+/** Share of every notch spent in movement, the rest being the stop. */
 const MOVE_SHARE = 0.55
 
-/** Les onze chiffres d'un rouleau : le dernier repete le premier. */
+/** The eleven digits of a drum: the last one repeats the first. */
 const STRIP = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0] as const
 
-/** Les vingt images-cles d'un tour : depart et arrivee de chaque cran. */
+/** The twenty keyframes of a turn: start and arrival of every notch. */
 function rollKeyframes(): string {
   const stops: string[] = []
   for (let digit = 0; digit < 10; digit += 1) {
@@ -66,7 +66,7 @@ function rollKeyframes(): string {
   return `@keyframes o-crl-roll{${stops.join('')}}`
 }
 
-/** Pose les rouleaux et leur tour, une fois par document. */
+/** Applies the drums and their turn, once per document. */
 function ensureCounterRollLoaderRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -81,8 +81,8 @@ function ensureCounterRollLoaderRule(): void {
     '[data-o-crl-drum]{',
     'display:inline-flex;gap:0.15em;font-family:var(--o-font-mono);font-size:1.5em;font-weight:600;',
     '}',
-    // La fenetre a la hauteur d'une ligne : elle ne montre qu'un chiffre, et
-    // les voisins n'apparaissent que pendant le cran.
+    // The window is one line high: it shows only one digit, and the
+    // neighbours appear only during the notch.
     '[data-o-crl-col]{',
     `display:block;height:${String(LINE)}em;overflow:hidden;padding:0 0.14em;border-radius:0.15em;`,
     'background:color-mix(in oklab,currentColor 10%,transparent);',
@@ -102,42 +102,42 @@ function ensureCounterRollLoaderRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface CounterRollLoaderOwnProps {
-  /** La legende sous les rouleaux. Chaine vide pour ne garder que les rouleaux. @defaultValue 'Chargement' */
+  /** The caption under the drums. Empty string to keep only the drums. @defaultValue 'Loading' */
   text?: string
-  /** Nombre de rouleaux. @defaultValue 3 */
+  /** Number of drums. @defaultValue 3 */
   digits?: number
-  /** Corps de reference, en pixels ; les chiffres en font une fois et demie. @defaultValue 16 */
+  /** Reference body size, in pixels; the digits are one and a half times it. @defaultValue 16 */
   size?: number
-  /** Duree d'un tour complet de rouleau, en millisecondes. @defaultValue 2000 */
+  /** Duration of a full turn of a drum, in milliseconds. @defaultValue 2000 */
   speed?: number
-  /** Couleur des chiffres et de la legende. @defaultValue la couleur du texte */
+  /** Color of the digits and of the caption. @defaultValue the text color */
   color?: string
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */
+  /** Label announced to screen readers. @defaultValue 'Loading' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All the properties. */
 export type CounterRollLoaderProps = Customisable<CounterRollLoaderOwnProps, 'span'>
 
 /**
- * Signale une attente par des rouleaux de chiffres qui tournent sans fin.
+ * Signals a wait with digit drums that turn endlessly.
  *
  * @example
  * <CounterRollLoader />
  *
  * @example
- * // Cinq rouleaux, plus lents, dans la teinte de marque.
+ * // Five drums, slower, in the brand hue.
  * <CounterRollLoader digits={5} speed={3000} color="var(--o-palette-brand-500)" />
  */
 export function CounterRollLoader({
-  text = 'Chargement',
+  text = 'Loading',
   digits = 3,
   size = 16,
   speed = 2000,
   color = 'currentColor',
-  label = 'Chargement',
+  label = 'Loading',
   ...rest
 }: CounterRollLoaderProps): ReactElement {
   ensureCounterRollLoaderRule()
@@ -162,10 +162,10 @@ export function CounterRollLoader({
               data-o-crl-strip=""
               style={
                 {
-                  // Une fraction de tour irrationnelle par colonne : les
-                  // rouleaux ne retombent jamais en phase.
+                  // An irrational fraction of a turn per column: the drums
+                  // never fall back into phase.
                   '--o-crl-delay': `${String(-Math.round(speed * ((column * 0.37) % 1)))}ms`,
-                  // Au repos, chaque rouleau montre un chiffre different.
+                  // At rest, every drum shows a different digit.
                   '--o-crl-rest': String((column * 3) % 10),
                 } as CSSProperties
               }

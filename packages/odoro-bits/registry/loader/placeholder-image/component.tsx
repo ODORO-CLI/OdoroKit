@@ -1,35 +1,36 @@
 /**
- * Cadre d'image : un rectangle au bon rapport, cerne d'un filet pointille,
- * avec au centre le pictogramme de ce qui manque.
+ * Image frame: a rectangle at the right ratio, ringed with a dashed line,
+ * with the glyph of what is missing at its centre.
  *
- * ## Un cadre vide n'est pas un bloc gris
+ * ## An empty frame is not a grey block
  *
- * Un bloc uni dit « ca charge ». Un cadre pointille avec une icone dit
- * « une image va ici » — et le dit meme quand rien ne charge : illustration
- * absente, champ de televersement encore vide, gabarit en cours de montage.
- * Les deux lectures ne demandent pas le meme dessin, d'ou une entree
- * separee de `skeleton-grid`, dont les vignettes sont pleines et anonymes.
+ * A plain block says "this is loading". A dashed frame with an icon says "an
+ * image goes here" — and says it even when nothing is loading: an
+ * illustration that is absent, an upload field still empty, a template being
+ * assembled. The two readings do not call for the same drawing, hence an
+ * entry separate from `skeleton-grid`, whose thumbnails are full and
+ * anonymous.
  *
- * Le filet est **pointille** : c'est la convention qui distingue une place
- * reservee d'une bordure reelle. Un trait plein se lirait comme le cadre
- * definitif de l'image.
+ * The line is **dashed**: it is the convention that tells reserved room apart
+ * from a real border. A solid stroke would read as the final frame of the
+ * image.
  *
- * Le pictogramme est dessine en ligne plutot qu'importe : trois traits, un
- * disque et un rectangle, c'est moins que le cout d'une dependance de plus
- * pour un composant qui n'affiche que lui.
+ * The glyph is drawn inline rather than imported: three strokes, a disc and a
+ * rectangle cost less than one more dependency for a component that displays
+ * nothing else.
  *
- * ## Le rapport, encore
+ * ## The ratio, again
  *
- * `ratio` reserve la hauteur exacte. C'est la meme raison que dans
- * `skeleton-grid` : sans rapport declare, la page se replie a l'arrivee de
- * l'image, et tout ce qui la suit saute.
+ * `ratio` reserves the exact height. It is the same reason as in
+ * `skeleton-grid`: without a declared ratio, the page folds up when the image
+ * arrives, and everything below it jumps.
  *
- * ## Un statut, pas un dessin
+ * ## A status, not a drawing
  *
- * L'element porte `role="status"` et un libelle ; le cadre et son
- * pictogramme sont retires de l'arbre d'accessibilite. Sous mouvement
- * reduit, le reflet s'arrete et le cadre reste entier : la place reste
- * dite, elle ne s'efface pas.
+ * The element carries `role="status"` and a label; the frame and its glyph
+ * are removed from the accessibility tree. Under reduced motion, the sheen
+ * stops and the frame stays whole: the room stays said, it does not fade
+ * away.
  *
  * @module
  */
@@ -37,13 +38,13 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Id of the injected stylesheet. */
 const STYLE_ID = 'o-placeholder-image'
 
-/** Rapports acceptes pour le cadre. */
+/** Ratios accepted for the frame. */
 const RATIOS = ['16/9', '4/3', '3/2', '1/1'] as const
 
-/** Pose le cadre, son filet et son reflet, une fois par document. */
+/** Sets the frame, its line and its sheen, once per document. */
 function ensurePlaceholderImageRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -57,12 +58,12 @@ function ensurePlaceholderImageRule(): void {
     'overflow:hidden;box-sizing:border-box;',
     'width:100%;aspect-ratio:var(--o-pimg-ratio);',
     'border-radius:var(--o-pimg-radius);',
-    // Plus clair qu'un bloc de squelette : le pictogramme doit se lire.
+    // Lighter than a skeleton block: the glyph has to read.
     'background:color-mix(in oklab,var(--o-theme-line) 38%,var(--o-theme-surface));',
-    // Pointille : la convention d'une place reservee, pas d'un cadre reel.
+    // Dashed: the convention of reserved room, not of a real frame.
     'border:1px dashed var(--o-theme-line);',
     '}',
-    // Le pictogramme prend l'encre en sourdine : present, jamais dominant.
+    // The glyph takes the ink muted: present, never dominant.
     '[data-o-pimg-glyph]{',
     'position:relative;display:block;color:var(--o-theme-muted);',
     'width:var(--o-pimg-icon);height:auto;opacity:0.85;',
@@ -74,7 +75,7 @@ function ensurePlaceholderImageRule(): void {
     'animation:o-pimg-sweep var(--o-pimg-speed) linear infinite;',
     '}',
     '@keyframes o-pimg-sweep{to{transform:translateX(100%)}}',
-    // Le cadre reste entier, sans reflet.
+    // The frame stays whole, without a sheen.
     '@media (prefers-reduced-motion:reduce){',
     '[data-o-pimg-shimmer] [data-o-pimg-frame]::after{animation:none;opacity:0}',
     '}',
@@ -82,33 +83,33 @@ function ensurePlaceholderImageRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to the component. */
 export interface PlaceholderImageOwnProps {
-  /** Rapport largeur sur hauteur du cadre. @defaultValue '16/9' */
+  /** Width to height ratio of the frame. @defaultValue '16/9' */
   ratio?: string
-  /** Largeur du pictogramme, en pixels. @defaultValue 40 */
+  /** Width of the glyph, in pixels. @defaultValue 40 */
   icon?: number
-  /** Rayon des angles, en pixels. @defaultValue 12 */
+  /** Corner radius, in pixels. @defaultValue 12 */
   radius?: number
-  /** Faire passer un reflet sur le cadre. @defaultValue false */
+  /** Run a sheen across the frame. @defaultValue false */
   shimmer?: boolean
-  /** Duree d'un passage du reflet, en millisecondes. @defaultValue 2000 */
+  /** Duration of one pass of the sheen, in milliseconds. @defaultValue 2000 */
   speed?: number
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Image en attente' */
+  /** Label announced to screen readers. @defaultValue 'Image pending' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type PlaceholderImageProps = Customisable<PlaceholderImageOwnProps, 'div'>
 
 /**
- * Reserve la place d'une image, cadre et pictogramme compris.
+ * Reserves the room for an image, frame and glyph included.
  *
  * @example
  * <PlaceholderImage />
  *
  * @example
- * // Un carre qui charge vraiment : le reflet le dit.
+ * // A square that really is loading: the sheen says so.
  * <PlaceholderImage ratio="1/1" shimmer />
  */
 export function PlaceholderImage({
@@ -117,13 +118,13 @@ export function PlaceholderImage({
   radius = 12,
   shimmer = false,
   speed = 2000,
-  label = 'Image en attente',
+  label = 'Image pending',
   ...rest
 }: PlaceholderImageProps): ReactElement {
   ensurePlaceholderImageRule()
 
-  // Un rapport inconnu casserait le cadre sans rien dire : on retombe sur
-  // celui par defaut plutot que d'ecrire une valeur invalide.
+  // An unknown ratio would break the frame without saying anything: we fall
+  // back to the default one rather than writing an invalid value.
   const safeRatio = (RATIOS as readonly string[]).includes(ratio) ? ratio : '16/9'
 
   const { className, style } = mergePresentation({}, rest)

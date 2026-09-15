@@ -1,36 +1,36 @@
 /**
- * Shader des lignes flottantes.
+ * Floating lines shader.
  *
- * ## L'idee mathematique
+ * ## The mathematical idea
  *
- * Chaque ligne est un segment courbe pose dans un repere propre : un centre
- * qui derive sur deux sinus lents, une direction inclinee qui oscille, une
- * longueur finie. Dans ce repere, le fragment se projette sur l'axe du
- * segment — ce qui donne la position le long de la ligne — et sur sa normale
- * — ce qui donne la distance au trait, moins une flexion sinusoidale.
+ * Each line is a curved segment laid in a frame of its own: a centre that
+ * drifts on two slow sines, a tilted direction that oscillates, a finite
+ * length. In that frame, the fragment projects onto the segment's axis —
+ * which gives the position along the line — and onto its normal — which
+ * gives the distance to the stroke, less a sinusoidal bend.
  *
- * Les extremites ne sont pas coupees : elles s'eteignent sur le dernier tiers
- * de la longueur. C'est ce qui fait flotter le segment au lieu de le poser.
+ * The ends are not cut: they fade out over the last third of the length.
+ * That is what makes the segment float instead of settling.
  *
- * Les centres derivent chacun a leur vitesse et les inclinaisons different :
- * deux lignes finissent toujours par se croiser, et c'est le croisement — un
- * point plus lumineux la ou deux halos s'additionnent — qui donne la
- * profondeur.
+ * The centres each drift at their own speed and the tilts differ: two lines
+ * always end up crossing, and it is the crossing — a brighter point where
+ * two halos add up — that gives the
+ * depth.
  *
- * La distance au trait est divisee par la norme de sa pente, comme pour tout
- * y = f(x) : sans cela la flexion epaissirait le trait dans ses courbes.
+ * The distance to the stroke is divided by the norm of its slope, as for any
+ * y = f(x): without that the bend would thicken the stroke in its curves.
  *
  * ## Uniforms
  *
- * - `uTime` — temps en secondes, fourni par le moteur.
- * - `uResolution` — taille du canevas en pixels, fournie par le moteur.
- * - `uColorA` — le fond.
- * - `uColorB` — le halo des lignes.
- * - `uColorC` — le coeur du trait.
- * - `uCount` — nombre de lignes, borne a dix.
- * - `uSpeed` — vitesse de la derive.
- * - `uLength` — longueur des segments, en hauteurs de cadre.
- * - `uGlow` — largeur du halo.
+ * - `uTime` — time in seconds, supplied by the engine.
+ * - `uResolution` — canvas size in pixels, supplied by the engine.
+ * - `uColorA` — the background.
+ * - `uColorB` — the halo of the lines.
+ * - `uColorC` — the core of the stroke.
+ * - `uCount` — number of lines, capped at ten.
+ * - `uSpeed` — speed of the drift.
+ * - `uLength` — length of the segments, in frame heights.
+ * - `uGlow` — width of the halo.
  */
 export const FLOATING_LINES_FRAGMENT = /* glsl */ `
 precision highp float;
@@ -58,20 +58,20 @@ void main() {
   float halo = 0.0;
   float core = 0.0;
 
-  // Dix au plus : la borne est constante, la specification du langage
-  // l'exige, et au-dela les croisements se brouillent.
+  // Ten at most: the bound is constant, the language specification demands
+  // it, and beyond that the crossings blur into one another.
   for (int i = 0; i < 10; i += 1) {
     if (i >= count) break;
     float index = float(i);
 
-    // Le centre derive sur deux sinus de periodes differentes : la trajectoire
-    // est une figure de Lissajous qui ne se referme pas a l'oeil.
+    // The centre drifts on two sines of different periods: the trajectory is a
+    // Lissajous figure that does not visibly close on itself.
     vec2 centre = vec2(
       aspect * (0.5 + sin(t * (0.21 + index * 0.017) + index * 2.1) * 0.42),
       0.5 + cos(t * (0.17 + index * 0.023) + index * 1.3) * 0.38
     );
 
-    // L'inclinaison oscille autour d'une diagonale propre a la ligne.
+    // The tilt oscillates around a diagonal of the line's own.
     float angle = 0.4 + index * 0.65 + sin(t * 0.13 + index) * 0.35;
     vec2 dir = vec2(cos(angle), sin(angle));
     vec2 normal = vec2(-dir.y, dir.x);
@@ -80,22 +80,22 @@ void main() {
     float along = dot(rel, dir);
     float across = dot(rel, normal);
 
-    // Flexion : le segment n'est pas droit, il ondule doucement le long de
-    // son axe, et la pente de cette ondulation normalise l'epaisseur.
+    // Bend: the segment is not straight, it ripples gently along its axis, and
+    // the slope of that ripple normalises the thickness.
     float bend = 0.05;
     float freq = 5.0 + index * 0.7;
     float wave = sin(along * freq + t * 1.4 + index);
     float slope = bend * freq * cos(along * freq + t * 1.4 + index);
     float d = abs(across - bend * wave) / sqrt(1.0 + slope * slope);
 
-    // Les extremites s'eteignent sur le dernier tiers : le segment flotte.
-    float demi = max(uLength, 0.1) * (0.7 + 0.3 * sin(index * 3.7));
-    float ends = 1.0 - smoothstep(demi * 0.65, demi, abs(along));
+    // The ends fade out over the last third: the segment floats.
+    float halfLength = max(uLength, 0.1) * (0.7 + 0.3 * sin(index * 3.7));
+    float ends = 1.0 - smoothstep(halfLength * 0.65, halfLength, abs(along));
 
     float thin = 1.0 - smoothstep(px * 0.6, px * 1.8, d);
     float glow = exp(-d / max(uGlow, 0.005));
 
-    // Chaque ligne a sa propre intensite, qui respire lentement.
+    // Each line has its own intensity, breathing slowly.
     float weight = 0.6 + 0.4 * sin(t * 0.5 + index * 1.9);
 
     halo += glow * ends * weight;

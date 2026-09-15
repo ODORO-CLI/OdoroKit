@@ -1,11 +1,11 @@
 /**
- * Panneau riche ancre a un declencheur.
+ * Rich panel anchored to a trigger.
  *
- * Contrairement a l'infobulle, le panneau est interactif : il recoit le focus,
- * se ferme au clic exterieur et sur Echap, et rend alors le focus au
- * declencheur. Le positionnement reste purement CSS, sur une enveloppe
- * distincte du panneau anime pour que `usePresence` puisse piloter `transform`
- * sans ecraser le centrage.
+ * Unlike the tooltip, the panel is interactive: it receives the focus, closes
+ * on an outside click and on Escape, and then gives the focus back to the
+ * trigger. The positioning stays purely CSS, on a wrapper distinct from the
+ * animated panel so that `usePresence` can drive `transform` without crushing
+ * the centering.
  *
  * @module
  */
@@ -23,35 +23,35 @@ import {
 import { usePresence } from '../motion/usePresence.js'
 import { cx } from '../styles/cx.js'
 
-/** Proprietes de {@link Popover}. */
+/** Properties of {@link Popover}. */
 export interface PopoverProps {
-  /** Contenu du bouton declencheur. */
+  /** Content of the trigger button. */
   trigger: ReactNode
-  /** Contenu du panneau. */
+  /** Content of the panel. */
   children?: ReactNode
-  /** Cote d'apparition. @defaultValue 'bottom' */
+  /** Side it appears on. @defaultValue 'bottom' */
   placement?: 'top' | 'bottom'
-  /** Alignement du panneau sur le declencheur. @defaultValue 'start' */
+  /** Alignment of the panel on the trigger. @defaultValue 'start' */
   align?: 'start' | 'center' | 'end'
-  /** Etat d'ouverture en mode controle. */
+  /** Open state in controlled mode. */
   open?: boolean
-  /** Etat d'ouverture initial en mode non controle. @defaultValue false */
+  /** Initial open state in uncontrolled mode. @defaultValue false */
   defaultOpen?: boolean
-  /** Appele a chaque demande d'ouverture ou de fermeture. */
+  /** Called on every request to open or to close. */
   onOpenChange?: (open: boolean) => void
-  /** Classes additionnelles pour le panneau. */
+  /** Additional classes for the panel. */
   className?: string
-  /** Classes additionnelles pour le bouton declencheur. */
+  /** Additional classes for the trigger button. */
   triggerClassName?: string
 }
 
-/** Classes de placement de l'enveloppe positionnee. */
+/** Placement classes of the positioned wrapper. */
 const PLACEMENT_CLASSES: Readonly<Record<'top' | 'bottom', string>> = {
   top: 'o-bottom-full o-mb-2',
   bottom: 'o-top-full o-mt-2',
 }
 
-/** Classes d'alignement de l'enveloppe positionnee. */
+/** Alignment classes of the positioned wrapper. */
 const ALIGN_CLASSES: Readonly<Record<'start' | 'center' | 'end', string>> = {
   start: 'o-left-0',
   center: 'o-left-1/2 o-translate-center-x',
@@ -59,10 +59,10 @@ const ALIGN_CLASSES: Readonly<Record<'start' | 'center' | 'end', string>> = {
 }
 
 /**
- * Panneau contextuel accessible.
+ * Accessible contextual panel.
  *
  * @example
- * <Popover trigger="Filtres" placement="bottom" align="end">
+ * <Popover trigger="Filters" placement="bottom" align="end">
  *   <FilterForm />
  * </Popover>
  */
@@ -100,8 +100,8 @@ export function Popover({
 
   const close = useCallback(
     (restoreFocus: boolean) => {
-      // Le focus n'est rendu que s'il est encore dans le composant : au clic
-      // exterieur, il appartient deja a l'element clique.
+      // The focus is given back only if it is still inside the component: on
+      // an outside click, it already belongs to the clicked element.
       if (restoreFocus || wrapperRef.current?.contains(document.activeElement) === true) {
         triggerRef.current?.focus()
       }
@@ -110,8 +110,8 @@ export function Popover({
     [setOpen],
   )
 
-  // Fermeture au clic exterieur et sur Echap, ou que soit le focus. Les
-  // ecouteurs ne vivent que pendant l'ouverture.
+  // Closing on an outside click and on Escape, wherever the focus is. The
+  // listeners only live while it is open.
   useEffect(() => {
     if (!isOpen) return
 

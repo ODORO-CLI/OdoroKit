@@ -36,7 +36,7 @@
 
 import { useMotionState } from '@odoro-cli/engine'
 import { Icon } from '@odoro-cli/icons'
-import { ArrowDown, Check, Clock, Plus } from '@odoro-cli/icons/filaire'
+import { ArrowDown, Check, Clock, Plus } from '@odoro-cli/icons/outline'
 import { useCallback, useEffect, useMemo, useState, type ReactElement } from 'react'
 
 import { LetterSwap } from '@/odoro/text/LetterSwap.jsx'

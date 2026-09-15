@@ -1,28 +1,28 @@
 /**
- * Tri de pixels : des bandes de pixels tries qui sortent des zones claires
- * d'une image et coulent.
+ * Pixel sort: bands of sorted pixels that come out of the light areas of an
+ * image and flow.
  *
- * ## Le principe
+ * ## The principle
  *
- * L'effet reel trie chaque colonne de l'image la ou la luminance passe un
- * seuil ; ici il est simule sans lire la colonne. Chaque colonne porte des
- * segments tires de leur rang, dont la luminance croit du haut vers le bas
- * — le degrade que produirait un tri — et qui n'apparaissent que la ou
- * l'image de fond est assez claire. Ils defilent a des vitesses inegales.
+ * The real effect sorts every column of the image wherever the luminance
+ * passes a threshold; here it is simulated without reading the column. Every
+ * column carries segments drawn from their rank, whose luminance grows from
+ * top to bottom — the gradient a sort would produce — and which appear only
+ * where the background image is light enough. They scroll at unequal speeds.
  *
- * Ce qui distingue cette entree de `dither` : pas de trame, des colonnes
- * continues ; et de `glitch-blocks` : rien ne saute, tout coule.
+ * What sets this entry apart from `dither`: no dither grid, continuous
+ * columns; and from `glitch-blocks`: nothing jumps, everything flows.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur — les recopier ici en ferait autant
- * de versions a maintenir qu'il y a de fonds.
+ * It carries only what sets it apart: its shader, its settings and its fallback.
+ * Reading the tokens, converting them to floats and re-reading them when the
+ * theme changes all come from the engine — copying that here would leave as many
+ * versions to maintain as there are backgrounds.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en
- * accorde qu'une par backend — et sous mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface — it grants only one per
+ * backend — and under reduced motion.
  *
  * @module
  */
@@ -39,48 +39,48 @@ import { type ReactElement } from 'react'
 
 import { PIXEL_SORT_FRAGMENT } from './pixel-sort.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface PixelSortControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to this component. */
 export interface PixelSortOwnProps {
-  /** Largeur d'une colonne, en pixels physiques. @defaultValue 3 */
+  /** Width of a column, in physical pixels. @defaultValue 3 */
   pixel?: number
-  /** Nombre de segments sur la hauteur d'une colonne. @defaultValue 5 */
+  /** Number of segments over the height of a column. @defaultValue 5 */
   density?: number
-  /** Seuil de luminance au-dessus duquel une bande sort. @defaultValue 0.45 */
+  /** Luminance threshold above which a band comes out. @defaultValue 0.45 */
   threshold?: number
-  /** Vitesse d'ecoulement. @defaultValue 0.3 */
+  /** Speed of the flow. @defaultValue 0.3 */
   speed?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<PixelSortControls>
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type PixelSortProps = Customisable<PixelSortOwnProps>
 
-/** Tokens employes par defaut : le fond, l'image, le haut des bandes. */
+/** Tokens used by default: the background, the image, the top of the bands. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-sky-500',
   '--o-palette-rose-400',
 ] as const
 
-/** Repli par defaut : un degrade fige, dans les memes tons. */
+/** Default fallback: a frozen gradient, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-b o-from-rose-100 dark:o-from-rose-950 o-via-sky-100 dark:o-via-sky-950 o-to-zinc-50 dark:o-to-zinc-950'
 
 /**
- * Tri de pixels.
+ * Pixel sort.
  *
  * @example
  * <div className="o-relative o-min-h-screen">
@@ -108,8 +108,8 @@ export function PixelSort({
       uSpeed: speed,
     },
     name: 'pixel-sort',
-    // Des colonnes d'un ou deux pixels fourmillent a densite de pixels
-    // reduite : en qualite basse, elles s'elargissent.
+    // Columns one or two pixels wide crawl at reduced pixel density: at low
+    // quality, they widen.
     degrade: (quality) => ({
       uPixel: quality === 'low' ? Math.max(pixel, 6) : pixel,
     }),

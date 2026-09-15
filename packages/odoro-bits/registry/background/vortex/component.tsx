@@ -1,22 +1,22 @@
 /**
- * Vortex : une spirale obtenue en ajoutant a l angle une quantite qui decroit avec le rayon.
+ * Vortex: a spiral obtained by adding to the angle a quantity that decays with the radius.
  *
- * ## Le principe
+ * ## The principle
  *
- * En polaires, un tourbillon n est pas un mouvement mais une addition. Le motif enroule est volontairement trivial : la richesse vient de la torsion.
+ * In polar coordinates, a swirl is not a motion but an addition. The wound pattern is deliberately trivial: the richness comes from the twist.
  *
- * La torsion est bornee au centre ; sans cela le pixel central clignoterait a chaque image.
+ * The twist is bounded at the centre; without that the central pixel would flicker on every frame.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur — les recopier ici en ferait autant
- * de versions a maintenir qu'il y a de fonds.
+ * It carries only what sets it apart: its shader, its settings and its
+ * fallback. Reading the tokens, converting them to floats and re-reading them
+ * when the theme changes all come from the engine — copying that here would
+ * leave as many versions to maintain as there are backgrounds.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en
- * accorde qu'une par backend — et sous mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface — it grants only one
+ * per backend — and under reduced motion.
  *
  * @module
  */
@@ -32,41 +32,41 @@ import {
 } from '@odoro-cli/engine'
 import { type ReactElement } from 'react'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface VortexControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to this component. */
 export interface VortexOwnProps {
-  /** Vitesse de rotation. @defaultValue 0.25 */
+  /** Rotation speed. @defaultValue 0.25 */
   speed?: number
-  /** Nombre de bras. @defaultValue 6 */
+  /** Number of arms. @defaultValue 6 */
   arms?: number
-  /** Force de l enroulement. @defaultValue 2.5 */
+  /** Strength of the winding. @defaultValue 2.5 */
   twist?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<VortexControls>
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type VortexProps = Customisable<VortexOwnProps>
 
-/** Tokens employes par defaut. */
+/** Tokens used by default. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-brand-600',
   '--o-palette-amber-300',
 ] as const
 
-/** Repli par defaut : une teinte figee, dans les memes tons. */
+/** Default fallback: a frozen tint, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-br o-from-zinc-50 dark:o-from-zinc-950 o-to-brand-900'
 

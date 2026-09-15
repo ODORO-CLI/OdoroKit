@@ -1,35 +1,33 @@
 /**
- * Comete : un point court sur un cercle, une trainee s'efface derriere lui.
+ * Comet: a dot runs around a circle, a trail fading out behind it.
  *
- * ## La trainee est une pile d'arcs
+ * ## The trail is a stack of arcs
  *
- * Un trait SVG ne sait pas s'eteindre le long de sa course : un degrade ne
- * suit pas une courbe. La trainee est donc faite de cinq arcs de longueurs
- * decroissantes, tous termines sous la tete, chacun peu opaque. La ou ils se
- * superposent — pres de la tete — les opacites s'additionnent ; loin
- * derriere, il ne reste que le plus long et le plus pale. Cinq paliers
- * suffisent : a la taille d'un chargeur, l'oeil les fond en un seul
- * degrade.
+ * An SVG stroke cannot fade out along its own run: a gradient does not follow
+ * a curve. The trail is therefore made of five arcs of decreasing lengths, all
+ * ending under the head, each of them barely opaque. Where they overlap — near
+ * the head — the opacities add up; far behind, only the longest and palest one
+ * is left. Five steps are enough: at the size of a loader, the eye blends them
+ * into a single gradient.
  *
- * La tete est un disque plus large que la trainee : c'est elle que l'oeil
- * suit, et c'est elle qui dit le sens du mouvement — une trainee seule
- * pourrait aller dans les deux sens.
+ * The head is a disc wider than the trail: it is the thing the eye follows,
+ * and it is what says which way the movement goes — a trail on its own could
+ * run in either direction.
  *
- * Une orbite attenuee reste visible sous la comete : sans elle, le point
- * flotterait et le cercle ne se lirait qu'apres un tour complet.
+ * A dimmed orbit stays visible under the comet: without it, the dot would
+ * float and the circle would only read after a complete turn.
  *
- * Un seul groupe tourne, par une animation CSS. Aucun JavaScript apres le
- * premier rendu.
+ * A single group turns, through a CSS animation. No JavaScript after the first
+ * render.
  *
- * ## Un statut, pas un dessin
+ * ## A status, not a drawing
  *
- * L'element porte `role="status"` et un libelle pour les lecteurs d'ecran :
- * l'attente est une information, pas une decoration. Le dessin, lui, est
- * retire de l'arbre d'accessibilite.
+ * The element carries `role="status"` and a label for screen readers: waiting
+ * is information, not decoration. The drawing itself is removed from the
+ * accessibility tree.
  *
- * Sous mouvement reduit, la comete reste en haut de son orbite : un point
- * et sa trainee se lisent encore comme un chargeur, seul le mouvement
- * s'arrete.
+ * Under reduced motion, the comet stays at the top of its orbit: a dot and its
+ * trail still read as a loader, only the movement stops.
  *
  * @module
  */
@@ -37,10 +35,10 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-comet-ring'
 
-/** Pose la rotation de la comete, une fois par document. */
+/** Sets up the rotation of the comet, once per document. */
 function ensureCometRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -62,31 +60,31 @@ function ensureCometRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** Props of the component itself. */
 export interface CometRingOwnProps {
-  /** Diametre de l'orbite, en pixels. @defaultValue 48 */
+  /** Diameter of the orbit, in pixels. @defaultValue 48 */
   size?: number
-  /** Epaisseur de la trainee, en pixels ; la tete fait pres du double. @defaultValue 3 */
+  /** Thickness of the trail, in pixels; the head is close to twice that. @defaultValue 3 */
   thickness?: number
-  /** Longueur de la trainee, en degres d'orbite. @defaultValue 150 */
+  /** Length of the trail, in degrees of orbit. @defaultValue 150 */
   tail?: number
-  /** Duree d'un tour, en millisecondes. @defaultValue 1100 */
+  /** Duration of one turn, in milliseconds. @defaultValue 1100 */
   speed?: number
-  /** Couleur de la comete. @defaultValue la couleur du texte */
+  /** Colour of the comet. @defaultValue the text colour */
   color?: string
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */
+  /** Label announced to screen readers. @defaultValue 'Loading' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All the props. */
 export type CometRingProps = Customisable<CometRingOwnProps, 'span'>
 
 /**
- * Les paliers de la trainee : part de la longueur totale, opacite.
+ * The steps of the trail: share of the total length, opacity.
  *
- * Du plus long et plus pale au plus court et plus franc. Les opacites sont
- * choisies pour que la pile, sous la tete, approche le plein sans
- * l'atteindre : la tete doit rester le point le plus dense.
+ * From the longest and palest to the shortest and boldest. The opacities are
+ * chosen so that the stack, under the head, comes close to solid without
+ * reaching it: the head has to stay the densest point.
  */
 const TRAIL = [
   { share: 1, opacity: 0.1 },
@@ -97,13 +95,13 @@ const TRAIL = [
 ] as const
 
 /**
- * Signale une attente par une comete qui court sur son orbite.
+ * Signals a wait through a comet running along its orbit.
  *
  * @example
  * <CometRing />
  *
  * @example
- * // Une longue trainee, lente, dans la teinte de marque.
+ * // A long trail, slow, in the brand hue.
  * <CometRing size={80} tail={240} speed={2000} color="var(--o-palette-brand-500)" />
  */
 export function CometRing({
@@ -112,15 +110,15 @@ export function CometRing({
   tail = 150,
   speed = 1100,
   color = 'currentColor',
-  label = 'Chargement',
+  label = 'Loading',
   ...rest
 }: CometRingProps): ReactElement {
   ensureCometRule()
 
   const { className, style } = mergePresentation({}, rest)
 
-  // Le dessin vit dans une vue de 100 unites. La tete deborde du trait :
-  // le rayon laisse la place a son diametre, pas seulement a l'epaisseur.
+  // The drawing lives in a view of 100 units. The head sticks out past the
+  // stroke: the radius leaves room for its diameter, not just the thickness.
   const stroke = Math.min((thickness / size) * 100, 20)
   const head = stroke * 0.9
   const radius = 50 - head
@@ -156,9 +154,9 @@ export function CometRing({
         />
         <g data-o-comet-body="">
           {TRAIL.map((layer, index) => {
-            // Chaque arc part `angle` degres avant le sommet et s'y termine :
-            // le tirete d'un cercle commence a trois heures, d'ou le quart
-            // de tour retranche.
+            // Each arc starts `angle` degrees before the top and ends there:
+            // the dash pattern of a circle begins at three o'clock, hence the
+            // quarter turn subtracted.
             const angle = tailLength * layer.share
             return (
               <circle

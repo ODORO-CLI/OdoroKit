@@ -1,41 +1,40 @@
 /**
- * Anneau qui conclut : un arc tourne pendant l'attente, se referme en
- * cercle plein a la reponse, et la marque du resultat se trace dedans.
+ * Ring that concludes: an arc spins during the wait, closes into a full
+ * circle when the answer comes, and the mark of the outcome is drawn inside.
  *
- * ## L'anneau ne saute pas a zero, il s'arrete la ou il est
+ * ## The ring does not jump back to zero, it stops where it is
  *
- * Le probleme d'un chargeur a etats, c'est le raccord. L'arc tourne depuis
- * plusieurs secondes ; au moment de la reponse il se trouve a un angle
- * quelconque, et remplacer sa rotation par une autre animation le ferait
- * revenir d'un coup a son point de depart — une secousse qui trahit la
- * mecanique.
+ * The problem with a stateful loader is the join. The arc has been spinning
+ * for several seconds; at the moment of the answer it sits at some arbitrary
+ * angle, and replacing its rotation by another animation would snap it back
+ * at once to its starting point — a jolt that gives the machinery away.
  *
- * La rotation n'est donc jamais remplacee : elle est **mise en pause**. Les
- * deux animations vivent cote a cote dans la meme liste, et
- * `animation-play-state` s'applique a chacune separement — la rotation
- * gele a l'angle qu'elle avait, la fermeture demarre. L'anneau s'immobilise
- * ou il en etait, puis se comble.
+ * The rotation is therefore never replaced: it is **paused**. Both
+ * animations live side by side in the same list, and
+ * `animation-play-state` applies to each of them separately — the rotation
+ * freezes at the angle it had, the closing starts. The ring comes to a halt
+ * where it stood, then fills in.
  *
- * La fermeture n'est pas un fondu : c'est le tiret lui-meme qui s'allonge,
- * de son quart de tour au tour complet. Le cercle declare une longueur de
- * cent, donc « un quart » s'ecrit vingt-six, et « tout » cent. L'attente et
- * le resultat sont le meme trait, a deux longueurs.
+ * The closing is not a fade: it is the dash itself lengthening, from its
+ * quarter turn to the full turn. The circle declares a length of a hundred,
+ * so "a quarter" is written twenty-six, and "everything" a hundred. The wait
+ * and the outcome are the same stroke, at two lengths.
  *
- * La marque ne se trace qu'ensuite, une fois l'anneau ferme : d'abord le
- * contenant, puis le contenu. C'est ce qui distingue ce chargeur d'une
- * coche qui se dessine seule — ici la figure constante est l'anneau, et la
- * coche n'est que sa conclusion.
+ * The mark is only drawn afterwards, once the ring is closed: the container
+ * first, then the contents. That is what sets this loader apart from a
+ * check that draws itself alone — here the constant figure is the ring, and
+ * the check is only its conclusion.
  *
- * ## Un statut qui parle
+ * ## A status that speaks
  *
- * L'element porte `role="status"` : le libelle hors ecran change avec
- * l'etat, et le changement est annonce sans voler le focus. Une forme et
- * une couleur ne se lisent pas a voix haute ; le libelle, si. Le dessin est
- * retire de l'arbre d'accessibilite.
+ * The element carries `role="status"`: the offscreen label changes with the
+ * state, and the change is announced without stealing focus. A shape and a
+ * color are not read out loud; a label is. The drawing is removed from the
+ * accessibility tree.
  *
- * Sous mouvement reduit, l'arc est pose immobile pendant l'attente, et
- * l'anneau ferme avec sa marque tracee a la reponse : l'etat final de
- * chaque etat.
+ * Under reduced motion, the arc is set still during the wait, and the ring
+ * closed with its mark drawn when the answer comes: the end state of each
+ * state.
  *
  * @module
  */
@@ -43,22 +42,22 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Id of the injected stylesheet. */
 const STYLE_ID = 'o-spinner-to-check'
 
-/** La coche, inscrite dans l'anneau. */
+/** The check, inscribed in the ring. */
 const CHECK = 'M 32 51 L 45 64 L 69 38'
 
-/** La croix, deux traits d'un seul chemin : le trace les enchaine. */
+/** The cross, two strokes of a single path: the drawing chains them. */
 const CROSS = 'M 37 37 L 63 63 M 63 37 L 37 63'
 
-/** Part du tour couverte par l'arc pendant l'attente, en pour cent. */
+/** Share of the turn covered by the arc during the wait, in per cent. */
 const ARC = 26
 
-/** Etats possibles du composant. */
-export type SpinnerToCheckState = 'chargement' | 'succes' | 'echec'
+/** The possible states of the component. */
+export type SpinnerToCheckState = 'loading' | 'success' | 'error'
 
-/** Pose l'anneau, sa fermeture et la marque, une fois par document. */
+/** Sets the ring, its closing and the mark, once per document. */
 function ensureSpinnerToCheckRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -73,104 +72,105 @@ function ensureSpinnerToCheckRule(): void {
     `stroke-dasharray:${String(ARC)} ${String(100 - ARC)};`,
     '}',
     '[data-o-stc-mark]{stroke-dasharray:100 100;stroke-dashoffset:100}',
-    '[data-o-stc="chargement"] [data-o-stc-ring]{',
+    '[data-o-stc="loading"] [data-o-stc-ring]{',
     'animation:o-stc-spin var(--o-stc-speed) linear infinite;',
     '}',
-    // La rotation reste en premiere position de la liste : elle n'est donc
-    // pas relancee, seulement mise en pause a l'angle courant, pendant que
-    // la fermeture demarre a cote d'elle.
-    '[data-o-stc="succes"] [data-o-stc-ring],',
-    '[data-o-stc="echec"] [data-o-stc-ring]{',
+    // The rotation stays first in the list: it is therefore not restarted,
+    // only paused at the current angle, while the closing starts alongside
+    // it.
+    '[data-o-stc="success"] [data-o-stc-ring],',
+    '[data-o-stc="error"] [data-o-stc-ring]{',
     'animation:o-stc-spin var(--o-stc-speed) linear infinite,',
     'o-stc-close calc(var(--o-stc-speed) * 0.45) cubic-bezier(0.4,0,0.2,1) forwards;',
     'animation-play-state:paused,running;',
     '}',
-    // La marque attend que l'anneau soit ferme : d'abord le contenant.
-    '[data-o-stc="succes"] [data-o-stc-mark],',
-    '[data-o-stc="echec"] [data-o-stc-mark]{',
+    // The mark waits for the ring to be closed: the container first.
+    '[data-o-stc="success"] [data-o-stc-mark],',
+    '[data-o-stc="error"] [data-o-stc-mark]{',
     'animation:o-stc-draw calc(var(--o-stc-speed) * 0.4) cubic-bezier(0.65,0,0.35,1)',
     'calc(var(--o-stc-speed) * 0.42) forwards;',
     '}',
     '@keyframes o-stc-spin{to{transform:rotate(360deg)}}',
     `@keyframes o-stc-close{from{stroke-dasharray:${String(ARC)} ${String(100 - ARC)}}to{stroke-dasharray:100 0}}`,
     '@keyframes o-stc-draw{to{stroke-dashoffset:0}}',
-    // Arc pose pendant l'attente, anneau ferme et marque tracee ensuite.
+    // Arc set still during the wait, ring closed and mark drawn afterwards.
     //
-    // Les selecteurs y sont aussi precis que ceux des etats : une requete de
-    // media n'ajoute aucune specificite, et une regle plus courte perdrait
-    // contre `[data-o-stc="chargement"] [data-o-stc-ring]` — l'anneau
-    // continuerait de tourner sous mouvement reduit.
+    // The selectors here are as precise as those of the states: a media
+    // query adds no specificity, and a shorter rule would lose against
+    // `[data-o-stc="loading"] [data-o-stc-ring]` — the ring would keep
+    // turning under reduced motion.
     '@media (prefers-reduced-motion:reduce){',
     '[data-o-stc] [data-o-stc-ring]{animation:none;transform:none}',
     '[data-o-stc] [data-o-stc-mark]{animation:none}',
-    '[data-o-stc="succes"] [data-o-stc-ring],',
-    '[data-o-stc="echec"] [data-o-stc-ring]{stroke-dasharray:100 0}',
-    '[data-o-stc="succes"] [data-o-stc-mark],',
-    '[data-o-stc="echec"] [data-o-stc-mark]{stroke-dashoffset:0}',
+    '[data-o-stc="success"] [data-o-stc-ring],',
+    '[data-o-stc="error"] [data-o-stc-ring]{stroke-dasharray:100 0}',
+    '[data-o-stc="success"] [data-o-stc-mark],',
+    '[data-o-stc="error"] [data-o-stc-mark]{stroke-dashoffset:0}',
     '}',
   ].join('')
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** The component's own props. */
 export interface SpinnerToCheckOwnProps {
-  /** Cote du dessin, en pixels. @defaultValue 56 */
+  /** Side of the drawing, in pixels. @defaultValue 56 */
   size?: number
-  /** Epaisseur de l'anneau et de la marque, en pixels. @defaultValue 6 */
+  /** Thickness of the ring and the mark, in pixels. @defaultValue 6 */
   thickness?: number
-  /** Duree d'un tour de l'arc, en millisecondes. @defaultValue 1000 */
+  /** Duration of one turn of the arc, in milliseconds. @defaultValue 1000 */
   speed?: number
-  /** Etat de l'operation. @defaultValue 'chargement' */
+  /** State of the operation. @defaultValue 'loading' */
   state?: SpinnerToCheckState
-  /** Couleur de l'anneau et de la marque. @defaultValue la couleur du texte */
+  /** Color of the ring and the mark. @defaultValue the text color */
   color?: string
-  /** Libelle annonce pendant l'attente. @defaultValue 'Chargement' */
+  /** Label announced during the wait. @defaultValue 'Loading' */
   label?: string
-  /** Libelle annonce au succes. @defaultValue 'Termine' */
-  labelSucces?: string
-  /** Libelle annonce a l'echec. @defaultValue 'Echec' */
-  labelEchec?: string
+  /** Label announced on success. @defaultValue 'Done' */
+  successLabel?: string
+  /** Label announced on failure. @defaultValue 'Failed' */
+  errorLabel?: string
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type SpinnerToCheckProps = Customisable<SpinnerToCheckOwnProps, 'span'>
 
 /**
- * Signale une attente puis son issue par un anneau qui se referme.
+ * Signals a wait, then its outcome, with a ring that closes.
  *
  * @example
- * <SpinnerToCheck state={enCours ? 'chargement' : 'succes'} />
+ * <SpinnerToCheck state={pending ? 'loading' : 'success'} />
  *
  * @example
- * // Un refus, plus grand, dans une teinte d'alerte.
- * <SpinnerToCheck state="echec" size={80} color="var(--o-palette-red-500)" />
+ * // A refusal, bigger, in an alert hue.
+ * <SpinnerToCheck state="error" size={80} color="var(--o-palette-red-500)" />
  */
 export function SpinnerToCheck({
   size = 56,
   thickness = 6,
   speed = 1000,
-  state = 'chargement',
+  state = 'loading',
   color = 'currentColor',
-  label = 'Chargement',
-  labelSucces = 'Termine',
-  labelEchec = 'Echec',
+  label = 'Loading',
+  successLabel = 'Done',
+  errorLabel = 'Failed',
   ...rest
 }: SpinnerToCheckProps): ReactElement {
   ensureSpinnerToCheckRule()
 
   const { className, style } = mergePresentation({}, rest)
 
-  // Le dessin vit dans une vue de 100 unites : l'epaisseur demandee en
-  // pixels est convertie pour que le trait garde sa mesure a toute taille.
+  // The drawing lives in a view of 100 units: the thickness asked for in
+  // pixels is converted so the stroke keeps its measure at any size.
   const stroke = Math.min((thickness / size) * 100, 16)
 
-  // Le rayon laisse la place au trait : sans cette marge, l'anneau serait
-  // rogne par le bord de la vue aux fortes epaisseurs.
+  // The radius leaves room for the stroke: without that margin, the ring
+  // would be clipped by the edge of the view at large thicknesses.
   const radius = 50 - stroke / 2 - 2
 
-  const mark = state === 'echec' ? CROSS : CHECK
+  const mark = state === 'error' ? CROSS : CHECK
 
-  const spoken = state === 'succes' ? labelSucces : state === 'echec' ? labelEchec : label
+  const spoken =
+    state === 'success' ? successLabel : state === 'error' ? errorLabel : label
 
   const loaderStyle = {
     ...style,
@@ -190,8 +190,8 @@ export function SpinnerToCheck({
     >
       <span className="o-sr-only">{spoken}</span>
       <svg aria-hidden viewBox="0 0 100 100" width="100%" height="100%">
-        {/* La piste sous l'arc : sans elle, un quart de tour isole ne se
-            lit pas comme un anneau. */}
+        {/* The track under the arc: without it, an isolated quarter turn
+            does not read as a ring. */}
         <circle
           cx={50}
           cy={50}
@@ -214,10 +214,10 @@ export function SpinnerToCheck({
         />
         <path
           data-o-stc-mark=""
-          // La cle force React a remonter un chemin neuf quand la figure
-          // change : le trace repart du debut au lieu de continuer sur
-          // l'ancienne, ce qui montrerait une croix a demi dessinee.
-          key={state === 'echec' ? 'croix' : 'coche'}
+          // The key forces React to mount a fresh path when the figure
+          // changes: the drawing starts over instead of continuing from the
+          // old one, which would show a half-drawn cross.
+          key={state === 'error' ? 'cross' : 'check'}
           d={mark}
           pathLength={100}
           fill="none"

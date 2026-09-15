@@ -1,27 +1,27 @@
 /**
- * Trainee d'images : le deplacement du pointeur seme des vignettes qui
- * apparaissent au point de passage puis se resorbent.
+ * Image trail: the movement of the pointer sows thumbnails that appear at the
+ * point of passage then dissolve.
  *
- * ## Les vignettes ne passent pas par React
+ * ## The thumbnails do not go through React
  *
- * Chaque vignette vit moins d'une seconde. La monter comme composant
- * demanderait un etat de liste, un rendu par semis et un autre par retrait —
- * pour des elements que rien ne relit jamais. Elles sont donc creees en
- * imperatif, animees par `element.animate`, et retirees du document a la fin
- * de leur course. Le composant garde seulement leur trace pour nettoyer au
- * demontage.
+ * Each thumbnail lives less than a second. Mounting it as a component would
+ * require a list state, one render per sowing and another per removal — for
+ * elements that nothing ever reads back. They are therefore created
+ * imperatively, animated by `element.animate`, and removed from the document
+ * at the end of their run. The component only keeps track of them to clean up
+ * on unmount.
  *
- * ## Le seuil de distance est ce qui fait la trainee
+ * ## The distance threshold is what makes the trail
  *
- * Semer a chaque evenement de pointeur donnerait un tapis continu — des
- * dizaines de vignettes par geste, toutes au meme endroit. Une vignette ne
- * nait que lorsque le pointeur s'est eloigne du dernier semis d'une distance
- * donnee : c'est elle qui espace la trainee, et elle qui borne le cout.
+ * Sowing on every pointer event would give a continuous carpet — dozens of
+ * thumbnails per gesture, all in the same place. A thumbnail is only born when
+ * the pointer has moved a given distance away from the last sowing: it is what
+ * spaces the trail out, and what bounds the cost.
  *
- * ## Sous mouvement reduit
+ * ## Under reduced motion
  *
- * La zone est inerte et la premiere image s'affiche, centree et fixe : le
- * contenu — montrer ces images — reste, seul le jeu disparait.
+ * The area is inert and the first image is displayed, centred and still: the
+ * content — showing these images — remains, only the play disappears.
  *
  * @module
  */
@@ -29,44 +29,44 @@
 import { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'
 import { useEffect, useRef, type ReactElement, type ReactNode } from 'react'
 
-/** Une image de la trainee. */
+/** One image of the trail. */
 export interface TrailImage {
   /** Source. */
   readonly src: string
-  /** Texte de remplacement, pour l'image de repli sous mouvement reduit. */
+  /** Alternative text, for the fallback image under reduced motion. */
   readonly alt: string
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface ImageTrailOwnProps {
-  /** Les images semees, en cycle. */
+  /** The sown images, cycled through. */
   sources: readonly TrailImage[]
-  /** Distance entre deux semis, en pixels. @defaultValue 80 */
+  /** Distance between two sowings, in pixels. @defaultValue 80 */
   threshold?: number
-  /** Duree de vie d'une vignette, en millisecondes. @defaultValue 700 */
+  /** Lifetime of a thumbnail, in milliseconds. @defaultValue 700 */
   life?: number
-  /** Cote d'une vignette, en pixels. @defaultValue 140 */
+  /** Side of a thumbnail, in pixels. @defaultValue 140 */
   size?: number
-  /** Contenu affiche sous la trainee. */
+  /** Content displayed under the trail. */
   children?: ReactNode
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type ImageTrailProps = Customisable<ImageTrailOwnProps>
 
 /**
- * Seme des vignettes sur le passage du pointeur.
+ * Sows thumbnails along the path of the pointer.
  *
  * @example
  * <ImageTrail
  *   sources={[
- *     { src: '/un.jpg', alt: 'Premiere planche' },
- *     { src: '/deux.jpg', alt: 'Deuxieme planche' },
- *     { src: '/trois.jpg', alt: 'Troisieme planche' },
+ *     { src: '/one.jpg', alt: 'First plate' },
+ *     { src: '/two.jpg', alt: 'Second plate' },
+ *     { src: '/three.jpg', alt: 'Third plate' },
  *   ]}
  *   className="o-h-96"
  * >
- *   <h2>Nos dernieres planches</h2>
+ *   <h2>Our latest plates</h2>
  * </ImageTrail>
  */
 export function ImageTrail({
@@ -86,7 +86,7 @@ export function ImageTrail({
     const zone = host.current
     if (zone === null) return
 
-    // Les vignettes vivantes, pour ne rien laisser au demontage.
+    // The living thumbnails, so that nothing is left behind on unmount.
     const alive = new Set<HTMLImageElement>()
     let lastX: number | null = null
     let lastY: number | null = null
@@ -99,8 +99,8 @@ export function ImageTrail({
 
       const thumb = document.createElement('img')
       thumb.src = source.src
-      // La vignette est un eclat decoratif : le contenu est deja porte par
-      // l'image de repli et par ce que la zone affiche.
+      // The thumbnail is a decorative flash: the content is already carried by
+      // the fallback image and by what the area displays.
       thumb.alt = ''
       thumb.setAttribute('aria-hidden', 'true')
       thumb.className =
@@ -126,8 +126,8 @@ export function ImageTrail({
         { duration: life, easing: 'cubic-bezier(0.2, 0, 0, 1)' },
       )
 
-      // L'animation finit a opacite nulle : le retrait ne se voit pas, il ne
-      // fait que rendre la memoire.
+      // The animation ends at zero opacity: the removal is not seen, it only
+      // gives the memory back.
       animation.onfinish = () => {
         alive.delete(thumb)
         thumb.remove()
@@ -140,7 +140,8 @@ export function ImageTrail({
       const y = event.clientY - box.top
 
       if (lastX !== null && lastY !== null) {
-        // Le seuil espace la trainee et borne le cout : voir l'en-tete.
+        // The threshold spaces the trail out and bounds the cost: see the
+        // header.
         if (Math.hypot(x - lastX, y - lastY) < threshold) return
       }
 
@@ -150,7 +151,8 @@ export function ImageTrail({
     }
 
     const onLeave = (): void => {
-      // Le prochain passage resemera des l'entree, sans attendre le seuil.
+      // The next pass will sow again right on entry, without waiting for the
+      // threshold.
       lastX = null
       lastY = null
     }
@@ -177,8 +179,8 @@ export function ImageTrail({
     <div {...rest} ref={host} className={className} style={style}>
       {children}
 
-      {/* Sous mouvement reduit, la zone est inerte : la premiere image,
-          centree et fixe, porte le contenu que la trainee aurait montre. */}
+      {/* Under reduced motion, the area is inert: the first image, centred and
+          still, carries the content the trail would have shown. */}
       {reduced && first !== undefined ? (
         <div className="o-absolute o-inset-0 o-flex o-items-center o-justify-center o-pointer-events-none">
           <img

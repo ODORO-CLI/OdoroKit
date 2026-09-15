@@ -1,22 +1,22 @@
 /**
- * Spectre : un balayage angulaire de teintes, qui module la palette sans la remplacer.
+ * Spectrum: an angular sweep of hues, which modulates the palette without replacing it.
  *
- * ## Le principe
+ * ## The principle
  *
- * Trois cosinus decales d un tiers de tour : ils ne se rejoignent jamais tous au meme endroit, donc le tour ne traverse pas de gris.
+ * Three cosines offset by a third of a turn: they never all meet at the same place, so the turn never passes through grey.
  *
- * La teinte calculee teinte les couleurs recues plutot que de s y substituer : le fond reste dans les tons du theme.
+ * The computed hue tints the colours it receives rather than standing in for them: the background stays in the theme's tones.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur — les recopier ici en ferait autant
- * de versions a maintenir qu'il y a de fonds.
+ * It carries only what sets it apart: its shader, its settings and its fallback.
+ * Reading the tokens, converting them to floats and re-reading them when the
+ * theme changes all come from the engine — copying that here would leave as many
+ * versions to maintain as there are backgrounds.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en
- * accorde qu'une par backend — et sous mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface — it grants only one per
+ * backend — and under reduced motion.
  *
  * @module
  */
@@ -32,42 +32,42 @@ import {
 } from '@odoro-cli/engine'
 import { type ReactElement } from 'react'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface SpectrumControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to this component. */
 export interface SpectrumOwnProps {
-  /** Vitesse du balayage. @defaultValue 0.08 */
+  /** Speed of the sweep. @defaultValue 0.08 */
   speed?: number
-  /** Nombre de tours de roue. @defaultValue 1 */
+  /** Number of turns of the wheel. @defaultValue 1 */
   turns?: number
-  /** Part de teinte melangee a la palette. @defaultValue 0.5 */
+  /** Share of hue mixed into the palette. @defaultValue 0.5 */
   saturation?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<SpectrumControls>
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type SpectrumProps = Customisable<SpectrumOwnProps>
 
-/** Tokens employes par defaut. */
+/** Tokens used by default. */
 const DEFAULT_TOKENS = ['--o-theme-bg', '--o-palette-brand-400'] as const
 
-/** Repli par defaut : une teinte figee, dans les memes tons. */
+/** Default fallback: a frozen tint, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-br o-from-zinc-50 dark:o-from-zinc-950 o-to-brand-100 dark:o-to-brand-950'
 
 /**
- * Spectre.
+ * Spectrum.
  *
  * @example
  * <div className="o-relative o-min-h-screen">

@@ -1,24 +1,25 @@
 /**
- * Iridescence : une nacre qui ondule doucement : la teinte tourne avec l inclinaison de la surface, deux reflets se posent par addition.
+ * Iridescence: a mother-of-pearl that ripples gently: the hue turns with the
+ * tilt of the surface, two highlights land by addition.
  *
- * ## Le principe
+ * ## The principle
  *
- * Une surface de sinus directionnels a grande longueur d'onde, dont le
- * gradient se calcule a la main et donne une normale. L'inclinaison et
- * la hauteur font une phase, et la phase fait tourner la teinte entre
- * deux tokens sans creuser de frange : tout est doux, c'est ce qui fait
- * la nacre plutot que le film de savon.
+ * A surface of directional sines with a long wavelength, whose gradient
+ * is computed by hand and gives a normal. The tilt and the height make a
+ * phase, and the phase turns the hue between two tokens without hollowing
+ * out a fringe: everything is soft, and that is what makes mother-of-pearl
+ * rather than a soap film.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur — les recopier ici en ferait autant
- * de versions a maintenir qu'il y a de fonds.
+ * It carries only what sets it apart: its shader, its settings and its fallback.
+ * Reading the tokens, converting them to floats and re-reading them when the
+ * theme changes all come from the engine — copying them here would leave as
+ * many versions to maintain as there are backgrounds.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en
- * accorde qu'une par backend — et sous mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface — it grants only one
+ * per backend — and under reduced motion.
  *
  * @module
  */
@@ -35,55 +36,55 @@ import { type ReactElement } from 'react'
 
 import { IRIDESCENCE_FRAGMENT } from './iridescence.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface IridescenceControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to this component. */
 export interface IridescenceOwnProps {
-  /** Vitesse de l ondulation. @defaultValue 0.3 */
+  /** Speed of the ripple. @defaultValue 0.3 */
   speed?: number
-  /** Echelle des ondes. Plus haut, plus serre. @defaultValue 1.4 */
+  /** Scale of the waves. Higher is tighter. @defaultValue 1.4 */
   scale?: number
-  /** Force des reflets. @defaultValue 0.7 */
+  /** Strength of the highlights. @defaultValue 0.7 */
   shimmer?: number
-  /** Tours de teinte sur la hauteur de la surface. @defaultValue 2.5 */
+  /** Hue turns over the height of the surface. @defaultValue 2.5 */
   bands?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<IridescenceControls>
 }
 
-/** Toutes les proprietes. */
+/** Every property. */
 export type IridescenceProps = Customisable<IridescenceOwnProps>
 
-/** Tokens employes par defaut : le fond, les deux teintes de la nacre. */
+/** Tokens used by default: the background, the two hues of the pearl. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-pink-300',
   '--o-palette-teal-300',
 ] as const
 
-/** Repli par defaut : un degrade fige, dans les memes tons. */
+/** Default fallback: a frozen gradient, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-tr o-from-pink-100 dark:o-from-pink-950 o-via-zinc-50 dark:o-via-zinc-950 o-to-teal-100 dark:o-to-teal-950'
 
 /**
- * Detail hors qualite basse.
+ * Detail outside low quality.
  *
- * Chaque onde est un sinus et son gradient : c'est le seul levier de
- * cout, et il tombe a deux ondes en qualite basse.
+ * Each wave is a sine and its gradient: it is the only cost lever, and it
+ * drops to two waves on low quality.
  */
 const DETAIL = 4
 
-/** Detail en qualite basse. */
+/** Detail at low quality. */
 const LOW_DETAIL = 2
 
 /**

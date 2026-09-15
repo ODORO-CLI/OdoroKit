@@ -1,31 +1,31 @@
 /**
- * Cristal : un solide a facettes qui tourne, et feint de refracter.
+ * Crystal: a faceted solid that turns, and feigns refraction.
  *
- * ## Pourquoi une scene, et pas un shader plein ecran
+ * ## Why a scene, and not a full-screen shader
  *
- * Des facettes plates dont chacune prend sa couleur selon l'angle qu'elle
- * fait avec l'oeil, des aretes vives, une profondeur ou l'arriere se voit a
- * travers l'avant : c'est une affaire de geometrie, pas de fragment.
+ * Flat facets, each taking its colour from the angle it makes with the eye,
+ * sharp edges, a depth in which the back shows through the front: that is a
+ * matter of geometry, not of fragments.
  *
- * ## La geometrie n'est pas un solide du catalogue
+ * ## The geometry is not a solid from the catalogue
  *
- * Deux anneaux de sommets et deux pointes, aux rayons legerement inegaux :
- * un prisme a pointes, comme une pointe de quartz, dont aucune facette n'est
- * exactement pareille a sa voisine. Les triangles ne partagent aucun sommet,
- * pour que chaque facette garde sa normale plate — c'est ce qui la fait
- * facette.
+ * Two rings of vertices and two tips, at slightly uneven radii: a tipped
+ * prism, like a quartz point, in which no facet is exactly like its
+ * neighbour. The triangles share no vertex, so that each facet keeps its
+ * flat normal — that is what makes it a
+ * facet.
  *
- * ## Ce que le pointeur fait
+ * ## What the pointer does
  *
- * Le cristal s'incline vers le curseur, avec amortissement, et les facettes
- * changent de teinte en changeant d'angle. Le reglage `parallax` dose cette
- * inclinaison ; a zero, seule la rotation reste.
+ * The crystal leans towards the cursor, with damping, and the facets change
+ * hue as they change angle. The `parallax` setting doses that lean; at
+ * zero, only the rotation remains.
  *
- * ## Le repli
+ * ## The fallback
  *
- * Pendant le chargement de la scene, sans WebGL, sous mouvement reduit, ou si
- * l'arbitre refuse une seconde scene, un degrade flou prend la place — dans
- * les memes tons, sans bord dur.
+ * While the scene loads, without WebGL, under reduced motion, or if the
+ * arbiter refuses a second scene, a blurred gradient takes its place — in
+ * the same tones, with no hard edge.
  *
  * @module
  */
@@ -47,77 +47,77 @@ import { usePoster } from '@registre/hooks/usePoster'
 
 import { CRYSTAL_FRAGMENT, CRYSTAL_VERTEX } from './crystal.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface CrystalControls {
-  /** Contexte de la scene : objets, camera, moteur de rendu, module. */
+  /** Scene context: objects, camera, renderer, module. */
   readonly scene: SceneContext
-  /** Uniformes vivants : les modifier change le rendu a l'image suivante. */
+  /** Live uniforms: changing them changes the output on the next frame. */
   readonly uniforms: Record<string, { value: unknown }>
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to this component. */
 export interface CrystalOwnProps {
-  /** Nombre de faces laterales. @defaultValue 6 */
+  /** Number of side faces. @defaultValue 6 */
   facets?: number
-  /** Vitesse de rotation, en tours par minute. @defaultValue 3 */
+  /** Rotation speed, in turns per minute. @defaultValue 3 */
   rpm?: number
-  /** Separation des couleurs sur les aretes, entre zero et un. @defaultValue 0.6 */
+  /** Separation of the colours on the edges, between zero and one. @defaultValue 0.6 */
   dispersion?: number
-  /** Inclinaison vers le pointeur. @defaultValue 0.25 */
+  /** Lean towards the pointer. @defaultValue 0.25 */
   parallax?: number
-  /** Tokens : le fond, la teinte basse, la teinte haute et les reflets. */
+  /** Tokens: the background, the low hue, the high hue and the highlights. */
   colors?: readonly [string, string, string]
-  /** Classes du repli. */
+  /** Fallback classes. */
   poster?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<CrystalControls>
 }
 
-/** Toutes les proprietes. */
+/** Every property. */
 export type CrystalProps = Customisable<CrystalOwnProps>
 
-/** Tokens employes par defaut. */
+/** Tokens used by default. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-sky-300',
   '--o-palette-violet-400',
 ] as const
 
-/** Repli par defaut : un eclat fige, dans les memes tons. */
+/** Default fallback: a frozen glint, in the same tones. */
 const DEFAULT_POSTER =
   'o-bg-gradient-to-tr o-from-zinc-50 dark:o-from-zinc-950 o-via-sky-200 dark:o-via-sky-900 o-to-violet-300 dark:o-to-violet-900 o-blur-2xl o-scale-110'
 
-/** Proportions du cristal : demi-hauteur du fut, hauteur des pointes, rayon. */
+/** Proportions of the crystal: half-height of the shaft, height of the tips, radius. */
 const SHAPE = { body: 0.75, tip: 1.5, radius: 0.62 } as const
 
-/** Ce que la boucle manipule, construit une fois par montage. */
+/** What the loop handles, built once per mount. */
 interface World {
   readonly group: InstanceType<SceneContext['three']['Group']>
 }
 
-/** Nombre pseudo-aleatoire d'un indice, stable d'un montage a l'autre. */
+/** Pseudo-random number from an index, stable from one mount to the next. */
 function hash(index: number): number {
   const x = Math.sin(index * 127.1 + 311.7) * 43758.5453123
   return x - Math.floor(x)
 }
 
 /**
- * Construit le prisme a pointes, en triangles independants.
+ * Builds the tipped prism, out of independent triangles.
  *
- * L'orientation de chaque triangle est verifiee contre son centre : un
- * triangle dont la normale regarde vers l'interieur est retourne. C'est plus
- * sur que de raisonner sur le sens de parcours des anneaux, et cela ne coute
- * qu'un produit vectoriel par face, une fois.
+ * Each triangle's orientation is checked against its centre: a triangle
+ * whose normal looks inwards is flipped. That is safer than reasoning about
+ * the winding order of the rings, and it costs no more than one cross
+ * product per face, once.
  */
-// Le type de retour est laisse a l'inference : ecrit a la main depuis le
-// module, il prend le parametre generique par defaut, que `Mesh` refuse.
+// The return type is left to inference: written by hand from the module,
+// it takes the default generic parameter, which `Mesh` refuses.
 function crystalGeometry(three: SceneContext['three'], sides: number) {
   const count = Math.max(3, Math.round(sides))
   const lower: [number, number, number][] = []
   const upper: [number, number, number][] = []
   for (let index = 0; index < count; index += 1) {
     const angle = (index / count) * Math.PI * 2
-    // Des rayons inegaux : aucune facette n'est la copie de sa voisine.
+    // Uneven radii: no facet is a copy of its neighbour.
     const low = SHAPE.radius * (0.82 + hash(index * 3 + 1) * 0.36)
     const high = SHAPE.radius * (0.82 + hash(index * 3 + 2) * 0.36)
     lower.push([Math.cos(angle) * low, -SHAPE.body, Math.sin(angle) * low])
@@ -172,7 +172,7 @@ function crystalGeometry(three: SceneContext['three'], sides: number) {
 }
 
 /**
- * Cristal.
+ * Crystal.
  *
  * @example
  * <div className="o-relative o-h-96 o-overflow-hidden o-rounded-xl">
@@ -193,14 +193,14 @@ export function Crystal({
   const { theme } = useMotionState()
   const [host, setHost] = useState<HTMLDivElement | null>(null)
 
-  const pointer = usePointerDamped({ host, speed: 2.5, name: 'crystal : pointeur' })
+  const pointer = usePointerDamped({ host, speed: 2.5, name: 'crystal : pointer' })
 
   const uniforms = useRef<Record<string, { value: unknown }>>({})
   const context = useRef<SceneContext | null>(null)
   const world = useRef<World | null>(null)
 
-  // Les reglages sont lus par ref dans la boucle : un changement de curseur
-  // dans l'atelier prend effet a l'image suivante sans reconstruire la scene.
+  // The settings are read by ref inside the loop: a slider change in the
+  // workshop takes effect on the next frame without rebuilding the scene.
   const settings = useRef({ rpm, dispersion, parallax })
   settings.current = { rpm, dispersion, parallax }
 
@@ -214,13 +214,13 @@ export function Crystal({
         new three.Color(value[0], value[1], value[2])
       const [background, low, high] = colors.map((token) => readTokenColour(token, host))
 
-      // Le fond est la couleur du theme. Le token est en sRGB et le moteur
-      // encode sa couleur d'effacement du lineaire vers le sRGB : sans la
-      // conversion inverse, le fond ressort un cran plus clair que la page.
+      // The background is the theme's colour. The token is in sRGB and the
+      // engine encodes its clear colour from linear to sRGB: without the inverse
+      // conversion, the background comes out a shade lighter than the page.
       renderer.setClearColor(paint(background ?? [0, 0, 0]).convertSRGBToLinear(), 1)
 
-      // Les deux passes partagent leurs couleurs : les memes objets, pour
-      // qu'un changement de theme les repeigne toutes les deux d'un coup.
+      // The two passes share their colours: the same objects, so that a theme
+      // change repaints them both at once.
       const shared = {
         uColorA: { value: paint(low ?? [0, 0, 0]) },
         uColorB: { value: paint(high ?? [0, 0, 0]) },
@@ -247,8 +247,8 @@ export function Crystal({
         side: three.FrontSide,
       })
 
-      // L'arriere d'abord, l'avant par-dessus : l'ordre de rendu le garantit,
-      // le tri par distance ne le ferait pas pour deux maillages confondus.
+      // The back first, the front over the top: the render order guarantees it,
+      // sorting by distance would not, for two coincident meshes.
       const inner = new three.Mesh(geometry, back)
       inner.renderOrder = 0
       const outer = new three.Mesh(geometry, front)
@@ -279,11 +279,11 @@ export function Crystal({
       const { rpm: turns, dispersion: split, parallax: lean } = settings.current
       const { group } = live
 
-      // La rotation est exprimee en fonction du temps ecoule : le meme
-      // reglage donne la meme vitesse a soixante comme a cent vingt images.
+      // The rotation is expressed as a function of elapsed time: the same
+      // setting gives the same speed at sixty frames as at a hundred and twenty.
       group.rotation.y += (delta * turns * Math.PI * 2) / 60
 
-      // Une precession lente, et l'inclinaison vers le pointeur par-dessus.
+      // A slow precession, and the lean towards the pointer on top of it.
       const targetZ = Math.sin(time * 0.3) * 0.12 - pointer.current.x * lean
       const targetX = Math.cos(time * 0.23) * 0.08 + pointer.current.y * lean * 0.6
       group.rotation.z += (targetZ - group.rotation.z) * Math.min(1, delta * 2.5)
@@ -294,8 +294,8 @@ export function Crystal({
     },
   })
 
-  // Le theme a bascule : les tokens sont relus et les couleurs mises a jour
-  // en place. La scene n'est pas reconstruite — seules ses couleurs changent.
+  // The theme has flipped: the tokens are re-read and the colours updated in
+  // place. The scene is not rebuilt — only its colours change.
   useEffect(() => {
     const scene = context.current
     const live = uniforms.current

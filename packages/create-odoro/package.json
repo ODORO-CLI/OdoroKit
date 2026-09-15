@@ -4,7 +4,7 @@
   "type": "module",
   "license": "UNLICENSED",
   "author": "BouBouw",
-  "description": "Echafaudage officiel Odoro : npm create odoro@latest",
+  "description": "Official Odoro scaffolder: npm create odoro@latest",
   "engines": {
     "node": ">=20"
   },

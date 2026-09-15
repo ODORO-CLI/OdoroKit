@@ -10,13 +10,13 @@ import { Tabs } from './Tabs.jsx'
 import { ToastProvider, useToast } from './Toast.jsx'
 
 describe('Button', () => {
-  it('rend un bouton de type button par defaut', () => {
+  it('renders a button of type button by default', () => {
     render(<Button>Envoyer</Button>)
     const button = screen.getByRole('button', { name: 'Envoyer' })
     expect(button.getAttribute('type')).toBe('button')
   })
 
-  it('applique les classes de tonalite et de taille', () => {
+  it('applies the tone and size classes', () => {
     render(
       <Button tone="danger" size="sm">
         Supprimer
@@ -27,21 +27,21 @@ describe('Button', () => {
     expect(className).toContain('o-h-8')
   })
 
-  it('expose sa table de classes pour habiller un autre element', () => {
+  it('exposes its class table to style another element', () => {
     expect(buttonClasses({ tone: 'ghost' })).toContain(
       'o-text-zinc-900 dark:o-text-zinc-50',
     )
     expect(buttonClasses({ block: 'true' })).toContain('o-w-full')
   })
 
-  it('declenche onClick', () => {
+  it('fires onClick', () => {
     const onClick = vi.fn()
     render(<Button onClick={onClick}>Envoyer</Button>)
     screen.getByRole('button').click()
     expect(onClick).toHaveBeenCalledTimes(1)
   })
 
-  it('annonce le chargement et bloque l activation', () => {
+  it('announces the loading and blocks the activation', () => {
     const onClick = vi.fn()
     render(
       <Button loading onClick={onClick}>
@@ -56,12 +56,12 @@ describe('Button', () => {
     expect(onClick).not.toHaveBeenCalled()
   })
 
-  it('conserve le libelle pendant le chargement', () => {
+  it('keeps the label during the loading', () => {
     render(<Button loading>Envoyer</Button>)
     expect(screen.getByRole('button').textContent).toContain('Envoyer')
   })
 
-  it('joue une pression a l activation', async () => {
+  it('plays a press on activation', async () => {
     render(<Button>Envoyer</Button>)
     const button = screen.getByRole('button')
     vi.spyOn(button, 'animate')
@@ -71,7 +71,7 @@ describe('Button', () => {
     await waitFor(() => expect(button.animate).toHaveBeenCalledTimes(1))
   })
 
-  it('n anime pas quand press vaut false', () => {
+  it('does not animate when press is false', () => {
     render(<Button press={false}>Envoyer</Button>)
     const button = screen.getByRole('button')
     vi.spyOn(button, 'animate')
@@ -79,7 +79,7 @@ describe('Button', () => {
     expect(button.animate).not.toHaveBeenCalled()
   })
 
-  it('transmet la ref', () => {
+  it('forwards the ref', () => {
     let node: HTMLButtonElement | null = null
     render(
       <Button
@@ -95,12 +95,12 @@ describe('Button', () => {
 })
 
 describe('Input', () => {
-  it('relie le libelle au champ', () => {
+  it('ties the label to the field', () => {
     render(<Input label="Adresse e-mail" />)
     expect(screen.getByLabelText('Adresse e-mail')).toBeDefined()
   })
 
-  it('decrit le champ par son aide', () => {
+  it('describes the field by its hint', () => {
     render(<Input label="Mot de passe" hint="Au moins 12 caracteres." />)
     const field = screen.getByLabelText('Mot de passe')
     const describedBy = field.getAttribute('aria-describedby')
@@ -110,7 +110,7 @@ describe('Input', () => {
     )
   })
 
-  it('signale l erreur et la substitue a l aide', () => {
+  it('reports the error and substitutes it for the hint', () => {
     render(<Input label="Courriel" hint="Aide" error="Adresse invalide" />)
     const field = screen.getByLabelText('Courriel')
     expect(field.getAttribute('aria-invalid')).toBe('true')
@@ -118,14 +118,14 @@ describe('Input', () => {
     expect(screen.queryByText('Aide')).toBeNull()
   })
 
-  it('masque visuellement le libelle sans le retirer', () => {
+  it('visually hides the label without removing it', () => {
     render(<Input label="Recherche" hideLabel />)
     const field = screen.getByLabelText('Recherche')
     const label = document.querySelector(`label[for="${field.id}"]`)
     expect(label?.className).toContain('o-sr-only')
   })
 
-  it('accepte un identifiant fourni', () => {
+  it('accepts a provided identifier', () => {
     render(<Input label="Nom" id="champ-nom" />)
     expect(screen.getByLabelText('Nom').id).toBe('champ-nom')
   })
@@ -138,7 +138,7 @@ describe('Tabs', () => {
     { id: 'c', label: 'Archive', content: <p>Contenu C</p>, disabled: true },
   ]
 
-  it('rend le premier onglet actif par defaut', () => {
+  it('renders the first tab as active by default', () => {
     render(<Tabs label="Sections" items={items} />)
     expect(
       screen.getByRole('tab', { name: 'Apercu' }).getAttribute('aria-selected'),
@@ -146,7 +146,7 @@ describe('Tabs', () => {
     expect(screen.getByText('Contenu A')).toBeDefined()
   })
 
-  it('ne place qu un seul onglet dans l ordre de tabulation', () => {
+  it('puts a single tab in the tabbing order', () => {
     render(<Tabs label="Sections" items={items} />)
     const focusable = screen
       .getAllByRole('tab')
@@ -154,49 +154,49 @@ describe('Tabs', () => {
     expect(focusable).toHaveLength(1)
   })
 
-  it('change d onglet au clic', () => {
+  it('changes tab on a click', () => {
     render(<Tabs label="Sections" items={items} />)
     fireEvent.click(screen.getByRole('tab', { name: 'Reglages' }))
     expect(screen.getByText('Contenu B')).toBeDefined()
   })
 
-  it('ignore le clic sur un onglet desactive', () => {
+  it('ignores a click on a disabled tab', () => {
     render(<Tabs label="Sections" items={items} />)
     fireEvent.click(screen.getByRole('tab', { name: 'Archive' }))
     expect(screen.getByText('Contenu A')).toBeDefined()
   })
 
-  it('navigue au clavier avec les fleches, en sautant les onglets desactives', () => {
+  it('navigates with the keyboard arrows, skipping the disabled tabs', () => {
     render(<Tabs label="Sections" items={items} />)
     const list = screen.getByRole('tablist')
 
     fireEvent.keyDown(list, { key: 'ArrowRight' })
     expect(screen.getByText('Contenu B')).toBeDefined()
 
-    // L'onglet suivant est desactive : on repasse au premier.
+    // The next tab is disabled: we loop back to the first one.
     fireEvent.keyDown(list, { key: 'ArrowRight' })
     expect(screen.getByText('Contenu A')).toBeDefined()
   })
 
-  it('va aux extremites avec Home et End', () => {
+  it('goes to the ends with Home and End', () => {
     render(<Tabs label="Sections" items={items} />)
     const list = screen.getByRole('tablist')
 
     fireEvent.keyDown(list, { key: 'End' })
-    // Le dernier onglet etant desactive, End retient le precedent.
+    // The last tab being disabled, End keeps the previous one.
     expect(screen.getByText('Contenu B')).toBeDefined()
 
     fireEvent.keyDown(list, { key: 'Home' })
     expect(screen.getByText('Contenu A')).toBeDefined()
   })
 
-  it('ignore les touches sans effet', () => {
+  it('ignores the keys without effect', () => {
     render(<Tabs label="Sections" items={items} />)
     fireEvent.keyDown(screen.getByRole('tablist'), { key: 'a' })
     expect(screen.getByText('Contenu A')).toBeDefined()
   })
 
-  it('fonctionne en mode controle', () => {
+  it('works in controlled mode', () => {
     const onValueChange = vi.fn()
     render(
       <Tabs label="Sections" items={items} value="b" onValueChange={onValueChange} />,
@@ -205,11 +205,11 @@ describe('Tabs', () => {
 
     fireEvent.click(screen.getByRole('tab', { name: 'Apercu' }))
     expect(onValueChange).toHaveBeenCalledWith('a')
-    // La valeur reste imposee par l'appelant.
+    // The value stays imposed by the caller.
     expect(screen.getByText('Contenu B')).toBeDefined()
   })
 
-  it('relie chaque panneau a son onglet', () => {
+  it('ties each panel to its tab', () => {
     render(<Tabs label="Sections" items={items} />)
     const tab = screen.getByRole('tab', { name: 'Apercu' })
     const panel = screen.getByRole('tabpanel')
@@ -232,19 +232,19 @@ describe('Dialog', () => {
     )
   }
 
-  it('ne rend rien quand elle est fermee', () => {
+  it('renders nothing when it is closed', () => {
     render(<Host open={false} />)
     expect(screen.queryByText('Confirmer')).toBeNull()
   })
 
-  it('rend le titre, la description et le contenu quand elle est ouverte', () => {
+  it('renders the title, the description and the content when it is open', () => {
     render(<Host open />)
     expect(screen.getByText('Confirmer')).toBeDefined()
     expect(screen.getByText('Action definitive.')).toBeDefined()
     expect(screen.getByText('Corps')).toBeDefined()
   })
 
-  it('relie le titre et la description a l element', () => {
+  it('ties the title and the description to the element', () => {
     render(<Host open />)
     const dialog = document.querySelector('dialog')
     expect(dialog).not.toBeNull()
@@ -257,7 +257,7 @@ describe('Dialog', () => {
     ).toBe('Action definitive.')
   })
 
-  it('ferme sur Echap en passant par l etat applicatif', () => {
+  it('closes on Escape by going through the application state', () => {
     const onClose = vi.fn()
     render(<Dialog open onClose={onClose} title="Confirmer" />)
     const dialog = document.querySelector('dialog')
@@ -267,7 +267,7 @@ describe('Dialog', () => {
     expect(onClose).toHaveBeenCalledTimes(1)
   })
 
-  it('ferme au clic sur l arriere-plan', () => {
+  it('closes on a click on the backdrop', () => {
     const onClose = vi.fn()
     render(<Dialog open onClose={onClose} title="Confirmer" />)
     const dialog = document.querySelector('dialog') as HTMLDialogElement
@@ -276,7 +276,7 @@ describe('Dialog', () => {
     expect(onClose).toHaveBeenCalledTimes(1)
   })
 
-  it('ne ferme pas au clic sur le contenu', () => {
+  it('does not close on a click on the content', () => {
     const onClose = vi.fn()
     render(
       <Dialog open onClose={onClose} title="Confirmer">
@@ -287,14 +287,14 @@ describe('Dialog', () => {
     expect(onClose).not.toHaveBeenCalled()
   })
 
-  it('respecte closeOnBackdrop', () => {
+  it('respects closeOnBackdrop', () => {
     const onClose = vi.fn()
     render(<Dialog open onClose={onClose} title="Confirmer" closeOnBackdrop={false} />)
     fireEvent.click(document.querySelector('dialog') as HTMLDialogElement)
     expect(onClose).not.toHaveBeenCalled()
   })
 
-  it('se demonte immediatement sous prefers-reduced-motion', () => {
+  it('unmounts immediately under prefers-reduced-motion', () => {
     setReducedMotion(true)
     const { rerender } = render(<Host open />)
     rerender(<Host open={false} />)
@@ -305,8 +305,8 @@ describe('Dialog', () => {
 describe('Toast', () => {
   function Trigger(): ReactElement {
     const { toast, toasts, clear } = useToast()
-    // Un compteur d'etat serait lu dans une closure perimee si l'on clique
-    // plusieurs fois avant un rendu : la ref avance a chaque clic.
+    // A state counter would be read in a stale closure if one clicks several
+    // times before a render: the ref moves forward on every click.
     const count = useRef(0)
     return (
       <div>
@@ -332,19 +332,19 @@ describe('Toast', () => {
     )
   }
 
-  it('empile une notification', async () => {
+  it('stacks a notification', async () => {
     render(<Host />)
     screen.getByRole('button', { name: 'notifier' }).click()
     await waitFor(() => expect(screen.getByText('Message 0')).toBeDefined())
   })
 
-  it('utilise role=status pour les registres non critiques', async () => {
+  it('uses role=status for the non critical registers', async () => {
     render(<Host />)
     screen.getByRole('button', { name: 'notifier' }).click()
     await waitFor(() => expect(screen.getByRole('status')).toBeDefined())
   })
 
-  it('plafonne le nombre de notifications simultanees', async () => {
+  it('caps the number of simultaneous notifications', async () => {
     render(<Host max={2} />)
     const notify = screen.getByRole('button', { name: 'notifier' })
     notify.click()
@@ -356,16 +356,16 @@ describe('Toast', () => {
     expect(screen.getByText('Message 2')).toBeDefined()
   })
 
-  it('ferme une notification depuis son bouton', async () => {
+  it('dismisses a notification from its button', async () => {
     render(<Host />)
     screen.getByRole('button', { name: 'notifier' }).click()
     await waitFor(() => expect(screen.getByText('Message 0')).toBeDefined())
 
-    screen.getByRole('button', { name: 'Fermer la notification' }).click()
+    screen.getByRole('button', { name: 'Close the notification' }).click()
     await waitFor(() => expect(screen.queryByText('Message 0')).toBeNull())
   })
 
-  it('disparait d elle-meme apres sa duree de vie', async () => {
+  it('disappears on its own after its lifetime', async () => {
     function Ephemeral(): ReactElement {
       const { toast } = useToast()
       return (
@@ -383,7 +383,7 @@ describe('Toast', () => {
     await waitFor(() => expect(screen.queryByText('Bref')).toBeNull())
   })
 
-  it('vide la file', async () => {
+  it('clears the queue', async () => {
     render(<Host />)
     screen.getByRole('button', { name: 'notifier' }).click()
     await waitFor(() => expect(screen.getByTestId('compte').textContent).toBe('1'))
@@ -392,7 +392,7 @@ describe('Toast', () => {
     await waitFor(() => expect(screen.getByTestId('compte').textContent).toBe('0'))
   })
 
-  it('echoue avec un message explicite hors du fournisseur', () => {
+  it('fails with an explicit message outside of the provider', () => {
     function Orphan(): ReactElement {
       useToast()
       return <p>jamais</p>

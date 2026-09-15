@@ -1,22 +1,22 @@
 /**
- * Nebuleuse : des nuages profonds, en deux couches de bruit couplees.
+ * Nebula: deep clouds, in two coupled layers of noise.
  *
- * ## Le principe
+ * ## The principle
  *
- * Deux couches de bruit fractal a des vitesses differentes, la seconde lue en un point deja deplace par la premiere : le couplage fait les volutes.
+ * Two layers of fractal noise at different speeds, the second read at a point already displaced by the first: the coupling makes the swirls.
  *
- * Une vignette assombrit les bords — c est elle qui donne la profondeur, pas le bruit.
+ * A vignette darkens the edges — it is what gives the depth, not the noise.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur — les recopier ici en ferait autant
- * de versions a maintenir qu'il y a de fonds.
+ * It carries only what sets it apart: its shader, its settings and its
+ * fallback. Reading the tokens, converting them to floats and re-reading them
+ * when the theme changes all come from the engine — copying that here would
+ * leave as many versions to maintain as there are backgrounds.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en
- * accorde qu'une par backend — et sous mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface — it grants only one
+ * per backend — and under reduced motion.
  *
  * @module
  */
@@ -33,46 +33,46 @@ import { type ReactElement } from 'react'
 
 import { NEBULA_FRAGMENT } from './nebula.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface NebulaControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to this component. */
 export interface NebulaOwnProps {
-  /** Vitesse de derive des couches. @defaultValue 0.1 */
+  /** Speed at which the layers drift. @defaultValue 0.1 */
   speed?: number
-  /** Echelle du bruit. Plus haut, plus fin. @defaultValue 2.2 */
+  /** Scale of the noise. Higher is finer. @defaultValue 2.2 */
   scale?: number
-  /** Nombre d'octaves des deux couches. @defaultValue 4 */
+  /** Number of octaves of the two layers. @defaultValue 4 */
   depth?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<NebulaControls>
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type NebulaProps = Customisable<NebulaOwnProps>
 
-/** Tokens employes par defaut : le fond, les nuages, les coeurs lumineux. */
+/** Tokens used by default: the background, the clouds, the bright cores. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-violet-500',
   '--o-palette-rose-300',
 ] as const
 
-/** Repli par defaut : un degrade fige, dans les memes tons. */
+/** Default fallback: a frozen gradient, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-b o-from-zinc-50 dark:o-from-zinc-950 o-to-violet-950'
 
 /**
- * Nebuleuse.
+ * Nebula.
  *
  * @example
  * <div className="o-relative o-min-h-screen">
@@ -94,8 +94,8 @@ export function Nebula({
     colors,
     uniforms: { uSpeed: speed, uScale: scale, uDepth: depth },
     name: 'nebula',
-    // Chaque octave est une evaluation de bruit de plus par pixel, et il y a
-    // deux couches : c'est le reglage qui pese, donc celui qui est borne.
+    // Every octave is one more noise evaluation per pixel, and there are two
+    // layers: it is the setting that weighs, hence the one that is bounded.
     degrade: (quality) => ({
       uDepth: quality === 'low' ? Math.min(depth, 2) : depth,
     }),

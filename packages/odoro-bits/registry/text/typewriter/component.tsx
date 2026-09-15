@@ -1,24 +1,23 @@
 /**
- * Machine a ecrire : des phrases frappees puis effacees, en boucle.
+ * Typewriter: sentences typed then erased, on a loop.
  *
- * ## Pourquoi un minuteur plutot que la boucle
+ * ## Why a timer rather than the loop
  *
- * La frappe avance d'un caractere toutes les cinquante millisecondes. Sur un
- * ecran a soixante images par seconde, cela fait un changement toutes les trois
- * images ; sur un ecran a cent vingt, un toutes les six. La cadence de
- * l'affichage n'a donc aucune influence sur le resultat, et s'abonner a la
- * boucle reviendrait a la reveiller cinquante-neuf fois sur soixante pour ne
- * rien faire.
+ * The typing advances by one character every fifty milliseconds. On a
+ * sixty-frames-per-second screen, that is one change every three frames; on a
+ * hundred-and-twenty one, one every six. The refresh rate of the display
+ * therefore has no influence on the result, and subscribing to the loop would
+ * amount to waking it fifty-nine times out of sixty to do nothing.
  *
- * C'est la contre-epreuve du critere du moteur : cet effet ne possede pas la
- * frame, il possede une horloge.
+ * It is the counter-proof of the engine criterion: this effect does not own
+ * the frame, it owns a clock.
  *
- * ## L'espace reserve
+ * ## The reserved space
  *
- * La ligne change de longueur a chaque caractere. Sans precaution, ce qui suit
- * se decale en permanence — et si la machine a ecrire est dans un titre, c'est
- * toute la page qui respire. La phrase la plus longue est donc rendue en
- * reserve, invisible et sans hauteur, pour figer la largeur.
+ * The line changes length on every character. Without precaution, whatever
+ * follows shifts constantly — and if the typewriter is inside a heading, it is
+ * the whole page that breathes. The longest sentence is therefore rendered as
+ * a reserve, invisible and with no height, to fix the width.
  *
  * @module
  */
@@ -26,29 +25,29 @@
 import { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'
 import { useEffect, useRef, useState, type ReactElement } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface TypewriterOwnProps {
-  /** Phrases jouees en boucle. */
+  /** Sentences played on a loop. */
   phrases: readonly string[]
-  /** Delai entre deux caracteres frappes, en millisecondes. @defaultValue 55 */
+  /** Delay between two typed characters, in milliseconds. @defaultValue 55 */
   typeSpeed?: number
-  /** Delai entre deux caracteres effaces, en millisecondes. @defaultValue 28 */
+  /** Delay between two erased characters, in milliseconds. @defaultValue 28 */
   deleteSpeed?: number
-  /** Attente une fois la phrase complete, en millisecondes. @defaultValue 1400 */
+  /** Wait once the sentence is complete, in milliseconds. @defaultValue 1400 */
   hold?: number
-  /** Caractere du curseur. Chaine vide pour l'enlever. @defaultValue '|' */
+  /** Character of the caret. Empty string to remove it. @defaultValue '|' */
   cursor?: string
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type TypewriterProps = Customisable<TypewriterOwnProps, 'span'>
 
 /**
- * Frappe une suite de phrases, en boucle.
+ * Types a series of sentences, on a loop.
  *
  * @example
  * <Typewriter
- *   phrases={['des interfaces vivantes', 'sans dependance externe']}
+ *   phrases={['living interfaces', 'with no external dependency']}
  *   className="o-text-brand-500"
  * />
  */
@@ -81,8 +80,8 @@ export function Typewriter({
           setLength(length + 1)
           return
         }
-        // Une seule phrase : l'effacer pour la reecrire a l'identique serait
-        // du mouvement pour rien.
+        // A single sentence: erasing it to retype it identically would be
+        // movement for nothing.
         if (phrases.length > 1) setErasing(true)
         return
       }
@@ -106,14 +105,14 @@ export function Typewriter({
     rest,
   )
 
-  // Sous mouvement reduit, la premiere phrase est simplement la.
+  // Under reduced motion, the first sentence is simply there.
   const shown = reduced ? (phrases[0] ?? '') : phrase.slice(0, length)
 
   return (
     <span {...rest} className={className} style={style}>
       {/*
-        Reserve de largeur : la phrase la plus longue occupe la meme cellule de
-        grille, invisible. Sans elle, la ligne se decale a chaque caractere.
+        Width reserve: the longest sentence occupies the same grid cell,
+        invisible. Without it, the line shifts on every character.
       */}
       <span aria-hidden className="o-invisible o-col-start-1 o-row-start-1">
         {longest}

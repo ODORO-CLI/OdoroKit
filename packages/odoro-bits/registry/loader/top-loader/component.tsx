@@ -1,28 +1,27 @@
 /**
- * Barre de chargement : une ligne fine en haut de son conteneur, pilotee par
- * une progression reelle ou balayee en attente.
+ * Loading bar: a thin line at the top of its container, driven by a real
+ * progress or swept while waiting.
  *
- * ## Deux modes, deux honnetetes
+ * ## Two modes, two kinds of honesty
  *
- * Le mode determine recoit `progress` et le montre tel quel : la barre est un
- * `role="progressbar"` complet, valeur comprise, et sa largeur est une
- * echelle de transformation — jamais une largeur, qui forcerait une mise en
- * page a chaque avancee.
+ * The determinate mode receives `progress` and shows it as it is: the bar is
+ * a complete `role="progressbar"`, value included, and its width is a
+ * transform scale — never a width, which would force a layout at every
+ * advance.
  *
- * Le mode `indeterminate` ne pretend rien mesurer : un segment balaye la
- * barre en boucle, et le `progressbar` est declare **sans** valeur — c'est
- * exactement ainsi que la specification decrit une progression inconnue.
- * Afficher un pourcentage invente serait le mensonge classique des barres de
- * chargement.
+ * The `indeterminate` mode claims to measure nothing: a segment sweeps the
+ * bar in a loop, and the `progressbar` is declared **without** a value —
+ * that is exactly how the specification describes an unknown progress.
+ * Showing a made-up percentage would be the classic lie of loading bars.
  *
- * ## Fixee a son conteneur, ou a l'ecran
+ * ## Pinned to its container, or to the screen
  *
- * Par defaut la barre se pose en haut du premier ancetre positionne — un
- * panneau, une carte, un cadre d'apercu. `fixed` l'ancre a la fenetre, pour
- * la barre de navigation globale d'une application.
+ * By default the bar sits at the top of the first positioned ancestor — a
+ * panel, a card, a preview frame. `fixed` anchors it to the window, for the
+ * global navigation bar of an application.
  *
- * Sous mouvement reduit, le balayage indetermine devient une barre pleine et
- * attenuee — presente, immobile — et la progression determinee saute sans
+ * Under reduced motion, the indeterminate sweep becomes a full, dimmed bar —
+ * present, motionless — and the determinate progress jumps with no
  * transition.
  *
  * @module
@@ -31,10 +30,10 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-top-loader'
 
-/** Pose la barre et son balayage, une fois par document. */
+/** Applies the bar and its sweep, once per document. */
 function ensureTopLoaderRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -48,7 +47,7 @@ function ensureTopLoaderRule(): void {
     'background:linear-gradient(90deg,var(--o-tl-from),var(--o-tl-to));',
     'transition:transform var(--o-duration-base) var(--o-ease-standard);',
     '}',
-    // Le balayage : un segment plus court traverse la barre en boucle.
+    // The sweep: a shorter segment crosses the bar in a loop.
     '[data-o-top-indeterminate] [data-o-top-bar]{',
     'width:40%;transition:none;',
     'animation:o-top-loader-sweep 1200ms ease-in-out infinite;',
@@ -57,7 +56,7 @@ function ensureTopLoaderRule(): void {
     'from{transform:translate3d(-100%,0,0)}',
     'to{transform:translate3d(350%,0,0)}',
     '}',
-    // Une barre pleine et attenuee : l'attente reste dite, sans mouvement.
+    // A full, dimmed bar: the wait is still stated, with no movement.
     '@media (prefers-reduced-motion:reduce){',
     '[data-o-top-bar]{transition:none}',
     '[data-o-top-indeterminate] [data-o-top-bar]{animation:none;width:100%;opacity:0.5;transform:none}',
@@ -66,39 +65,39 @@ function ensureTopLoaderRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface TopLoaderOwnProps {
-  /** Progression, de 0 a 100. Ignoree en mode indetermine. @defaultValue 0 */
+  /** Progress, from 0 to 100. Ignored in indeterminate mode. @defaultValue 0 */
   progress?: number
-  /** Balayage sans valeur, quand rien n'est mesurable. @defaultValue false */
+  /** Sweep with no value, when nothing is measurable. @defaultValue false */
   indeterminate?: boolean
-  /** Epaisseur de la barre, en pixels. @defaultValue 3 */
+  /** Thickness of the bar, in pixels. @defaultValue 3 */
   height?: number
-  /** Ancrer a la fenetre plutot qu'au conteneur. @defaultValue false */
+  /** Anchor to the window rather than to the container. @defaultValue false */
   fixed?: boolean
-  /** Depart du degrade. @defaultValue la teinte de marque */
+  /** Start of the gradient. @defaultValue the brand hue */
   from?: string
-  /** Arrivee du degrade. @defaultValue un bleu ciel */
+  /** End of the gradient. @defaultValue a sky blue */
   to?: string
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */
+  /** Label announced to screen readers. @defaultValue 'Loading' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All the properties. */
 export type TopLoaderProps = Customisable<TopLoaderOwnProps>
 
 /**
- * Barre de chargement en haut de son conteneur.
+ * Loading bar at the top of its container.
  *
  * @example
- * // Progression reelle, dans un conteneur positionne.
+ * // Real progress, in a positioned container.
  * <div className="o-relative">
  *   <TopLoader progress={sent / total * 100} />
  *   …
  * </div>
  *
  * @example
- * // Attente sans mesure, ancree a la fenetre.
+ * // A wait with nothing to measure, anchored to the window.
  * <TopLoader indeterminate fixed />
  */
 export function TopLoader({
@@ -108,7 +107,7 @@ export function TopLoader({
   fixed = false,
   from = 'var(--o-palette-brand-500)',
   to = 'var(--o-palette-sky-400)',
-  label = 'Chargement',
+  label = 'Loading',
   ...rest
 }: TopLoaderProps): ReactElement {
   ensureTopLoaderRule()
@@ -140,8 +139,8 @@ export function TopLoader({
       data-o-top-indeterminate={indeterminate ? '' : undefined}
       role="progressbar"
       aria-label={label}
-      // Un progressbar sans aria-valuenow est indetermine : c'est la maniere
-      // normative de dire « j'avance, mais je ne sais pas de combien ».
+      // A progressbar with no aria-valuenow is indeterminate: that is the
+      // normative way of saying "I am moving, but I do not know by how much".
       aria-valuemin={indeterminate ? undefined : 0}
       aria-valuemax={indeterminate ? undefined : 100}
       aria-valuenow={indeterminate ? undefined : Math.round(value)}

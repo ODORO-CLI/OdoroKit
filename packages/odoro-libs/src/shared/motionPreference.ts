@@ -1,14 +1,14 @@
 /**
- * Preference d'animation reduite.
+ * Reduced motion preference.
  *
- * ## Ce module n'est plus qu'une redirection
+ * ## This module is now only a redirection
  *
- * La decision a ete extraite dans `@odoro-cli/libs/motion-policy`, pour qu'un seul
- * endroit reponde a la question « faut-il animer ? », quel que soit le systeme
- * qui anime — la librairie, ou le moteur quand il est present.
+ * The decision has been extracted into `@odoro-cli/libs/motion-policy`, so that a single
+ * place answers the question "should we animate?", whatever the system
+ * that animates — the library, or the engine when it is present.
  *
- * Ce fichier reste parce que toute la librairie l'importe : le supprimer
- * ferait un diff de vingt fichiers pour un deplacement de deux fonctions.
+ * This file stays because the whole library imports it: removing it
+ * would make a twenty file diff for a move of two functions.
  *
  * @module
  */

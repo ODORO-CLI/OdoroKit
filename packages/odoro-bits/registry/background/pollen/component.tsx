@@ -1,23 +1,23 @@
 /**
- * Pollen : des grains lents sur deux plans, flou de profondeur et parallaxe
- * sous le pointeur.
+ * Pollen: slow grains on two planes, depth blur and parallax under the
+ * pointer.
  *
- * ## A quoi ce fond reagit
+ * ## What this background reacts to
  *
- * Au deplacement du pointeur, avec amortissement : les deux plans se decalent
- * en sens inverse de son mouvement, le proche davantage que le lointain.
- * C'est la parallaxe qui fait lire deux distances plutot que deux tailles. A
- * la sortie du cadre, le hook ramene la cible au centre.
+ * To pointer movement, with damping: the two planes shift against its motion,
+ * the near one more than the far one. It is the parallax that makes the eye
+ * read two distances rather than two sizes. On leaving the frame, the hook
+ * brings the target back to the centre.
  *
- * ## Le pont pointeur -> shader
+ * ## The pointer -> shader bridge
  *
- * Aucun rendu React par image : un tableau stable de deux flottants est mute
- * en place dans la boucle du moteur, en priorite d'entree, et la surface le
- * relit a chaque image.
+ * No React render per frame: a stable array of two floats is mutated in place
+ * in the engine loop, at input priority, and the surface re-reads it every
+ * frame.
  *
- * ## Sous mouvement reduit
+ * ## Under reduced motion
  *
- * La surface est refusee par le moteur et le repli statique s'affiche.
+ * The surface is refused by the engine and the static fallback is shown.
  *
  * @module
  */
@@ -38,56 +38,56 @@ import { usePointerDamped } from '@registre/hooks/usePointerDamped'
 
 import { POLLEN_FRAGMENT } from './pollen.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface PollenControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to this component. */
 export interface PollenOwnProps {
-  /** Vitesse de la derive. @defaultValue 0.35 */
+  /** Speed of the drift. @defaultValue 0.35 */
   speed?: number
-  /** Densite du plan lointain. @defaultValue 11 */
+  /** Density of the far plane. @defaultValue 11 */
   density?: number
-  /** Flou du plan proche. @defaultValue 0.6 */
+  /** Blur of the near plane. @defaultValue 0.6 */
   blur?: number
-  /** Amplitude de la parallaxe sous le pointeur. @defaultValue 1 */
+  /** Amplitude of the parallax under the pointer. @defaultValue 1 */
   parallax?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<PollenControls>
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type PollenProps = Customisable<PollenOwnProps>
 
-/** Tokens employes par defaut : le fond, les grains lointains, les proches. */
+/** Tokens used by default: the background, the far grains, the near ones. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-lime-400',
   '--o-palette-amber-300',
 ] as const
 
-/** Repli par defaut : une teinte figee, dans les memes tons. */
+/** Default fallback: a frozen tint, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-br o-from-zinc-50 dark:o-from-zinc-950 o-to-lime-200 dark:o-to-lime-950'
 
 /**
- * Rayon de cellules parcouru hors qualite basse.
+ * Radius in cells walked outside low quality.
  *
- * Un rayon de un lit neuf cellules par plan ; un rayon de zero n'en lit
- * qu'une, et un grain ne deborde plus de sa cellule. C'est le seul levier de
- * cout du shader, et il ne se voit qu'aux bords des grains proches.
+ * A radius of one reads nine cells per plane; a radius of zero reads only
+ * one, and a grain no longer spills out of its cell. It is the only cost
+ * lever the shader has, and it shows only at the edges of the near grains.
  */
 const SPREAD = 1
 
-/** Rayon de cellules en qualite basse. */
+/** Radius in cells at low quality. */
 const LOW_SPREAD = 0
 
 /**
@@ -111,21 +111,21 @@ export function Pollen({
 }: PollenProps): ReactElement {
   const [host, setHost] = useState<HTMLDivElement | null>(null)
 
-  // Tableau stable, mute en place : la surface relit les uniforms a chaque
-  // image, l'identite ne change pas, la mutation suffit — aucun setState.
+  // Stable array, mutated in place: the surface re-reads the uniforms every
+  // frame, the identity does not change, the mutation is enough — no setState.
   const uPointer = useRef<number[]>([0, 0]).current
 
-  const pointer = usePointerDamped({ host, speed: 2.5, name: 'pollen : pointeur' })
+  const pointer = usePointerDamped({ host, speed: 2.5, name: 'pollen : pointer' })
 
   useEffect(() => {
     const subscription = clock.subscribe(
       () => {
-        // Le repere du hook est centre, y vers le bas ; le shader travaille
-        // centre aussi, mais y vers le haut.
+        // The hook's frame is centred, y downwards; the shader works centred
+        // too, but with y upwards.
         uPointer[0] = pointer.current.x
         uPointer[1] = -pointer.current.y
       },
-      { priority: CLOCK_PRIORITY.input, name: 'pollen : pont' },
+      { priority: CLOCK_PRIORITY.input, name: 'pollen : bridge' },
     )
     return () => subscription.unsubscribe()
   }, [pointer, uPointer])

@@ -31,7 +31,7 @@
  */
 
 import { Icon } from '@odoro-cli/icons'
-import { ArrowRight, ArrowUpRight } from '@odoro-cli/icons/filaire'
+import { ArrowRight, ArrowUpRight } from '@odoro-cli/icons/outline'
 import { useState, type CSSProperties, type ReactElement } from 'react'
 
 import { LiquidChrome } from '@/odoro/background/LiquidChrome.jsx'

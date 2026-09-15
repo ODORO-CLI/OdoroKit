@@ -1,28 +1,28 @@
 /**
- * Mur de LED : une matrice de pastilles arrondies qui affiche un degrade
- * lent, une couleur par pastille.
+ * LED wall: a matrix of rounded dots displaying a slow gradient, one colour
+ * per dot.
  *
- * ## Le principe
+ * ## The principle
  *
- * L'image affichee est echantillonnee au centre de chaque pastille : une
- * diode est d'une seule couleur. Autour, le boitier reste visible ; un halo
- * court deborde sans atteindre les voisines, et chaque pastille a une
- * luminance un peu inegale, comme sur un mur reel.
+ * The displayed image is sampled at the centre of every dot: a diode has a
+ * single colour. Around it the casing stays visible; a short halo spills out
+ * without reaching the neighbours, and every dot has a slightly uneven
+ * luminance, as on a real wall.
  *
- * Ce qui distingue cette entree de `dot-matrix` et de `halftone` : ici la
- * taille des points ne varie pas, c'est leur couleur qui porte l'image ; et
- * de `dots` : les pastilles sont des carres arrondis serres, pas un semis.
+ * What sets this entry apart from `dot-matrix` and `halftone`: here the size
+ * of the dots does not vary, it is their colour which carries the image; and
+ * from `dots`: the dots are tight rounded squares, not a scattering.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur — les recopier ici en ferait autant
- * de versions a maintenir qu'il y a de fonds.
+ * It carries only what sets it apart: its shader, its settings and its fallback.
+ * Reading the tokens, converting them to floats and re-reading them when the
+ * theme changes all come from the engine — copying them here would leave as
+ * many versions to maintain as there are backgrounds.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en
- * accorde qu'une par backend — et sous mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface — it grants only one
+ * per backend — and under reduced motion.
  *
  * @module
  */
@@ -39,48 +39,48 @@ import { type ReactElement } from 'react'
 
 import { LED_WALL_FRAGMENT } from './led-wall.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface LedWallControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to this component. */
 export interface LedWallOwnProps {
-  /** Nombre de pastilles sur la hauteur. Borne a cent vingt par le shader. @defaultValue 32 */
+  /** Number of dots across the height. Capped at one hundred and twenty by the shader. @defaultValue 32 */
   pixels?: number
-  /** Vitesse du degrade. @defaultValue 0.4 */
+  /** Speed of the gradient. @defaultValue 0.4 */
   speed?: number
-  /** Espace entre les pastilles, en fraction de pastille. @defaultValue 0.25 */
+  /** Gap between the dots, as a fraction of a dot. @defaultValue 0.25 */
   gap?: number
-  /** Poids du halo autour de chaque pastille. Zero l'eteint. @defaultValue 0.5 */
+  /** Weight of the halo around every dot. Zero puts it out. @defaultValue 0.5 */
   bloom?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<LedWallControls>
 }
 
-/** Toutes les proprietes. */
+/** Every property. */
 export type LedWallProps = Customisable<LedWallOwnProps>
 
-/** Tokens employes par defaut : le boitier, les deux couleurs du degrade. */
+/** Tokens used by default: the casing, the two colours of the gradient. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-rose-500',
   '--o-palette-amber-300',
 ] as const
 
-/** Repli par defaut : un degrade fige, dans les memes tons. */
+/** Default fallback: a frozen gradient, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-br o-from-zinc-50 dark:o-from-zinc-950 o-to-rose-100 dark:o-to-rose-950'
 
 /**
- * Mur de LED.
+ * LED wall.
  *
  * @example
  * <div className="o-relative o-min-h-screen">
@@ -103,9 +103,9 @@ export function LedWall({
     colors,
     uniforms: { uPixels: pixels, uSpeed: speed, uGap: gap, uBloom: bloom },
     name: 'led-wall',
-    // Des pastilles petites scintillent sur leurs coins a densite de pixels
-    // reduite, et leur halo n'y ajoute rien : en qualite basse, elles
-    // s'elargissent et le halo s'eteint.
+    // Small dots shimmer on their corners at a reduced pixel density, and
+    // their halo adds nothing there: at low quality they widen and the halo
+    // goes out.
     degrade: (quality) => ({
       uPixels: quality === 'low' ? Math.min(pixels, 20) : pixels,
       uBloom: quality === 'low' ? 0 : bloom,

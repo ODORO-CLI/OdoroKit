@@ -1,28 +1,28 @@
 /**
- * Soulignement dessine : un trait a main levee qui se trace sous le texte.
+ * Drawn underline: a freehand stroke that draws itself under the text.
  *
- * ## `pathLength`, la normalisation gratuite
+ * ## `pathLength`, free normalisation
  *
- * Se dessiner, pour un trait SVG, c'est animer `stroke-dashoffset` d'un tiret
- * long comme le trace. La longueur reelle du chemin depend de ses courbes —
- * mais `pathLength="1"` la declare egale a 1, et le tiret comme le decalage
- * deviennent des constantes. Aucune mesure, aucun JavaScript de calcul.
+ * For an SVG stroke, drawing itself means animating `stroke-dashoffset` of a
+ * dash as long as the path. The real length of the path depends on its curves
+ * — but `pathLength="1"` declares it equal to 1, and both the dash and the
+ * offset become constants. No measurement, no computation in JavaScript.
  *
- * Le trait est volontairement irregulier — deux courbes qui ondulent — parce
- * qu'un soulignement parfaitement droit qui se dessine ressemble a une barre
- * de progression. `vector-effect: non-scaling-stroke` garde l'epaisseur en
- * pixels quel que soit l'etirement du SVG sous le mot.
+ * The stroke is deliberately irregular — two curves that undulate — because a
+ * perfectly straight underline drawing itself looks like a progress bar.
+ * `vector-effect: non-scaling-stroke` keeps the thickness in pixels whatever
+ * the stretching of the SVG under the word.
  *
- * ## Deux declencheurs, une seule mecanique
+ * ## Two triggers, a single mechanism
  *
- * Au survol, c'est une transition CSS que le `:hover` arme et desarme — le
- * trait s'efface en reculant quand on ressort, gratuitement. A l'entree dans
- * le champ, un observateur pose le meme attribut une fois pour toutes. Dans
- * les deux cas, la transition fait le travail.
+ * On hover, it is a CSS transition that `:hover` arms and disarms — the stroke
+ * erases itself backwards when the pointer leaves, for free. On entering the
+ * viewport, an observer sets the same attribute once and for all. In both
+ * cases, the transition does the work.
  *
- * Le trait est un ornement : le SVG est cache a l'arbre d'accessibilite, le
- * texte reste un texte. Sous mouvement reduit, le trait est simplement la,
- * deja trace.
+ * The stroke is an ornament: the SVG is hidden from the accessibility tree,
+ * the text stays a text. Under reduced motion, the stroke is simply there,
+ * already drawn.
  *
  * @module
  */
@@ -36,37 +36,37 @@ import {
   type ReactElement,
 } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface UnderlineDrawOwnProps {
-  /** Texte a souligner. */
+  /** Text to underline. */
   children: string
-  /** Balise rendue. @defaultValue 'span' */
+  /** Rendered tag. @defaultValue 'span' */
   as?: ElementType
   /**
-   * Ce qui declenche le trace.
+   * What triggers the drawing.
    *
-   * `view` dessine une fois, a l'entree dans le champ. `hover` dessine au
-   * survol ou au focus — du texte lui-meme, ou du lien qui l'enveloppe — et
-   * s'efface au retour.
+   * `view` draws once, on entering the viewport. `hover` draws on hover or on
+   * focus — of the text itself, or of the link that wraps it — and erases on
+   * the way back.
    *
    * @defaultValue 'view'
    */
   trigger?: 'view' | 'hover'
-  /** Epaisseur du trait, en pixels. @defaultValue 3 */
+  /** Thickness of the stroke, in pixels. @defaultValue 3 */
   thickness?: number
-  /** Duree du trace, en millisecondes. @defaultValue 700 */
+  /** Duration of the drawing, in milliseconds. @defaultValue 700 */
   duration?: number
-  /** Couleur du trait. @defaultValue brand-400 de la palette */
+  /** Colour of the stroke. @defaultValue brand-400 from the palette */
   color?: string
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type UnderlineDrawProps = Customisable<UnderlineDrawOwnProps, 'span'>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-underline-draw'
 
-/** Pose les regles du trait, une fois par document. */
+/** Sets the stroke rules, once per document. */
 function ensureUnderlineRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -79,14 +79,14 @@ function ensureUnderlineRule(): void {
     'position:absolute;left:0;right:0;bottom:-0.18em;width:100%;height:0.32em;',
     'overflow:visible;pointer-events:none;',
     '}',
-    // Grace a pathLength=1, le tiret et son decalage sont des constantes.
+    // Thanks to pathLength=1, the dash and its offset are constants.
     '[data-o-underline] path{',
     'stroke-dasharray:1;stroke-dashoffset:1;',
     'transition:stroke-dashoffset var(--o-underline-duration) cubic-bezier(0.2,0,0,1);',
     '}',
     '[data-o-underline-on] path{stroke-dashoffset:0}',
-    // Le survol du texte, ou celui du lien qui l'enveloppe : le trait des
-    // menus se dessine des que le pointeur touche la zone cliquable.
+    // The hover of the text, or that of the link wrapping it: the stroke of
+    // menus draws itself as soon as the pointer touches the clickable area.
     '[data-o-underline-trigger="hover"]:hover path,',
     '[data-o-underline-trigger="hover"]:focus-visible path,',
     ':where(a,button):hover [data-o-underline-trigger="hover"] path,',
@@ -98,17 +98,17 @@ function ensureUnderlineRule(): void {
 }
 
 /**
- * Dessine un soulignement irregulier sous un texte.
+ * Draws an irregular underline beneath a text.
  *
  * @example
  * <p className="o-text-3xl o-font-bold">
- *   Un choix <UnderlineDraw>assume</UnderlineDraw>.
+ *   A <UnderlineDraw>deliberate</UnderlineDraw> choice.
  * </p>
  *
  * @example
- * // Dans un lien : le trait se dessine au survol, s'efface au depart.
- * <a href="/tarifs">
- *   <UnderlineDraw trigger="hover">Voir les tarifs</UnderlineDraw>
+ * // Inside a link: the stroke draws on hover, erases on leaving.
+ * <a href="/pricing">
+ *   <UnderlineDraw trigger="hover">See the pricing</UnderlineDraw>
  * </a>
  */
 export function UnderlineDraw({
@@ -131,7 +131,8 @@ export function UnderlineDraw({
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries.every((entry) => !entry.isIntersecting)) return
-        // L'attribut arme la transition ; l'observateur a fini son travail.
+        // The attribute arms the transition; the observer has finished its
+        // work.
         element.setAttribute('data-o-underline-on', '')
         observer.disconnect()
       },
@@ -160,14 +161,15 @@ export function UnderlineDraw({
       style={underlineStyle}
       data-o-underline=""
       data-o-underline-trigger={trigger}
-      // Mouvement reduit : le trait est deja trace au premier rendu, et comme
-      // il nait a sa valeur finale, la transition n'a rien a jouer.
+      // Reduced motion: the stroke is already drawn on the first render, and
+      // since it is born at its final value, the transition has nothing to
+      // play.
       {...(reduced ? { 'data-o-underline-on': '' } : {})}
     >
       {children}
       <svg aria-hidden viewBox="0 0 100 10" preserveAspectRatio="none">
-        {/* Deux courbes legerement desaccordees : le trait d'un feutre, pas
-            une regle. */}
+        {/* Two slightly mismatched curves: the stroke of a marker pen, not a
+            ruler. */}
         <path
           d="M 3 7 Q 25 2.5 50 5.5 Q 75 8.5 97 4"
           pathLength={1}

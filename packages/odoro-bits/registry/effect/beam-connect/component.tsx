@@ -1,24 +1,24 @@
 /**
- * Faisceau de liaison : un trait anime relie deux elements enfants.
+ * Connecting beam: an animated stroke links two child elements.
  *
- * ## La geometrie est mesuree, jamais supposee
+ * ## The geometry is measured, never assumed
  *
- * Les deux extremites sont des enfants identifies par `data-beam="from"` et
- * `data-beam="to"`. Leurs positions sont relevees au montage puis a chaque
- * changement de taille — un `ResizeObserver` sur l'enveloppe et sur les deux
- * elements — et le chemin est retrace. La mesure ne vit pas dans la boucle :
- * un trait entre deux cartes ne bouge que quand la mise en page bouge.
+ * The two ends are children identified by `data-beam="from"` and
+ * `data-beam="to"`. Their positions are read at mount, then on every size
+ * change — a `ResizeObserver` on the wrapper and on the two elements — and the
+ * path is retraced. The measurement does not live in the loop: a stroke
+ * between two cards only moves when the layout moves.
  *
- * ## `pathLength` rend le flux independant de la longueur
+ * ## `pathLength` makes the flow independent of the length
  *
- * Le tiret qui circule est une animation CSS sur `stroke-dashoffset`. Sans
- * normalisation, la meme animation serait rapide sur un trait court et
- * paresseuse sur un long ; `pathLength=100` ramene tous les chemins a la meme
- * echelle, et une seule regle sert a toutes les liaisons de la page.
+ * The dash that travels is a CSS animation on `stroke-dashoffset`. Without
+ * normalisation, the same animation would be fast on a short stroke and lazy
+ * on a long one; `pathLength=100` brings every path back to the same scale,
+ * and a single rule serves every link on the page.
  *
- * Le trait est decoratif : il est retire de l'arbre d'accessibilite, et sous
- * mouvement reduit il reste — c'est la liaison qui compte — mais le flux
- * s'arrete.
+ * The stroke is decorative: it is removed from the accessibility tree, and
+ * under reduced motion it stays — the link is what matters — but the flow
+ * stops.
  *
  * @module
  */
@@ -32,27 +32,27 @@ import {
   type ReactNode,
 } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface BeamConnectOwnProps {
-  /** Contenu, dont deux enfants portent data-beam="from" et data-beam="to". */
+  /** Content, two children of which carry data-beam="from" and data-beam="to". */
   children: ReactNode
-  /** Bombement de la courbe, en pixels. @defaultValue 40 */
+  /** Bulge of the curve, in pixels. @defaultValue 40 */
   curvature?: number
-  /** Duree d'un cycle du flux, en millisecondes. @defaultValue 3000 */
+  /** Duration of one flow cycle, in milliseconds. @defaultValue 3000 */
   speed?: number
-  /** Epaisseur du trait, en pixels. @defaultValue 2 */
+  /** Thickness of the stroke, in pixels. @defaultValue 2 */
   thickness?: number
-  /** Couleur du faisceau. @defaultValue le token de marque */
+  /** Colour of the beam. @defaultValue the brand token */
   color?: string
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type BeamConnectProps = Customisable<BeamConnectOwnProps>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-beam-connect'
 
-/** Pose le flux, une fois par document. */
+/** Sets the flow, once per document. */
 function ensureBeamRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -60,8 +60,8 @@ function ensureBeamRule(): void {
   const style = document.createElement('style')
   style.id = STYLE_ID
   style.textContent = [
-    // Grace a pathLength=100, ces unites valent pour tous les traits,
-    // quelle que soit leur longueur reelle : voir l'en-tete du module.
+    // Thanks to pathLength=100, these units hold for every stroke,
+    // whatever its real length: see the module header.
     '[data-o-beam-dash]{stroke-dasharray:18 82;animation:o-beam-flow var(--o-beam-speed,3000ms) linear infinite}',
     '@keyframes o-beam-flow{to{stroke-dashoffset:-100}}',
     '@media (prefers-reduced-motion:reduce){[data-o-beam-dash]{animation:none}}',
@@ -69,7 +69,7 @@ function ensureBeamRule(): void {
   document.head.append(style)
 }
 
-/** Ce qu'une mesure produit : la taille de la zone et le chemin. */
+/** What a measurement produces: the size of the area and the path. */
 interface BeamGeometry {
   readonly width: number
   readonly height: number
@@ -77,12 +77,12 @@ interface BeamGeometry {
 }
 
 /**
- * Mesure les deux extremites et trace la courbe qui les relie.
+ * Measures the two ends and traces the curve that links them.
  *
- * Les ancres sont les milieux des bords qui se font face — relier les
- * centres ferait entrer le trait dans les cartes. L'axe dominant decide :
- * deux elements cote a cote se relient par leurs flancs, deux elements
- * superposes par leur haut et leur bas.
+ * The anchors are the midpoints of the edges that face each other — linking
+ * the centres would send the stroke inside the cards. The dominant axis
+ * decides: two elements side by side link through their flanks, two stacked
+ * elements through their top and their bottom.
  */
 function measureBeam(host: HTMLElement, curvature: number): BeamGeometry | null {
   const from = host.querySelector('[data-beam="from"]')
@@ -113,8 +113,8 @@ function measureBeam(host: HTMLElement, curvature: number): BeamGeometry | null 
     by = (dcy >= 0 ? b.top : b.bottom) - box.top
   }
 
-  // Le point de controle est pousse le long de la normale au segment : la
-  // courbe bombe du meme cote quelle que soit l'orientation de la liaison.
+  // The control point is pushed along the normal to the segment: the curve
+  // bulges on the same side whatever the orientation of the link.
   const length = Math.max(Math.hypot(bx - ax, by - ay), 1)
   const mx = (ax + bx) / 2 - ((by - ay) / length) * curvature
   const my = (ay + by) / 2 + ((bx - ax) / length) * curvature
@@ -127,7 +127,7 @@ function measureBeam(host: HTMLElement, curvature: number): BeamGeometry | null 
 }
 
 /**
- * Relie deux de ses enfants par un faisceau anime.
+ * Links two of its children with an animated beam.
  *
  * @example
  * <BeamConnect className="o-flex o-items-center o-justify-between o-p-8">
@@ -156,8 +156,8 @@ export function BeamConnect({
     }
     update()
 
-    // L'enveloppe et les deux extremites : un changement de taille de
-    // n'importe laquelle deplace les ancres.
+    // The wrapper and the two ends: a size change on any of them moves the
+    // anchors.
     const observer = new ResizeObserver(update)
     observer.observe(host)
     const from = host.querySelector('[data-beam="from"]')
@@ -193,9 +193,9 @@ export function BeamConnect({
             overflow: 'visible',
           }}
         >
-          {/* Le lit du faisceau : la liaison reste lisible entre deux
-              passages du tiret, et c'est tout ce qui reste sous mouvement
-              reduit. */}
+          {/* The bed of the beam: the link stays readable between two passes
+              of the dash, and it is all that remains under reduced
+              motion. */}
           <path
             d={geometry.d}
             fill="none"

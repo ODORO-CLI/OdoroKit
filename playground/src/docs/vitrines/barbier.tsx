@@ -33,7 +33,7 @@
  */
 
 import { Icon } from '@odoro-cli/icons'
-import { ArrowRight, Check, Clock, Plus, X } from '@odoro-cli/icons/filaire'
+import { ArrowRight, Check, Clock, Plus, X } from '@odoro-cli/icons/outline'
 import { Reveal } from '@odoro-cli/libs/motion'
 import { useMemo, useState, type CSSProperties, type ReactElement } from 'react'
 

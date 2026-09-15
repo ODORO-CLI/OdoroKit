@@ -1,28 +1,28 @@
 /**
- * Boule plasma : des filaments qui serpentent de l'electrode au verre, et
- * qu'un doigt sur le globe attire.
+ * Plasma ball: filaments that snake from the electrode to the glass, and that
+ * a finger on the globe draws in.
  *
- * ## A quoi ce fond reagit
+ * ## What this background reacts to
  *
- * Au deplacement du pointeur, avec amortissement : quand il approche du
- * globe, le filament principal se tend vers lui comme vers un doigt pose sur
- * le verre, et les autres palissent. A la sortie du cadre, le hook ramene la
- * cible au centre — le centre est l'electrode, ou toucher ne se voit pas — et
- * les filaments reprennent leur derive.
+ * To pointer movement, with damping: as it comes near the globe, the main
+ * filament reaches towards it as towards a finger laid on the glass, and the
+ * others pale. On leaving the frame, the hook brings the target back to the
+ * centre — the centre is the electrode, where a touch does not show — and the
+ * filaments take up their drift again.
  *
- * Ce qui distingue cette entree de `plasma` : celle-ci est une nappe de
- * sinus qui couvre tout le cadre ; ici il y a un objet, un globe avec son
- * verre, son electrode et ses filaments.
+ * What sets this entry apart from `plasma`: that one is a sheet of sines
+ * covering the whole frame; here there is an object, a globe with its glass,
+ * its electrode and its filaments.
  *
- * ## Le pont pointeur → shader
+ * ## The pointer → shader bridge
  *
- * Aucun rendu React par image : la position amortie est recopiee dans un
- * tableau stable par une souscription a l'horloge du moteur, et la surface
- * relit ses uniforms a chaque image — la mutation suffit.
+ * No React render per frame: the damped position is copied into a stable array
+ * by a subscription to the engine clock, and the surface re-reads its uniforms
+ * every frame — the mutation is enough.
  *
- * ## Sous mouvement reduit
+ * ## Under reduced motion
  *
- * La surface est refusee par le moteur et le repli statique s'affiche.
+ * The surface is refused by the engine and the static fallback is shown.
  *
  * @module
  */
@@ -43,48 +43,48 @@ import { usePointerDamped } from '@registre/hooks/usePointerDamped'
 
 import { PLASMA_BALL_FRAGMENT } from './plasma-ball.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface PlasmaBallControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to this component. */
 export interface PlasmaBallOwnProps {
-  /** Nombre de filaments. Borne a dix par le shader. @defaultValue 7 */
+  /** Number of filaments. Capped at ten by the shader. @defaultValue 7 */
   filaments?: number
-  /** Rayon du globe, en hauteurs de cadre. @defaultValue 0.38 */
+  /** Radius of the globe, in frame heights. @defaultValue 0.38 */
   radius?: number
-  /** Vitesse de derive et d'ondulation. @defaultValue 1 */
+  /** Speed of the drift and of the rippling. @defaultValue 1 */
   speed?: number
-  /** Force avec laquelle le pointeur attire le filament principal. @defaultValue 0.8 */
+  /** Strength with which the pointer draws in the main filament. @defaultValue 0.8 */
   pull?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<PlasmaBallControls>
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type PlasmaBallProps = Customisable<PlasmaBallOwnProps>
 
-/** Tokens employes par defaut : le fond, la lueur, le coeur. */
+/** Tokens used by default: the background, the glow, the core. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-purple-500',
   '--o-palette-pink-300',
 ] as const
 
-/** Repli par defaut : un halo fige, dans les memes tons. */
+/** Default fallback: a frozen halo, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-t o-from-zinc-50 dark:o-from-zinc-950 o-via-purple-200 dark:o-via-purple-950 o-to-zinc-50 dark:o-to-zinc-950'
 
 /**
- * Boule plasma.
+ * Plasma ball.
  *
  * @example
  * <div className="o-relative o-min-h-screen">
@@ -104,19 +104,19 @@ export function PlasmaBall({
 }: PlasmaBallProps): ReactElement {
   const [host, setHost] = useState<HTMLDivElement | null>(null)
 
-  // Tableau stable, mute en place dans la boucle : aucun setState par image.
+  // Stable array, mutated in place in the loop: no setState per frame.
   const uPointer = useRef<number[]>([0, 0]).current
 
-  const pointer = usePointerDamped({ host, speed: 5, name: 'plasma-ball : pointeur' })
+  const pointer = usePointerDamped({ host, speed: 5, name: 'plasma-ball : pointer' })
 
   useEffect(() => {
     const subscription = clock.subscribe(
       () => {
-        // Le shader recoit le repere du hook tel quel : centre, y vers le bas.
+        // The shader receives the hook's frame as it is: centred, y downwards.
         uPointer[0] = pointer.current.x
         uPointer[1] = pointer.current.y
       },
-      { priority: CLOCK_PRIORITY.input, name: 'plasma-ball : pont' },
+      { priority: CLOCK_PRIORITY.input, name: 'plasma-ball : bridge' },
     )
     return () => subscription.unsubscribe()
   }, [pointer, uPointer])
@@ -138,8 +138,8 @@ export function PlasmaBall({
       uPull: pull,
     },
     name: 'plasma-ball',
-    // Chaque filament coute deux lectures de bruit et trois exponentielles
-    // par pixel : en qualite basse, ils sont moins nombreux.
+    // Every filament costs two noise reads and three exponentials per pixel:
+    // at low quality, there are fewer of them.
     degrade: (quality) => ({
       uFilaments: quality === 'low' ? Math.min(filaments, 4) : filaments,
     }),

@@ -1,36 +1,35 @@
 /**
- * Pile a balayer : des images empilees, celle du dessus se chasse au glisser
- * ou au clavier et repasse en dessous.
+ * Swipeable stack: stacked images, the top one is dismissed by dragging or
+ * from the keyboard and goes back underneath.
  *
- * ## Le geste s'ecrit dans le style, pas dans l'etat
+ * ## The gesture is written into the style, not into state
  *
- * Pendant le glisser, la carte du dessus est deplacee en ecrivant sa
- * transformation sur l'element : un rendu React par pixel parcouru ferait
- * trainer la carte derriere le doigt. React ne rend qu'une fois par carte
- * chassee — au moment ou la pile change d'ordre — et c'est alors lui qui
- * reprend la main sur les transformations, apres que le geste a efface les
- * siennes.
+ * During the drag, the top card is moved by writing its transform onto the
+ * element: one React render per pixel travelled would make the card trail
+ * behind the finger. React renders only once per dismissed card — at the
+ * moment the stack changes order — and it is then React that takes back
+ * control of the transforms, after the gesture has cleared its own.
  *
- * ## Pourquoi le clavier, et pas seulement le glisser
+ * ## Why the keyboard, and not only the drag
  *
- * Un carrousel qui ne repond qu'au glisser n'existe pas pour qui navigue au
- * clavier ou au lecteur d'ecran. La pile est donc un groupe atteignable par
- * tabulation, les fleches gauche et droite chassent la carte, et une region
- * vivante annonce l'image arrivee. Le glisser n'est qu'un raccourci du meme
- * geste, pas le seul chemin.
+ * A carousel that answers only to dragging does not exist for anyone
+ * navigating by keyboard or screen reader. The stack is therefore a group
+ * reachable by tabbing, the left and right arrows dismiss the card, and a live
+ * region announces the image that has arrived. Dragging is only a shortcut for
+ * the same gesture, not the only path.
  *
- * ## Ce que les cartes du dessous montrent
+ * ## What the cards underneath show
  *
- * Seules quelques cartes sont dessinees derriere celle du dessus, decalees et
- * reduites : la pile doit se lire comme une epaisseur, pas comme une galerie.
- * Les cartes cachees sont retirees aux technologies d'assistance — leur texte
- * de remplacement redevient lisible des qu'elles arrivent sur le dessus.
+ * Only a few cards are drawn behind the top one, offset and scaled down: the
+ * stack must read as a thickness, not as a gallery. The hidden cards are
+ * removed from assistive technologies — their alternative text becomes
+ * readable again as soon as they reach the top.
  *
- * ## Sous mouvement reduit
+ * ## Under reduced motion
  *
- * La carte ne s'envole pas : la pile change d'ordre immediatement, et
- * l'etat final — l'image suivante sur le dessus — est atteint sans trajet.
- * Le glisser et le clavier fonctionnent toujours.
+ * The card does not fly off: the stack changes order immediately, and the
+ * final state — the next image on top — is reached with no journey. Dragging
+ * and the keyboard still work.
  *
  * @module
  */
@@ -45,21 +44,21 @@ import {
   type ReactElement,
 } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-image-stack-swipe'
 
-/** Duree de la sortie d'une carte chassee, en millisecondes. */
+/** Duration of the exit of a dismissed card, in milliseconds. */
 const EXIT = 380
 
-/** Pose la regle de focus, une fois par document. */
+/** Sets the focus rule, once per document. */
 function ensureStackRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
 
   const style = document.createElement('style')
   style.id = STYLE_ID
-  // Le contour de focus ne peut pas etre un style en ligne : il n'existe que
-  // pendant la navigation au clavier, et c'est le navigateur qui le sait.
+  // The focus outline cannot be an inline style: it exists only during
+  // keyboard navigation, and it is the browser that knows about it.
   style.textContent = [
     '[data-o-stack]:focus-visible{',
     'outline:2px solid var(--o-palette-brand-500);outline-offset:3px;',
@@ -68,48 +67,48 @@ function ensureStackRule(): void {
   document.head.append(style)
 }
 
-/** Une image de la pile. */
+/** One image of the stack. */
 export interface StackImage {
-  /** Source de l'image. */
+  /** Source of the image. */
   readonly src: string
-  /** Texte de remplacement. Chaine vide si l'image est purement decorative. */
+  /** Alternative text. Empty string if the image is purely decorative. */
   readonly alt: string
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface ImageStackSwipeOwnProps {
-  /** Les images empilees, de la premiere a la derniere. */
+  /** The stacked images, from the first to the last. */
   images: readonly StackImage[]
-  /** Rapport largeur sur hauteur des cartes. @defaultValue 1.4 */
+  /** Width to height ratio of the cards. @defaultValue 1.4 */
   ratio?: number
-  /** Distance a franchir pour chasser la carte, en pixels. @defaultValue 90 */
+  /** Distance to cover to dismiss the card, in pixels. @defaultValue 90 */
   threshold?: number
-  /** Nombre de cartes visibles derriere celle du dessus. @defaultValue 2 */
+  /** Number of cards visible behind the top one. @defaultValue 2 */
   depth?: number
-  /** Decalage entre deux cartes de la pile, en pixels. @defaultValue 16 */
+  /** Offset between two cards of the stack, in pixels. @defaultValue 16 */
   offset?: number
-  /** Libelle du groupe, annonce avant la pile. @defaultValue 'Pile d images' */
+  /** Label of the group, announced before the stack. @defaultValue 'Image stack' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type ImageStackSwipeProps = Customisable<ImageStackSwipeOwnProps>
 
 /**
- * Empile des images et les chasse une a une.
+ * Stacks images and dismisses them one by one.
  *
  * @example
  * <ImageStackSwipe
  *   images={[
- *     { src: '/un.jpg', alt: 'Premiere planche' },
- *     { src: '/deux.jpg', alt: 'Deuxieme planche' },
- *     { src: '/trois.jpg', alt: 'Troisieme planche' },
+ *     { src: '/one.jpg', alt: 'First plate' },
+ *     { src: '/two.jpg', alt: 'Second plate' },
+ *     { src: '/three.jpg', alt: 'Third plate' },
  *   ]}
  * />
  *
  * @example
- * // Pile plus epaisse, moins sensible au geste.
- * <ImageStackSwipe images={planches} depth={3} threshold={140} />
+ * // Thicker stack, less sensitive to the gesture.
+ * <ImageStackSwipe images={plates} depth={3} threshold={140} />
  */
 export function ImageStackSwipe({
   images,
@@ -117,7 +116,7 @@ export function ImageStackSwipe({
   threshold = 90,
   depth = 2,
   offset = 16,
-  label = 'Pile d images',
+  label = 'Image stack',
   ...rest
 }: ImageStackSwipeProps): ReactElement {
   const { reduced } = useMotionState()
@@ -131,34 +130,34 @@ export function ImageStackSwipe({
   const total = images.length
   const visible = Math.max(0, Math.min(4, Math.round(depth)))
 
-  // Le compte a rebours de la sortie survit a un demontage : sans ce nettoyage,
-  // il ecrirait dans un composant qui n'est plus la.
+  // The exit countdown outlives an unmount: without this cleanup, it would
+  // write into a component that is no longer there.
   useEffect(() => () => clearTimeout(timer.current), [])
 
-  /** Rend la main a React apres un geste. */
-  const relacher = (element: HTMLDivElement): void => {
+  /** Hands control back to React after a gesture. */
+  const release = (element: HTMLDivElement): void => {
     element.style.transition = ''
     element.style.transform = ''
     element.style.opacity = ''
   }
 
-  /** Fait passer la carte du dessus en dessous. */
-  const avancer = (): void => {
+  /** Sends the top card underneath. */
+  const advance = (): void => {
     setFront((value) => (total === 0 ? 0 : (value + 1) % total))
   }
 
-  /** Chasse la carte du dessus vers un bord. */
-  const chasser = (direction: -1 | 1, lift = 0): void => {
+  /** Dismisses the top card towards an edge. */
+  const dismiss = (direction: -1 | 1, lift = 0): void => {
     const element = card.current
     if (element === null || total < 2) {
-      if (element !== null) relacher(element)
+      if (element !== null) release(element)
       return
     }
 
     if (reduced) {
-      // L'etat final, sans trajet : voir l'en-tete.
-      relacher(element)
-      avancer()
+      // The final state, with no journey: see the header.
+      release(element)
+      advance()
       return
     }
 
@@ -169,13 +168,13 @@ export function ImageStackSwipe({
 
     clearTimeout(timer.current)
     timer.current = setTimeout(() => {
-      relacher(element)
-      avancer()
+      release(element)
+      advance()
     }, EXIT)
   }
 
-  /** Debut du glisser : la carte quitte ses transitions et suit le geste. */
-  const prendre = (event: ReactPointerEvent<HTMLDivElement>): void => {
+  /** Start of the drag: the card drops its transitions and follows the gesture. */
+  const grab = (event: ReactPointerEvent<HTMLDivElement>): void => {
     if (total < 2) return
     const element = event.currentTarget
     element.setPointerCapture(event.pointerId)
@@ -183,34 +182,35 @@ export function ImageStackSwipe({
     drag.current = { x: event.clientX, y: event.clientY, dx: 0, dy: 0 }
   }
 
-  /** Suite du glisser : une transformation ecrite, aucun rendu React. */
-  const suivre = (event: ReactPointerEvent<HTMLDivElement>): void => {
+  /** Continuation of the drag: one transform written, no React render. */
+  const follow = (event: ReactPointerEvent<HTMLDivElement>): void => {
     const state = drag.current
     if (state === null) return
 
     state.dx = event.clientX - state.x
     state.dy = event.clientY - state.y
 
-    // La rotation vient de la distance parcourue : c'est elle qui donne a la
-    // carte l'air d'un carton qu'on ecarte, plutot que d'un rectangle qui
-    // coulisse.
+    // The rotation comes from the distance travelled: it is what gives the
+    // card the look of a piece of card being pushed aside, rather than of a
+    // rectangle sliding.
     event.currentTarget.style.transform = `translate3d(${String(state.dx)}px, ${String(state.dy * 0.35)}px, 0) rotate(${(state.dx / 18).toFixed(2)}deg)`
   }
 
-  /** Fin du glisser : au-dela du seuil la carte part, sinon elle revient. */
-  const lacher = (event: ReactPointerEvent<HTMLDivElement>): void => {
+  /** End of the drag: past the threshold the card leaves, otherwise it comes back. */
+  const drop = (event: ReactPointerEvent<HTMLDivElement>): void => {
     const state = drag.current
     drag.current = null
     if (state === null) return
 
     const element = event.currentTarget
     if (Math.abs(state.dx) > Math.max(20, threshold)) {
-      chasser(state.dx > 0 ? 1 : -1, state.dy * 0.35)
+      dismiss(state.dx > 0 ? 1 : -1, state.dy * 0.35)
       return
     }
 
-    // Sous le seuil, la carte reprend sa place : le retour est anime meme
-    // quand la sortie ne l'est pas, parce qu'un saut ici se lit comme un rate.
+    // Below the threshold, the card takes its place back: the return is
+    // animated even when the exit is not, because a jump here reads as a
+    // misfire.
     element.style.transition = reduced
       ? 'none'
       : `transform ${String(EXIT)}ms var(--o-ease-standard)`
@@ -222,7 +222,7 @@ export function ImageStackSwipe({
     rest,
   )
 
-  const courante = total === 0 ? undefined : images[front % total]
+  const current = total === 0 ? undefined : images[front % total]
 
   return (
     <div
@@ -235,9 +235,9 @@ export function ImageStackSwipe({
       style={{ ...style, aspectRatio: String(ratio) }}
       onKeyDown={(event) => {
         if (event.key !== 'ArrowRight' && event.key !== 'ArrowLeft') return
-        // La page ne doit pas defiler pendant qu'on feuillette la pile.
+        // The page must not scroll while the stack is being leafed through.
         event.preventDefault()
-        chasser(event.key === 'ArrowRight' ? 1 : -1)
+        dismiss(event.key === 'ArrowRight' ? 1 : -1)
       }}
     >
       {images.map((image, index) => {
@@ -266,10 +266,10 @@ export function ImageStackSwipe({
             aria-hidden={!top}
             className="o-absolute o-inset-0 o-overflow-hidden"
             style={cardStyle}
-            onPointerDown={top ? prendre : undefined}
-            onPointerMove={top ? suivre : undefined}
-            onPointerUp={top ? lacher : undefined}
-            onPointerCancel={top ? lacher : undefined}
+            onPointerDown={top ? grab : undefined}
+            onPointerMove={top ? follow : undefined}
+            onPointerUp={top ? drop : undefined}
+            onPointerCancel={top ? drop : undefined}
           >
             <img
               loading="lazy"
@@ -283,11 +283,11 @@ export function ImageStackSwipe({
         )
       })}
 
-      {/* Ce que le geste change doit s'entendre autant qu'il se voit. */}
+      {/* What the gesture changes must be heard as much as it is seen. */}
       <p role="status" className="o-sr-only">
-        {courante === undefined
+        {current === undefined
           ? ''
-          : `Image ${String((front % Math.max(total, 1)) + 1)} sur ${String(total)}. ${courante.alt}`}
+          : `Image ${String((front % Math.max(total, 1)) + 1)} of ${String(total)}. ${current.alt}`}
       </p>
     </div>
   )

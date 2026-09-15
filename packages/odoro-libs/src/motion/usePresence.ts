@@ -1,10 +1,10 @@
 /**
- * Animation de sortie avant demontage.
+ * Exit animation before unmounting.
  *
- * React demonte un element des que la condition de rendu devient fausse : il
- * n'y a plus rien a animer. Ce hook interpose un etat de sortie — il continue
- * de signaler que l'element doit etre rendu jusqu'a ce que son animation de
- * disparition soit terminee.
+ * React unmounts an element as soon as the render condition becomes false: there
+ * is nothing left to animate. This hook interposes an exit state — it keeps
+ * reporting that the element must be rendered until its disappearance
+ * animation is over.
  *
  * @module
  */
@@ -20,52 +20,52 @@ import {
   resolveEasing,
 } from './tokens.js'
 
-/** Etape du cycle de vie d'un element pilote par {@link usePresence}. */
+/** Step in the life cycle of an element driven by {@link usePresence}. */
 export type PresenceStatus = 'entering' | 'entered' | 'exiting' | 'exited'
 
-/** Options de {@link usePresence}. */
+/** Options of {@link usePresence}. */
 export interface PresenceOptions {
-  /** Etat de depart a l'entree. @defaultValue opacite nulle, echelle reduite */
+  /** Starting state on entry. @defaultValue zero opacity, reduced scale */
   enter?: MotionKeyframe
-  /** Etat d'arrivee a la sortie. @defaultValue opacite nulle, echelle reduite */
+  /** End state on exit. @defaultValue zero opacity, reduced scale */
   exit?: MotionKeyframe
-  /** Duree : nom de token ou millisecondes. @defaultValue 'base' */
+  /** Duration: token name or milliseconds. @defaultValue 'base' */
   duration?: DurationInput
-  /** Courbe d'entree. @defaultValue 'entrance' */
+  /** Entrance curve. @defaultValue 'entrance' */
   easingIn?: EasingInput
-  /** Courbe de sortie. @defaultValue 'exit' */
+  /** Exit curve. @defaultValue 'exit' */
   easingOut?: EasingInput
   /**
-   * Joue l'animation d'entree des le premier rendu, meme si l'element est
-   * present d'emblee.
+   * Plays the entrance animation from the first render, even if the element is
+   * present right away.
    *
    * @defaultValue false
    */
   initial?: boolean
 }
 
-/** Valeur retournee par {@link usePresence}. */
+/** Value returned by {@link usePresence}. */
 export interface Presence<T extends HTMLElement> {
-  /** Ref a poser sur l'element anime. */
+  /** Ref to place on the animated element. */
   ref: RefObject<T | null>
   /**
-   * `true` tant que l'element doit rester dans l'arbre — y compris pendant sa
-   * sortie.
+   * `true` as long as the element must stay in the tree — including during its
+   * exit.
    */
   isMounted: boolean
-  /** Etape courante du cycle de vie. */
+  /** Current step of the life cycle. */
   status: PresenceStatus
 }
 
 const DEFAULT_ENTER: MotionKeyframe = { opacity: 0, transform: 'scale(0.96)' }
 
 /**
- * Retarde le demontage d'un element le temps de son animation de sortie.
+ * Delays the unmounting of an element for the duration of its exit animation.
  *
- * Sous `prefers-reduced-motion`, les deux animations sont neutralisees et le
- * demontage redevient immediat.
+ * Under `prefers-reduced-motion`, both animations are neutralized and the
+ * unmounting becomes immediate again.
  *
- * @param present Condition d'affichage voulue par l'application.
+ * @param present Display condition wanted by the application.
  *
  * @example
  * const { ref, isMounted } = usePresence<HTMLDivElement>(open)
@@ -94,8 +94,8 @@ export function usePresence<T extends HTMLElement = HTMLElement>(
   const [isMounted, setIsMounted] = useState(present)
   const [status, setStatus] = useState<PresenceStatus>(present ? 'entered' : 'exited')
 
-  // Le montage doit precede l'animation d'entree : sans cet effet separe,
-  // l'element n'existerait pas encore quand on cherche a l'animer.
+  // The mount must precede the entrance animation: without this separate effect,
+  // the element would not exist yet when we try to animate it.
   useLayoutEffect(() => {
     if (present) setIsMounted(true)
   }, [present])
@@ -135,8 +135,8 @@ export function usePresence<T extends HTMLElement = HTMLElement>(
       () => {
         if (animationRef.current !== animation) return
         if (present) {
-          // L'etat d'arrivee est l'etat naturel : on relache l'animation
-          // plutot que de la laisser retenir une couche de composition.
+          // The end state is the natural state: we release the animation
+          // rather than letting it hold a composition layer.
           animation.cancel()
           clearStyles(element, VISIBLE)
           animationRef.current = null
@@ -148,8 +148,8 @@ export function usePresence<T extends HTMLElement = HTMLElement>(
       },
       () => undefined,
     )
-    // `enter` et `exit` sont des litteraux cote appelant : les comparer par
-    // identite relancerait l'animation a chaque rendu.
+    // `enter` and `exit` are literals on the caller side: comparing them by
+    // identity would restart the animation on every render.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [present, isMounted, reduced, duration, easingIn, easingOut, initial])
 

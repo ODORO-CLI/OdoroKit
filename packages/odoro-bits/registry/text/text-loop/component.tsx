@@ -1,46 +1,45 @@
 /**
- * Boucle de phrases : chacune s'efface vers le haut, la suivante monte.
+ * Loop of sentences: each fades away upwards, the next rises.
  *
- * ## Trois etats, pas deux
+ * ## Three states, not two
  *
- * Une phrase n'est pas seulement « affichee » ou « cachee » : elle est **deja
- * passee** ou **pas encore venue**. Avec deux etats, la sortante et l'entrante
- * partiraient du meme cote, et le mouvement se lirait comme un rebond au lieu
- * d'un defilement.
+ * A sentence is not merely "shown" or "hidden": it has **already passed** or
+ * is **not yet due**. With two states, the leaving and the entering one would
+ * start from the same side, and the movement would read as a bounce instead of
+ * a scroll.
  *
- * La position relative se calcule modulo le nombre de phrases : celle qui
- * precede la phrase courante est « avant », toutes les autres sont « apres ».
- * Le tour de boucle ne fait donc pas exception — la derniere phrase sort par
- * le haut comme les autres.
+ * The relative position is computed modulo the number of sentences: the one
+ * that precedes the current sentence is "before", all the others are "after".
+ * The wrap of the loop is therefore no exception — the last sentence leaves
+ * through the top like the others.
  *
- * ## Tout est declaratif
+ * ## Everything is declarative
  *
- * Aucun style n'est ecrit a la main, aucune animation n'est programmee : un
- * attribut change, et le navigateur interpole. Le seul travail de JavaScript
- * est d'avancer un compteur toutes les quelques secondes.
+ * No style is written by hand, no animation is scheduled: an attribute
+ * changes, and the browser interpolates. The only work JavaScript does is
+ * advancing a counter every few seconds.
  *
- * Les phrases « apres » n'ont pas de transition : elles sont invisibles, et
- * les faire glisser du haut vers le bas au moment ou elles quittent l'etat
- * « avant » serait du travail de compositeur pour un mouvement que personne
- * ne voit.
+ * The "after" sentences have no transition: they are invisible, and sliding
+ * them from top to bottom at the moment they leave the "before" state would be
+ * compositor work for a movement nobody sees.
  *
- * ## Pourquoi un minuteur plutot que la boucle
+ * ## Why a timer rather than the loop
  *
- * La phrase change toutes les deux ou trois secondes, soit une fois toutes
- * les cent cinquante images. S'abonner a la boucle du moteur reviendrait a la
- * reveiller cent quarante-neuf fois pour ne rien faire. Cet effet ne possede
- * pas la frame, il possede une horloge.
+ * The sentence changes every two or three seconds, that is once every hundred
+ * and fifty frames. Subscribing to the engine loop would amount to waking it a
+ * hundred and forty-nine times to do nothing. This effect does not own the
+ * frame, it owns a clock.
  *
- * ## L'espace reserve
+ * ## The reserved space
  *
- * Les phrases sont empilees dans la meme cellule de grille : la boite prend
- * la taille de la plus longue, rendue en reserve, invisible. Sans elle, la
- * mise en page sauterait a chaque changement.
+ * The sentences are stacked in the same grid cell: the box takes the size of
+ * the longest, rendered as a reserve, invisible. Without it, the layout would
+ * jump on every change.
  *
- * ## Mouvement reduit
+ * ## Reduced motion
  *
- * La premiere phrase, immobile. Une boucle n'a pas d'etat d'arrivee : son
- * repos, c'est son point de depart.
+ * The first sentence, motionless. A loop has no arrival state: its rest is its
+ * starting point.
  *
  * @module
  */
@@ -48,25 +47,25 @@
 import { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'
 import { useEffect, useState, type CSSProperties, type ReactElement } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface TextLoopOwnProps {
-  /** Phrases jouees en boucle. */
+  /** Sentences played on a loop. */
   phrases: readonly string[]
-  /** Temps pendant lequel une phrase reste lisible, en millisecondes. @defaultValue 2400 */
+  /** Time a sentence stays readable, in milliseconds. @defaultValue 2400 */
   hold?: number
-  /** Duree du fondu d'une phrase a l'autre, en millisecondes. @defaultValue 600 */
+  /** Duration of the fade from one sentence to the next, in milliseconds. @defaultValue 600 */
   fade?: number
-  /** Course verticale d'une phrase qui entre ou qui sort, en pixels. @defaultValue 14 */
+  /** Vertical run of a sentence entering or leaving, in pixels. @defaultValue 14 */
   lift?: number
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type TextLoopProps = Customisable<TextLoopOwnProps, 'span'>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-text-loop'
 
-/** Pose les trois etats d'une phrase, une fois par document. */
+/** Sets the three states of a sentence, once per document. */
 function ensureLoopRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -78,12 +77,12 @@ function ensureLoopRule(): void {
     'grid-area:1/1;',
     'transition:opacity var(--o-loop-fade) ease,transform var(--o-loop-fade) ease;',
     '}',
-    '[data-o-loop-phrase="actif"]{opacity:1;transform:translateY(0)}',
-    '[data-o-loop-phrase="avant"]{',
+    '[data-o-loop-phrase="active"]{opacity:1;transform:translateY(0)}',
+    '[data-o-loop-phrase="before"]{',
     'opacity:0;transform:translateY(calc(var(--o-loop-lift) * -1));',
     '}',
-    // Pas encore venue : elle attend en bas, et y arrive sans transition.
-    '[data-o-loop-phrase="apres"]{',
+    // Not yet due: it waits at the bottom, and gets there with no transition.
+    '[data-o-loop-phrase="after"]{',
     'opacity:0;transform:translateY(var(--o-loop-lift));transition:none;',
     '}',
     '@media (prefers-reduced-motion:reduce){',
@@ -94,17 +93,17 @@ function ensureLoopRule(): void {
 }
 
 /**
- * Fait defiler une suite de phrases dans une boite qui ne bouge pas.
+ * Scrolls a series of sentences inside a box that does not move.
  *
  * @example
  * <TextLoop
- *   phrases={['des interfaces vivantes', 'sans dependance externe']}
+ *   phrases={['living interfaces', 'with no external dependency']}
  *   className="o-text-3xl o-font-bold"
  * />
  *
  * @example
- * // Fondu long, sans deplacement vertical.
- * <TextLoop phrases={['ici', 'la', 'ailleurs']} fade={1200} lift={0} />
+ * // Long fade, with no vertical movement.
+ * <TextLoop phrases={['here', 'there', 'elsewhere']} fade={1200} lift={0} />
  */
 export function TextLoop({
   phrases,
@@ -123,60 +122,60 @@ export function TextLoop({
   useEffect(() => {
     if (reduced || total < 2) return
 
-    // Le retard compte le temps de lecture **plus** le fondu : `hold` est
-    // donc bien la duree pendant laquelle la phrase est entierement lisible,
-    // pas la periode du cycle.
-    const minuteur = setTimeout(() => {
-      setIndex((precedent) => (precedent + 1) % total)
+    // The delay counts the reading time **plus** the fade: `hold` is therefore
+    // really the time during which the sentence is fully readable, not the
+    // period of the cycle.
+    const timer = setTimeout(() => {
+      setIndex((previous) => (previous + 1) % total)
     }, hold + fade)
 
-    return () => clearTimeout(minuteur)
+    return () => clearTimeout(timer)
   }, [reduced, total, index, hold, fade])
 
   const { className, style } = mergePresentation({ className: 'o-inline-grid' }, rest)
 
-  const styleRacine = {
+  const rootStyle = {
     ...style,
     '--o-loop-fade': `${String(fade)}ms`,
     '--o-loop-lift': `${String(lift)}px`,
   } as CSSProperties
 
-  // La plus longue fixe la boite. La mesure est faite sur le nombre de
-  // caracteres : elle se trompe de peu sur une police proportionnelle, et
-  // c'est le meme compromis que la machine a ecrire.
-  const reserve = phrases.reduce(
-    (meilleure, phrase) => (phrase.length > meilleure.length ? phrase : meilleure),
+  // The longest one sets the box. The measurement is made on the number of
+  // characters: it is slightly off on a proportional font, and it is the same
+  // trade-off as the typewriter.
+  const reserved = phrases.reduce(
+    (best, phrase) => (phrase.length > best.length ? phrase : best),
     '',
   )
 
-  const courant = total === 0 ? 0 : index % total
+  const current = total === 0 ? 0 : index % total
 
   return (
-    <span {...rest} className={className} style={styleRacine}>
-      {/* Reserve de place : sans elle, ce qui entoure la boucle se decale a
-          chaque phrase. */}
+    <span {...rest} className={className} style={rootStyle}>
+      {/* Space reserve: without it, whatever surrounds the loop shifts on
+          every sentence. */}
       <span aria-hidden className="o-invisible o-col-start-1 o-row-start-1">
-        {reserve}
+        {reserved}
       </span>
 
       {phrases.map((phrase, position) => {
-        const rang = total === 0 ? 0 : (position - courant + total) % total
-        // Mouvement reduit : la premiere phrase, et elle seule.
-        const etat = reduced
+        const rank = total === 0 ? 0 : (position - current + total) % total
+        // Reduced motion: the first sentence, and it alone.
+        const state = reduced
           ? position === 0
-            ? 'actif'
-            : 'apres'
-          : rang === 0
-            ? 'actif'
-            : rang === total - 1
-              ? 'avant'
-              : 'apres'
+            ? 'active'
+            : 'after'
+          : rank === 0
+            ? 'active'
+            : rank === total - 1
+              ? 'before'
+              : 'after'
 
         return (
           <span
             key={`${phrase}-${String(position)}`}
-            data-o-loop-phrase={etat}
-            aria-hidden={etat !== 'actif'}
+            data-o-loop-phrase={state}
+            aria-hidden={state !== 'active'}
           >
             {phrase}
           </span>

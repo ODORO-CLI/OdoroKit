@@ -1,38 +1,39 @@
 /**
- * Surface de verre : un panneau depoli pose sur la page, a travers lequel le
- * fond se devine.
+ * Glass surface: a frosted panel set on the page, through which the background
+ * can be guessed.
  *
- * ## Le verre a besoin de quelque chose derriere lui
+ * ## Glass needs something behind it
  *
- * `backdrop-filter` floute ce qui est **sous** l'element. Sur un fond uni,
- * flouter un aplat rend un aplat : le panneau parait cher a afficher et ne
- * montre rien. Une surface de verre se pose sur une image, un degrade, un
- * fond anime — sinon une carte ordinaire fait mieux le travail, pour rien.
+ * `backdrop-filter` blurs what is **under** the element. On a plain
+ * background, blurring a flat fill gives a flat fill: the panel looks
+ * expensive to display and shows nothing. A glass surface is set on an image,
+ * a gradient, an animated background — otherwise an ordinary card does the job
+ * better, for nothing.
  *
- * ## L'epaisseur se lit sur les aretes, pas dans le flou
+ * ## The thickness reads on the edges, not in the blur
  *
- * Un rectangle flou n'est pas du verre : c'est une photo mal prise. Ce qui
- * fait la plaque, c'est la lumiere sur ses bords — un filet clair en haut ou
- * elle frappe, un filet teinte en bas ou l'epaisseur retient la couleur, un
- * halo porte dessous, et un reflet diagonal fige. Quatre ombres et un
- * degrade, tous tires des deux memes tokens : changer la teinte change tout
- * l'ensemble d'un coup.
+ * A blurry rectangle is not glass: it is a badly taken photo. What makes the
+ * plate is the light on its edges — a bright line at the top where it strikes,
+ * a tinted line at the bottom where the thickness holds the color, a halo cast
+ * underneath, and a frozen diagonal sheen. Four shadows and a gradient, all
+ * drawn from the same two tokens: changing the hue changes the whole thing at
+ * once.
  *
- * ## Le repli n'est pas une degradation, c'est l'autre etat de la surface
+ * ## The fallback is not a degradation, it is the other state of the surface
  *
- * Sans flou de fond — un navigateur qui ne l'implemente pas, un reglage
- * d'economie, une capture d'ecran — un verre translucide devient un voile qui
- * laisse passer le texte du dessous, et le contenu du panneau devient
- * illisible. La regle de repli rend donc la surface **opaque** : le contraste
- * est retabli, les aretes restent, et l'on perd le fond entrevu — le seul
- * element qui n'etait pas porteur d'information.
+ * Without backdrop blur — a browser that does not implement it, a saving
+ * setting, a screenshot — translucent glass becomes a veil that lets the text
+ * underneath through, and the content of the panel becomes illegible. The
+ * fallback rule therefore makes the surface **opaque**: the contrast is
+ * restored, the edges stay, and what is lost is the glimpsed background — the
+ * only element that was not carrying information.
  *
- * ## Ce n'est pas le bouton de verre liquide
+ * ## This is not the liquid glass button
  *
- * Le bouton est une pastille qui reagit : un reflet qui coule au survol, une
- * pression qui l'ecrase. Le panneau ne reagit a rien — il porte du contenu,
- * et un contenant qui s'anime sous le texte qu'il porte devient un
- * distracteur. Rien a animer, donc rien a retirer sous mouvement reduit.
+ * The button is a tile that reacts: a sheen that flows on hover, a press that
+ * squashes it. The panel reacts to nothing — it carries content, and a
+ * container that animates under the text it carries becomes a distraction.
+ * Nothing to animate, hence nothing to remove under reduced motion.
  *
  * @module
  */
@@ -40,37 +41,37 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import { type CSSProperties, type ReactElement, type ReactNode } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties owned by the component. */
 export interface GlassSurfaceOwnProps {
-  /** Le contenu pose sur le verre. */
+  /** The content set on the glass. */
   children: ReactNode
   /**
-   * Tokens de la teinte du verre et de sa lumiere.
+   * Tokens of the hue of the glass and of its light.
    *
-   * Deux, dans cet ordre. La teinte colore la masse et le halo ; la lumiere
-   * fait les aretes et le reflet.
+   * Two, in this order. The hue colors the mass and the halo; the light makes
+   * the edges and the sheen.
    */
   colors?: readonly [string, string]
-  /** Flou du fond vu a travers le verre, en pixels. @defaultValue 16 */
+  /** Blur of the background seen through the glass, in pixels. @defaultValue 16 */
   blur?: number
-  /** Part de teinte dans la masse, de zero a un. @defaultValue 0.14 */
+  /** Share of hue in the mass, from zero to one. @defaultValue 0.14 */
   tint?: number
-  /** Force des aretes et du halo. @defaultValue 1 */
+  /** Strength of the edges and of the halo. @defaultValue 1 */
   thickness?: number
-  /** Ajoute le reflet diagonal fige. @defaultValue true */
+  /** Adds the frozen diagonal sheen. @defaultValue true */
   sheen?: boolean
 }
 
-/** Toutes les proprietes. */
+/** All the properties. */
 export type GlassSurfaceProps = Customisable<GlassSurfaceOwnProps>
 
-/** Tokens employes par defaut. */
+/** Tokens used by default. */
 const DEFAULT_TOKENS = ['--o-palette-brand-500', '--o-palette-white'] as const
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-glass-surface'
 
-/** Pose la plaque, ses aretes, son reflet et son repli, une fois par document. */
+/** Sets the plate, its edges, its sheen and its fallback, once per document. */
 function ensureSurfaceRules(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -84,22 +85,22 @@ function ensureSurfaceRules(): void {
     'background:color-mix(in oklab,var(--o-gsurf-tint) calc(var(--o-gsurf-part) * 100%),transparent);',
     '-webkit-backdrop-filter:blur(var(--o-gsurf-blur)) saturate(170%);',
     'backdrop-filter:blur(var(--o-gsurf-blur)) saturate(170%);',
-    // Lumiere en haut, epaisseur teintee en bas, un filet lateral, halo dessous.
+    // Light at the top, tinted thickness at the bottom, a lateral line, halo underneath.
     'box-shadow:inset 0 1px 0 color-mix(in oklab,var(--o-gsurf-light) calc(var(--o-gsurf-epaisseur) * 55%),transparent),',
     'inset 0 -1px 0 color-mix(in oklab,var(--o-gsurf-tint) calc(var(--o-gsurf-epaisseur) * 40%),transparent),',
     'inset 1px 0 0 color-mix(in oklab,var(--o-gsurf-light) calc(var(--o-gsurf-epaisseur) * 18%),transparent),',
     '0 18px 40px -24px color-mix(in oklab,var(--o-gsurf-tint) calc(var(--o-gsurf-epaisseur) * 60%),transparent);',
     '}',
-    // Le reflet : une bande diagonale figee, posee sous le contenu.
-    '[data-o-gsurf-reflet]::before{',
+    // The sheen: a frozen diagonal band, set under the content.
+    '[data-o-gsurf-sheen]::before{',
     'content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;',
     'background:linear-gradient(112deg,',
     'color-mix(in oklab,var(--o-gsurf-light) 22%,transparent) 0%,',
     'transparent 38%,transparent 62%,',
     'color-mix(in oklab,var(--o-gsurf-light) 10%,transparent) 100%);',
     '}',
-    // Sans flou de fond, la translucidite devient illisible : la plaque se
-    // ferme. Voir l'en-tete du module.
+    // Without backdrop blur, the translucency becomes illegible: the plate
+    // closes. See the module header.
     '@supports not ((backdrop-filter:blur(2px)) or (-webkit-backdrop-filter:blur(2px))){',
     '[data-o-gsurf]{',
     'background:var(--o-theme-surface);',
@@ -111,16 +112,16 @@ function ensureSurfaceRules(): void {
 }
 
 /**
- * Panneau de verre depoli.
+ * Frosted glass panel.
  *
  * @example
  * <GlassSurface className="o-rounded-2xl o-p-6">
- *   <h2>Prochaine seance</h2>
- *   <p>Jeudi 12 mars, vingt heures.</p>
+ *   <h2>Next session</h2>
+ *   <p>Thursday 12 March, eight in the evening.</p>
  * </GlassSurface>
  *
  * @example
- * // Verre plus epais, teinte ciel, sur une affiche.
+ * // Thicker glass, sky hue, on a poster.
  * <GlassSurface
  *   colors={['--o-palette-sky-400', '--o-palette-white']}
  *   blur={26}
@@ -151,7 +152,7 @@ export function GlassSurface({
     <div
       {...rest}
       data-o-gsurf=""
-      data-o-gsurf-reflet={sheen ? '' : undefined}
+      data-o-gsurf-sheen={sheen ? '' : undefined}
       className={className}
       style={
         {

@@ -1,32 +1,31 @@
 /**
- * Bande de statistiques : des nombres qui montent quand la section arrive.
+ * Stat band: numbers that count up when the section arrives.
  *
- * ## Elle ne recompte pas ce qui existe deja
+ * ## It does not recount what already exists
  *
- * Le comptage, le formatage selon la langue, la chasse fixe des chiffres, le
- * calque qui garde la valeur finale lisible par un lecteur d'ecran — tout cela
- * est dans `text/count-up`, et cette section s'en sert. Le reecrire ici
- * donnerait deux implementations du meme probleme, dont l'une prendrait du
- * retard sans que rien ne le signale.
+ * The counting, the locale-aware formatting, the fixed-width digits, the layer
+ * that keeps the final value readable by a screen reader — all of that lives
+ * in `text/count-up`, and this section uses it. Rewriting it here would give
+ * two implementations of the same problem, one of which would fall behind
+ * without anything reporting it.
  *
- * C'est la raison d'etre d'une dependance de registre : `odoro add` installe
- * les deux, et le lien est declare plutot que copie.
+ * This is what a registry dependency is for: `odoro add` installs both, and
+ * the link is declared rather than copied.
  *
- * ## Le declenchement appartient a la bande, pas a chaque nombre
+ * ## The trigger belongs to the band, not to each number
  *
- * Chaque compteur pourrait guetter son propre passage dans le champ. Ils
- * partiraient alors les uns apres les autres, au fil du defilement — ce qui est
- * juste pour un paragraphe, et faux pour une rangee : une bande de chiffres se
- * lit comme un seul objet, et doit s'animer comme tel.
+ * Every counter could watch its own entry into the viewport. They would then
+ * start one after another, as the page scrolls — which is right for a
+ * paragraph, and wrong for a row: a band of figures reads as a single object,
+ * and must animate as one.
  *
- * Le retard entre eux est donc volontaire et regle ici, pas subi.
+ * The delay between them is therefore deliberate and set here, not endured.
  *
- * ## Ce qu'une statistique doit dire quand elle ne bouge pas
+ * ## What a statistic must say when it does not move
  *
- * Tout. Le nombre final est dans le DOM des le premier rendu — c'est
- * `count-up` qui s'en charge — et le libelle est un texte ordinaire. En
- * mouvement reduit, la bande est simplement une bande de chiffres, ce qu'elle
- * a toujours ete.
+ * Everything. The final number is in the DOM from the first render — that is
+ * `count-up`'s job — and the label is ordinary text. Under reduced motion, the
+ * band is simply a band of figures, which is what it has always been.
  *
  * @module
  */
@@ -36,48 +35,48 @@ import { type CSSProperties, type ElementType, type ReactElement } from 'react'
 
 import { CountUp } from '@registre/text/CountUp'
 
-/** Une statistique de la bande. */
+/** One statistic in the band. */
 export interface Stat {
-  /** La valeur d'arrivee. */
+  /** The target value. */
   readonly value: number
-  /** Ce qu'elle mesure. */
+  /** What it measures. */
   readonly label: string
-  /** Colle avant le nombre. */
+  /** Glued before the number. */
   readonly prefix?: string
-  /** Colle apres le nombre. */
+  /** Glued after the number. */
   readonly suffix?: string
-  /** Nombre de decimales. @defaultValue 0 */
+  /** Number of decimals. @defaultValue 0 */
   readonly decimals?: number
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to the component. */
 export interface StatBandOwnProps {
-  /** Les statistiques, dans l'ordre d'affichage. */
+  /** The statistics, in display order. */
   stats: readonly Stat[]
-  /** Balise rendue. @defaultValue 'section' */
+  /** Rendered tag. @defaultValue 'section' */
   as?: ElementType
-  /** Duree de la montee d'un nombre, en millisecondes. @defaultValue 1500 */
+  /** Duration of one number's climb, in milliseconds. @defaultValue 1500 */
   duration?: number
   /**
-   * Retard entre deux nombres, en millisecondes.
+   * Delay between two numbers, in milliseconds.
    *
-   * Zero les fait partir ensemble ; une centaine donne une lecture de gauche a
-   * droite sans que la bande se disloque.
+   * Zero starts them together; about a hundred gives a left-to-right reading
+   * without the band falling apart.
    *
    * @defaultValue 120
    */
   stagger?: number
-  /** Langue du formatage. Par defaut, celle du navigateur. */
+  /** Formatting locale. Defaults to the browser's. */
   locale?: string
 }
 
-/** Toutes les proprietes. */
+/** Every prop. */
 export type StatBandProps = Customisable<StatBandOwnProps, 'section'>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-stat-band'
 
-/** Pose les regles de la bande, une fois par document. */
+/** Applies the band rules, once per document. */
 function ensureStatBandRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -85,32 +84,32 @@ function ensureStatBandRule(): void {
   const style = document.createElement('style')
   style.id = STYLE_ID
   style.textContent = [
-    // Une grille automatique plutot qu'un nombre de colonnes fixe : la bande
-    // sert aussi bien deux statistiques que six, et personne ne devrait avoir
-    // a choisir une mise en page selon leur nombre.
+    // An auto grid rather than a fixed column count: the band serves two
+    // statistics as well as six, and nobody should have to pick a layout
+    // according to how many there are.
     '[data-o-stat-band]{',
     'display:grid;gap:2rem 3rem;',
     'grid-template-columns:repeat(auto-fit,minmax(10rem,1fr));',
     '}',
     '[data-o-stat] dt{order:2;font-size:0.875rem;opacity:0.7;margin-top:0.35rem}',
     '[data-o-stat] dd{order:1;margin:0;line-height:1.05}',
-    // La colonne inverse l'ordre visuel sans toucher a l'ordre du document :
-    // un lecteur d'ecran doit entendre « projets livres, 12 480 », pas
-    // l'inverse, et l'oeil doit voir le nombre d'abord.
+    // The column reverses the visual order without touching the document
+    // order: a screen reader must hear "projects delivered, 12,480", not the
+    // other way round, and the eye must see the number first.
     '[data-o-stat]{display:flex;flex-direction:column}',
   ].join('')
   document.head.append(style)
 }
 
 /**
- * Une rangee de statistiques qui montent a l'entree dans le champ.
+ * A row of statistics that count up on entering the viewport.
  *
  * @example
  * <StatBand
  *   stats={[
- *     { value: 12480, label: 'projets livres' },
- *     { value: 99.98, label: 'disponibilite', suffix: ' %', decimals: 2 },
- *     { value: 42, label: 'pays' },
+ *     { value: 12480, label: 'projects delivered' },
+ *     { value: 99.98, label: 'uptime', suffix: ' %', decimals: 2 },
+ *     { value: 42, label: 'countries' },
  *   ]}
  * />
  */
@@ -134,15 +133,15 @@ export function StatBand({
       data-o-stat-band=""
     >
       {stats.map((stat, i) => (
-        // Une liste de definitions : chaque statistique est une valeur et ce
-        // qu'elle mesure, ce qui est exactement la relation que `dl` decrit.
+        // A definition list: each statistic is a value and what it measures,
+        // which is exactly the relation `dl` describes.
         <dl key={stat.label} data-o-stat="">
           <dd className="o-text-4xl o-font-bold o-tracking-tight">
             <CountUp
               value={stat.value}
               duration={duration}
-              // Le retard vient de la bande : les compteurs ne guettent pas
-              // chacun leur propre entree dans le champ.
+              // The delay comes from the band: the counters do not each watch
+              // their own entry into the viewport.
               delay={i * stagger}
               decimals={stat.decimals ?? 0}
               {...(locale === undefined ? {} : { locale })}

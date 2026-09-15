@@ -1,31 +1,30 @@
 /**
- * Revelation d'un titre, fragment par fragment.
+ * Reveal of a heading, fragment by fragment.
  *
- * ## L'etat de depart, et le filet qui va avec
+ * ## The starting state, and the safety net that goes with it
  *
- * Les fragments doivent etre invisibles avant que l'animation ne commence. Or
- * le decoupage a lieu dans un effet, apres le premier rendu : sans precaution,
- * le titre apparait en entier, puis disparait pour se recomposer. Le
- * clignotement est bref et parfaitement visible.
+ * The fragments must be invisible before the animation begins. But the
+ * splitting happens inside an effect, after the first render: without
+ * precaution, the heading appears in full, then disappears to recompose
+ * itself. The flicker is brief and perfectly visible.
  *
- * L'element porte donc un attribut d'attente, pose des le rendu, qu'une regle
- * CSS traduit en opacite nulle. Jusque-la, rien d'original.
+ * The element therefore carries a pending attribute, set from the render,
+ * which a CSS rule turns into zero opacity. So far, nothing original.
  *
- * Ce qui compte est la suite. Le decoupage peut ne jamais avoir lieu : le
- * plugin peut ne pas se charger, sur un reseau qui coupe ou derriere un
- * bloqueur. L'attente serait alors levee par personne, et le titre resterait
- * invisible — pas « sans animation », **invisible**. C'est le pire defaut
- * possible pour un composant de texte, et il ne se voit pas en developpement,
- * ou tout se charge.
+ * What matters is what follows. The splitting may never happen: the plugin may
+ * fail to load, on a network that drops or behind a blocker. The pending state
+ * would then be lifted by nobody, and the heading would stay invisible — not
+ * "without an animation", **invisible**. It is the worst possible fault for a
+ * text component, and it does not show in development, where everything loads.
  *
- * L'attente est donc levee quoi qu'il arrive : au decoupage s'il vient, sinon
- * au bout d'un delai. Le pire cas devient « le titre arrive une seconde en
- * retard » au lieu de « le titre n'arrive jamais ».
+ * The pending state is therefore lifted whatever happens: on the split if it
+ * comes, otherwise after a delay. The worst case becomes "the heading arrives
+ * a second late" instead of "the heading never arrives".
  *
- * ## Sous mouvement reduit
+ * ## Under reduced motion
  *
- * Aucun decoupage, aucune attente, aucun attribut : le titre est simplement
- * la. L'animation est neutralisee, jamais l'etat final.
+ * No split, no waiting, no attribute: the heading is simply there. The
+ * animation is neutralised, never the final state.
  *
  * @module
  */
@@ -48,55 +47,56 @@ import {
   type ReactNode,
 } from 'react'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface SplitRevealControls {
-  /** Fragments produits par le decoupage, dans l'ordre du texte. */
+  /** Fragments produced by the split, in the order of the text. */
   readonly parts: readonly Element[]
-  /** Granularite effectivement employee. */
+  /** Granularity actually used. */
   readonly by: SplitBy
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface SplitRevealOwnProps {
-  /** Texte a reveler. */
+  /** Text to reveal. */
   children: ReactNode
-  /** Balise rendue. @defaultValue 'h2' */
+  /** Rendered tag. @defaultValue 'h2' */
   as?: ElementType
-  /** Granularite du decoupage. @defaultValue 'chars' */
+  /** Granularity of the split. @defaultValue 'chars' */
   by?: SplitBy
-  /** Decalage entre deux fragments, en millisecondes. @defaultValue 24 */
+  /** Offset between two fragments, in milliseconds. @defaultValue 24 */
   stagger?: number
-  /** Duree d'entree d'un fragment, en millisecondes. @defaultValue 600 */
+  /** Entry duration of one fragment, in milliseconds. @defaultValue 600 */
   duration?: number
-  /** Hauteur de la montee, en pixels. Zero pour un simple fondu. @defaultValue 24 */
+  /** Height of the rise, in pixels. Zero for a plain fade. @defaultValue 24 */
   distance?: number
-  /** Echappatoire, appelee une fois le decoupage fait. */
+  /** Escape hatch, called once the split is done. */
   onReady?: ReadyCallback<SplitRevealControls>
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type SplitRevealProps = Customisable<SplitRevealOwnProps, 'div'>
 
-/** Attribut porte pendant l'attente du decoupage. */
+/** Attribute carried while the split is pending. */
 const PENDING = 'data-o-split-pending'
 
 /**
- * Delai au bout duquel l'attente est levee sans decoupage, en millisecondes.
+ * Delay after which the pending state is lifted without a split, in
+ * milliseconds.
  *
- * Le decoupage a lieu dans l'effet qui suit le montage : une seconde est un
- * ordre de grandeur au-dela. La valeur n'a pas a etre juste, seulement a
- * borner le pire cas.
+ * The split happens in the effect that follows the mount: one second is an
+ * order of magnitude beyond that. The value does not have to be right, only to
+ * bound the worst case.
  */
 const RESCUE_MS = 1000
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-split-reveal'
 
 /**
- * Pose la regle d'etat de depart, une fois par document.
+ * Sets the starting-state rule, once per document.
  *
- * Elle ne peut pas etre un style en ligne : l'attribut doit deja masquer
- * l'element au premier rendu, avant que le moindre effet ne tourne.
+ * It cannot be an inline style: the attribute must already hide the element on
+ * the first render, before a single effect runs.
  */
 function ensureHiddenRule(): void {
   if (typeof document === 'undefined') return
@@ -109,15 +109,15 @@ function ensureHiddenRule(): void {
 }
 
 /**
- * Revele un texte fragment par fragment.
+ * Reveals a text fragment by fragment.
  *
  * @example
  * <SplitReveal as="h1" by="words" className="o-text-5xl o-font-bold">
- *   Construisez des interfaces vivantes
+ *   Build living interfaces
  * </SplitReveal>
  *
  * @example
- * // Niveau 5 : reprendre la main sur les fragments.
+ * // Level 5: taking control of the fragments.
  * <SplitReveal
  *   onReady={({ handle }) => {
  *     handle.parts.forEach((part, index) => {
@@ -125,7 +125,7 @@ function ensureHiddenRule(): void {
  *     })
  *   }}
  * >
- *   Un titre
+ *   A heading
  * </SplitReveal>
  */
 export function SplitReveal({
@@ -145,9 +145,9 @@ export function SplitReveal({
 
   const split = useSplitText<HTMLElement>({ by })
 
-  // La timeline se reconstruit quand les reglages changent, et quand le
-  // decoupage produit de nouveaux fragments — ce qui arrive au montage, puis a
-  // chaque redecoupage en lignes.
+  // The timeline is rebuilt when the settings change, and when the split
+  // produces new fragments — which happens at mount, then on every re-split
+  // into lines.
   const { ref: timelineRef } = useTimeline<HTMLElement>(
     ({ timeline }) => {
       if (split.parts.length === 0) return
@@ -161,11 +161,11 @@ export function SplitReveal({
       })
     },
     [split.parts, stagger, duration, distance],
-    { name: 'revelation de texte' },
+    { name: 'text reveal' },
   )
 
-  // Le filet. Voir l'explication en tete de module : sans lui, un plugin qui
-  // ne se charge pas laisse le titre invisible pour de bon.
+  // The safety net. See the explanation at the head of the module: without it,
+  // a plugin that fails to load leaves the heading invisible for good.
   useEffect(() => {
     if (host === null || reduced) return
 
@@ -192,9 +192,9 @@ export function SplitReveal({
       }}
       className={className}
       style={style}
-      // L'attribut n'est pose que si une animation est attendue. Le moteur se
-      // charge de l'etiquette accessible et de masquer les fragments : le
-      // repeter ici ferait deux verites a maintenir.
+      // The attribute is only set if an animation is expected. The engine
+      // takes care of the accessible label and of hiding the fragments:
+      // repeating it here would make two truths to maintain.
       {...(reduced ? {} : { [PENDING]: '' })}
     >
       {children}

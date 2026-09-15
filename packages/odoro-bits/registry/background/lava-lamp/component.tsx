@@ -1,31 +1,30 @@
 /**
- * Lampe a lave : des gouttes de cire etirees qui montent et redescendent.
+ * Lava lamp: stretched wax drops that rise and sink back down.
  *
- * ## Le principe
+ * ## The principle
  *
- * Des surfaces implicites contraintes par la lampe : distance etiree
- * verticalement, mouvement vertical lent, reserve de cire en bas dans laquelle
- * les gouttes naissent et se fondent. Chaque goutte porte sa couleur, tiree de
- * sa hauteur, et deux gouttes qui se rejoignent melangent les leurs dans la
- * matiere.
+ * Implicit surfaces constrained by the lamp: distance stretched vertically,
+ * slow vertical motion, a reserve of wax at the bottom in which the drops are
+ * born and into which they melt. Every drop carries its own colour, drawn from
+ * its height, and where two drops meet they blend theirs inside the matter
+ * itself.
  *
- * ## Ce qui la distingue de la lave
+ * ## What sets it apart from lava
  *
- * La lave est un champ libre, chaud, seuille en deux paliers. Ici, tout est
- * vertical et lent, les gouttes sont des ovales, et la couleur est une
- * propriete de chaque goutte — pas un palier du champ. Le rendu n'a rien de
- * commun.
+ * Lava is a free field, hot, thresholded in two steps. Here everything is
+ * vertical and slow, the drops are ovals, and the colour is a property of each
+ * drop — not a step of the field. The two have nothing in common on screen.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur — les recopier ici en ferait autant
- * de versions a maintenir qu'il y a de fonds.
+ * It carries only what sets it apart: its shader, its settings and its fallback.
+ * Reading the tokens, converting them to floats and re-reading them when the
+ * theme changes all come from the engine — copying them here would leave as
+ * many versions to maintain as there are backgrounds.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en
- * accorde qu'une par backend — et sous mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface — it grants only one
+ * per backend — and under reduced motion.
  *
  * @module
  */
@@ -42,56 +41,56 @@ import { type ReactElement } from 'react'
 
 import { LAVA_LAMP_FRAGMENT } from './lava-lamp.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface LavaLampControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to this component. */
 export interface LavaLampOwnProps {
-  /** Vitesse de la montee. @defaultValue 0.08 */
+  /** Speed of the rise. @defaultValue 0.08 */
   speed?: number
-  /** Nombre de gouttes. @defaultValue 5 */
+  /** Number of drops. @defaultValue 5 */
   drops?: number
-  /** Etirement vertical des gouttes. @defaultValue 1.6 */
+  /** Vertical stretch of the drops. @defaultValue 1.6 */
   stretch?: number
-  /** Lueur de la chauffe, en bas. @defaultValue 0.5 */
+  /** Glow of the heater, at the bottom. @defaultValue 0.5 */
   glow?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<LavaLampControls>
 }
 
-/** Toutes les proprietes. */
+/** Every property. */
 export type LavaLampProps = Customisable<LavaLampOwnProps>
 
-/** Tokens employes par defaut : le verre, la cire chaude, la cire refroidie. */
+/** Tokens used by default: the glass, the hot wax, the cooled wax. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-brand-500',
   '--o-palette-fuchsia-400',
 ] as const
 
-/** Repli par defaut : la chauffe figee, dans les memes tons. */
+/** Default fallback: the frozen heater, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-t o-from-brand-300 dark:o-from-brand-900 o-via-zinc-50 dark:o-via-zinc-950 o-to-zinc-50 dark:o-to-zinc-950'
 
 /**
- * Nombre de gouttes en qualite basse.
+ * Number of drops at low quality.
  *
- * Chaque goutte est un champ de plus a sommer et a ponderer : c'est le seul
- * levier de cout du shader.
+ * Every drop is one more field to sum and to weight: it is the shader's only
+ * lever on cost.
  */
 const LOW_DROPS = 3
 
 /**
- * Lampe a lave.
+ * Lava lamp.
  *
  * @example
  * <div className="o-relative o-min-h-screen">
@@ -114,7 +113,7 @@ export function LavaLamp({
     colors,
     uniforms: { uSpeed: speed, uDrops: drops, uStretch: stretch, uGlow: glow },
     name: 'lava-lamp',
-    // Le nombre de gouttes est le seul reglage qui pese : c'est le seul borne.
+    // The drop count is the only setting which weighs: the only one capped.
     degrade: (quality) => ({
       uDrops: quality === 'low' ? Math.min(drops, LOW_DROPS) : drops,
     }),

@@ -1,29 +1,29 @@
 /**
- * Assemblage de l'application Express.
+ * Assembly of the Express application.
  *
- * ## L'ordre des couches n'est pas négociable
+ * ## The order of the layers is not negotiable
  *
- * 1. **Contexte de requête** — d'abord, sans quoi les premières lignes de
- *    journal sortent sans identifiant de corrélation, et ce sont souvent
- *    celles qui comptent.
- * 2. **Corps**, avec son plafond de taille.
- * 3. **Portée du conteneur** — chaque requête ouvre la sienne, et la referme
- *    à la fin, y compris quand elle échoue.
- * 4. **Routes**, dans l'ordre topologique des modules.
- * 5. **Route absente**, qui produit un `problem+json` plutôt que la page HTML
- *    d'Express.
- * 6. **Gestionnaire d'erreurs**, en dernier — Express le reconnaît à ses
- *    quatre paramètres.
+ * 1. **Request context** — first, without which the first log lines
+ *    come out with no correlation identifier, and those are often
+ *    the ones that matter.
+ * 2. **Body**, with its size cap.
+ * 3. **Container scope** — each request opens its own, and closes it
+ *    at the end, including when it fails.
+ * 4. **Routes**, in the topological order of the modules.
+ * 5. **Missing route**, which produces a `problem+json` rather than the HTML
+ *    page of Express.
+ * 6. **Error handler**, last — Express recognises it by its
+ *    four parameters.
  *
- * ## Express 5 et les promesses rejetées
+ * ## Express 5 and rejected promises
  *
- * Un handler `async` dont la promesse est rejetée était, en Express 4, une
- * requête suspendue jusqu'au délai d'expiration du client : le rejet ne
- * remontait pas au gestionnaire d'erreurs. C'est ce que `express-async-handler`
- * enveloppait.
+ * An `async` handler whose promise is rejected was, in Express 4, a
+ * request left hanging until the client timed out: the rejection did not
+ * reach the error handler. That is what `express-async-handler`
+ * wrapped.
  *
- * Express 5 transmet le rejet à `next` de lui-même. Aucune enveloppe n'est
- * donc nécessaire ici, et c'est la principale raison d'exiger cette version.
+ * Express 5 passes the rejection to `next` on its own. No wrapper is
+ * therefore needed here, and that is the main reason for requiring this version.
  *
  * @module
  */
@@ -38,48 +38,48 @@ import {
   type ProblemDocument,
 } from './http/errors.js'
 import { validateInput, validateOutput } from './http/validate.js'
-import type { Identity, RouteDefinition } from './http/route.js'
+import type { CookieOptions, Identity, RouteDefinition } from './http/route.js'
 import { createRequestContext, type Logger } from './logger.js'
 import { assertCapabilities, orderModules, type ModuleDefinition } from './module.js'
 
-/** Ce que la construction de l'application demande. */
+/** What building the application asks for. */
 export interface AppOptions {
   readonly config: KernelConfig
   readonly logger: Logger
-  /** Le conteneur racine, déjà pourvu des services du noyau. */
+  /** The root container, already stocked with the kernel services. */
   readonly container: Container<never>
-  /** Les modules activés. L'ordre d'écriture n'a pas d'importance. */
+  /** The enabled modules. The order they are written in does not matter. */
   readonly modules: readonly ModuleDefinition<never>[]
   /**
-   * Capacités du dialecte courant.
+   * Capabilities of the current dialect.
    *
-   * Comparées aux exigences des modules avant tout montage : un module
-   * incompatible fait échouer le démarrage, il ne se dégrade pas en silence.
+   * Compared to the requirements of the modules before any mounting: an
+   * incompatible module fails the startup, it does not degrade silently.
    */
   readonly capabilities?: Readonly<Record<string, boolean>>
-  /** Nom du dialecte, pour le message d'incompatibilité. */
+  /** Name of the dialect, for the incompatibility message. */
   readonly dialect?: string
   /**
-   * Résout l'identité d'une requête.
+   * Resolves the identity of a request.
    *
-   * Fournie par le module d'authentification. Absente, toute route exigeant
-   * une identité refuse — ce qui est le bon défaut : un serveur sans
-   * authentification ne doit pas servir ses routes privées comme si elles
-   * étaient publiques.
+   * Provided by the authentication module. Absent, any route requiring
+   * an identity refuses — which is the right default: a server without
+   * authentication must not serve its private routes as if they
+   * were public.
    */
   readonly authenticate?: (request: Request) => Promise<Identity | undefined>
 }
 
-/** L'application montée, et de quoi l'inspecter. */
+/** The mounted application, and what it takes to inspect it. */
 export interface OdoroApp {
   readonly express: Express
-  /** Toutes les routes montées, pour `odoro routes` et les tests. */
+  /** Every mounted route, for `odoro routes` and the tests. */
   readonly routes: readonly RouteDefinition[]
-  /** Les modules, dans l'ordre où ils ont été chargés. */
+  /** The modules, in the order they were loaded. */
   readonly modules: readonly ModuleDefinition<never>[]
 }
 
-/** Assemble l'application. */
+/** Assembles the application. */
 export function createApp(options: AppOptions): OdoroApp {
   const {
     config,
@@ -87,12 +87,12 @@ export function createApp(options: AppOptions): OdoroApp {
     container,
     modules,
     capabilities = {},
-    dialect = 'inconnu',
+    dialect = 'unknown',
     authenticate,
   } = options
 
-  // Les deux refus de demarrage, avant tout montage : un ordre impossible et
-  // un module que le moteur ne peut pas servir.
+  // The two startup refusals, before any mounting: an impossible order and
+  // a module the engine cannot serve.
   const ordered = orderModules(modules)
   assertCapabilities(ordered, capabilities, dialect)
 
@@ -100,9 +100,9 @@ export function createApp(options: AppOptions): OdoroApp {
 
   const app = express()
 
-  // Derriere un repartiteur, sans cela, l'adresse vue est celle du
-  // repartiteur : la limitation de debit indexee sur l'IP compterait alors
-  // tout le trafic sur une seule adresse.
+  // Behind a load balancer, without this, the address seen is the one of the
+  // balancer: rate limiting indexed on the IP would then count
+  // all the traffic on a single address.
   app.set('trust proxy', true)
   app.disable('x-powered-by')
 
@@ -116,7 +116,12 @@ export function createApp(options: AppOptions): OdoroApp {
   for (const module of ordered) {
     for (const definition of module.routes ?? []) {
       routes.push(definition)
-      mount(app, definition, { container, authenticate, strictOutput })
+      mount(app, definition, {
+        container,
+        authenticate,
+        strictOutput,
+        production: config.NODE_ENV === 'production',
+      })
     }
   }
 
@@ -126,11 +131,11 @@ export function createApp(options: AppOptions): OdoroApp {
       exposeInternals: config.NODE_ENV === 'development',
       log: ({ correlationId, error, expected }) => {
         const child = logger.child({ correlationId })
-        // Une erreur prevue est un evenement ordinaire — un mot de passe
-        // errone, une page absente. La journaliser en `error` noierait les
-        // vraies pannes sous le bruit du fonctionnement normal.
-        if (expected) child.info({ err: error }, 'erreur applicative')
-        else child.error({ err: error }, 'erreur imprevue')
+        // An expected error is an ordinary event — a wrong password,
+        // a missing page. Logging it at `error` would drown the
+        // real failures under the noise of normal operation.
+        if (expected) child.info({ err: error }, 'application error')
+        else child.error({ err: error }, 'unexpected error')
       },
     }),
   )
@@ -138,20 +143,28 @@ export function createApp(options: AppOptions): OdoroApp {
   return { express: app, routes, modules: ordered }
 }
 
-/** Ce que le montage d'une route a besoin de savoir. */
+/** What mounting a route needs to know. */
 interface MountContext {
   readonly container: Container<never>
   readonly authenticate: AppOptions['authenticate']
   readonly strictOutput: boolean
+  /**
+   * Whether we are in production.
+   *
+   * Only the cookies read it, to decide `secure`. In development there is no
+   * certificate: a `secure` cookie would never come back, and the session would
+   * look broken for a reason nothing names.
+   */
+  readonly production: boolean
 }
 
-/** Monte une route sur Express. */
+/** Mounts a route on Express. */
 function mount(app: Express, definition: RouteDefinition, context: MountContext): void {
   const method = definition.method.toLowerCase() as
     'get' | 'post' | 'put' | 'patch' | 'delete'
 
   app[method](definition.path, async (request: Request, response: Response) => {
-    // La portee de la requete : ses services y vivent, et y meurent.
+    // The scope of the request: its services live there, and die there.
     const scoped = context.container.scope()
 
     try {
@@ -166,9 +179,23 @@ function mount(app: Express, definition: RouteDefinition, context: MountContext)
       )({
         input,
         user,
+        cookies: {
+          set: (name: string, value: string, options: CookieOptions = {}) => {
+            response.cookie(name, value, {
+              httpOnly: options.httpOnly ?? true,
+              secure: options.secure ?? context.production,
+              sameSite: options.sameSite ?? 'lax',
+              path: options.path ?? '/',
+              ...(options.maxAge === undefined ? {} : { maxAge: options.maxAge * 1000 }),
+            })
+          },
+          clear: (name: string, options: Pick<CookieOptions, 'path'> = {}) => {
+            response.clearCookie(name, { path: options.path ?? '/' })
+          },
+        },
         c: scoped,
-        // Le signal du client : un handler long peut l'observer et abandonner
-        // quand personne n'attend plus la reponse.
+        // The signal of the client: a long handler can watch it and give up
+        // when nobody is waiting for the response any more.
         signal:
           (request as Request & { signal?: AbortSignal }).signal ??
           new AbortController().signal,
@@ -181,8 +208,8 @@ function mount(app: Express, definition: RouteDefinition, context: MountContext)
         return
       }
 
-      // Le schema de sortie est applique, pas seulement declare : c'est ce qui
-      // empeche un champ non declare de traverser.
+      // The output schema is enforced, not merely declared: that is what
+      // keeps an undeclared field from getting through.
       response.json(validateOutput(definition.output, result, context.strictOutput))
     } finally {
       await scoped.dispose()
@@ -190,7 +217,7 @@ function mount(app: Express, definition: RouteDefinition, context: MountContext)
   })
 }
 
-/** Applique la garde d'une route. */
+/** Applies the guard of a route. */
 async function resolveIdentity(
   definition: RouteDefinition,
   request: Request,
@@ -201,8 +228,8 @@ async function resolveIdentity(
   const identity = await context.authenticate?.(request)
 
   if (definition.auth === 'required' && identity === undefined) {
-    // Importe ici plutot qu'en tete : la garde est le seul chemin qui en a
-    // besoin, et le noyau n'a pas a lier ses erreurs a son assemblage.
+    // Imported here rather than at the top: the guard is the only path that
+    // needs it, and the kernel does not have to tie its errors to its assembly.
     const { UnauthorizedError } = await import('./http/errors.js')
     throw new UnauthorizedError()
   }
@@ -210,5 +237,5 @@ async function resolveIdentity(
   return identity
 }
 
-/** Le type d'un document d'erreur, réexporté pour les tests d'intégration. */
+/** The type of an error document, re-exported for the integration tests. */
 export type { ProblemDocument }

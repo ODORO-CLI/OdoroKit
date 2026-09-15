@@ -1,23 +1,23 @@
 /**
- * Video de fond : le pendant de `image/frame`, pour une video.
+ * Background video: the counterpart of `image/frame`, for a video.
  *
- * ## Ce qu'une video decorative doit respecter
+ * ## What a decorative video must respect
  *
- * Elle est muette, elle boucle, et elle ne demarre pas toute seule sur une
- * page qu'on n'a pas encore atteinte : une video qui se decode hors de l'ecran
- * consomme du processeur et de la batterie pour rien. La lecture attend donc
- * l'entree dans le champ, et s'arrete a la sortie.
+ * It is muted, it loops, and it does not start on its own on a page that has
+ * not yet been reached: a video decoding off screen burns processor and
+ * battery for nothing. Playback therefore waits for the entry into the
+ * viewport, and stops on leaving it.
  *
- * Sous **mouvement reduit**, elle ne demarre pas du tout et l'affiche reste.
- * C'est le seul cas ou une image fixe est le rendu final plutot qu'une
- * attente — une video d'ambiance n'apporte rien d'autre que son mouvement.
+ * Under **reduced motion**, it does not start at all and the poster stays. It
+ * is the only case where a still image is the final rendering rather than a
+ * wait — an ambient video brings nothing other than its movement.
  *
- * ## L'affiche n'est pas optionnelle
+ * ## The poster is not optional
  *
- * Entre le premier rendu et la premiere trame decodee, il s'ecoule bien plus
- * de temps que pour une image. Sans affiche, le cadre est noir pendant tout ce
- * temps — a l'endroit le plus visible de la page, puisque c'est generalement
- * un fond de heros.
+ * Between the first render and the first decoded frame, far more time passes
+ * than for an image. Without a poster, the frame is black for all that time —
+ * in the most visible place on the page, since it is generally a hero
+ * background.
  *
  * @module
  */
@@ -25,36 +25,36 @@
 import { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'
 import { useEffect, useState, type CSSProperties, type ReactElement } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface VideoOwnProps {
-  /** Source de la video. */
+  /** Source of the video. */
   src: string
-  /** Image affichee avant la premiere trame. */
+  /** Image displayed before the first frame. */
   poster?: string
-  /** Rapport largeur sur hauteur. @defaultValue 1.777 */
+  /** Width to height ratio. @defaultValue 1.777 */
   ratio?: number
-  /** Ajustement dans le cadre. @defaultValue 'cover' */
+  /** Fit inside the frame. @defaultValue 'cover' */
   fit?: 'cover' | 'contain'
   /**
-   * Ce que la video montre, pour qui ne la voit pas.
+   * What the video shows, for whoever does not see it.
    *
-   * Une video decorative n'a pas d'equivalent textuel — elle est alors retiree
-   * de l'arbre d'accessibilite. Des qu'elle porte du sens, cette description
-   * devient obligatoire.
+   * A decorative video has no textual equivalent — it is then removed from the
+   * accessibility tree. As soon as it carries meaning, this description
+   * becomes mandatory.
    */
   description?: string
 }
 
-/** Toutes les proprietes : les siennes, plus celles d'une video. */
+/** All properties: its own, plus those of a video. */
 export type VideoProps = Customisable<VideoOwnProps, 'video'>
 
 /**
- * Affiche une video d'ambiance.
+ * Displays an ambient video.
  *
  * @example
  * <Video
- *   src="/atelier.mp4"
- *   poster="/atelier.jpg"
+ *   src="/workshop.mp4"
+ *   poster="/workshop.jpg"
  *   className="o-absolute o-inset-0"
  * />
  */
@@ -73,8 +73,8 @@ export function Video({
   useEffect(() => {
     if (node === null || reduced) return
 
-    // Le decodage attend l'entree dans le champ : une video qui tourne hors de
-    // l'ecran consomme processeur et batterie sans que personne ne la voie.
+    // Decoding waits for the entry into the viewport: a video running off
+    // screen burns processor and battery without anybody seeing it.
     const observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
@@ -105,8 +105,8 @@ export function Video({
   return (
     <div className={className} style={{ ...style, aspectRatio: String(ratio) }}>
       {/*
-        L'affiche reste sous la video et n'est jamais retiree : elle couvre le
-        decodage, et devient le rendu final sous mouvement reduit.
+        The poster stays under the video and is never removed: it covers the
+        decoding, and becomes the final rendering under reduced motion.
       */}
       {poster === undefined ? null : (
         <img

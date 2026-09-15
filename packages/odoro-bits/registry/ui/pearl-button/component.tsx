@@ -1,33 +1,32 @@
 /**
- * Bouton en nacre : un volume obtenu par empilement d'ombres.
+ * Pearl button: a volume obtained by stacking shadows.
  *
- * ## Ce que les cinq ombres font
+ * ## What the five shadows do
  *
- * Il n'y a ni image, ni dégradé de fond, ni filtre. Le relief vient de cinq
- * ombres superposées, et chacune joue un rôle qu'on ne peut pas retirer sans
- * aplatir l'objet :
+ * There is no image, no background gradient, no filter. The relief comes from
+ * five stacked shadows, and each one plays a role that cannot be removed
+ * without flattening the object:
  *
- * 1. une lueur interne haute — la lumière qui entre par le dessus ;
- * 2. une ombre interne basse, courte et sombre — l'épaisseur du bord ;
- * 3. une seconde lueur interne basse, large — le rebond de la lumière au fond ;
- * 4. une ombre portée large et lointaine — la distance au sol ;
- * 5. une ombre portée courte et resserrée — le contact.
+ * 1. an upper inner glow — the light coming in from above;
+ * 2. a lower inner shadow, short and dark — the thickness of the edge;
+ * 3. a second lower inner glow, wide — the light bouncing back from the bottom;
+ * 4. a wide and distant drop shadow — the distance to the ground;
+ * 5. a short and tight drop shadow — the contact.
  *
- * Retirer la quatrième colle le bouton à la page ; retirer la troisième le
- * rend creux au lieu de bombé.
+ * Removing the fourth glues the button to the page; removing the third makes
+ * it hollow instead of domed.
  *
- * ## Les couleurs viennent de la palette
+ * ## The colors come from the palette
  *
- * L'implémentation d'origine écrivait dix couleurs en dur, canal alpha compris.
- * Chacune est
- * désormais un mélange du token de lumière ou d'ombre, ce qui les fait suivre
- * le thème — et rend le bouton utilisable sur un fond clair, ce qu'il n'était
- * pas.
+ * The original implementation hardcoded ten colors, alpha channel included.
+ * Each one is
+ * now a mix of the light or shadow token, which makes them follow the theme —
+ * and makes the button usable on a light background, which it was not.
  *
- * ## Le glyphe change au survol
+ * ## The glyph changes on hover
  *
- * Deux caractères sont rendus, un seul est affiché. C'est plus court qu'un état
- * React, et surtout cela ne provoque aucun rendu : la bascule est une règle CSS.
+ * Two characters are rendered, only one is displayed. It is shorter than a
+ * React state, and above all it triggers no render: the toggle is a CSS rule.
  *
  * @module
  */
@@ -35,46 +34,46 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import { type ReactElement, type ReactNode } from 'react'
 
-/** Proprietes propres au composant. */
+/** Props specific to the component. */
 export interface PearlButtonOwnProps {
-  /** Libelle du bouton. */
+  /** Button label. */
   children: ReactNode
-  /** Glyphe au repos. @defaultValue '✧' */
+  /** Glyph at rest. @defaultValue '✧' */
   glyph?: string
-  /** Glyphe au survol. @defaultValue '✦' */
+  /** Glyph on hover. @defaultValue '✦' */
   glyphHover?: string
   /**
-   * Tokens du corps, de la lumiere et de l'ombre.
+   * Body, light and shadow tokens.
    *
-   * Trois, dans cet ordre. La lumiere sert aux reflets internes et au texte ;
-   * l'ombre aux ombres internes et portees.
+   * Three of them, in that order. The light serves the inner reflections and
+   * the text; the shadow serves the inner and drop shadows.
    */
   colors?: readonly [string, string, string]
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type PearlButtonProps = Customisable<PearlButtonOwnProps, 'button'>
 
-/** Tokens employes par defaut. */
+/** Tokens used by default. */
 const DEFAULT_TOKENS = [
   '--o-palette-zinc-950',
   '--o-palette-zinc-50',
   '--o-palette-zinc-900',
 ] as const
 
-/** Identifiant de la feuille injectee. */
+/** Id of the injected stylesheet. */
 const STYLE_ID = 'o-pearl-button'
 
-/** Pose les regles du bouton, une fois par document. */
+/** Applies the button rules, once per document. */
 function ensurePearlRules(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
 
-  /** Un melange du token de lumiere, a l'opacite demandee. */
+  /** A mix of the light token, at the requested opacity. */
   const light = (percent: number): string =>
     `color-mix(in oklch,var(--o-pearl-light) ${String(percent)}%,transparent)`
 
-  /** Un melange du token d'ombre. */
+  /** A mix of the shadow token. */
   const dark = (percent: number): string =>
     `color-mix(in oklch,var(--o-pearl-dark) ${String(percent)}%,transparent)`
 
@@ -106,11 +105,11 @@ function ensurePearlRules(): void {
     'transition:transform var(--o-duration-slow) var(--o-ease-standard),',
     'opacity var(--o-duration-slow) var(--o-ease-standard)}',
 
-    // La grande tache de lumiere, qui deborde largement en haut.
+    // The large patch of light, which spills well past the top.
     `[data-o-pearl] [data-o-pearl-wrap]::before{left:-15%;right:-15%;bottom:25%;top:-100%;`,
     `border-radius:50%;background-color:${light(12)}}`,
 
-    // Le reflet superieur, un rectangle a coins hauts arrondis.
+    // The upper reflection, a rectangle with rounded top corners.
     '[data-o-pearl] [data-o-pearl-wrap]::after{left:6%;right:6%;top:12%;bottom:40%;',
     `border-radius:22px 22px 0 0;box-shadow:inset 0 10px 8px -10px ${light(80)};`,
     `background:linear-gradient(180deg,${light(30)} 0%,transparent 50%,transparent 100%)}`,
@@ -135,9 +134,9 @@ function ensurePearlRules(): void {
     `0 3rem 3rem ${dark(30)},`,
     `0 1rem 1rem -0.6rem ${dark(80)}}`,
 
-    // Les deplacements sont un agrement ; l'enfoncement au clic, un retour.
-    // Seul le premier est neutralise : sans retour, on ne sait pas si le clic
-    // a ete pris.
+    // The movements are an embellishment; the press on click, a feedback.
+    // Only the first one is neutralized: without feedback, there is no telling
+    // whether the click was taken.
     '@media (prefers-reduced-motion:reduce){',
     '[data-o-pearl],[data-o-pearl] [data-o-pearl-line],',
     '[data-o-pearl] [data-o-pearl-wrap]::before,[data-o-pearl] [data-o-pearl-wrap]::after{',
@@ -150,19 +149,19 @@ function ensurePearlRules(): void {
 }
 
 /**
- * Bouton en nacre.
+ * Pearl button.
  *
  * @example
- * <PearlButton>Commencer</PearlButton>
+ * <PearlButton>Get started</PearlButton>
  *
  * @example
- * // Sur un fond clair, la lumiere et l'ombre s'echangent.
+ * // On a light background, light and shadow swap roles.
  * <PearlButton colors={[
  *   '--o-palette-zinc-100',
  *   '--o-palette-zinc-950',
  *   '--o-palette-zinc-400',
  * ]}>
- *   Commencer
+ *   Get started
  * </PearlButton>
  */
 export function PearlButton({
@@ -190,12 +189,12 @@ export function PearlButton({
       }}
     >
       <span data-o-pearl-wrap>
-        {/* Deux `span` et non un `div` contenant un `p` : le contenu d'un
-            bouton est du contenu de phrase, et le balisage d'origine etait
-            invalide. Le `display` vient de la feuille. */}
+        {/* Two `span` and not a `div` holding a `p`: the content of a button
+            is phrasing content, and the original markup was invalid. The
+            `display` comes from the stylesheet. */}
         <span data-o-pearl-line>
-          {/* Les deux glyphes sont rendus, un seul est affiche : la bascule est
-              une regle CSS, donc elle ne provoque aucun rendu React. */}
+          {/* Both glyphs are rendered, only one is displayed: the toggle is a
+              CSS rule, so it triggers no React render. */}
           <span aria-hidden data-o-pearl-glyph="rest">
             {glyph}
           </span>

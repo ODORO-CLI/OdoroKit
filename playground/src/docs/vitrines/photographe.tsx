@@ -31,7 +31,7 @@
  */
 
 import { Icon } from '@odoro-cli/icons'
-import { ArrowUpRight } from '@odoro-cli/icons/filaire'
+import { ArrowUpRight } from '@odoro-cli/icons/outline'
 import { Reveal } from '@odoro-cli/libs/motion'
 import {
   useEffect,

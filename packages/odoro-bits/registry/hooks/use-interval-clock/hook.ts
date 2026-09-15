@@ -1,33 +1,33 @@
 /**
- * Repetition a intervalle regulier, calee sur l'horloge du moteur.
+ * Repetition at a regular interval, aligned on the engine clock.
  *
- * ## Ce que `setInterval` fait de travers dans une page animee
+ * ## What `setInterval` gets wrong in an animated page
  *
- * Il continue quand l'onglet est cache. Le navigateur le ralentit — une fois
- * par seconde au mieux — mais il ne l'arrete pas : un carrousel de mots
- * revenu au premier plan a defile trois cents fois dans le vide, et la
- * batterie l'a paye. La boucle du moteur, elle, est adossee a l'affichage :
- * un onglet cache ne recoit aucune image, donc aucun battement, et la reprise
- * se fait la ou l'on s'etait arrete.
+ * It keeps going when the tab is hidden. The browser slows it down — once per
+ * second at best — but it does not stop it: a carousel of words brought back
+ * to the foreground has cycled three hundred times into the void, and the
+ * battery paid for it. The engine loop, on the other hand, is backed by the
+ * display: a hidden tab receives no frame, therefore no beat, and it resumes
+ * where it left off.
  *
- * Il derive, aussi. `setInterval(f, 1000)` appelle rarement `f` a une seconde
- * d'ecart : le delai part apres l'execution precedente, et la file de taches
- * ajoute ce qu'elle veut. Deux intervalles egaux lances ensemble se
- * desynchronisent en quelques minutes, ce qui se voit tout de suite quand ils
- * animent deux elements voisins. Ici le temps ecoule est accumule et le reste
- * est reporte : la cadence est tenue sur la duree.
+ * It drifts, too. `setInterval(f, 1000)` rarely calls `f` one second apart:
+ * the delay starts after the previous execution, and the task queue adds
+ * whatever it likes. Two equal intervals started together fall out of sync
+ * within minutes, which shows immediately when they animate two neighbouring
+ * elements. Here the elapsed time is accumulated and the remainder carried
+ * over: the cadence holds over time.
  *
- * Et il ouvre un minuteur de plus. Une page qui affiche vingt compteurs ouvre
- * vingt minuteurs, que rien ne coordonne avec les images ; ici, tout passe par
- * l'unique boucle du moteur, qui les execute dans un ordre connu.
+ * And it opens one more timer. A page displaying twenty counters opens twenty
+ * timers, which nothing coordinates with the frames; here everything goes
+ * through the single engine loop, which runs them in a known order.
  *
- * ## Pourquoi le rattrapage est borne a un battement par image
+ * ## Why catch-up is capped at one beat per frame
  *
- * Apres un blocage — un onglet revenu, un script long — le temps ecoule
- * depasserait plusieurs intervalles. Les rejouer tous dans la meme image
- * produirait une rafale : un compteur qui saute de trente, une animation qui
- * clignote. Le temps en trop est donc jete, parce que ce qui compte pour une
- * repetition d'interface est la cadence a venir, pas le rattrapage du passe.
+ * After a stall — a tab brought back, a long script — the elapsed time would
+ * exceed several intervals. Replaying them all in the same frame would produce
+ * a burst: a counter jumping by thirty, an animation flickering. The excess
+ * time is therefore thrown away, because what matters for an interface
+ * repetition is the cadence to come, not catching up with the past.
  *
  * @module
  */
@@ -35,36 +35,36 @@
 import { CLOCK_PRIORITY, clock } from '@odoro-cli/engine'
 import { useEffect, useRef } from 'react'
 
-/** Options de `useIntervalClock`. */
+/** Options of `useIntervalClock`. */
 export interface IntervalClockOptions {
-  /** Duree entre deux battements, en millisecondes. @defaultValue 1000 */
+  /** Time between two beats, in milliseconds. @defaultValue 1000 */
   interval?: number
   /**
-   * Battre ou non.
+   * Whether to beat.
    *
-   * C'est par la que passe le mouvement reduit : le crochet n'anime rien par
-   * lui-meme et ne peut pas juger a la place de l'appelant. Un carrousel qui
-   * defile tout seul passe `actif={!reduced}` ; un compte a rebours, qui est
-   * un contenu et non un agrement, bat quand meme.
+   * This is where reduced motion goes through: the hook animates nothing by
+   * itself and cannot judge in the caller's place. A carousel that cycles on
+   * its own passes `active={!reduced}`; a countdown, which is content and not
+   * an embellishment, beats anyway.
    *
    * @defaultValue true
    */
-  actif?: boolean
+  active?: boolean
   /**
-   * Battre une premiere fois immediatement, sans attendre l'intervalle.
+   * Beat once immediately, without waiting for the interval.
    *
    * @defaultValue false
    */
-  immediat?: boolean
-  /** Nom affiche dans le panneau de diagnostic. */
+  immediate?: boolean
+  /** Name displayed in the diagnostics panel. */
   name?: string
 }
 
 /**
- * Appelle une fonction a intervalle regulier, dans la boucle du moteur.
+ * Calls a function at a regular interval, inside the engine loop.
  *
- * @param callback Appelee a chaque battement. Sa derniere version est toujours
- * celle qui s'execute : la changer ne redemarre pas le compte.
+ * @param callback Called on every beat. Its latest version is always the one
+ * that runs: changing it does not restart the count.
  *
  * @example
  * const [index, setIndex] = useState(0)
@@ -72,7 +72,7 @@ export interface IntervalClockOptions {
  *
  * useIntervalClock(() => setIndex((n) => (n + 1) % mots.length), {
  *   interval: 2400,
- *   actif: !reduced,
+ *   active: !reduced,
  *   name: 'mots-tournants',
  * })
  */
@@ -80,33 +80,33 @@ export function useIntervalClock(
   callback: () => void,
   options: IntervalClockOptions = {},
 ): void {
-  const { interval = 1000, actif = true, immediat = false, name = 'intervalle' } = options
+  const { interval = 1000, active = true, immediate = false, name = 'interval' } = options
 
-  // La fonction vit dans une ref : sans cela, une fonction fabriquee au rendu
-  // — le cas normal — redemarrerait le compte a chaque rendu, et l'intervalle
-  // ne serait jamais atteint sur une page qui rend souvent.
-  const garde = useRef(callback)
+  // The function lives in a ref: without this, a function built at render time
+  // — the normal case — would restart the count on every render, and the
+  // interval would never be reached on a page that renders often.
+  const latest = useRef(callback)
   useEffect(() => {
-    garde.current = callback
+    latest.current = callback
   }, [callback])
 
   useEffect(() => {
-    if (!actif || interval <= 0) return
+    if (!active || interval <= 0) return
 
-    const periode = interval / 1000
-    let accumule = 0
+    const period = interval / 1000
+    let accumulated = 0
 
-    if (immediat) garde.current()
+    if (immediate) latest.current()
 
     const subscription = clock.subscribe(
       ({ deltaRaw }) => {
-        // Le temps reel, pas le temps lisse : une cadence se compte en
-        // secondes vraies. Borne a une periode, pour qu'un blocage produise un
-        // battement et non une rafale.
-        accumule += deltaRaw > periode ? periode : deltaRaw
-        if (accumule < periode) return
-        accumule -= periode
-        garde.current()
+        // Real time, not smoothed time: a cadence is counted in true seconds.
+        // Capped at one period, so that a stall produces one beat and not a
+        // burst.
+        accumulated += deltaRaw > period ? period : deltaRaw
+        if (accumulated < period) return
+        accumulated -= period
+        latest.current()
       },
       { priority: CLOCK_PRIORITY.default, name },
     )
@@ -114,5 +114,5 @@ export function useIntervalClock(
     return () => {
       subscription.unsubscribe()
     }
-  }, [interval, actif, immediat, name])
+  }, [interval, active, immediate, name])
 }

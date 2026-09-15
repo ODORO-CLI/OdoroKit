@@ -1,31 +1,30 @@
 /**
- * Bouton dont le fond se déploie depuis un point au survol.
+ * Button whose background unfolds from a point on hover.
  *
- * ## Le libellé est écrit deux fois, et c'est voulu
+ * ## The label is written twice, and that is on purpose
  *
- * Une copie sort par la droite, l'autre entre par la gauche. Les deux occupent
- * la même place, si bien que la largeur du bouton ne change pas pendant la
- * bascule — ce qu'un seul texte changé en place ne permettrait pas sans
- * mesurer, ni sans faire sauter la mise en page des voisins.
+ * One copy leaves by the right, the other enters by the left. Both occupy the
+ * same place, so that the width of the button does not change during the
+ * switch — which a single text changed in place would not allow without
+ * measuring, nor without making the layout of the neighbors jump.
  *
- * La copie entrante est retirée de l'arbre d'accessibilité : un lecteur d'écran
- * annoncerait sinon deux fois le même libellé pour un seul bouton.
+ * The incoming copy is removed from the accessibility tree: a screen reader
+ * would otherwise announce the same label twice for a single button.
  *
- * ## La pastille n'est pas décorative
+ * ## The blob is not decorative
  *
- * C'est elle qui devient le fond. Au repos, un point de huit pixels ; au
- * survol, elle s'étend à tout le bouton et grandit encore un peu, ce qui donne
- * l'impression que la couleur déborde. Un simple changement de
- * `background-color` donnerait la même couleur finale sans l'origine du
- * mouvement.
+ * It is what becomes the background. At rest, a dot of eight pixels; on hover,
+ * it extends to the whole button and grows a little more, which gives the
+ * impression that the color overflows. A plain change of `background-color`
+ * would give the same final color without the origin of the movement.
  *
- * ## Ce qui a changé par rapport à l'implémentation d'origine
+ * ## What changed compared to the original implementation
  *
- * Sa largeur était figée à `w-32`, ce qui coupait tout libellé de plus de dix
- * caractères. Elle est désormais déduite du contenu, avec un minimum.
+ * Its width was frozen at `w-32`, which cut off any label longer than ten
+ * characters. It is now derived from the content, with a minimum.
  *
- * Et l'icône était importée d'une librairie tierce. Ici c'est un emplacement :
- * le projet passe la sienne, ou rien.
+ * And the icon was imported from a third-party library. Here it is a slot: the
+ * project passes its own, or nothing.
  *
  * @module
  */
@@ -33,31 +32,31 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import { type ReactElement, type ReactNode } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties owned by the component. */
 export interface HoverRevealButtonOwnProps {
-  /** Libelle du bouton. */
+  /** Label of the button. */
   children: ReactNode
   /**
-   * Ce qui accompagne le libelle une fois le fond deploye.
+   * What accompanies the label once the background is unfolded.
    *
-   * Emplacement plutot qu'icone imposee : le registre ne depend d'aucun jeu de
-   * pictogrammes, et le projet a le sien.
+   * A slot rather than an imposed icon: the registry depends on no glyph pack,
+   * and the project has its own.
    */
   adornment?: ReactNode
-  /** Tokens du fond deploye et du texte sur ce fond. */
+  /** Tokens of the unfolded background and of the text on that background. */
   colors?: readonly [string, string]
 }
 
-/** Toutes les proprietes. */
+/** All the properties. */
 export type HoverRevealButtonProps = Customisable<HoverRevealButtonOwnProps, 'button'>
 
-/** Tokens employes par defaut. */
+/** Tokens used by default. */
 const DEFAULT_TOKENS = ['--o-palette-brand-600', '--o-palette-zinc-50'] as const
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-hover-reveal-button'
 
-/** Pose les regles du bouton, une fois par document. */
+/** Sets the rules of the button, once per document. */
 function ensureRevealRules(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -68,7 +67,7 @@ function ensureRevealRules(): void {
     '[data-o-reveal]{position:relative;overflow:hidden;cursor:pointer;',
     'border-radius:360px;isolation:isolate}',
 
-    // La pastille, qui devient le fond.
+    // The blob, which becomes the background.
     '[data-o-reveal] [data-o-reveal-blob]{position:absolute;left:20%;top:40%;',
     'width:0.5rem;height:0.5rem;border-radius:0.5rem;z-index:-1;',
     'background-color:var(--o-reveal-bg);',
@@ -76,7 +75,7 @@ function ensureRevealRules(): void {
     '[data-o-reveal]:is(:hover,:focus-visible) [data-o-reveal-blob]{',
     'left:0;top:0;width:100%;height:100%;scale:1.8}',
 
-    // Les deux copies du libelle, qui se croisent sans changer la largeur.
+    // The two copies of the label, which cross without changing the width.
     '[data-o-reveal] [data-o-reveal-out]{display:inline-block;translate:0.25rem 0;',
     'transition:translate var(--o-duration-slow) var(--o-ease-standard),',
     'opacity var(--o-duration-slow) var(--o-ease-standard)}',
@@ -91,8 +90,9 @@ function ensureRevealRules(): void {
     '[data-o-reveal]:is(:hover,:focus-visible) [data-o-reveal-in]{',
     'translate:-0.25rem 0;opacity:1}',
 
-    // Sous mouvement reduit, l'etat final est applique sans course : le fond
-    // est deploye et le libelle lisible des le survol, sans glissement.
+    // Under reduced motion, the final state is applied without the run: the
+    // background is unfolded and the label legible as soon as hover starts,
+    // without any sliding.
     '@media (prefers-reduced-motion:reduce){',
     '[data-o-reveal] [data-o-reveal-blob],[data-o-reveal] [data-o-reveal-out],',
     '[data-o-reveal] [data-o-reveal-in]{transition:none}',
@@ -102,15 +102,15 @@ function ensureRevealRules(): void {
 }
 
 /**
- * Bouton dont le fond se deploie au survol.
+ * Button whose background unfolds on hover.
  *
  * @example
- * <HoverRevealButton>Nous ecrire</HoverRevealButton>
+ * <HoverRevealButton>Contact us</HoverRevealButton>
  *
  * @example
- * // L'ornement est un emplacement : le projet passe son icone.
+ * // The adornment is a slot: the project passes its own icon.
  * <HoverRevealButton adornment={<Icon icon={ArrowRight} size={16} />}>
- *   Continuer
+ *   Continue
  * </HoverRevealButton>
  */
 export function HoverRevealButton({
@@ -142,8 +142,8 @@ export function HoverRevealButton({
       }}
     >
       <span data-o-reveal-out>{children}</span>
-      {/* La copie entrante porte le meme texte : elle ne doit pas etre
-          annoncee une seconde fois. */}
+      {/* The incoming copy carries the same text: it must not be announced a
+          second time. */}
       <span aria-hidden data-o-reveal-in>
         <span>{children}</span>
         {adornment}

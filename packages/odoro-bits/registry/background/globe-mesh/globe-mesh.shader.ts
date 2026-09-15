@@ -1,32 +1,33 @@
 /**
- * Shaders du globe.
+ * Shaders of the globe.
  *
- * Trois programmes qui partagent deux blocs : la lumiere recue d'une direction,
- * et la position d'une direction le long de l'axe du balayage. Les partager
- * garantit que les points, la cage et les panneaux s'accordent — trois copies
- * du meme calcul divergent des qu'on en corrige une seule.
+ * Three programs sharing two blocks: the light a direction receives, and the
+ * position of a direction along the axis of the sweep. Sharing them guarantees
+ * that the points, the cage and the panels agree — three copies of the same
+ * computation diverge as soon as a single one of them is fixed.
  *
- * ## Le defaut corrige au passage
+ * ## The defect fixed along the way
  *
- * L'implementation d'origine ecrivait, dans le fragment de la cage :
+ * The original implementation wrote, in the fragment of the cage:
  *
  *     float head = fract(vSeed + uTime * uShimmer)
  *
- * sans point-virgule. Le programme ne compilait donc pas, et WebGL ne leve rien
- * qu'on voie : la cage etait simplement absente. C'est le mode de defaillance
- * habituel d'un shader — il ne casse pas, il ne peint pas.
+ * with no semicolon. The program therefore did not compile, and WebGL raises
+ * nothing one can see: the cage was simply missing. This is the usual failure
+ * mode of a shader — it does not break, it does not paint.
  *
  * @module
  */
 
-/** Nombre de sources de couleur. Une quatrieme sature la surface. */
+/** Number of colour sources. A fourth one saturates the surface. */
 export const GLOBE_SOURCES = 3
 
 /**
- * La lumiere qu'une direction recoit des sources, et sa proximite au pointeur.
+ * The light a direction receives from the sources, and its nearness to the
+ * pointer.
  *
- * La proximite se mesure en **angle** et non en distance droite : l'angle
- * s'enroule correctement derriere la boule, la distance s'effondre aux poles.
+ * Nearness is measured as an **angle** and not as a straight distance: the
+ * angle wraps correctly behind the ball, the distance collapses at the poles.
  */
 const SOURCE_GLSL = /* glsl */ `
 #define SOURCES ${String(GLOBE_SOURCES)}
@@ -45,8 +46,8 @@ vec3 sourceLight(vec3 dir) {
   for (int i = 0; i < SOURCES; i++) {
     float ang = acos(clamp(dot(dir, uSource[i]), -1.0, 1.0));
     float reach = smoothstep(uSpread, 0.0, ang);
-    // La tache, plus un anneau qui en sort. Sans l'anneau, les sources sont
-    // trois taches fixes qui se contentent de se deplacer.
+    // The spot, plus a ring coming out of it. Without the ring, the sources
+    // are three fixed spots that do nothing but move about.
     float ripple = 0.5 + 0.5 * sin(ang * 9.0 - uTime * uWave * 3.0);
     lit += uSourceColor[i] * reach * (0.55 + ripple * 0.75);
   }
@@ -60,10 +61,10 @@ float hoverNear(vec3 dir) {
 `
 
 /**
- * L'axe du balayage, pris en espace **monde**.
+ * The axis of the sweep, taken in **world** space.
  *
- * Pris en espace objet, il tournerait avec le globe : une boule qu'on fait
- * pivoter verrait sa bande balayer de travers.
+ * Taken in object space, it would turn with the globe: a ball being pivoted
+ * would see its band sweep askew.
  */
 const SWEEP_GLSL = /* glsl */ `
 uniform float uSweepAxis;
@@ -74,11 +75,11 @@ float sweepCoord(vec3 worldDir) {
 `
 
 /**
- * L'intensite de la bande en un point de l'axe.
+ * The intensity of the band at a point of the axis.
  *
- * La tete va au-dela de plus ou moins un aux deux bouts : retournee exactement
- * a la silhouette, elle repartirait sur une image ou elle est encore visible,
- * et le balayage se lirait comme un rebond au lieu d'un passage.
+ * The head goes beyond plus or minus one at both ends: turned round exactly at
+ * the silhouette, it would set off again on a frame where it is still visible,
+ * and the sweep would read as a bounce instead of a passage.
  */
 const BAND_GLSL = /* glsl */ `
 uniform float uSweepWidth;
@@ -91,7 +92,7 @@ float sweepBand(float coord, float time, float rate) {
 }
 `
 
-/** Sommet des points : rayon, taille et couleur derives de la direction. */
+/** Point vertex: radius, size and colour derived from the direction. */
 export const GLOBE_POINT_VERTEX = /* glsl */ `
 attribute vec3 aDir;
 attribute float aSeed;
@@ -118,17 +119,16 @@ void main() {
   vSeed = aSeed;
   vNear = hoverNear(aDir);
 
-  // Trois sinus de la direction du point, a des rythmes differents. Les
-  // voisins partagent l'essentiel de l'argument et derivent donc ensemble :
-  // cela se lit comme une coque qui respire, non comme des points qui
-  // tremblent chacun pour soi.
+  // Three sines of the direction of the point, at differing rates. Neighbours
+  // share most of the argument and therefore drift together: this reads as a
+  // shell that breathes, not as points trembling each on its own.
   float w =
     sin(aDir.x * 4.1 + uTime * 1.7) *
     cos(aDir.y * 3.3 - uTime * 1.3) *
     sin(aDir.z * 3.9 + uTime * 0.9 + aSeed * 0.6);
 
-  // Le scintillement est l'inverse : deux sinus a des rythmes tires de la
-  // graine du point, si bien qu'aucun n'est en phase avec un autre.
+  // The flicker is the reverse: two sines at rates drawn from the seed of the
+  // point, so that none of them is in phase with another.
   float rate = 1.4 + aSeed * 4.6;
   float f =
     sin(uTime * rate + aSeed * 61.0) * 0.6 +
@@ -141,9 +141,9 @@ void main() {
   vec3 n = normalize((modelViewMatrix * vec4(aDir, 0.0)).xyz);
   vFacing = dot(n, normalize(-mv.xyz));
 
-  // Un diametre en unites monde converti en pixels du tampon de dessin : les
-  // points gardent leur proportion a la boule quelle que soit la taille du
-  // cadre ou la densite de l'ecran.
+  // A diameter in world units converted into pixels of the drawing buffer: the
+  // points keep their proportion to the ball whatever the size of the frame or
+  // the density of the screen.
   float size = uDotSize
     * (1.0 + vLit * 0.5 + vNear * 0.6)
     * mix(1.0, vFlick, 0.35);
@@ -152,7 +152,7 @@ void main() {
 }
 `
 
-/** Fragment des points : un coeur net, un halo doux. */
+/** Point fragment: a crisp core, a soft halo. */
 export const GLOBE_POINT_FRAGMENT = /* glsl */ `
 precision highp float;
 
@@ -167,13 +167,13 @@ varying float vFlick;
 
 void main() {
   float d = length(gl_PointCoord - 0.5) * 2.0;
-  // Une seule attenuation donne soit un point dur, soit une tache. Le coeur
-  // donne sa position au point, l'exponentielle lui donne son halo.
+  // A single falloff gives either a hard point or a blot. The core gives the
+  // point its position, the exponential gives it its halo.
   float core = 1.0 - smoothstep(0.0, 0.45, d);
   float halo = exp(-d * d * 2.5);
 
-  // La face opposee reste visible mais en retrait. La supprimer laisserait un
-  // disque plat de points, sans interieur.
+  // The far side stays visible but held back. Removing it would leave a flat
+  // disc of points, with no inside.
   float depth = mix(0.25, 1.0, smoothstep(-0.6, 0.65, vFacing));
   float grain = 0.7 + 0.3 * vSeed;
 
@@ -184,7 +184,7 @@ void main() {
 }
 `
 
-/** Sommet de la cage. */
+/** Cage vertex. */
 export const GLOBE_CAGE_VERTEX = /* glsl */ `
 attribute float aEdge;
 attribute float aSeed;
@@ -214,7 +214,7 @@ void main() {
 }
 `
 
-/** Fragment de la cage. */
+/** Cage fragment. */
 export const GLOBE_CAGE_FRAGMENT = /* glsl */ `
 precision highp float;
 
@@ -224,9 +224,9 @@ uniform float uNetGlow;
 uniform float uShimmer;
 uniform float uHoverGlow;
 uniform float uEdgeMix;
-// Redeclare ici : les blocs partages n'atteignent que le sommet, et un uniform
-// non declare fait echouer le programme de fragment — ce qui se voit comme une
-// cage absente, pas comme une erreur.
+// Redeclared here: the shared blocks only reach the vertex, and an undeclared
+// uniform makes the fragment program fail — which shows up as a missing cage,
+// not as an error.
 uniform float uTime;
 
 varying float vFacing;
@@ -241,16 +241,16 @@ ${BAND_GLSL}
 void main() {
   float depth = mix(0.32, 1.0, smoothstep(-0.9, 0.8, vFacing));
 
-  // Style « arete » : une tete qui court le long de chaque arete, chacune a
-  // son propre moment. Le point-virgule manquait ici dans l'original.
+  // "edge" style: a head running along each edge, each one with a moment of
+  // its own. The semicolon was missing right here in the original.
   float head = fract(vSeed + uTime * uShimmer);
   float run = smoothstep(0.3, 0.0, abs(vEdge - head)) * uEdgeMix;
 
-  // Style « balayage » : une bande qui traverse toute la boule.
+  // "sweep" style: a band crossing the whole ball.
   float sweep = sweepBand(vSweep, uTime, uShimmer);
 
-  // Et un scintillement lent, hors phase des deux : c'est lui qui garde la
-  // cage vivante entre deux passages.
+  // And a slow twinkle, out of phase with both: it is what keeps the cage
+  // alive between two passes.
   float twinkle = 0.5 + 0.5 * sin(vSeed * 43.0 + uTime * uShimmer * 5.0);
 
   float spark = clamp(run * 1.1 + sweep * 1.2 + twinkle * 0.35, 0.0, 1.0);
@@ -263,7 +263,7 @@ void main() {
 }
 `
 
-/** Sommet des panneaux : la face s'allume d'un bloc, depuis son centre. */
+/** Panel vertex: the face lights up as one block, from its centre. */
 export const GLOBE_PANEL_VERTEX = /* glsl */ `
 attribute vec3 aFace;
 attribute float aSeed;
@@ -278,9 +278,9 @@ ${SOURCE_GLSL}
 ${SWEEP_GLSL}
 
 void main() {
-  // Le centre de la face, et non ce sommet : le triangle entier s'allume alors
-  // d'un bloc. Eclaire par sommet, il degrade, et la cage se lit comme une
-  // boule lisse au lieu de plaques pliees.
+  // The centre of the face, and not this vertex: the whole triangle then
+  // lights up as one block. Lit per vertex, it gradates, and the cage reads as
+  // a smooth ball instead of folded plates.
   vec3 dir = normalize(aFace);
   vSeed = aSeed;
   vNear = hoverNear(dir);
@@ -294,7 +294,7 @@ void main() {
 }
 `
 
-/** Fragment des panneaux. */
+/** Panel fragment. */
 export const GLOBE_PANEL_FRAGMENT = /* glsl */ `
 precision highp float;
 
@@ -314,16 +314,16 @@ varying float vSweep;
 ${BAND_GLSL}
 
 void main() {
-  // Les panneaux de dos sont tenus tres bas. A egalite, la moitie arriere se
-  // remplit aussi et le globe devient une boule pleine.
+  // The panels at the back are held very low. At parity, the rear half fills
+  // in as well and the globe becomes a solid ball.
   float depth = mix(0.12, 1.0, smoothstep(-0.4, 0.7, vFacing));
 
   float pulse = (0.5 + 0.5 * sin(vSeed * 31.0 + uTime * uShimmer * 4.0)) * uEdgeMix;
   pulse = clamp(pulse + sweepBand(vSweep, uTime, uShimmer) * 1.2, 0.0, 1.0);
 
   vec3 col = mix(uNet, uShimmerColor, pulse * 0.7) + vGlow * 0.5;
-  // Seul le pointeur remplit les panneaux : pointeur absent, ce dessin ne
-  // coute rien de visible.
+  // Only the pointer fills the panels: with no pointer, this draw costs
+  // nothing visible.
   float a = uFill * depth * vNear * (0.45 + pulse * 0.9);
   if (a < 0.002) discard;
   gl_FragColor = vec4(col * a, a);

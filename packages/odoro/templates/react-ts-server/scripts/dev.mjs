@@ -1,21 +1,21 @@
 /**
- * Lance le client et le serveur en parallele.
+ * Runs the client and the server side by side.
  *
- * Un script maison plutot qu'une dependance : le besoin tient en cinquante
- * lignes, et il vaut mieux que la sortie des deux processus reste lisible et
- * qu'une interruption les arrete tous les deux proprement.
+ * A home-made script rather than a dependency: the need fits in fifty lines,
+ * and it is better that the output of both processes stays readable and that
+ * an interrupt stops both of them cleanly.
  */
 
 import { spawn } from 'node:child_process'
 
-const RESET = '\u001b[0m'
+const RESET = '[0m'
 
-/** Processus a lancer, avec leur etiquette et leur couleur. */
+/** Processes to start, with their label and their colour. */
 const TASKS = [
-  { label: 'client', color: '\u001b[35m', command: 'odoro', args: ['dev'] },
+  { label: 'client', color: '[35m', command: 'odoro', args: ['dev'] },
   {
-    label: 'serveur',
-    color: '\u001b[36m',
+    label: 'server',
+    color: '[36m',
     command: 'tsx',
     args: ['watch', 'server/src/main.ts'],
   },
@@ -23,7 +23,7 @@ const TASKS = [
 
 const children = []
 
-/** Prefixe chaque ligne de sortie par l'etiquette de son processus. */
+/** Prefixes every output line with the label of its process. */
 function pipe(stream, label, color) {
   let buffer = ''
   stream.setEncoding('utf8')
@@ -37,7 +37,7 @@ function pipe(stream, label, color) {
   })
 }
 
-/** Arrete tous les processus encore vivants. */
+/** Stops every process still alive. */
 function stopAll() {
   for (const child of children) {
     if (child.exitCode === null && !child.killed) child.kill()
@@ -47,7 +47,7 @@ function stopAll() {
 for (const task of TASKS) {
   const child = spawn(task.command, task.args, {
     stdio: ['inherit', 'pipe', 'pipe'],
-    // Sous Windows, les binaires de node_modules sont des scripts shell.
+    // On Windows, the binaries in node_modules are shell scripts.
     shell: process.platform === 'win32',
   })
 
@@ -55,9 +55,9 @@ for (const task of TASKS) {
   pipe(child.stderr, task.label, task.color)
 
   child.on('exit', (code) => {
-    // Si l'un s'arrete, l'autre n'a plus de raison de tourner.
+    // If one stops, the other has no reason left to run.
     if (code !== 0 && code !== null) {
-      process.stderr.write(`[${task.label}] arret avec le code ${code}\n`)
+      process.stderr.write(`[${task.label}] stopped with code ${code}\n`)
     }
     stopAll()
     process.exitCode = code ?? 0

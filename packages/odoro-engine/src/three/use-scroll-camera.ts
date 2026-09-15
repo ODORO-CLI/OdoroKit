@@ -1,11 +1,11 @@
 /**
- * Trajectoire de camera pilotee par le defilement.
+ * Camera path driven by the scroll.
  *
- * La progression vient du declencheur de defilement du moteur, donc de la meme
- * boucle que le rendu : la camera est deplacee **avant** que l'image ne soit
- * produite, dans la meme frame. Une lecture independante du defilement
- * introduirait un decalage d'une image entre la position et ce qui est
- * dessine — le tremblement caracteristique des scenes pilotees au scroll.
+ * The progress comes from the engine's scroll trigger, and therefore from the
+ * same loop as the rendering: the camera is moved **before** the frame is
+ * produced, within the same frame. An independent reading of the scroll would
+ * introduce a one-frame gap between the position and what is drawn — the
+ * characteristic jitter of scroll-driven scenes.
  *
  * @module
  */
@@ -17,42 +17,42 @@ import { motionPolicy } from '../core/motion-policy.js'
 import { registry } from '../core/registry.js'
 import { loadScrollTrigger } from '../gsap/setup.js'
 
-/** Un point de la trajectoire. */
+/** A point of the path. */
 export interface CameraKeyframe {
-  /** Position sur la trajectoire, de 0 a 1. */
+  /** Position along the path, from 0 to 1. */
   at: number
-  /** Position de la camera. */
+  /** Position of the camera. */
   position: readonly [number, number, number]
-  /** Point regarde. @defaultValue l'origine */
+  /** Point looked at. @defaultValue the origin */
   lookAt?: readonly [number, number, number]
 }
 
-/** Options de {@link useScrollCamera}. */
+/** Options of {@link useScrollCamera}. */
 export interface ScrollCameraOptions {
-  /** Camera pilotee. */
+  /** Camera being driven. */
   camera: PerspectiveCamera | null
-  /** Element dont le defilement pilote la trajectoire. */
+  /** Element whose scroll drives the path. */
   host: HTMLElement | null
-  /** Points de la trajectoire, dans l'ordre croissant. */
+  /** Points of the path, in increasing order. */
   keyframes: readonly CameraKeyframe[]
-  /** Debut de la plage observee. @defaultValue 'top top' */
+  /** Start of the observed range. @defaultValue 'top top' */
   start?: string
-  /** Fin de la plage observee. @defaultValue 'bottom bottom' */
+  /** End of the observed range. @defaultValue 'bottom bottom' */
   end?: string
-  /** Nom affiche dans le panneau de diagnostic. */
+  /** Name shown in the diagnostics panel. */
   name?: string
 }
 
-/** Interpole lineairement entre deux nombres. */
+/** Interpolates linearly between two numbers. */
 function lerp(from: number, to: number, amount: number): number {
   return from + (to - from) * amount
 }
 
 /**
- * Place la camera sur une trajectoire, selon la progression du defilement.
+ * Places the camera on a path, according to the scroll progress.
  *
- * Sous mouvement reduit, la camera est placee une fois au dernier point : la
- * scene est vue dans son etat final plutot que figee a son point de depart.
+ * Under reduced motion, the camera is placed once at the last point: the scene
+ * is seen in its final state rather than frozen at its starting point.
  *
  * @example
  * useScrollCamera({
@@ -80,7 +80,7 @@ export function useScrollCamera(options: ScrollCameraOptions): void {
   useEffect(() => {
     if (camera === null || host === null) return
 
-    /** Place la camera a une progression donnee. */
+    /** Places the camera at a given progress. */
     const place = (progress: number): void => {
       const frames = framesRef.current
       const first = frames[0]
@@ -117,8 +117,8 @@ export function useScrollCamera(options: ScrollCameraOptions): void {
     }
 
     if (motionPolicy.state.reduced) {
-      // Etat final : la scene est vue telle qu'elle serait a la fin du
-      // defilement, plutot que figee a son point de depart.
+      // Final state: the scene is seen as it would be at the end of the
+      // scroll, rather than frozen at its starting point.
       place(1)
       return
     }

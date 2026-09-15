@@ -52,7 +52,7 @@ import {
   TrendingDown,
   TrendingUp,
   Users,
-} from '@odoro-cli/icons/filaire'
+} from '@odoro-cli/icons/outline'
 import { useMemo, useState, type ReactElement } from 'react'
 
 import { Swarm } from '@/odoro/background/Swarm.jsx'

@@ -1,22 +1,22 @@
 /**
- * Cellules : un pavage cellulaire anime, dont les aretes viennent de la seconde distance.
+ * Cells: an animated cellular tiling whose edges come from the second distance.
  *
- * ## Le principe
+ * ## The principle
  *
- * Chaque cellule d une grille porte un germe. Neuf tests suffisent a trouver le plus proche, quelle que soit la densite.
+ * Each cell of a grid carries a seed. Nine tests are enough to find the nearest one, whatever the density.
  *
- * La difference entre premiere et seconde distance s annule sur les aretes : c est ainsi qu on obtient le reseau sans en construire une seule.
+ * The difference between the first and the second distance vanishes on the edges: that is how the web is obtained without building a single one.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur — les recopier ici en ferait autant
- * de versions a maintenir qu'il y a de fonds.
+ * It carries only what sets it apart: its shader, its settings and its fallback.
+ * Reading the tokens, converting them to floats and re-reading them when the
+ * theme changes all come from the engine — copying them here would leave as
+ * many versions to maintain as there are backgrounds.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en
- * accorde qu'une par backend — et sous mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface — it grants only one
+ * per backend — and under reduced motion.
  *
  * @module
  */
@@ -32,46 +32,46 @@ import {
 } from '@odoro-cli/engine'
 import { type ReactElement } from 'react'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface CellsControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to this component. */
 export interface CellsOwnProps {
-  /** Vitesse de derive des germes. @defaultValue 0.35 */
+  /** Drift speed of the seeds. @defaultValue 0.35 */
   speed?: number
-  /** Nombre de cellules par cote. @defaultValue 7 */
+  /** Number of cells per side. @defaultValue 7 */
   density?: number
-  /** Largeur des aretes. @defaultValue 0.06 */
+  /** Edge width. @defaultValue 0.06 */
   edge?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<CellsControls>
 }
 
-/** Toutes les proprietes. */
+/** Every property. */
 export type CellsProps = Customisable<CellsOwnProps>
 
-/** Tokens employes par defaut. */
+/** Tokens used by default. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-emerald-700',
   '--o-palette-emerald-300',
 ] as const
 
-/** Repli par defaut : une teinte figee, dans les memes tons. */
+/** Default fallback: a frozen hue, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-b o-from-zinc-50 dark:o-from-zinc-950 o-to-emerald-950'
 
 /**
- * Cellules.
+ * Cells.
  *
  * @example
  * <div className="o-relative o-min-h-screen">
@@ -93,8 +93,8 @@ export function Cells({
     colors,
     uniforms: { uSpeed: speed, uScale: density, uEdge: edge },
     name: 'cells',
-    // En qualite basse, le reglage qui pese est borne : le motif reste
-    // reconnaissable une fois reduit.
+    // At low quality the setting that weighs is capped: the pattern stays
+    // recognisable once reduced.
     degrade: (quality) => ({
       uScale: quality === 'low' ? Math.min(density, 5) : density,
     }),

@@ -1,37 +1,37 @@
 /**
- * Maillage elastique : une nappe quadrillee que le pointeur tire vers lui, et
- * qui ondule en revenant a plat.
+ * Elastic mesh: a gridded sheet the pointer pulls towards itself, and which
+ * ripples as it settles back flat.
  *
- * ## Pourquoi une simulation, et pas une formule
+ * ## Why a simulation, and not a formula
  *
- * Un relief tire d'un bruit ou d'un sinus de la distance au pointeur suit le
- * curseur mais n'a pas de memoire : la nappe se remet a plat exactement quand
- * le curseur part, sans un pli de retard. Or c'est le retard qui fait
- * l'elastique. Chaque noeud garde donc une vitesse, et son acceleration a
- * trois termes : le laplacien de ses quatre voisins — qui propage l'onde de
- * proche en proche —, un rappel vers le plan, et la traction du pointeur.
+ * A relief drawn from a noise or a sine of the distance to the pointer follows
+ * the cursor but has no memory: the sheet goes flat again exactly when the
+ * cursor leaves, without a fold of delay. Yet it is the delay that makes the
+ * elastic. Every node therefore keeps a speed, and its acceleration has three
+ * terms: the laplacian of its four neighbours — which propagates the wave from
+ * one to the next —, a pull back towards the plane, and the pointer's traction.
  *
- * Le cout est lineaire en nombre de noeuds, et se paie sur le processeur ; il
- * est negligeable devant le dessin de la nappe, qui est un seul appel.
+ * The cost is linear in the number of nodes, and is paid on the processor; it
+ * is negligible next to drawing the sheet, which is a single call.
  *
- * ## Pourquoi le pas de temps est plafonne
+ * ## Why the time step is capped
  *
- * Un schema explicite diverge des que le pas depasse ce que la raideur
- * autorise. Apres un onglet en arriere-plan, la premiere image porte parfois
- * une seconde entiere : sans plafond, la nappe explose au retour et ne
- * revient jamais. Le plafond a trente millisecondes coute un ralenti d'une
- * image, et c'est tout.
+ * An explicit scheme diverges as soon as the step exceeds what the stiffness
+ * allows. After a tab spent in the background, the first frame sometimes
+ * carries a whole second: without a cap, the sheet blows up on return and
+ * never comes back. The cap at thirty milliseconds costs one frame of slow
+ * motion, and that is all.
  *
- * ## Les gouttes
+ * ## The drops
  *
- * Sans pointeur, une nappe parfaitement plate est un ecran vide. Une
- * impulsion tombe donc de temps en temps sur un noeud tire au hasard, et son
- * onde traverse le maillage. C'est aussi ce qui rend l'elasticite visible
- * quand personne ne touche a rien.
+ * Without a pointer, a perfectly flat sheet is an empty screen. An impulse
+ * therefore falls now and then on a node drawn at random, and its wave crosses
+ * the mesh. It is also what makes the elasticity visible when nobody is
+ * touching anything.
  *
- * ## Sous mouvement reduit
+ * ## Under reduced motion
  *
- * La scene est refusee par le moteur et le repli statique s'affiche.
+ * The scene is refused by the engine and the static fallback shows.
  *
  * @module
  */
@@ -49,73 +49,73 @@ import { useEffect, useRef, useState, type ReactElement } from 'react'
 import { usePointerDamped } from '@registre/hooks/usePointerDamped'
 import { usePoster } from '@registre/hooks/usePoster'
 
-/** Proprietes propres au composant. */
+/** Properties specific to this component. */
 export interface ElasticMeshOwnProps {
-  /** Noeuds par cote du maillage. @defaultValue 26 */
+  /** Nodes per side of the mesh. @defaultValue 26 */
   density?: number
-  /** Force de traction du pointeur. @defaultValue 1 */
+  /** Traction strength of the pointer. @defaultValue 1 */
   pull?: number
-  /** Raideur de la nappe : plus haut, plus l onde court vite. @defaultValue 1 */
+  /** Stiffness of the sheet: higher, the faster the wave runs. @defaultValue 1 */
   springiness?: number
-  /** Gouttes par minute quand le pointeur ne touche a rien. @defaultValue 12 */
+  /** Drops per minute when the pointer touches nothing. @defaultValue 12 */
   drops?: number
-  /** Tokens : le fond, la nappe au repos, la nappe tendue. */
+  /** Tokens: the background, the sheet at rest, the sheet under strain. */
   colors?: readonly [string, string, string]
-  /** Classes du repli. */
+  /** Fallback classes. */
   poster?: string
 }
 
-/** Toutes les proprietes. */
+/** Every property. */
 export type ElasticMeshProps = Customisable<ElasticMeshOwnProps>
 
-/** Tokens employes par defaut. */
+/** Tokens used by default. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-theme-line',
   '--o-palette-violet-400',
 ] as const
 
-/** Repli par defaut : une teinte figee, dans les memes tons. */
+/** Default fallback: a frozen hue, in the same tones. */
 const DEFAULT_POSTER =
   'o-bg-gradient-to-b o-from-zinc-50 dark:o-from-zinc-950 o-to-violet-100 dark:o-to-violet-950'
 
 /**
- * Noeuds par cote en qualite basse.
+ * Nodes per side at low quality.
  *
- * Le cout est le carre du cote, a la simulation comme au dessin.
+ * The cost is the square of the side, for the simulation as for the drawing.
  */
 const LOW_DENSITY = 16
 
-/** Demi-largeur de la nappe, en unites de scene. */
+/** Half-width of the sheet, in scene units. */
 const HALF = 1.6
 
-/** Portee de la traction du pointeur, en unites de scene. */
+/** Reach of the pointer's traction, in scene units. */
 const GRIP = 0.55
 
-/** Pas de temps maximal, en secondes. Au-dela, le schema explicite diverge. */
+/** Maximum time step, in seconds. Beyond it, the explicit scheme diverges. */
 const MAX_STEP = 0.03
 
 type Three = SceneContext['three']
 type BufferAttribute = InstanceType<Three['BufferAttribute']>
 
-/** Ce que la scene garde entre la construction et les images. */
+/** What the scene keeps between construction and frames. */
 interface Sheet {
   readonly side: number
   readonly position: BufferAttribute
   readonly colour: BufferAttribute
-  /** Deplacement de chaque noeud hors du plan. */
+  /** Displacement of each node out of the plane. */
   readonly height: Float32Array
-  /** Vitesse de chaque noeud. */
+  /** Speed of each node. */
   readonly speed: Float32Array
-  /** Temps restant avant la prochaine goutte, en secondes. */
+  /** Time left before the next drop, in seconds. */
   nextDrop: number
-  /** Teintes courantes, relues a chaque bascule de theme. */
+  /** Current hues, re-read on every theme flip. */
   rest: ShaderColour
   strained: ShaderColour
 }
 
 /**
- * Maillage elastique.
+ * Elastic mesh.
  *
  * @example
  * <div className="o-relative o-h-96 o-overflow-hidden o-rounded-xl">
@@ -141,10 +141,10 @@ export function ElasticMesh({
   const settings = useRef({ pull, springiness, drops })
   settings.current = { pull, springiness, drops }
 
-  const pointer = usePointerDamped({ host, speed: 6, name: 'elastic-mesh : pointeur' })
+  const pointer = usePointerDamped({ host, speed: 6, name: 'elastic-mesh : pointer' })
 
   const { ref, ready, refused } = useScene<HTMLDivElement>({
-    name: 'maillage-elastique',
+    name: 'elastic-mesh',
     setup: (scene: SceneContext) => {
       context.current = scene
       const { three, renderer, camera, quality } = scene
@@ -153,9 +153,9 @@ export function ElasticMesh({
         readTokenColour(token, ref.current),
       )
 
-      // Le fond de la scene est le fond de la page. Le token est en sRGB et
-      // le moteur encode sa couleur d'effacement du lineaire vers le sRGB :
-      // sans la conversion inverse, le fond ressort un cran plus clair.
+      // The scene's background is the page's background. The token is in sRGB and
+      // the engine encodes its clear colour from linear to sRGB:
+      // without the inverse conversion, the background comes out a shade lighter.
       renderer.setClearColor(
         new three.Color(bg?.[0] ?? 0, bg?.[1] ?? 0, bg?.[2] ?? 0).convertSRGBToLinear(),
         1,
@@ -165,8 +165,8 @@ export function ElasticMesh({
         quality === 'low' ? Math.min(density, LOW_DENSITY) : Math.max(density, 4)
       const count = side * side
 
-      // La camera regarde la nappe de biais : de face, un deplacement hors du
-      // plan ne se lirait qu'a la couleur.
+      // The camera looks at the sheet from an angle: head on, a displacement
+      // out of the plane would read only through the colour.
       camera.position.set(0, -1.35, 1.95)
       camera.lookAt(0, 0.05, 0)
 
@@ -181,8 +181,8 @@ export function ElasticMesh({
         }
       }
 
-      // Les segments sont indexes : chaque noeud n'existe qu'une fois, et une
-      // seule ecriture de sa position deplace les quatre traits qui y menent.
+      // The segments are indexed: each node exists only once, and a single
+      // write of its position moves the four lines that lead to it.
       const indices: number[] = []
       for (let iy = 0; iy < side; iy += 1) {
         for (let ix = 0; ix < side; ix += 1) {
@@ -234,16 +234,16 @@ export function ElasticMesh({
       const { side, height, speed, position, colour } = live
       const { pull: force, springiness: stiff, drops: rate } = settings.current
 
-      // Le pas est plafonne : un schema explicite diverge au-dela de ce que
-      // la raideur autorise, et la premiere image apres un onglet cache en
-      // porte facilement dix fois trop.
+      // The step is capped: an explicit scheme diverges beyond what the
+      // stiffness allows, and the first frame after a hidden tab easily
+      // carries ten times too much.
       const dt = Math.min(deltaRaw, MAX_STEP)
 
-      // Le pointeur, du repere du hook vers celui de la nappe.
+      // The pointer, from the hook's frame of reference to the sheet's.
       const px = pointer.current.x * HALF * 1.1
       const py = -pointer.current.y * HALF * 1.1
 
-      // La goutte : une impulsion sur un noeud tire au hasard.
+      // The drop: an impulse on a node drawn at random.
       live.nextDrop -= dt
       if (rate > 0 && live.nextDrop <= 0) {
         live.nextDrop = 60 / rate
@@ -259,7 +259,7 @@ export function ElasticMesh({
         for (let ix = 0; ix < side; ix += 1) {
           const index = iy * side + ix
 
-          // Les bords sont cloues : une nappe libre glisserait hors du cadre.
+          // The edges are pinned: a free sheet would slide out of the frame.
           if (ix === 0 || iy === 0 || ix === side - 1 || iy === side - 1) {
             height[index] = 0
             speed[index] = 0
@@ -275,8 +275,8 @@ export function ElasticMesh({
             (height[index + side] ?? 0) -
             4 * here
 
-          // La traction : une gaussienne de la distance au pointeur, dans le
-          // plan de la nappe.
+          // The traction: a gaussian of the distance to the pointer, in the
+          // plane of the sheet.
           const dx = (positions[index * 3] ?? 0) - px
           const dy = (positions[index * 3 + 1] ?? 0) - py
           const grip = Math.exp(-(dx * dx + dy * dy) / (GRIP * GRIP))
@@ -289,8 +289,9 @@ export function ElasticMesh({
         }
       }
 
-      // La teinte suit la tension : au repos le filet du theme, tendue la
-      // couleur vive. Le carre resserre la couleur sur les plis marques.
+      // The hue follows the strain: at rest the theme's line colour, under
+      // strain the vivid one. The square tightens the colour onto the marked
+      // folds.
       const colourArray = colour.array as Float32Array
       const [r0, g0, b0] = live.rest
       const [r1, g1, b1] = live.strained
@@ -307,8 +308,8 @@ export function ElasticMesh({
     },
   })
 
-  // Le theme a bascule : les tokens sont relus et les teintes de reference
-  // remplacees. La scene n'est pas reconstruite — la boucle repeint seule.
+  // The theme has flipped: the tokens are re-read and the reference hues
+  // replaced. The scene is not rebuilt — the loop repaints on its own.
   useEffect(() => {
     const scene = context.current
     const live = sheet.current

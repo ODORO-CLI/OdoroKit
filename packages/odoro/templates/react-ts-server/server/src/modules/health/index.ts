@@ -1,40 +1,39 @@
 /**
- * Module de sante — et exemple de ce a quoi ressemble un module.
+ * Health module — and an example of what a module looks like.
  *
- * C'est le seul module de ce template, et il est ecrit ici plutot que fourni
- * par `@odoro-cli/server` pour une raison : ecrire un module est la premiere chose
- * qu'on fait sur ce socle, et un exemple qu'on peut ouvrir vaut mieux qu'une
- * page de documentation.
+ * It is the only module of this template, and it is written here rather than
+ * provided by `@odoro-cli/server` for a reason: writing a module is the first
+ * thing you do on this foundation, and an example you can open beats a page of
+ * documentation.
  *
- * ## Un module est une fonction de ce dont il a besoin
+ * ## A module is a function of what it needs
  *
- * Celui-ci recoit la configuration en parametre plutot que de lire
- * `process.env`. C'est la regle du socle : l'environnement est valide une fois,
- * au demarrage, et tout le reste consomme le resultat. Une lecture directe
- * echappe a cette validation et se manifeste a la centieme requete.
+ * This one receives the configuration as a parameter rather than reading
+ * `process.env`. That is the rule of the foundation: the environment is
+ * validated once, at startup, and everything else consumes the result. A
+ * direct read escapes that validation and shows up on the hundredth request.
  *
- * ## Deux points de controle, et pourquoi ils different
+ * ## Two health endpoints, and why they differ
  *
- * `/api/health` repond que **le processus vit**. Il ne teste rien d'autre, et
- * doit repondre meme quand tout le reste est casse : c'est ce qu'un
- * orchestrateur interroge pour decider s'il faut redemarrer le conteneur. Le
- * faire dependre de la base ferait redemarrer un serveur parfaitement sain
- * chaque fois que la base hoquette — et un redemarrage ne repare pas une base.
+ * `/api/health` answers that **the process is alive**. It tests nothing else,
+ * and must answer even when everything else is broken: that is what an
+ * orchestrator asks to decide whether to restart the container. Making it
+ * depend on the database would restart a perfectly healthy server every time
+ * the database hiccups — and a restart does not repair a database.
  *
- * `/api/ready` repond que **le service peut travailler**, et rend 503 tant
- * qu'il manque quelque chose : c'est ce qu'un repartiteur interroge pour
- * decider s'il peut envoyer du trafic.
+ * `/api/ready` answers that **the service can do its work**, and returns 503
+ * for as long as something is missing: that is what a load balancer asks to
+ * decide whether it can send traffic.
  *
- * Confondre les deux donne l'un des deux defauts : un service qui redemarre en
- * boucle pendant un incident de base, ou un repartiteur qui envoie du trafic a
- * un service incapable de repondre.
+ * Confusing the two gives one of two faults: a service restarting in a loop
+ * during a database incident, or a load balancer sending traffic to a service
+ * that cannot answer.
  *
- * ## Pourquoi `/ready` echoue au premier demarrage
+ * ## Why `/ready` fails on the first start
  *
- * Un projet fraichement echafaude n'a pas encore de `DATABASE_URL`. Le client
- * demarre, l'interface s'affiche, et `/api/ready` dit ce qui manque. On voit
- * donc quelque chose des la premiere minute, et on sait exactement ce qu'il
- * reste a faire.
+ * A freshly scaffolded project has no `DATABASE_URL` yet. The client starts,
+ * the interface shows, and `/api/ready` says what is missing. So you see
+ * something in the first minute, and you know exactly what is left to do.
  *
  * @module
  */
@@ -47,20 +46,20 @@ import {
 } from '@odoro-cli/server'
 import { z } from 'zod'
 
-/** Ce que rend le controle de vie. */
+/** What the liveness check returns. */
 const liveness = z.object({
   status: z.literal('ok'),
   environment: z.string(),
   uptime: z.number(),
 })
 
-/** Ce que rend le controle de disponibilite, quand tout repond. */
+/** What the readiness check returns, when everything answers. */
 const readiness = z.object({
   ready: z.literal(true),
   dependencies: z.array(z.object({ name: z.string(), detail: z.string() })),
 })
 
-/** Une dependance et son etat. */
+/** A dependency and its state. */
 interface Dependency {
   readonly name: string
   readonly ready: boolean
@@ -68,13 +67,13 @@ interface Dependency {
 }
 
 /**
- * Etat des dependances.
+ * State of the dependencies.
  *
- * La base n'est pas encore interrogee — le socle n'a pas sa couche de
- * persistance. Ce qui est verifie ici est sa **configuration**, ce qui suffit
- * a distinguer un projet qui n'a jamais recu d'URL d'un projet configure.
- * Quand la persistance arrivera, c'est cette fonction qui apprendra a ouvrir
- * une connexion, et rien d'autre ne changera.
+ * The database is not queried yet — the foundation has no persistence layer.
+ * What is checked here is its **configuration**, which is enough to tell a
+ * project that never received a URL from a configured one. When persistence
+ * arrives, this function is the one that will learn to open a connection, and
+ * nothing else will change.
  */
 function inspect(config: KernelConfig): readonly Dependency[] {
   const url = config.DATABASE_URL.trim()
@@ -84,14 +83,14 @@ function inspect(config: KernelConfig): readonly Dependency[] {
       ready: url.length > 0,
       detail:
         url.length > 0
-          ? 'URL configuree'
-          : 'DATABASE_URL absente — voir .env.example, ou lancer `odoro db:create`',
+          ? 'URL configured'
+          : 'DATABASE_URL missing — see .env.example, or run `odoro db:create`',
     },
   ]
 }
 
 /**
- * Construit le module.
+ * Builds the module.
  *
  * @example
  * createApp({ modules: [createHealthModule(config)], … })
@@ -105,7 +104,7 @@ export function createHealthModule(config: KernelConfig) {
         method: 'GET',
         path: '/api/health',
         auth: 'public',
-        summary: 'Le processus repond.',
+        summary: 'The process answers.',
         output: liveness,
         handler: () => ({
           status: 'ok' as const,
@@ -119,17 +118,17 @@ export function createHealthModule(config: KernelConfig) {
         method: 'GET',
         path: '/api/ready',
         auth: 'public',
-        summary: 'Les dependances repondent.',
+        summary: 'The dependencies answer.',
         output: readiness,
         handler: () => {
           const dependencies = inspect(config)
-          const manquantes = dependencies.filter((d) => !d.ready)
+          const missing = dependencies.filter((d) => !d.ready)
 
-          if (manquantes.length > 0) {
-            // 503 et non 500 : la demande etait valide, c'est le service qui
-            // ne peut pas encore y repondre.
+          if (missing.length > 0) {
+            // 503 and not 500: the request was valid, it is the service that
+            // cannot answer it yet.
             throw new ServiceUnavailableError(
-              manquantes.map((d) => `${d.name} — ${d.detail}`).join(' ; '),
+              missing.map((d) => `${d.name} — ${d.detail}`).join(' ; '),
             )
           }
 

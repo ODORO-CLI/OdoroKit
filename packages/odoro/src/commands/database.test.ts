@@ -1,10 +1,10 @@
 /**
- * La question de la base, et surtout ses refus.
+ * The database question, and above all its refusals.
  *
- * Aucune connexion n'est ouverte pendant l'echafaudage : ce qui est verifie
- * ici est la forme de l'URL. Les cas testes sont ceux qui passent une
- * inspection a l'oeil et cassent ensuite — un nom de base oublie, un `sslmode`
- * desactive sur une base distante.
+ * No connection is opened during scaffolding: what is checked here is the shape
+ * of the URL. The cases tested are those that pass an inspection by eye and
+ * break afterwards — a forgotten database name, an `sslmode` disabled on a
+ * remote database.
  *
  * @module
  */
@@ -17,132 +17,134 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
 import { assertEnvIgnored, checkDatabaseUrl, writeDatabaseUrl } from './database.js'
 
-describe('forme de l URL', () => {
-  it('accepte une URL complete', () => {
+describe('shape of the URL', () => {
+  it('accepts a complete URL', () => {
     expect(
-      checkDatabaseUrl('postgres://lea:secret@db.exemple.fr:5432/projet?sslmode=require'),
+      checkDatabaseUrl(
+        'postgres://lea:secret@db.example.dev:5432/project?sslmode=require',
+      ),
     ).toBeUndefined()
   })
 
-  it('accepte la forme longue du protocole', () => {
-    expect(checkDatabaseUrl('postgresql://lea@hote:5432/projet')).toBeUndefined()
+  it('accepts the long form of the protocol', () => {
+    expect(checkDatabaseUrl('postgresql://lea@host:5432/project')).toBeUndefined()
   })
 
-  it('refuse une chaine vide', () => {
-    expect(checkDatabaseUrl('   ')).toMatch(/ne peut pas etre vide/)
+  it('refuses an empty string', () => {
+    expect(checkDatabaseUrl('   ')).toMatch(/cannot be empty/)
   })
 
-  it('refuse un autre moteur', () => {
-    // Il n'y en a plus qu'un. Une URL SQLite heritee d'un projet plus ancien
-    // doit echouer ici, pas au premier acces.
+  it('refuses another engine', () => {
+    // There is only one left. A SQLite URL inherited from an older project must
+    // fail here, not at the first access.
     expect(checkDatabaseUrl('file:./storage/dev.db')).toMatch(/postgres:\/\//)
-    expect(checkDatabaseUrl('mysql://hote:3306/projet')).toMatch(/postgres:\/\//)
+    expect(checkDatabaseUrl('mysql://host:3306/project')).toMatch(/postgres:\/\//)
   })
 
-  it('refuse une URL sans nom de base', () => {
-    // Sans chemin, on se connecte a la base par defaut du role : ce n'est
-    // presque jamais ce qu'on veut, et cela ne se remarque qu'une fois les
-    // tables creees ailleurs.
-    expect(checkDatabaseUrl('postgres://lea@hote:5432')).toMatch(/nom de base/)
-    expect(checkDatabaseUrl('postgres://lea@hote:5432/')).toMatch(/nom de base/)
+  it('refuses a URL without a database name', () => {
+    // Without a path, one connects to the default database of the role: that is
+    // almost never what one wants, and it is only noticed once the tables have
+    // been created elsewhere.
+    expect(checkDatabaseUrl('postgres://lea@host:5432')).toMatch(/database name/)
+    expect(checkDatabaseUrl('postgres://lea@host:5432/')).toMatch(/database name/)
   })
 
-  it('refuse sslmode=disable sur une base distante', () => {
+  it('refuses sslmode=disable on a remote database', () => {
     expect(
-      checkDatabaseUrl('postgres://lea:secret@db.exemple.fr:5432/p?sslmode=disable'),
-    ).toMatch(/en clair/)
+      checkDatabaseUrl('postgres://lea:secret@db.example.dev:5432/p?sslmode=disable'),
+    ).toMatch(/in the clear/)
   })
 
-  it('tolere sslmode=disable sur la machine meme', () => {
-    // Une base sur `localhost` ne fait pas passer son trafic sur le reseau. Le
-    // socle n'en prevoit pas, mais un tunnel local en produit une.
+  it('tolerates sslmode=disable on the machine itself', () => {
+    // A database on `localhost` does not put its traffic on the network. The
+    // base does not provide for one, but a local tunnel produces one.
     expect(
       checkDatabaseUrl('postgres://lea@localhost:5432/p?sslmode=disable'),
     ).toBeUndefined()
   })
 
-  it('refuse ce qui n est pas une URL', () => {
+  it('refuses what is not a URL', () => {
     expect(checkDatabaseUrl('postgres://')).toBeDefined()
   })
 })
 
-describe('ecriture dans le .env', () => {
-  let dossier: string
+describe('writing into the .env', () => {
+  let directory: string
 
   beforeEach(async () => {
-    dossier = await mkdtemp(join(tmpdir(), 'odoro-db-'))
+    directory = await mkdtemp(join(tmpdir(), 'odoro-db-'))
   })
 
   afterEach(async () => {
-    await rm(dossier, { recursive: true, force: true })
+    await rm(directory, { recursive: true, force: true })
   })
 
-  it('part de l exemple et y pose l URL', async () => {
+  it('starts from the example and sets the URL in it', async () => {
     await writeFile(
-      join(dossier, '.env.example'),
-      '# commentaire\nDATABASE_URL=\nPORT=3001\n',
+      join(directory, '.env.example'),
+      '# comment\nDATABASE_URL=\nPORT=3001\n',
       'utf8',
     )
 
-    await writeDatabaseUrl(dossier, 'postgres://lea@hote:5432/p')
-    const contenu = await readFile(join(dossier, '.env'), 'utf8')
+    await writeDatabaseUrl(directory, 'postgres://lea@host:5432/p')
+    const content = await readFile(join(directory, '.env'), 'utf8')
 
-    expect(contenu).toContain('DATABASE_URL=postgres://lea@hote:5432/p')
-    // Les autres variables suivent : on ne les redecouvre pas une par une.
-    expect(contenu).toContain('PORT=3001')
-    expect(contenu).toContain('# commentaire')
+    expect(content).toContain('DATABASE_URL=postgres://lea@host:5432/p')
+    // The other variables follow: one does not rediscover them one by one.
+    expect(content).toContain('PORT=3001')
+    expect(content).toContain('# comment')
   })
 
-  it('remplace une URL deja presente sans dupliquer la ligne', async () => {
-    await writeFile(join(dossier, '.env'), 'DATABASE_URL=postgres://ancien\n', 'utf8')
+  it('replaces an already present URL without duplicating the line', async () => {
+    await writeFile(join(directory, '.env'), 'DATABASE_URL=postgres://old\n', 'utf8')
 
-    await writeDatabaseUrl(dossier, 'postgres://lea@hote:5432/p')
-    const contenu = await readFile(join(dossier, '.env'), 'utf8')
+    await writeDatabaseUrl(directory, 'postgres://lea@host:5432/p')
+    const content = await readFile(join(directory, '.env'), 'utf8')
 
-    expect(contenu.match(/DATABASE_URL=/g)).toHaveLength(1)
-    expect(contenu).toContain('postgres://lea@hote:5432/p')
+    expect(content.match(/DATABASE_URL=/g)).toHaveLength(1)
+    expect(content).toContain('postgres://lea@host:5432/p')
   })
 
-  it('ajoute la ligne quand le fichier n en a pas', async () => {
-    await writeFile(join(dossier, '.env'), 'PORT=3001\n', 'utf8')
+  it('adds the line when the file has none', async () => {
+    await writeFile(join(directory, '.env'), 'PORT=3001\n', 'utf8')
 
-    await writeDatabaseUrl(dossier, 'postgres://lea@hote:5432/p')
-    const contenu = await readFile(join(dossier, '.env'), 'utf8')
+    await writeDatabaseUrl(directory, 'postgres://lea@host:5432/p')
+    const content = await readFile(join(directory, '.env'), 'utf8')
 
-    expect(contenu).toContain('PORT=3001')
-    expect(contenu).toContain('DATABASE_URL=postgres://lea@hote:5432/p')
+    expect(content).toContain('PORT=3001')
+    expect(content).toContain('DATABASE_URL=postgres://lea@host:5432/p')
   })
 })
 
-describe('le .env ne doit pas etre versionne', () => {
-  let dossier: string
+describe('the .env must not be versioned', () => {
+  let directory: string
 
   beforeEach(async () => {
-    dossier = await mkdtemp(join(tmpdir(), 'odoro-git-'))
+    directory = await mkdtemp(join(tmpdir(), 'odoro-git-'))
   })
 
   afterEach(async () => {
-    await rm(dossier, { recursive: true, force: true })
+    await rm(directory, { recursive: true, force: true })
   })
 
-  it('se tait quand .env est ignore', async () => {
-    await writeFile(join(dossier, '.gitignore'), 'node_modules\n.env\n', 'utf8')
-    expect(await assertEnvIgnored(dossier)).toBeUndefined()
+  it('stays quiet when .env is ignored', async () => {
+    await writeFile(join(directory, '.gitignore'), 'node_modules\n.env\n', 'utf8')
+    expect(await assertEnvIgnored(directory)).toBeUndefined()
   })
 
-  it('accepte les formes usuelles', async () => {
-    await writeFile(join(dossier, '.gitignore'), '.env*\n', 'utf8')
-    expect(await assertEnvIgnored(dossier)).toBeUndefined()
+  it('accepts the usual forms', async () => {
+    await writeFile(join(directory, '.gitignore'), '.env*\n', 'utf8')
+    expect(await assertEnvIgnored(directory)).toBeUndefined()
   })
 
-  it('avertit quand il ne l est pas', async () => {
-    // Une fois pousse, un secret est a faire tourner, pas a supprimer de
-    // l'historique : l'avertissement doit venir avant le premier commit.
-    await writeFile(join(dossier, '.gitignore'), 'node_modules\n', 'utf8')
-    expect(await assertEnvIgnored(dossier)).toMatch(/versionn/)
+  it('warns when it is not', async () => {
+    // Once pushed, a secret is to be rotated, not removed from the history: the
+    // warning must come before the first commit.
+    await writeFile(join(directory, '.gitignore'), 'node_modules\n', 'utf8')
+    expect(await assertEnvIgnored(directory)).toMatch(/versioned/)
   })
 
-  it('avertit quand il n y a pas de .gitignore', async () => {
-    expect(await assertEnvIgnored(dossier)).toMatch(/Aucun .gitignore/)
+  it('warns when there is no .gitignore', async () => {
+    expect(await assertEnvIgnored(directory)).toMatch(/No .gitignore/)
   })
 })

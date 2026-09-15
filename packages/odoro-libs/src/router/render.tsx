@@ -1,8 +1,8 @@
 /**
- * Rendu recursif d'une chaine de correspondances de routes.
+ * Recursive rendering of a chain of route matches.
  *
- * Chaque niveau publie sa profondeur dans `RouteContext` ; `<Outlet />` se
- * contente de rendre le niveau suivant.
+ * Each level publishes its depth in `RouteContext`; `<Outlet />` simply
+ * renders the next level.
  *
  * @module
  */
@@ -13,19 +13,19 @@ import { RouteContext } from './context.js'
 import { getLazyEntry } from './lazy.js'
 import type { RouteMatch } from './types.js'
 
-/** Proprietes de {@link RenderMatches}. */
+/** Props of {@link RenderMatches}. */
 export interface RenderMatchesProps {
-  /** Chaine complete des correspondances. */
+  /** Complete chain of the matches. */
   matches: readonly RouteMatch[]
-  /** Niveau a rendre. */
+  /** Level to render. */
   depth: number
 }
 
 /**
- * Rend la route situee a `depth` dans la chaine de correspondances.
+ * Renders the route located at `depth` in the chain of matches.
  *
- * @returns `null` quand la profondeur depasse la chaine — cas d'un `<Outlet />`
- *   place dans une route feuille.
+ * @returns `null` when the depth goes past the chain — the case of an
+ *   `<Outlet />` placed in a leaf route.
  */
 export function RenderMatches({
   matches,
@@ -45,7 +45,7 @@ export function RenderMatches({
   } else if (route.element !== undefined) {
     content = route.element
   } else {
-    // Route sans element : layout transparent, on descend directement.
+    // Route without an element: transparent layout, we go straight down.
     content = <RenderMatches matches={matches} depth={depth + 1} />
   }
 

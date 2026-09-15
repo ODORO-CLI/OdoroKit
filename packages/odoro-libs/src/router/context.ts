@@ -1,8 +1,8 @@
 /**
- * Contextes React du routeur.
+ * React contexts of the router.
  *
- * Ils sont separes volontairement : un composant qui n'a besoin que de
- * `navigate` ne doit pas se re-rendre a chaque changement d'emplacement.
+ * They are deliberately split: a component that only needs `navigate` must
+ * not re-render on every location change.
  *
  * @module
  */
@@ -12,47 +12,47 @@ import { createContext } from 'react'
 import type { RouterHistory } from './history.js'
 import type { Location, NavigateOptions, RouteMatch, RouteObject, To } from './types.js'
 
-/** Signature de la fonction de navigation programmatique. */
+/** Signature of the programmatic navigation function. */
 export interface NavigateFunction {
-  /** Navigue vers une cible. */
+  /** Navigates to a target. */
   (to: To, options?: NavigateOptions): void
-  /** Deplace le curseur dans l'historique (`navigate(-1)` pour revenir). */
+  /** Moves the cursor inside the history (`navigate(-1)` to go back). */
   (delta: number): void
 }
 
-/** Valeur du contexte de navigation, stable pour la duree du `<Router>`. */
+/** Value of the navigation context, stable for the lifetime of the `<Router>`. */
 export interface NavigationContextValue {
-  /** Historique sous-jacent. */
+  /** Underlying history. */
   readonly history: RouterHistory
-  /** Fonction de navigation exposee par `useNavigate`. */
+  /** Navigation function exposed by `useNavigate`. */
   readonly navigate: NavigateFunction
   /**
-   * Arbre de routes publie par le `<Routes>` courant. Sert au prechargement
-   * des routes paresseuses avant une View Transition.
+   * Route tree published by the current `<Routes>`. Used to preload lazy
+   * routes before a View Transition.
    *
    * @internal
    */
   readonly routesRef: { current: readonly RouteObject[] | null }
-  /** Valeur par defaut de l'option `viewTransition` des navigations. */
+  /** Default value of the `viewTransition` option of navigations. */
   readonly viewTransition: boolean
 }
 
-/** Contexte de navigation. `null` hors d'un `<Router>`. */
+/** Navigation context. `null` outside of a `<Router>`. */
 export const NavigationContext = createContext<NavigationContextValue | null>(null)
 NavigationContext.displayName = 'OdoroNavigation'
 
-/** Contexte d'emplacement. `null` hors d'un `<Router>`. */
+/** Location context. `null` outside of a `<Router>`. */
 export const LocationContext = createContext<Location | null>(null)
 LocationContext.displayName = 'OdoroLocation'
 
-/** Valeur du contexte de route : la chaine de correspondances et la profondeur. */
+/** Value of the route context: the chain of matches and the depth. */
 export interface RouteContextValue {
-  /** Chaine racine -> feuille des routes correspondant au chemin courant. */
+  /** Root -> leaf chain of the routes matching the current path. */
   readonly matches: readonly RouteMatch[]
-  /** Index, dans `matches`, de la route rendue par le composant courant. */
+  /** Index, within `matches`, of the route rendered by the current component. */
   readonly depth: number
 }
 
-/** Contexte de route, alimente par `<Routes>` puis par chaque `<Outlet />`. */
+/** Route context, fed by `<Routes>` then by each `<Outlet />`. */
 export const RouteContext = createContext<RouteContextValue>({ matches: [], depth: 0 })
 RouteContext.displayName = 'OdoroRoute'

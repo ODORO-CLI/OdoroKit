@@ -1,31 +1,31 @@
 /**
- * Shader du champ de flux.
+ * Flow field shader.
  *
- * ## L'idee mathematique
+ * ## The mathematical idea
  *
- * Un champ de vitesse sans divergence — le gradient tourne d'un quart de tour
- * d'un bruit de valeur — et des particules qui le suivent. Aucune simulation :
- * chaque fragment remonte le champ a contre-courant, pas a pas, et regarde si
- * une graine vit en amont. Une graine est une cellule d'une grille dont le
- * hachage passe un seuil ; sa particule nait a la graine, avance d'un pas par
- * unite d'age, et traine derriere elle une queue qui s'eteint.
+ * A divergence-free velocity field — the gradient of a value noise turned by
+ * a quarter turn — and particles that follow it. No simulation: each
+ * fragment walks back up the field against the current, step by step, and
+ * looks whether a seed lives upstream. A seed is a cell of a grid whose hash
+ * passes a threshold; its particle is born at the seed, advances one step
+ * per unit of age, and drags a fading tail behind it.
  *
- * Remonter le champ depuis le fragment donne le meme chemin que le descendre
- * depuis la graine, a l'erreur d'integration pres : c'est ce qui permet de
- * dessiner la trajectoire sans jamais la stocker.
+ * Walking back up the field from the fragment gives the same path as walking
+ * down it from the seed, up to the integration error: that is what makes it
+ * possible to draw the trajectory without ever storing it.
  *
  * ## Uniforms
  *
- * - `uTime` — temps en secondes, fourni par le moteur.
- * - `uResolution` — taille du canevas en pixels, fournie par le moteur.
- * - `uColorA` — le fond.
- * - `uColorB` — la trainee.
- * - `uColorC` — la tete de la particule.
- * - `uScale` — frequence du bruit, donc la taille des tourbillons.
- * - `uSpeed` — vitesse des particules.
- * - `uDensity` — part des cellules qui portent une graine.
- * - `uTrail` — longueur de la queue, en pas.
- * - `uSteps` — nombre de pas remontes par fragment, donc la portee.
+ * - `uTime` — time in seconds, supplied by the engine.
+ * - `uResolution` — canvas size in pixels, supplied by the engine.
+ * - `uColorA` — the background.
+ * - `uColorB` — the trail.
+ * - `uColorC` — the head of the particle.
+ * - `uScale` — frequency of the noise, hence the size of the eddies.
+ * - `uSpeed` — speed of the particles.
+ * - `uDensity` — share of the cells that carry a seed.
+ * - `uTrail` — length of the tail, in steps.
+ * - `uSteps` — number of steps walked back per fragment, hence the reach.
  */
 export const FLOW_FIELD_FRAGMENT = /* glsl */ `
 precision highp float;
@@ -43,97 +43,97 @@ uniform float uDensity;
 uniform float uTrail;
 uniform float uSteps;
 
-// Plafond des pas remontes : la boucle est bornee par une constante, le
-// reglage ne fait que la raccourcir.
+// Ceiling on the steps walked back: the loop is bounded by a constant, the
+// setting only shortens it.
 const int MAX_STEPS = 24;
 
-// Pas d'integration, en hauteurs de cadre.
+// Integration step, in frame heights.
 const float STEP = 0.011;
 
-// Taille des cellules de graines : un peu plus large que le pas, pour qu'un
-// chemin ne saute jamais une cellule qu'il traverse.
+// Size of the seed cells: a little wider than the step, so that a path
+// never skips a cell it crosses.
 const float CELLS = 44.0;
 
-// Projection sur une direction arbitraire, sinus amplifie, partie
-// fractionnaire. Le hachage par produit des coordonnees, plus court, laisse
-// des traces en diagonale que le champ aligne en un rail de particules.
-float fluxHash(vec2 p) {
+// Projection onto an arbitrary direction, amplified sine, fractional
+// part. Hashing by the product of the coordinates, shorter, leaves
+// diagonal traces that the field lines up into a rail of particles.
+float flowHash(vec2 p) {
   return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
 }
 
-// Bruit de valeur 2D, interpolation lissee entre quatre tirages.
-float fluxNoise(vec2 p) {
+// 2D value noise, smoothed interpolation between four draws.
+float flowNoise(vec2 p) {
   vec2 cell = floor(p);
   vec2 local = fract(p);
   vec2 smoothed = local * local * (3.0 - 2.0 * local);
-  float a = fluxHash(cell);
-  float b = fluxHash(cell + vec2(1.0, 0.0));
-  float c = fluxHash(cell + vec2(0.0, 1.0));
-  float d = fluxHash(cell + vec2(1.0, 1.0));
+  float a = flowHash(cell);
+  float b = flowHash(cell + vec2(1.0, 0.0));
+  float c = flowHash(cell + vec2(0.0, 1.0));
+  float d = flowHash(cell + vec2(1.0, 1.0));
   return mix(mix(a, b, smoothed.x), mix(c, d, smoothed.x), smoothed.y);
 }
 
-// Le champ : gradient du bruit tourne d'un quart de tour. Un tel champ n'a
-// pas de divergence, donc les particules ne s'accumulent ni ne se vident
-// nulle part — elles tournent.
-vec2 fluxChamp(vec2 p) {
-  vec2 derive = vec2(uTime * 0.05, -uTime * 0.035);
-  vec2 q = p * uScale + derive;
+// The field: the gradient of the noise turned by a quarter turn. Such a
+// field has no divergence, so the particles neither pile up nor drain away
+// anywhere — they turn.
+vec2 flowField(vec2 p) {
+  vec2 drift = vec2(uTime * 0.05, -uTime * 0.035);
+  vec2 q = p * uScale + drift;
   float e = 0.03;
-  float centre = fluxNoise(q);
-  float droite = fluxNoise(q + vec2(e, 0.0));
-  float haut = fluxNoise(q + vec2(0.0, e));
-  vec2 gradient = vec2(droite - centre, haut - centre) / e;
-  vec2 champ = vec2(gradient.y, -gradient.x);
-  return champ / max(length(champ), 0.25);
+  float centre = flowNoise(q);
+  float right = flowNoise(q + vec2(e, 0.0));
+  float up = flowNoise(q + vec2(0.0, e));
+  vec2 gradient = vec2(right - centre, up - centre) / e;
+  vec2 field = vec2(gradient.y, -gradient.x);
+  return field / max(length(field), 0.25);
 }
 
 void main() {
   float aspect = uResolution.x / max(uResolution.y, 1.0);
   vec2 p = vec2(vUv.x * aspect, vUv.y);
   int steps = int(clamp(uSteps, 2.0, float(MAX_STEPS)));
-  float portee = float(steps) + uTrail;
+  float reach = float(steps) + uTrail;
 
   vec2 q = p;
-  float queue = 0.0;
-  float tete = 0.0;
+  float tail = 0.0;
+  float head = 0.0;
 
   for (int i = 0; i < MAX_STEPS; i += 1) {
     if (i >= steps) break;
-    vec2 direction = fluxChamp(q);
+    vec2 direction = flowField(q);
     q -= direction * STEP;
 
     vec2 cell = floor(q * CELLS);
-    float tirage = fluxHash(cell);
-    if (tirage > uDensity) continue;
+    float draw = flowHash(cell);
+    if (draw > uDensity) continue;
 
-    // La graine est un point precis de sa cellule ; la trace n'est allumee
-    // qu'a l'ecart perpendiculaire pres, sinon toute la cellule s'allumerait
-    // en ruban.
-    vec2 graine = (cell + 0.5 + (vec2(fluxHash(cell + 3.1), fluxHash(cell + 7.7)) - 0.5) * 0.8) / CELLS;
-    vec2 ecart = q - graine;
-    float perpendiculaire = abs(ecart.x * direction.y - ecart.y * direction.x);
-    float profil = exp(-perpendiculaire * perpendiculaire * 60000.0);
+    // The seed is a precise point of its cell; the trace is lit only within
+    // the perpendicular offset, otherwise the whole cell would light up as a
+    // ribbon.
+    vec2 seed = (cell + 0.5 + (vec2(flowHash(cell + 3.1), flowHash(cell + 7.7)) - 0.5) * 0.8) / CELLS;
+    vec2 offset = q - seed;
+    float perpendicular = abs(offset.x * direction.y - offset.y * direction.x);
+    float profile = exp(-perpendicular * perpendicular * 60000.0);
 
-    // L'age de la particule avance avec le temps ; sa tete est a "age" pas de
-    // la graine, et le fragment est a "i" pas : la difference dit ou l'on est
-    // sur la queue.
-    float phase = fract(uTime * uSpeed * 0.28 + fluxHash(cell + 11.3));
-    float age = phase * portee;
-    float derriere = age - float(i);
-    float vivant = step(0.0, derriere) * (1.0 - smoothstep(0.0, uTrail, derriere));
+    // The particle's age advances with time; its head is "age" steps from the
+    // seed, and the fragment is "i" steps away: the difference says where one
+    // is along the tail.
+    float phase = fract(uTime * uSpeed * 0.28 + flowHash(cell + 11.3));
+    float age = phase * reach;
+    float behind = age - float(i);
+    float alive = step(0.0, behind) * (1.0 - smoothstep(0.0, uTrail, behind));
 
-    queue = max(queue, vivant * profil);
-    tete = max(tete, vivant * profil * exp(-derriere * 1.6));
+    tail = max(tail, alive * profile);
+    head = max(head, alive * profile * exp(-behind * 1.6));
   }
 
   vec3 colour = uColorA;
-  colour = mix(colour, uColorB, queue * 0.85);
-  colour += uColorC * tete * 0.9;
+  colour = mix(colour, uColorB, tail * 0.85);
+  colour += uColorC * head * 0.9;
 
-  // Vignette discrete, pour que la nappe ne soit pas un papier peint.
-  float bord = length((vUv - 0.5) * vec2(aspect, 1.0));
-  colour = mix(colour, uColorA, smoothstep(0.55, 1.1, bord) * 0.3);
+  // A discreet vignette, so that the sheet is not wallpaper.
+  float edge = length((vUv - 0.5) * vec2(aspect, 1.0));
+  colour = mix(colour, uColorA, smoothstep(0.55, 1.1, edge) * 0.3);
 
   gl_FragColor = vec4(colour, 1.0);
 }

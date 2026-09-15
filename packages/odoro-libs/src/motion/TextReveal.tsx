@@ -1,5 +1,5 @@
 /**
- * Revelation d'un texte mot a mot ou lettre a lettre.
+ * Reveal of a text word by word or letter by letter.
  *
  * @module
  */
@@ -23,54 +23,54 @@ import {
   resolveEasing,
 } from './tokens.js'
 
-/** Proprietes de {@link TextReveal}. */
+/** Properties of {@link TextReveal}. */
 export interface TextRevealProps extends Omit<
   ComponentPropsWithoutRef<'span'>,
   'children'
 > {
-  /** Element conteneur rendu. @defaultValue 'span' */
+  /** Rendered container element. @defaultValue 'span' */
   as?: ElementType
-  /** Texte revele. Une chaine, pas un arbre : le decoupage l'exige. */
+  /** Revealed text. A string, not a tree: the splitting requires it. */
   children: string
-  /** Unite de decoupage. @defaultValue 'word' */
+  /** Splitting unit. @defaultValue 'word' */
   by?: 'word' | 'char'
-  /** Ecart entre deux unites, en millisecondes. @defaultValue 40 */
+  /** Gap between two units, in milliseconds. @defaultValue 40 */
   step?: number
-  /** Retard avant la premiere unite, en millisecondes. @defaultValue 0 */
+  /** Delay before the first unit, in milliseconds. @defaultValue 0 */
   delay?: number
-  /** Duree de chaque unite : nom de token ou millisecondes. @defaultValue 'slow' */
+  /** Duration of each unit: token name or milliseconds. @defaultValue 'slow' */
   duration?: DurationInput
-  /** Courbe. @defaultValue 'entrance' */
+  /** Curve. @defaultValue 'entrance' */
   easing?: EasingInput
-  /** Etat de depart de chaque unite. @defaultValue opacite nulle et remontee */
+  /** Starting state of each unit. @defaultValue zero opacity and upward shift */
   from?: MotionKeyframe
-  /** Proportion visible declenchant la revelation. @defaultValue 0.3 */
+  /** Visible proportion triggering the reveal. @defaultValue 0.3 */
   threshold?: number
-  /** Ne joue l'animation qu'une seule fois. @defaultValue true */
+  /** Plays the animation only once. @defaultValue true */
   once?: boolean
 }
 
 const DEFAULT_FROM: MotionKeyframe = { opacity: 0, transform: 'translateY(0.4em)' }
 
-/** Decoupe un texte en unites, en preservant les espaces d'origine. */
+/** Splits a text into units, preserving the original spaces. */
 function split(text: string, by: 'word' | 'char'): string[] {
   if (by === 'word') return text.split(/(\s+)/).filter((part) => part !== '')
   return [...text]
 }
 
 /**
- * Revele un texte par vagues, mot a mot ou lettre a lettre.
+ * Reveals a text in waves, word by word or letter by letter.
  *
- * Chaque unite est rendue dans un `span` en bloc en ligne et animee avec un
- * retard croissant a l'entree du texte dans le viewport. Les lecteurs d'ecran
- * recoivent le texte entier d'un bloc : le decoupage visuel est masque par
- * `aria-hidden`, le texte complet reste present pour l'accessibilite.
+ * Each unit is rendered in an inline-block `span` and animated with an
+ * increasing delay when the text enters the viewport. Screen readers
+ * receive the whole text in one block: the visual splitting is hidden by
+ * `aria-hidden`, the complete text stays present for accessibility.
  *
- * Sous `prefers-reduced-motion`, le texte est rendu tel quel, sans decoupage.
+ * Under `prefers-reduced-motion`, the text is rendered as is, without splitting.
  *
  * @example
  * <h1 className="o-text-5xl o-font-bold">
- *   <TextReveal by="word" step={60}>Construisez des interfaces vivantes</TextReveal>
+ *   <TextReveal by="word" step={60}>Build living interfaces</TextReveal>
  * </h1>
  */
 export function TextReveal({
@@ -127,8 +127,8 @@ export function TextReveal({
         animations.push(animation)
         index += 1
       }
-      // Une fois la vague terminee, l'etat naturel est relache : aucune
-      // animation figee ne retient de couche de composition.
+      // Once the wave is over, the natural state is released: no
+      // frozen animation holds a composition layer.
       void Promise.allSettled(animations.map((animation) => animation.finished)).then(
         () => {
           show()
@@ -165,8 +165,8 @@ export function TextReveal({
       for (const animation of animations) animation.cancel()
       show()
     }
-    // `from` est un litteral cote appelant : le comparer par identite
-    // relancerait l'effet a chaque rendu.
+    // `from` is a literal on the caller side: comparing it by identity
+    // would restart the effect on every render.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reduced, parts, by, step, delay, duration, easing, threshold, once])
 

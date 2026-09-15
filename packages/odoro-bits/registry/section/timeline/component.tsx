@@ -1,39 +1,39 @@
 /**
- * Frise verticale qui se remplit au defilement.
+ * Vertical timeline that fills as the page scrolls.
  *
- * ## La progression est lue dans la boucle, jamais rendue
+ * ## The progress is read in the loop, never rendered
  *
- * Une frise qui se remplit change d'aspect a chaque image. Tenir cette valeur
- * dans un etat React ferait un rendu complet par image pendant tout le
- * defilement de la page — pour deplacer un rectangle et changer deux opacites,
- * ce que le compositeur sait faire seul.
+ * A timeline that fills changes look on every frame. Holding that value in
+ * React state would mean a full render per frame for the whole scroll of the
+ * page — to move a rectangle and change two opacities, which the compositor
+ * knows how to do on its own.
  *
- * La progression est donc lue dans la boucle unique du moteur, a la priorite
- * des mesures, et ecrite dans une variable CSS. Le rail se remplit par
- * `scaleY`, les jalons s'allument par un attribut : aucun rendu React n'a lieu
- * pendant la course.
+ * The progress is therefore read in the engine's single loop, at the
+ * measurement priority, and written into a CSS variable. The rail fills by
+ * `scaleY`, the milestones light up through an attribute: no React render
+ * happens during the run.
  *
- * ## Pourquoi une seule mesure pour toute la frise
+ * ## Why a single measurement for the whole timeline
  *
- * Chaque jalon pourrait guetter son propre passage. Sur vingt evenements, cela
- * ferait vingt observateurs et vingt seuils qui ne tombent jamais exactement
- * au meme endroit que le rail : le point s'allumerait avant ou apres que le
- * trait l'atteigne, et le decalage se verrait.
+ * Every milestone could watch its own crossing. Over twenty events that would
+ * make twenty observers and twenty thresholds that never fall exactly where
+ * the rail is: the dot would light up before or after the line reaches it, and
+ * the offset would show.
  *
- * Une seule mesure, une seule progression : le jalon s'allume quand le trait
- * arrive, par construction.
+ * One measurement, one progress: the milestone lights up when the line
+ * arrives, by construction.
  *
- * ## Le repere est le milieu du champ, pas son bord
+ * ## The reference is the middle of the viewport, not its edge
  *
- * Un remplissage cale sur le haut de la fenetre est deja fini quand on lit le
- * premier evenement ; cale sur le bas, il n'a pas commence. Le milieu du champ
- * met le trait a l'endroit ou l'oeil se trouve.
+ * A fill locked on the top of the window is already finished when one reads
+ * the first event; locked on the bottom, it has not started. The middle of the
+ * viewport puts the line where the eye is.
  *
- * ## Ce qu'un lecteur d'ecran entend
+ * ## What a screen reader hears
  *
- * Une liste ordonnee d'evenements dates. Le rail, les points et le
- * remplissage sont decoratifs et masques : ils disent visuellement ce que
- * l'ordre de la liste dit deja.
+ * An ordered list of dated events. The rail, the dots and the fill are
+ * decorative and hidden: they say visually what the order of the list already
+ * says.
  *
  * @module
  */
@@ -54,40 +54,40 @@ import {
   type ReactNode,
 } from 'react'
 
-/** Un evenement de la frise. */
+/** An event on the timeline. */
 export interface TimelineEvent {
-  /** Date affichee. Texte libre : « Mars 2024 », « v2.0 ». */
+  /** Displayed date. Free text: "March 2024", "v2.0". */
   readonly date: string
   /**
-   * Date lisible par une machine, au format `YYYY-MM-DD` ou `YYYY-MM`.
+   * Machine-readable date, in `YYYY-MM-DD` or `YYYY-MM` format.
    *
-   * Sans elle, `<time>` n'apporte rien de plus qu'un `<span>` : c'est
-   * l'attribut qui rend la date exploitable.
+   * Without it, `<time>` brings nothing more than a `<span>`: it is the
+   * attribute that makes the date usable.
    */
   readonly dateTime?: string
-  /** Intitule de l'evenement. */
+  /** Heading of the event. */
   readonly title: string
-  /** Ce qui s'est passe. */
+  /** What happened. */
   readonly body?: ReactNode
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to the component. */
 export interface TimelineOwnProps {
-  /** Les evenements, du plus ancien au plus recent. */
+  /** The events, from the oldest to the most recent. */
   events: readonly TimelineEvent[]
-  /** Nom de la frise, annonce aux technologies d'assistance. */
+  /** Name of the timeline, announced to assistive technology. */
   label: string
-  /** Intitule affiche au-dessus de la frise. */
+  /** Heading displayed above the timeline. */
   title?: ReactNode
 }
 
-/** Toutes les proprietes. */
+/** Every prop. */
 export type TimelineProps = Customisable<TimelineOwnProps, 'section'>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-timeline'
 
-/** Pose les regles de la frise, une fois par document. */
+/** Applies the timeline rules, once per document. */
 function ensureTimelineRules(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -95,13 +95,13 @@ function ensureTimelineRules(): void {
   const style = document.createElement('style')
   style.id = STYLE_ID
   style.textContent = [
-    // Le rail vit dans l'enveloppe, jamais dans la liste : une liste ordonnee
-    // n'accepte que des `li`, et y glisser deux traits rendrait invalide le
-    // seul balisage qui porte le sens de la frise.
+    // The rail lives in the wrapper, never in the list: an ordered list only
+    // accepts `li`, and slipping two lines into it would invalidate the only
+    // markup that carries the meaning of the timeline.
     '[data-o-timeline-cadre]{position:relative}',
     '[data-o-timeline]{list-style:none;margin:0;padding:0 0 0 2rem}',
-    // Le rail et son remplissage sont deux traits superposes : le second est
-    // mis a l'echelle, ce que le compositeur fait sans recalcul de mise en page.
+    // The rail and its fill are two stacked lines: the second one is scaled,
+    // which the compositor does without a layout recalculation.
     '[data-o-timeline-rail],[data-o-timeline-fill]{',
     'position:absolute;left:0.4375rem;top:0.5rem;bottom:0.5rem;width:2px}',
     '[data-o-timeline-fill]{transform-origin:top;transform:scaleY(var(--o-timeline-p,0))}',
@@ -119,9 +119,9 @@ function ensureTimelineRules(): void {
     'opacity:0.45;transition:opacity var(--o-duration-slow) var(--o-ease-standard)}',
     '[data-o-timeline-atteint]>[data-o-timeline-corps]{opacity:1}',
 
-    // Sans mouvement, la frise est entierement parcourue : montrer un rail vide
-    // et des evenements a demi effaces serait un defaut d'accessibilite, pas un
-    // respect de la preference.
+    // Without motion, the timeline is entirely travelled: showing an empty rail
+    // and half-faded events would be an accessibility defect, not a respect of
+    // the preference.
     '@media (prefers-reduced-motion:reduce){',
     '[data-o-timeline-fill]{transform:scaleY(1)}',
     '[data-o-timeline-point]{transform:scale(1);transition:none}',
@@ -131,97 +131,97 @@ function ensureTimelineRules(): void {
 }
 
 /**
- * Trouve le conteneur qui defile autour d'un element.
+ * Finds the scrolling container around an element.
  *
- * La fenetre n'est pas toujours ce qui defile : une frise posee dans un panneau
- * a debordement — un apercu, un tiroir, une colonne a hauteur fixe — se mesure
- * par rapport a ce panneau. Prendre la fenetre dans ce cas donne une
- * progression qui ne bouge presque pas, et un rail qui ne se remplit jamais.
+ * The window is not always what scrolls: a timeline placed in an overflowing
+ * panel — a preview, a drawer, a fixed-height column — is measured against that
+ * panel. Taking the window in that case gives a progress that barely moves, and
+ * a rail that never fills.
  *
- * La recherche a lieu **une fois**, au montage : `getComputedStyle` force un
- * calcul de style, et l'appeler par image couterait plus cher que tout le
- * reste du composant.
+ * The search happens **once**, on mount: `getComputedStyle` forces a style
+ * computation, and calling it per frame would cost more than the whole rest of
+ * the component.
  */
-function conteneurDefilant(element: Element): HTMLElement | null {
+function scrollingContainer(element: Element): HTMLElement | null {
   let parent = element.parentElement
   while (parent !== null) {
-    const debordement = getComputedStyle(parent).overflowY
-    if (debordement === 'auto' || debordement === 'scroll') return parent
+    const overflow = getComputedStyle(parent).overflowY
+    if (overflow === 'auto' || overflow === 'scroll') return parent
     parent = parent.parentElement
   }
   return null
 }
 
 /**
- * Frise verticale dont le trait suit le defilement.
+ * Vertical timeline whose line follows the scroll.
  *
  * @example
  * <Timeline
- *   label="Histoire du projet"
+ *   label="Project history"
  *   events={[
- *     { date: 'Janvier 2024', dateTime: '2024-01', title: 'Premiere entree' },
- *     { date: 'Juin 2024', dateTime: '2024-06', title: 'Le registre s ouvre' },
+ *     { date: 'January 2024', dateTime: '2024-01', title: 'First entry' },
+ *     { date: 'June 2024', dateTime: '2024-06', title: 'The registry opens' },
  *   ]}
  * />
  */
 export function Timeline({ events, label, title, ...rest }: TimelineProps): ReactElement {
   const { reduced } = useMotionState()
-  const [cadre, setCadre] = useState<HTMLDivElement | null>(null)
-  const jalons = useRef<(HTMLLIElement | null)[]>([])
-  const dernier = useRef(-1)
+  const [frame, setFrame] = useState<HTMLDivElement | null>(null)
+  const milestones = useRef<(HTMLLIElement | null)[]>([])
+  const last = useRef(-1)
 
   ensureTimelineRules()
 
   useEffect(() => {
-    if (cadre === null || reduced) return
+    if (frame === null || reduced) return
 
-    /** Etat des jalons, pour n'ecrire dans le DOM qu'au franchissement. */
-    let atteints = -1
-    const conteneur = conteneurDefilant(cadre)
+    /** Milestone state, so the DOM is written only on a crossing. */
+    let reachedCount = -1
+    const container = scrollingContainer(frame)
 
     const subscription = clock.subscribe(
       () => {
-        const boite = cadre.getBoundingClientRect()
-        if (boite.height === 0) return
+        const box = frame.getBoundingClientRect()
+        if (box.height === 0) return
 
-        const champ =
-          conteneur === null
-            ? { haut: 0, hauteur: window.innerHeight }
+        const field =
+          container === null
+            ? { top: 0, height: window.innerHeight }
             : {
-                haut: conteneur.getBoundingClientRect().top,
-                hauteur: conteneur.clientHeight,
+                top: container.getBoundingClientRect().top,
+                height: container.clientHeight,
               }
 
-        // Le repere est le milieu du champ : le trait se trouve alors la ou
-        // l'oeil lit, et non a un bord qu'on ne regarde pas.
-        const repere = champ.haut + champ.hauteur / 2 - boite.top
-        const p = Math.min(1, Math.max(0, repere / boite.height))
+        // The reference is the middle of the viewport: the line is then where
+        // the eye reads, and not at an edge nobody looks at.
+        const mark = field.top + field.height / 2 - box.top
+        const p = Math.min(1, Math.max(0, mark / box.height))
 
-        // Les centiemes suffisent : la variable n'est ecrite que lorsqu'elle
-        // change vraiment, ce qui evite une invalidation de style par image sur
-        // une frise immobile.
-        const centieme = Math.round(p * 100)
-        if (centieme !== dernier.current) {
-          dernier.current = centieme
-          cadre.style.setProperty('--o-timeline-p', (centieme / 100).toFixed(2))
+        // Hundredths are enough: the variable is written only when it really
+        // changes, which avoids a style invalidation per frame on a still
+        // timeline.
+        const hundredth = Math.round(p * 100)
+        if (hundredth !== last.current) {
+          last.current = hundredth
+          frame.style.setProperty('--o-timeline-p', (hundredth / 100).toFixed(2))
         }
 
-        const franchis = Math.floor(p * jalons.current.length)
-        if (franchis === atteints) return
-        atteints = franchis
-        jalons.current.forEach((jalon, index) => {
-          if (jalon === null) return
-          if (index < franchis) jalon.setAttribute('data-o-timeline-atteint', '')
-          else jalon.removeAttribute('data-o-timeline-atteint')
+        const crossed = Math.floor(p * milestones.current.length)
+        if (crossed === reachedCount) return
+        reachedCount = crossed
+        milestones.current.forEach((milestone, index) => {
+          if (milestone === null) return
+          if (index < crossed) milestone.setAttribute('data-o-timeline-atteint', '')
+          else milestone.removeAttribute('data-o-timeline-atteint')
         })
       },
-      { name: 'frise verticale', priority: CLOCK_PRIORITY.layout },
+      { name: 'vertical timeline', priority: CLOCK_PRIORITY.layout },
     )
 
     return () => {
       subscription.unsubscribe()
     }
-  }, [cadre, reduced, events.length])
+  }, [frame, reduced, events.length])
 
   const { className, style } = mergePresentation(
     { className: 'o-flex o-flex-col o-gap-8' },
@@ -244,7 +244,7 @@ export function Timeline({ events, label, title, ...rest }: TimelineProps): Reac
         </h2>
       )}
 
-      <div ref={setCadre} data-o-timeline-cadre="">
+      <div ref={setFrame} data-o-timeline-cadre="">
         <span
           aria-hidden
           data-o-timeline-rail=""
@@ -261,11 +261,11 @@ export function Timeline({ events, label, title, ...rest }: TimelineProps): Reac
             <li
               key={`${event.date}-${event.title}`}
               ref={(element) => {
-                jalons.current[index] = element
+                milestones.current[index] = element
               }}
-              // Sans mouvement, tout est atteint des le premier rendu : la
-              // feuille le dit aussi, mais l'attribut evite de dependre d'une
-              // regle que l'appelant pourrait surcharger.
+              // Without motion, everything is reached from the first render:
+              // the stylesheet says so too, but the attribute avoids depending
+              // on a rule the caller could override.
               data-o-timeline-atteint={reduced ? '' : undefined}
             >
               <span

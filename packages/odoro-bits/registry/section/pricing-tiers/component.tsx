@@ -1,39 +1,39 @@
 /**
- * Grille de tarifs, avec bascule de periode et prix qui se recalculent.
+ * Pricing grid, with a period toggle and prices that recompute.
  *
- * ## Le prix change, il ne se remplace pas
+ * ## The price changes, it does not get replaced
  *
- * Passer du mois a l'annee remplace un nombre par un autre. Ecrit tel quel, le
- * changement est instantane et l'on doute d'avoir vu juste — surtout quand
- * trois prix changent d'un coup.
+ * Going from the month to the year replaces a number with another one.
+ * Written as such, the change is instant and one doubts having seen right —
+ * above all when three prices change at once.
  *
- * Le compteur de `text/count-up` fait la transition entre l'ancien et le
- * nouveau, si bien que l'oeil suit le mouvement et voit dans quel sens il va.
- * C'est la seule raison pour laquelle il est ici : ce n'est pas une decoration,
- * c'est ce qui rend la bascule lisible.
+ * The counter of `text/count-up` makes the transition between the old and the
+ * new one, so that the eye follows the motion and sees which way it goes. That
+ * is the only reason why it is here: it is not a decoration, it is what makes
+ * the toggle legible.
  *
- * ## La remise n'est pas affichee, elle est appliquee
+ * ## The discount is not displayed, it is applied
  *
- * Une remise annuelle s'annonce d'ordinaire par une pastille — « deux mois
- * offerts » — que rien ne relie au nombre voisin. Ici elle est **dans** le
- * calcul : le prix annuel affiche est le prix mensuel remise, et la pastille ne
- * fait que nommer ce que le nombre montre deja.
+ * A yearly discount is usually announced by a badge — "two months free" — that
+ * nothing ties to the neighbouring number. Here it is **inside** the
+ * computation: the yearly price displayed is the discounted monthly price, and
+ * the badge only names what the number already shows.
  *
- * ## Une offre mise en avant, jamais deux
+ * ## One tier featured, never two
  *
- * Un tarif se distingue par sa bordure et un rappel, et le composant n'en
- * accepte qu'un. Deux offres mises en avant n'orientent plus personne : elles
- * signalent seulement qu'on n'a pas su choisir.
+ * A tier stands out by its border and a reminder, and the component accepts
+ * only one. Two featured tiers no longer point anyone anywhere: they only
+ * signal that one could not choose.
  *
- * ## Ce que la structure doit dire
+ * ## What the structure has to say
  *
- * Chaque offre est un `article` avec son titre ; les avantages sont une vraie
- * liste. Une grille de `div` donnerait le meme dessin et rien a un lecteur
- * d'ecran, qui entendrait une suite de mots sans savoir ou commence une offre
- * ni ou elle finit.
+ * Each tier is an `article` with its title; the benefits are a real list. A
+ * grid of `div` would give the same drawing and nothing to a screen reader,
+ * which would hear a run of words without knowing where a tier begins nor
+ * where it ends.
  *
- * La bascule est un groupe de boutons radio, pas deux boutons : c'est un choix
- * entre deux etats exclusifs, et les fleches du clavier doivent y circuler.
+ * The toggle is a group of radio buttons, not two buttons: it is a choice
+ * between two exclusive states, and the arrow keys have to move through it.
  *
  * @module
  */
@@ -50,56 +50,56 @@ import {
 
 import { CountUp } from '@registre/text/CountUp'
 
-/** Une offre. */
+/** One tier. */
 export interface Tier {
-  /** Le nom de l'offre. */
+  /** The name of the tier. */
   readonly name: string
-  /** Le prix mensuel, dans l'unite d'affichage. */
+  /** The monthly price, in the display unit. */
   readonly monthly: number
-  /** Une phrase sous le nom. */
+  /** A sentence under the name. */
   readonly note?: string
-  /** Ce que l'offre comprend. */
+  /** What the tier includes. */
   readonly features: readonly string[]
-  /** Le libelle du bouton. @defaultValue 'Choisir' */
+  /** The label of the button. @defaultValue 'Choose' */
   readonly cta?: string
-  /** Mettre cette offre en avant. Une seule le peut. */
+  /** Feature this tier. Only one may be. */
   readonly featured?: boolean
 }
 
-/** Proprietes propres au composant. */
+/** Properties of the component itself. */
 export interface PricingTiersOwnProps {
-  /** Les offres, dans l'ordre d'affichage. */
+  /** The tiers, in display order. */
   tiers: readonly Tier[]
-  /** Balise rendue. @defaultValue 'section' */
+  /** Rendered tag. @defaultValue 'section' */
   as?: ElementType
-  /** Symbole colle avant le prix. @defaultValue '' */
+  /** Symbol stuck before the price. @defaultValue '' */
   currency?: string
-  /** Symbole colle apres le prix. @defaultValue ' €' */
+  /** Symbol stuck after the price. @defaultValue ' €' */
   suffix?: string
   /**
-   * Part remise sur l'annee, de 0 a 1.
+   * Share discounted over the year, from 0 to 1.
    *
-   * `0.2` retire un cinquieme du prix annuel. Zero retire la bascule : sans
-   * remise, proposer deux periodes n'apporte rien.
+   * `0.2` takes a fifth off the yearly price. Zero removes the toggle:
+   * without a discount, offering two periods brings nothing.
    *
    * @defaultValue 0.2
    */
   yearlyDiscount?: number
-  /** Langue du formatage. Par defaut, celle du navigateur. */
+  /** Language of the formatting. By default, the one of the browser. */
   locale?: string
-  /** Appele au clic sur une offre. */
+  /** Called on click on a tier. */
   onChoose?: (tier: Tier) => void
-  /** Ce qui s'affiche au-dessus de la grille. */
+  /** What is displayed above the grid. */
   children?: ReactNode
 }
 
-/** Toutes les proprietes. */
+/** All the properties. */
 export type PricingTiersProps = Customisable<PricingTiersOwnProps, 'section'>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-pricing-tiers'
 
-/** Pose les regles de la grille, une fois par document. */
+/** Sets the rules of the grid, once per document. */
 function ensurePricingRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -114,9 +114,9 @@ function ensurePricingRule(): void {
     '[data-o-tier]{display:flex;flex-direction:column;height:100%}',
     '[data-o-tier-features]{list-style:none;margin:0;padding:0;flex:1}',
     '[data-o-tier-features] li{display:flex;gap:0.5rem;padding:0.3rem 0}',
-    // La coche est decorative : le fait qu'un avantage soit dans la liste dit
-    // deja qu'il est inclus, et la faire lire ajouterait « coche » devant
-    // chaque ligne.
+    // The check mark is decorative: the fact that a benefit is in the list
+    // already says that it is included, and having it read out would add
+    // "check" in front of every line.
     '[data-o-tier-features] li::before{content:"✓";opacity:0.5}',
     '[data-o-period]{display:inline-flex;gap:0.25rem;padding:0.25rem;border-radius:9999px}',
     '[data-o-period] label{border-radius:9999px;padding:0.3rem 0.9rem;cursor:pointer;font-size:0.8125rem}',
@@ -127,26 +127,26 @@ function ensurePricingRule(): void {
 }
 
 /**
- * Une grille de tarifs avec bascule mensuelle / annuelle.
+ * A pricing grid with a monthly / yearly toggle.
  *
  * @example
  * <PricingTiers
  *   tiers={[
- *     { name: 'Depart', monthly: 0, features: ['Un projet', 'Communaute'] },
- *     { name: 'Studio', monthly: 29, features: ['Dix projets', 'Support'], featured: true },
- *     { name: 'Agence', monthly: 99, features: ['Illimite', 'Astreinte'] },
+ *     { name: 'Start', monthly: 0, features: ['One project', 'Community'] },
+ *     { name: 'Studio', monthly: 29, features: ['Ten projects', 'Support'], featured: true },
+ *     { name: 'Agency', monthly: 99, features: ['Unlimited', 'On call'] },
  *   ]}
  * />
  */
 /**
- * Filet et voile tires de l encre courante.
+ * Line and veil drawn from the current ink.
  *
- * Le systeme n a pas de classe pour une couleur partiellement transparente
- * derivee de `currentColor` : `o-border-current/15` n existe pas, et une classe
- * absente ne peint rien. Le melange se fait donc en style, ou il est exact.
+ * The system has no class for a partially transparent color derived from
+ * `currentColor`: `o-border-current/15` does not exist, and an absent class
+ * paints nothing. The mix is therefore done in style, where it is exact.
  */
-const FILET = 'color-mix(in oklab, currentColor 15%, transparent)'
-const VOILE = 'color-mix(in oklab, currentColor 10%, transparent)'
+const LINE = 'color-mix(in oklab, currentColor 15%, transparent)'
+const VEIL = 'color-mix(in oklab, currentColor 10%, transparent)'
 
 export function PricingTiers({
   tiers,
@@ -159,50 +159,50 @@ export function PricingTiers({
   children,
   ...rest
 }: PricingTiersProps): ReactElement {
-  const [annuel, setAnnuel] = useState(false)
-  const groupe = useId()
+  const [yearly, setYearly] = useState(false)
+  const group = useId()
 
   ensurePricingRule()
 
   const { className, style } = mergePresentation({}, rest)
 
-  // Sans remise, la bascule ne changerait aucun chiffre : la proposer serait un
-  // reglage qui ne fait rien.
-  const bascule = yearlyDiscount > 0
+  // Without a discount, the toggle would change no figure: offering it would
+  // be a setting that does nothing.
+  const toggle = yearlyDiscount > 0
 
   return (
     <Tag {...rest} className={className} style={style as CSSProperties}>
       {children}
 
-      {bascule && (
+      {toggle && (
         <div
           role="radiogroup"
-          aria-label="Periode de facturation"
+          aria-label="Billing period"
           data-o-period=""
           className="o-mb-6 o-border-w-1"
-          style={{ borderColor: FILET }}
+          style={{ borderColor: LINE }}
         >
           {[
-            { valeur: false, libelle: 'Mensuel' },
+            { value: false, label: 'Monthly' },
             {
-              valeur: true,
-              libelle: `Annuel −${String(Math.round(yearlyDiscount * 100))} %`,
+              value: true,
+              label: `Yearly −${String(Math.round(yearlyDiscount * 100))}%`,
             },
-          ].map((choix) => (
-            <label key={String(choix.valeur)}>
+          ].map((choice) => (
+            <label key={String(choice.value)}>
               <input
                 type="radio"
-                name={groupe}
-                checked={annuel === choix.valeur}
+                name={group}
+                checked={yearly === choice.value}
                 onChange={() => {
-                  setAnnuel(choix.valeur)
+                  setYearly(choice.value)
                 }}
               />
               <span
-                className={annuel === choix.valeur ? 'o-font-medium' : 'o-opacity-70'}
-                style={annuel === choix.valeur ? { backgroundColor: VOILE } : undefined}
+                className={yearly === choice.value ? 'o-font-medium' : 'o-opacity-70'}
+                style={yearly === choice.value ? { backgroundColor: VEIL } : undefined}
               >
-                {choix.libelle}
+                {choice.label}
               </span>
             </label>
           ))}
@@ -211,7 +211,7 @@ export function PricingTiers({
 
       <div data-o-pricing-grid="">
         {tiers.map((tier) => {
-          const prix = annuel ? tier.monthly * (1 - yearlyDiscount) : tier.monthly
+          const price = yearly ? tier.monthly * (1 - yearlyDiscount) : tier.monthly
 
           return (
             <article
@@ -221,7 +221,7 @@ export function PricingTiers({
                 'o-rounded-xl o-border-w-1 o-p-6',
                 tier.featured === true ? 'o-border-current o-shadow-lg' : '',
               ].join(' ')}
-              style={tier.featured === true ? undefined : { borderColor: FILET }}
+              style={tier.featured === true ? undefined : { borderColor: LINE }}
             >
               <h3 className="o-text-sm o-font-semibold o-uppercase o-tracking-wider">
                 {tier.name}
@@ -233,19 +233,19 @@ export function PricingTiers({
 
               <p className="o-mt-4 o-text-4xl o-font-bold o-tracking-tight">
                 <CountUp
-                  value={prix}
-                  // Au montage, pas a l'entree dans le champ : une bascule
-                  // provoque un nouveau comptage, et attendre un passage dans
-                  // le champ qui a deja eu lieu ne rendrait jamais la main.
-                  declenchement="montage"
+                  value={price}
+                  // On mount, not on entering the viewport: a toggle triggers a
+                  // new count, and waiting for an entry into the viewport that
+                  // has already happened would never hand back control.
+                  trigger="mount"
                   duration={520}
-                  decimals={Number.isInteger(prix) ? 0 : 2}
+                  decimals={Number.isInteger(price) ? 0 : 2}
                   prefix={currency}
                   suffix={suffix}
                   {...(locale === undefined ? {} : { locale })}
                 />
                 <span className="o-text-base o-font-normal o-opacity-60">
-                  {annuel ? ' / mois, facture a l année' : ' / mois'}
+                  {yearly ? ' / month, billed yearly' : ' / month'}
                 </span>
               </p>
 
@@ -264,17 +264,17 @@ export function PricingTiers({
                   'o-mt-6 o-w-full o-rounded-lg o-px-4 o-py-2 o-text-sm o-font-medium',
                   tier.featured === true ? '' : 'o-border-w-1',
                 ].join(' ')}
-                // `background-color: currentColor` sur un bouton dont on
-                // redefinit la couleur peint le fond de l encre : les deux
-                // valent alors la meme chose et le libelle disparait. Les deux
-                // roles sont donc nommes, chacun par son propre token.
+                // `background-color: currentColor` on a button whose color is
+                // redefined paints the background with the ink: both are then
+                // worth the same thing and the label vanishes. The two roles
+                // are therefore named, each by its own token.
                 style={
                   tier.featured === true
                     ? { backgroundColor: 'var(--o-theme-fg)', color: 'var(--o-theme-bg)' }
-                    : { borderColor: FILET }
+                    : { borderColor: LINE }
                 }
               >
-                {tier.cta ?? 'Choisir'}
+                {tier.cta ?? 'Choose'}
               </button>
             </article>
           )

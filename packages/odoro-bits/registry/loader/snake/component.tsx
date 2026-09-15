@@ -1,34 +1,33 @@
 /**
- * Serpent : quatre segments parcourent une grille de quatre par quatre en
- * zigzag, sans jamais se croiser.
+ * Snake: four segments walk a four by four grid in a zigzag, without ever
+ * crossing themselves.
  *
- * ## Rien ne se deplace, chaque case s'allume a son tour
+ * ## Nothing moves, each cell lights up in turn
  *
- * Deplacer un serpent de case en case demanderait de suivre sa tete en
- * JavaScript, ou une animation de position par segment. Ici les cases sont
- * fixes, et chacune joue la meme animation : allumee un quart du cycle,
- * eteinte le reste. Seule sa phase change, selon son rang sur le chemin.
- * Quatre cases consecutives sont donc allumees a tout instant — c'est le
- * serpent, et il avance sans que rien ne bouge.
+ * Moving a snake from cell to cell would require following its head in
+ * JavaScript, or one position animation per segment. Here the cells are fixed,
+ * and each one plays the same animation: lit for a quarter of the cycle, unlit
+ * for the rest. Only its phase changes, according to its rank along the path.
+ * Four consecutive cells are therefore lit at any moment — that is the snake,
+ * and it advances without anything moving.
  *
- * Le chemin est un zigzag, une ligne dans un sens, la suivante dans
- * l'autre : c'est le seul parcours d'une grille ou la case suivante touche
- * toujours la precedente, et donc le seul ou le serpent reste d'un tenant.
- * Un parcours en lecture — retour a la ligne compris — le couperait en deux
- * a chaque fin de ligne.
+ * The path is a zigzag, one row one way, the next the other: it is the only
+ * walk of a grid where the next cell always touches the previous one, and so
+ * the only one where the snake stays in one piece. A reading walk — line
+ * breaks included — would cut it in two at the end of every row.
  *
- * Les segments sont des carres, pas des points : un serpent est fait de
- * cases qui se touchent, et un rond laisse des vides entre les segments.
+ * The segments are squares, not dots: a snake is made of cells that touch, and
+ * a circle leaves gaps between the segments.
  *
- * ## Un statut, pas un dessin
+ * ## A status, not a drawing
  *
- * L'element porte `role="status"` et un libelle pour les lecteurs d'ecran :
- * l'attente est une information, pas une decoration. La grille est retiree
- * de l'arbre d'accessibilite.
+ * The element carries `role="status"` and a label for screen readers: waiting
+ * is information, not decoration. The grid is removed from the accessibility
+ * tree.
  *
- * Sous mouvement reduit, le serpent reste pose sur les quatre premieres
- * cases du chemin, la grille attenuee derriere lui : la figure se lit encore
- * comme un chargeur, seul le parcours s'arrete.
+ * Under reduced motion, the snake rests on the first four cells of the path,
+ * the grid dimmed behind it: the figure still reads as a loader, only the walk
+ * stops.
  *
  * @module
  */
@@ -36,19 +35,19 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-snake'
 
-/** Cote de la grille, en cases. */
+/** Side of the grid, in cells. */
 const SIDE = 4
 
-/** Nombre de cases, et donc de pas d'un parcours. */
+/** Number of cells, and so of steps in a walk. */
 const CELLS = SIDE * SIDE
 
-/** Longueur du serpent, en cases. */
+/** Length of the snake, in cells. */
 const LENGTH = 4
 
-/** Pose la grille et l'allumage des cases, une fois par document. */
+/** Sets up the grid and the lighting of the cells, once per document. */
 function ensureSnakeRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -67,15 +66,15 @@ function ensureSnakeRule(): void {
     'animation:o-snake-pass var(--o-snake-speed) steps(1,end) infinite;',
     'animation-delay:var(--o-snake-delay);',
     '}',
-    // Une case reste allumee un quart du cycle — la longueur du serpent sur
-    // seize cases — puis s'eteint d'un coup : `steps` evite tout fondu, un
-    // serpent ne s'estompe pas.
+    // A cell stays lit for a quarter of the cycle — the length of the snake
+    // over sixteen cells — then goes out at once: `steps` avoids any fade, a
+    // snake does not dim away.
     '@keyframes o-snake-pass{',
     '0%{opacity:1}',
     '25%,100%{opacity:0.12}',
     '}',
-    // Le serpent pose sur ses quatre premieres cases : la figure se lit
-    // encore, sans parcours.
+    // The snake resting on its first four cells: the figure still reads,
+    // without the walk.
     '@media (prefers-reduced-motion:reduce){',
     '[data-o-snake-cell]{animation:none;opacity:0.12}',
     '[data-o-snake-cell="rest"]{opacity:1}',
@@ -84,26 +83,26 @@ function ensureSnakeRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** Props of the component itself. */
 export interface SnakeOwnProps {
-  /** Cote d'un segment, en pixels. @defaultValue 7 */
+  /** Side of a segment, in pixels. @defaultValue 7 */
   size?: number
-  /** Duree d'un parcours complet de la grille, en millisecondes. @defaultValue 1600 */
+  /** Duration of a complete walk of the grid, in milliseconds. @defaultValue 1600 */
   speed?: number
-  /** Couleur des segments. @defaultValue la couleur du texte */
+  /** Colour of the segments. @defaultValue the text colour */
   color?: string
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */
+  /** Label announced to screen readers. @defaultValue 'Loading' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All the props. */
 export type SnakeProps = Customisable<SnakeOwnProps, 'span'>
 
 /**
- * Rang d'une case sur le chemin en zigzag.
+ * Rank of a cell along the zigzag path.
  *
- * Les lignes paires se lisent de gauche a droite, les impaires de droite a
- * gauche : la case qui suit la derniere d'une ligne est juste en dessous.
+ * Even rows read from left to right, odd ones from right to left: the cell
+ * following the last of a row is the one just below it.
  */
 function rank(index: number): number {
   const row = Math.floor(index / SIDE)
@@ -112,20 +111,20 @@ function rank(index: number): number {
 }
 
 /**
- * Signale une attente par un serpent qui parcourt une grille.
+ * Signals a wait through a snake walking a grid.
  *
  * @example
  * <Snake />
  *
  * @example
- * // Plus gros, plus lent, dans la teinte de marque.
+ * // Bigger, slower, in the brand hue.
  * <Snake size={12} speed={2400} color="var(--o-palette-brand-500)" />
  */
 export function Snake({
   size = 7,
   speed = 1600,
   color = 'currentColor',
-  label = 'Chargement',
+  label = 'Loading',
   ...rest
 }: SnakeProps): ReactElement {
   ensureSnakeRule()
@@ -157,9 +156,9 @@ export function Snake({
             data-o-snake-cell={step < LENGTH ? 'rest' : ''}
             style={
               {
-                // La premiere case du chemin a le plus d'avance, la derniere
-                // part de zero : la tete avance d'un rang par pas, en negatif
-                // pour que le serpent soit entier a la premiere image.
+                // The first cell of the path has the biggest head start, the
+                // last one starts from zero: the head advances by one rank per
+                // step, negative so that the snake is whole on the first frame.
                 '--o-snake-delay': `${String(Math.round((-speed * (CELLS - 1 - step)) / CELLS))}ms`,
               } as CSSProperties
             }

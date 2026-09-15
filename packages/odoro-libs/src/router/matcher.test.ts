@@ -15,41 +15,41 @@ beforeEach(() => {
 })
 
 describe('compilePattern', () => {
-  it('normalise le pattern avant compilation', () => {
+  it('normalizes the pattern before compiling it', () => {
     expect(compilePattern('users//:id/').regex.source).toBe(
       compilePattern('/users/:id').regex.source,
     )
   })
 
-  it('extrait les noms de parametres dans l ordre des segments', () => {
+  it('extracts the parameter names in the order of the segments', () => {
     expect(compilePattern('/org/:org/repo/:repo').paramNames).toEqual(['org', 'repo'])
   })
 
-  it('expose le parametre "*" pour un catch-all', () => {
+  it('exposes the "*" parameter for a catch-all', () => {
     const compiled = compilePattern('/docs/*')
     expect(compiled.paramNames).toEqual([CATCH_ALL_PARAM])
     expect(compiled.hasCatchAll).toBe(true)
   })
 
-  it('neutralise les caracteres speciaux des segments statiques', () => {
+  it('neutralizes the special characters of the static segments', () => {
     expect(matchPattern('/a.b', '/a.b')).not.toBeNull()
     expect(matchPattern('/a.b', '/axb')).toBeNull()
   })
 
-  it('refuse un catch-all qui n est pas en derniere position', () => {
-    expect(() => compilePattern('/docs/*/edit')).toThrow(/dernier segment/)
+  it('rejects a catch-all that is not in last position', () => {
+    expect(() => compilePattern('/docs/*/edit')).toThrow(/last segment/)
   })
 
-  it('refuse un parametre sans nom', () => {
-    expect(() => compilePattern('/users/:')).toThrow(/sans nom/)
+  it('rejects a parameter without a name', () => {
+    expect(() => compilePattern('/users/:')).toThrow(/without a name/)
   })
 
-  it('refuse un parametre declare deux fois', () => {
-    expect(() => compilePattern('/:id/:id')).toThrow(/plusieurs fois/)
+  it('rejects a parameter declared twice', () => {
+    expect(() => compilePattern('/:id/:id')).toThrow(/several times/)
   })
 
   describe('cache', () => {
-    it('ne compile un pattern qu une seule fois', () => {
+    it('compiles a pattern only once', () => {
       const first = compilePattern('/users/:id')
       const second = compilePattern('/users/:id')
       expect(second).toBe(first)
@@ -57,15 +57,15 @@ describe('compilePattern', () => {
       expect(patternCacheSize()).toBe(1)
     })
 
-    it('normalise la cle du cache pour ne pas dupliquer les entrees', () => {
+    it('normalizes the cache key so as not to duplicate the entries', () => {
       compilePattern('/users/:id')
       compilePattern('users/:id/')
-      // Deux ecritures differentes du meme pattern : deux entrees de cache,
-      // mais des expressions regulieres identiques.
+      // Two different spellings of the same pattern: two cache entries, but
+      // identical regular expressions.
       expect(patternCacheSize()).toBe(2)
     })
 
-    it('distingue le mode exact du mode prefixe', () => {
+    it('tells the exact mode apart from the prefix mode', () => {
       compilePattern('/users', true)
       compilePattern('/users', false)
       expect(patternCacheSize()).toBe(2)
@@ -73,76 +73,76 @@ describe('compilePattern', () => {
   })
 })
 
-describe('matchPattern — segments statiques', () => {
-  it('matche un chemin identique', () => {
+describe('matchPattern — static segments', () => {
+  it('matches an identical path', () => {
     expect(matchPattern('/about', '/about')?.params).toEqual({})
   })
 
-  it('tolere un slash final dans le chemin teste', () => {
+  it('tolerates a trailing slash in the tested path', () => {
     expect(matchPattern('/about', '/about/')).not.toBeNull()
   })
 
-  it('est insensible a la casse', () => {
+  it('is case insensitive', () => {
     expect(matchPattern('/About', '/about')).not.toBeNull()
   })
 
-  it('ne matche pas un prefixe en mode exact', () => {
+  it('does not match a prefix in exact mode', () => {
     expect(matchPattern('/about', '/about/team')).toBeNull()
   })
 
-  it('ne matche pas un segment partiel', () => {
+  it('does not match a partial segment', () => {
     expect(matchPattern('/user', '/users')).toBeNull()
   })
 
-  it('matche la racine', () => {
+  it('matches the root', () => {
     expect(matchPattern('/', '/')?.pathname).toBe('/')
     expect(matchPattern('/', '/about')).toBeNull()
   })
 })
 
-describe('matchPattern — segments dynamiques', () => {
-  it('capture un segment simple', () => {
+describe('matchPattern — dynamic segments', () => {
+  it('captures a simple segment', () => {
     expect(matchPattern('/users/:id', '/users/42')?.params).toEqual({ id: '42' })
   })
 
-  it('capture plusieurs segments', () => {
+  it('captures several segments', () => {
     expect(matchPattern('/:org/:repo', '/odoro/libs')?.params).toEqual({
       org: 'odoro',
       repo: 'libs',
     })
   })
 
-  it('exige la presence du segment', () => {
+  it('requires the segment to be present', () => {
     expect(matchPattern('/users/:id', '/users')).toBeNull()
   })
 
-  it('ne traverse pas les slashs', () => {
+  it('does not cross the slashes', () => {
     expect(matchPattern('/users/:id', '/users/42/edit')).toBeNull()
   })
 
-  it('decode les valeurs encodees', () => {
+  it('decodes the encoded values', () => {
     expect(matchPattern('/tags/:tag', '/tags/c%2B%2B')?.params).toEqual({ tag: 'c++' })
   })
 
-  it('conserve la valeur brute si le decodage echoue', () => {
+  it('keeps the raw value when the decoding fails', () => {
     expect(matchPattern('/tags/:tag', '/tags/100%')?.params).toEqual({ tag: '100%' })
   })
 })
 
-describe('matchPattern — segments optionnels', () => {
-  it('matche avec le segment present', () => {
+describe('matchPattern — optional segments', () => {
+  it('matches with the segment present', () => {
     expect(matchPattern('/blog/:slug?', '/blog/hello')?.params).toEqual({ slug: 'hello' })
   })
 
-  it('matche sans le segment', () => {
+  it('matches without the segment', () => {
     expect(matchPattern('/blog/:slug?', '/blog')?.params).toEqual({ slug: undefined })
   })
 
-  it('ne matche pas au dela du segment optionnel', () => {
+  it('does not match beyond the optional segment', () => {
     expect(matchPattern('/blog/:slug?', '/blog/a/b')).toBeNull()
   })
 
-  it('gere un optionnel suivi d un statique', () => {
+  it('handles an optional followed by a static', () => {
     expect(matchPattern('/blog/:slug?/edit', '/blog/hello/edit')?.params).toEqual({
       slug: 'hello',
     })
@@ -153,30 +153,30 @@ describe('matchPattern — segments optionnels', () => {
 })
 
 describe('matchPattern — catch-all', () => {
-  it('capture le reste du chemin', () => {
+  it('captures the rest of the path', () => {
     expect(matchPattern('/docs/*', '/docs/guide/intro')?.params).toEqual({
       '*': 'guide/intro',
     })
   })
 
-  it('matche le chemin nu, sans suite', () => {
+  it('matches the bare path, with no remainder', () => {
     const match = matchPattern('/docs/*', '/docs')
     expect(match).not.toBeNull()
     expect(match?.params['*']).toBeUndefined()
   })
 
-  it('capture une suite d un seul segment', () => {
+  it('captures a remainder of a single segment', () => {
     expect(matchPattern('/docs/*', '/docs/intro')?.params).toEqual({ '*': 'intro' })
   })
 
-  it('combine parametres et catch-all', () => {
+  it('combines parameters and catch-all', () => {
     expect(matchPattern('/:lang/docs/*', '/fr/docs/a/b')?.params).toEqual({
       lang: 'fr',
       '*': 'a/b',
     })
   })
 
-  it('utilise en racine, matche tout', () => {
+  it('matches everything when used at the root', () => {
     expect(matchPattern('/*', '/n-importe/quoi')?.params).toEqual({
       '*': 'n-importe/quoi',
     })
@@ -184,60 +184,60 @@ describe('matchPattern — catch-all', () => {
   })
 })
 
-describe('matchPattern — mode prefixe (routes parentes)', () => {
-  it('accepte un chemin plus long', () => {
+describe('matchPattern — prefix mode (parent routes)', () => {
+  it('accepts a longer path', () => {
     const match = matchPattern('/users', '/users/42', false)
     expect(match?.pathname).toBe('/users')
   })
 
-  it('ne coupe pas au milieu d un segment', () => {
+  it('does not cut in the middle of a segment', () => {
     expect(matchPattern('/user', '/users/42', false)).toBeNull()
   })
 
-  it('capture les parametres du prefixe', () => {
+  it('captures the parameters of the prefix', () => {
     expect(matchPattern('/users/:id', '/users/42/settings', false)?.params).toEqual({
       id: '42',
     })
   })
 
-  it('la racine consomme un chemin vide', () => {
+  it('the root consumes an empty path', () => {
     const match = matchPattern('/', '/users/42', false)
     expect(match?.pathname).toBe('/')
   })
 })
 
-describe('classement par specificite', () => {
-  it('classe statique avant dynamique avant catch-all', () => {
+describe('ranking by specificity', () => {
+  it('ranks static before dynamic before catch-all', () => {
     const sorted = ['/users/*', '/users/:id', '/users/me'].sort(comparePatternSpecificity)
     expect(sorted).toEqual(['/users/me', '/users/:id', '/users/*'])
   })
 
-  it('classe dynamique avant optionnel', () => {
+  it('ranks dynamic before optional', () => {
     const sorted = ['/blog/:slug?', '/blog/:slug'].sort(comparePatternSpecificity)
     expect(sorted).toEqual(['/blog/:slug', '/blog/:slug?'])
   })
 
-  it('compare de gauche a droite', () => {
+  it('compares from left to right', () => {
     const sorted = ['/:a/static', '/static/:b'].sort(comparePatternSpecificity)
     expect(sorted).toEqual(['/static/:b', '/:a/static'])
   })
 
-  it('privilegie le pattern qui s arrete sur un optionnel concurrent', () => {
+  it('favours the pattern that stops on a competing optional', () => {
     const sorted = ['/blog/:slug?', '/blog'].sort(comparePatternSpecificity)
     expect(sorted).toEqual(['/blog', '/blog/:slug?'])
   })
 
-  it('privilegie le pattern qui s arrete sur un catch-all concurrent', () => {
+  it('favours the pattern that stops on a competing catch-all', () => {
     const sorted = ['/docs/*', '/docs'].sort(comparePatternSpecificity)
     expect(sorted).toEqual(['/docs', '/docs/*'])
   })
 
-  it('ne departage pas des patterns statiques de profondeurs differentes', () => {
-    // Deux patterns entierement statiques de longueurs differentes ne peuvent
-    // jamais matcher le meme chemin : leur ordre relatif est sans effet sur la
-    // resolution. La regle appliquee ("un pattern qui s arrete decrit le
-    // chemin exactement") les classe donc du plus court au plus long, ce qui
-    // est arbitraire mais deterministe.
+  it('does not separate static patterns of different depths', () => {
+    // Two entirely static patterns of different lengths can never match the
+    // same path: their relative order has no effect on the resolution. The
+    // rule that is applied ("a pattern that stops describes the path exactly")
+    // therefore ranks them from the shortest to the longest, which is
+    // arbitrary but deterministic.
     const sorted = ['/a/b/c', '/a', '/a/b'].sort(comparePatternSpecificity)
     expect(sorted).toEqual(['/a', '/a/b', '/a/b/c'])
 
@@ -248,13 +248,13 @@ describe('classement par specificite', () => {
     expect(matching).toEqual(['/a/b'])
   })
 
-  it('retourne 0 pour deux patterns de meme forme, preservant l ordre declare', () => {
+  it('returns 0 for two patterns of the same shape, preserving the declared order', () => {
     expect(comparePatternSpecificity('/:a/:b', '/:x/:y')).toBe(0)
     const declared = ['/:x/:y', '/:a/:b']
     expect([...declared].sort(comparePatternSpecificity)).toEqual(declared)
   })
 
-  it('compareRanks traite une position absente comme la plus specifique', () => {
+  it('compareRanks treats a missing position as the most specific', () => {
     expect(compareRanks([4], [4, 1])).toBeLessThan(0)
     expect(compareRanks([4, 1], [4])).toBeGreaterThan(0)
     expect(compareRanks([4], [4])).toBe(0)

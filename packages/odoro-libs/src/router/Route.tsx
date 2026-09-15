@@ -1,5 +1,5 @@
 /**
- * Element declaratif de route.
+ * Declarative route element.
  *
  * @module
  */
@@ -8,25 +8,25 @@ import type { ReactNode } from 'react'
 
 import type { RouteLazyLoader } from './types.js'
 
-/** Proprietes de {@link Route}. */
+/** Props of {@link Route}. */
 export interface RouteProps {
-  /** Chemin relatif au parent. */
+  /** Path relative to the parent. */
   path?: string
-  /** Route index du parent. */
+  /** Index route of the parent. */
   index?: boolean
-  /** Element rendu pour cette route. */
+  /** Element rendered for this route. */
   element?: ReactNode
-  /** Chargement paresseux du composant de page. */
+  /** Lazy loading of the page component. */
   lazy?: RouteLazyLoader
-  /** Routes filles, rendues a l'emplacement de `<Outlet />`. */
+  /** Child routes, rendered at the location of `<Outlet />`. */
   children?: ReactNode
 }
 
 /**
- * Declare une route. Cet element n'est jamais rendu : `<Routes>` lit ses
- * proprietes pour construire l'arbre.
+ * Declares a route. This element is never rendered: `<Routes>` reads its
+ * props to build the tree.
  *
- * @throws {Error} S'il est rendu hors d'un `<Routes>`.
+ * @throws {Error} When it is rendered outside of a `<Routes>`.
  *
  * @example
  * <Route path="users" element={<Layout />}>
@@ -36,6 +36,6 @@ export interface RouteProps {
  */
 export function Route(_props: RouteProps): never {
   throw new Error(
-    '[odoro/router] <Route> ne peut etre utilise que comme enfant direct de <Routes> ou d un autre <Route>.',
+    '[odoro/router] <Route> can only be used as a direct child of <Routes> or of another <Route>.',
   )
 }

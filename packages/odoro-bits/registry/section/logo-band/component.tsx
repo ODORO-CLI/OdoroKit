@@ -1,22 +1,22 @@
 /**
- * Bandeau de logos.
+ * Logo band.
  *
- * ## Ce que cette section ajoute, et pourquoi c'est peu
+ * ## What this section adds, and why it is little
  *
- * Le defilement sans fin vient de `effect/marquee`. Cette section n'apporte
- * qu'une mise en page et un intitule — et c'est deliberement tout ce qu'elle
- * fait.
+ * The endless scrolling comes from `effect/marquee`. This section
+ * brings only a layout and a heading — and that is deliberately all
+ * that it does.
  *
- * Une section qui reimplementerait le defilement aurait deux versions de la
- * meme mecanique a maintenir, qui divergeraient au premier correctif. Le
- * registre resout la dependance et installe les deux : c'est exactement ce que
- * le graphe existe pour faire.
+ * A section that reimplemented the scrolling would have two versions of the
+ * same mechanism to maintain, which would diverge at the first fix. The
+ * registry resolves the dependency and installs both : that is exactly what
+ * the graph exists to do.
  *
- * ## L'intitule est un vrai titre
+ * ## The heading is a real title
  *
- * Une rangee de logos sans intitule ne dit rien a qui ne voit pas les images.
- * Le titre porte donc le sens — « ils nous font confiance », « integrations
- * disponibles » — et la rangee est decrite comme une liste.
+ * A row of logos with no heading says nothing to whoever does not see the
+ * images. The title therefore carries the meaning — "trusted by", "available
+ * integrations" — and the row is described as a list.
  *
  * @module
  */
@@ -26,26 +26,26 @@ import { Children, type ReactElement, type ReactNode } from 'react'
 
 import { Marquee } from '@registre/effect/Marquee'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface LogoBandOwnProps {
-  /** Les logos. */
+  /** The logos. */
   children: ReactNode
-  /** Intitule affiche au-dessus. */
+  /** Heading displayed above. */
   title?: ReactNode
-  /** Vitesse du defilement. @defaultValue 40 */
+  /** Speed of the scrolling. @defaultValue 40 */
   speed?: number
 }
 
-/** Toutes les proprietes. */
+/** All the properties. */
 export type LogoBandProps = Customisable<LogoBandOwnProps, 'section'>
 
 /**
- * Fait defiler une rangee de logos.
+ * Scrolls a row of logos.
  *
  * @example
- * <LogoBand title="Ils nous font confiance" speed={30}>
+ * <LogoBand title="Trusted by" speed={30}>
  *   {clients.map((client) => (
- *     <img key={client.nom} src={client.logo} alt={client.nom} className="o-h-8" />
+ *     <img key={client.name} src={client.logo} alt={client.name} className="o-h-8" />
  *   ))}
  * </LogoBand>
  */

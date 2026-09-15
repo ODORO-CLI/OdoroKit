@@ -35,7 +35,7 @@
 
 import { useMotionState } from '@odoro-cli/engine'
 import { Icon } from '@odoro-cli/icons'
-import { Anchor, ArrowDown, Phone } from '@odoro-cli/icons/filaire'
+import { Anchor, ArrowDown, Phone } from '@odoro-cli/icons/outline'
 import {
   useEffect,
   useMemo,

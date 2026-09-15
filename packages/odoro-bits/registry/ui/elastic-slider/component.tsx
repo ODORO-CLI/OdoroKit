@@ -1,34 +1,34 @@
 /**
- * Curseur elastique : le rail s'etire quand on tire au-dela de sa butee, et
- * revient en depassant un peu.
+ * Elastic slider: the track stretches when one pulls beyond its stop, and
+ * comes back overshooting a little.
  *
- * ## Le controle reste un `input[type=range]`
+ * ## The control stays an `input[type=range]`
  *
- * Tout ce que l'on voit est decoratif ; ce que l'on manipule est le champ
- * natif, pose par-dessus et rendu transparent. Un curseur refait en `div`
- * perd tout d'un coup : les fleches, Origine et Fin, la roulette, le pas, le
- * role et la valeur annoncee, le formulaire qui le lit. Aucun de ces points
- * ne se reecrit en quelques lignes, et l'oubli ne se voit pas a l'oeil.
+ * Everything one sees is decorative; what one handles is the native field,
+ * placed on top and made transparent. A slider rebuilt out of `div` loses
+ * everything at once: the arrow keys, Home and End, the wheel, the step, the
+ * role and the announced value, the form that reads it. None of those points
+ * can be rewritten in a few lines, and the omission is invisible to the eye.
  *
- * ## L'elasticite est une transformation, pas une largeur
+ * ## The elasticity is a transform, not a width
  *
- * Au-dela de la butee, le rail est etire par `scaleX` depuis le cote oppose :
- * la matiere resiste. Le facteur est ecrit directement sur l'element, sans
- * rendu React — un rendu par pixel de trajet serait le contraire de ce que
- * l'on cherche a faire sentir. Au lacher, la transformation est retiree : la
- * transition en courbe emphatique fait le retour, avec le leger depassement
- * qui donne le ressort.
+ * Beyond the stop, the track is stretched by `scaleX` from the opposite side:
+ * the material resists. The factor is written straight on the element, with no
+ * React render — one render per pixel travelled would be the opposite of what
+ * we are trying to make felt. On release, the transform is removed: the
+ * emphasized curve transition makes the return, with the slight overshoot that
+ * gives the spring.
  *
- * ## La resistance est bornee et non lineaire
+ * ## The resistance is bounded and non linear
  *
- * L'etirement suit une racine du depassement : les premiers pixels tirent
- * beaucoup, les suivants presque plus. Un rapport lineaire donnerait un rail
- * que l'on peut etirer indefiniment, ce qui ne ressemble a aucune matiere.
+ * The stretch follows a square root of the overshoot: the first pixels pull a
+ * lot, the following ones almost none. A linear relation would give a track
+ * one can stretch forever, which resembles no material at all.
  *
- * ## Mouvement reduit
+ * ## Reduced motion
  *
- * Aucun etirement : le rail reste a sa taille, c'est-a-dire a l'etat ou il
- * finit de toute facon.
+ * No stretch: the track stays at its size, that is to say at the state where
+ * it ends up anyway.
  *
  * @module
  */
@@ -43,39 +43,39 @@ import {
   type ReactNode,
 } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface ElasticSliderOwnProps {
-  /** Nom du curseur pour les lecteurs d'ecran. */
+  /** Name of the slider for screen readers. */
   label: string
-  /** Borne basse. @defaultValue 0 */
+  /** Lower bound. @defaultValue 0 */
   min?: number
-  /** Borne haute. @defaultValue 100 */
+  /** Upper bound. @defaultValue 100 */
   max?: number
-  /** Pas de la valeur. @defaultValue 1 */
+  /** Step of the value. @defaultValue 1 */
   step?: number
-  /** Valeur, en mode controle. */
+  /** Value, in controlled mode. */
   value?: number
-  /** Valeur au montage, en mode non controle. Par defaut, le milieu. */
+  /** Value on mount, in uncontrolled mode. By default, the middle. */
   defaultValue?: number
-  /** Appele a chaque changement de valeur. */
+  /** Called on every value change. */
   onChange?: (value: number) => void
-  /** Etirement maximal du rail, en part de sa largeur. @defaultValue 0.12 */
+  /** Maximum stretch of the track, as a share of its width. @defaultValue 0.12 */
   stretch?: number
-  /** Affiche la valeur a droite du rail. @defaultValue true */
+  /** Shows the value on the right of the track. @defaultValue true */
   showValue?: boolean
-  /** Element pose avant le rail, une icone par exemple. */
+  /** Element placed before the track, an icon for instance. */
   leading?: ReactNode
-  /** Neutralise le curseur. @defaultValue false */
+  /** Neutralizes the slider. @defaultValue false */
   disabled?: boolean
 }
 
-/** Toutes les proprietes. */
+/** All the properties. */
 export type ElasticSliderProps = Customisable<ElasticSliderOwnProps>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-elastic-slider'
 
-/** Pose le rail, la glissiere et le champ transparent, une fois par document. */
+/** Places the rail, the track and the transparent field, once per document. */
 function ensureSliderRules(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -92,7 +92,7 @@ function ensureSliderRules(): void {
     'transition:transform var(--o-duration-slow) var(--o-ease-emphasized),',
     'scale var(--o-duration-base) var(--o-ease-standard);',
     '}',
-    // Saisi, le rail s'epaissit : la matiere se tend avant de s'etirer.
+    // Once grabbed, the track thickens: the material tenses before stretching.
     '[data-o-eslider][data-o-eslider-grab] [data-o-eslider-track]{scale:1 1.6}',
     '[data-o-eslider-fill]{',
     'display:block;height:100%;width:calc(var(--o-eslider-ratio) * 100%);',
@@ -106,7 +106,7 @@ function ensureSliderRules(): void {
     'transition:scale var(--o-duration-base) var(--o-ease-emphasized);',
     '}',
     '[data-o-eslider][data-o-eslider-grab] [data-o-eslider-thumb]{scale:1.25}',
-    // Le vrai controle : transparent, par-dessus tout, et seul a recevoir le geste.
+    // The real control: transparent, above everything, and alone in taking the gesture.
     '[data-o-eslider-rail] input{',
     'position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;',
     'appearance:none;-webkit-appearance:none;background:transparent;cursor:pointer;',
@@ -123,14 +123,14 @@ function ensureSliderRules(): void {
 }
 
 /**
- * Curseur dont le rail s'etire au-dela des butees.
+ * Slider whose track stretches beyond the stops.
  *
  * @example
  * <ElasticSlider label="Volume" defaultValue={60} />
  *
  * @example
- * // Mode controle, avec une echelle a soi.
- * <ElasticSlider label="Duree" min={5} max={45} step={5} value={duree} onChange={setDuree} />
+ * // Controlled mode, with a scale of its own.
+ * <ElasticSlider label="Duration" min={5} max={45} step={5} value={duration} onChange={setDuration} />
  */
 export function ElasticSlider({
   label,
@@ -175,7 +175,7 @@ export function ElasticSlider({
         track.style.transform = ''
         return
       }
-      // Racine : les premiers pixels tirent beaucoup, les suivants presque plus.
+      // Square root: the first pixels pull a lot, the following ones almost none.
       const amount = Math.min(1, Math.sqrt(over / Math.max(1, rect.width)))
       track.style.transformOrigin = pointerX < rect.left ? 'right center' : 'left center'
       track.style.transform = `scaleX(${String(1 + amount * stretch)})`
@@ -189,7 +189,7 @@ export function ElasticSlider({
       window.removeEventListener('pointermove', onMove)
       window.removeEventListener('pointerup', finish)
       window.removeEventListener('pointercancel', finish)
-      // Retirer la transformation suffit : la transition fait le retour.
+      // Removing the transform is enough: the transition makes the return.
       if (trackRef.current !== null) trackRef.current.style.transform = ''
       setGrabbing(false)
     }

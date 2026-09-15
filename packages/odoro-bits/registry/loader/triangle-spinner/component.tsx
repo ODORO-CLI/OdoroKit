@@ -1,33 +1,33 @@
 /**
- * Triangle qui se trace : un triangle en trait se dessine sur sa piste
- * depuis le sommet, puis s'efface dans le meme sens.
+ * Self-drawing triangle: an outlined triangle draws itself along its track
+ * from the apex, then erases itself in the same direction.
  *
- * ## Un tiret aussi long que le perimetre
+ * ## A dash as long as the perimeter
  *
- * Le trait est un unique tiret, de la longueur exacte du perimetre, suivi
- * d'un vide de la meme longueur. Faire glisser ce motif le long du chemin
- * — par le decalage des tirets — revient a faire apparaitre le trait
- * depuis le sommet, puis a le faire disparaitre par le meme sommet une fois
- * complet. Le crayon ne revient jamais en arriere : la fin du trait rattrape
- * son debut. C'est ce qui distingue ce chargeur d'un anneau qui tourne :
- * ici, rien ne tourne, un trait se dessine.
+ * The stroke is a single dash, of exactly the length of the perimeter,
+ * followed by a gap of the same length. Sliding that pattern along the path —
+ * through the dash offset — amounts to making the stroke appear from the apex,
+ * then making it disappear through the same apex once complete. The pencil
+ * never goes back: the end of the stroke catches up with its start. That is
+ * what tells this loader apart from a spinning ring: here, nothing spins, a
+ * line draws itself.
  *
- * Le perimetre est calcule a partir des sommets, pas mesure sur le chemin :
- * il n'y a donc rien a lire dans le DOM apres le premier rendu, et le tiret
- * est exact des la premiere image.
+ * The perimeter is computed from the vertices, not measured on the path: there
+ * is therefore nothing to read from the DOM after the first render, and the
+ * dash is exact from the first frame.
  *
- * La piste attenuee sous le trait n'est pas un ornement : sans elle, un
- * triangle a demi trace n'est qu'un angle, et l'oeil ne sait pas ce qui va
- * venir.
+ * The dimmed track under the stroke is not an ornament: without it, a
+ * half-drawn triangle is nothing but an angle, and the eye does not know what
+ * is coming.
  *
- * ## Un statut, pas un dessin
+ * ## A status, not a drawing
  *
- * L'element porte `role="status"` et un libelle pour les lecteurs d'ecran :
- * l'attente est une information, pas une decoration. Le dessin est retire
- * de l'arbre d'accessibilite.
+ * The element carries `role="status"` and a label for screen readers: waiting
+ * is information, not decoration. The drawing is removed from the
+ * accessibility tree.
  *
- * Sous mouvement reduit, le triangle reste entierement trace : la figure se
- * lit encore comme un chargeur, seul le mouvement s'arrete.
+ * Under reduced motion, the triangle stays fully drawn: the figure still reads
+ * as a loader, only the movement stops.
  *
  * @module
  */
@@ -35,13 +35,13 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-triangle-spinner'
 
 /**
- * Sommets du triangle equilateral, pointe en haut, dans une vue de 100
- * unites. Le centre est celui du cercle circonscrit, un peu sous le milieu
- * de la vue pour que la figure paraisse centree.
+ * Vertices of the equilateral triangle, apex up, in a view of 100 units. The
+ * centre is that of the circumscribed circle, slightly below the middle of the
+ * view so that the figure looks centred.
  */
 const RADIUS = 42
 const VERTICES: ReadonlyArray<readonly [number, number]> = [0, 1, 2].map((index) => {
@@ -49,13 +49,13 @@ const VERTICES: ReadonlyArray<readonly [number, number]> = [0, 1, 2].map((index)
   return [50 + RADIUS * Math.cos(angle), 54 + RADIUS * Math.sin(angle)] as const
 })
 
-/** Le trace, du sommet dans le sens horaire. */
+/** The path, from the apex clockwise. */
 const PATH = `M ${VERTICES.map(([x, y]) => `${x.toFixed(2)} ${y.toFixed(2)}`).join(' L ')} Z`
 
-/** Le perimetre : trois fois le cote. */
+/** The perimeter: three times the side. */
 const PERIMETER = 3 * RADIUS * Math.sqrt(3)
 
-/** Pose le triangle et son trace, une fois par document. */
+/** Sets up the triangle and its drawing, once per document. */
 function ensureTriangleRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -69,8 +69,8 @@ function ensureTriangleRule(): void {
     '[data-o-triangle-stroke]{',
     'animation:o-triangle-spinner-draw var(--o-tri-speed) ease-in-out infinite;',
     '}',
-    // De « tout vide » a « tout plein » a « tout vide », dans le meme sens :
-    // le decalage parcourt deux perimetres et ne revient jamais en arriere.
+    // From "all empty" to "all full" to "all empty", in the same direction:
+    // the offset runs through two perimeters and never goes back.
     '@keyframes o-triangle-spinner-draw{',
     '0%{stroke-dashoffset:var(--o-tri-perimeter)}',
     '50%{stroke-dashoffset:0}',
@@ -83,31 +83,31 @@ function ensureTriangleRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** Props of the component itself. */
 export interface TriangleSpinnerOwnProps {
-  /** Largeur du triangle, en pixels. @defaultValue 44 */
+  /** Width of the triangle, in pixels. @defaultValue 44 */
   size?: number
-  /** Epaisseur du trait, en pixels. @defaultValue 4 */
+  /** Thickness of the stroke, in pixels. @defaultValue 4 */
   thickness?: number
-  /** Duree d'un cycle de trace et d'effacement, en millisecondes. @defaultValue 1800 */
+  /** Duration of one draw and erase cycle, in milliseconds. @defaultValue 1800 */
   speed?: number
-  /** Couleur du trait. @defaultValue la couleur du texte */
+  /** Colour of the stroke. @defaultValue the text colour */
   color?: string
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */
+  /** Label announced to screen readers. @defaultValue 'Loading' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All the props. */
 export type TriangleSpinnerProps = Customisable<TriangleSpinnerOwnProps, 'span'>
 
 /**
- * Signale une attente par un triangle qui se trace puis s'efface.
+ * Signals a wait through a triangle that draws then erases itself.
  *
  * @example
  * <TriangleSpinner />
  *
  * @example
- * // Un trait fin, plus lent, dans la teinte de marque.
+ * // A thin stroke, slower, in the brand hue.
  * <TriangleSpinner thickness={2} speed={2600} color="var(--o-palette-brand-500)" />
  */
 export function TriangleSpinner({
@@ -115,15 +115,15 @@ export function TriangleSpinner({
   thickness = 4,
   speed = 1800,
   color = 'currentColor',
-  label = 'Chargement',
+  label = 'Loading',
   ...rest
 }: TriangleSpinnerProps): ReactElement {
   ensureTriangleRule()
 
   const { className, style } = mergePresentation({}, rest)
 
-  // Le dessin vit dans une vue de 100 unites : l'epaisseur demandee en
-  // pixels est convertie pour que le trait garde sa mesure a toute taille.
+  // The drawing lives in a view of 100 units: the thickness asked for in
+  // pixels is converted so that the stroke keeps its measure at any size.
   const stroke = Math.min((thickness / size) * 100, 20)
 
   const loaderStyle = {

@@ -1,9 +1,9 @@
 /**
- * Ecrit sur disque les artefacts du systeme de style.
+ * Writes the artifacts of the style system to disk.
  *
- * Les fichiers produits sont versionnes : la suite de tests verifie qu'ils
- * correspondent bien aux tokens courants, et echoue si ce script n'a pas ete
- * relance apres une modification.
+ * The produced files are versioned: the test suite checks that they do match
+ * the current tokens, and fails if this script has not been run again after a
+ * change.
  *
  * @module
  */
@@ -17,23 +17,23 @@ import {
   renderBase,
   renderClassNamesModule,
   renderCss,
-} from '../src/styles/generateur.js'
+} from '../src/styles/generator.js'
 
 const HERE = dirname(fileURLToPath(import.meta.url))
 const OUT_DIR = join(HERE, '..', 'src', 'styles', 'generated')
 
 mkdirSync(OUT_DIR, { recursive: true })
-// Le socle, seul artefact livre : les utilitaires sont produits a la
-// construction de chaque application, pour les seules classes employees.
+// The base, the only shipped artifact: the utilities are produced when each
+// application is built, for the sole classes actually used.
 writeFileSync(join(OUT_DIR, 'odoro.base.css'), renderBase(), 'utf8')
 
-// Les feuilles entieres restent produites : la suite d essais les compare aux
-// tokens courants, et c est ce qui detecte une generation oubliee.
+// The whole stylesheets are still produced: the test suite compares them to
+// the current tokens, and that is what catches a forgotten generation.
 writeFileSync(join(OUT_DIR, 'odoro.css'), renderCss('core'), 'utf8')
 writeFileSync(join(OUT_DIR, 'odoro.full.css'), renderCss('full'), 'utf8')
 writeFileSync(join(OUT_DIR, 'classNames.ts'), renderClassNamesModule(), 'utf8')
 
-/** Taille d'un artefact, en kilo-octets, arrondie. */
+/** Size of an artifact, in kilobytes, rounded. */
 function sizeKb(file: string): string {
   return `${Math.round(statSync(join(OUT_DIR, file)).size / 1024)} Ko`
 }
@@ -43,7 +43,7 @@ const full = generate('full').classNames
 
 console.log(
   [
-    `[build-css] odoro.base.css ${sizeKb('odoro.base.css')} (livre)`,
+    `[build-css] odoro.base.css ${sizeKb('odoro.base.css')} (shipped)`,
     `[build-css] odoro.css      ${core.length} classes, ${sizeKb('odoro.css')}`,
     `[build-css] odoro.full.css ${full.length} classes, ${sizeKb('odoro.full.css')}`,
   ].join('\n'),

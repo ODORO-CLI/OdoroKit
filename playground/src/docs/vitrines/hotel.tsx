@@ -49,7 +49,7 @@
 
 import { useMotionState } from '@odoro-cli/engine'
 import { Icon } from '@odoro-cli/icons'
-import { Sun } from '@odoro-cli/icons/filaire'
+import { Sun } from '@odoro-cli/icons/outline'
 import { Stagger, useInView } from '@odoro-cli/libs/motion'
 import { Input, Select } from '@odoro-cli/libs/ui'
 import {

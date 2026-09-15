@@ -1,5 +1,5 @@
 /**
- * Pastille de texte.
+ * Text pill.
  *
  * @module
  */
@@ -8,19 +8,19 @@ import { type HTMLAttributes, type ReactElement, type ReactNode } from 'react'
 
 import { type ClassValue, cx } from '../styles/cx.js'
 
-/** Registre de couleur d'une pastille. */
+/** Color register of a pill. */
 export type BadgeTone =
   'neutral' | 'primary' | 'accent' | 'success' | 'warning' | 'danger' | 'info'
 
-/** Rendu d'une pastille. */
+/** Rendering of a pill. */
 export type BadgeVariant = 'soft' | 'solid' | 'outline'
 
-/** Taille d'une pastille. */
+/** Size of a pill. */
 export type BadgeSize = 'sm' | 'md'
 
 /**
- * Couleurs par rendu puis par registre. Le ton `neutral` n'a pas de couleur
- * semantique dediee : il s'appuie sur les gris de surface et de texte.
+ * Colors per rendering then per register. The `neutral` tone has no dedicated
+ * semantic color: it relies on the surface and text grays.
  */
 const TONE_CLASSES: Readonly<Record<BadgeVariant, Readonly<Record<BadgeTone, string>>>> =
   {
@@ -72,26 +72,26 @@ const BASE_CLASSES = cx(
   'o-rounded-full o-font-medium o-whitespace-nowrap o-select-none',
 )
 
-/** Options de {@link badgeClasses}. */
+/** Options of {@link badgeClasses}. */
 export interface BadgeClassesOptions {
-  /** Registre de couleur. @defaultValue 'neutral' */
+  /** Color register. @defaultValue 'neutral' */
   tone?: BadgeTone
-  /** Rendu. @defaultValue 'soft' */
+  /** Rendering. @defaultValue 'soft' */
   variant?: BadgeVariant
-  /** Taille. @defaultValue 'sm' */
+  /** Size. @defaultValue 'sm' */
   size?: BadgeSize
-  /** Classes additionnelles. */
+  /** Additional classes. */
   className?: ClassValue
 }
 
 /**
- * Classes de la pastille, exposees pour habiller un autre element inline.
+ * Pill classes, exposed to style another inline element.
  *
- * Fonction dediee plutot que table `variants()` : la couleur depend du couple
- * ton x rendu, une combinaison que le helper ne sait pas exprimer.
+ * A dedicated function rather than a `variants()` table: the color depends on
+ * the tone x rendering pair, a combination the helper cannot express.
  *
  * @example
- * <span className={badgeClasses({ tone: 'success', variant: 'solid' })}>Actif</span>
+ * <span className={badgeClasses({ tone: 'success', variant: 'solid' })}>Active</span>
  */
 export function badgeClasses({
   tone = 'neutral',
@@ -102,40 +102,40 @@ export function badgeClasses({
   return cx(BASE_CLASSES, TONE_CLASSES[variant][tone], SIZE_CLASSES[size], className)
 }
 
-/** Proprietes de {@link Badge}. */
+/** Properties of {@link Badge}. */
 export interface BadgeProps extends Omit<HTMLAttributes<HTMLSpanElement>, 'className'> {
-  /** Registre de couleur. @defaultValue 'neutral' */
+  /** Color register. @defaultValue 'neutral' */
   tone?: BadgeTone
   /**
-   * Rendu : `soft` pose le texte du ton sur son fond attenue, `solid` la
-   * couleur pleine, `outline` un simple lisere.
+   * Rendering: `soft` puts the tone text on its muted background, `solid` the
+   * full color, `outline` a plain hairline border.
    *
    * @defaultValue 'soft'
    */
   variant?: BadgeVariant
-  /** Taille. @defaultValue 'sm' */
+  /** Size. @defaultValue 'sm' */
   size?: BadgeSize
   /**
-   * Point colore devant le libelle. Il herite de la couleur du texte
-   * (`currentColor`) et reste donc assorti quel que soit le rendu.
+   * Colored dot in front of the label. It inherits the text color
+   * (`currentColor`) and therefore stays matched whatever the rendering.
    *
    * @defaultValue false
    */
   dot?: boolean
-  /** Libelle. */
+  /** Label. */
   children?: ReactNode
-  /** Classes additionnelles. */
+  /** Additional classes. */
   className?: string
 }
 
 /**
- * Pastille de statut ou d'etiquetage.
+ * Status or labelling pill.
  *
- * Purement visuelle : si la pastille est la seule porteuse d'une information
- * d'etat, l'appelant doit la doubler d'un texte accessible.
+ * Purely visual: if the pill is the only carrier of a piece of state
+ * information, the caller must back it with an accessible text.
  *
  * @example
- * <Badge tone="success" dot>Publie</Badge>
+ * <Badge tone="success" dot>Published</Badge>
  */
 export function Badge({
   tone = 'neutral',

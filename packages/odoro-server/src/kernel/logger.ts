@@ -1,31 +1,31 @@
 /**
- * Journalisation structurée, et expurgation.
+ * Structured logging, and redaction.
  *
- * ## La liste d'expurgation s'écrit avant le premier incident
+ * ## The redaction list is written before the first incident
  *
- * Un journal recueille ce qu'on lui donne. Donnez-lui une requête entière, et
- * il enregistrera l'en-tête `authorization`, le cookie de session, le mot de
- * passe du corps — puis les expédiera vers un agrégateur, où ils resteront
- * indexés et consultables aussi longtemps que la rétention le permet.
+ * A log collects what it is given. Give it a whole request, and
+ * it will record the `authorization` header, the session cookie, the
+ * password of the body — then ship them to an aggregator, where they will stay
+ * indexed and searchable as long as the retention allows.
  *
- * Le moment où l'on écrit cette liste décide de tout : après le premier
- * incident, il faut purger un historique, faire tourner tous les secrets
- * exposés, et prévenir. La liste est donc ici, complète, dès le premier
+ * The moment this list is written decides everything: after the first
+ * incident, one has to purge a history, rotate every exposed
+ * secret, and notify. The list is therefore here, complete, from the first
  * commit.
  *
- * Elle censure par **chemin**, ce que Pino fait nativement et efficacement. Un
- * filtrage écrit à la main s'oublie au premier journal ajouté ailleurs.
+ * It censors by **path**, which Pino does natively and efficiently. A
+ * filtering written by hand is forgotten on the first log added elsewhere.
  *
- * ## L'identifiant de corrélation
+ * ## The correlation identifier
  *
- * Une requête reçoit un identifiant, transmis en en-tête de réponse, présent
- * dans chaque ligne de journal qu'elle produit, et cité dans le document
- * d'erreur qu'elle rend. C'est ce qui permet de passer d'une capture d'écran
- * d'un utilisateur à la trace exacte, sans rien deviner.
+ * A request receives an identifier, sent back in a response header, present
+ * in every log line it produces, and quoted in the error
+ * document it gives. That is what makes it possible to go from a screenshot
+ * of a user to the exact trace, without guessing anything.
  *
- * Il est propagé par `AsyncLocalStorage` plutôt que passé en paramètre : sinon
- * chaque fonction du chemin d'appel devrait le porter, y compris celles qui ne
- * journalisent pas.
+ * It is propagated by `AsyncLocalStorage` rather than passed as a parameter: otherwise
+ * every function of the call path would have to carry it, including those that do
+ * not log.
  *
  * @module
  */
@@ -40,19 +40,19 @@ import { pino, type Logger as PinoLogger } from 'pino'
 import { CORRELATION_HEADER } from './http/errors.js'
 
 /**
- * Chemins censurés dans toute ligne de journal.
+ * Paths censored in every log line.
  *
- * Chacun a une raison d'être là, et aucun n'y est par excès de prudence :
+ * Each one has a reason to be there, and none is there out of excess of caution:
  *
- * - **en-têtes d'autorisation et cookies** — un jeton de session journalisé
- *   est un jeton utilisable par quiconque lit les journaux ;
- * - **mots de passe, y compris l'ancien et la confirmation** — le formulaire
- *   de changement en porte trois, et deux seulement sont évidents ;
- * - **jetons de réinitialisation et de vérification** — à usage unique, donc
- *   utilisables par le premier qui les lit dans un journal ;
- * - **secrets et clés d'API** — les nôtres comme ceux que l'on nous confie ;
- * - **numéros de carte et cryptogrammes** — leur présence dans un journal
- *   suffit à faire sortir tout le système du périmètre conforme.
+ * - **authorization headers and cookies** — a logged session token
+ *   is a token usable by whoever reads the logs;
+ * - **passwords, including the old one and the confirmation** — the change
+ *   form carries three, and only two are obvious;
+ * - **reset and verification tokens** — single use, therefore
+ *   usable by the first one who reads them in a log;
+ * - **secrets and API keys** — ours as well as those entrusted to us;
+ * - **card numbers and security codes** — their presence in a log
+ *   is enough to take the whole system out of the compliant perimeter.
  */
 export const REDACTED_PATHS = [
   'req.headers.authorization',
@@ -97,35 +97,35 @@ export const REDACTED_PATHS = [
   '*.cvv',
 ] as const
 
-/** Le journal, tel que le reste du code le voit. */
+/** The log, as the rest of the code sees it. */
 export type Logger = PinoLogger
 
-/** Options de {@link createLogger}. */
+/** Options of {@link createLogger}. */
 export interface LoggerOptions {
-  /** Seuil de journalisation. */
+  /** Logging threshold. */
   readonly level: string
   /**
-   * Mise en forme lisible plutôt que JSON.
+   * Readable formatting rather than JSON.
    *
-   * Réservée au développement : le JSON est ce qu'un agrégateur sait indexer,
-   * et la mise en forme lisible coûte un processus de transport.
+   * Reserved for development: JSON is what an aggregator knows how to index,
+   * and the readable formatting costs a transport process.
    *
-   * Le transport est une dépendance **optionnelle**. Absente, le journal
-   * retombe sur le JSON plutôt que d'empêcher le démarrage — un serveur de
-   * production laissé par erreur en `development` doit servir ses requêtes,
-   * pas mourir sur une question de mise en forme.
+   * The transport is an **optional** dependency. Absent, the log
+   * falls back on JSON rather than preventing the startup — a production
+   * server left in `development` by mistake must serve its requests,
+   * not die over a question of formatting.
    */
   readonly pretty?: boolean
-  /** Nom du service, présent dans chaque ligne. */
+  /** Name of the service, present in every line. */
   readonly name?: string
 }
 
 /**
- * Le transport de mise en forme est-il installé ?
+ * Is the formatting transport installed?
  *
- * Pino résout la cible au moment de construire le journal, et lève si elle
- * manque. La question se pose donc avant, une fois, plutôt qu'en rattrapant
- * une exception dont on ne saurait pas si elle vient de là.
+ * Pino resolves the target at the moment of building the log, and throws if it
+ * is missing. The question is therefore asked before, once, rather than by catching
+ * an exception one would not know whether it came from there.
  */
 function prettyAvailable(): boolean {
   try {
@@ -136,7 +136,7 @@ function prettyAvailable(): boolean {
   }
 }
 
-/** Ouvre un journal. */
+/** Opens a log. */
 export function createLogger(options: LoggerOptions): Logger {
   const { level, pretty = false, name = 'odoro' } = options
   const readable = pretty && prettyAvailable()
@@ -146,10 +146,10 @@ export function createLogger(options: LoggerOptions): Logger {
     level,
     redact: {
       paths: [...REDACTED_PATHS],
-      censor: '[expurge]',
+      censor: '[redacted]',
     },
-    // Le niveau en toutes lettres plutôt qu'en nombre : un journal se relit
-    // plus souvent qu'il ne se trie.
+    // The level spelled out rather than as a number: a log is read
+    // more often than it is sorted.
     formatters: { level: (label) => ({ level: label }) },
     timestamp: pino.stdTimeFunctions.isoTime,
     ...(readable
@@ -158,49 +158,49 @@ export function createLogger(options: LoggerOptions): Logger {
   })
 }
 
-/** Ce que le contexte d'une requête porte. */
+/** What the context of a request carries. */
 export interface RequestContext {
-  /** Identifiant de corrélation. */
+  /** Correlation identifier. */
   readonly correlationId: string
-  /** Journal enrichi de cet identifiant. */
+  /** Log enriched with this identifier. */
   readonly logger: Logger
 }
 
 /**
- * Le contexte de la requête en cours.
+ * The context of the request in progress.
  *
- * `AsyncLocalStorage` traverse les `await` et les rappels : une fonction
- * appelée à trois niveaux de profondeur y accède sans que les trois
- * intermédiaires aient à transporter quoi que ce soit.
+ * `AsyncLocalStorage` crosses the `await` and the callbacks: a function
+ * called three levels deep reaches it without the three
+ * intermediaries having to carry anything at all.
  */
 const storage = new AsyncLocalStorage<RequestContext>()
 
 /**
- * Le contexte de la requête courante, s'il y en a une.
+ * The context of the current request, if there is one.
  *
- * Rend `undefined` hors requête — dans un travail de file, une tâche planifiée
- * ou un script. C'est voulu : ces chemins ont leur propre journal, et un
- * identifiant de requête y serait un mensonge.
+ * Gives `undefined` outside a request — in a queue job, a scheduled task
+ * or a script. That is intended: these paths have their own log, and a
+ * request identifier would be a lie there.
  */
 export function currentContext(): RequestContext | undefined {
   return storage.getStore()
 }
 
 /**
- * Le journal de la requête courante, ou celui fourni en repli.
+ * The log of the current request, or the one supplied as a fallback.
  *
  * @example
- * log(fallback).info({ userId }, 'profil mis a jour')
+ * log(fallback).info({ userId }, 'profile updated')
  */
 export function log(fallback: Logger): Logger {
   return storage.getStore()?.logger ?? fallback
 }
 
 /**
- * Middleware ouvrant le contexte d'une requête.
+ * Middleware opening the context of a request.
  *
- * Il doit être posé **avant** tout ce qui journalise, sans quoi les premières
- * lignes sortent sans identifiant — et ce sont souvent celles qui comptent.
+ * It must be set **before** everything that logs, without which the first
+ * lines come out with no identifier — and those are often the ones that matter.
  */
 export function createRequestContext(logger: Logger) {
   return function requestContext(
@@ -208,8 +208,8 @@ export function createRequestContext(logger: Logger) {
     response: Response,
     next: NextFunction,
   ): void {
-    // Un identifiant venu de l'amont est conservé : derrière un répartiteur ou
-    // une passerelle, c'est lui qui relie notre trace à la sienne.
+    // An identifier coming from upstream is kept: behind a load balancer or
+    // a gateway, it is what ties our trace to its own.
     const correlationId = request.get(CORRELATION_HEADER) ?? randomUUID()
 
     request.headers[CORRELATION_HEADER] = correlationId
@@ -223,13 +223,13 @@ export function createRequestContext(logger: Logger) {
       child.info(
         {
           method: request.method,
-          // `route.path` plutot que l'URL : `/users/:id` se regroupe, alors
-          // que `/users/8f2c…` produit une serie de un.
+          // `route.path` rather than the URL: `/users/:id` groups, whereas
+          // `/users/8f2c…` produces a series of one.
           path: request.route?.path ?? request.path,
           status: response.statusCode,
           durationMs: Math.round(elapsed * 100) / 100,
         },
-        'requete',
+        'request',
       )
     })
 

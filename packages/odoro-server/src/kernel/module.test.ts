@@ -1,10 +1,10 @@
 /**
- * L'ordonnancement des modules.
+ * The ordering of the modules.
  *
- * Trois defauts doivent echouer au demarrage plutot qu'a la premiere requete :
- * une dependance absente, un cycle, et un module qui exige du moteur une
- * capacite qu'il n'a pas. Chacun se manifeste sinon a l'usage, sur un chemin
- * rare, avec un message qui ne dit pas d'ou il vient.
+ * Three flaws must fail at startup rather than on the first request:
+ * a missing dependency, a cycle, and a module that requires from the engine a
+ * capability it does not have. Each one shows up otherwise on use, on a
+ * rare path, with a message that does not say where it comes from.
  *
  * @module
  */
@@ -14,98 +14,98 @@ import { describe, expect, it } from 'vitest'
 import { ModuleError, assertCapabilities, defineModule, orderModules } from './module.js'
 import { findOpenMutations, type RouteDefinition } from './http/route.js'
 
-/** Un module reduit a son nom et a ses dependances. */
+/** A module reduced to its name and to its dependencies. */
 function mod(name: string, requires: readonly string[] = []) {
   return defineModule({ name, requires }) as never
 }
 
-describe('ordre de chargement', () => {
-  it('place une dependance avant celui qui la requiert', () => {
-    const ordre = orderModules([mod('account', ['auth']), mod('auth')])
-    expect(ordre.map((m) => m.name)).toEqual(['auth', 'account'])
+describe('loading order', () => {
+  it('places a dependency before the one that requires it', () => {
+    const order = orderModules([mod('account', ['auth']), mod('auth')])
+    expect(order.map((m) => m.name)).toEqual(['auth', 'account'])
   })
 
-  it('resout une chaine complete', () => {
-    const ordre = orderModules([
+  it('resolves a complete chain', () => {
+    const order = orderModules([
       mod('notifications', ['account']),
       mod('account', ['auth']),
       mod('auth'),
     ])
-    expect(ordre.map((m) => m.name)).toEqual(['auth', 'account', 'notifications'])
+    expect(order.map((m) => m.name)).toEqual(['auth', 'account', 'notifications'])
   })
 
-  it('accepte un losange', () => {
-    // `audit` atteint deux fois par des chemins differents n'est pas un cycle,
-    // et c'est la distinction que le troisieme etat du parcours permet.
-    const ordre = orderModules([
+  it('accepts a diamond', () => {
+    // `audit` reached twice by different paths is not a cycle,
+    // and it is that distinction the third state of the traversal allows.
+    const order = orderModules([
       mod('account', ['audit']),
       mod('files', ['audit']),
       mod('audit'),
     ]).map((m) => m.name)
 
-    expect(ordre.indexOf('audit')).toBeLessThan(ordre.indexOf('account'))
-    expect(ordre.indexOf('audit')).toBeLessThan(ordre.indexOf('files'))
-    expect(ordre).toHaveLength(3)
+    expect(order.indexOf('audit')).toBeLessThan(order.indexOf('account'))
+    expect(order.indexOf('audit')).toBeLessThan(order.indexOf('files'))
+    expect(order).toHaveLength(3)
   })
 
-  it('produit le meme ordre a chaque appel', () => {
-    // Un ordre qui varie rend irreproductible tout defaut qui en depend.
+  it('produces the same order on each call', () => {
+    // An order that varies makes irreproducible any flaw that depends on it.
     const modules = [mod('c', ['a', 'b']), mod('b', ['a']), mod('a')]
-    const premier = orderModules(modules).map((m) => m.name)
+    const first = orderModules(modules).map((m) => m.name)
     const second = orderModules(modules).map((m) => m.name)
-    expect(premier).toEqual(second)
+    expect(first).toEqual(second)
   })
 })
 
-describe('refus au demarrage', () => {
-  it('nomme la dependance absente et ce qui est active', () => {
+describe('refusal at startup', () => {
+  it('names the absent dependency and what is enabled', () => {
     expect(() => orderModules([mod('account', ['auth'])])).toThrow(
-      /"account" requiert "auth", qui n'est pas active/,
+      /"account" requires "auth", which is not enabled/,
     )
   })
 
-  it('montre le chemin d un cycle', () => {
+  it('shows the path of a cycle', () => {
     expect(() =>
       orderModules([mod('a', ['b']), mod('b', ['c']), mod('c', ['a'])]),
-    ).toThrow(/Cycle entre modules : a -> b -> c -> a/)
+    ).toThrow(/Cycle between modules: a -> b -> c -> a/)
   })
 
-  it('refuse deux modules de meme nom', () => {
+  it('refuses two modules with the same name', () => {
     expect(() => orderModules([mod('auth'), mod('auth')])).toThrow(
-      /Deux modules portent le nom "auth"/,
+      /Two modules bear the name "auth"/,
     )
   })
 
-  it('leve une ModuleError et non une erreur generique', () => {
-    expect(() => orderModules([mod('a', ['inconnu'])])).toThrow(ModuleError)
+  it('throws a ModuleError and not a generic error', () => {
+    expect(() => orderModules([mod('a', ['unknown'])])).toThrow(ModuleError)
   })
 })
 
-describe('capacites du moteur', () => {
-  const recherche = defineModule({
-    name: 'recherche',
+describe('capabilities of the engine', () => {
+  const search = defineModule({
+    name: 'search',
     requiresCapabilities: ['fullText', 'jsonb'],
   }) as never
 
-  it('laisse passer quand le dialecte les offre', () => {
+  it('lets through when the dialect offers them', () => {
     expect(() =>
-      assertCapabilities([recherche], { fullText: true, jsonb: true }, 'postgres'),
+      assertCapabilities([search], { fullText: true, jsonb: true }, 'postgres'),
     ).not.toThrow()
   })
 
-  it('nomme le module, la capacite et le dialecte', () => {
-    // Les trois sont necessaires : sans le module on ne sait pas quoi
-    // desactiver, sans la capacite on ne sait pas pourquoi, et sans le
-    // dialecte on ne sait pas s'il faut changer de moteur.
+  it('names the module, the capability and the dialect', () => {
+    // All three are needed: without the module one does not know what to
+    // disable, without the capability one does not know why, and without the
+    // dialect one does not know whether the engine must be changed.
     expect(() =>
-      assertCapabilities([recherche], { fullText: false, jsonb: true }, 'sqlite'),
-    ).toThrow(/"recherche".*"fullText".*sqlite/s)
+      assertCapabilities([search], { fullText: false, jsonb: true }, 'sqlite'),
+    ).toThrow(/"search".*"fullText".*sqlite/s)
   })
 
-  it('rapporte toutes les capacites manquantes', () => {
+  it('reports every missing capability', () => {
     try {
-      assertCapabilities([recherche], {}, 'sqlite')
-      expect.unreachable('les capacites auraient du etre refusees')
+      assertCapabilities([search], {}, 'sqlite')
+      expect.unreachable('the capabilities should have been refused')
     } catch (error) {
       expect((error as Error).message).toContain('fullText')
       expect((error as Error).message).toContain('jsonb')
@@ -113,8 +113,8 @@ describe('capacites du moteur', () => {
   })
 })
 
-describe('routes mutatives publiques', () => {
-  /** Une route reduite a ce que l'inspection regarde. */
+describe('public mutating routes', () => {
+  /** A route reduced to what the inspection looks at. */
   const r = (
     name: string,
     method: RouteDefinition['method'],
@@ -129,22 +129,22 @@ describe('routes mutatives publiques', () => {
     handler: () => undefined,
   })
 
-  it('signale une route mutative laissee publique', () => {
-    // Le defaut que cette inspection existe pour attraper : ces routes ne se
-    // distinguent des autres que par l'absence d'un champ, et se cherchent
-    // donc a l'oeil sans jamais se trouver.
-    const trouvees = findOpenMutations([
+  it('reports a mutating route left public', () => {
+    // The flaw this inspection exists to catch: these routes only
+    // differ from the others by the absence of a field, and are therefore looked for
+    // by eye without ever being found.
+    const found = findOpenMutations([
       r('account.delete', 'DELETE', 'public'),
       r('account.read', 'GET', 'public'),
       r('account.update', 'PATCH', 'required'),
     ])
 
-    expect(trouvees.map((route) => route.name)).toEqual(['account.delete'])
+    expect(found.map((route) => route.name)).toEqual(['account.delete'])
   })
 
-  it('ne signale pas une route publique qui declare une politique', () => {
-    // Une inscription ou une demande de reinitialisation sont legitimement
-    // publiques et mutatives : la politique declaree dit que c'est voulu.
+  it('does not report a public route that declares a policy', () => {
+    // A sign-up or a reset request are legitimately
+    // public and mutating: the declared policy says it is intended.
     expect(
       findOpenMutations([r('auth.register', 'POST', 'public', 'auth.register')]),
     ).toEqual([])

@@ -1,29 +1,29 @@
 /**
- * Vague hexagonale : un nid d'abeille dont les alveoles s'allument en vague
- * depuis le pointeur.
+ * Hexagonal wave: a honeycomb whose cells light up in a wave spreading from
+ * the pointer.
  *
- * ## A quoi ce fond reagit
+ * ## What this background reacts to
  *
- * Au deplacement du pointeur, avec amortissement : la source de la vague
- * rattrape le curseur en douceur, et les alveoles s'allument en cercles qui
- * s'en eloignent. A la sortie du cadre, le hook ramene la cible au centre
- * et la vague y revient.
+ * To pointer movement, with damping: the source of the wave catches up with
+ * the cursor gently, and the cells light up in circles moving away from it.
+ * When the pointer leaves the frame, the hook brings the target back to the
+ * centre and the wave returns there.
  *
- * Ce qui distingue cette entree de `hex` : la, chaque alveole pulse a son
- * rythme, sans direction ni pointeur ; ici toutes obeissent a une seule
- * vague, et chacune s'allume d'un bloc parce que la vague est evaluee en
- * son centre.
+ * What sets this entry apart from `hex`: there, each cell pulses at its own
+ * rhythm, with no direction and no pointer; here they all obey a single
+ * wave, and each one lights up as a single block because the wave is
+ * evaluated at its centre.
  *
- * ## Le pont pointeur → shader
+ * ## The pointer → shader bridge
  *
- * Aucun rendu React par image : le composant mute en place un tableau stable
- * passe en uniform, et la surface relit ses uniforms a chaque image. La
- * recopie se fait dans la boucle du moteur, en priorite d'entree.
+ * No React render per frame: the component mutates a stable array in place
+ * passed as a uniform, and the surface re-reads its uniforms every frame. The
+ * copy happens inside the engine loop, at input priority.
  *
- * ## Sous mouvement reduit
+ * ## Under reduced motion
  *
- * La surface est refusee par le moteur et le repli statique s'affiche : le
- * suivi du pointeur est un agrement, pas un contenu.
+ * The surface is refused by the engine and the static fallback shows: the
+ * pointer tracking is a nicety, not content.
  *
  * @module
  */
@@ -44,47 +44,47 @@ import { usePointerDamped } from '@registre/hooks/usePointerDamped'
 
 import { HEX_WAVE_FRAGMENT } from './hex-wave.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface HexWaveControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to this component. */
 export interface HexWaveOwnProps {
-  /** Alveoles par hauteur de cadre. Borne a quarante par le shader. @defaultValue 9 */
+  /** Cells per frame height. Capped at forty by the shader. @defaultValue 9 */
   size?: number
-  /** Vitesse de la vague. @defaultValue 0.6 */
+  /** Wave speed. @defaultValue 0.6 */
   speed?: number
-  /** Vagues par hauteur de cadre. @defaultValue 3 */
+  /** Waves per frame height. @defaultValue 3 */
   spacing?: number
-  /** Vitesse d'extinction avec la distance. @defaultValue 2.5 */
+  /** Fade-out speed with distance. @defaultValue 2.5 */
   fade?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<HexWaveControls>
 }
 
-/** Toutes les proprietes. */
+/** Every property. */
 export type HexWaveProps = Customisable<HexWaveOwnProps>
 
-/** Tokens employes par defaut : le fond, les aretes, les alveoles allumees. */
+/** Tokens used by default: the background, the edges, the lit cells. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-theme-line',
   '--o-palette-amber-400',
 ] as const
 
-/** Repli par defaut : une teinte figee, dans les memes tons. */
+/** Default fallback: a frozen hue, in the same tones. */
 const DEFAULT_FALLBACK = 'o-bg-zinc-50 dark:o-bg-zinc-950'
 
 /**
- * Vague hexagonale.
+ * Hexagonal wave.
  *
  * @example
  * <div className="o-relative o-min-h-screen">
@@ -104,25 +104,25 @@ export function HexWave({
 }: HexWaveProps): ReactElement {
   const [host, setHost] = useState<HTMLDivElement | null>(null)
 
-  // Tableau stable, mute en place : la surface relit les uniforms a chaque
-  // image, l'identite ne change pas, la mutation suffit — aucun setState.
+  // Stable array, mutated in place: the surface re-reads the uniforms every
+  // frame, the identity never changes, mutating is enough — no setState.
   const uPointer = useRef<number[]>([0.5, 0.5]).current
 
   const pointer = usePointerDamped({
     host,
     speed: 3,
-    name: 'vague hexagonale : pointeur',
+    name: 'hex wave : pointer',
   })
 
   useEffect(() => {
     const subscription = clock.subscribe(
       () => {
-        // Du repere du hook (centre, y vers le bas) vers celui de la texture
-        // (coin bas-gauche, y vers le haut).
+        // From the hook's frame (centred, y downwards) to the texture's frame
+        // (bottom-left corner, y upwards).
         uPointer[0] = (pointer.current.x + 1) / 2
         uPointer[1] = 1 - (pointer.current.y + 1) / 2
       },
-      { priority: CLOCK_PRIORITY.input, name: 'vague hexagonale : pont' },
+      { priority: CLOCK_PRIORITY.input, name: 'hex wave : bridge' },
     )
     return () => subscription.unsubscribe()
   }, [pointer, uPointer])
@@ -138,8 +138,8 @@ export function HexWave({
     colors,
     uniforms: { uPointer, uSize: size, uSpeed: speed, uSpacing: spacing, uFade: fade },
     name: 'hex-wave',
-    // Des alveoles petites scintillent sur leurs aretes a densite de
-    // pixels reduite : en qualite basse, elles s'elargissent.
+    // Small cells shimmer along their edges at reduced pixel density: on
+    // low quality, they widen.
     degrade: (quality) => ({
       uSize: quality === 'low' ? Math.min(size, 6) : size,
     }),

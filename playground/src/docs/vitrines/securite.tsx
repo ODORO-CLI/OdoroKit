@@ -68,7 +68,7 @@ import {
   Scale,
   ShieldCheck,
   Timer,
-} from '@odoro-cli/icons/filaire'
+} from '@odoro-cli/icons/outline'
 import { Button, Input, Select, Textarea } from '@odoro-cli/libs/ui'
 import { useMotionState } from '@odoro-cli/engine'
 import {

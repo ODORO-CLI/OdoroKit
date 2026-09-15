@@ -1,12 +1,12 @@
 import { defineConfig } from 'tsup'
 
 /**
- * Le binaire est telecharge a chaque `npm create odoro` : son poids compte.
+ * The binary is downloaded on every `npm create odoro`: its weight counts.
  *
- * esbuild est laisse externe — c'est un binaire natif, il ne se bundle pas.
- * La bibliotheque de validation, elle, est **integree** plutot que declaree en
- * dependance : installee, elle pese pres de six megaoctets, alors que la
- * surface reellement employee en represente une fraction infime.
+ * esbuild is left external — it is a native binary, it does not bundle.
+ * The validation library, for its part, is **inlined** rather than declared as
+ * a dependency: installed, it weighs close to six megabytes, while the surface
+ * actually used is a tiny fraction of that.
  */
 export default defineConfig({
   entry: {

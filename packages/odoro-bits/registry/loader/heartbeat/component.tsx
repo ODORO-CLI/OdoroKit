@@ -1,34 +1,33 @@
 /**
- * Coeur qui bat : un coeur se gonfle deux fois de suite, se repose, et
- * laisse partir une onde a chaque battement.
+ * Beating heart: a heart swells twice in a row, rests, and lets a wave
+ * leave with every beat.
  *
- * ## Un battement en fait deux
+ * ## One beat is really two
  *
- * Un coeur ne pulse pas comme une lampe. Chaque battement est un couple —
- * le « boum-boum » d'un stethoscope — : une contraction franche, une
- * seconde plus courte, puis un repos qui dure plus que les deux reunies.
- * Ce sont les proportions posees ici, image cle par image cle : deux
- * gonflements en `ease-out` — brusques au depart, amortis a l'arrivee,
- * comme une contraction — et deux retours en `ease-in`, puis plus rien
- * jusqu'a la fin du cycle. Une pulsation reguliere en `ease-in-out`
- * donnerait un ballon qui respire, pas un coeur.
+ * A heart does not pulse like a lamp. Every beat is a pair — the "lub-dub"
+ * of a stethoscope —: one decided contraction, a shorter second one, then a
+ * rest that lasts longer than the two together. Those are the proportions
+ * set here, keyframe by keyframe: two swells in `ease-out` — abrupt on
+ * departure, damped on arrival, like a contraction — and two returns in
+ * `ease-in`, then nothing at all until the end of the cycle. A regular
+ * pulse in `ease-in-out` would give a balloon that breathes, not a heart.
  *
- * L'onde est un second coeur en trait, qui part de la taille du premier au
- * moment de la contraction et s'elargit en s'effacant. Elle sert a lire le
- * battement de loin, quand le gonflement lui-meme est trop petit pour etre
- * vu.
+ * The wave is a second heart in stroke, which leaves at the size of the
+ * first at the moment of the contraction and widens as it fades. It serves
+ * to read the beat from afar, when the swell itself is too small to be
+ * seen.
  *
- * Deux animations sur des elements SVG, tenues par le compositeur, aucun
- * JavaScript apres le premier rendu.
+ * Two animations on SVG elements, held by the compositor, no JavaScript
+ * after the first render.
  *
- * ## Un statut, pas un dessin
+ * ## A status, not a drawing
  *
- * L'element porte `role="status"` et un libelle pour les lecteurs d'ecran :
- * l'attente est une information, pas une decoration. Le coeur est retire de
- * l'arbre d'accessibilite.
+ * The element carries `role="status"` and a label for screen readers: the
+ * wait is information, not decoration. The heart is removed from the
+ * accessibility tree.
  *
- * Sous mouvement reduit, le coeur est plein, a sa taille de repos, sans
- * onde : la figure se lit encore, seul le battement s'arrete.
+ * Under reduced motion, the heart is solid, at its resting size, with no
+ * wave: the figure still reads, only the beat stops.
  *
  * @module
  */
@@ -36,14 +35,14 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-heartbeat'
 
-/** Le coeur, deux lobes et une pointe, centre sur la vue. */
+/** The heart, two lobes and a tip, centered on the view box. */
 const HEART =
   'M 50 86 C 22 64, 8 48, 8 32 C 8 19, 19 10, 30 10 C 39 10, 47 16, 50 25 C 53 16, 61 10, 70 10 C 81 10, 92 19, 92 32 C 92 48, 78 64, 50 86 Z'
 
-/** Pose le coeur, son double battement et son onde, une fois par document. */
+/** Applies the heart, its double beat and its wave, once per document. */
 function ensureHeartRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -59,7 +58,7 @@ function ensureHeartRule(): void {
     '}',
     '[data-o-heart]{animation-name:o-heartbeat-beat}',
     '[data-o-heart-wave]{opacity:0;animation-name:o-heartbeat-wave}',
-    // Deux contractions, la seconde plus courte, puis le repos.
+    // Two contractions, the second one shorter, then the rest.
     '@keyframes o-heartbeat-beat{',
     '0%{transform:scale(1);animation-timing-function:ease-out}',
     '10%{transform:scale(1.16);animation-timing-function:ease-in}',
@@ -67,13 +66,13 @@ function ensureHeartRule(): void {
     '32%{transform:scale(1.1);animation-timing-function:ease-in}',
     '46%,100%{transform:scale(1)}',
     '}',
-    // L'onde part avec la premiere contraction et s'eteint en s'elargissant.
+    // The wave leaves with the first contraction and fades as it widens.
     '@keyframes o-heartbeat-wave{',
     '0%,4%{transform:scale(1);opacity:0;animation-timing-function:ease-out}',
     '10%{transform:scale(1.12);opacity:0.55;animation-timing-function:ease-out}',
     '62%,100%{transform:scale(1.7);opacity:0}',
     '}',
-    // Un coeur plein a sa taille de repos : la figure est dite, sans battre.
+    // A solid heart at its resting size: the figure is stated, without beating.
     '@media (prefers-reduced-motion:reduce){',
     '[data-o-heart],[data-o-heart-wave]{animation:none;transform:none}',
     '}',
@@ -81,36 +80,36 @@ function ensureHeartRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface HeartbeatOwnProps {
-  /** Largeur du coeur, en pixels. @defaultValue 40 */
+  /** Width of the heart, in pixels. @defaultValue 40 */
   size?: number
-  /** Duree d'un cycle, double battement et repos compris, en millisecondes. @defaultValue 1200 */
+  /** Duration of a cycle, double beat and rest included, in milliseconds. @defaultValue 1200 */
   speed?: number
-  /** Couleur du coeur et de l'onde. @defaultValue la couleur du texte */
+  /** Color of the heart and of the wave. @defaultValue the text color */
   color?: string
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */
+  /** Label announced to screen readers. @defaultValue 'Loading' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All the properties. */
 export type HeartbeatProps = Customisable<HeartbeatOwnProps, 'span'>
 
 /**
- * Signale une attente par un coeur qui bat.
+ * Signals a wait with a beating heart.
  *
  * @example
  * <Heartbeat />
  *
  * @example
- * // Plus grand, plus calme, dans la teinte de marque.
+ * // Bigger, calmer, in the brand hue.
  * <Heartbeat size={64} speed={1800} color="var(--o-palette-brand-500)" />
  */
 export function Heartbeat({
   size = 40,
   speed = 1200,
   color = 'currentColor',
-  label = 'Chargement',
+  label = 'Loading',
   ...rest
 }: HeartbeatProps): ReactElement {
   ensureHeartRule()

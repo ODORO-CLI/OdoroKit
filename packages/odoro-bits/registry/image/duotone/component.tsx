@@ -1,33 +1,31 @@
 /**
- * Bichromie : l'image est rendue en deux tons, et revient en couleurs au
- * survol.
+ * Duotone: the image is rendered in two tones, and comes back in colour on
+ * hover.
  *
- * ## Deux calques de teinte sur une image desaturee
+ * ## Two tint layers over a desaturated image
  *
- * L'image passe d'abord en niveaux de gris, avec un contraste legerement
- * releve — une bichromie sur une image molle donne deux tons gris. Au-dessus,
- * deux calques de couleur pleins font le travail :
+ * The image first goes to greyscale, with slightly raised contrast — a duotone
+ * over a flat image gives two grey tones. Above it, two solid colour layers do
+ * the work:
  *
- * - un calque **ombre** en `mix-blend-mode: screen` releve les noirs vers le
- *   ton sombre choisi — l'eclaircissement n'agit que sur les zones sombres ;
- * - un calque **lumiere** en `mix-blend-mode: multiply` rabat les blancs vers
- *   le ton clair — l'assombrissement n'agit que sur les zones claires.
+ * - a **shadow** layer in `mix-blend-mode: screen` lifts the blacks towards
+ *   the chosen dark tone — lightening only acts on the dark areas;
+ * - a **light** layer in `mix-blend-mode: multiply` pulls the whites towards
+ *   the light tone — darkening only acts on the light areas.
  *
- * Aucun traitement d'image, aucune copie : deux `div` pleins et le
- * compositeur.
+ * No image processing, no copy: two solid `div`s and the compositor.
  *
- * ## Le retour en couleurs est une transition, pas un remplacement
+ * ## The return to colour is a transition, not a replacement
  *
- * Au survol ou au focus, le filtre de l'image tombe et les calques
- * s'eteignent — deux proprietes animables, `filter` et `opacity`, la ou un
- * `mix-blend-mode` ne s'anime pas. L'interrupteur `hover` desactive ce
- * retour pour une bichromie permanente.
+ * On hover or on focus, the filter on the image drops and the layers go out —
+ * two animatable properties, `filter` and `opacity`, where a `mix-blend-mode`
+ * does not animate. The `hover` switch disables that return for a permanent
+ * duotone.
  *
- * ## Sous mouvement reduit
+ * ## Under reduced motion
  *
- * La bichromie et son retour en couleurs restent : c'est un changement
- * d'etat, pas un mouvement. Seule la transition disparait — le passage est
- * instantane.
+ * The duotone and its return to colour remain: this is a change of state, not
+ * a movement. Only the transition disappears — the passage is instantaneous.
  *
  * @module
  */
@@ -35,14 +33,14 @@
 import { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-duotone'
 
 /**
- * Pose les regles du retour en couleurs, une fois par document.
+ * Sets the return-to-colour rules, once per document.
  *
- * Elles ne peuvent pas etre des styles en ligne : elles dependent du survol
- * du cadre, pas de celui des calques.
+ * They cannot be inline styles: they depend on the hover of the frame, not on
+ * that of the layers.
  */
 function ensureDuotoneRule(): void {
   if (typeof document === 'undefined') return
@@ -58,42 +56,42 @@ function ensureDuotoneRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface DuotoneOwnProps {
-  /** Source de l'image. */
+  /** Source of the image. */
   src: string
-  /** Texte de remplacement. Chaine vide si l'image est purement decorative. */
+  /** Alternative text. Empty string if the image is purely decorative. */
   alt: string
-  /** Rapport largeur sur hauteur. @defaultValue 1.777 */
+  /** Width to height ratio. @defaultValue 1.777 */
   ratio?: number
-  /** Force de la bichromie, de 0 a 1. @defaultValue 1 */
+  /** Strength of the duotone, from 0 to 1. @defaultValue 1 */
   strength?: number
-  /** Revenir en couleurs au survol et au focus. @defaultValue true */
+  /** Come back to colour on hover and on focus. @defaultValue true */
   hover?: boolean
   /**
-   * Ton des ombres.
+   * Tone of the shadows.
    *
-   * Une valeur, pas une couleur en dur : ecrite en clair elle echapperait au
+   * A value, not a hard-coded colour: written in the clear it would escape the
    * theme.
    *
-   * @defaultValue le plus sombre des indigos
+   * @defaultValue the darkest of the indigos
    */
   shadow?: string
-  /** Ton des lumieres. @defaultValue un ambre clair */
+  /** Tone of the highlights. @defaultValue a light amber */
   light?: string
 }
 
-/** Toutes les proprietes : les siennes, plus celles d'une image. */
+/** All properties: its own, plus those of an image. */
 export type DuotoneProps = Customisable<DuotoneOwnProps, 'img'>
 
 /**
- * Rend une image en deux tons.
+ * Renders an image in two tones.
  *
  * @example
- * <Duotone src="/photo.jpg" alt="Vue de l atelier" />
+ * <Duotone src="/photo.jpg" alt="View of the workshop" />
  *
  * @example
- * // Bichromie permanente dans la teinte de marque.
+ * // Permanent duotone in the brand hue.
  * <Duotone
  *   src="/photo.jpg"
  *   alt=""
@@ -115,28 +113,28 @@ export function Duotone({
   const { reduced } = useMotionState()
   ensureDuotoneRule()
 
-  const force = Math.min(1, Math.max(0, strength))
+  const amount = Math.min(1, Math.max(0, strength))
 
   const { className, style } = mergePresentation(
     { className: 'o-relative o-overflow-hidden' },
     rest,
   )
 
-  // Sous mouvement reduit le passage est instantane ; la bichromie, elle,
-  // reste — c'est un etat, pas un mouvement.
+  // Under reduced motion the passage is instantaneous; the duotone itself
+  // stays — it is a state, not a movement.
   const transition = reduced
     ? undefined
     : 'filter var(--o-duration-slow) var(--o-ease-standard), opacity var(--o-duration-slow) var(--o-ease-standard)'
 
   const image: CSSProperties = {
-    filter: `grayscale(${String(force)}) contrast(${String(1 + 0.15 * force)})`,
+    filter: `grayscale(${String(amount)}) contrast(${String(1 + 0.15 * amount)})`,
     transition,
   }
 
   const tint = (colour: string, blend: 'screen' | 'multiply'): CSSProperties => ({
     background: colour,
     mixBlendMode: blend,
-    opacity: force,
+    opacity: amount,
     transition,
   })
 
@@ -154,8 +152,8 @@ export function Duotone({
         style={image}
       />
 
-      {/* Les calques sont decoratifs et hors d'atteinte du pointeur : le
-          survol appartient au cadre. */}
+      {/* The layers are decorative and out of reach of the pointer: the hover
+          belongs to the frame. */}
       <div
         aria-hidden
         data-o-duotone-tint=""

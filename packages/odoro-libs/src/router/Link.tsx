@@ -1,5 +1,5 @@
 /**
- * Lien de navigation interne.
+ * Internal navigation link.
  *
  * @module
  */
@@ -19,21 +19,21 @@ import { preloadRoutes } from './lazy.js'
 import { createPath, resolvePath } from './path.js'
 import type { To } from './types.js'
 
-/** Proprietes de {@link Link}. */
+/** Props of {@link Link}. */
 export interface LinkProps extends Omit<AnchorHTMLAttributes<HTMLAnchorElement>, 'href'> {
-  /** Cible de navigation, absolue (`/about`) ou relative (`../list`). */
+  /** Navigation target, absolute (`/about`) or relative (`../list`). */
   to: To
-  /** Remplace l'entree d'historique courante au lieu d'en empiler une. */
+  /** Replaces the current history entry instead of pushing one. */
   replace?: boolean
-  /** Donnees attachees a l'entree d'historique. */
+  /** Data attached to the history entry. */
   state?: unknown
-  /** Force ou desactive la View Transition pour ce lien. */
+  /** Forces or disables the View Transition for this link. */
   viewTransition?: boolean
-  /** Conserve la position de defilement apres la navigation. */
+  /** Keeps the scroll position after the navigation. */
   preventScrollReset?: boolean
   /**
-   * Precharge les modules de la route cible au survol. Sans cout reseau
-   * supplementaire pour une route deja chargee.
+   * Preloads the modules of the target route on hover. Without any extra
+   * network cost for a route that is already loaded.
    *
    * @defaultValue true
    */
@@ -41,8 +41,8 @@ export interface LinkProps extends Omit<AnchorHTMLAttributes<HTMLAnchorElement>,
 }
 
 /**
- * Determine si un clic doit etre pris en charge par le routeur plutot que par
- * le navigateur : clic gauche, sans modificateur, sans cible externe.
+ * Determines whether a click must be handled by the router rather than by the
+ * browser: left click, without modifier, without an external target.
  */
 function isInternalClick(event: MouseEvent<HTMLAnchorElement>, target?: string): boolean {
   return (
@@ -57,13 +57,13 @@ function isInternalClick(event: MouseEvent<HTMLAnchorElement>, target?: string):
 }
 
 /**
- * Lien vers une route de l'application. Rend un `<a>` avec un `href` reel :
- * l'ouverture dans un nouvel onglet, le clic milieu et le survol de la barre
- * d'etat continuent de fonctionner.
+ * Link to a route of the application. Renders an `<a>` with a real `href`:
+ * opening in a new tab, the middle click and the status bar on hover keep
+ * working.
  *
  * @example
- * <Link to="/users/42">Profil</Link>
- * <Link to=".." replace>Retour</Link>
+ * <Link to="/users/42">Profile</Link>
+ * <Link to=".." replace>Back</Link>
  */
 export function Link({
   to,
@@ -102,8 +102,8 @@ export function Link({
         typeof to === 'string' ? to : createPath(to),
         location.pathname,
       ).pathname
-      // Le resultat est volontairement ignore : un echec de prechargement
-      // sera simplement retente au moment de la navigation.
+      // The result is deliberately ignored: a preloading failure will simply
+      // be retried at the moment of the navigation.
       void preloadRoutes(routes, pathname)?.catch(() => undefined)
     },
     [location.pathname, navigation, onPointerEnter, prefetch, to],

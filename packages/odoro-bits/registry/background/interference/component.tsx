@@ -1,22 +1,25 @@
 /**
- * Moire : deux reseaux d'anneaux dont le produit fait des battements.
+ * Moire: two gratings of rings whose product makes beats.
  *
- * ## Le principe
+ * ## The principle
  *
- * Le produit de deux sinus de distances — un par centre — est lumineux en phase, sombre en opposition : les franges dessinent des hyperboles qu aucun des deux reseaux ne contient.
+ * The product of two sines of distances — one per centre — is bright in
+ * phase, dark in opposition: the fringes draw hyperbolas that neither of the
+ * two gratings contains.
  *
- * Les centres orbitent a des periodes non multiples : la figure se recompose sans fin.
+ * The centres orbit at periods that are not multiples of one another: the
+ * figure recomposes endlessly.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur — les recopier ici en ferait autant
- * de versions a maintenir qu'il y a de fonds.
+ * It carries only what sets it apart: its shader, its settings and its fallback.
+ * Reading the tokens, converting them to floats and re-reading them when the
+ * theme changes all come from the engine — copying them here would leave as
+ * many versions to maintain as there are backgrounds.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en
- * accorde qu'une par backend — et sous mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface — it grants only one
+ * per backend — and under reduced motion.
  *
  * @module
  */
@@ -33,41 +36,41 @@ import { type ReactElement } from 'react'
 
 import { INTERFERENCE_FRAGMENT } from './interference.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface InterferenceControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to this component. */
 export interface InterferenceOwnProps {
-  /** Vitesse des orbites. @defaultValue 0.15 */
+  /** Orbit speed. @defaultValue 0.15 */
   speed?: number
-  /** Nombre d'anneaux par unite de distance. @defaultValue 24 */
+  /** Number of rings per unit of distance. @defaultValue 24 */
   frequency?: number
-  /** Rayon des orbites, donc ecart des deux centres. @defaultValue 0.25 */
+  /** Orbit radius, hence the gap between the two centres. @defaultValue 0.25 */
   separation?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<InterferenceControls>
 }
 
-/** Toutes les proprietes. */
+/** Every property. */
 export type InterferenceProps = Customisable<InterferenceOwnProps>
 
-/** Tokens employes par defaut : le fond, puis les deux tons des franges. */
+/** Tokens used by default: the background, then the two tones of the fringes. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-fuchsia-400',
   '--o-palette-cyan-300',
 ] as const
 
-/** Repli par defaut : un degrade fige, dans les memes tons. */
+/** Default fallback: a frozen gradient, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-br o-from-zinc-50 dark:o-from-zinc-950 o-to-fuchsia-950'
 
@@ -94,9 +97,9 @@ export function Interference({
     colors,
     uniforms: { uSpeed: speed, uFrequency: frequency, uSeparation: separation },
     name: 'interference',
-    // Le calcul est constant, mais des anneaux trop serres scintillent
-    // d'echantillonnage sur les ecrans dont la densite a ete plafonnee : la
-    // frequence est donc le reglage borne.
+    // The computation is constant, but rings that are too tight shimmer
+    // with sampling on screens whose density has been capped: the frequency
+    // is therefore the setting that gets bounded.
     degrade: (quality) => ({
       uFrequency: quality === 'low' ? Math.min(frequency, 14) : frequency,
     }),

@@ -1,24 +1,24 @@
 /**
- * Vagues de degrade : des bandes de degrade repete, sans trait ni marche, deplacees par une houle qui ne se referme jamais.
+ * Gradient waves: bands of a repeated gradient, with neither stroke nor step, displaced by a swell that never closes back on itself.
  *
- * ## Le principe
+ * ## The principle
  *
- * Un degrade repete en bandes horizontales — fond, premiere teinte,
- * seconde teinte, fond — dont la hauteur est deplacee par une somme de
- * sinus a frequences non multiples et a vitesses opposees. Ni trait ni
- * marche : des nappes qui glissent l'une sur l'autre, et une douceur qui
- * va de bandes franches a un seul degrade ondulant.
+ * A gradient repeated in horizontal bands — background, first hue, second
+ * hue, background — whose height is displaced by a sum of sines at
+ * non-multiple frequencies and opposite speeds. Neither stroke nor step:
+ * sheets sliding over one another, and a softness that goes from clean
+ * bands to a single rippling gradient.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur — les recopier ici en ferait autant
- * de versions a maintenir qu'il y a de fonds.
+ * It carries only what sets it apart: its shader, its settings and its fallback.
+ * Reading the tokens, converting them to floats and re-reading them when the
+ * theme changes all come from the engine — copying them here would leave as
+ * many versions to maintain as there are backgrounds.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en
- * accorde qu'une par backend — et sous mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface — it grants only one
+ * per backend — and under reduced motion.
  *
  * @module
  */
@@ -35,59 +35,59 @@ import { type ReactElement } from 'react'
 
 import { GRADIENT_WAVES_FRAGMENT } from './gradient-waves.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface GradientWavesControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to this component. */
 export interface GradientWavesOwnProps {
-  /** Nombre de bandes sur la hauteur. @defaultValue 4 */
+  /** Number of bands across the height. @defaultValue 4 */
   bands?: number
-  /** Hauteur de la houle, en fraction du cadre. @defaultValue 0.12 */
+  /** Height of the swell, as a fraction of the frame. @defaultValue 0.12 */
   amplitude?: number
-  /** Vitesse de la houle. @defaultValue 0.4 */
+  /** Speed of the swell. @defaultValue 0.4 */
   speed?: number
-  /** Largeur des transitions. Bas, les bandes sont franches. @defaultValue 0.6 */
+  /** Width of the transitions. Low, the bands are clean. @defaultValue 0.6 */
   softness?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<GradientWavesControls>
 }
 
-/** Toutes les proprietes. */
+/** Every property. */
 export type GradientWavesProps = Customisable<GradientWavesOwnProps>
 
-/** Tokens employes par defaut : le fond, les deux teintes des bandes. */
+/** Tokens used by default: the background, the two hues of the bands. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-indigo-400',
   '--o-palette-cyan-300',
 ] as const
 
-/** Repli par defaut : un degrade fige, dans les memes tons. */
+/** Default fallback: a frozen gradient, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-b o-from-zinc-50 dark:o-from-zinc-950 o-via-indigo-200 dark:o-via-indigo-900 o-to-cyan-200 dark:o-to-cyan-900'
 
 /**
- * Detail hors qualite basse.
+ * Detail outside low quality.
  *
- * Le nombre de bandes est une frequence, pas une boucle. Ce sont les
- * harmoniques de la houle qui sont bornees.
+ * The number of bands is a frequency, not a loop. It is the harmonics of
+ * the swell that are capped.
  */
 const DETAIL = 3
 
-/** Detail en qualite basse. */
+/** Detail at low quality. */
 const LOW_DETAIL = 1
 
 /**
- * Vagues de degrade.
+ * Gradient waves.
  *
  * @example
  * <div className="o-relative o-min-h-screen">

@@ -1,28 +1,28 @@
 /**
- * Shader des ondes de clic.
+ * Click waves shader.
  *
- * ## L'idee mathematique
+ * ## The mathematical idea
  *
- * Chaque clic est une onde circulaire : un sinus de la distance moins l'age
- * fois la vitesse, sous une double enveloppe exponentielle — l'une eteint
- * l'onde avec le temps, l'autre avec la distance. Les huit ondes vivantes se
- * somment, et leur hauteur deplace la lecture d'un bruit leger : les anneaux
- * deforment quelque chose au lieu de flotter sur un aplat.
+ * Each click is a circular wave: a sine of the distance minus the age times
+ * the speed, under a double exponential envelope — one puts the wave out
+ * with time, the other with distance. The eight live waves sum, and their
+ * height displaces the lookup into a light noise: the rings deform
+ * something instead of floating on a flat tint.
  *
- * Un depart a -1000 donne un age enorme, donc une enveloppe nulle : les
- * emplacements vides du tampon sont inertes d'office.
+ * A start at -1000 gives an enormous age, hence a null envelope: the empty
+ * slots of the buffer are inert by default.
  *
  * ## Uniforms
  *
- * - `uTime` — temps en secondes, fourni par le moteur.
- * - `uResolution` — taille du canevas en pixels, fournie par le moteur.
- * - `uColorA` — le fond.
- * - `uColorB` — la texture de surface.
- * - `uColorC` — l'eclat des cretes.
- * - `uClicks` — huit clics (x, y, temps de depart), tampon circulaire.
- * - `uSpeed` — vitesse de propagation des anneaux.
- * - `uWidth` — largeur d'onde des anneaux.
- * - `uDecay` — vitesse d'extinction temporelle.
+ * - `uTime` — time in seconds, supplied by the engine.
+ * - `uResolution` — canvas size in pixels, supplied by the engine.
+ * - `uColorA` — the background.
+ * - `uColorB` — the surface texture.
+ * - `uColorC` — the glint on the crests.
+ * - `uClicks` — eight clicks (x, y, start time), circular buffer.
+ * - `uSpeed` — propagation speed of the rings.
+ * - `uWidth` — wavelength of the rings.
+ * - `uDecay` — rate at which they fade with time.
  */
 export const CLICK_WAVES_FRAGMENT = /* glsl */ `
 precision highp float;
@@ -39,13 +39,13 @@ uniform float uSpeed;
 uniform float uWidth;
 uniform float uDecay;
 
-// Nombre pseudo-aleatoire : projection sur une direction arbitraire, sinus
-// amplifie, partie fractionnaire.
+// Pseudo-random number: projection onto an arbitrary direction, amplified
+// sine, fractional part.
 float waveHash(vec2 p) {
   return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
 }
 
-// Bruit de valeur : interpolation lissee entre les quatre coins de la cellule.
+// Value noise: smoothed interpolation between the cell's four corners.
 float waveNoise(vec2 p) {
   vec2 cell = floor(p);
   vec2 local = fract(p);
@@ -66,15 +66,15 @@ void main() {
   float width = max(uWidth, 0.02);
   float height = 0.0;
 
-  // Bornes constantes : la specification du langage l'exige, et huit clics
-  // vivants suffisent — le neuvieme aurait deja disparu.
+  // Constant bounds: the language specification demands it, and eight live
+  // clicks are enough — the ninth would already have gone.
   for (int i = 0; i < 8; i += 1) {
     vec3 clic = uClicks[i];
     vec2 centre = clic.xy * vec2(aspect, 1.0);
     float age = uTime - clic.z;
     float d = length(p - centre);
 
-    // Le front est au rayon age x vitesse ; l'onde n'existe que derriere lui.
+    // The front sits at radius age x speed; the wave exists only behind it.
     float front = age * uSpeed;
     float behind = smoothstep(0.0, width, front - d);
 
@@ -84,13 +84,13 @@ void main() {
     height += wave * envelope * behind;
   }
 
-  // Le bruit est lu en un point deplace par la hauteur d'onde : c'est cette
-  // refraction qui rend les anneaux visibles sur toute la surface.
+  // The noise is read at a point displaced by the wave height: it is that
+  // refraction that makes the rings visible across the whole surface.
   float grain = waveNoise(p * 3.0 + height * 0.8 + uTime * 0.03);
 
   vec3 colour = mix(uColorA, uColorB, grain * 0.45 + 0.1);
 
-  // Les cretes s'eclairent, les creux s'assombrissent legerement.
+  // The crests light up, the troughs darken slightly.
   colour += uColorC * clamp(height, 0.0, 1.0) * 0.5;
   colour *= 1.0 - clamp(-height, 0.0, 1.0) * 0.25;
 

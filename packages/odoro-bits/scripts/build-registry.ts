@@ -1,25 +1,24 @@
 /**
- * Compilation du registre en fichiers statiques.
+ * Compilation of the registry into static files.
  *
- * Produit un fichier JSON par entree, code source inline, plus un index. Ces
- * fichiers sont l'artefact servi en HTTP : la CLI les telecharge, les valide
- * avec le meme schema, et ecrit les sources dans le projet.
+ * Produces one JSON file per entry, source code inline, plus an index. These
+ * files are the artefact served over HTTP: the CLI downloads them, validates
+ * them with the same schema, and writes the sources into the project.
  *
- * ## Pourquoi le source est inline
+ * ## Why the source is inline
  *
- * L'alternative serait de servir chaque fichier separement et de les designer
- * par URL. Cela multiplierait les allers-retours — une entree de quatre
- * fichiers en demanderait cinq — et surtout, cela rendrait possible qu'une
- * entree soit telechargee a moitie : le meta a jour, les sources encore
- * anciennes, ou l'inverse. Une entree est une unite ; elle est servie comme
- * telle.
+ * The alternative would be to serve each file separately and to designate
+ * them by URL. That would multiply the round trips — an entry of four files
+ * would ask for five — and above all, it would make it possible for an entry
+ * to be downloaded by halves: the meta up to date, the sources still old, or
+ * the other way round. An entry is a unit; it is served as such.
  *
- * ## Pourquoi l'index ne contient pas le source
+ * ## Why the index does not contain the source
  *
- * L'index est demande par `odoro list` et par la recherche du site. Y inliner
- * le code ferait grossir une reponse consultee souvent avec un contenu dont
- * elle n'a pas l'usage. Il ne porte donc que ce qui sert a choisir : titre,
- * description, cout, backend.
+ * The index is asked for by `odoro list` and by the search of the site.
+ * Inlining the code in it would inflate a response consulted often with
+ * content it has no use for. It therefore carries only what serves to choose:
+ * title, description, cost, backend.
  *
  * @module
  */
@@ -38,20 +37,20 @@ import {
 
 import { collectRegistry, displayPath, isMainModule } from './collect.js'
 
-/** Ce que rend une compilation reussie. */
+/** What a successful compilation returns. */
 export interface BuildReport {
-  /** Chemins ecrits, relatifs au dossier de sortie. */
+  /** Paths written, relative to the output directory. */
   readonly written: readonly string[]
-  /** Nombre d'entrees publiees. */
+  /** Number of published entries. */
   readonly count: number
 }
 
-/** Resultat d'une compilation. */
+/** Result of a compilation. */
 export type BuildResult =
   | { readonly ok: true; readonly report: BuildReport }
   | { readonly ok: false; readonly problems: readonly string[] }
 
-/** Reduit une entree a ce que l'index en retient. */
+/** Reduces an entry to what the index keeps of it. */
 function toIndexEntry(entry: PublishedEntry): IndexEntry {
   return {
     id: entry.id,
@@ -65,37 +64,36 @@ function toIndexEntry(entry: PublishedEntry): IndexEntry {
   }
 }
 
-/** Serialise en JSON indente, avec le saut de ligne final que git attend. */
+/** Serialises to indented JSON, with the trailing newline git expects. */
 function encode(value: unknown): string {
   return `${JSON.stringify(value, null, 2)}\n`
 }
 
 /**
- * Compile un registre vers un dossier de sortie.
+ * Compiles a registry into an output directory.
  *
- * Le dossier est efface avant d'etre reecrit : sans cela, une entree supprimee
- * du depot resterait servie indefiniment.
+ * The directory is erased before being rewritten: without that, an entry
+ * removed from the repository would stay served indefinitely.
  *
- * ## La depose dans le playground est un effet du script, pas de la fonction
+ * ## The drop into the playground is an effect of the script, not of the function
  *
- * Compiler un registre ecrit dans le dossier de sortie qu'on lui donne, et
- * nulle part ailleurs. Les deux depots dans le playground sont des chemins
- * **relatifs au dossier courant** : declenches depuis un test, ils ecrasent le
- * catalogue du site avec le contenu d'un registre d'essai — deux entrees
- * factices, ou aucune.
+ * Compiling a registry writes into the output directory it is given, and
+ * nowhere else. The two drops into the playground are paths **relative to the
+ * current directory**: triggered from a test, they overwrite the catalogue of
+ * the site with the content of a throwaway registry — two fake entries, or
+ * none.
  *
- * C'est arrive. Le site s'est retrouve avec un catalogue vide, sans qu'aucun
- * test n'echoue : le registre compile, lui, etait parfaitement correct.
+ * It happened. The site ended up with an empty catalogue, without any test
+ * failing: the compiled registry, itself, was perfectly correct.
  *
- * La depose est donc conditionnee, et seul le point d'entree du script
- * l'active.
+ * The drop is therefore conditional, and only the entry point of the script
+ * turns it on.
  *
- * @param root Racine du registre.
- * @param outDir Dossier de sortie.
- * @param options.now Date de generation. Injectee pour que les tests soient
- *   stables.
- * @param options.publish Depose aussi l'index et le catalogue dans le
- *   playground. Faux par defaut.
+ * @param root Registry root.
+ * @param outDir Output directory.
+ * @param options.now Generation date. Injected so that the tests are stable.
+ * @param options.publish Also drops the index and the catalogue into the
+ *   playground. False by default.
  *
  * @example
  * const result = await buildRegistry('registry', 'dist/registry')
@@ -124,8 +122,8 @@ export async function buildRegistry(
     const target = join(outDir, relativePath)
     await mkdir(dirname(target), { recursive: true })
 
-    // `directory` est un detail de la mise en depot : il n'a pas de sens pour
-    // un client qui recoit l'entree par HTTP.
+    // `directory` is a detail of the repository layout: it has no meaning for
+    // a client that receives the entry over HTTP.
     const { directory: _directory, ...published } = entry
     await writeFile(target, encode(published satisfies PublishedEntry), 'utf8')
     written.push(relativePath)
@@ -148,20 +146,20 @@ export async function buildRegistry(
 }
 
 /**
- * Depose l'index la ou le site de documentation peut le lire.
+ * Drops the index where the documentation site can read it.
  *
- * ## Pourquoi le site ne lit pas les sources
+ * ## Why the site does not read the sources
  *
- * Le catalogue doit lister ce qui est **publie**, pas ce qui traine dans
- * l'arborescence. Lire les sources laisserait passer une entree ecrite mais
- * jamais compilee, et le site annoncerait un composant que la CLI ne saurait
- * pas installer.
+ * The catalogue must list what is **published**, not what lies around in the
+ * tree. Reading the sources would let through an entry written but never
+ * compiled, and the site would announce a component the CLI would not know
+ * how to install.
  *
- * Il consomme donc l'artefact, par la meme URL qu'un client — c'est la seule
- * facon que la page ne puisse pas mentir.
+ * It therefore consumes the artefact, through the same URL as a client — it
+ * is the only way for the page not to be able to lie.
  *
- * L'ecriture est silencieuse quand le dossier n'existe pas : un registre tiers
- * qui reprendrait ce script n'a pas de playground.
+ * The write is silent when the directory does not exist: a third-party
+ * registry taking this script up has no playground.
  */
 async function publishCatalogue(
   index: RegistryIndex,
@@ -173,44 +171,46 @@ async function publishCatalogue(
     await mkdir(target, { recursive: true })
     await writeFile(join(target, 'index.json'), encode(index), 'utf8')
 
-    // Les entrees completes, avec leur code. La page d'un composant les
-    // telecharge **a la demande**, quand on demande a voir le code — jamais au
-    // premier rendu. C'est la raison pour laquelle elles ne sont pas dans le
-    // module du catalogue : le source pese dix fois le reste, et la plupart des
-    // visites ne le regardent pas.
+    // The complete entries, with their code. The page of a component
+    // downloads them **on demand**, when the code is asked for — never on the
+    // first render. That is the reason they are not in the module of the
+    // catalogue: the source weighs ten times the rest, and most visits do not
+    // look at it.
     for (const entry of entries) {
       const { directory: _directory, ...published } = entry
-      const fichier = join(target, entry.category, `${entry.name}.json`)
-      await mkdir(dirname(fichier), { recursive: true })
-      await writeFile(fichier, encode(published satisfies PublishedEntry), 'utf8')
+      const file = join(target, entry.category, `${entry.name}.json`)
+      await mkdir(dirname(file), { recursive: true })
+      await writeFile(file, encode(published satisfies PublishedEntry), 'utf8')
     }
   } catch {
-    // Voir la note ci-dessus.
+    // See the note above.
   }
 }
 
 /**
- * Depose les metadonnees completes sous forme de module TypeScript.
+ * Drops the complete metadata as a TypeScript module.
  *
- * ## Pourquoi un module plutot qu'un fichier a telecharger
+ * ## Why a module rather than a file to download
  *
- * La navigation laterale liste une entree par composant. Elle doit donc
- * connaitre le catalogue **au premier rendu** : le telecharger ferait
- * apparaitre une colonne vide, puis se remplir.
+ * The side navigation lists one entry per component. It must therefore know
+ * the catalogue **on the first render**: downloading it would make a column
+ * appear empty, then fill in.
  *
- * Le code source est retire — il pese dix fois le reste, et une page de
- * documentation n'en a pas l'usage.
+ * The source code is removed — it weighs ten times the rest, and a
+ * documentation page has no use for it.
  */
 async function publishCatalogueModule(
   entries: readonly (PublishedEntry & { directory: string })[],
 ): Promise<void> {
-  // L'identifiant complet reste dans la donnee : la documentation retrouve une
-  // entree par lui, et le recomposer a chaque lecture le laisserait faux le
-  // jour ou une categorie serait renommee.
+  // The complete identifier stays in the data: the documentation finds an
+  // entry by it, and recomposing it at each read would leave it wrong the day
+  // a category is renamed.
   const metas = entries.map(
     ({ sources: _sources, directory: _directory, ...meta }) => meta,
   )
 
+  // The module dropped into the playground stays in French: the playground is
+  // out of scope, and its text is the one the site displays.
   const source = [
     '/* Genere par scripts/build-registry.ts. Ne pas editer a la main. */',
     '',
@@ -236,11 +236,11 @@ async function publishCatalogueModule(
       'utf8',
     )
   } catch {
-    // Un registre tiers n'a pas de playground.
+    // A third-party registry has no playground.
   }
 }
 
-/** Point d'entree du script. */
+/** Entry point of the script. */
 async function main(): Promise<void> {
   const root = process.argv[2] ?? 'registry'
   const outDir = process.argv[3] ?? join('dist', 'registry')
@@ -248,7 +248,7 @@ async function main(): Promise<void> {
   const result = await buildRegistry(root, outDir, { publish: true })
 
   if (!result.ok) {
-    console.error(`Compilation impossible — ${result.problems.length} probleme(s) :\n`)
+    console.error(`Compilation impossible — ${result.problems.length} problem(s):\n`)
     for (const problem of result.problems) console.error(`  · ${problem}`)
     console.error('')
     process.exitCode = 1
@@ -256,7 +256,7 @@ async function main(): Promise<void> {
   }
 
   console.log(
-    `Registre compile — ${result.report.count} entree(s) et un index dans ${displayPath(outDir)}.`,
+    `Registry compiled — ${result.report.count} entries and an index in ${displayPath(outDir)}.`,
   )
 }
 

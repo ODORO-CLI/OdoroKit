@@ -31,7 +31,7 @@
  */
 
 import { Icon } from '@odoro-cli/icons'
-import { ArrowRight, ChevronDown, ChevronUp, Eye, EyeOff } from '@odoro-cli/icons/filaire'
+import { ArrowRight, ChevronDown, ChevronUp, Eye, EyeOff } from '@odoro-cli/icons/outline'
 import { Reveal } from '@odoro-cli/libs/motion'
 import { useMemo, useState, type ReactElement } from 'react'
 

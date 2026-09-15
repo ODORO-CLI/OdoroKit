@@ -1,115 +1,117 @@
 /**
- * Reecriture des imports d'un composant au moment de la copie.
+ * Rewriting the imports of a component at copy time.
  *
- * ## Le jeton `@registre`
+ * ## The `@registre` token
  *
- * Un composant du registre importe parfois son voisin : un effet a besoin du
- * hook de repli, un heros a besoin du pointeur amorti. Ces imports ne peuvent
- * pas etre ecrits en dur, puisque la destination depend du projet d'accueil —
- * `@/odoro`, `~/components/odoro`, ou un chemin nu si le projet n'a pas
- * d'alias.
+ * A registry component sometimes imports its neighbour: an effect needs the
+ * fallback hook, a hero needs the damped pointer. These imports cannot be
+ * hard-written, since the destination depends on the host project — `@/odoro`,
+ * `~/components/odoro`, or a bare path when the project has no alias.
  *
- * Les sources du registre ecrivent donc `@registre/hooks/usePoster`, et la CLI
- * remplace le prefixe a l'ecriture. Le jeton est volontairement impossible a
- * confondre avec un vrai paquet : il ne resout nulle part, donc un composant
- * qui l'aurait garde par accident echoue a la compilation plutot que de
- * chercher sur le registre npm.
+ * The registry sources therefore write `@registre/hooks/usePoster`, and the CLI
+ * replaces the prefix on write. The token is deliberately impossible to mistake
+ * for a real package: it resolves nowhere, so a component that kept it by
+ * accident fails at build time rather than search the npm registry.
  *
- * ## Ce qui n'est pas reecrit
+ * The token itself keeps its French spelling: it is written in the sources of
+ * every registry entry, which live in another package.
  *
- * Tout le reste. `@odoro-cli/engine`, `react`, `gsap`, `three` sont de vrais
- * paquets : ils s'installent, ils ne se copient pas. Le seul chemin reecrit
- * est celui qui pointe vers un autre fichier copie.
+ * ## What is not rewritten
+ *
+ * Everything else. `@odoro-cli/engine`, `react`, `gsap`, `three` are real
+ * packages: they get installed, they are not copied. The only path rewritten is
+ * the one pointing at another copied file.
  *
  * @module
  */
 
-/** Prefixe employe dans les sources du registre. */
+/** Prefix used in the registry sources. */
 export const REGISTRY_TOKEN = '@registre'
 
 /**
- * Le prefixe configure est-il un alias, ou un simple chemin ?
+ * Is the configured prefix an alias, or a plain path?
  *
- * ## Pourquoi la question se pose
+ * ## Why the question arises
  *
- * `odoro init` lit l'alias du `tsconfig.json` — `@/odoro`, `~/composants/odoro`.
- * Quand le projet n'en a aucun, il retombait sur le chemin lui-meme,
- * `src/odoro`, et les imports s'ecrivaient `from 'src/odoro/hooks/useInView'`.
+ * `odoro init` reads the alias of the `tsconfig.json` — `@/odoro`,
+ * `~/components/odoro`. When the project has none, it fell back on the path
+ * itself, `src/odoro`, and the imports were written
+ * `from 'src/odoro/hooks/useInView'`.
  *
- * Un tel chemin n'est pas un specificateur valide : il ne commence ni par un
- * point ni par une barre, donc il est cherche parmi les paquets, ou il n'existe
- * pas. Le projet ne compilait pas, avec une erreur de module introuvable que
- * rien ne rattachait au registre.
+ * Such a path is not a valid specifier: it starts with neither a dot nor a
+ * slash, so it is looked up among the packages, where it does not exist. The
+ * project did not build, with a module-not-found error nothing connected to the
+ * registry.
  *
- * Il ne fonctionnait que par accident, dans les projets portant un `baseUrl`
- * au `tsconfig.json` — lequel a ses propres ennuis, puisqu'il fait resoudre
- * les imports nus depuis la racine du projet.
+ * It only worked by accident, in projects carrying a `baseUrl` in their
+ * `tsconfig.json` — which has its own troubles, since it makes bare imports
+ * resolve from the project root.
  *
- * ## La regle
+ * ## The rule
  *
- * Les alias commencent par `@`, `~` ou `#` — les trois conventions employees
- * par TypeScript, les gestionnaires de paquets et les imports internes de Node.
- * Tout le reste est un chemin, et un chemin s'ecrit en relatif.
+ * Aliases start with `@`, `~` or `#` — the three conventions used by
+ * TypeScript, package managers and the internal imports of Node. Everything
+ * else is a path, and a path is written relative.
  *
- * Le relatif n'est jamais faux : il resout sans configuration, quel que soit le
- * `tsconfig.json`. Un projet qui a un alias garde le sien, plus lisible ; les
- * autres obtiennent quelque chose qui marche.
+ * Relative is never wrong: it resolves without configuration, whatever the
+ * `tsconfig.json`. A project with an alias keeps its own, which reads better;
+ * the others get something that works.
  *
  * @example
- * estUnAlias('@/odoro')   // true
- * estUnAlias('src/odoro') // false
+ * isAlias('@/odoro')   // true
+ * isAlias('src/odoro') // false
  */
-export function estUnAlias(prefix: string): boolean {
+export function isAlias(prefix: string): boolean {
   return /^[@~#]/.test(prefix)
 }
 
 /**
- * Chemin relatif d'un fichier copie vers un autre, tous deux dans le dossier
- * de destination.
+ * Relative path from one copied file to another, both inside the destination
+ * directory.
  *
- * Les deux chemins sont donnes par rapport a ce dossier, si bien que la racine
- * du projet n'entre pas dans le calcul : `text/CountUp.tsx` qui vise
- * `hooks/useInView` obtient `../hooks/useInView`.
+ * Both paths are given relative to that directory, so the project root does not
+ * enter the computation: `text/CountUp.tsx` aiming at `hooks/useInView` gets
+ * `../hooks/useInView`.
  *
  * @example
- * cheminRelatif('text/CountUp.tsx', 'hooks/useInView') // '../hooks/useInView'
- * cheminRelatif('text/CountUp.tsx', 'text/Autre')      // './Autre'
+ * relativeImport('text/CountUp.tsx', 'hooks/useInView') // '../hooks/useInView'
+ * relativeImport('text/CountUp.tsx', 'text/Other')      // './Other'
  */
-export function cheminRelatif(depuis: string, vers: string): string {
-  const segmentsDepuis = depuis.split('/').slice(0, -1)
-  const segmentsVers = vers.split('/')
+export function relativeImport(from: string, to: string): string {
+  const fromSegments = from.split('/').slice(0, -1)
+  const toSegments = to.split('/')
 
-  let commun = 0
+  let common = 0
   while (
-    commun < segmentsDepuis.length &&
-    commun < segmentsVers.length - 1 &&
-    segmentsDepuis[commun] === segmentsVers[commun]
+    common < fromSegments.length &&
+    common < toSegments.length - 1 &&
+    fromSegments[common] === toSegments[common]
   ) {
-    commun += 1
+    common += 1
   }
 
-  const montees = segmentsDepuis.length - commun
-  const descente = segmentsVers.slice(commun).join('/')
+  const climbs = fromSegments.length - common
+  const descent = toSegments.slice(common).join('/')
 
-  // Un chemin relatif doit s'annoncer comme tel : sans `./`, un voisin dans le
-  // meme dossier redeviendrait un specificateur nu.
-  return montees === 0 ? `./${descente}` : `${'../'.repeat(montees)}${descente}`
+  // A relative path must announce itself as such: without `./`, a neighbour in
+  // the same directory would become a bare specifier again.
+  return climbs === 0 ? `./${descent}` : `${'../'.repeat(climbs)}${descent}`
 }
 
 /**
- * Remplace le jeton de registre par le prefixe d'import du projet.
+ * Replaces the registry token by the import prefix of the project.
  *
- * La substitution porte sur le jeton suivi d'une barre oblique, pas sur le
- * jeton seul : sans cela, un paquet nomme `@registre-truc` serait touche.
+ * The substitution bears on the token followed by a slash, not on the token
+ * alone: without that, a package named `@registre-something` would be touched.
  *
- * Quand le prefixe n'est pas un alias — voir `estUnAlias` — les imports sont
- * ecrits en relatif depuis `target`. C'est le seul cas ou la destination du
- * fichier compte, et c'est aussi le seul ou le prefixe ne resoudrait pas.
+ * When the prefix is not an alias — see `isAlias` — the imports are written
+ * relative from `target`. That is the only case where the destination of the
+ * file matters, and also the only one where the prefix would not resolve.
  *
- * @param source Code source tel qu'il vient du registre.
- * @param importPrefix Prefixe du projet, sans barre finale.
- * @param target Destination du fichier, relative au dossier des composants.
- * Sans elle, la substitution par prefixe s'applique quoi qu'il arrive.
+ * @param source Source code as it comes from the registry.
+ * @param importPrefix Prefix of the project, without a trailing slash.
+ * @param target Destination of the file, relative to the components directory.
+ * Without it, the substitution by prefix applies whatever happens.
  *
  * @example
  * rewriteImports("from '@registre/hooks/usePoster'", '@/odoro')
@@ -126,29 +128,29 @@ export function rewriteImports(
 ): string {
   const prefix = importPrefix.replace(/\/$/, '')
 
-  if (estUnAlias(prefix) || target === undefined) {
+  if (isAlias(prefix) || target === undefined) {
     return source.split(`${REGISTRY_TOKEN}/`).join(`${prefix}/`)
   }
 
-  // Le jeton va jusqu'au guillemet fermant : c'est la fin du specificateur, et
-  // rien d'autre dans la ligne ne doit etre touche.
+  // The token runs up to the closing quote: that is the end of the specifier,
+  // and nothing else in the line must be touched.
   return source.replaceAll(
     new RegExp(`${REGISTRY_TOKEN}/([^'"\\s]+)`, 'g'),
-    (_tout, chemin: string) => cheminRelatif(target, chemin),
+    (_whole, path: string) => relativeImport(target, path),
   )
 }
 
 /**
- * Liste les entrees de registre qu'un code source importe reellement.
+ * Lists the registry entries a source really imports.
  *
- * Sert au diagnostic : une entree qui importe un voisin sans le declarer dans
- * ses `registryDependencies` s'installera seule, et cassera chez le premier
- * utilisateur qui n'avait pas deja le voisin.
+ * Used for diagnostics: an entry importing a neighbour without declaring it in
+ * its `registryDependencies` will install alone, and will break for the first
+ * user who did not already have the neighbour.
  *
- * Le decoupage est textuel, et c'est assume : un analyseur complet serait plus
- * exact, mais il n'y a rien a gagner ici — le resultat sert a **avertir**, pas
- * a decider. Une occurrence dans un commentaire produit un avertissement de
- * trop ; un import manque produirait un composant casse.
+ * The scan is textual, and that is accepted: a full parser would be more
+ * accurate, but there is nothing to gain here — the result serves to **warn**,
+ * not to decide. An occurrence in a comment produces one warning too many; a
+ * missing import would produce a broken component.
  *
  * @example
  * usedTokens("import x from '@registre/hooks/usePoster'") // ['hooks/usePoster']

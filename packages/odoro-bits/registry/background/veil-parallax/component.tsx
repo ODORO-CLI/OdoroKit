@@ -1,22 +1,22 @@
 /**
- * Nappes parallaxes : trois voiles de bruit qui glissent avec le curseur.
+ * Parallax veils: three sheets of noise that slide with the cursor.
  *
- * ## A quoi ce fond reagit
+ * ## What this background reacts to
  *
- * Au deplacement du pointeur, avec amortissement : chaque nappe glisse d'un
- * facteur different — la plus fine bouge le plus — et c'est cet ecart qui fait
- * lire la profondeur. Sans pointeur, une derive automatique lente garde les
- * nappes vivantes : le fond n'est jamais mort.
+ * Pointer movement, damped: every veil slides by a different factor — the
+ * finest one moves the most — and it is that gap which makes the depth
+ * readable. With no pointer, a slow automatic drift keeps the veils alive:
+ * the background is never dead.
  *
- * ## Le pont pointeur → shader
+ * ## The pointer → shader bridge
  *
- * Aucun rendu React par image : la position amortie est recopiee dans un
- * tableau stable par une souscription a l'horloge du moteur, et la surface
- * relit ses uniforms a chaque image — la mutation suffit.
+ * No React render per frame: the damped position is copied into a stable
+ * array by a subscription to the engine clock, and the surface re-reads its
+ * uniforms every frame — the mutation is enough.
  *
- * ## Sous mouvement reduit
+ * ## Under reduced motion
  *
- * La surface est refusee par le moteur et le repli statique s'affiche.
+ * The surface is refused by the engine and the static fallback is shown.
  *
  * @module
  */
@@ -37,46 +37,46 @@ import { usePointerDamped } from '@registre/hooks/usePointerDamped'
 
 import { VEIL_PARALLAX_FRAGMENT } from './veil-parallax.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface VeilParallaxControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to this component. */
 export interface VeilParallaxOwnProps {
-  /** Amplitude de la parallaxe. @defaultValue 0.25 */
+  /** Amplitude of the parallax. @defaultValue 0.25 */
   depth?: number
-  /** Vitesse de la derive automatique. @defaultValue 0.08 */
+  /** Speed of the automatic drift. @defaultValue 0.08 */
   speed?: number
-  /** Echelle du bruit. Plus haut, plus fin. @defaultValue 2.5 */
+  /** Scale of the noise. The higher, the finer. @defaultValue 2.5 */
   scale?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<VeilParallaxControls>
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type VeilParallaxProps = Customisable<VeilParallaxOwnProps>
 
-/** Tokens employes par defaut : le fond, les nappes, la surface. */
+/** Tokens used by default: the background, the veils, the surface. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-purple-400',
   '--o-palette-pink-300',
 ] as const
 
-/** Repli par defaut : un degrade fige, dans les memes tons. */
+/** Default fallback: a frozen gradient, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-b o-from-zinc-50 dark:o-from-stone-950 o-to-purple-950'
 
 /**
- * Nappes parallaxes.
+ * Parallax veils.
  *
  * @example
  * <div className="o-relative o-min-h-screen">
@@ -95,20 +95,21 @@ export function VeilParallax({
 }: VeilParallaxProps): ReactElement {
   const [host, setHost] = useState<HTMLDivElement | null>(null)
 
-  // Tableau stable, mute en place dans la boucle : aucun setState par image.
+  // Stable array, mutated in place in the loop: no setState per frame.
   const uPointer = useRef<number[]>([0.5, 0.5]).current
 
-  // Amortissement doux : une parallaxe seche donnerait le mal de mer.
-  const pointer = usePointerDamped({ host, speed: 2, name: 'veil-parallax : pointeur' })
+  // Gentle damping: a dry parallax would bring on seasickness.
+  const pointer = usePointerDamped({ host, speed: 2, name: 'veil-parallax : pointer' })
 
   useEffect(() => {
     const subscription = clock.subscribe(
       () => {
-        // Du repere du hook (centre, y vers le bas) vers celui de la texture.
+        // From the hook's frame of reference (centred, y downwards) to the
+        // texture's.
         uPointer[0] = (pointer.current.x + 1) / 2
         uPointer[1] = 1 - (pointer.current.y + 1) / 2
       },
-      { priority: CLOCK_PRIORITY.input, name: 'veil-parallax : pont' },
+      { priority: CLOCK_PRIORITY.input, name: 'veil-parallax : bridge' },
     )
     return () => subscription.unsubscribe()
   }, [pointer, uPointer])

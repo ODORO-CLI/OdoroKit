@@ -1,38 +1,37 @@
 /**
- * Format d'une entree de registre.
+ * Format of a registry entry.
  *
- * ## Pourquoi le schema vit ici
+ * ## Why the schema lives here
  *
- * Le format est un **contrat** entre le registre qui publie et le client qui
- * telecharge. Le placer du cote client n'est pas arbitraire : c'est la ou la
- * validation compte le plus. Le registre valide ce qu'il produit avant de le
- * publier ; le client, lui, valide ce qu'il recoit d'un serveur qu'il ne
- * controle pas, juste avant d'ecrire des fichiers dans le projet de
- * l'utilisateur.
+ * The format is a **contract** between the registry that publishes and the
+ * client that downloads. Putting it on the client side is not arbitrary: that
+ * is where the validation matters most. The registry validates what it produces
+ * before publishing it; the client validates what it receives from a server it
+ * does not control, just before writing files into the user project.
  *
- * Une seule definition, donc, employee aux deux bouts.
+ * A single definition, therefore, used at both ends.
  *
- * ## Le poids de la validation
+ * ## The weight of the validation
  *
- * Deux decisions, mesurees plutot que supposees.
+ * Two decisions, measured rather than assumed.
  *
- * La bibliotheque est **integree a la compilation** plutot que declaree en
- * dependance : installee, elle pese pres de six megaoctets, alors que la
- * surface reellement employee en represente une fraction.
+ * The library is **inlined at build time** rather than declared as a
+ * dependency: installed, it weighs close to six megabytes, while the surface
+ * actually used is a fraction of that.
  *
- * Et c'est sa variante concue pour le decoupage qui est employee, non son API
- * usuelle : la premiere produit treize kilo-octets minifies, la seconde quatre
- * cent vingt-sept. Un facteur trente-trois pour la meme validation. L'ecriture
- * y est plus verbeuse — les controles sont des fonctions plutot que des
- * methodes chainees — mais plaider le poids pour le moteur graphique et
- * l'ignorer ici serait incoherent.
+ * And it is its variant designed for splitting that is used, not its usual API:
+ * the first produces thirteen minified kilobytes, the second four hundred and
+ * twenty-seven. A factor of thirty-three for the same validation. Writing it is
+ * more verbose there — the checks are functions rather than chained methods —
+ * but pleading weight for the graphics engine and ignoring it here would be
+ * inconsistent.
  *
  * @module
  */
 
 import * as z from 'zod/mini'
 
-/** Categories de composants du registre. */
+/** Component categories of the registry. */
 export const CATEGORIES = [
   'text',
   'background',
@@ -42,196 +41,195 @@ export const CATEGORIES = [
   'ui',
   'section',
   /**
-   * Le rideau d'ouverture.
+   * The opening curtain.
    *
-   * Pas une section : une section occupe une place dans le flux de la page,
-   * un chargeur couvre l'ecran entier et disparait. Les ranger ensemble
-   * obligerait chaque section a declarer laquelle des deux elle est.
+   * Not a section: a section takes a place in the flow of the page, a loader
+   * covers the whole screen and disappears. Filing them together would force
+   * every section to declare which of the two it is.
    */
   'loader',
   'hooks',
 ] as const
 
-/** Niveaux de cout d'un composant. */
+/** Cost levels of a component. */
 export const PERF_TIERS = ['light', 'medium', 'heavy'] as const
 
-/** Backends graphiques declarables. */
+/** Declarable graphics backends. */
 export const GL_BACKENDS = ['ogl', 'three'] as const
 
-/** Nature du repli visuel d'un composant. */
+/** Nature of the visual fallback of a component. */
 export const FALLBACKS = ['poster', 'gradient', 'static', 'none'] as const
 
-/** Un fichier copie chez l'utilisateur. */
+/** A file copied into the user project. */
 const fileSchema = z.object({
-  /** Chemin dans le dossier du composant. */
+  /** Path inside the component directory. */
   path: z.string().check(z.minLength(1)),
   /**
-   * Destination dans le projet, relative a l'alias de composants. Les chemins
-   * absolus et les remontees sont refuses : la CLI ecrit chez l'utilisateur,
-   * et un chemin non borne y serait une porte ouverte.
+   * Destination in the project, relative to the components alias. Absolute
+   * paths and climbs are refused: the CLI writes into the user project, and an
+   * unbounded path would be an open door.
    */
   target: z.string().check(
     z.minLength(1),
     z.refine((value: string) => !value.startsWith('/') && !value.includes('..'), {
-      error:
-        'La destination doit rester relative et ne pas remonter dans l arborescence.',
+      error: 'The destination must stay relative and must not climb up the tree.',
     }),
   ),
 })
 
-/** Ce qu'un composant demande au moteur. */
+/** What a component asks of the engine. */
 const engineSchema = z.object({
   /**
-   * Plugins d'orchestration requis. `core` designe la bibliotheque de base,
-   * toujours presente avec le moteur.
+   * Orchestration plugins required. `core` designates the base library, always
+   * present with the engine.
    */
   gsap: z._default(z.array(z.string().check(z.minLength(1))), []),
-  /** Backend graphique requis, ou `false` si le composant n'en demande aucun. */
+  /** Graphics backend required, or `false` when the component asks for none. */
   gl: z._default(z.union([z.literal(false), z.enum(GL_BACKENDS)]), false),
 })
 
-/** Une propriete exposee par le composant. */
+/** A property exposed by the component. */
 const propSchema = z.object({
-  /** Nom de la propriete. */
+  /** Name of the property. */
   name: z.string().check(z.minLength(1)),
-  /** Type TypeScript, tel qu'il sera affiche dans la documentation. */
+  /** TypeScript type, as it will be shown in the documentation. */
   type: z.string().check(z.minLength(1)),
-  /** Obligatoire ou non. @defaultValue false */
+  /** Mandatory or not. @defaultValue false */
   required: z._default(z.boolean(), false),
-  /** Valeur par defaut, en representation source. */
+  /** Default value, in source form. */
   default: z.optional(z.union([z.string(), z.number(), z.boolean()])),
   /**
-   * Unite de la valeur. Les durees sont **toujours** en millisecondes : c'est
-   * une regle du registre, pas une convention locale.
+   * Unit of the value. Durations are **always** in milliseconds: that is a rule
+   * of the registry, not a local convention.
    */
   unit: z.optional(z.string()),
-  /** Explication affichee dans la table des proprietes. */
+  /** Explanation shown in the properties table. */
   description: z.optional(z.string()),
   /**
-   * Bornes d'un reglage numerique.
+   * Bounds of a numeric setting.
    *
-   * Elles servent a la documentation, qui en fabrique un curseur. Sans elles,
-   * la page devrait redeclarer ce que le meta sait deja — et les deux
-   * divergeraient au premier changement de valeur par defaut.
+   * They serve the documentation, which makes a slider out of them. Without
+   * them, the page would have to redeclare what the meta already knows — and
+   * the two would diverge at the first change of default value.
    */
   min: z.optional(z.number()),
   max: z.optional(z.number()),
   step: z.optional(z.number()),
-  /** Valeurs possibles d'un reglage a choix. */
+  /** Possible values of a choice setting. */
   options: z.optional(z.array(z.string())),
 })
 
-/** Cout du composant. */
+/** Cost of the component. */
 const perfSchema = z.object({
-  /** Niveau de cout. */
+  /** Cost level. */
   tier: z.enum(PERF_TIERS),
-  /** Backend graphique employe, s'il y en a un. */
+  /** Graphics backend used, when there is one. */
   backend: z._default(z.union([z.literal(false), z.enum(GL_BACKENDS)]), false),
-  /** Remarques affichees dans la documentation. */
+  /** Remarks shown in the documentation. */
   notes: z.optional(z.string()),
   /**
-   * Nature du repli visuel. Obligatoire pour un composant couteux : le repli
-   * fait partie du composant, pas de sa documentation.
+   * Nature of the visual fallback. Mandatory for an expensive component: the
+   * fallback is part of the component, not of its documentation.
    */
   fallback: z.optional(z.enum(FALLBACKS)),
 })
 
-/** Forme d'une entree, avant les regles qui croisent plusieurs champs. */
+/** Shape of an entry, before the rules that cross several fields. */
 const baseSchema = z.object({
-  /** Identifiant, unique dans sa categorie. */
+  /** Identifier, unique within its category. */
   name: z.string().check(
     z.regex(/^[a-z0-9]+(-[a-z0-9]+)*$/, {
-      error: 'Le nom doit etre en minuscules, avec des tirets pour separateurs.',
+      error: 'The name must be lowercase, with dashes as separators.',
     }),
   ),
-  /** Categorie. */
+  /** Category. */
   category: z.enum(CATEGORIES),
-  /** Titre affiche. */
+  /** Displayed title. */
   title: z.string().check(z.minLength(1)),
-  /** Description affichee, en une phrase. */
+  /** Displayed description, in one sentence. */
   description: z.string().check(z.minLength(1)),
-  /** Ce que le composant demande au moteur. */
+  /** What the component asks of the engine. */
   engine: z._default(engineSchema, { gsap: [], gl: false }),
-  /** Fichiers copies chez l'utilisateur. Au moins un. */
+  /** Files copied into the user project. At least one. */
   files: z.array(fileSchema).check(z.minLength(1)),
-  /** Paquets npm a installer. */
+  /** npm packages to install. */
   dependencies: z._default(z.array(z.string().check(z.minLength(1))), []),
   /**
-   * Autres entrees du registre dont celle-ci depend, sous la forme
-   * `categorie/nom`.
+   * Other registry entries this one depends on, in the form `category/name`.
    */
   registryDependencies: z._default(
     z.array(
       z.string().check(
         z.regex(/^[a-z]+\/[a-z0-9]+(-[a-z0-9]+)*$/, {
-          error: 'Une dependance de registre s ecrit "categorie/nom".',
+          error: 'A registry dependency is written "category/name".',
         }),
       ),
     ),
     [],
   ),
-  /** Variables CSS que le composant consomme. */
+  /** CSS variables the component consumes. */
   tokens: z._default(z.array(z.string().check(z.startsWith('--o-'))), []),
-  /** Proprietes exposees. */
+  /** Properties exposed. */
   props: z._default(z.array(propSchema), []),
-  /** Cout du composant. */
+  /** Cost of the component. */
   perf: perfSchema,
 })
 
-/** Une entree telle qu'elle sort de la validation. */
+/** An entry as it comes out of the validation. */
 export type RegistryMeta = z.infer<typeof baseSchema>
 
-/** Entree telle qu'elle est ecrite dans un `meta.json`, avant valeurs par defaut. */
+/** Entry as it is written in a `meta.json`, before default values. */
 export type RegistryMetaInput = z.input<typeof baseSchema>
 
 /**
- * Description complete d'une entree de registre.
+ * Complete description of a registry entry.
  *
- * Les regles qui croisent plusieurs champs sont verifiees ici plutot que dans
- * le script de validation : elles font partie du format, et un registre tiers
- * qui reutiliserait ce schema doit les subir aussi.
+ * The rules that cross several fields are checked here rather than in the
+ * validation script: they are part of the format, and a third-party registry
+ * reusing this schema must be subject to them too.
  */
 export const metaSchema = baseSchema.check(
   z.check<RegistryMeta>((payload) => {
     const meta = payload.value
 
-    // Un composant couteux sans repli laisse un rectangle vide pendant le
-    // chargement, sur les appareils lents et en mouvement reduit. Le repli
-    // fait partie du composant.
+    // An expensive component without a fallback leaves an empty rectangle while
+    // loading, on slow devices and in reduced motion. The fallback is part of
+    // the component.
     if (meta.perf.tier === 'heavy' && (meta.perf.fallback ?? 'none') === 'none') {
       payload.issues.push({
         code: 'custom',
         input: meta,
         path: ['perf', 'fallback'],
         message:
-          'Un composant de cout eleve doit declarer un repli visuel : il est affiche pendant le chargement, sans WebGL, et en mouvement reduit.',
+          'A high-cost component must declare a visual fallback: it is shown while loading, without WebGL, and in reduced motion.',
       })
     }
 
-    // Declarer un backend d'un cote et un autre de l'autre revient a mentir a
-    // la CLI, qui s'en sert pour avertir du surcout avant d'installer.
+    // Declaring one backend on one side and another on the other amounts to
+    // lying to the CLI, which uses it to warn about the extra cost before
+    // installing.
     if (meta.perf.backend !== false && meta.engine.gl !== meta.perf.backend) {
       payload.issues.push({
         code: 'custom',
         input: meta,
         path: ['perf', 'backend'],
-        message: `Le backend declare dans "perf" (${String(meta.perf.backend)}) ne correspond pas a celui de "engine" (${String(meta.engine.gl)}).`,
+        message: `The backend declared in "perf" (${String(meta.perf.backend)}) does not match the one of "engine" (${String(meta.engine.gl)}).`,
       })
     }
 
-    // Une scene 3D est le cas couteux par excellence : la classer autrement
-    // desactiverait les garde-fous de la CLI et de l'arbitre de surfaces.
+    // A 3D scene is the expensive case par excellence: classing it otherwise
+    // would disable the safeguards of the CLI and of the surface arbiter.
     if (meta.engine.gl === 'three' && meta.perf.tier !== 'heavy') {
       payload.issues.push({
         code: 'custom',
         input: meta,
         path: ['perf', 'tier'],
-        message: 'Un composant employant une scene 3D est necessairement de cout eleve.',
+        message: 'A component using a 3D scene is necessarily of high cost.',
       })
     }
 
-    // Deux fichiers ecrits au meme endroit : le second effacerait le premier
-    // sans que rien ne le signale.
+    // Two files written to the same place: the second would erase the first
+    // without anything reporting it.
     const targets = meta.files.map((file) => file.target)
     const duplicates = targets.filter(
       (target, index) => targets.indexOf(target) !== index,
@@ -241,26 +239,26 @@ export const metaSchema = baseSchema.check(
         code: 'custom',
         input: meta,
         path: ['files'],
-        message: `Plusieurs fichiers visent la meme destination : ${[...new Set(duplicates)].join(', ')}.`,
+        message: `Several files target the same destination: ${[...new Set(duplicates)].join(', ')}.`,
       })
     }
   }),
 )
 
-/** Identifiant complet d'une entree, sous la forme `categorie/nom`. */
+/** Full identifier of an entry, in the form `category/name`. */
 export function entryId(meta: Pick<RegistryMeta, 'category' | 'name'>): string {
   return `${meta.category}/${meta.name}`
 }
 
-/** Une entree publiee, code source inline. */
+/** A published entry, source code inlined. */
 export interface PublishedEntry extends RegistryMeta {
-  /** Identifiant complet. */
+  /** Full identifier. */
   readonly id: string
-  /** Contenu des fichiers, indexe par leur chemin dans le composant. */
+  /** Content of the files, indexed by their path inside the component. */
   readonly sources: Readonly<Record<string, string>>
 }
 
-/** Resume d'une entree, tel qu'il figure dans l'index. */
+/** Summary of an entry, as it appears in the index. */
 export interface IndexEntry {
   readonly id: string
   readonly name: string
@@ -272,22 +270,22 @@ export interface IndexEntry {
   readonly registryDependencies: readonly string[]
 }
 
-/** Index du registre, servi a la racine. */
+/** Index of the registry, served at the root. */
 export interface RegistryIndex {
-  /** Version du format, pour que le client sache s'il sait lire. */
+  /** Version of the format, so that the client knows whether it can read it. */
   readonly version: 1
-  /** Date de generation, en ISO 8601. */
+  /** Generation date, in ISO 8601. */
   readonly generatedAt: string
-  /** Resume de chaque entree, sans le code source. */
+  /** Summary of each entry, without the source code. */
   readonly entries: readonly IndexEntry[]
 }
 
 /**
- * Valide une entree et rend des messages lisibles en cas d'echec.
+ * Validates an entry and returns readable messages on failure.
  *
- * Les messages bruts sont exacts mais arides : ils sont reformates en chemin
- * plus explication, pour qu'un auteur de composant sache quoi corriger sans
- * avoir a lire le schema.
+ * The raw messages are exact but dry: they are reformatted as path plus
+ * explanation, so that a component author knows what to fix without having to
+ * read the schema.
  *
  * @example
  * const result = parseMeta(JSON.parse(raw), 'text/split-reveal')

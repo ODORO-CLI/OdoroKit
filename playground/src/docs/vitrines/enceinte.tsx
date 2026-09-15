@@ -49,7 +49,7 @@
 import { clock, CLOCK_PRIORITY, useMotionState } from '@odoro-cli/engine'
 import { type SceneContext } from '@odoro-cli/engine/three'
 import { Icon } from '@odoro-cli/icons'
-import { ArrowDown, ArrowUpRight } from '@odoro-cli/icons/filaire'
+import { ArrowDown, ArrowUpRight } from '@odoro-cli/icons/outline'
 import {
   useCallback,
   useEffect,

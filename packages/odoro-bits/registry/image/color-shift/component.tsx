@@ -1,29 +1,28 @@
 /**
- * Derive des teintes : le cadre est une table de reglage. La position
- * horizontale du pointeur fait tourner les teintes, la verticale monte ou
- * descend la saturation.
+ * Hue drift: the frame is a control desk. The horizontal position of the
+ * pointer rotates the hues, the vertical one raises or lowers the saturation.
  *
- * ## Deux axes, pas un interrupteur
+ * ## Two axes, not a switch
  *
- * Une image qui change de couleur au survol change une fois : c'est un etat.
- * Ici le survol ne declenche rien, il **dose**. On promene le pointeur et
- * l'on cherche le ton, comme sur un correcteur colorimetrique. C'est ce qui
- * distingue cette entree de la bichromie, qui impose deux tons choisis a
- * l'avance, et du glitch, qui separe les couches sans les teindre.
+ * An image that changes colour on hover changes once: that is a state. Here
+ * the hover triggers nothing, it **doses**. One walks the pointer around and
+ * looks for the tone, as on a colour grading desk. That is what sets this
+ * entry apart from the duotone, which imposes two tones chosen in advance, and
+ * from the glitch, which separates the channels without tinting them.
  *
- * ## Une seule propriete animee, deux variables
+ * ## A single animated property, two variables
  *
- * Le filtre est ecrit une fois, en ligne, et ne contient que des variables :
- * `hue-rotate(var(...)) saturate(var(...))`. Le geste n'ecrit donc que deux
- * nombres sur l'element hote, dont l'image herite. Aucun rendu React, une
- * seule propriete recalculee, et une transition courte qui suffit a lisser le
- * pas irregulier auquel le systeme livre les evenements de pointeur.
+ * The filter is written once, inline, and contains nothing but variables:
+ * `hue-rotate(var(...)) saturate(var(...))`. The gesture therefore writes only
+ * two numbers on the host element, which the image inherits. No React render,
+ * a single recomputed property, and a short transition that is enough to
+ * smooth the irregular pace at which the system delivers pointer events.
  *
- * ## Sous mouvement reduit
+ * ## Under reduced motion
  *
- * Le filtre n'est pas pose du tout et rien n'ecoute : l'image reste dans ses
- * couleurs d'origine, nette. Une derive de teintes est un agrement, pas une
- * information — il n'y a pas d'etat final a preserver.
+ * The filter is not applied at all and nothing listens: the image stays in its
+ * original colours, crisp. A hue drift is an embellishment, not information —
+ * there is no final state to preserve.
  *
  * @module
  */
@@ -31,40 +30,40 @@
 import { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface ColorShiftOwnProps {
-  /** Source de l'image. */
+  /** Source of the image. */
   src: string
-  /** Texte de remplacement. Chaine vide si l'image est purement decorative. */
+  /** Alternative text. Empty string if the image is purely decorative. */
   alt: string
-  /** Rapport largeur sur hauteur du cadre. @defaultValue 1.777 */
+  /** Width to height ratio of the frame. @defaultValue 1.777 */
   ratio?: number
   /**
-   * Rotation des teintes atteinte aux bords du cadre, en degres.
+   * Hue rotation reached at the edges of the frame, in degrees.
    *
-   * La rotation est symetrique : a gauche elle est negative, a droite
-   * positive, et nulle en son milieu — le centre rend l'image telle quelle.
+   * The rotation is symmetric: on the left it is negative, on the right
+   * positive, and zero in the middle — the centre gives the image as it is.
    *
    * @defaultValue 140
    */
   shift?: number
-  /** Saturation atteinte en haut du cadre. En bas, l'image est desaturee. @defaultValue 1.6 */
+  /** Saturation reached at the top of the frame. At the bottom, the image is desaturated. @defaultValue 1.6 */
   saturate?: number
-  /** Duree du lissage entre deux positions, en millisecondes. @defaultValue 220 */
+  /** Duration of the smoothing between two positions, in milliseconds. @defaultValue 220 */
   duration?: number
 }
 
-/** Toutes les proprietes : les siennes, plus celles d'une image. */
+/** All properties: its own, plus those of an image. */
 export type ColorShiftProps = Customisable<ColorShiftOwnProps, 'img'>
 
 /**
- * Fait deriver les teintes d'une image sous le pointeur.
+ * Drifts the hues of an image under the pointer.
  *
  * @example
- * <ColorShift src="/photo.jpg" alt="Vue de l atelier" />
+ * <ColorShift src="/photo.jpg" alt="View of the workshop" />
  *
  * @example
- * // Derive courte, saturation contenue : un simple frisson de couleur.
+ * // Short drift, contained saturation: a mere shiver of colour.
  * <ColorShift src="/photo.jpg" alt="" shift={40} saturate={1.2} />
  */
 export function ColorShift({
@@ -79,7 +78,7 @@ export function ColorShift({
   const { reduced } = useMotionState()
 
   const amplitude = Math.max(0, shift)
-  const haut = Math.max(0, saturate)
+  const top = Math.max(0, saturate)
 
   const { className, style } = mergePresentation(
     { className: 'o-relative o-overflow-hidden' },
@@ -93,8 +92,8 @@ export function ColorShift({
     '--o-cs-sat': '1',
   } as CSSProperties
 
-  /** Ramene une valeur au repos : l'image telle qu'elle a ete fournie. */
-  const reposer = (frame: HTMLElement): void => {
+  /** Brings the values back to rest: the image exactly as it was supplied. */
+  const resetFilter = (frame: HTMLElement): void => {
     frame.style.setProperty('--o-cs-hue', '0deg')
     frame.style.setProperty('--o-cs-sat', '1')
   }
@@ -110,22 +109,23 @@ export function ColorShift({
               const frame = event.currentTarget
               const box = frame.getBoundingClientRect()
 
-              // Horizontale ramenee a [-1, 1] : le milieu du cadre ne touche
-              // pas aux teintes.
+              // Horizontal brought back to [-1, 1]: the middle of the frame
+              // does not touch the hues.
               const x = ((event.clientX - box.left) / Math.max(box.width, 1)) * 2 - 1
-              // Verticale ramenee a [0, 1], puis retournee : le haut sature,
-              // le bas efface — le sens qu'a un curseur d'intensite.
+              // Vertical brought back to [0, 1], then flipped: the top
+              // saturates, the bottom washes out — the direction an intensity
+              // slider has.
               const y = 1 - (event.clientY - box.top) / Math.max(box.height, 1)
 
               frame.style.setProperty('--o-cs-hue', `${(x * amplitude).toFixed(1)}deg`)
-              frame.style.setProperty('--o-cs-sat', (y * haut).toFixed(3))
+              frame.style.setProperty('--o-cs-sat', (y * top).toFixed(3))
             }
       }
       onPointerLeave={
         reduced
           ? undefined
           : (event) => {
-              reposer(event.currentTarget)
+              resetFilter(event.currentTarget)
             }
       }
     >

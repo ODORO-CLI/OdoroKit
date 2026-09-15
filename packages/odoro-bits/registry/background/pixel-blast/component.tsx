@@ -1,38 +1,37 @@
 /**
- * Explosion de pixels : chaque clic projette une gerbe de pixels carres qui
- * retombent.
+ * Pixel blast: every click throws out a burst of square pixels that fall back
+ * down.
  *
- * ## A quoi ce fond reagit
+ * ## What this background reacts to
  *
- * Au clic — ou au toucher — sur le cadre : chaque appui date une gerbe dans
- * un tampon circulaire de cinq emplacements, et les pixels partent de la
- * case de trame de l'appui. Le deplacement du pointeur ne change rien.
+ * To a click — or a touch — on the frame: every press stamps a burst into a
+ * ring buffer of five slots, and the pixels leave from the grid cell of the
+ * press. Moving the pointer changes nothing.
  *
- * Une gerbe automatique part aussi toute seule, a intervalle regle : un
- * fond qui n'existe qu'au clic resterait vide dans la plupart des pages.
- * Zero la coupe.
+ * An automatic burst also goes off on its own, at a set interval: a
+ * background that exists only on click would stay empty on most pages. Zero
+ * switches it off.
  *
- * ## Ce qui le distingue des feux d'artifice
+ * ## What sets it apart from the fireworks
  *
- * Tout est aligne sur une trame : les pixels sont des carres qui sautent de
- * case en case, sans halo ni trainee, et l'explosion est un carre qui
- * s'elargit. Les feux d'artifice dessinent des etincelles rondes et floues
- * dans un espace continu.
+ * Everything is aligned on a grid: the pixels are squares that hop from cell
+ * to cell, with no halo and no trail, and the blast is a square that widens.
+ * The fireworks draw round, blurred sparks in a continuous space.
  *
- * ## Le pont clic -> shader
+ * ## The click -> shader bridge
  *
- * Aucun rendu React par image : le tampon est un tableau stable de quinze
- * flottants (cinq fois x, y, temps de depart), mute en place a chaque clic.
- * La surface relit ses uniforms a chaque image, l'identite du tableau ne
- * change pas — la mutation suffit.
+ * No React render per frame: the buffer is a stable array of fifteen floats
+ * (five times x, y, start time), mutated in place on every click. The surface
+ * re-reads its uniforms every frame, the identity of the array does not
+ * change — the mutation is enough.
  *
- * Le temps ecrit dans le tampon est celui de l'horloge du moteur, memorise
- * par une souscription en priorite d'entree : c'est le meme temps que
- * `uTime` du shader, sans quoi l'age des gerbes serait faux.
+ * The time written into the buffer is the engine clock's, kept by a
+ * subscription at input priority: it is the same time as the shader's
+ * `uTime`, without which the age of the bursts would be wrong.
  *
- * ## Sous mouvement reduit
+ * ## Under reduced motion
  *
- * La surface est refusee par le moteur et le repli statique s'affiche.
+ * The surface is refused by the engine and the static fallback is shown.
  *
  * @module
  */
@@ -51,58 +50,58 @@ import { useEffect, useRef, useState, type ReactElement } from 'react'
 
 import { PIXEL_BLAST_FRAGMENT } from './pixel-blast.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface PixelBlastControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to this component. */
 export interface PixelBlastOwnProps {
-  /** Pixels de la trame sur la hauteur du cadre. @defaultValue 40 */
+  /** Pixels of the grid over the height of the frame. @defaultValue 40 */
   pixels?: number
-  /** Pixels projetes par gerbe. @defaultValue 24 */
+  /** Pixels thrown out per burst. @defaultValue 24 */
   count?: number
-  /** Force de la retombee. @defaultValue 0.5 */
+  /** Strength of the fall. @defaultValue 0.5 */
   gravity?: number
-  /** Periode des gerbes automatiques, en secondes. Zero les coupe. @defaultValue 2.2 */
+  /** Period of the automatic bursts, in seconds. Zero switches them off. @defaultValue 2.2 */
   auto?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<PixelBlastControls>
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type PixelBlastProps = Customisable<PixelBlastOwnProps>
 
-/** Tokens employes par defaut : le fond, les deux teintes de pixels. */
+/** Tokens used by default: the background, the two pixel hues. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-brand-500',
   '--o-palette-yellow-300',
 ] as const
 
-/** Repli par defaut : une teinte figee, dans les memes tons. */
+/** Default fallback: a frozen tint, in the same tones. */
 const DEFAULT_FALLBACK = 'o-bg-zinc-50 dark:o-bg-zinc-950'
 
-/** Nombre de gerbes vivantes a la fois. */
+/** Number of bursts alive at a time. */
 const SLOTS = 5
 
 /**
- * Pixels par gerbe en qualite basse.
+ * Pixels per burst at low quality.
  *
- * Chaque pixel est une position et une comparaison de case par fragment,
- * pour chacune des six gerbes possibles : c'est le seul levier de cout.
+ * Every pixel is one position and one cell comparison per fragment, for each
+ * of the six possible bursts: it is the only cost lever there is.
  */
 const LOW_COUNT = 12
 
 /**
- * Explosion de pixels.
+ * Pixel blast.
  *
  * @example
  * <div className="o-relative o-min-h-screen">
@@ -122,12 +121,12 @@ export function PixelBlast({
 }: PixelBlastProps): ReactElement {
   const [host, setHost] = useState<HTMLDivElement | null>(null)
 
-  // Tampon stable, mute en place : cinq fois (x, y, temps de depart). Un
-  // depart a -1000 donne un age enorme, donc une gerbe inerte d'office.
+  // Stable buffer, mutated in place: five times (x, y, start time). A start
+  // at -1000 gives an enormous age, hence a burst inert from the outset.
   const uClicks = useRef<number[]>(Array.from({ length: SLOTS * 3 }, () => -1000)).current
 
-  // Le temps de l'horloge du moteur — le meme que uTime du shader. C'est lui
-  // qui date les gerbes ; performance.now() donnerait une autre origine.
+  // The time of the engine clock — the same as the shader's uTime. It is what
+  // stamps the bursts; performance.now() would give a different origin.
   const lastTime = useRef(0)
 
   useEffect(() => {
@@ -135,7 +134,7 @@ export function PixelBlast({
       ({ time }) => {
         lastTime.current = time
       },
-      { priority: CLOCK_PRIORITY.input, name: 'pixel-blast : horloge' },
+      { priority: CLOCK_PRIORITY.input, name: 'pixel-blast : clock' },
     )
     return () => subscription.unsubscribe()
   }, [])
@@ -146,10 +145,10 @@ export function PixelBlast({
     const onDown = (event: PointerEvent): void => {
       const bounds = host.getBoundingClientRect()
       const x = (event.clientX - bounds.left) / Math.max(bounds.width, 1)
-      // vUv a son origine en bas : l'axe vertical de l'ecran est inverse.
+      // vUv has its origin at the bottom: the screen's vertical axis is flipped.
       const y = 1 - (event.clientY - bounds.top) / Math.max(bounds.height, 1)
 
-      // Tampon circulaire : tout se decale d'un cran, la nouvelle gerbe en tete.
+      // Ring buffer: everything shifts by one notch, the new burst at the head.
       for (let i = SLOTS - 1; i > 0; i -= 1) {
         uClicks[i * 3] = uClicks[(i - 1) * 3] ?? -1000
         uClicks[i * 3 + 1] = uClicks[(i - 1) * 3 + 1] ?? -1000

@@ -1,31 +1,31 @@
 /**
- * Nuee : des points qui volent en groupe selon les regles des boids, et
- * evitent le pointeur.
+ * Swarm: dots that fly as a group following the boids rules, and
+ * steer clear of the pointer.
  *
- * ## Pourquoi des points instancies, et pas un shader
+ * ## Why instanced points, and not a shader
  *
- * Un shader de fragment resout chaque particule la ou elle est, sans memoire
- * d'une image a l'autre : une derive, une chute, une explosion se decrivent
- * ainsi, par une formule du temps. Une nuee, non. Chaque boid depend de ses
- * voisins a l'image precedente — separation, alignement, cohesion — et cette
- * dependance est un etat qu'il faut conserver et integrer. La simulation vit
- * donc sur le processeur, dans deux tableaux plats, et le rendu est un seul
- * appel de dessin : un nuage de points dont on reecrit l'attribut de position
- * a chaque image. Quelques centaines de boids en n carre restent tres en
- * dessous d'une milliseconde, et c'est la technique la plus simple qui tienne
- * la cadence.
+ * A fragment shader solves each particle where it stands, with no memory
+ * from one frame to the next: a drift, a fall, an explosion are described
+ * that way, by a formula of time. A swarm is not. Each boid depends on its
+ * neighbours at the previous frame — separation, alignment, cohesion — and
+ * that dependency is a state which has to be kept and integrated. The
+ * simulation therefore lives on the processor, in two flat arrays, and the
+ * render is a single draw call: a cloud of points whose position attribute is
+ * rewritten every frame. A few hundred boids in n squared stay well
+ * below a millisecond, and this is the simplest technique that holds
+ * the frame rate.
  *
- * ## A quoi ce fond reagit
+ * ## What this background reacts to
  *
- * Au pointeur, avec amortissement : les boids qui l'approchent sont repousses
- * et la nuee s'ouvre autour de lui, puis se referme quand il s'eloigne.
+ * To the pointer, with damping: the boids that come close to it are pushed
+ * away and the swarm opens around it, then closes again as it moves off.
  *
- * ## Ce que ce composant ne fait pas
+ * ## What this component does not do
  *
- * Il n'ouvre ni boucle d'animation, ni observateur de taille ou de
- * visibilite : `useScene` les porte. Il n'ecrit aucune couleur : le fond et
- * les boids sont lus dans les tokens, et repeints en place quand le theme
- * bascule.
+ * It opens neither an animation loop nor a size or visibility observer:
+ * `useScene` carries those. It writes no colour: the background and the
+ * boids are read from the tokens, and repainted in place when the theme
+ * flips.
  *
  * @module
  */
@@ -42,47 +42,47 @@ import { useEffect, useRef, useState, type ReactElement } from 'react'
 import { usePointerDamped } from '@registre/hooks/usePointerDamped'
 import { usePoster } from '@registre/hooks/usePoster'
 
-/** Proprietes propres au composant. */
+/** Props specific to this component. */
 export interface SwarmOwnProps {
-  /** Nombre de boids. @defaultValue 240 */
+  /** Number of boids. @defaultValue 240 */
   count?: number
-  /** Vitesse de vol. @defaultValue 1 */
+  /** Flight speed. @defaultValue 1 */
   speed?: number
-  /** Rayon d'evitement du pointeur, en unites de scene. @defaultValue 0.9 */
+  /** Pointer avoidance radius, in scene units. @defaultValue 0.9 */
   avoid?: number
-  /** Tokens : le fond, les boids. */
+  /** Tokens: the background, the boids. */
   colors?: readonly [string, string]
-  /** Classes du repli. */
+  /** Fallback classes. */
   poster?: string
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type SwarmProps = Customisable<SwarmOwnProps>
 
-/** Tokens employes par defaut. */
+/** Tokens used by default. */
 const DEFAULT_TOKENS = ['--o-theme-bg', '--o-palette-brand-500'] as const
 
-/** Repli par defaut : une teinte figee, dans les memes tons. */
+/** Default fallback: a frozen tint, in the same tones. */
 const DEFAULT_POSTER = 'o-bg-zinc-50 dark:o-bg-zinc-950'
 
 /**
- * Nombre de boids en qualite basse.
+ * Number of boids at low quality.
  *
- * Le cout est en n carre : c'est le seul levier qui compte, et le diviser
- * par deux divise le travail par quatre.
+ * The cost is in n squared: it is the only lever that counts, and halving
+ * it divides the work by four.
  */
 const LOW_COUNT = 100
 
 /**
- * Demi-hauteur visible a la distance de la camera, en unites de scene :
- * tangente de la moitie de l'ouverture fois la distance.
+ * Visible half-height at the camera's distance, in scene units:
+ * tangent of half the field of view times the distance.
  */
 const HALF_HEIGHT = Math.tan((45 / 2) * (Math.PI / 180)) * 5
 
-/** Rayon de perception d'un boid. */
+/** Perception radius of a boid. */
 const SIGHT = 0.55
 
-/** Un boid : position et vitesse, dans le plan de la camera. */
+/** A boid: position and velocity, in the plane of the camera. */
 interface Boid {
   x: number
   y: number
@@ -95,7 +95,7 @@ type Attribute = InstanceType<Three['BufferAttribute']>
 type PointsMaterial = InstanceType<Three['PointsMaterial']>
 
 /**
- * Nuee.
+ * Swarm.
  *
  * @example
  * <div className="o-relative o-h-96 o-overflow-hidden">
@@ -114,31 +114,31 @@ export function Swarm({
   const { theme } = useMotionState()
   const [host, setHost] = useState<HTMLElement | null>(null)
 
-  const pointer = usePointerDamped({ host, speed: 5, name: 'nuee : pointeur' })
+  const pointer = usePointerDamped({ host, speed: 5, name: 'swarm : pointer' })
 
-  /** Ce que la boucle lit : la simulation, l'attribut a reecrire, le materiau. */
+  /** What the loop reads: the simulation, the attribute to rewrite, the material. */
   const boids = useRef<Boid[]>([])
   const attribute = useRef<Attribute | null>(null)
   const material = useRef<PointsMaterial | null>(null)
   const context = useRef<SceneContext | null>(null)
 
   const { ref, ready, refused } = useScene({
-    name: 'nuee',
+    name: 'swarm',
     setup: (scene) => {
       context.current = scene
       const { three, renderer, quality } = scene
 
       const [bg, tint] = colors.map((token) => readTokenColour(token, host))
       const bgColour = new three.Color(bg?.[0] ?? 0, bg?.[1] ?? 0, bg?.[2] ?? 0)
-      // Le token est en sRGB et le moteur encode sa couleur d'effacement du
-      // lineaire vers le sRGB : sans la conversion inverse, le fond ressort
-      // un cran plus clair que la page.
+      // The token is in sRGB and the engine encodes its clear colour from
+      // linear to sRGB: without the reverse conversion, the background comes
+      // out one notch lighter than the page.
       renderer.setClearColor(bgColour.convertSRGBToLinear(), 1)
 
       const total = quality === 'low' ? Math.min(count, LOW_COUNT) : count
       const halfWidth = HALF_HEIGHT * scene.camera.aspect
 
-      // Depart : positions et directions tirees au hasard, vitesses egales.
+      // Start: positions and headings drawn at random, speeds all equal.
       boids.current = Array.from({ length: total }, () => {
         const heading = Math.random() * Math.PI * 2
         return {
@@ -166,7 +166,7 @@ export function Swarm({
       material.current = points
 
       const cloud = new three.Points(geometry, points)
-      cloud.name = 'nuee'
+      cloud.name = 'swarm'
       scene.scene.add(cloud)
 
       return () => {
@@ -180,12 +180,12 @@ export function Swarm({
       const positions = attribute.current
       if (positions === null) return
 
-      // Un pas borne : une image longue — onglet revenu au premier plan — ne
-      // doit pas projeter la nuee hors du cadre.
+      // A bounded step: a long frame — a tab brought back to the foreground —
+      // must not fling the swarm out of the frame.
       const dt = Math.min(delta, 0.05)
       const halfWidth = HALF_HEIGHT * camera.aspect
 
-      // Le pointeur en unites de scene, y vers le haut.
+      // The pointer in scene units, y upwards.
       const px = pointer.current.x * halfWidth
       const py = -pointer.current.y * HALF_HEIGHT
 
@@ -204,8 +204,8 @@ export function Swarm({
         let cohY = 0
         let seen = 0
 
-        // Les trois regles, sur les voisins a portee de vue. En n carre :
-        // pour quelques centaines de boids, bien en dessous d'une milliseconde.
+        // The three rules, over the neighbours within sight. In n squared:
+        // for a few hundred boids, well below a millisecond.
         for (const other of flock) {
           if (other === boid) continue
           const dx = other.x - boid.x
@@ -213,7 +213,7 @@ export function Swarm({
           const d2 = dx * dx + dy * dy
           if (d2 > sight2 || d2 === 0) continue
           seen += 1
-          // Separation : d'autant plus forte que le voisin est proche.
+          // Separation: the stronger the closer the neighbour is.
           sepX -= dx / d2
           sepY -= dy / d2
           aliX += other.vx
@@ -229,8 +229,8 @@ export function Swarm({
           ay += sepY * 0.06 + (aliY / seen - boid.vy) * 1.2 + (cohY / seen) * 0.9
         }
 
-        // L'evitement du pointeur : une poussee radiale qui decroit avec la
-        // distance, nulle au-dela du rayon.
+        // Pointer avoidance: a radial push that falls off with the
+        // distance, nil beyond the radius.
         const ex = boid.x - px
         const ey = boid.y - py
         const ed = Math.hypot(ex, ey)
@@ -240,7 +240,7 @@ export function Swarm({
           ay += (ey / ed) * push
         }
 
-        // Les bords : un rappel doux vers l'interieur, pas un mur.
+        // The edges: a gentle pull back inwards, not a wall.
         const marginX = halfWidth * 0.85
         const marginY = HALF_HEIGHT * 0.85
         if (boid.x > marginX) ax -= (boid.x - marginX) * 6
@@ -251,8 +251,8 @@ export function Swarm({
         boid.vx += ax * dt
         boid.vy += ay * dt
 
-        // Une nuee ne s'arrete ni ne s'emballe : la vitesse est ramenee
-        // entre une vitesse de croisiere et un plafond.
+        // A swarm neither stops nor runs away with itself: the speed is
+        // brought back between a cruising speed and a ceiling.
         const v = Math.hypot(boid.vx, boid.vy) || 0.0001
         const clamped = Math.min(Math.max(v, cruise), limit)
         boid.vx = (boid.vx / v) * clamped
@@ -269,8 +269,8 @@ export function Swarm({
     },
   })
 
-  // Le theme a bascule : les tokens sont relus et les couleurs repeintes en
-  // place. La scene n'est pas reconstruite.
+  // The theme has flipped: the tokens are read again and the colours repainted
+  // in place. The scene is not rebuilt.
   useEffect(() => {
     const scene = context.current
     const points = material.current

@@ -1,31 +1,31 @@
 /**
- * Shaders du cristal : des facettes plates et une refraction feinte.
+ * Crystal shaders: flat facets and a feigned refraction.
  *
- * ## L'idee
+ * ## The idea
  *
- * Un vrai cristal refracte ce qu'il y a derriere lui. Ici il n'y a rien
- * derriere — pas d'environnement, pas de texture — et c'est voulu : un
- * environnement se telecharge, se prepare, et pese. A la place, la direction
- * refractee sert d'indice dans un degrade vertical entre deux teintes : une
- * facette qui devie le regard vers le haut prend l'une, vers le bas l'autre.
- * Comme chaque facette est plate, chaque facette a sa couleur propre, et le
- * cristal se lit par ses aretes.
+ * A real crystal refracts what lies behind it. Here there is nothing behind
+ * — no environment, no texture — and that is deliberate: an environment has
+ * to be downloaded, prepared, and it weighs. Instead, the refracted
+ * direction serves as an index into a vertical gradient between two hues: a
+ * facet that bends the gaze upwards takes one, downwards the other. Since
+ * every facet is flat, every facet has its own colour, and the crystal
+ * reads through its edges.
  *
- * La dispersion est feinte de la meme facon : trois indices de refraction,
- * un par canal, et les couleurs se separent d'un liseret sur les aretes.
+ * The dispersion is feigned the same way: three refractive indices, one per
+ * channel, and the colours part into a rim along the edges.
  *
- * ## Deux passes
+ * ## Two passes
  *
- * Les faces arriere sont dessinees d'abord, plus sombres, puis les faces
- * avant par-dessus : c'est la profondeur du cristal, ce qu'on voit a travers
- * lui de lui-meme. Le fragment recoit `uBack` pour savoir laquelle des deux
- * il dessine, parce que les faces arriere sont retournees par le moteur de
- * rendu et se croient de face.
+ * The back faces are drawn first, darker, then the front faces over the top:
+ * that is the crystal's depth, what one sees of itself through itself. The
+ * fragment receives `uBack` so as to know which of the two it is drawing,
+ * because the back faces are flipped by the renderer and believe themselves
+ * to be facing forwards.
  *
  * @module
  */
 
-/** Vertex shader : normale de facette et position en espace vue. */
+/** Vertex shader: facet normal and position in view space. */
 export const CRYSTAL_VERTEX = /* glsl */ `
 varying vec3 vNormal;
 varying vec3 vViewPosition;
@@ -38,7 +38,7 @@ void main() {
 }
 `
 
-/** Fragment shader : refraction feinte, dispersion, fresnel, deux reflets. */
+/** Fragment shader: feigned refraction, dispersion, fresnel, two highlights. */
 export const CRYSTAL_FRAGMENT = /* glsl */ `
 precision highp float;
 
@@ -50,20 +50,20 @@ uniform float uBack;
 varying vec3 vNormal;
 varying vec3 vViewPosition;
 
-// Le degrade que la refraction "voit" : d'une teinte en bas a l'autre en haut.
+// The gradient the refraction "sees": from one hue below to the other above.
 vec3 crystalGradient(float t) {
   return mix(uColorA, uColorB, smoothstep(-0.7, 0.8, t));
 }
 
 void main() {
-  // Les faces arriere sont retournees par le moteur : leur normale regarde
-  // vers l'interieur, et le fresnel les prendrait toutes pour des aretes.
+  // The back faces are flipped by the engine: their normal looks inwards,
+  // and the fresnel would take them all for edges.
   vec3 normal = normalize(vNormal) * (1.0 - 2.0 * uBack);
   vec3 view = normalize(-vViewPosition);
   float facing = max(dot(normal, view), 0.0);
   float fresnel = pow(1.0 - facing, 3.0);
 
-  // Trois indices, trois directions, une couleur par canal.
+  // Three indices, three directions, one colour per channel.
   float eta = 1.0 / 1.45;
   float spread = uDispersion * 0.07;
   vec3 red = refract(-view, normal, eta - spread);
@@ -79,15 +79,15 @@ void main() {
   float diffuse = max(dot(normal, light), 0.0);
   float specular = pow(max(dot(normal, normalize(light + view)), 0.0), 80.0);
 
-  // Un second reflet, bas et a gauche : le rebond du sol, plus large.
+  // A second highlight, low and to the left: the bounce off the floor, broader.
   vec3 bounce = normalize(vec3(-0.7, -0.2, 0.4));
-  float rebond = pow(max(dot(normal, normalize(bounce + view)), 0.0), 40.0) * 0.4;
+  float bounceSpecular = pow(max(dot(normal, normalize(bounce + view)), 0.0), 40.0) * 0.4;
 
-  // La part ambiante est haute : un cristal sombre sur un fond sombre n'est
-  // plus qu'une silhouette, et c'est par ses facettes qu'il doit se lire.
-  vec3 colour = refracted * (0.55 + 0.55 * diffuse) + uColorB * (specular + rebond + fresnel * 0.4);
+  // The ambient share is high: a dark crystal on a dark background is no
+  // more than a silhouette, and it is by its facets that it must read.
+  vec3 colour = refracted * (0.55 + 0.55 * diffuse) + uColorB * (specular + bounceSpecular + fresnel * 0.4);
 
-  // Les faces arriere, vues a travers, sont plus discretes.
+  // The back faces, seen through, are more discreet.
   float alpha = (0.55 + 0.45 * fresnel + specular * 0.5) * mix(1.0, 0.55, uBack);
 
   gl_FragColor = vec4(colour, clamp(alpha, 0.0, 1.0));

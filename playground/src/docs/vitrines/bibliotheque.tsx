@@ -32,7 +32,7 @@
  */
 
 import { Icon } from '@odoro-cli/icons'
-import { ArrowDown, BookOpen, CornerDownRight } from '@odoro-cli/icons/filaire'
+import { ArrowDown, BookOpen, CornerDownRight } from '@odoro-cli/icons/outline'
 import { useMemo, useState, type CSSProperties, type ReactElement } from 'react'
 
 import { Frame } from '@/odoro/image/Frame.jsx'

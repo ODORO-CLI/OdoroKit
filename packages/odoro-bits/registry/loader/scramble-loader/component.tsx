@@ -1,44 +1,45 @@
 /**
- * Texte brouille qui se resout : un mot fait de signes qui se resout
- * caractere par caractere dans un ordre aleatoire, tient en tremblant, puis
- * se brouille de nouveau.
+ * Scrambled text that resolves: a word made of glyphs that settles character
+ * by character in a random order, holds while flickering, then scrambles
+ * again.
  *
- * ## Il ne se pose jamais tout a fait
+ * ## It never quite comes to rest
  *
- * Le decodage de la categorie texte joue une fois, de gauche a droite, et
- * livre un titre : sa fin est le but. Un chargeur n'a pas de fin a livrer.
- * Ici la resolution se fait dans un ordre tire au sort, sans front lisible,
- * et le mot net n'est qu'un palier : pendant la tenue, un caractere au
- * hasard se rebrouille un instant et revient, comme un signal qui tient
- * mal. Puis tout se brouille et recommence. C'est un etat, pas un resultat.
+ * The decoding of the text category plays once, left to right, and delivers a
+ * headline: its end is the point. A loader has no end to deliver. Here the
+ * resolution happens in a randomly drawn order, with no legible front, and
+ * the clean word is only a plateau: during the hold, a character at random
+ * rescrambles for an instant and comes back, like a signal that holds
+ * poorly. Then everything scrambles and starts over. It is a state, not a
+ * result.
  *
- * Chaque cycle tire un nouvel ordre : deux resolutions identiques a la suite
- * se liraient comme une video en boucle.
+ * Each cycle draws a new order: two identical resolutions in a row would read
+ * like a looping video.
  *
- * ## Une fonte a chasse fixe, et un brouillage a cadence fixe
+ * ## A fixed-pitch font, and scrambling at a fixed rate
  *
- * Les signes du brouillage n'ont pas la largeur des lettres qu'ils
- * remplacent ; dans une fonte proportionnelle, le mot tremblerait en
- * largeur a chaque tic. La fonte mono du systeme fige chaque case a un
- * caractere. Et le brouillage change de signe vingt fois par seconde, pas a
- * chaque image : plus vite, ce n'est plus que du gris. Le tic est compte en
- * temps ecoule sur la boucle du moteur, independamment de l'ecran.
+ * The scrambling glyphs do not have the width of the letters they replace;
+ * in a proportional font, the word would wobble in width at every tick. The
+ * system mono font pins each cell to one character. And the scrambling
+ * changes glyph twenty times per second, not on every frame: any faster and
+ * it is nothing but grey. The tick is counted in time elapsed on the engine
+ * loop, independently of the display.
  *
- * ## Les caracteres s'ecrivent dans le DOM, pas dans l'etat
+ * ## The characters are written into the DOM, not into state
  *
- * Dix cases qui changent vingt fois par seconde feraient deux cents rendus
- * React par seconde pour des noeuds texte. Chaque case est donc ecrite par
- * reference ; l'etat resolu est un attribut que la feuille traduit en
- * pleine encre.
+ * Ten cells changing twenty times per second would make two hundred React
+ * renders per second for text nodes. Each cell is therefore written by
+ * reference; the settled state is an attribute that the stylesheet turns into
+ * full ink.
  *
- * ## Un statut, pas un dessin
+ * ## A status, not a drawing
  *
- * L'element porte `role="status"` et un libelle pour les lecteurs d'ecran.
- * Les cases sont retirees de l'arbre d'accessibilite : brouillees, elles
- * seraient lues comme une suite de signes.
+ * The element carries `role="status"` and a label for screen readers. The
+ * cells are removed from the accessibility tree: scrambled, they would be
+ * read as a string of glyphs.
  *
- * Sous mouvement reduit, le texte est net d'emblee : il se lit encore comme
- * une attente, seul le brouillage s'arrete.
+ * Under reduced motion, the text is clean from the start: it still reads as a
+ * wait, only the scrambling stops.
  *
  * @module
  */
@@ -51,34 +52,34 @@ import {
 } from '@odoro-cli/engine'
 import { useEffect, useRef, type CSSProperties, type ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-scramble-loader'
 
-/** Les signes du brouillage. */
+/** The scrambling glyphs. */
 const GLYPHS = '!<>-_/[]{}=+*^?#%&@$0123456789'
 
-/** Part de la resolution ou tout reste brouille, avant le premier caractere net. */
+/** Share of the resolution where all stays scrambled, before the first clean character. */
 const SCRAMBLE_SHARE = 0.25
 
-/** Duree de la tenue, en part de la resolution. */
+/** Duration of the hold, as a share of the resolution. */
 const HOLD_SHARE = 0.7
 
-/** Intervalle entre deux signes d'une case brouillee, en millisecondes. */
+/** Interval between two glyphs of a scrambled cell, in milliseconds. */
 const TICK_MS = 48
 
-/** Pendant la tenue : ecart entre deux tremblements, et duree d'un tremblement. */
+/** During the hold: gap between two flickers, and duration of one flicker. */
 const FLICKER_GAP_MS = 320
 const FLICKER_MS = 110
 
-/** Espace insecable : une espace ordinaire dans un bloc en ligne s'effondrerait. */
+/** Non-breaking space: an ordinary space in an inline block would collapse. */
 const NBSP = String.fromCharCode(160)
 
-/** Un signe au hasard. */
+/** A glyph at random. */
 function glyph(): string {
   return GLYPHS.charAt(Math.floor(Math.random() * GLYPHS.length))
 }
 
-/** Pose les cases et leurs deux etats, une fois par document. */
+/** Applies the cells and their two states, once per document. */
 function ensureScrambleLoaderRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -90,47 +91,47 @@ function ensureScrambleLoaderRule(): void {
     'display:inline-block;white-space:nowrap;font-weight:600;',
     'font-family:var(--o-font-mono);font-size:var(--o-sl-size);color:var(--o-sl-color);',
     '}',
-    // Une case brouillee est a demi-encre ; nette, elle passe en pleine
-    // encre. C'est l'attribut, pas le caractere, qui porte la difference.
+    // A scrambled cell is at half ink; clean, it goes to full ink. It is the
+    // attribute, not the character, that carries the difference.
     '[data-o-sl-char]{display:inline-block;min-width:1ch;text-align:center;opacity:0.45;transition:opacity 160ms}',
     '[data-o-sl-char][data-o-sl-set]{opacity:1}',
   ].join('')
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface ScrambleLoaderOwnProps {
-  /** Le texte qui se resout. @defaultValue 'Chargement' */
+  /** The text that resolves. @defaultValue 'Loading' */
   text?: string
-  /** Corps du texte, en pixels. @defaultValue 16 */
+  /** Text body size, in pixels. @defaultValue 16 */
   size?: number
-  /** Duree de la resolution, du brouillage complet au texte net, en millisecondes. @defaultValue 2200 */
+  /** Duration of the resolution, from full scramble to clean text, in milliseconds. @defaultValue 2200 */
   speed?: number
-  /** Couleur du texte. @defaultValue la couleur du texte */
+  /** Colour of the text. @defaultValue the text colour */
   color?: string
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */
+  /** Label announced to screen readers. @defaultValue 'Loading' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All the properties. */
 export type ScrambleLoaderProps = Customisable<ScrambleLoaderOwnProps, 'span'>
 
 /**
- * Signale une attente par un texte qui se resout depuis un brouillage.
+ * Signals a wait with a text that resolves out of a scramble.
  *
  * @example
  * <ScrambleLoader />
  *
  * @example
- * // Un autre mot, plus lent, dans la teinte de marque.
+ * // Another word, slower, in the brand hue.
  * <ScrambleLoader text="Connexion" speed={3000} color="var(--o-palette-brand-500)" />
  */
 export function ScrambleLoader({
-  text = 'Chargement',
+  text = 'Loading',
   size = 16,
   speed = 2200,
   color = 'currentColor',
-  label = 'Chargement',
+  label = 'Loading',
   ...rest
 }: ScrambleLoaderProps): ReactElement {
   ensureScrambleLoaderRule()
@@ -144,7 +145,7 @@ export function ScrambleLoader({
     letters.forEach((char, index) => {
       const node = cells.current[index]
       if (node === null || node === undefined) return
-      // Une espace n'a rien a resoudre : elle est nette d'emblee.
+      // A space has nothing to resolve: it is clean from the start.
       nodes.push({ node, char: char === ' ' ? NBSP : char, fixed: char === ' ' })
     })
     if (nodes.length === 0) return
@@ -173,7 +174,7 @@ export function ScrambleLoader({
     let flickerAt = 0
     let flickerUntil = 0
 
-    // Un nouvel ordre a chaque cycle ; les espaces sont nettes d'emblee.
+    // A new order on every cycle; spaces are clean from the start.
     const plan = (): void => {
       reveal = nodes.map(() => SCRAMBLE_SHARE + Math.random() * (1 - SCRAMBLE_SHARE))
       set.fill(false)
@@ -202,7 +203,7 @@ export function ScrambleLoader({
         }
         const local = elapsed - index * cycle
 
-        // Resolution : chaque case se fige a son heure, les autres tournent.
+        // Resolution: each cell settles at its own hour, the others keep spinning.
         if (local < speed) {
           const progress = local / speed
           nodes.forEach((_, position) => {
@@ -221,7 +222,7 @@ export function ScrambleLoader({
           return
         }
 
-        // Tenue : un caractere au hasard tremble un instant, puis revient.
+        // Hold: a character at random flickers for an instant, then comes back.
         if (flickerIndex >= 0) {
           const cell = nodes[flickerIndex]
           if (local >= flickerUntil) {

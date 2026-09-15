@@ -5,7 +5,7 @@
   "type": "module",
   "license": "UNLICENSED",
   "author": "BouBouw",
-  "description": "Registre de composants animes Odoro : source de verite et generation des artefacts servis.",
+  "description": "Odoro animated component registry: source of truth, and generation of the served artifacts.",
   "engines": {
     "node": ">=20"
   },

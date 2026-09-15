@@ -1,13 +1,12 @@
 /**
- * Preparation d'une installation, sans rien ecrire.
+ * Preparation of an install, without writing anything.
  *
- * Tout ce qui peut echouer — entree inconnue, dependance dans le vide, cycle,
- * reponse invalide — echoue **ici**, avant que le moindre fichier ne soit
- * touche. La commande n'a plus ensuite qu'a demander confirmation et appliquer.
+ * Everything that can fail — unknown entry, dependency pointing into the void,
+ * cycle, invalid response — fails **here**, before a single file is touched.
+ * The command then only has to ask for confirmation and apply.
  *
- * C'est ce decoupage qui rend l'installation verifiable : le plan est une
- * valeur ordinaire, qu'un test peut inspecter sans systeme de fichiers ni
- * serveur.
+ * It is this split that makes the install verifiable: the plan is an ordinary
+ * value, which a test can inspect without a file system or a server.
  *
  * @module
  */
@@ -25,27 +24,27 @@ import { rewriteImports } from './rewrite.js'
 import { indexById, type RegistrySource } from './source.js'
 import { planWrite, type PlannedWrite } from './writer.js'
 
-/** Ce que rend une preparation. */
+/** What a preparation returns. */
 export type PrepareResult =
   | {
       readonly ok: true
-      /** Entrees a installer, dependances d'abord. */
+      /** Entries to install, dependencies first. */
       readonly entries: readonly PublishedEntry[]
-      /** Entrees ajoutees qui n'avaient pas ete demandees. */
+      /** Entries added that had not been asked for. */
       readonly implied: readonly string[]
     }
   | { readonly ok: false; readonly problems: readonly string[] }
 
 /**
- * Suggere les identifiants proches d'un nom inconnu.
+ * Suggests the identifiers close to an unknown name.
  *
- * Une frappe approximative est le cas le plus frequent d'entree introuvable, et
- * « inconnu » tout court oblige a relancer `odoro list` pour rien.
+ * A rough typing is the most frequent cause of an entry not being found, and a
+ * plain "unknown" forces running `odoro list` again for nothing.
  *
- * La comparaison est volontairement grossiere — sous-chaine commune, ou meme
- * nom dans une autre categorie. Une distance d'edition ferait mieux sur les
- * fautes de frappe, moins bien sur les noms partiels, et personne n'ecrit
- * `odoro add hero/molte` : on ecrit `odoro add molten`.
+ * The comparison is deliberately coarse — shared substring, or same name in
+ * another category. An edit distance would do better on typos, worse on partial
+ * names, and nobody writes `odoro add hero/molte`: one writes
+ * `odoro add molten`.
  */
 export function suggest(unknown: string, known: readonly string[]): string[] {
   const needle = unknown.toLowerCase()
@@ -60,11 +59,11 @@ export function suggest(unknown: string, known: readonly string[]): string[] {
 }
 
 /**
- * Resout les identifiants demandes et telecharge tout ce qu'il faut.
+ * Resolves the requested identifiers and downloads everything needed.
  *
- * Les identifiants peuvent etre donnes sans categorie — `molten` plutot que
- * `hero/molten` — tant qu'ils sont sans ambiguite dans l'index. Une ambiguite
- * est signalee avec les candidats, plutot que tranchee au hasard.
+ * The identifiers may be given without a category — `molten` rather than
+ * `hero/molten` — as long as they are unambiguous in the index. An ambiguity is
+ * reported with the candidates, rather than settled at random.
  *
  * @example
  * const prepared = await prepareInstall(registry, ['molten'])
@@ -79,7 +78,7 @@ export async function prepareInstall(
   const catalogue = indexById(index.value)
   const known = [...catalogue.keys()]
 
-  // Etape 1 : ramener chaque demande a un identifiant complet.
+  // Step 1: bring every request down to a full identifier.
   const ids: string[] = []
   const problems: string[] = []
 
@@ -95,25 +94,23 @@ export async function prepareInstall(
       continue
     }
     if (matches.length > 1) {
-      problems.push(
-        `"${asked}" est ambigu : ${matches.join(', ')}. Precisez la categorie.`,
-      )
+      problems.push(`"${asked}" is ambiguous: ${matches.join(', ')}. Name the category.`)
       continue
     }
 
     const near = suggest(asked, known)
     problems.push(
       near.length > 0
-        ? `"${asked}" est introuvable. Vouliez-vous dire ${near.join(', ')} ?`
-        : `"${asked}" est introuvable. "odoro list" donne le catalogue.`,
+        ? `"${asked}" was not found. Did you mean ${near.join(', ')}?`
+        : `"${asked}" was not found. "odoro list" gives the catalogue.`,
     )
   }
 
   if (problems.length > 0) return { ok: false, problems }
 
-  // Etape 2 : resoudre le graphe sur l'index, qui porte deja les dependances.
-  // Le faire ici evite de telecharger une entree pour decouvrir ensuite que sa
-  // dependance n'existe pas.
+  // Step 2: resolve the graph on the index, which already carries the
+  // dependencies. Doing it here avoids downloading an entry only to discover
+  // afterwards that its dependency does not exist.
   const resolvable = new Map<string, ResolvableEntry>(
     [...catalogue].map(([id, entry]) => [
       id,
@@ -124,7 +121,7 @@ export async function prepareInstall(
   const graph = resolveGraph(ids, resolvable)
   if (!graph.ok) return { ok: false, problems: graph.problems.map(describeProblem) }
 
-  // Etape 3 : telecharger, dans l'ordre d'installation.
+  // Step 3: download, in installation order.
   const entries: PublishedEntry[] = []
   for (const id of graph.graph.order) {
     const entry = await registry.entry(id)
@@ -135,17 +132,17 @@ export async function prepareInstall(
   return { ok: true, entries, implied: graph.graph.implied }
 }
 
-/** Chemin de destination d'un fichier dans le projet. */
+/** Destination path of a file in the project. */
 export function targetPath(config: ProjectConfig, target: string): string {
   return posix.join(config.aliases.directory, target)
 }
 
 /**
- * Construit le plan d'ecriture d'un ensemble d'entrees.
+ * Builds the write plan of a set of entries.
  *
  * @example
  * const plan = await planInstall(root, config, entries)
- * const remplaces = plan.filter((write) => write.action === 'remplacement')
+ * const replaced = plan.filter((write) => write.action === 'replace')
  */
 export async function planInstall(
   root: string,
@@ -174,11 +171,10 @@ export async function planInstall(
 }
 
 /**
- * Note dans `odoro.json` ce qui vient d'etre ecrit.
+ * Records in `odoro.json` what has just been written.
  *
- * L'empreinte est celle du contenu **livre**, pas du fichier relu : c'est ce
- * qui permettra plus tard de distinguer une retouche locale d'un changement
- * amont.
+ * The hash is that of the **delivered** content, not of the file read back:
+ * that is what will later allow telling a local edit from an upstream change.
  *
  * @example
  * const installed = recordInstall(config.installed, entries, plan, new Date())

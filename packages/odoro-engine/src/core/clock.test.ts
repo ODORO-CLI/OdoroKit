@@ -4,23 +4,22 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { CLOCK_PRIORITY, clock } from './clock.js'
 
 /**
- * Declenche une image manuellement.
+ * Triggers a frame manually.
  *
- * `gsap.ticker.tick()` distribue immediatement, sans attendre le prochain
- * rafraichissement : les tests restent deterministes et ne dependent pas du
- * temps reel.
+ * `gsap.ticker.tick()` delivers immediately, without waiting for the next
+ * refresh: the tests stay deterministic and do not depend on real time.
  */
 function tick(): void {
   gsap.ticker.tick()
 }
 
 /**
- * Nombre d'appels enregistres par une doublure.
+ * Number of calls recorded by a spy.
  *
- * Les assertions portent sur des **ecarts**, jamais sur des totaux : la boucle
- * sous-jacente tourne aussi d'elle-meme, et une image automatique peut
- * s'intercaler entre deux images declenchees a la main. Compter en absolu
- * rendrait ces tests intermittents.
+ * The assertions are about **differences**, never about totals: the underlying
+ * loop also runs on its own, and an automatic frame can slip in between two
+ * hand-triggered frames. Counting in absolute terms would make these tests
+ * flaky.
  */
 function calls(spy: ReturnType<typeof vi.fn>): number {
   return spy.mock.calls.length
@@ -30,8 +29,8 @@ afterEach(() => {
   clock.dispose()
 })
 
-describe('abonnement', () => {
-  it('distribue une image aux abonnes', () => {
+describe('subscription', () => {
+  it('delivers a frame to the subscribers', () => {
     const seen = vi.fn()
     clock.subscribe(seen, { name: 'test' })
 
@@ -44,7 +43,7 @@ describe('abonnement', () => {
     expect(typeof frame.time).toBe('number')
   })
 
-  it('cesse de distribuer apres desabonnement', () => {
+  it('stops delivering after unsubscribing', () => {
     const seen = vi.fn()
     const subscription = clock.subscribe(seen)
 
@@ -56,7 +55,7 @@ describe('abonnement', () => {
     expect(calls(seen)).toBe(after)
   })
 
-  it('compte les abonnes, actifs ou non', () => {
+  it('counts the subscribers, active or not', () => {
     expect(clock.size).toBe(0)
     const first = clock.subscribe(vi.fn())
     clock.subscribe(vi.fn())
@@ -66,41 +65,41 @@ describe('abonnement', () => {
   })
 })
 
-describe('ordre dans la frame', () => {
-  it('execute la priorite haute avant la priorite basse', () => {
+describe('order within the frame', () => {
+  it('runs the high priority before the low priority', () => {
     const order: string[] = []
-    // Le rendu graphique doit voir l'etat final de la frame : il porte donc la
-    // priorite la plus basse et s'execute en dernier.
-    clock.subscribe(() => order.push('rendu'), { priority: CLOCK_PRIORITY.render })
-    clock.subscribe(() => order.push('mise en page'), { priority: CLOCK_PRIORITY.layout })
-    clock.subscribe(() => order.push('entree'), { priority: CLOCK_PRIORITY.input })
+    // Graphics rendering must see the final state of the frame: it therefore
+    // carries the lowest priority and runs last.
+    clock.subscribe(() => order.push('render'), { priority: CLOCK_PRIORITY.render })
+    clock.subscribe(() => order.push('layout'), { priority: CLOCK_PRIORITY.layout })
+    clock.subscribe(() => order.push('input'), { priority: CLOCK_PRIORITY.input })
 
     tick()
 
-    expect(order).toEqual(['entree', 'mise en page', 'rendu'])
+    expect(order).toEqual(['input', 'layout', 'render'])
   })
 
-  it('replace un abonne ajoute apres coup', () => {
+  it('places a subscriber added afterwards', () => {
     const order: string[] = []
-    clock.subscribe(() => order.push('defaut'))
-    clock.subscribe(() => order.push('rendu'), { priority: CLOCK_PRIORITY.render })
-    clock.subscribe(() => order.push('entree'), { priority: CLOCK_PRIORITY.input })
+    clock.subscribe(() => order.push('default'))
+    clock.subscribe(() => order.push('render'), { priority: CLOCK_PRIORITY.render })
+    clock.subscribe(() => order.push('input'), { priority: CLOCK_PRIORITY.input })
 
     tick()
 
-    expect(order).toEqual(['entree', 'defaut', 'rendu'])
+    expect(order).toEqual(['input', 'default', 'render'])
   })
 
-  it('expose l inventaire des abonnes, trie', () => {
-    clock.subscribe(vi.fn(), { name: 'rendu', priority: CLOCK_PRIORITY.render })
-    clock.subscribe(vi.fn(), { name: 'entree', priority: CLOCK_PRIORITY.input })
+  it('exposes the inventory of subscribers, sorted', () => {
+    clock.subscribe(vi.fn(), { name: 'render', priority: CLOCK_PRIORITY.render })
+    clock.subscribe(vi.fn(), { name: 'input', priority: CLOCK_PRIORITY.input })
 
-    expect(clock.inspect().map((entry) => entry.name)).toEqual(['entree', 'rendu'])
+    expect(clock.inspect().map((entry) => entry.name)).toEqual(['input', 'render'])
   })
 })
 
 describe('suspension', () => {
-  it('suspend un abonne sans le retirer', () => {
+  it('suspends a subscriber without removing it', () => {
     const seen = vi.fn()
     const subscription = clock.subscribe(seen)
 
@@ -115,23 +114,23 @@ describe('suspension', () => {
     expect(calls(seen)).toBeGreaterThan(suspended)
   })
 
-  it('conserve la place de l abonne suspendu', () => {
+  it('keeps the place of the suspended subscriber', () => {
     const order: string[] = []
-    const suspendu = clock.subscribe(() => order.push('milieu'))
-    clock.subscribe(() => order.push('rendu'), { priority: CLOCK_PRIORITY.render })
-    clock.subscribe(() => order.push('entree'), { priority: CLOCK_PRIORITY.input })
+    const suspended = clock.subscribe(() => order.push('middle'))
+    clock.subscribe(() => order.push('render'), { priority: CLOCK_PRIORITY.render })
+    clock.subscribe(() => order.push('input'), { priority: CLOCK_PRIORITY.input })
 
-    suspendu.setActive(false)
+    suspended.setActive(false)
     tick()
-    expect(order).toEqual(['entree', 'rendu'])
+    expect(order).toEqual(['input', 'render'])
 
     order.length = 0
-    suspendu.setActive(true)
+    suspended.setActive(true)
     tick()
-    expect(order).toEqual(['entree', 'milieu', 'rendu'])
+    expect(order).toEqual(['input', 'middle', 'render'])
   })
 
-  it('reflete l etat actif dans l abonnement', () => {
+  it('reflects the active state in the subscription', () => {
     const subscription = clock.subscribe(vi.fn())
     expect(subscription.active).toBe(true)
     subscription.setActive(false)
@@ -139,8 +138,8 @@ describe('suspension', () => {
   })
 })
 
-describe('pause globale', () => {
-  it('suspend la distribution a tous les abonnes', () => {
+describe('global pause', () => {
+  it('suspends delivery to every subscriber', () => {
     const seen = vi.fn()
     clock.subscribe(seen)
 
@@ -156,65 +155,65 @@ describe('pause globale', () => {
     expect(clock.isPaused).toBe(false)
   })
 
-  it('continue de compter les images pendant la pause', () => {
+  it('keeps counting frames during the pause', () => {
     clock.subscribe(vi.fn())
     clock.pause()
     const before = clock.frame
     tick()
-    // La boucle sous-jacente n'est pas arretee : seules les distributions le
-    // sont. Une pause qui figerait la boucle figerait aussi les animations
-    // d'interface sans rapport avec cette horloge.
+    // The underlying loop is not stopped: only deliveries are. A pause that
+    // froze the loop would also freeze interface animations unrelated to this
+    // clock.
     expect(clock.frame).not.toBe(before)
   })
 })
 
-describe('robustesse', () => {
-  it('isole un abonne qui echoue', () => {
-    const suivant = vi.fn()
-    const erreur = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+describe('robustness', () => {
+  it('isolates a subscriber that fails', () => {
+    const next = vi.fn()
+    const error = vi.spyOn(console, 'error').mockImplementation(() => undefined)
 
     clock.subscribe(
       () => {
-        throw new Error('abonne fautif')
+        throw new Error('faulty subscriber')
       },
-      { priority: CLOCK_PRIORITY.input, name: 'fautif' },
+      { priority: CLOCK_PRIORITY.input, name: 'faulty' },
     )
-    clock.subscribe(suivant, { priority: CLOCK_PRIORITY.render })
+    clock.subscribe(next, { priority: CLOCK_PRIORITY.render })
 
-    const before = calls(suivant)
+    const before = calls(next)
     tick()
 
-    expect(calls(suivant)).toBeGreaterThan(before)
-    expect(erreur).toHaveBeenCalled()
+    expect(calls(next)).toBeGreaterThan(before)
+    expect(error).toHaveBeenCalled()
   })
 
-  it('supporte un desabonnement pendant la distribution', () => {
-    const suivant = vi.fn()
+  it('tolerates an unsubscribe during delivery', () => {
+    const next = vi.fn()
     const subscription = clock.subscribe(() => subscription.unsubscribe(), {
       priority: CLOCK_PRIORITY.input,
     })
-    clock.subscribe(suivant, { priority: CLOCK_PRIORITY.render })
+    clock.subscribe(next, { priority: CLOCK_PRIORITY.render })
 
-    const before = calls(suivant)
+    const before = calls(next)
     expect(() => tick()).not.toThrow()
-    expect(calls(suivant)).toBeGreaterThan(before)
+    expect(calls(next)).toBeGreaterThan(before)
   })
 })
 
-describe('mesure de charge', () => {
-  it('ne rapporte aucune cadence avant la premiere image', () => {
+describe('load measurement', () => {
+  it('reports no frame rate before the first frame', () => {
     expect(clock.fps).toBe(0)
   })
 
-  it('rapporte une cadence apres quelques images', () => {
+  it('reports a frame rate after a few frames', () => {
     clock.subscribe(vi.fn())
     for (let i = 0; i < 5; i += 1) tick()
     expect(clock.fps).toBeGreaterThan(0)
   })
 })
 
-describe('liberation', () => {
-  it('retire tous les abonnes', () => {
+describe('release', () => {
+  it('removes every subscriber', () => {
     clock.subscribe(vi.fn())
     clock.subscribe(vi.fn())
 
@@ -224,9 +223,9 @@ describe('liberation', () => {
     expect(clock.fps).toBe(0)
   })
 
-  it('endort la boucle sous-jacente', () => {
-    // Sans cela, la boucle maintient le processus en vie indefiniment : une
-    // suite de tests ne se termine jamais.
+  it('puts the underlying loop to sleep', () => {
+    // Without it, the loop keeps the process alive indefinitely: a test suite
+    // never finishes.
     const sleep = vi.spyOn(gsap.ticker, 'sleep')
     clock.subscribe(vi.fn())
     clock.dispose()

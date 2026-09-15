@@ -18,7 +18,7 @@
   "tokens": [],
   "props": [
     {
-      "name": "mots",
+      "name": "words",
       "type": "readonly string[]",
       "required": true,
       "description": "Mots fondus l un dans l autre, en boucle. Au moins deux."
@@ -44,7 +44,7 @@
       "step": 50
     },
     {
-      "name": "flou",
+      "name": "blur",
       "type": "number",
       "default": 12,
       "unit": "px",
@@ -54,7 +54,7 @@
       "step": 1
     },
     {
-      "name": "fusion",
+      "name": "weld",
       "type": "number",
       "default": 4,
       "unit": "px",

@@ -1,132 +1,133 @@
 /**
- * La generation a la demande.
+ * On-demand generation.
  *
- * ## Ce que ces essais tiennent
+ * ## What these tests hold
  *
- * Produire un sous-ensemble est une operation dangereuse pour la meme raison
- * que l'elagage : ce qui manque ne leve aucune erreur, ne fait echouer aucun
- * essai d'application, et ne se voit qu'a l'oeil.
+ * Producing a subset is a dangerous operation for the same reason pruning is:
+ * what is missing raises no error, makes no application test fail, and shows
+ * only to the eye.
  *
- * Ils portent donc d'abord sur ce qui doit **toujours** etre produit — le bloc
- * de base — puis sur l'equivalence avec la feuille entiere : une classe
- * demandee doit arriver avec exactement la regle qu'elle aurait eue.
+ * They therefore bear first on what must **always** be produced — the base
+ * block — then on the equivalence with the whole stylesheet: a requested
+ * class must arrive with exactly the rule it would have had.
  *
  * @module
  */
 
 import { describe, expect, it } from 'vitest'
 
-import { generate, renderCssPour } from './generateur.js'
+import { generate, renderCssFor } from './generator.js'
 
-/** Les classes qu'une feuille definit. */
-function classesDe(css: string): Set<string> {
-  const trouvees = new Set<string>()
+/** The classes a stylesheet defines. */
+function classesOf(css: string): Set<string> {
+  const found = new Set<string>()
   for (const m of css.matchAll(/\.((?:\\.|[\w-])+)\{/g)) {
-    trouvees.add((m[1] as string).replaceAll(/\\(.)/g, '$1'))
+    found.add((m[1] as string).replaceAll(/\\(.)/g, '$1'))
   }
-  return trouvees
+  return found
 }
 
-describe('le bloc de base', () => {
-  it('est produit meme quand aucune classe n est demandee', () => {
-    // Variables, preflight, images-cles : leur absence ne casse pas une regle,
-    // elle casse la page entiere.
-    const css = renderCssPour(new Set())
+describe('the base block', () => {
+  it('is produced even when no class is requested', () => {
+    // Variables, preflight, keyframes: their absence does not break one
+    // rule, it breaks the whole page.
+    const css = renderCssFor(new Set())
 
     expect(css).toContain('--o-spacing')
     expect(css).toContain('color-scheme')
     expect(css).toContain('@keyframes')
   })
 
-  it('ne contient aucun utilitaire quand rien n est demande', () => {
-    const utilitaires = [...classesDe(renderCssPour(new Set()))].filter((c) =>
+  it('holds no utility when nothing is requested', () => {
+    const utilities = [...classesOf(renderCssFor(new Set()))].filter((c) =>
       c.startsWith('o-'),
     )
 
-    // Le preflight et les transitions de page peuvent nommer des classes ;
-    // aucune ne doit venir d'une famille d'utilitaires.
-    expect(utilitaires).toEqual([])
+    // The preflight and the page transitions may name classes; none must come
+    // from a utility family.
+    expect(utilities).toEqual([])
   })
 })
 
-describe('ce qui est demande', () => {
-  it('arrive, et rien d autre', () => {
-    const css = renderCssPour(new Set(['o-flex', 'o-hidden']))
-    const classes = classesDe(css)
+describe('what is requested', () => {
+  it('arrives, and nothing else', () => {
+    const css = renderCssFor(new Set(['o-flex', 'o-hidden']))
+    const classes = classesOf(css)
 
     expect(classes.has('o-flex')).toBe(true)
     expect(classes.has('o-hidden')).toBe(true)
     expect(classes.has('o-grid')).toBe(false)
   })
 
-  it('arrive avec exactement la regle de la feuille entiere', () => {
-    // C'est l'invariant qui compte : une generation partielle qui produirait
-    // une declaration differente serait pire qu'une classe absente, parce que
-    // la page s'afficherait — de travers.
-    const entiere = generate('full').css
-    const partielle = generate('full', new Set(['o-flex'])).css
+  it('arrives with exactly the rule of the whole stylesheet', () => {
+    // This is the invariant that counts: a partial generation producing a
+    // different declaration would be worse than a missing class, because the
+    // page would show up — crooked.
+    const whole = generate('full').css
+    const partial = generate('full', new Set(['o-flex'])).css
 
-    const regle = /\.o-flex\{[^}]*\}/
-    expect(partielle.match(regle)?.[0]).toBe(entiere.match(regle)?.[0])
+    const rule = /\.o-flex\{[^}]*\}/
+    expect(partial.match(rule)?.[0]).toBe(whole.match(rule)?.[0])
   })
 
-  it('sert les variantes demandees', () => {
-    const css = renderCssPour(new Set(['sm:o-grid']))
+  it('serves the requested variants', () => {
+    const css = renderCssFor(new Set(['sm:o-grid']))
 
     expect(css).toContain('@media')
-    expect(classesDe(css).has('sm:o-grid')).toBe(true)
-    expect(classesDe(css).has('sm:o-flex')).toBe(false)
+    expect(classesOf(css).has('sm:o-grid')).toBe(true)
+    expect(classesOf(css).has('sm:o-flex')).toBe(false)
   })
 
-  it('ignore une classe qui n existe pas', () => {
-    // Le releveur du moteur ramasse tous les mots du code produit : la plupart
-    // ne sont pas des classes. En reclamer une inconnue doit etre sans effet,
-    // pas une erreur.
-    expect(() => renderCssPour(new Set(['o-nawak', 'useState', 'div']))).not.toThrow()
-  })
-})
-
-describe('le palier complet, gratuitement', () => {
-  it('sert une teinte que la feuille de base n a jamais portee', () => {
-    // Impensable avec une feuille pre-generee : imposer les 290 nuances a tout
-    // projet ferait payer a chacun ce dont seuls quelques-uns ont besoin. A la
-    // demande, la question ne se pose plus.
-    const css = renderCssPour(new Set(['o-text-violet-500']))
-
-    expect(classesDe(css).has('o-text-violet-500')).toBe(true)
-    expect(classesDe(generate('core').css).has('o-text-violet-500')).toBe(false)
+  it('ignores a class that does not exist', () => {
+    // The collector of the engine picks up every word of the produced code:
+    // most of them are not classes. Asking for an unknown one must have no
+    // effect, not raise an error.
+    expect(() => renderCssFor(new Set(['o-nawak', 'useState', 'div']))).not.toThrow()
   })
 })
 
-describe('la taille', () => {
-  it('tombe de plusieurs ordres de grandeur', () => {
-    const entiere = renderCssPour(new Set())
-    const quelques = renderCssPour(
+describe('the complete tier, for free', () => {
+  it('serves a hue the base stylesheet has never carried', () => {
+    // Unthinkable with a pre-generated stylesheet: imposing the 290 shades on
+    // every project would make everyone pay for what only a few need. On
+    // demand, the question no longer arises.
+    const css = renderCssFor(new Set(['o-text-violet-500']))
+
+    expect(classesOf(css).has('o-text-violet-500')).toBe(true)
+    expect(classesOf(generate('core').css).has('o-text-violet-500')).toBe(false)
+  })
+})
+
+describe('the size', () => {
+  it('drops by several orders of magnitude', () => {
+    const base = renderCssFor(new Set())
+    const aFew = renderCssFor(
       new Set(['o-flex', 'o-hidden', 'o-grid', 'sm:o-flex', 'o-text-violet-500']),
     )
 
-    // Une poignee de classes ne doit couter que quelques centaines d'octets
-    // au-dessus du bloc de base.
-    expect(quelques.length - entiere.length).toBeLessThan(2_000)
+    // A handful of classes must cost only a few hundred bytes above the base
+    // block.
+    expect(aFew.length - base.length).toBeLessThan(2_000)
 
-    // Et l'ensemble doit rester sans commune mesure avec la feuille entiere.
-    expect(quelques.length).toBeLessThan(generate('full').css.length / 20)
+    // And the whole must stay beyond comparison with the whole stylesheet.
+    expect(aFew.length).toBeLessThan(generate('full').css.length / 20)
   })
 })
 
-describe('l integrite du systeme reste verifiee', () => {
-  it('detecte un doublon meme quand la generation est filtree', () => {
-    // Le controle porte sur l'integrite des tokens, pas sur le contenu de cette
-    // generation-ci. Le filtrer laisserait passer un doublon reel simplement
-    // parce que l'application du jour n'emploie pas les deux classes en
-    // conflit — et le defaut n'apparaitrait que chez le projet suivant.
+describe('the integrity of the system stays checked', () => {
+  it('detects a duplicate even when the generation is filtered', () => {
+    // The check bears on the integrity of the tokens, not on the content of
+    // this particular generation. Filtering it would let a real duplicate
+    // through simply because today's application does not use the two
+    // conflicting classes — and the flaw would show up only in the next
+    // project.
     //
-    // On ne peut pas fabriquer un doublon sans toucher aux familles ; ce que
-    // l'on verifie ici est que la liste complete des noms est toujours rendue,
-    // c'est-a-dire que le controle a bien vu passer tout le systeme.
-    const filtree = generate('full', new Set(['o-flex']))
-    const entiere = generate('full')
+    // A duplicate cannot be manufactured without touching the families; what
+    // is checked here is that the complete list of names is still rendered,
+    // that is, that the check did see the whole system go by.
+    const filtered = generate('full', new Set(['o-flex']))
+    const whole = generate('full')
 
-    expect(filtree.classNames.length).toBe(entiere.classNames.length)
+    expect(filtered.classNames.length).toBe(whole.classNames.length)
   })
 })

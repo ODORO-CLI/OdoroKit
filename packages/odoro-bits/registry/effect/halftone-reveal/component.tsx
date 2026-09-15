@@ -1,35 +1,35 @@
 /**
- * Revelation en trame : des points serres se retractent au defilement.
+ * Halftone reveal: tight dots retract as the page scrolls.
  *
- * ## Un voile de points, pas un masque sur le contenu
+ * ## A veil of dots, not a mask on the content
  *
- * Comme le rideau par bandes, la trame est **posee par-dessus** : le contenu
- * est rendu normalement des la premiere image, et reste lisible par la
- * recherche dans la page comme par un lecteur d'ecran. Masquer le contenu
- * lui-meme le retirerait a ceux qui ne verront jamais l'effet.
+ * Like the banded curtain, the pattern is **laid on top**: the content is
+ * rendered normally from the first frame, and stays readable to in-page search
+ * as well as to a screen reader. Masking the content itself would take it away
+ * from those who will never see the effect.
  *
- * Le voile est un seul element, pas une grille : un degrade radial repete
- * dessine tous les points d'un coup. Une zone ordinaire en compterait plusieurs
- * milliers ; autant d'elements du document couteraient plus cher que tout le
- * reste de la page.
+ * The veil is a single element, not a grid: one repeated radial gradient draws
+ * every dot at once. An ordinary area would count several thousand of them; as
+ * many document elements would cost more than the whole rest of the page.
  *
- * ## Comment un point disparait
+ * ## How a dot disappears
  *
- * A rayon nul, il n'y a rien. Au-dela de sept dixiemes du pas, les disques
- * voisins se recouvrent et le voile devient un aplat : c'est la que la trame
- * part, et elle fond jusqu'a zero. Entre les deux, on voit exactement ce qu'on
- * attend d'une trame d'imprimerie qui s'allege.
+ * At zero radius, there is nothing. Beyond seven tenths of the step, the
+ * neighbouring discs overlap and the veil becomes a flat fill: that is where
+ * the pattern starts, and it melts down to zero. In between, one sees exactly
+ * what is expected of a printing halftone getting lighter.
  *
- * ## Le defilement passe par la boucle, jamais par un rendu
+ * ## Scrolling goes through the loop, never through a render
  *
- * L'avancement est mesure dans la boucle unique du moteur et ecrit dans une
- * variable CSS. Le porter dans l'etat React rendrait la page a chaque cran de
- * molette, pour changer un rayon que le compositeur applique seul.
+ * The progress is measured in the engine's single loop and written into a CSS
+ * variable. Carrying it in React state would render the page on every notch of
+ * the wheel, to change a radius that the compositor applies on its own.
  *
- * Quand la trame a fini de se retirer, le voile quitte le DOM et l'abonnement
- * se retire : plus rien ne mesure, plus rien ne recouvre.
+ * When the pattern has finished withdrawing, the veil leaves the DOM and the
+ * subscription unsubscribes: nothing measures any more, nothing covers any
+ * more.
  *
- * Sous mouvement reduit, le voile n'est jamais rendu — c'est l'etat final.
+ * Under reduced motion, the veil is never rendered — that is the final state.
  *
  * @module
  */
@@ -49,46 +49,46 @@ import {
   type ReactNode,
 } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface HalftoneRevealOwnProps {
-  /** Contenu revele. */
+  /** Revealed content. */
   children: ReactNode
-  /** Pas de la trame, en pixels. @defaultValue 16 */
+  /** Step of the pattern, in pixels. @defaultValue 16 */
   cell?: number
   /**
-   * Part de la hauteur de fenetre sur laquelle la revelation se joue.
+   * Share of the window height over which the reveal plays out.
    *
    * @defaultValue 0.55
    */
   travel?: number
-  /** Retard avant le depart, en part de hauteur de fenetre. @defaultValue 0.15 */
+  /** Delay before the start, as a share of window height. @defaultValue 0.15 */
   offset?: number
-  /** Couleur de la trame. @defaultValue le fond du theme */
+  /** Colour of the pattern. @defaultValue the theme background */
   color?: string
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type HalftoneRevealProps = Customisable<HalftoneRevealOwnProps>
 
 /**
- * Rayon d'un point, en fraction du pas, quand le voile est encore plein.
+ * Radius of a dot, as a fraction of the step, when the veil is still full.
  *
- * La moitie de la diagonale d'une cellule vaut environ 0,707 : au-dela, les
- * disques voisins se recouvrent et il ne reste aucun interstice. C'est le seul
- * rayon a partir duquel la trame cache reellement.
+ * Half the diagonal of a cell is roughly 0.707: beyond it, the neighbouring
+ * discs overlap and no gap is left. It is the only radius from which the
+ * pattern really hides.
  */
 const FULL_RADIUS = 0.72
 
 /**
- * Revele son contenu par une trame qui s'allege au defilement.
+ * Reveals its content through a pattern that lightens as the page scrolls.
  *
  * @example
  * <HalftoneReveal>
- *   <img src="/planche.jpg" alt="Planche du numero 12" />
+ *   <img src="/plate.jpg" alt="Plate from issue 12" />
  * </HalftoneReveal>
  *
  * @example
- * // Une trame large, qui part plus tot et se retire plus vite.
+ * // A wide pattern, which starts earlier and withdraws faster.
  * <HalftoneReveal cell={28} offset={0.05} travel={0.35}>
  *   <section className="o-p-8">…</section>
  * </HalftoneReveal>
@@ -118,9 +118,9 @@ export function HalftoneReveal({
         const view = window.innerHeight || 1
         const span = Math.max(view * travel, 1)
 
-        // Zero quand le haut de la zone touche le bas de la fenetre, un quand
-        // il a remonte de `travel` hauteurs de fenetre — le retard decale le
-        // depart vers l'interieur du champ.
+        // Zero when the top of the area touches the bottom of the window, one
+        // when it has risen by `travel` window heights — the delay shifts the
+        // start further into the viewport.
         const progress = (view * (1 - offset) - box.top) / span
         const clamped = Math.min(1, Math.max(0, progress))
         if (Math.abs(clamped - last) < 0.005) return
@@ -131,10 +131,10 @@ export function HalftoneReveal({
           `${(FULL_RADIUS * pitch * (1 - clamped)).toFixed(2)}px`,
         )
 
-        // Plus rien a cacher : le voile part, et la mesure avec lui.
+        // Nothing left to hide: the veil leaves, and the measurement with it.
         if (clamped >= 1) setDone(true)
       },
-      { priority: CLOCK_PRIORITY.layout, name: 'trame de revelation' },
+      { priority: CLOCK_PRIORITY.layout, name: 'reveal halftone' },
     )
 
     return () => subscription.unsubscribe()
@@ -160,8 +160,8 @@ export function HalftoneReveal({
               inset: 0,
               pointerEvents: 'none',
               '--o-halftone-radius': `${(FULL_RADIUS * Math.max(2, cell)).toFixed(2)}px`,
-              // Un seul degrade repete dessine toute la trame : le rayon est
-              // la seule valeur qui bouge.
+              // A single repeated gradient draws the whole pattern: the radius
+              // is the only value that moves.
               backgroundImage: `radial-gradient(circle at center, ${color} var(--o-halftone-radius), transparent calc(var(--o-halftone-radius) + 0.5px))`,
               backgroundSize: `${pitch} ${pitch}`,
             } as CSSProperties

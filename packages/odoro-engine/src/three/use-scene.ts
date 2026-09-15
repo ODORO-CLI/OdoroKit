@@ -1,23 +1,23 @@
 /**
- * Scenes 3D.
+ * 3D scenes.
  *
- * ## Le poids, et pourquoi il commande la conception
+ * ## The weight, and why it drives the design
  *
- * Le moteur de scene 3D pese entre 120 et 140 kilo-octets compresses, dont
- * l'essentiel dans son moteur de rendu — qui ne se secoue pas. C'est un ordre
- * de grandeur au-dessus du backend leger.
+ * The 3D scene engine weighs between 120 and 140 kilobytes compressed, most of
+ * it in its renderer — which does not tree-shake. That is an order of
+ * magnitude above the light backend.
  *
- * Il n'entre donc **jamais** dans le bundle initial. L'entree
- * `@odoro-cli/engine/three` est un point de rupture, et le moteur lui-meme n'est
- * charge qu'a l'interieur de ce hook, par import dynamique. Un site qui
- * n'affiche qu'une animation de texte n'en telecharge pas une ligne. Ce n'est
- * pas une optimisation a faire plus tard : c'est ce qui dicte l'architecture
- * de ce fichier.
+ * It therefore **never** enters the initial bundle. The
+ * `@odoro-cli/engine/three` entry is a split point, and the engine itself is
+ * only loaded inside this hook, by dynamic import. A site that only shows a
+ * text animation does not download a single line of it. This is not an
+ * optimisation to be done later: it is what dictates the architecture of this
+ * file.
  *
- * ## Consequence pour l'appelant
+ * ## Consequence for the caller
  *
- * Le repli est affiche **d'abord**, la scene monte ensuite. Il n'existe aucun
- * instant ou l'ecran est vide en attendant le telechargement.
+ * The fallback is displayed **first**, the scene mounts afterwards. There is
+ * no moment at which the screen is empty while waiting for the download.
  *
  * @module
  */
@@ -31,66 +31,65 @@ import { type QualityLevel, motionPolicy } from '../core/motion-policy.js'
 import { type RefusalReason, surfaceManager } from '../gl/surface-manager.js'
 import { disposeScene } from './dispose.js'
 
-/** Ce que recoit la construction de scene. */
+/** What the scene setup receives. */
 export interface SceneContext {
-  /** Scene a peupler. */
+  /** Scene to populate. */
   readonly scene: Scene
-  /** Camera, deja placee et orientee vers l'origine. */
+  /** Camera, already placed and pointed at the origin. */
   readonly camera: PerspectiveCamera
-  /** Moteur de rendu. */
+  /** Renderer. */
   readonly renderer: WebGLRenderer
-  /** Module complet, pour construire geometries et materiaux. */
+  /** Complete module, to build geometries and materials. */
   readonly three: typeof ThreeModule
-  /** Qualite retenue au montage. */
+  /** Quality selected on mount. */
   readonly quality: QualityLevel
   /**
-   * Cibles de rendu a liberer au demontage. Y inscrire toute cible creee dans
-   * la construction : elles ne sont pas atteignables par le parcours de la
-   * scene.
+   * Render targets to release on unmount. Register here every target created
+   * in the setup: they are not reachable by walking the scene.
    */
   readonly targets: WebGLRenderTarget[]
 }
 
-/** Ce que recoit la mise a jour par image. */
+/** What the per-frame update receives. */
 export interface SceneFrame {
-  /** Temps ecoule depuis le demarrage, en secondes. */
+  /** Time elapsed since startup, in seconds. */
   readonly time: number
-  /** Duree de l'image precedente, en secondes, lissee. */
+  /** Duration of the previous frame, in seconds, smoothed. */
   readonly delta: number
-  /** Duree reelle de l'image precedente, en secondes. */
+  /** Real duration of the previous frame, in seconds. */
   readonly deltaRaw: number
 }
 
-/** Options de {@link useScene}. */
+/** Options of {@link useScene}. */
 export interface SceneOptions {
-  /** Construit le contenu de la scene. */
+  /** Builds the content of the scene. */
   setup: (context: SceneContext) => void | (() => void)
-  /** Met a jour la scene a chaque image. */
+  /** Updates the scene on every frame. */
   frame?: (context: SceneContext, frame: SceneFrame) => void
-  /** Suspend le rendu quand la surface sort de l'ecran. @defaultValue true */
+  /** Suspends the render when the surface leaves the screen. @defaultValue true */
   pauseOffscreen?: boolean
-  /** Nom affiche dans le panneau de diagnostic. */
+  /** Name shown in the diagnostics panel. */
   name?: string
 }
 
-/** Etat rendu par {@link useScene}. */
+/** State returned by {@link useScene}. */
 export interface SceneHandle<T extends HTMLElement> {
-  /** Ref a poser sur l'element hote du canevas. */
+  /** Ref to set on the host element of the canvas. */
   readonly ref: RefObject<T | null>
-  /** `true` une fois la scene construite et la premiere image rendue. */
+  /** `true` once the scene is built and the first frame is rendered. */
   readonly ready: boolean
   /**
-   * Motif du refus, s'il y en a un. Sa presence signifie que le repli doit
-   * rester affiche.
+   * Reason for the refusal, if there is one. Its presence means that the
+   * fallback must stay displayed.
    */
-  readonly refused: RefusalReason | 'mouvement-reduit' | undefined
+  readonly refused: RefusalReason | 'reduced-motion' | undefined
 }
 
-/** Plafonds de densite de pixels par niveau de qualite. */
+/** Pixel density caps per quality level. */
 const DPR_CAP: Readonly<Record<QualityLevel, number>> = { low: 1, medium: 1.5, high: 2 }
 
 /**
- * Monte une scene 3D dans une surface arbitree.
+ * Mounts a 3D scene into an arbitrated surface.
  *
  * @example
  * const { ref, refused } = useScene({
@@ -131,7 +130,7 @@ export function useScene<T extends HTMLElement = HTMLDivElement>(
 
     const state = motionPolicy.state
     if (state.reduced) {
-      setRefused('mouvement-reduit')
+      setRefused('reduced-motion')
       return
     }
 
@@ -157,9 +156,9 @@ export function useScene<T extends HTMLElement = HTMLDivElement>(
           powerPreference: state.quality === 'low' ? 'low-power' : 'high-performance',
         })
         renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, cap))
-        // Espace colorimetrique et report de tons explicites : leurs valeurs
-        // par defaut ont change d'une version a l'autre, et s'en remettre a
-        // elles rendrait l'apparence dependante de la version installee.
+        // Explicit colour space and tone mapping: their default values have
+        // changed from one version to the next, and relying on them would make
+        // the appearance depend on the installed version.
         renderer.outputColorSpace = three.SRGBColorSpace
         renderer.toneMapping = three.ACESFilmicToneMapping
 
@@ -189,8 +188,8 @@ export function useScene<T extends HTMLElement = HTMLDivElement>(
         }
 
         resize()
-        // L'anti-rebond est assure par la boucle : le redimensionnement ne fait
-        // que marquer, la frame suivante applique.
+        // The debounce is handled by the loop: the resize only marks, the next
+        // frame applies.
         let pendingResize = false
         const observer = new ResizeObserver(() => {
           pendingResize = true
@@ -229,8 +228,8 @@ export function useScene<T extends HTMLElement = HTMLDivElement>(
         }
       })
       .catch((cause: unknown) => {
-        console.error(`[odoro] scene "${name}" : chargement impossible`, cause)
-        setRefused('webgl-indisponible')
+        console.error(`[odoro] scene "${name}": could not be loaded`, cause)
+        setRefused('webgl-unavailable')
       })
 
     return () => {
@@ -239,8 +238,8 @@ export function useScene<T extends HTMLElement = HTMLDivElement>(
       surface.release()
       setReady(false)
     }
-    // `setup` et `frame` sont lus par ref : les comparer par identite
-    // reconstruirait la scene entiere a chaque rendu.
+    // `setup` and `frame` are read through refs: comparing them by identity
+    // would rebuild the whole scene on every render.
   }, [name, pauseOffscreen])
 
   return { ref, ready, refused }

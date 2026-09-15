@@ -26,7 +26,7 @@
  */
 
 import { Icon } from '@odoro-cli/icons'
-import { ArrowLeft, ArrowRight } from '@odoro-cli/icons/filaire'
+import { ArrowLeft, ArrowRight } from '@odoro-cli/icons/outline'
 import { Link, useLocation, useNavigate } from '@odoro-cli/libs/router'
 import { useEffect, useMemo, useRef, type ReactElement } from 'react'
 

@@ -1,5 +1,5 @@
 /**
- * Champ de saisie avec libelle, aide et message d'erreur.
+ * Text field with label, hint and error message.
  *
  * @module
  */
@@ -14,7 +14,7 @@ import {
 
 import { cx, variants } from '../styles/cx.js'
 
-/** Classes du champ, exposees pour habiller un `<textarea>` ou un `<select>`. */
+/** Field classes, exposed to style a `<textarea>` or a `<select>`. */
 export const inputClasses = variants({
   base: cx(
     'o-w-full o-rounded-md o-border-w-1 o-bg-white dark:o-bg-zinc-900 o-text-zinc-900 dark:o-text-zinc-50 o-transition',
@@ -35,44 +35,44 @@ export const inputClasses = variants({
   defaults: { size: 'md', invalid: 'false' },
 })
 
-/** Proprietes de {@link Input}. */
+/** Properties of {@link Input}. */
 export interface InputProps extends Omit<
   InputHTMLAttributes<HTMLInputElement>,
   'className' | 'size'
 > {
-  /** Libelle du champ. Obligatoire : un champ sans libelle est inutilisable. */
+  /** Field label. Required: a field without a label is unusable. */
   label: ReactNode
-  /** Masque visuellement le libelle sans le retirer de l'arbre d'accessibilite. */
+  /** Visually hides the label without removing it from the accessibility tree. */
   hideLabel?: boolean
-  /** Texte d'aide affiche sous le champ. */
+  /** Hint text displayed under the field. */
   hint?: ReactNode
   /**
-   * Message d'erreur. Sa presence met le champ en etat invalide et remplace
-   * l'aide dans la description annoncee.
+   * Error message. Its presence puts the field in an invalid state and
+   * replaces the hint in the announced description.
    */
   error?: ReactNode
-  /** Taille. @defaultValue 'md' */
+  /** Size. @defaultValue 'md' */
   size?: 'sm' | 'md' | 'lg'
-  /** Classes additionnelles appliquees a l'element `<input>`. */
+  /** Additional classes applied to the `<input>` element. */
   className?: string
-  /** Classes additionnelles appliquees au conteneur. */
+  /** Additional classes applied to the container. */
   wrapperClassName?: string
-  /** Ref vers l'element natif. */
+  /** Ref to the native element. */
   ref?: Ref<HTMLInputElement>
 }
 
 /**
- * Champ de saisie.
+ * Text field.
  *
- * Le libelle, l'aide et l'erreur sont relies au champ par `id` /
- * `aria-describedby` : rien a cabler cote appelant. Le message d'erreur est
- * annonce des son apparition grace a `role="alert"`.
+ * The label, the hint and the error are wired to the field through `id` /
+ * `aria-describedby`: nothing to wire on the caller side. The error message is
+ * announced as soon as it appears thanks to `role="alert"`.
  *
  * @example
  * <Input
- *   label="Adresse e-mail"
+ *   label="Email address"
  *   type="email"
- *   hint="Nous ne la partagerons jamais."
+ *   hint="We will never share it."
  *   error={errors.email}
  * />
  */

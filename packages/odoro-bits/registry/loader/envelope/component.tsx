@@ -1,39 +1,38 @@
 /**
- * Enveloppe : le rabat s'ouvre, la lettre sort, redescend, et le rabat se
- * referme.
+ * Envelope: the flap opens, the letter comes out, goes back down, and the flap
+ * closes again.
  *
- * ## Un rabat se retourne, il ne se plie pas en deux
+ * ## A flap flips over, it does not fold in two
  *
- * Le rabat n'a pas besoin de perspective pour s'ouvrir. Vu de face, un
- * rabat qui bascule autour de sa charniere n'est rien d'autre que le meme
- * triangle retourne autour de cette ligne : une symetrie verticale, dont
- * l'origine est posee sur la charniere. `scaleY(-1)` fait exactement cela,
- * et le passage de un a moins un donne le mouvement d'ouverture — le
- * triangle s'aplatit sur la charniere a mi-course, comme un rabat vu de
- * profil. Une rotation en trois dimensions couterait une couche de
- * composition pour le meme resultat.
+ * The flap does not need perspective to open. Seen head-on, a flap tipping
+ * around its hinge is nothing other than the same triangle flipped around that
+ * line: a vertical mirror whose origin sits on the hinge. `scaleY(-1)` does
+ * exactly that, and going from one to minus one gives the opening movement —
+ * the triangle flattens onto the hinge halfway through, like a flap seen
+ * edge-on. A rotation in three dimensions would cost a compositing layer for
+ * the same result.
  *
- * La lettre ne sort pas de nulle part : elle est decoupee sur la ligne de
- * la charniere, et glisse vers le haut derriere cette decoupe. Rien ne la
- * cache — il n'y a simplement rien a voir en dessous. La decoupe est posee
- * sur un groupe distinct de celui qui bouge : sur le meme, elle suivrait le
- * mouvement, et la lettre serait toujours coupee au meme endroit d'elle.
+ * The letter does not come out of nowhere: it is clipped on the line of the
+ * hinge, and slides upwards from behind that clip. Nothing hides it — there is
+ * simply nothing to see below. The clip is applied to a group separate from
+ * the one that moves: on the same one, it would follow the movement, and the
+ * letter would always be cut at the same point of itself.
  *
- * La lettre est peinte dans la couleur de surface du theme, celle d'une
- * feuille posee sur la page : c'est ce qui la fait passer devant le rabat
- * ouvert au lieu de se confondre avec lui.
+ * The letter is painted in the surface colour of the theme, that of a sheet
+ * laid on the page: it is what makes it pass in front of the open flap instead
+ * of blending into it.
  *
- * Deux animations CSS sur des elements SVG, tenues par le compositeur,
- * aucun JavaScript apres le premier rendu.
+ * Two CSS animations on SVG elements, held by the compositor, no JavaScript
+ * after the first render.
  *
- * ## Un statut, pas un dessin
+ * ## A status, not a drawing
  *
- * L'element porte `role="status"` et un libelle pour les lecteurs d'ecran :
- * l'attente est une information, pas une decoration. Le dessin est retire
- * de l'arbre d'accessibilite.
+ * The element carries `role="status"` and a label for screen readers: waiting
+ * is information, not decoration. The drawing is removed from the
+ * accessibility tree.
  *
- * Sous mouvement reduit, l'enveloppe est ouverte et la lettre sortie : de
- * tous les moments du cycle, c'est celui qui dit ce que fait la figure.
+ * Under reduced motion, the envelope is open and the letter out: of all the
+ * moments of the cycle, that is the one that says what the figure does.
  *
  * @module
  */
@@ -41,22 +40,22 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import { useId, type CSSProperties, type ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-envelope'
 
-/** Hauteur de la charniere, dans une vue de 100 unites. */
+/** Height of the hinge, in a view of 100 units. */
 const HINGE = 34
 
-/** Course de la lettre, en unites de la vue. */
+/** Travel of the letter, in view units. */
 const RISE = 32
 
-/** Le corps de l'enveloppe. */
+/** The body of the envelope. */
 const BODY = 'M 12 34 L 88 34 L 88 84 Q 88 88 84 88 L 16 88 Q 12 88 12 84 Z'
 
-/** Le rabat, ferme : un triangle qui pointe vers le bas. */
+/** The flap, closed: a triangle pointing downwards. */
 const FLAP = 'M 12 34 L 50 62 L 88 34'
 
-/** Pose l'enveloppe, son rabat et sa lettre, une fois par document. */
+/** Sets up the envelope, its flap and its letter, once per document. */
 function ensureEnvelopeRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -72,21 +71,21 @@ function ensureEnvelopeRule(): void {
     '}',
     `[data-o-envelope-flap]{transform-origin:50px ${String(HINGE)}px;animation-name:o-envelope-flap}`,
     '[data-o-envelope-letter]{transform-origin:50px 50px;animation-name:o-envelope-letter}',
-    // Le rabat bascule autour de sa charniere : de un a moins un, en
-    // passant par zero, ou il est vu de profil.
+    // The flap tips around its hinge: from one to minus one, passing through
+    // zero, where it is seen edge-on.
     '@keyframes o-envelope-flap{',
     '0%{transform:scaleY(1);animation-timing-function:ease-in-out}',
     '18%,82%{transform:scaleY(-1);animation-timing-function:ease-in-out}',
     '100%{transform:scaleY(1)}',
     '}',
-    // La lettre attend que le rabat soit ouvert, monte d'un trait, tient,
-    // puis redescend avant que le rabat ne se referme sur elle.
+    // The letter waits for the flap to be open, rises in one go, holds, then
+    // goes back down before the flap closes over it.
     '@keyframes o-envelope-letter{',
     '0%,18%{transform:translateY(0);animation-timing-function:cubic-bezier(0.2,0.8,0.3,1)}',
     `38%,62%{transform:translateY(-${String(RISE)}px);animation-timing-function:ease-in}`,
     '82%,100%{transform:translateY(0)}',
     '}',
-    // Enveloppe ouverte, lettre sortie : le moment qui dit tout le cycle.
+    // Envelope open, letter out: the moment that tells the whole cycle.
     '@media (prefers-reduced-motion:reduce){',
     '[data-o-envelope-flap]{animation:none;transform:scaleY(-1)}',
     `[data-o-envelope-letter]{animation:none;transform:translateY(-${String(RISE)}px)}`,
@@ -95,42 +94,42 @@ function ensureEnvelopeRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** Props of the component itself. */
 export interface EnvelopeOwnProps {
-  /** Cote du dessin, en pixels. @defaultValue 64 */
+  /** Side of the drawing, in pixels. @defaultValue 64 */
   size?: number
-  /** Duree d'un cycle complet, en millisecondes. @defaultValue 2600 */
+  /** Duration of a complete cycle, in milliseconds. @defaultValue 2600 */
   speed?: number
-  /** Couleur des traits de l'enveloppe. @defaultValue la couleur du texte */
+  /** Colour of the envelope strokes. @defaultValue the text colour */
   color?: string
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */
+  /** Label announced to screen readers. @defaultValue 'Loading' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All the props. */
 export type EnvelopeProps = Customisable<EnvelopeOwnProps, 'span'>
 
 /**
- * Signale une attente par une enveloppe qui s'ouvre et livre sa lettre.
+ * Signals a wait through an envelope opening and delivering its letter.
  *
  * @example
  * <Envelope />
  *
  * @example
- * // Plus grande, plus lente, dans la teinte de marque.
+ * // Bigger, slower, in the brand hue.
  * <Envelope size={96} speed={3600} color="var(--o-palette-brand-500)" />
  */
 export function Envelope({
   size = 64,
   speed = 2600,
   color = 'currentColor',
-  label = 'Chargement',
+  label = 'Loading',
   ...rest
 }: EnvelopeProps): ReactElement {
   ensureEnvelopeRule()
 
-  // La decoupe est referencee par identifiant dans le document : deux
-  // enveloppes sur la meme page ne doivent pas se partager le meme.
+  // The clip is referenced by identifier in the document: two envelopes on the
+  // same page must not share the same one.
   const id = useId().replace(/[^a-zA-Z0-9_-]/g, '')
   const mouth = `o-envelope-mouth-${id}`
 
@@ -156,8 +155,8 @@ export function Envelope({
       <svg aria-hidden viewBox="0 0 100 100" width="100%" height="100%">
         <defs>
           <clipPath id={mouth}>
-            {/* Tout ce qui est au-dessus de la charniere : la lettre n'est
-                visible que sortie. */}
+            {/* Everything above the hinge: the letter is only visible once it
+                is out. */}
             <rect x={0} y={0} width={100} height={HINGE} />
           </clipPath>
         </defs>
@@ -179,9 +178,9 @@ export function Envelope({
         />
         <g clipPath={`url(#${mouth})`}>
           <g data-o-envelope-letter="">
-            {/* La lettre est plus etroite que le rabat : ses deux obliques
-                restent visibles de part et d'autre, sinon l'ouverture
-                passerait entierement derriere la feuille. */}
+            {/* The letter is narrower than the flap: its two slanted edges stay
+                visible on either side, otherwise the opening would pass
+                entirely behind the sheet. */}
             <rect
               x={30}
               y={HINGE}

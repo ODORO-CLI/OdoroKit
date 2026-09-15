@@ -31,7 +31,7 @@
  */
 
 import { Icon } from '@odoro-cli/icons'
-import { ArrowDown, ArrowUpRight, BookOpen } from '@odoro-cli/icons/filaire'
+import { ArrowDown, ArrowUpRight, BookOpen } from '@odoro-cli/icons/outline'
 import { useMemo, useState, type ReactElement } from 'react'
 
 import { BookShelf, type ShelfVolume } from '@/odoro/section/BookShelf.jsx'

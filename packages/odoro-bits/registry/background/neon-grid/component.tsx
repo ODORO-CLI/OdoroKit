@@ -1,23 +1,23 @@
 /**
- * Grille neon : un sol quadrille qui fuit vers l'horizon, sous un soleil raye.
+ * Neon grid: a gridded ground receding towards the horizon, under a striped sun.
  *
- * ## Le principe
+ * ## The principle
  *
- * Le sol est projete en posant la profondeur egale a l'inverse de la
- * distance a l'horizon ; un decalage du domaine le fait defiler vers le
- * spectateur. Au-dessus, un disque decoupe par des bandes horizontales qui
- * glissent, et une ligne d'horizon en neon. Distinct du quadrillage plat et
- * du tunnel radial : ici la grille converge vers un point de fuite.
+ * The ground is projected by setting the depth equal to the inverse of the
+ * distance to the horizon; an offset of the domain makes it scroll towards the
+ * viewer. Above it, a disc cut by horizontal bands that slide, and a neon
+ * horizon line. Distinct from the flat grid and from the radial tunnel: here
+ * the grid converges towards a vanishing point.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur.
+ * It carries only what sets it apart: its shader, its settings and its
+ * fallback. Reading the tokens, converting them to floats and re-reading them
+ * when the theme changes all come from the engine.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface et sous
- * mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface and under reduced
+ * motion.
  *
  * @module
  */
@@ -34,48 +34,48 @@ import { type ReactElement } from 'react'
 
 import { NEON_GRID_FRAGMENT } from './neon-grid.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface NeonGridControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to this component. */
 export interface NeonGridOwnProps {
-  /** Vitesse de defilement du sol. @defaultValue 1 */
+  /** Speed at which the ground scrolls. @defaultValue 1 */
   speed?: number
-  /** Hauteur de l'horizon, en fraction du cadre. @defaultValue 0.5 */
+  /** Height of the horizon, as a fraction of the frame. @defaultValue 0.5 */
   horizon?: number
-  /** Nombre de lignes de profondeur visibles. @defaultValue 8 */
+  /** Number of visible depth lines. @defaultValue 8 */
   density?: number
-  /** Portee du halo des traits, en cellules de sol. @defaultValue 0.06 */
+  /** Reach of the halo of the strokes, in ground cells. @defaultValue 0.06 */
   glow?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<NeonGridControls>
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type NeonGridProps = Customisable<NeonGridOwnProps>
 
-/** Tokens employes par defaut : le fond, le neon, le soleil. */
+/** Tokens used by default: the background, the neon, the sun. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-fuchsia-500',
   '--o-palette-amber-400',
 ] as const
 
-/** Repli par defaut : un degrade fige, dans les memes tons. */
+/** Default fallback: a frozen gradient, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-t o-from-fuchsia-100 dark:o-from-fuchsia-950 o-to-zinc-50 dark:o-to-zinc-950'
 
 /**
- * Grille neon.
+ * Neon grid.
  *
  * @example
  * <div className="o-relative o-min-h-screen">

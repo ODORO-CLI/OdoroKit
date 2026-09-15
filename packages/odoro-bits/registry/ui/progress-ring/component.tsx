@@ -1,25 +1,25 @@
 /**
- * Anneau de progression : un arc qui rejoint sa valeur en glissant.
+ * Progress ring: an arc that reaches its value by sliding.
  *
- * ## Le trait est un perimetre decale
+ * ## The stroke is an offset perimeter
  *
- * L'arc est un cercle SVG dont le tiret fait exactement le perimetre :
- * decaler le tiret decouvre la fraction voulue. C'est une seule propriete,
- * `stroke-dashoffset`, et une transition CSS fait le trajet — changer la
- * valeur en cours de route repart de la position courante, sans saut ni
- * boucle JavaScript.
+ * The arc is an SVG circle whose dash is exactly the perimeter: offsetting the
+ * dash uncovers the wanted fraction. It is a single property,
+ * `stroke-dashoffset`, and a CSS transition makes the trip — changing the
+ * value along the way restarts from the current position, with no jump and no
+ * JavaScript loop.
  *
- * ## Le pourcentage est en chiffres tabulaires
+ * ## The percentage is in tabular figures
  *
- * Pendant que l'arc glisse, le nombre au centre ne bouge pas d'un pixel :
- * les chiffres tabulaires ont tous la meme chasse, « 9 » et « 1 » compris.
- * Sans cela, le passage de 99 a 100 ferait respirer tout le centre.
+ * While the arc slides, the number at the center does not move by a pixel:
+ * tabular figures all have the same advance width, "9" and "1" included.
+ * Without that, going from 99 to 100 would make the whole center breathe.
  *
- * ## Une barre de progression pour l'arbre d'accessibilite
+ * ## A progress bar for the accessibility tree
  *
- * `role="progressbar"` et `aria-valuenow` : un lecteur d'ecran annonce la
- * valeur, pas un dessin. Le pourcentage affiche est retire de l'arbre pour
- * ne pas etre lu deux fois.
+ * `role="progressbar"` and `aria-valuenow`: a screen reader announces the
+ * value, not a drawing. The displayed percentage is removed from the tree so
+ * as not to be read twice.
  *
  * @module
  */
@@ -27,25 +27,25 @@
 import { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'
 import { type CSSProperties, type ReactElement } from 'react'
 
-/** Proprietes propres au composant. */
+/** Props specific to the component. */
 export interface ProgressRingOwnProps {
-  /** Progression, de zero a cent. @defaultValue 65 */
+  /** Progress, from zero to a hundred. @defaultValue 65 */
   value?: number
-  /** Diametre de l'anneau, en pixels. @defaultValue 96 */
+  /** Diameter of the ring, in pixels. @defaultValue 96 */
   size?: number
-  /** Epaisseur du trait, en pixels. @defaultValue 8 */
+  /** Thickness of the stroke, in pixels. @defaultValue 8 */
   thickness?: number
-  /** Nom de la mesure pour les lecteurs d'ecran. @defaultValue 'Progression' */
+  /** Name of the measure for screen readers. @defaultValue 'Progress' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type ProgressRingProps = Customisable<ProgressRingOwnProps>
 
-/** Identifiant de la feuille injectee. */
+/** Id of the injected stylesheet. */
 const STYLE_ID = 'o-progress-ring'
 
-/** Pose la transition de l'arc, une fois par document. */
+/** Applies the transition of the arc, once per document. */
 function ensureRingRules(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -61,7 +61,7 @@ function ensureRingRules(): void {
     '}',
     '[data-o-ring-track]{stroke:color-mix(in oklch,currentColor 15%,transparent)}',
     '[data-o-ring-value]{position:absolute}',
-    // Mouvement reduit : l arc saute directement a sa valeur.
+    // Reduced motion: the arc jumps straight to its value.
     '@media (prefers-reduced-motion:reduce){',
     '[data-o-ring-arc]{transition:none}',
     '}',
@@ -70,20 +70,20 @@ function ensureRingRules(): void {
 }
 
 /**
- * Anneau de progression SVG, avec le pourcentage au centre.
+ * SVG progress ring, with the percentage at the center.
  *
  * @example
  * <ProgressRing value={72} />
  *
  * @example
- * // Un grand anneau fin, nomme pour les lecteurs d'ecran.
- * <ProgressRing value={progression} size={160} thickness={4} label="Televersement" />
+ * // A large thin ring, named for screen readers.
+ * <ProgressRing value={progress} size={160} thickness={4} label="Upload" />
  */
 export function ProgressRing({
   value = 65,
   size = 96,
   thickness = 8,
-  label = 'Progression',
+  label = 'Progress',
   ...rest
 }: ProgressRingProps): ReactElement {
   const { reduced } = useMotionState()

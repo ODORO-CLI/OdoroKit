@@ -1,19 +1,19 @@
 /**
- * Points masques : une grille de points estompee vers les bords par un masque.
+ * Masked dots: a grid of dots faded towards the edges by a mask.
  *
- * ## Pourquoi un masque plutot qu'un degrade de plus
+ * ## Why a mask rather than one more gradient
  *
- * Estomper le motif avec un degrade superpose obligerait a connaitre la
- * couleur du fond pour peindre par-dessus — le composant cesserait d'etre
- * posable n'importe ou. Un `mask-image` retire de l'opacite au lieu d'ajouter
- * de la peinture : la vignette fonctionne sur n'importe quel fond, clair ou
- * sombre, sans rien savoir de lui.
+ * Fading the pattern with a gradient laid over it would mean knowing the
+ * background colour in order to paint on top of it — the component would stop
+ * being placeable anywhere. A `mask-image` takes opacity away instead of adding
+ * paint: the vignette works over any background, light or dark, without knowing
+ * anything about it.
  *
- * ## Pourquoi la vignette est un reglage continu
+ * ## Why the vignette is a continuous setting
  *
- * A zero, le masque disparait completement — pas un masque transparent, pas de
- * masque du tout, le compositeur n'ayant alors rien a composer. Entre les
- * deux, la valeur rapproche simplement le debut de l'estompe du centre.
+ * At zero the mask disappears entirely — not a transparent mask, no mask at
+ * all, the compositor then having nothing to compose. In between, the value
+ * simply moves the start of the fade closer to the centre.
  *
  * @module
  */
@@ -21,23 +21,23 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import { type CSSProperties, type ReactElement } from 'react'
 
-/** Proprietes propres au composant. */
+/** Props specific to this component. */
 export interface SpotGridOwnProps {
-  /** Pas de la grille, en pixels. @defaultValue 24 */
+  /** Pitch of the grid, in pixels. @defaultValue 24 */
   gap?: number
-  /** Rayon d'un point, en pixels. @defaultValue 2 */
+  /** Radius of a dot, in pixels. @defaultValue 2 */
   dot?: number
-  /** Force de la vignette, entre 0 et 1. Zero la retire. @defaultValue 0.6 */
+  /** Strength of the vignette, between 0 and 1. Zero removes it. @defaultValue 0.6 */
   vignette?: number
-  /** Couleur des points. */
+  /** Colour of the dots. */
   color?: string
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type SpotGridProps = Customisable<SpotGridOwnProps>
 
 /**
- * Grille de points de fond.
+ * Background dot grid.
  *
  * @example
  * <div className="o-relative o-min-h-screen">

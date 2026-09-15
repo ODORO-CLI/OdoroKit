@@ -1,28 +1,28 @@
 /**
- * Champ ASCII : un champ de bruit rendu en caracteres, par densite d'encre.
+ * ASCII field: a noise field rendered as characters, by ink density.
  *
- * ## Le principe
+ * ## The principle
  *
- * Le champ est echantillonne au centre de chaque cellule, quantifie en dix
- * niveaux, et chaque niveau choisit un caractere de la rampe classique des
- * convertisseurs d'images en texte. De loin un degrade, de pres du texte.
- * Les glyphes sont des masques de bits sur cinq par sept dessines par le
- * shader : aucune police, aucune texture.
+ * The field is sampled at the centre of every cell, quantised into ten
+ * levels, and each level picks a character from the classic ramp of the
+ * image-to-text converters. From afar a gradient, from up close text. The
+ * glyphs are bit masks over five by seven drawn by the shader: no font, no
+ * texture.
  *
- * Ce qui distingue cette entree de `dither` : la densite est portee par
- * des caracteres, pas par une trame ; et de `code-rain` : rien ne tombe,
- * c'est un champ continu qui derive.
+ * What sets this entry apart from `dither`: the density is carried by
+ * characters, not by a dither pattern; and from `code-rain`: nothing
+ * falls, it is a continuous field that drifts.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur — les recopier ici en ferait autant
- * de versions a maintenir qu'il y a de fonds.
+ * It carries only what sets it apart: its shader, its settings and its
+ * fallback. Reading the tokens, turning them into floats and reading them
+ * again when the theme changes all come from the engine — copying them out
+ * here would make as many versions to maintain as there are backgrounds.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en
- * accorde qu'une par backend — et sous mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads,
+ * when WebGL is missing, when the arbiter refuses the surface — it grants
+ * only one per backend — and under reduced motion.
  *
  * @module
  */
@@ -39,47 +39,47 @@ import { type ReactElement } from 'react'
 
 import { ASCII_FIELD_FRAGMENT } from './ascii-field.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface AsciiFieldControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Props belonging to the component itself. */
 export interface AsciiFieldOwnProps {
-  /** Nombre de caracteres sur la largeur. Borne a deux cents par le shader. @defaultValue 80 */
+  /** Number of characters across the width. Capped at two hundred by the shader. @defaultValue 80 */
   cells?: number
-  /** Vitesse de derive du champ. @defaultValue 0.25 */
+  /** Drift speed of the field. @defaultValue 0.25 */
   speed?: number
-  /** Echelle du champ. Plus haut, plus de details. @defaultValue 3 */
+  /** Scale of the field. Higher means more detail. @defaultValue 3 */
   scale?: number
-  /** Contraste du champ avant quantification. @defaultValue 1.4 */
+  /** Contrast of the field before quantisation. @defaultValue 1.4 */
   contrast?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Classes of the fallback. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<AsciiFieldControls>
 }
 
-/** Toutes les proprietes. */
+/** All the props. */
 export type AsciiFieldProps = Customisable<AsciiFieldOwnProps>
 
-/** Tokens employes par defaut : le fond, l'encre, l'encre des hauts niveaux. */
+/** Tokens used by default: the background, the ink, the ink of the high levels. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-theme-muted',
   '--o-palette-brand-500',
 ] as const
 
-/** Repli par defaut : une teinte figee, dans les memes tons. */
+/** Default fallback: a frozen tint, in the same tones. */
 const DEFAULT_FALLBACK = 'o-bg-zinc-50 dark:o-bg-zinc-950'
 
 /**
- * Champ ASCII.
+ * ASCII field.
  *
  * @example
  * <div className="o-relative o-min-h-screen">
@@ -102,8 +102,8 @@ export function AsciiField({
     colors,
     uniforms: { uCells: cells, uSpeed: speed, uScale: scale, uContrast: contrast },
     name: 'ascii-field',
-    // Des glyphes de cinq pixels de large scintillent a densite de pixels
-    // reduite : en qualite basse, les cellules s'elargissent.
+    // Glyphs five pixels wide shimmer at a reduced pixel density: at low
+    // quality, the cells get wider.
     degrade: (quality) => ({
       uCells: quality === 'low' ? Math.min(cells, 48) : cells,
     }),

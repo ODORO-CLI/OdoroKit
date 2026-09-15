@@ -1,29 +1,29 @@
 /**
- * Tracking VHS : une bande de tracking qui roule, des lignes decalees, des
- * stries, et des sauts de couleur par rafales.
+ * VHS tracking: a tracking band that rolls, offset lines, streaks, and colour
+ * jumps in bursts.
  *
- * ## Le principe
+ * ## The principle
  *
- * L'image est un signal doux ; tout le reste est ce que la bande lui fait.
- * La bande de tracking roule lentement, decale chaque ligne d'ecran et y
- * seme des stries, tirees par ligne et hachees par paliers. Les deux
- * teintes sont lues a deux positions ecartees, beaucoup plus pendant les
- * rafales ; le bas de l'image porte la commutation des tetes.
+ * The picture is a gentle signal; everything else is what the tape does to
+ * it. The tracking band rolls slowly, offsets every screen line and sows
+ * streaks in it, drawn per line and chopped into steps. The two hues are read
+ * at two spread-apart positions, far more so during the bursts; the bottom of
+ * the picture carries the head switching.
  *
- * Ce qui distingue cette entree de `tv-static` : il y a une image, et une
- * bande qui la traverse ; et de `glitch-blocks` : des lignes et des bandes
- * qui roulent, pas des rectangles qui sautent.
+ * What sets this entry apart from `tv-static`: there is a picture, and a band
+ * that crosses it; and from `glitch-blocks`: lines and bands that roll, not
+ * rectangles that jump.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur — les recopier ici en ferait autant
- * de versions a maintenir qu'il y a de fonds.
+ * It carries only what sets it apart: its shader, its settings and its
+ * fallback. Reading the tokens, converting them to floats and re-reading them
+ * when the theme changes all come from the engine — copying that here would
+ * leave as many versions to maintain as there are backgrounds.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en
- * accorde qu'une par backend — et sous mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface — it grants only one
+ * per backend — and under reduced motion.
  *
  * @module
  */
@@ -40,48 +40,48 @@ import { type ReactElement } from 'react'
 
 import { VHS_TRACKING_FRAGMENT } from './vhs-tracking.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface VhsTrackingControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to this component. */
 export interface VhsTrackingOwnProps {
-  /** Vitesse de la bande de tracking. @defaultValue 1 */
+  /** Speed of the tracking band. @defaultValue 1 */
   speed?: number
-  /** Hauteur de la bande, en fraction de l'image. @defaultValue 0.14 */
+  /** Height of the band, as a fraction of the picture. @defaultValue 0.14 */
   band?: number
-  /** Ecart des teintes. Zero le coupe. @defaultValue 0.6 */
+  /** Spread of the hues. Zero switches it off. @defaultValue 0.6 */
   split?: number
-  /** Quantite de stries dans la bande. @defaultValue 0.5 */
+  /** Amount of streaks in the band. @defaultValue 0.5 */
   noise?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<VhsTrackingControls>
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type VhsTrackingProps = Customisable<VhsTrackingOwnProps>
 
-/** Tokens employes par defaut : le fond, les deux teintes du signal. */
+/** Tokens used by default: the background, the two hues of the signal. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-fuchsia-500',
   '--o-palette-cyan-400',
 ] as const
 
-/** Repli par defaut : un degrade fige, dans les memes tons. */
+/** Default fallback: a frozen gradient, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-br o-from-fuchsia-100 dark:o-from-fuchsia-950 o-via-zinc-50 dark:o-via-zinc-950 o-to-cyan-100 dark:o-to-cyan-950'
 
 /**
- * Tracking VHS.
+ * VHS tracking.
  *
  * @example
  * <div className="o-relative o-min-h-screen">
@@ -104,8 +104,8 @@ export function VhsTracking({
     colors,
     uniforms: { uSpeed: speed, uBand: band, uSplit: split, uNoise: noise },
     name: 'vhs-tracking',
-    // L'ecart des teintes coute une seconde lecture du signal, et devient un
-    // simple flou a densite de pixels reduite : en qualite basse, il se coupe.
+    // The spread of the hues costs a second read of the signal, and turns
+    // into plain blur at a reduced pixel density: at low quality, it is off.
     degrade: (quality) => ({
       uSplit: quality === 'low' ? 0 : split,
     }),

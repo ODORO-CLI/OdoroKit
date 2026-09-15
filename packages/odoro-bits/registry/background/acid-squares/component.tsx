@@ -1,22 +1,21 @@
 /**
- * Carres acides : des carres imbriques qui tournent en decalage, en
- * couleurs acides.
+ * Acid squares: nested squares that turn out of step, in acid colours.
  *
- * ## Pourquoi les couleurs sont crues
+ * ## Why the colours are raw
  *
- * L'effet vit du contraste entre deux teintes qui alternent : des nuances
- * proches donneraient un moire gris. Les tokens par defaut sont donc pris
- * loin l'un de l'autre sur le cercle des teintes, et loin du fond.
+ * The effect lives off the contrast between two alternating hues: close
+ * shades would give a grey moire. The default tokens are therefore taken
+ * far from one another on the hue circle, and far from the background.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur.
+ * It carries only what sets it apart: its shader, its settings and its
+ * fallback. Reading the tokens, turning them into floats and reading them
+ * again when the theme changes all come from the engine.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface et sous
- * mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads,
+ * when WebGL is missing, when the arbiter refuses the surface and under
+ * reduced motion.
  *
  * @module
  */
@@ -33,57 +32,57 @@ import { type ReactElement } from 'react'
 
 import { ACID_SQUARES_FRAGMENT } from './acid-squares.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface AcidSquaresControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Props belonging to the component itself. */
 export interface AcidSquaresOwnProps {
-  /** Vitesse de rotation du carre exterieur. @defaultValue 0.25 */
+  /** Rotation speed of the outermost square. @defaultValue 0.25 */
   speed?: number
-  /** Nombre de carres imbriques par cellule. @defaultValue 7 */
+  /** Number of nested squares per cell. @defaultValue 7 */
   rings?: number
-  /** Nombre de cellules sur la hauteur. @defaultValue 2 */
+  /** Number of cells over the height. @defaultValue 2 */
   density?: number
-  /** Decalage angulaire entre deux carres voisins, en radians. @defaultValue 0.12 */
+  /** Angular offset between two neighbouring squares, in radians. @defaultValue 0.12 */
   twist?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Classes of the fallback. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<AcidSquaresControls>
 }
 
-/** Toutes les proprietes. */
+/** All the props. */
 export type AcidSquaresProps = Customisable<AcidSquaresOwnProps>
 
-/** Tokens employes par defaut : le fond, puis les deux teintes alternees. */
+/** Tokens used by default: the background, then the two alternating hues. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-lime-400',
   '--o-palette-fuchsia-500',
 ] as const
 
-/** Repli par defaut : un degrade fige, dans les memes tons. */
+/** Default fallback: a frozen gradient, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-br o-from-zinc-50 dark:o-from-zinc-950 o-via-lime-200 dark:o-via-lime-900 o-to-fuchsia-100 dark:o-to-fuchsia-950'
 
 /**
- * Carres imbriques en qualite basse.
+ * Nested squares at low quality.
  *
- * Chaque carre est une rotation et une distance par fragment : c'est le
- * seul levier de cout, et il n'a pas besoin d'etre une prop pour etre
- * retrograde.
+ * Each square is one rotation and one distance per fragment: this is the
+ * only cost lever, and it does not need to be a prop in order to be
+ * stepped down.
  */
 const LOW_RINGS = 4
 
 /**
- * Carres acides.
+ * Acid squares.
  *
  * @example
  * <div className="o-relative o-min-h-screen">

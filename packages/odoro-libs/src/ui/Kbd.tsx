@@ -1,5 +1,5 @@
 /**
- * Touche de clavier.
+ * Keyboard key.
  *
  * @module
  */
@@ -8,7 +8,7 @@ import { Fragment, type HTMLAttributes, type ReactElement, type ReactNode } from
 
 import { cx } from '../styles/cx.js'
 
-/** Habillage d'une touche isolee. */
+/** Styling of a standalone key. */
 const KEY_CLASSES = cx(
   'o-inline-flex o-items-center o-justify-center',
   'o-text-xs o-font-mono o-text-zinc-900 dark:o-text-zinc-50',
@@ -16,24 +16,24 @@ const KEY_CLASSES = cx(
   'o-px-1.5 o-py-0.5 o-select-none',
 )
 
-/** Proprietes de {@link Kbd}. */
+/** Properties of {@link Kbd}. */
 export interface KbdProps extends Omit<HTMLAttributes<HTMLElement>, 'className'> {
   /**
-   * Combinaison : chaque touche est rendue dans son propre `<kbd>`, separee
-   * par un « + ». Sans elle, `children` remplit un `<kbd>` unique.
+   * Combination: each key is rendered in its own `<kbd>`, separated by a
+   * "+". Without it, `children` fills a single `<kbd>`.
    */
   keys?: readonly string[]
-  /** Contenu de la touche quand `keys` n'est pas fournie. */
+  /** Key content when `keys` is not provided. */
   children?: ReactNode
-  /** Classes additionnelles. */
+  /** Additional classes. */
   className?: string
 }
 
 /**
- * Touche de clavier, seule ou en combinaison.
+ * Keyboard key, alone or as a combination.
  *
  * @example
- * <Kbd>Echap</Kbd>
+ * <Kbd>Esc</Kbd>
  * <Kbd keys={['Ctrl', 'K']} />
  */
 export function Kbd({ keys, children, className, ...rest }: KbdProps): ReactElement {
@@ -46,8 +46,8 @@ export function Kbd({ keys, children, className, ...rest }: KbdProps): ReactElem
   }
 
   return (
-    // Le conteneur reste un `<kbd>` : c'est l'imbrication que HTML prevoit
-    // pour representer une combinaison de touches.
+    // The container stays a `<kbd>`: this is the nesting HTML provides to
+    // represent a combination of keys.
     <kbd {...rest} className={cx('o-inline-flex o-items-center o-gap-1', className)}>
       {keys.map((key, index) => (
         <Fragment key={`${key}-${index}`}>

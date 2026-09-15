@@ -1,25 +1,25 @@
 /**
- * Position du pointeur, normalisee et lissee.
+ * Pointer position, normalised and smoothed.
  *
- * ## La technique
+ * ## The technique
  *
- * Suivre le pointeur sans filtre donne un mouvement nerveux : les evenements
- * du systeme arrivent a un rythme irregulier, et chacun deplace la valeur d'un
- * saut. L'amortissement exponentiel corrige cela — a chaque image, la valeur
- * comble une fraction de l'ecart qui la separe de sa cible.
+ * Following the pointer without a filter gives a jittery movement: the system
+ * events arrive at an irregular rhythm, and each one moves the value by a
+ * jump. Exponential damping corrects that — on every frame, the value fills in
+ * a fraction of the gap separating it from its target.
  *
- * Cette fraction depend du temps ecoule. Employer une constante ferait varier
- * la vitesse du mouvement avec la cadence d'affichage : deux fois plus rapide
- * sur un ecran a cent vingt images par seconde. La formule
- * `1 - exp(-vitesse x dt)` produit le meme mouvement quelle que soit la
- * cadence, ce qui est la seule facon d'obtenir un reglage qui se comporte
- * pareil chez tout le monde.
+ * That fraction depends on the elapsed time. Using a constant would make the
+ * speed of the movement vary with the display cadence: twice as fast on a
+ * screen at a hundred and twenty frames per second. The formula
+ * `1 - exp(-speed x dt)` produces the same movement whatever the cadence,
+ * which is the only way to get a setting that behaves the same for everyone.
  *
- * ## Pourquoi une ref plutot qu'un etat
+ * ## Why a ref rather than state
  *
- * La valeur change a chaque image. La rendre comme etat provoquerait un rendu
- * React par image — soixante par seconde, pour deplacer un objet que React ne
- * dessine meme pas. La lecture se fait donc dans la boucle, ou l'on est deja.
+ * The value changes on every frame. Returning it as state would trigger a
+ * React render per frame — sixty a second, to move an object React does not
+ * even draw. The reading therefore happens inside the loop, where we already
+ * are.
  *
  * @module
  */
@@ -27,29 +27,29 @@
 import { CLOCK_PRIORITY, clock, motionPolicy } from '@odoro-cli/engine'
 import { type RefObject, useEffect, useRef } from 'react'
 
-/** Position normalisee, origine au centre, bornee a [-1, 1]. */
+/** Normalised position, origin at the centre, clamped to [-1, 1]. */
 export interface PointerPosition {
   x: number
   y: number
 }
 
-/** Options de `usePointerDamped`. */
+/** Options of `usePointerDamped`. */
 export interface PointerDampedOptions {
-  /** Zone observee. Par defaut, la fenetre entiere. */
+  /** Watched area. By default, the whole window. */
   host?: HTMLElement | null
-  /** Vitesse de rattrapage. Plus haut, plus sec. @defaultValue 3 */
+  /** Catch-up speed. Higher is sharper. @defaultValue 3 */
   speed?: number
-  /** Nom affiche dans le panneau de diagnostic. */
+  /** Name displayed in the diagnostics panel. */
   name?: string
 }
 
 /**
- * Suit le pointeur avec amortissement.
+ * Follows the pointer with damping.
  *
- * Sous mouvement reduit, la valeur reste au repos : le suivi du pointeur est
- * un agrement, pas un contenu.
+ * Under reduced motion, the value stays at rest: pointer following is an
+ * embellishment, not content.
  *
- * @returns Une ref dont `.current` est lue dans la boucle de rendu.
+ * @returns A ref whose `.current` is read inside the render loop.
  *
  * @example
  * const pointer = usePointerDamped({ host, speed: 4 })
@@ -63,7 +63,7 @@ export interface PointerDampedOptions {
 export function usePointerDamped(
   options: PointerDampedOptions = {},
 ): RefObject<PointerPosition> {
-  const { host, speed = 3, name = 'pointeur' } = options
+  const { host, speed = 3, name = 'pointer' } = options
 
   const current = useRef<PointerPosition>({ x: 0, y: 0 })
   const target = useRef<PointerPosition>({ x: 0, y: 0 })
@@ -87,7 +87,7 @@ export function usePointerDamped(
     }
 
     const onLeave = (): void => {
-      // Retour au repos, plutot qu'un gel sur la derniere position connue.
+      // Back to rest, rather than a freeze on the last known position.
       target.current = { x: 0, y: 0 }
     }
 
@@ -100,7 +100,7 @@ export function usePointerDamped(
         current.current.x += (target.current.x - current.current.x) * factor
         current.current.y += (target.current.y - current.current.y) * factor
       },
-      // Avant le rendu : la valeur lue par la scene est celle de cette image.
+      // Before the render: the value the scene reads is this frame's.
       { priority: CLOCK_PRIORITY.input, name },
     )
 

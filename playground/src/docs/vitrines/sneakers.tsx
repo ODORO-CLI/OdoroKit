@@ -42,7 +42,7 @@
 
 import { useMotionState } from '@odoro-cli/engine'
 import { Icon } from '@odoro-cli/icons'
-import { Bell, MessageSquare, Mail, SportShoe, Ticket } from '@odoro-cli/icons/filaire'
+import { Bell, MessageSquare, Mail, SportShoe, Ticket } from '@odoro-cli/icons/outline'
 import { useMemo, useState, type CSSProperties, type ReactElement } from 'react'
 
 import { LedWall } from '@/odoro/background/LedWall.jsx'

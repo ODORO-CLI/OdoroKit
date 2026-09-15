@@ -1,48 +1,47 @@
 /**
- * Bloc differe : un substitut couvre le contenu, puis s'efface pour le
- * laisser paraitre.
+ * Deferred block: a stand-in covers the content, then fades out to let it
+ * appear.
  *
- * ## Ce que les autres squelettes ne font pas
+ * ## What the other skeletons do not do
  *
- * Les entrees `skeleton-*` sont des figures immobiles : on les monte, on les
- * demonte, et c'est la page qui decide quand. Celui-ci contient les deux
- * etats et le passage de l'un a l'autre. Il sert la ou le contenu est deja
- * la mais ne doit pas surgir d'un coup — une vitrine, une maquette, un
- * chargement dont on connait la duree — et il sert de patron a brancher sur
- * un vrai chargement, en remplacant le minuteur par `loaded`.
+ * The `skeleton-*` entries are still figures: they get mounted, unmounted, and
+ * it is the page that decides when. This one contains both states and the
+ * passage from one to the other. It serves where the content is already there
+ * but must not appear all at once — a showcase, a mockup, a load whose
+ * duration is known — and it serves as a pattern to wire onto a real load, by
+ * replacing the timer with `loaded`.
  *
- * ## Le contenu est dans le document des le depart
+ * ## The content is in the document from the start
  *
- * Il n'est pas monte a la fin : il est present, en attente derriere le
- * substitut, avec sa hauteur reelle. C'est ce qui evite le saut de mise en
- * page au moment du passage — le defaut que toute cette famille cherche a
- * corriger. `--o-lz-height` ne sert que de plancher, pour le cas ou le
- * contenu serait encore vide.
+ * It is not mounted at the end: it is present, waiting behind the stand-in,
+ * with its real height. That is what avoids the layout jump at the moment of
+ * the passage — the fault this whole family sets out to correct.
+ * `--o-lz-height` only serves as a floor, for the case where the content would
+ * still be empty.
  *
- * Tant qu'il est couvert, il est retire de l'arbre d'accessibilite et ne
- * recoit pas le pointeur : un lien invisible mais cliquable serait un piege.
+ * As long as it is covered, it is removed from the accessibility tree and does
+ * not receive the pointer: an invisible but clickable link would be a trap.
  *
- * ## Le minuteur, pas la boucle d'images
+ * ## The timer, not the frame loop
  *
- * Deux instants a tenir, pas soixante par seconde : un minuteur suffit, et
- * la boucle du moteur serait un abonnement permanent pour deux
- * evenements. Les minuteurs sont annules a la demontee.
+ * Two moments to keep, not sixty a second: a timer is enough, and the engine
+ * loop would be a permanent subscription for two events. The timers are
+ * cancelled on unmount.
  *
- * ## Pourquoi la boucle est le regime par defaut
+ * ## Why looping is the default regime
  *
- * L'attente de ce composant est une **fiction** : `delay` est un chiffre
- * qu'on choisit, alors qu'un vrai chargement n'en connait pas la duree. Sa
- * place naturelle est donc la ou l'on montre le passage — vitrine, maquette,
- * capture — et un passage joue une seule fois, quelques secondes apres
- * l'arrivee sur la page, n'est vu par personne. `loop={false}` donne la
- * version a un coup, pour une page qui pilote elle-meme le moment ; branche
- * sur un vrai chargement, c'est `loaded` qu'on remplace, et le minuteur
- * disparait.
+ * The waiting of this component is a **fiction**: `delay` is a number one
+ * picks, whereas a real load does not know its duration. Its natural place is
+ * therefore where the passage is being shown — showcase, mockup, screenshot —
+ * and a passage played once, a few seconds after landing on the page, is seen
+ * by nobody. `loop={false}` gives the one-shot version, for a page that drives
+ * the moment itself; wired onto a real load, it is `loaded` that gets
+ * replaced, and the timer disappears.
  *
- * Sous mouvement reduit, le contenu est visible immediatement et le cycle
- * ne se rejoue pas : c'est l'etat final, celui vers lequel le passage
- * allait. La regle du squelette au repos vaut pour les figures qui
- * attendent ; ici, l'attente a une fin, et cette fin est le contenu.
+ * Under reduced motion, the content is visible immediately and the cycle does
+ * not replay: that is the final state, the one the passage was heading for.
+ * The rule of the skeleton at rest holds for figures that wait; here, the
+ * waiting has an end, and that end is the content.
  *
  * @module
  */
@@ -56,10 +55,10 @@ import {
   type ReactNode,
 } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-lazy-block'
 
-/** Pose le substitut, le contenu et leur croisement, une fois par document. */
+/** Sets up the stand-in, the content and their crossfade, once per document. */
 function ensureLazyBlockRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -68,7 +67,7 @@ function ensureLazyBlockRule(): void {
   style.id = STYLE_ID
   style.textContent = [
     '[data-o-lz]{position:relative;display:block;width:100%}',
-    // Un plancher, pas une hauteur : c'est le contenu qui commande.
+    // A floor, not a height: the content is in charge.
     '[data-o-lz]:not([data-o-lz-loaded]){min-height:var(--o-lz-height)}',
     '[data-o-lz-content]{',
     'opacity:0;pointer-events:none;',
@@ -82,8 +81,8 @@ function ensureLazyBlockRule(): void {
     'transition:opacity var(--o-lz-speed) var(--o-ease-standard);',
     'animation:o-lz-breathe var(--o-lz-breath) ease-in-out infinite;',
     '}',
-    // Le substitut respire sans jamais devenir transparent : ce qu'il
-    // couvre ne doit pas transparaitre avant l'heure.
+    // The stand-in breathes without ever becoming transparent: what it covers
+    // must not show through before its time.
     '@keyframes o-lz-breathe{',
     '0%,100%{background-color:color-mix(in oklab,var(--o-theme-line) 72%,var(--o-theme-surface))}',
     '50%{background-color:color-mix(in oklab,var(--o-theme-line) 38%,var(--o-theme-surface))}',
@@ -97,31 +96,31 @@ function ensureLazyBlockRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** Props of the component itself. */
 export interface LazyBlockOwnProps {
-  /** Le contenu couvert, puis revele. */
+  /** The covered, then revealed, content. */
   children?: ReactNode
-  /** Attente avant la revelation, en millisecondes. @defaultValue 1400 */
+  /** Wait before the reveal, in milliseconds. @defaultValue 1400 */
   delay?: number
-  /** Duree du croisement, en millisecondes. @defaultValue 500 */
+  /** Duration of the crossfade, in milliseconds. @defaultValue 500 */
   speed?: number
-  /** Rejouer le cycle en boucle : le regime d'une vitrine ou d'une maquette. @defaultValue true */
+  /** Replay the cycle on a loop: the regime of a showcase or a mockup. @defaultValue true */
   loop?: boolean
-  /** Temps ou le contenu reste visible avant de repartir, en millisecondes. @defaultValue 2400 */
+  /** Time the content stays visible before setting off again, in milliseconds. @defaultValue 2400 */
   hold?: number
-  /** Hauteur minimale pendant l'attente, en pixels. @defaultValue 96 */
+  /** Minimum height during the wait, in pixels. @defaultValue 96 */
   height?: number
-  /** Rayon des angles du substitut, en pixels. @defaultValue 12 */
+  /** Corner radius of the stand-in, in pixels. @defaultValue 12 */
   radius?: number
-  /** Libelle annonce aux lecteurs d'ecran pendant l'attente. @defaultValue 'Chargement du contenu' */
+  /** Label announced to screen readers during the wait. @defaultValue 'Loading content' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All the props. */
 export type LazyBlockProps = Customisable<LazyBlockOwnProps, 'div'>
 
 /**
- * Couvre un contenu d'un substitut, puis le revele.
+ * Covers a piece of content with a stand-in, then reveals it.
  *
  * @example
  * <LazyBlock height={120}>
@@ -129,7 +128,7 @@ export type LazyBlockProps = Customisable<LazyBlockOwnProps, 'div'>
  * </LazyBlock>
  *
  * @example
- * // Un seul passage : c'est la page qui decide du moment.
+ * // A single passage: the page decides the moment.
  * <LazyBlock loop={false} delay={900}>{apercu}</LazyBlock>
  */
 export function LazyBlock({
@@ -140,7 +139,7 @@ export function LazyBlock({
   hold = 2400,
   height = 96,
   radius = 12,
-  label = 'Chargement du contenu',
+  label = 'Loading content',
   ...rest
 }: LazyBlockProps): ReactElement {
   ensureLazyBlockRule()
@@ -148,7 +147,7 @@ export function LazyBlock({
   const [loaded, setLoaded] = useState(false)
 
   useEffect(() => {
-    // L'etat final, sans passage : le contenu est la, tout de suite.
+    // The final state, with no passage: the content is there, straight away.
     if (reduced) {
       setLoaded(true)
       return
@@ -180,8 +179,8 @@ export function LazyBlock({
     '--o-lz-height': `${String(height)}px`,
     '--o-lz-radius': `${String(radius)}px`,
     '--o-lz-speed': `${String(speed)}ms`,
-    // La respiration du substitut est independante de l'attente : elle doit
-    // rester lisible que la revelation arrive dans une seconde ou dix.
+    // The breathing of the stand-in is independent of the wait: it has to stay
+    // legible whether the reveal comes in one second or in ten.
     '--o-lz-breath': `${String(Math.max(600, Math.round(delay / 2)))}ms`,
   } as CSSProperties
 
@@ -193,8 +192,8 @@ export function LazyBlock({
       data-o-lz=""
       data-o-lz-loaded={loaded ? '' : undefined}
     >
-      {/* Le libelle se tait une fois le contenu la : une region vivante qui
-          repeterait « chargement » apres coup dirait le contraire de l'ecran. */}
+      {/* The label goes quiet once the content is there: a live region
+          repeating "loading" afterwards would say the opposite of the screen. */}
       <span className="o-sr-only" role="status">
         {loaded ? '' : label}
       </span>

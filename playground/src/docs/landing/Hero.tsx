@@ -10,7 +10,7 @@
  */
 
 import { Icon } from '@odoro-cli/icons'
-import { ArrowRight, ChevronDown, Sparkles } from '@odoro-cli/icons/filaire'
+import { ArrowRight, ChevronDown, Sparkles } from '@odoro-cli/icons/outline'
 import { Reveal } from '@odoro-cli/libs/motion'
 import { Link } from '@odoro-cli/libs/router'
 import { buttonClasses } from '@odoro-cli/libs/ui'

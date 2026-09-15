@@ -1,23 +1,23 @@
 /**
- * Vague : chaque lettre monte et descend, decalee de la precedente.
+ * Wave: each letter rises and falls, offset from the previous one.
  *
- * ## Le decalage fait la vague, pas le mouvement
+ * ## The offset makes the wave, not the movement
  *
- * Toutes les lettres jouent la meme animation ; seule leur phase differe. Le
- * decalage est porte par `animation-delay`, negatif pour que la vague soit
- * deja formee au premier rendu — un delai positif ferait partir les lettres
- * une a une, ce qui est un autre effet.
+ * Every letter plays the same animation; only their phase differs. The offset
+ * is carried by `animation-delay`, negative so that the wave is already formed
+ * on the first render — a positive delay would start the letters one by one,
+ * which is another effect.
  *
- * Une fois les delais poses, plus rien ne s'execute : le compositeur anime
- * seul autant de transformations qu'il y a de lettres, ce qui reste dans son
- * registre tant que le texte est un titre et pas un paragraphe.
+ * Once the delays are set, nothing runs any more: the compositor animates on
+ * its own as many transforms as there are letters, which stays within its
+ * remit as long as the text is a heading and not a paragraph.
  *
- * ## Le decoupage est un artifice d'affichage
+ * ## The split is a display device
  *
- * Le texte est eclate en autant d'elements que de caracteres, ce qui le
- * rendrait illisible a un lecteur d'ecran — il epellerait. Le conteneur porte
- * donc le texte complet en `aria-label`, et les lettres sont cachees a
- * l'arbre d'accessibilite.
+ * The text is broken into as many elements as there are characters, which
+ * would make it unreadable to a screen reader — it would spell it out. The
+ * container therefore carries the complete text as an `aria-label`, and the
+ * letters are hidden from the accessibility tree.
  *
  * @module
  */
@@ -25,28 +25,28 @@
 import { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'
 import { type CSSProperties, type ElementType, type ReactElement } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface WaveTextOwnProps {
-  /** Texte a faire onduler. */
+  /** Text to undulate. */
   children: string
-  /** Balise rendue. @defaultValue 'span' */
+  /** Rendered tag. @defaultValue 'span' */
   as?: ElementType
-  /** Hauteur de la vague, en pixels. @defaultValue 6 */
+  /** Height of the wave, in pixels. @defaultValue 6 */
   amplitude?: number
-  /** Duree d'une oscillation complete, en millisecondes. @defaultValue 1400 */
+  /** Duration of one full oscillation, in milliseconds. @defaultValue 1400 */
   speed?: number
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type WaveTextProps = Customisable<WaveTextOwnProps, 'span'>
 
-/** Espace insecable : une espace ordinaire s'ecrase dans un bloc en ligne. */
+/** No-break space: an ordinary space collapses inside an inline block. */
 const NBSP = '\u00A0'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-wave-text'
 
-/** Pose l'oscillation, une fois par document. */
+/** Sets the oscillation, once per document. */
 function ensureWaveRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -54,8 +54,8 @@ function ensureWaveRule(): void {
   const style = document.createElement('style')
   style.id = STYLE_ID
   style.textContent = [
-    // `ease-in-out` sur les deux moities donne le va-et-vient d'une sinusoide,
-    // sans en calculer une seule valeur.
+    // `ease-in-out` on both halves gives the back and forth of a sine wave,
+    // without computing a single one of its values.
     '@keyframes o-wave{',
     '0%,100%{transform:translateY(0)}',
     '50%{transform:translateY(calc(var(--o-wave-amp) * -1))}',
@@ -71,16 +71,16 @@ function ensureWaveRule(): void {
 }
 
 /**
- * Fait onduler un texte, lettre a lettre.
+ * Undulates a text, letter by letter.
  *
  * @example
  * <WaveText as="h1" className="o-text-4xl o-font-bold">
- *   Bonjour
+ *   Hello
  * </WaveText>
  *
  * @example
- * // Une houle lente et discrete.
- * <WaveText amplitude={3} speed={2400}>chargement</WaveText>
+ * // A slow and discreet swell.
+ * <WaveText amplitude={3} speed={2400}>loading</WaveText>
  */
 export function WaveText({
   children,
@@ -94,8 +94,8 @@ export function WaveText({
 
   const { className, style } = mergePresentation({}, rest)
 
-  // Mouvement reduit : le texte est rendu tel quel, sans decoupage. Il n'y a
-  // aucune raison d'imposer un element par lettre a qui n'aura pas la vague.
+  // Reduced motion: the text is rendered as it is, with no split. There is no
+  // reason to impose one element per letter on whoever will not get the wave.
   if (reduced) {
     return (
       <Tag {...rest} className={className} style={style}>
@@ -127,15 +127,15 @@ export function WaveText({
           data-o-wave-letter=""
           style={
             {
-              // Delai negatif : la vague est deja en place au premier rendu.
-              // Un dixieme de periode par lettre donne une ondulation lisible
-              // quelle que soit la longueur du mot.
+              // Negative delay: the wave is already in place on the first
+              // render. A tenth of a period per letter gives a readable
+              // undulation whatever the length of the word.
               '--o-wave-delay': `${String(-(index * speed) / 10)}ms`,
             } as CSSProperties
           }
         >
-          {/* Une espace ordinaire s'ecrase dans un bloc en ligne :
-              l'insecable garde sa largeur. */}
+          {/* An ordinary space collapses inside an inline block: the no-break
+              one keeps its width. */}
           {letter === ' ' ? NBSP : letter}
         </span>
       ))}

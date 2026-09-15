@@ -1,21 +1,21 @@
 /**
- * Integration de l'API View Transitions.
+ * Integration of the View Transitions API.
  *
- * La difficulte n'est pas d'appeler `document.startViewTransition` : c'est de
- * garantir que le DOM a bel et bien change **pendant** le callback. React
- * commite de facon asynchrone par defaut ; une mise a jour d'etat lancee dans
- * le callback resoudrait la transition sur un DOM inchange, produisant soit
- * aucune animation, soit un flash.
+ * The hard part is not calling `document.startViewTransition`: it is
+ * guaranteeing that the DOM really did change **during** the callback. React
+ * commits asynchronously by default; a state update started inside the
+ * callback would resolve the transition on an unchanged DOM, producing either
+ * no animation at all, or a flash.
  *
- * La sequence retenue est donc :
- * 1. precharger les modules de route de la cible (voir `preloadRoutes`), pour
- *    qu'aucun composant ne suspende pendant le commit ;
- * 2. appeler `document.startViewTransition` ;
- * 3. commiter avec `flushSync` a l'interieur du callback, ce qui force React a
- *    appliquer la mise a jour de maniere synchrone.
+ * The chosen sequence is therefore:
+ * 1. preload the route modules of the target (see `preloadRoutes`), so that no
+ *    component suspends during the commit;
+ * 2. call `document.startViewTransition`;
+ * 3. commit with `flushSync` inside the callback, which forces React to apply
+ *    the update synchronously.
  *
- * Toute absence de support — navigateur sans l'API, `prefers-reduced-motion`
- * actif — retombe silencieusement sur une navigation ordinaire.
+ * Any lack of support — browser without the API, `prefers-reduced-motion`
+ * active — falls back silently on an ordinary navigation.
  *
  * @module
  */
@@ -25,7 +25,7 @@ import { prefersReducedMotion } from '../shared/motionPreference.js'
 export { prefersReducedMotion }
 
 /**
- * Indique si le document courant expose l'API View Transitions.
+ * Tells whether the current document exposes the View Transitions API.
  *
  * @example
  * if (supportsViewTransitions()) { ... }
@@ -35,13 +35,13 @@ export function supportsViewTransitions(): boolean {
 }
 
 /**
- * Execute `commit` a l'interieur d'une View Transition quand c'est possible,
- * et directement sinon.
+ * Runs `commit` inside a View Transition when possible, and directly
+ * otherwise.
  *
- * @param commit Mise a jour du DOM. Doit etre **synchrone** : c'est a
- *   l'appelant d'utiliser `flushSync` si la mise a jour passe par React.
- * @param enabled Permet de desactiver la transition sans dupliquer la
- *   condition cote appelant.
+ * @param commit DOM update. Must be **synchronous** : it is up to the caller
+ *   to use `flushSync` when the update goes through React.
+ * @param enabled Allows disabling the transition without duplicating the
+ *   condition on the caller side.
  *
  * @example
  * runViewTransition(() => flushSync(() => history.push('/about')), true)
@@ -52,7 +52,7 @@ export function runViewTransition(commit: () => void, enabled = true): void {
     return
   }
 
-  // `finished` rejette lorsqu'une transition est interrompue par une autre :
-  // c'est un cas nominal en navigation rapide, pas une erreur applicative.
+  // `finished` rejects when a transition is interrupted by another one: this
+  // is a nominal case during fast navigation, not an application error.
   document.startViewTransition(commit).finished.catch(() => undefined)
 }

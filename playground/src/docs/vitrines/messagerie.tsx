@@ -45,7 +45,7 @@ import {
   MailOpen,
   Server,
   Stamp,
-} from '@odoro-cli/icons/filaire'
+} from '@odoro-cli/icons/outline'
 import {
   useCallback,
   useEffect,

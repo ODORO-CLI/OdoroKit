@@ -1,23 +1,22 @@
 /**
- * Fournisseur React du moteur.
+ * React provider of the engine.
  *
- * ## Il est optionnel, et c'est un choix
+ * ## It is optional, and that is a choice
  *
- * Un composant utilise hors du fournisseur fonctionne avec les reglages par
- * defaut. Rien ne casse, rien ne se tait : un avertissement est emis **une
- * seule fois, en developpement**, indiquant ce qui manque et pourquoi cela
- * peut compter.
+ * A component used outside the provider works with the default settings.
+ * Nothing breaks, nothing goes silent: a warning is emitted **only once, in
+ * development**, stating what is missing and why it may matter.
  *
- * La raison est pratique : un composant copie depuis le registre atterrit dans
- * un projet qui n'a peut-etre pas encore monte le fournisseur. Le faire
- * echouer serait le meilleur moyen de faire croire que le composant est casse.
+ * The reason is practical: a component copied from the registry lands in a
+ * project that may not have mounted the provider yet. Making it fail would be
+ * the best way to suggest that the component is broken.
  *
- * ## Ce que le fournisseur fait reellement
+ * ## What the provider actually does
  *
- * Il configure des singletons de module — l'horloge, la politique,
- * l'inventaire — plutot que de creer des instances. L'unicite de la boucle de
- * rendu est la garantie centrale du moteur ; deux fournisseurs imbriques ne
- * doivent pas produire deux boucles.
+ * It configures module singletons — the clock, the policy, the inventory —
+ * rather than creating instances. The uniqueness of the render loop is the
+ * central guarantee of the engine; two nested providers must not produce two
+ * loops.
  *
  * @module
  */
@@ -43,21 +42,21 @@ import {
 } from './motion-policy.js'
 import { type ResourceRegistryInstance, registry } from './registry.js'
 
-/** Valeur exposee par le contexte. */
+/** Value exposed by the context. */
 export interface EngineContextValue {
-  /** Boucle de rendu unique. */
+  /** Single render loop. */
   readonly clock: ClockInstance
-  /** Politique de mouvement. */
+  /** Motion policy. */
   readonly policy: MotionPolicyInstance
-  /** Inventaire des ressources vivantes. */
+  /** Inventory of live resources. */
   readonly registry: ResourceRegistryInstance
-  /** Nombre maximum de surfaces WebGL simultanees. */
+  /** Maximum number of simultaneous WebGL surfaces. */
   readonly maxSurfaces: number
-  /** `true` si un fournisseur est reellement monte au-dessus. */
+  /** `true` if a provider is actually mounted above. */
   readonly provided: boolean
 }
 
-/** Valeurs employees hors fournisseur. */
+/** Values used outside a provider. */
 const FALLBACK: EngineContextValue = {
   clock,
   policy: motionPolicy,
@@ -69,29 +68,28 @@ const FALLBACK: EngineContextValue = {
 const EngineContext = createContext<EngineContextValue>(FALLBACK)
 EngineContext.displayName = 'OdoroEngine'
 
-/** Proprietes de {@link OdoroEngine}. */
+/** Properties of {@link OdoroEngine}. */
 export interface OdoroEngineProps {
   /** Application. */
   children?: ReactNode
   /**
-   * Qualite des rendus couteux. `auto` retrograde d'elle-meme quand la charge
-   * mesuree l'exige.
+   * Quality of expensive renders. `auto` downgrades on its own when the
+   * measured load requires it.
    *
    * @defaultValue 'auto'
    */
   quality?: QualitySetting
   /**
-   * Conduite face a `prefers-reduced-motion`. `force` neutralise les
-   * animations en toutes circonstances ; `ignore` ne doit servir qu'a des fins
-   * de demonstration.
+   * Behaviour towards `prefers-reduced-motion`. `force` neutralises the
+   * animations in every circumstance; `ignore` must only be used for
+   * demonstration purposes.
    *
    * @defaultValue 'respect'
    */
   reducedMotion?: ReducedMotionSetting
   /**
-   * Nombre maximum de surfaces WebGL simultanees. Les navigateurs plafonnent
-   * les contextes disponibles et perdent silencieusement le plus ancien
-   * au-dela.
+   * Maximum number of simultaneous WebGL surfaces. Browsers cap the available
+   * contexts and silently lose the oldest one beyond that.
    *
    * @defaultValue 2
    */
@@ -99,7 +97,7 @@ export interface OdoroEngineProps {
 }
 
 /**
- * Configure le moteur pour l'application.
+ * Configures the engine for the application.
  *
  * @example
  * <OdoroEngine quality="auto" reducedMotion="respect" maxSurfaces={2}>
@@ -112,15 +110,15 @@ export function OdoroEngine({
   reducedMotion = 'respect',
   maxSurfaces = 2,
 }: OdoroEngineProps): ReactElement {
-  // La configuration passe en couche layout : un composant enfant qui
-  // interroge la politique a son montage doit deja voir les bons reglages.
+  // The configuration goes through the layout layer: a child component that
+  // queries the policy on mount must already see the right settings.
   useEffect(() => {
     motionPolicy.configure({ quality, reducedMotion })
   }, [quality, reducedMotion])
 
-  // Quand `@odoro-cli/libs` est installe, sa boucle de mesure passe sur le ticker
-  // de GSAP et sa politique suit celle du moteur. Son absence est un cas
-  // ordinaire : le moteur s'emploie aussi sans elle.
+  // When `@odoro-cli/libs` is installed, its measurement loop moves onto the
+  // GSAP ticker and its policy follows the engine's. Its absence is an ordinary
+  // case: the engine is also used without it.
   useEffect(() => {
     let undo: BridgeTeardown = () => undefined
     let cancelled = false
@@ -144,20 +142,20 @@ export function OdoroEngine({
   return <EngineContext.Provider value={value}>{children}</EngineContext.Provider>
 }
 
-/** Avertissements deja emis, pour ne pas les repeter a chaque rendu. */
+/** Warnings already emitted, so as not to repeat them on every render. */
 const warned = new Set<string>()
 
 /**
- * Accede au moteur.
+ * Accesses the engine.
  *
- * Fonctionne hors fournisseur, avec les reglages par defaut.
+ * Works outside a provider, with the default settings.
  *
- * @param requester Nom du composant appelant, cite dans l'avertissement.
+ * @param requester Name of the calling component, quoted in the warning.
  *
  * @example
  * const { clock, policy } = useEngine('Aurora')
  */
-export function useEngine(requester = 'un composant'): EngineContextValue {
+export function useEngine(requester = 'a component'): EngineContextValue {
   const value = useContext(EngineContext)
 
   if (
@@ -168,10 +166,10 @@ export function useEngine(requester = 'un composant'): EngineContextValue {
     warned.add(requester)
     console.warn(
       [
-        `[odoro] ${requester} est utilise hors de <OdoroEngine>.`,
-        'Les reglages par defaut s appliquent : qualite automatique, animations',
-        'reduites respectees, deux surfaces au plus. Monter le fournisseur a la',
-        'racine permet de les ajuster et donne acces au panneau de diagnostic.',
+        `[odoro] ${requester} is used outside of <OdoroEngine>.`,
+        'The default settings apply: automatic quality, reduced motion',
+        'respected, two surfaces at most. Mounting the provider at the root',
+        'lets you adjust them and gives access to the diagnostics panel.',
       ].join('\n'),
     )
   }
@@ -180,14 +178,14 @@ export function useEngine(requester = 'un composant'): EngineContextValue {
 }
 
 /**
- * Suit l'etat de la politique de mouvement.
+ * Follows the state of the motion policy.
  *
- * Le composant se re-rend quand la preference systeme change, quand l'onglet
- * passe en arriere-plan, ou quand la qualite est ajustee sous la charge.
+ * The component re-renders when the system preference changes, when the tab
+ * goes to the background, or when the quality is adjusted under load.
  *
  * @example
  * const { reduced, quality } = useMotionState()
- * if (reduced) return <PosterStatique />
+ * if (reduced) return <StaticPoster />
  */
 export function useMotionState(): MotionState {
   return useSyncExternalStore(

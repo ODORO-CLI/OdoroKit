@@ -36,7 +36,7 @@ import {
   Cog,
   Gauge,
   Weight,
-} from '@odoro-cli/icons/filaire'
+} from '@odoro-cli/icons/outline'
 import { useMemo, useState, type ReactElement } from 'react'
 
 import { Halftone } from '@/odoro/background/Halftone.jsx'

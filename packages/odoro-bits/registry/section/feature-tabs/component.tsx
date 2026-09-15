@@ -1,40 +1,40 @@
 /**
- * Onglets de fonctionnalites, avec un visuel par onglet.
+ * Feature tabs, with one visual per tab.
  *
- * ## Des onglets, pas des boutons
+ * ## Tabs, not buttons
  *
- * Le motif est decrit par les pratiques ARIA, et il ne se resume pas a
- * `role="tab"`. Trois regles font la difference entre un jeu d'onglets et une
- * rangee de boutons qui y ressemble :
+ * The pattern is described by the ARIA practices, and it does not boil down to
+ * `role="tab"`. Three rules make the difference between a set of tabs and a
+ * row of buttons that looks like one :
  *
- * 1. **Un seul arret de tabulation.** La liste entiere se traverse d'une
- *    pression, et les fleches circulent a l'interieur. Sinon, huit onglets
- *    coutent huit pressions avant d'atteindre le contenu.
- * 2. **Les fleches bouclent.** Arrive au dernier, la fleche droite revient au
- *    premier ; `Origine` et `Fin` vont aux extremites.
- * 3. **Le panneau est nomme par son onglet.** `aria-labelledby` relie les
- *    deux : sans lui, le contenu est annonce sans qu'on sache de quoi il parle.
+ * 1. **A single tab stop.** The whole list is crossed with one press, and the
+ *    arrows cycle inside it. Otherwise, eight tabs cost eight presses before
+ *    reaching the content.
+ * 2. **The arrows wrap.** Once on the last one, the right arrow comes back to
+ *    the first ; `Home` and `End` go to the ends.
+ * 3. **The panel is named by its tab.** `aria-labelledby` links the two :
+ *    without it, the content is announced without one knowing what it is about.
  *
- * ## Le panneau inactif n'existe pas
+ * ## The inactive panel does not exist
  *
- * Il n'est pas cache par un style : il est retire du document. Un panneau
- * masque en CSS reste atteignable au clavier et lisible par la recherche dans
- * la page, ce qui envoie le focus dans du contenu invisible — le defaut le
- * plus courant de ce motif.
+ * It is not hidden by a style : it is removed from the document. A panel masked
+ * in CSS stays reachable from the keyboard and readable by find in page, which
+ * sends the focus into invisible content — the most common defect of this
+ * pattern.
  *
- * ## Le changement se voit, sans qu'on le refasse a la main
+ * ## The change is seen, without redoing it by hand
  *
- * Le panneau porte une cle : React remonte l'element a chaque changement
- * d'onglet, et l'animation d'entree rejoue d'elle-meme. Sans cette cle, le
- * contenu changerait sans aucun signal, et l'oeil manquerait la moitie des
- * bascules.
+ * The panel carries a key : React remounts the element on every tab change,
+ * and the entrance animation replays by itself. Without this key, the content
+ * would change with no signal at all, and the eye would miss half of the
+ * switches.
  *
- * ## Le trait sous l'onglet actif
+ * ## The underline below the active tab
  *
- * Il glisse d'un onglet a l'autre parce que sa position est une variable, pas
- * un element deplace par mesure : chaque onglet declare sa part de la largeur,
- * et le trait s'y translate. Aucune mesure, donc aucune resynchronisation a
- * faire quand la police charge ou que la fenetre change de taille.
+ * It slides from one tab to the next because its position is a variable, not an
+ * element moved by measure : each tab declares its share of the width, and the
+ * underline translates to it. No measure, and therefore no resynchronisation to
+ * do when the font loads or the window changes size.
  *
  * @module
  */
@@ -52,35 +52,35 @@ import {
 
 import { useInView } from '@registre/hooks/useInView'
 
-/** Une fonctionnalite presentee. */
+/** A feature presented. */
 export interface Feature {
-  /** Intitule de l'onglet. */
+  /** Name of the tab. */
   readonly title: string
-  /** Ce que la fonctionnalite fait. */
+  /** What the feature does. */
   readonly body: ReactNode
-  /** Une precision sous l'intitule, dans l'onglet. */
+  /** A detail under the name, inside the tab. */
   readonly hint?: string
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface FeatureTabsOwnProps {
-  /** Les fonctionnalites, dans l'ordre des onglets. */
+  /** The features, in tab order. */
   features: readonly Feature[]
-  /** Rend le visuel de l'onglet actif. */
+  /** Renders the visual of the active tab. */
   render: (index: number) => ReactNode
-  /** Nom du jeu d'onglets, annonce aux technologies d'assistance. */
+  /** Name of the tab set, announced to assistive technologies. */
   label: string
-  /** Onglet ouvert au premier rendu. @defaultValue 0 */
+  /** Tab open on first render. @defaultValue 0 */
   initial?: number
 }
 
-/** Toutes les proprietes. */
+/** All the properties. */
 export type FeatureTabsProps = Customisable<FeatureTabsOwnProps, 'section'>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-feature-tabs'
 
-/** Pose les regles des onglets, une fois par document. */
+/** Sets the rules of the tabs, once per document. */
 function ensureTabsRules(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -89,12 +89,12 @@ function ensureTabsRules(): void {
   style.id = STYLE_ID
   style.textContent = [
     '[data-o-ftabs-liste]{position:relative;display:flex;gap:0.25rem;overflow-x:auto}',
-    // Le trait glisse par translation : sa largeur est une fraction du total,
-    // son deplacement un multiple de cette fraction. Rien n'est mesure.
+    // The underline slides by translation : its width is a fraction of the
+    // total, its move a multiple of that fraction. Nothing is measured.
     '[data-o-ftabs-trait]{',
     'position:absolute;bottom:0;left:0;height:2px;',
     'width:calc(100% / var(--o-ftabs-nombre));',
-    'transform:translateX(calc(100% * var(--o-ftabs-actif)));',
+    'transform:translateX(calc(100% * var(--o-ftabs-active)));',
     'transition:transform var(--o-duration-base) var(--o-ease-standard)}',
 
     '[data-o-ftabs-panneau]{animation:o-ftabs-entree var(--o-duration-slower) var(--o-ease-entrance) both}',
@@ -108,16 +108,16 @@ function ensureTabsRules(): void {
 }
 
 /**
- * Onglets de fonctionnalites.
+ * Feature tabs.
  *
  * @example
  * <FeatureTabs
- *   label="Ce que fait la CLI"
+ *   label="What the CLI does"
  *   features={[
- *     { title: 'Ajouter', body: <p>Les fichiers sont copies dans le projet.</p> },
- *     { title: 'Comparer', body: <p>Les retouches locales sont signalees.</p> },
+ *     { title: 'Add', body: <p>The files are copied into the project.</p> },
+ *     { title: 'Diff', body: <p>Local edits are reported.</p> },
  *   ]}
- *   render={(index) => <Capture etape={index} />}
+ *   render={(index) => <Screenshot step={index} />}
  * />
  */
 export function FeatureTabs({
@@ -128,33 +128,35 @@ export function FeatureTabs({
   ...rest
 }: FeatureTabsProps): ReactElement {
   const { reduced } = useMotionState()
-  const { ref, vu } = useInView<HTMLElement>({ amount: 0.15 })
+  const { ref, inView } = useInView<HTMLElement>({ amount: 0.15 })
   const base = useId().replace(/[^a-zA-Z0-9]/g, '')
-  const [actif, setActif] = useState(Math.min(Math.max(0, initial), features.length - 1))
-  const boutons = useRef<(HTMLButtonElement | null)[]>([])
+  const [active, setActive] = useState(
+    Math.min(Math.max(0, initial), features.length - 1),
+  )
+  const buttons = useRef<(HTMLButtonElement | null)[]>([])
 
   ensureTabsRules()
 
-  /** Deplace la selection et emmene le focus avec elle. */
-  const aller = (index: number): void => {
-    const cible = (index + features.length) % features.length
-    setActif(cible)
-    boutons.current[cible]?.focus()
+  /** Moves the selection and takes the focus along with it. */
+  const go = (index: number): void => {
+    const target = (index + features.length) % features.length
+    setActive(target)
+    buttons.current[target]?.focus()
   }
 
-  const auClavier = (event: KeyboardEvent<HTMLDivElement>): void => {
-    const touches: Readonly<Record<string, number>> = {
-      ArrowRight: actif + 1,
-      ArrowLeft: actif - 1,
+  const onKey = (event: KeyboardEvent<HTMLDivElement>): void => {
+    const keys: Readonly<Record<string, number>> = {
+      ArrowRight: active + 1,
+      ArrowLeft: active - 1,
       Home: 0,
       End: features.length - 1,
     }
-    const cible = touches[event.key]
-    if (cible === undefined) return
-    // Les fleches pilotent la liste : les laisser au navigateur ferait defiler
-    // la page pendant qu'on change d'onglet.
+    const target = keys[event.key]
+    if (target === undefined) return
+    // The arrows drive the list : leaving them to the browser would scroll the
+    // page while one changes tab.
     event.preventDefault()
-    aller(cible)
+    go(target)
   }
 
   const { className, style } = mergePresentation(
@@ -171,7 +173,7 @@ export function FeatureTabs({
       style={
         {
           ...style,
-          opacity: reduced || vu ? 1 : 0,
+          opacity: reduced || inView ? 1 : 0,
           transition: 'opacity var(--o-duration-slower) var(--o-ease-entrance)',
         } as CSSProperties
       }
@@ -180,11 +182,11 @@ export function FeatureTabs({
         role="tablist"
         aria-label={label}
         data-o-ftabs-liste=""
-        onKeyDown={auClavier}
+        onKeyDown={onKey}
         style={
           {
             '--o-ftabs-nombre': String(features.length),
-            '--o-ftabs-actif': String(actif),
+            '--o-ftabs-active': String(active),
             borderBottom: '1px solid var(--o-theme-line)',
           } as CSSProperties
         }
@@ -193,26 +195,26 @@ export function FeatureTabs({
           <button
             key={feature.title}
             ref={(element) => {
-              boutons.current[index] = element
+              buttons.current[index] = element
             }}
             type="button"
             role="tab"
-            id={`${base}-onglet-${String(index)}`}
-            aria-selected={index === actif}
-            aria-controls={`${base}-panneau-${String(index)}`}
-            // Un seul arret de tabulation pour toute la liste : les fleches
-            // font le reste, et le contenu est a une pression de touche.
-            tabIndex={index === actif ? 0 : -1}
+            id={`${base}-tab-${String(index)}`}
+            aria-selected={index === active}
+            aria-controls={`${base}-panel-${String(index)}`}
+            // A single tab stop for the whole list : the arrows do the rest,
+            // and the content is one key press away.
+            tabIndex={index === active ? 0 : -1}
             onClick={() => {
-              setActif(index)
+              setActive(index)
             }}
             className="o-flex-1 o-whitespace-nowrap o-px-4 o-py-3 o-text-left o-text-sm focus:o-ring"
             style={{
               backgroundColor: 'transparent',
               border: 'none',
               cursor: 'pointer',
-              color: index === actif ? 'var(--o-theme-fg)' : 'var(--o-theme-muted)',
-              fontWeight: index === actif ? 600 : 400,
+              color: index === active ? 'var(--o-theme-fg)' : 'var(--o-theme-muted)',
+              fontWeight: index === active ? 600 : 400,
             }}
           >
             {feature.title}
@@ -235,15 +237,15 @@ export function FeatureTabs({
       </div>
 
       {/*
-        Un seul panneau dans le document : celui des autres onglets n'est pas
-        masque, il n'existe pas. La cle le fait remonter a chaque bascule, ce
-        qui rejoue l'entree sans qu'aucun etat ne la declenche.
+        A single panel in the document : the one of the other tabs is not
+        masked, it does not exist. The key makes it remount on every switch,
+        which replays the entrance without any state triggering it.
       */}
       <div
-        key={actif}
+        key={active}
         role="tabpanel"
-        id={`${base}-panneau-${String(actif)}`}
-        aria-labelledby={`${base}-onglet-${String(actif)}`}
+        id={`${base}-panel-${String(active)}`}
+        aria-labelledby={`${base}-tab-${String(active)}`}
         data-o-ftabs-panneau=""
         tabIndex={0}
         className="o-grid o-gap-6 md:o-grid-cols-2 o-items-center focus:o-ring"
@@ -252,13 +254,13 @@ export function FeatureTabs({
           className="o-text-sm o-leading-relaxed"
           style={{ color: 'var(--o-theme-fg)' }}
         >
-          {features[actif]?.body}
+          {features[active]?.body}
         </div>
         <div
           className="o-overflow-hidden o-rounded-xl"
           style={{ border: '1px solid var(--o-theme-line)' }}
         >
-          {render(actif)}
+          {render(active)}
         </div>
       </div>
     </section>

@@ -1,28 +1,27 @@
 /**
- * Lettres permutees : au survol, chaque lettre glisse vers le haut et sa
- * doublure prend sa place — l'effet des menus de studios.
+ * Swapped letters: on hover, each letter slides up and its understudy takes
+ * its place — the effect of studio menus.
  *
- * ## Deux copies dans un masque, une transition, rien d'autre
+ * ## Two copies in a mask, one transition, nothing else
  *
- * Chaque lettre vit dans une cellule a `overflow: hidden` : l'originale en
- * place, la doublure juste en dessous, hors du masque. Le survol translate la
- * colonne d'une hauteur de lettre — la doublure monte, l'originale sort. Tout
- * est transition CSS ; le retrait du pointeur rejoue le trajet a l'envers,
- * gratuitement. Le delai croissant de gauche a droite fait courir une vague
- * le long du mot.
+ * Each letter lives in a cell with `overflow: hidden`: the original in place,
+ * the understudy just below, outside the mask. The hover translates the column
+ * by one letter height — the understudy rises, the original leaves. It is all
+ * CSS transition; withdrawing the pointer replays the journey backwards, for
+ * free. The delay growing from left to right runs a wave along the word.
  *
- * ## Le survol du lien, pas seulement du texte
+ * ## The hover of the link, not only of the text
  *
- * L'effet vit dans des menus : ce qui est survole, c'est le lien, dont le
- * texte n'occupe qu'une partie. Les regles ecoutent donc aussi le `:hover` et
- * le `:focus-visible` de l'element interactif qui enveloppe le composant —
- * un clavier declenche la meme vague qu'une souris.
+ * The effect lives in menus: what is hovered is the link, whose text occupies
+ * only part of it. The rules therefore also listen to the `:hover` and the
+ * `:focus-visible` of the interactive element that wraps the component — a
+ * keyboard triggers the same wave as a mouse.
  *
- * ## Le decoupage est un artifice d'affichage
+ * ## The split is a display device
  *
- * Le texte est eclate en lettres, et chaque lettre existe deux fois. Le
- * conteneur porte donc le texte complet en `aria-label`, et les cellules sont
- * retirees de l'arbre d'accessibilite.
+ * The text is broken into letters, and each letter exists twice. The container
+ * therefore carries the complete text as an `aria-label`, and the cells are
+ * removed from the accessibility tree.
  *
  * @module
  */
@@ -30,28 +29,28 @@
 import { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'
 import { type CSSProperties, type ElementType, type ReactElement } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface LetterSwapOwnProps {
-  /** Texte a permuter. */
+  /** Text to swap. */
   children: string
-  /** Balise rendue. @defaultValue 'span' */
+  /** Rendered tag. @defaultValue 'span' */
   as?: ElementType
-  /** Delai entre deux lettres, en millisecondes. @defaultValue 25 */
+  /** Delay between two letters, in milliseconds. @defaultValue 25 */
   step?: number
-  /** Duree du glissement d'une lettre, en millisecondes. @defaultValue 350 */
+  /** Duration of the slide of one letter, in milliseconds. @defaultValue 350 */
   duration?: number
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type LetterSwapProps = Customisable<LetterSwapOwnProps, 'span'>
 
-/** Espace insecable : une espace ordinaire s'ecrase dans un bloc en ligne. */
+/** No-break space: an ordinary space collapses inside an inline block. */
 const NBSP = '\u00A0'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-letter-swap'
 
-/** Pose les regles de la permutation, une fois par document. */
+/** Sets the swap rules, once per document. */
 function ensureSwapRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -67,8 +66,8 @@ function ensureSwapRule(): void {
     'transition-delay:var(--o-swap-delay);',
     '}',
     '[data-o-swap-double]{position:absolute;top:100%;left:0}',
-    // Le survol du composant, ou celui du lien qui l'enveloppe. Un clavier
-    // passe par le focus et obtient la meme vague.
+    // The hover of the component, or that of the link wrapping it. A keyboard
+    // goes through focus and gets the same wave.
     '[data-o-swap]:hover [data-o-swap-col],',
     '[data-o-swap]:focus-visible [data-o-swap-col],',
     ':where(a,button):hover [data-o-swap] [data-o-swap-col],',
@@ -80,15 +79,15 @@ function ensureSwapRule(): void {
 }
 
 /**
- * Permute les lettres d'un texte au survol ou au focus.
+ * Swaps the letters of a text on hover or on focus.
  *
  * @example
- * <a href="/travaux" className="o-text-2xl o-font-bold">
- *   <LetterSwap>Travaux</LetterSwap>
+ * <a href="/work" className="o-text-2xl o-font-bold">
+ *   <LetterSwap>Work</LetterSwap>
  * </a>
  *
  * @example
- * // Une vague plus lente, plus marquee.
+ * // A slower, more pronounced wave.
  * <LetterSwap step={60} duration={500}>Studio</LetterSwap>
  */
 export function LetterSwap({
@@ -103,8 +102,8 @@ export function LetterSwap({
 
   const { className, style } = mergePresentation({}, rest)
 
-  // Mouvement reduit : le texte est rendu tel quel, sans decoupage — la
-  // permutation n'apportait que le geste.
+  // Reduced motion: the text is rendered as it is, with no split — the swap
+  // brought nothing but the gesture.
   if (reduced) {
     return (
       <Tag {...rest} className={className} style={style}>

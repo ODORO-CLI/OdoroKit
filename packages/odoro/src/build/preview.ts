@@ -1,9 +1,9 @@
 /**
- * Serveur de previsualisation du build de production.
+ * Preview server for the production build.
  *
- * Il ne compile rien : il sert le dossier de sortie tel quel, avec le meme
- * repli d'application monopage qu'un hebergeur statique. C'est le dernier
- * filet avant un deploiement.
+ * It builds nothing: it serves the output directory as it is, with the same
+ * single-page application fallback a static host uses. This is the last safety
+ * net before a deployment.
  *
  * @module
  */
@@ -13,11 +13,12 @@ import { createServer } from 'node:http'
 import { extname, join, normalize } from 'node:path'
 
 import type { ResolvedConfig } from '../config.js'
-import { estUneRessource } from '../dev/transform.js'
-import { ecouter } from '../shared/ecouter.js'
+import { isAssetRequest } from '../dev/transform.js'
+import { listen } from '../shared/listen.js'
 import * as log from '../shared/logger.js'
+import { openBrowser } from '../shared/open-browser.js'
 
-/** Types MIME servis. */
+/** MIME types served. */
 const MIME: Readonly<Record<string, string>> = {
   '.html': 'text/html; charset=utf-8',
   '.js': 'text/javascript; charset=utf-8',
@@ -35,20 +36,20 @@ const MIME: Readonly<Record<string, string>> = {
   '.markdown': 'text/markdown; charset=utf-8',
 }
 
-/** Serveur de previsualisation en cours d'execution. */
+/** Running preview server. */
 export interface PreviewServer {
-  /** Adresse a ouvrir dans un navigateur. */
+  /** Address to open in a browser. */
   readonly url: string
-  /** Arrete le serveur. */
+  /** Stops the server. */
   close(): Promise<void>
 }
 
 /**
- * Demarre le serveur de previsualisation.
+ * Starts the preview server.
  *
- * @param config Configuration resolue du projet.
- * @param port Port d'ecoute. Par defaut, celui du serveur de developpement
- *   augmente de un, pour pouvoir faire tourner les deux.
+ * @param config Resolved configuration of the project.
+ * @param port Port to listen on. By default, the development server port plus
+ *   one, so that both can run.
  *
  * @example
  * const preview = await startPreviewServer(config)
@@ -58,55 +59,55 @@ export async function startPreviewServer(
   port = config.server.port + 1,
 ): Promise<PreviewServer> {
   if (!existsSync(config.outDir)) {
-    throw new Error(`[odoro] Rien a previsualiser : lancez "odoro build" d'abord.`)
+    throw new Error(`[odoro] Nothing to preview: run "odoro build" first.`)
   }
 
   const server = createServer((incoming, response) => {
     const path = (incoming.url ?? '/').split('?')[0] ?? '/'
-    // `normalize` resout les remontees `..` : le serveur ne doit jamais sortir
-    // du dossier de sortie. Le decoupage qui suit retire les separateurs de
-    // tete, quel que soit le systeme de fichiers.
+    // `normalize` resolves the `..` climbs: the server must never leave the
+    // output directory. The split that follows removes the leading separators,
+    // whatever the file system.
     const relativePath = normalize(decodeURIComponent(path))
       .split(/[\\/]/)
       .filter(Boolean)
       .join('/')
     const candidate = join(config.outDir, relativePath)
 
-    // Un dossier rend son index — `index.html`, ou `index.md` pour un arbre de
-    // documents — avant le repli sur le document de l application.
-    const dansLeDossier = ['index.html', 'index.md']
-      .map((nom) => join(candidate, nom))
-      .find((chemin) => existsSync(chemin) && statSync(chemin).isFile())
+    // A directory returns its index — `index.html`, or `index.md` for a tree of
+    // documents — before the fallback on the application document.
+    const inDirectory = ['index.html', 'index.md']
+      .map((name) => join(candidate, name))
+      .find((path) => existsSync(path) && statSync(path).isFile())
 
-    const existant =
-      existsSync(candidate) && statSync(candidate).isFile() ? candidate : dansLeDossier
+    const existing =
+      existsSync(candidate) && statSync(candidate).isFile() ? candidate : inDirectory
 
-    // Une ressource annoncee comme telle n'est jamais une route : lui rendre
-    // le document produit un « strict MIME » muet.
+    // An asset announced as such is never a route: returning the document to it
+    // produces a silent "strict MIME".
     //
-    // Un chemin portant une extension designe de meme un fichier, pas une route.
+    // A path carrying an extension likewise designates a file, not a route.
     //
-    // Sans cette distinction, tout ce qui manquait tombait sur le repli
-    // monopage : une feuille de style absente — ou simplement mal nommee —
-    // revenait en 200 avec du HTML, et le navigateur la refusait sur un
-    // « strict MIME checking » qui ne dit rien de la cause. Un 404 la nomme.
+    // Without this distinction, everything missing fell on the single-page
+    // fallback: an absent stylesheet — or simply a misnamed one — came back as
+    // a 200 with HTML, and the browser refused it on a "strict MIME checking"
+    // that says nothing about the cause. A 404 names it.
     //
-    // C'est ce que fait deja le serveur de developpement ; l'apercu doit s'y
-    // tenir, puisqu'il est cense montrer ce qu'un hebergeur statique rendra.
+    // That is what the development server already does; the preview must hold
+    // to it, since it is supposed to show what a static host will return.
     if (
-      existant === undefined &&
-      (extname(relativePath) !== '' || estUneRessource(incoming.headers))
+      existing === undefined &&
+      (extname(relativePath) !== '' || isAssetRequest(incoming.headers))
     ) {
       response.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' })
-      response.end(`Introuvable : /${relativePath}`)
+      response.end(`Not found: /${relativePath}`)
       return
     }
 
-    const file = existant ?? join(config.outDir, 'index.html')
+    const file = existing ?? join(config.outDir, 'index.html')
 
     if (!file.startsWith(config.outDir)) {
       response.writeHead(403, { 'Content-Type': 'text/plain' })
-      response.end('Interdit')
+      response.end('Forbidden')
       return
     }
 
@@ -119,15 +120,24 @@ export async function startPreviewServer(
     createReadStream(file).pipe(response)
   })
 
-  const { port: obtenu, demande } = await ecouter(server, port, config.server.host)
+  const { port: obtained, requested } = await listen(
+    server,
+    port,
+    config.server.host,
+    config.server.strictPort ? 1 : undefined,
+  )
 
-  if (demande !== undefined) {
-    log.warn(`port ${String(demande)} occupe — l apercu ecoute sur ${String(obtenu)}`)
+  if (requested !== undefined) {
+    log.warn(
+      `port ${String(requested)} in use — preview listening on ${String(obtained)}`,
+    )
   }
 
-  const url = `http://${config.server.host}:${String(obtenu)}${config.base}`
-  log.success('previsualisation du build de production')
+  const url = `http://${config.server.host}:${String(obtained)}${config.base}`
+  log.success('preview of the production build')
   log.info(`  ${log.colors.cyan(url)}`)
+
+  if (config.server.open) openBrowser(url)
 
   return {
     url,

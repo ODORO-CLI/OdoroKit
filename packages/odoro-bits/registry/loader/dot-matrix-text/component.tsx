@@ -1,38 +1,36 @@
 /**
- * Texte en matrice de points : un mot dessine sur une grille de points 5x7,
- * dont les points s'allument de gauche a droite puis s'eteignent dans le
- * meme sens.
+ * Dot matrix text: a word drawn on a 5x7 grid of dots, whose dots light up
+ * from left to right then go out in the same direction.
  *
- * ## La grille est visible, le mot s'y allume
+ * ## The grid is visible, the word lights up on it
  *
- * Tous les points de la grille sont dessines, eteints ; seuls ceux du mot
- * portent l'animation. C'est la grille qui fait l'afficheur : sans elle, on
- * verrait des lettres pixelisees, pas un panneau. Et parce que les points
- * eteints sont peints une fois pour toutes, le cout de l'animation ne
- * depend que des points du mot, pas de la surface.
+ * Every dot of the grid is drawn, unlit; only those of the word carry the
+ * animation. It is the grid that makes the display: without it, you would
+ * see pixelated letters, not a panel. And because the unlit dots are
+ * painted once and for all, the cost of the animation depends only on the
+ * dots of the word, not on the surface.
  *
- * Chaque point allume porte le numero de sa colonne dans une variable, et
- * son delai en est deduit : un balayage de gauche a droite ne demande donc
- * qu'une seule animation, declaree une fois. Le delai est negatif, pour que
- * la premiere image soit deja au milieu du balayage plutot qu'une grille
- * vide qui attend.
+ * Every lit dot carries the number of its column in a variable, and its
+ * delay is derived from it: a left-to-right sweep therefore asks for only
+ * one animation, declared once. The delay is negative, so that the first
+ * frame is already halfway through the sweep rather than an empty grid
+ * that waits.
  *
- * ## Une fonte de trente-cinq points
+ * ## A font of thirty-five dots
  *
- * Les glyphes sont une table de sept lignes de cinq bits. Elle couvre les
- * capitales, les chiffres et la ponctuation courante ; le texte est mis en
- * capitales et ses accents retires, parce qu'un accent n'a pas de place
- * dans sept lignes. Un caractere inconnu devient un point d'interrogation :
- * un trou dans le mot se lirait comme un point mort de l'afficheur.
+ * The glyphs are a table of seven rows of five bits. It covers the
+ * capitals, the digits and the common punctuation; the text is upcased and
+ * its accents removed, because an accent has no room in seven rows. An
+ * unknown character becomes a question mark: a hole in the word would read
+ * as a dead spot of the display.
  *
- * ## Un statut, pas un dessin
+ * ## A status, not a drawing
  *
- * L'element porte `role="status"` et un libelle pour les lecteurs d'ecran.
- * La grille est retiree de l'arbre d'accessibilite : des cercles ne se
- * lisent pas.
+ * The element carries `role="status"` and a label for screen readers. The
+ * grid is removed from the accessibility tree: circles do not read.
  *
- * Sous mouvement reduit, tous les points du mot sont allumes : le panneau
- * se lit encore, seul le balayage s'arrete.
+ * Under reduced motion, every dot of the word is lit: the panel still
+ * reads, only the sweep stops.
  *
  * @module
  */
@@ -40,22 +38,22 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-dot-matrix-text'
 
-/** Colonnes et lignes d'un glyphe, et la colonne vide entre deux glyphes. */
+/** Columns and rows of a glyph, and the empty column between two glyphs. */
 const GLYPH_COLS = 5
 const GLYPH_ROWS = 7
 const PITCH = GLYPH_COLS + 1
 
-/** Part du cycle sur laquelle le front d'allumage traverse le mot. */
+/** Share of the cycle over which the lighting front crosses the word. */
 const SWEEP_SHARE = 0.45
 
 /**
- * Sept lignes de cinq bits par glyphe, le bit de poids fort a gauche.
+ * Seven rows of five bits per glyph, the most significant bit on the left.
  *
- * Une table plutot qu'une fonte : trente-cinq points suffisent a une
- * capitale, et c'est la contrainte qui donne au panneau son caractere.
+ * A table rather than a font: thirty-five dots are enough for a capital,
+ * and it is that constraint that gives the panel its character.
  */
 const FONT: Readonly<Record<string, readonly number[]>> = {
   A: [0x0e, 0x11, 0x11, 0x1f, 0x11, 0x11, 0x11],
@@ -105,7 +103,7 @@ const FONT: Readonly<Record<string, readonly number[]>> = {
   "'": [0x04, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00],
 }
 
-/** Le glyphe d'un caractere : capitale sans accent, ou point d'interrogation. */
+/** The glyph of a character: capital without accent, or question mark. */
 function glyphOf(char: string): readonly number[] {
   const key = char
     .normalize('NFD')
@@ -114,7 +112,7 @@ function glyphOf(char: string): readonly number[] {
   return FONT[key] ?? FONT['?'] ?? []
 }
 
-/** Pose la grille et son balayage, une fois par document. */
+/** Applies the grid and its sweep, once per document. */
 function ensureDotMatrixTextRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -127,8 +125,8 @@ function ensureDotMatrixTextRule(): void {
     '[data-o-dmt-cell]{fill:currentColor;opacity:0.12}',
     '[data-o-dmt-on]{',
     'animation:o-dmt-light var(--o-dmt-speed) linear infinite;',
-    // Le delai est deduit de la colonne : une seule animation pour tout
-    // le balayage, et un depart negatif pour ne jamais montrer la grille vide.
+    // The delay is derived from the column: a single animation for the whole
+    // sweep, and a negative start so the empty grid is never shown.
     'animation-delay:calc(var(--o-dmt-col) * var(--o-dmt-step) - var(--o-dmt-speed));',
     '}',
     '@keyframes o-dmt-light{0%,6%{opacity:0.12}10%,46%{opacity:1}52%,100%{opacity:0.12}}',
@@ -139,39 +137,39 @@ function ensureDotMatrixTextRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface DotMatrixTextOwnProps {
-  /** Le texte dessine ; capitales, chiffres et ponctuation courante. @defaultValue 'Chargement' */
+  /** The text drawn; capitals, digits and common punctuation. @defaultValue 'Loading' */
   text?: string
-  /** Pas de la grille, d'un point au suivant, en pixels. @defaultValue 4 */
+  /** Pitch of the grid, from one dot to the next, in pixels. @defaultValue 4 */
   size?: number
-  /** Duree d'un cycle, allumage et extinction compris, en millisecondes. @defaultValue 2400 */
+  /** Duration of a cycle, lighting and extinction included, in milliseconds. @defaultValue 2400 */
   speed?: number
-  /** Couleur des points. @defaultValue la couleur du texte */
+  /** Color of the dots. @defaultValue the text color */
   color?: string
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */
+  /** Label announced to screen readers. @defaultValue 'Loading' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All the properties. */
 export type DotMatrixTextProps = Customisable<DotMatrixTextOwnProps, 'span'>
 
 /**
- * Signale une attente par un mot qui s'allume sur une matrice de points.
+ * Signals a wait with a word that lights up on a dot matrix.
  *
  * @example
  * <DotMatrixText />
  *
  * @example
- * // Plus grand, plus lent, dans la teinte de marque.
+ * // Bigger, slower, in the brand hue.
  * <DotMatrixText text="Envoi" size={6} speed={3200} color="var(--o-palette-brand-500)" />
  */
 export function DotMatrixText({
-  text = 'Chargement',
+  text = 'Loading',
   size = 4,
   speed = 2400,
   color = 'currentColor',
-  label = 'Chargement',
+  label = 'Loading',
   ...rest
 }: DotMatrixTextProps): ReactElement {
   ensureDotMatrixTextRule()

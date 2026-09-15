@@ -1,28 +1,28 @@
 /**
- * Glitch au survol : le contenu part en tranches decalees, brievement.
+ * Glitch on hover: the content breaks into offset slices, briefly.
  *
- * ## Deux copies, animees hors de l'etat React
+ * ## Two copies, animated outside React state
  *
- * Le contenu est rendu trois fois : l'original, intact, et deux copies
- * superposees, invisibles au repos et muettes aux lecteurs d'ecran. La rafale
- * est une animation Web Animations sur chaque copie : une suite de tranches
- * `clip-path` decalees en translation, chaque etape en `step-end` — le glitch
- * est fait de sauts, pas de glissements. Rien ne passe par un rendu React :
- * la rafale part, se termine, et les copies redeviennent invisibles
- * d'elles-memes puisque l'animation ne remplit pas.
+ * The content is rendered three times: the original, intact, and two
+ * superimposed copies, invisible at rest and mute to screen readers. The burst
+ * is a Web Animations animation on each copy: a series of `clip-path` slices
+ * offset by translation, each step in `step-end` — a glitch is made of jumps,
+ * not of slides. Nothing goes through a React render: the burst starts, ends,
+ * and the copies become invisible again on their own since the animation does
+ * not fill.
  *
- * ## L'aberration coloree
+ * ## The colour aberration
  *
- * Chaque copie porte une ombre portee teintee d'un cote — l'une chaude,
- * l'autre froide, lues dans la palette. C'est l'ecart entre les deux qui
- * fabrique la frange chromatique des ecrans mal calibres, sans dedoubler le
- * contenu une troisieme fois.
+ * Each copy carries a drop shadow tinted on one side — one warm, the other
+ * cold, read from the palette. The gap between the two is what manufactures
+ * the chromatic fringe of badly calibrated screens, without duplicating the
+ * content a third time.
  *
- * Le tirage des tranches a lieu au declenchement, cote client : chaque rafale
- * est differente, et aucun hasard ne traverse le rendu initial.
+ * The slices are drawn at trigger time, client side: each burst is different,
+ * and no randomness crosses the initial render.
  *
- * Sous mouvement reduit, les copies ne sont pas rendues et rien n'ecoute le
- * survol : la zone est statique.
+ * Under reduced motion, the copies are not rendered and nothing listens to the
+ * hover: the area is static.
  *
  * @module
  */
@@ -37,23 +37,23 @@ import {
   type ReactNode,
 } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface GlitchHoverOwnProps {
-  /** Contenu qui part en glitch. */
+  /** Content that breaks into a glitch. */
   children: ReactNode
-  /** Amplitude du decalage des tranches, en pixels. @defaultValue 6 */
+  /** Amplitude of the slice offset, in pixels. @defaultValue 6 */
   intensity?: number
-  /** Nombre de tranches par copie. @defaultValue 3 */
+  /** Number of slices per copy. @defaultValue 3 */
   slices?: number
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type GlitchHoverProps = Customisable<GlitchHoverOwnProps>
 
-/** Duree d'une rafale : courte, c'est ce qui la rend credible. */
+/** Duration of a burst: short, which is what makes it credible. */
 const BURST = 400
 
-/** Style commun aux deux copies : posees sur l'original, muettes, invisibles. */
+/** Style common to both copies: laid over the original, mute, invisible. */
 const COPY_STYLE: CSSProperties = {
   position: 'absolute',
   inset: 0,
@@ -62,10 +62,10 @@ const COPY_STYLE: CSSProperties = {
 }
 
 /**
- * Fabrique la suite de tranches d'une copie.
+ * Builds the slice sequence of one copy.
  *
- * @param direction Cote du decalage, +1 ou -1 : les deux copies partent en
- * sens opposes, c'est leur croisement qui se lit comme un glitch.
+ * @param direction Side of the offset, +1 or -1: the two copies go in
+ * opposite directions, and their crossing is what reads as a glitch.
  */
 function makeBurst(direction: 1 | -1, intensity: number, slices: number): Keyframe[] {
   const frames: Keyframe[] = [
@@ -95,21 +95,21 @@ function makeBurst(direction: 1 | -1, intensity: number, slices: number): Keyfra
 }
 
 /**
- * Fait glitcher sa zone au survol et au focus.
+ * Makes its area glitch on hover and on focus.
  *
- * Poser les marges internes sur le contenu plutot que sur l'enveloppe : les
- * copies se calent sur la boite de l'enveloppe, et un padding sur celle-ci
- * les decalerait de l'original.
+ * Put the inner padding on the content rather than on the wrapper: the copies
+ * line up with the box of the wrapper, and a padding on it would offset them
+ * from the original.
  *
  * @example
  * <GlitchHover className="o-inline-block">
- *   <div className="o-rounded-xl o-border-w-1 o-p-6">Vignette</div>
+ *   <div className="o-rounded-xl o-border-w-1 o-p-6">Thumbnail</div>
  * </GlitchHover>
  *
  * @example
- * // Une rafale plus violente, en six tranches.
+ * // A more violent burst, in six slices.
  * <GlitchHover intensity={12} slices={6}>
- *   <img src={cover} alt="Pochette" />
+ *   <img src={cover} alt="Sleeve" />
  * </GlitchHover>
  */
 export function GlitchHover({
@@ -129,8 +129,8 @@ export function GlitchHover({
     let running = 0
 
     const trigger = (): void => {
-      // Une rafale a la fois : relancer pendant le vol hacherait la fin de
-      // la precedente sans rien ajouter.
+      // One burst at a time: restarting mid-flight would chop the end of the
+      // previous one without adding anything.
       if (running > 0) return
 
       const copies: readonly [HTMLDivElement | null, 1 | -1][] = [
@@ -153,8 +153,8 @@ export function GlitchHover({
       }
     }
 
-    // `focusin` remonte depuis les enfants focusables : un bouton dans la
-    // zone declenche la rafale au clavier aussi.
+    // `focusin` bubbles up from focusable children: a button inside the area
+    // triggers the burst from the keyboard too.
     host.addEventListener('pointerenter', trigger)
     host.addEventListener('focusin', trigger)
     return () => {
@@ -173,8 +173,8 @@ export function GlitchHover({
       style={{ position: 'relative', ...style }}
     >
       {children}
-      {/* Sous mouvement reduit, les copies n'existent pas : rien a animer,
-          rien a superposer. */}
+      {/* Under reduced motion, the copies do not exist: nothing to animate,
+          nothing to superimpose. */}
       {reduced ? null : (
         <>
           <div

@@ -1,26 +1,27 @@
 /**
- * Odometre : chaque chiffre est une colonne qui roule jusqu'a sa position.
+ * Odometer: each digit is a column that rolls to its position.
  *
- * ## Rouler, pas interpoler
+ * ## Rolling, not interpolating
  *
- * Le compteur `count-up` traverse les valeurs intermediaires — il interpole
- * le nombre. L'odometre, lui, ne calcule rien : chaque colonne est une pile
- * de 0 a 9, et rejoindre le chiffre cible est une seule translation CSS, avec
- * un delai qui croit depuis la droite comme sur un compteur mecanique. Le
- * navigateur compose tout ; aucun JavaScript ne tourne pendant l'animation.
+ * The `count-up` counter crosses the intermediate values — it interpolates the
+ * number. The odometer, on the other hand, computes nothing: each column is a
+ * stack from 0 to 9, and reaching the target digit is a single CSS
+ * translation, with a delay that grows from the right as on a mechanical
+ * counter. The browser composites everything; no JavaScript runs during the
+ * animation.
  *
- * ## Une valeur, pas dix chiffres
+ * ## One value, not ten digits
  *
- * Des piles de chiffres tronquees par un `overflow` sont illisibles a un
- * lecteur d'ecran — il y trouverait dix chiffres par colonne. Elles sont donc
- * `aria-hidden`, et la valeur finale, formatee, vit dans un element
- * visuellement masque, annonce poliment quand elle change.
+ * Stacks of digits truncated by an `overflow` are unreadable to a screen
+ * reader — it would find ten digits per column there. They are therefore
+ * `aria-hidden`, and the final value, formatted, lives in a visually hidden
+ * element, announced politely when it changes.
  *
- * ## Le formatage passe par `Intl`
+ * ## Formatting goes through `Intl`
  *
- * Separer les milliers a la main donne « 1,234 » a un lecteur francais, qui y
- * lit un nombre a virgule. `Intl.NumberFormat` connait la convention de
- * chaque langue.
+ * Separating thousands by hand gives "1,234" to a French reader, who reads a
+ * decimal number in it. `Intl.NumberFormat` knows the convention of each
+ * language.
  *
  * @module
  */
@@ -30,39 +31,39 @@ import { useMemo, type CSSProperties, type ElementType, type ReactElement } from
 
 import { useInView } from '@registre/hooks/useInView'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface CounterRollOwnProps {
-  /** Valeur affichee. */
+  /** Displayed value. */
   value: number
-  /** Balise rendue. @defaultValue 'span' */
+  /** Rendered tag. @defaultValue 'span' */
   as?: ElementType
-  /** Duree du roulement d'une colonne, en millisecondes. @defaultValue 900 */
+  /** Duration of the roll of one column, in milliseconds. @defaultValue 900 */
   duration?: number
-  /** Delai entre deux colonnes, depuis la droite, en millisecondes. @defaultValue 80 */
+  /** Delay between two columns, from the right, in milliseconds. @defaultValue 80 */
   step?: number
   /**
-   * Langue du formatage.
+   * Formatting language.
    *
-   * Par defaut, celle du navigateur — et non `fr-FR` en dur : un compteur qui
-   * affiche des espaces insecables a un lecteur anglophone a l'air casse.
+   * By default, the browser's — and not a hard-coded `fr-FR`: a counter that
+   * shows no-break spaces to an English reader looks broken.
    */
   locale?: string
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type CounterRollProps = Customisable<CounterRollOwnProps, 'span'>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-counter-roll'
 
-/** La pile complete, celle que chaque colonne fait defiler. */
+/** The complete stack, the one each column scrolls through. */
 const DIGITS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'] as const
 
 /**
- * Pose les regles des colonnes, une fois par document.
+ * Sets the column rules, once per document.
  *
- * La hauteur d'une case est exactement `1em`, et la pile se deplace en `em` :
- * l'odometre suit la taille de police sans une seule mesure.
+ * The height of a slot is exactly `1em`, and the stack moves in `em`: the
+ * odometer follows the font size without a single measurement.
  */
 function ensureCounterRule(): void {
   if (typeof document === 'undefined') return
@@ -83,13 +84,13 @@ function ensureCounterRule(): void {
 }
 
 /**
- * Affiche un nombre en colonnes de chiffres qui roulent jusqu'a leur position.
+ * Displays a number as columns of digits that roll to their position.
  *
  * @example
  * <CounterRoll value={12480} className="o-text-4xl o-font-extrabold" />
  *
  * @example
- * // Roulement plus lent, colonnes plus espacees.
+ * // Slower roll, columns further apart.
  * <CounterRoll value={2026} duration={1400} step={140} />
  */
 export function CounterRoll({
@@ -101,15 +102,15 @@ export function CounterRoll({
   ...rest
 }: CounterRollProps): ReactElement {
   const { reduced } = useMotionState()
-  const { ref, vu } = useInView<HTMLElement>()
+  const { ref, inView } = useInView<HTMLElement>()
   ensureCounterRule()
 
-  const formateur = useMemo(() => new Intl.NumberFormat(locale), [locale])
-  const final = formateur.format(value)
+  const formatter = useMemo(() => new Intl.NumberFormat(locale), [locale])
+  const final = formatter.format(value)
 
   const { className, style } = mergePresentation({}, rest)
 
-  // Mouvement reduit : la valeur est la, formatee, sans une seule pile.
+  // Reduced motion: the value is there, formatted, without a single stack.
   if (reduced) {
     return (
       <Tag {...rest} className={className} style={style}>
@@ -124,7 +125,7 @@ export function CounterRoll({
 
   return (
     <Tag {...rest} ref={ref} className={className} style={style} data-o-roll="">
-      {/* La valeur finale, annoncee poliment quand elle change. */}
+      {/* The final value, announced politely when it changes. */}
       <span className="o-sr-only" aria-live="polite">
         {final}
       </span>
@@ -138,8 +139,8 @@ export function CounterRoll({
             )
           }
 
-          // Le delai croit depuis la droite : la colonne des unites part la
-          // premiere, comme sur un compteur mecanique.
+          // The delay grows from the right: the units column leaves first, as
+          // on a mechanical counter.
           const delay = (digitCount - 1 - digitIndex) * step
           digitIndex += 1
 
@@ -148,7 +149,7 @@ export function CounterRoll({
               <span
                 style={
                   {
-                    transform: `translateY(${String(vu ? -Number(char) : 0)}em)`,
+                    transform: `translateY(${String(inView ? -Number(char) : 0)}em)`,
                     transition: `transform ${String(duration)}ms cubic-bezier(0.2, 0, 0, 1) ${String(delay)}ms`,
                   } as CSSProperties
                 }

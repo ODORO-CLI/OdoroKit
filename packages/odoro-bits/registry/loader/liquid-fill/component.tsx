@@ -1,38 +1,36 @@
 /**
- * Remplissage liquide : un bocal rond ou le niveau monte, la surface prise
- * par deux nappes qui derivent en sens contraires.
+ * Liquid fill: a round jar where the level rises, the surface held by two
+ * sheets drifting in opposite directions.
  *
- * ## Deux nappes valent mieux qu'une
+ * ## Two sheets are better than one
  *
- * Une seule sinusoide qui glisse se lit comme une image qui defile : la
- * crete revient au meme endroit a chaque periode, et l'oeil attrape la
- * boucle. Deux nappes de meme periode mais de vitesses et de sens
- * differents ne se recroisent qu'au bout d'un temps long ; leur somme
- * visuelle n'a plus de motif reconnaissable, et la surface se met a
- * ressembler a de l'eau plutot qu'a un ruban.
+ * A single sliding sine reads like a scrolling image: the crest comes back to
+ * the same place on every period, and the eye catches the loop. Two sheets of
+ * the same period but of different speeds and directions only cross again
+ * after a long time; their visual sum no longer has a recognisable pattern,
+ * and the surface starts to look like water rather than a ribbon.
  *
- * La nappe du fond est plus claire et plus lente, celle de devant plus
- * dense et plus rapide : la difference d'opacite donne une epaisseur au
- * liquide, la difference de vitesse une parallaxe.
+ * The back sheet is lighter and slower, the front one denser and faster: the
+ * difference in opacity gives the liquid a thickness, the difference in speed
+ * a parallax.
  *
- * Chaque nappe est un trace de quatre periodes, plus large que la vue,
- * translate d'exactement une periode : la boucle est invisible parce que la
- * position d'arrivee redonne le dessin de depart.
+ * Each sheet is a path of four periods, wider than the view, translated by
+ * exactly one period: the loop is invisible because the arrival position
+ * gives back the drawing it started from.
  *
- * ## Deux modes, deux honnetetes
+ * ## Two modes, two kinds of honesty
  *
- * Le mode determine recoit `value` et pose le niveau ou il faut : le bocal
- * est un `role="progressbar"` complet, valeur comprise. Le niveau glisse
- * d'une valeur a l'autre par une transition, jamais par un saut.
+ * The determinate mode receives `value` and places the level where it belongs:
+ * the jar is a complete `role="progressbar"`, value included. The level slides
+ * from one value to the next through a transition, never through a jump.
  *
- * Le mode `indeterminate` ne pretend rien mesurer : le niveau monte et
- * redescend sans fin comme une maree, et le `progressbar` est declare
- * **sans** valeur — c'est ainsi que la specification decrit une progression
- * inconnue.
+ * The `indeterminate` mode claims to measure nothing: the level rises and
+ * falls endlessly like a tide, and the `progressbar` is declared **without** a
+ * value — that is how the specification describes an unknown progression.
  *
- * Sous mouvement reduit, les nappes s'immobilisent, la valeur saute sans
- * transition, et la maree indeterminee reste a mi-hauteur : le bocal se lit
- * encore, seul le mouvement s'arrete.
+ * Under reduced motion, the sheets stand still, the value jumps with no
+ * transition, and the indeterminate tide stays at half height: the jar still
+ * reads, only the movement stops.
  *
  * @module
  */
@@ -40,22 +38,22 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import { useId, type CSSProperties, type ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-liquid-fill'
 
-/** Largeur d'une periode de vague, en unites de la vue. */
+/** Width of one wave period, in view units. */
 const PERIOD = 50
 
-/** Hauteur de la crete au-dessus du niveau moyen, en unites de la vue. */
+/** Height of the crest above the mean level, in view units. */
 const AMPLITUDE = 3.5
 
 /**
- * Trace d'une nappe : une sinusoide en quadratiques, prolongee vers le bas.
+ * Path of one sheet: a sine made of quadratics, extended downwards.
  *
- * Le trace commence une periode avant la vue et en couvre quatre : apres la
- * translation d'une periode, il reste de la matiere des deux cotes du
- * bocal. Une quadratique dont le point de controle est a deux fois
- * l'amplitude passe exactement par la crete voulue a mi-chemin.
+ * The path starts one period before the view and covers four of them: after
+ * the translation of one period, there is still matter on both sides of the
+ * jar. A quadratic whose control point sits at twice the amplitude passes
+ * exactly through the intended crest at mid-course.
  */
 function wavePath(): string {
   const parts: string[] = [`M ${String(-PERIOD)} 0`]
@@ -69,21 +67,21 @@ function wavePath(): string {
   return parts.join(' ')
 }
 
-/** Le trace, calcule une fois au chargement du module. */
+/** The path, computed once when the module loads. */
 const WAVE = wavePath()
 
 /**
- * Hauteur du niveau moyen, en unites de la vue, pour une valeur de 0 a 100.
+ * Height of the mean level, in view units, for a value from 0 to 100.
  *
- * A zero la surface est sous le fond du bocal, a cent elle est au-dessus du
- * bord : la crete ne depasse jamais d'un cote sans que le bocal soit
- * vraiment vide ou vraiment plein.
+ * At zero the surface is below the bottom of the jar, at a hundred it is above
+ * the rim: the crest never sticks out on one side without the jar being truly
+ * empty or truly full.
  */
 function levelOf(value: number): number {
   return 98 - (value / 100) * 96
 }
 
-/** Pose le bocal, ses nappes et sa maree, une fois par document. */
+/** Applies the jar, its sheets and its tide, once per document. */
 function ensureLiquidRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -93,7 +91,7 @@ function ensureLiquidRule(): void {
   style.textContent = [
     '[data-o-liquid-fill]{display:inline-block;line-height:0}',
     '[data-o-liquid-fill] svg{display:block}',
-    // Le niveau glisse d'une valeur a l'autre ; il ne saute pas.
+    // The level slides from one value to the next; it does not jump.
     '[data-o-liquid-level]{',
     'transition:transform var(--o-duration-base) var(--o-ease-standard);',
     '}',
@@ -108,8 +106,8 @@ function ensureLiquidRule(): void {
     '[data-o-liquid-wave]{',
     'animation:o-liquid-fill-drift var(--o-liquid-drift) linear infinite;',
     '}',
-    // La nappe du fond derive en sens inverse : les deux cretes se croisent
-    // au lieu de se suivre.
+    // The back sheet drifts the other way: the two crests cross each other
+    // instead of following one another.
     '[data-o-liquid-wave-back]{animation-direction:reverse}',
     '@keyframes o-liquid-fill-drift{',
     'from{transform:translateX(0)}',
@@ -124,34 +122,34 @@ function ensureLiquidRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface LiquidFillOwnProps {
-  /** Niveau, de 0 a 100. Ignore en mode indetermine. @defaultValue 62 */
+  /** Level, from 0 to 100. Ignored in indeterminate mode. @defaultValue 62 */
   value?: number
-  /** Maree sans valeur, quand rien n'est mesurable. @defaultValue false */
+  /** Tide with no value, when nothing is measurable. @defaultValue false */
   indeterminate?: boolean
-  /** Diametre du bocal, en pixels. @defaultValue 88 */
+  /** Diameter of the jar, in pixels. @defaultValue 88 */
   size?: number
-  /** Duree d'une derive de nappe, en millisecondes. @defaultValue 2600 */
+  /** Duration of one sheet drift, in milliseconds. @defaultValue 2600 */
   speed?: number
-  /** Couleur du liquide et du bocal. @defaultValue la couleur du texte */
+  /** Colour of the liquid and of the jar. @defaultValue the text colour */
   color?: string
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */
+  /** Label announced to screen readers. @defaultValue 'Loading' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All the properties. */
 export type LiquidFillProps = Customisable<LiquidFillOwnProps, 'span'>
 
 /**
- * Bocal rond dont le niveau de liquide dit la progression.
+ * Round jar whose liquid level tells the progression.
  *
  * @example
- * // Progression reelle.
+ * // Real progression.
  * <LiquidFill value={(sent / total) * 100} />
  *
  * @example
- * // Attente sans mesure, dans la teinte de marque.
+ * // Wait with no measure, in the brand hue.
  * <LiquidFill indeterminate color="var(--o-palette-brand-500)" />
  */
 export function LiquidFill({
@@ -160,13 +158,13 @@ export function LiquidFill({
   size = 88,
   speed = 2600,
   color = 'currentColor',
-  label = 'Chargement',
+  label = 'Loading',
   ...rest
 }: LiquidFillProps): ReactElement {
   ensureLiquidRule()
 
-  // Un identifiant par instance : deux bocaux sur la meme page ne doivent
-  // pas se partager un decoupage.
+  // One identifier per instance: two jars on the same page must not share a
+  // clip path.
   const clip = `o-liquid-fill-${useId().replace(/[^a-zA-Z0-9_-]/g, '')}`
 
   const clamped = Math.min(100, Math.max(0, value))
@@ -179,8 +177,8 @@ export function LiquidFill({
     height: `${String(size)}px`,
     color,
     '--o-liquid-drift': `${String(speed)}ms`,
-    // La maree est bien plus lente que la derive : elle raconte une
-    // progression, pas un clapot.
+    // The tide is far slower than the drift: it tells a progression, not a
+    // ripple.
     '--o-liquid-tide': `${String(speed * 3)}ms`,
   } as CSSProperties
 
@@ -193,8 +191,8 @@ export function LiquidFill({
       data-o-liquid-indeterminate={indeterminate ? '' : undefined}
       role="progressbar"
       aria-label={label}
-      // Un progressbar sans aria-valuenow est indetermine : c'est la maniere
-      // normative de dire « j'avance, mais je ne sais pas de combien ».
+      // A progressbar with no aria-valuenow is indeterminate: it is the
+      // normative way to say "I am moving, but I do not know by how much".
       aria-valuemin={indeterminate ? undefined : 0}
       aria-valuemax={indeterminate ? undefined : 100}
       aria-valuenow={indeterminate ? undefined : Math.round(clamped)}

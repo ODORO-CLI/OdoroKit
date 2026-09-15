@@ -1,6 +1,6 @@
 # @odoro-cli/icons
 
-Five icon families for Odoro, imported one at a time.
+Five icon packs for Odoro, imported one at a time.
 
 ```sh
 npm i @odoro-cli/icons
@@ -8,20 +8,20 @@ npm i @odoro-cli/icons
 
 ```tsx
 import { Icon } from '@odoro-cli/icons'
-import { ArrowRight, Sparkles } from '@odoro-cli/icons/filaire'
+import { ArrowRight, Sparkles } from '@odoro-cli/icons/outline'
 
 ;<Icon of={ArrowRight} className="o-size-5" />
 ```
 
-## The families
+## The packs
 
-| Entry point                  | Style           | Count |
-| ---------------------------- | --------------- | ----: |
-| `@odoro-cli/icons/filaire`   | Outline         |  2050 |
-| `@odoro-cli/icons/compact`   | Compact outline |  2039 |
-| `@odoro-cli/icons/classique` | Classic         |  1993 |
-| `@odoro-cli/icons/etendu`    | Extended        |  3838 |
-| `@odoro-cli/icons/marques`   | Brand marks     |   608 |
+| Entry point                 | Style         | Count |
+| --------------------------- | ------------- | ----: |
+| `@odoro-cli/icons/outline`  | Outline       |  2048 |
+| `@odoro-cli/icons/compact`  | Compact solid |  2078 |
+| `@odoro-cli/icons/classic`  | Classic       |  2001 |
+| `@odoro-cli/icons/extended` | Extended      |  3903 |
+| `@odoro-cli/icons/brands`   | Brand marks   |   609 |
 
 `@odoro-cli/icons/catalogue.json` lists every name, if you need to build a
 picker.
@@ -29,9 +29,9 @@ picker.
 ## You ship what you import
 
 Each icon is a separate export, so a bundler keeps only the ones your code
-names. Importing from a family does not pull the family in.
+names. Importing from a pack does not pull the pack in.
 
-That is also why the families are separate entry points rather than one big
+That is also why the packs are separate entry points rather than one big
 index: a single barrel would make every icon reachable from one import, and
 tree-shaking would have far more work to prove what can go.
 

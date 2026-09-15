@@ -1,30 +1,30 @@
 /**
- * Image en parallaxe : elle glisse dans son cadre pendant le defilement.
+ * Parallax image: it slides inside its frame while the page scrolls.
  *
- * ## L'image est plus haute que le cadre
+ * ## The image is taller than the frame
  *
- * C'est toute la mecanique : l'image deborde de son cadre d'une marge
- * proportionnelle a la force demandee, et une translation verticale promene
- * cette marge pendant la traversee du champ. Le cadre, lui, garde son rapport
- * fige et ne decouvre jamais le fond — la geometrie le garantit, pas un
- * calcul.
+ * That is the whole mechanism: the image overflows its frame by a margin
+ * proportional to the requested strength, and a vertical translation walks
+ * that margin around during the crossing of the viewport. The frame, for its
+ * part, keeps its fixed ratio and never uncovers the background — the geometry
+ * guarantees it, not a computation.
  *
- * ## Pourquoi la boucle unique et pas un ecouteur de defilement
+ * ## Why the single loop and not a scroll listener
  *
- * Un ecouteur de `scroll` se declenche a un rythme decide par le navigateur,
- * qui n'est pas celui du rafraichissement. Ecrire une transformation depuis
- * cet ecouteur produit le tremblement caracteristique des parallaxes faites a
- * la main. La mesure passe donc par l'horloge du moteur, avant le rendu de la
- * meme image : un rectangle lu, une transformation ecrite, aucun rendu React.
+ * A `scroll` listener fires at a rhythm decided by the browser, which is not
+ * that of the refresh. Writing a transform from that listener produces the
+ * characteristic judder of hand-made parallaxes. The measurement therefore
+ * goes through the engine clock, before the render of the same frame: one
+ * rectangle read, one transform written, no React render.
  *
- * La progression est mesuree contre le premier ancetre qui defile vraiment,
- * et non contre la fenetre : posee dans un panneau a defilement interne,
- * l'image bouge quand ce panneau bouge.
+ * The progress is measured against the first ancestor that really scrolls, and
+ * not against the window: laid inside a panel with internal scrolling, the
+ * image moves when that panel moves.
  *
- * ## Sous mouvement reduit
+ * ## Under reduced motion
  *
- * L'image reste immobile, cadree plein cadre : une parallaxe n'a pas d'etat
- * final a preserver, elle n'apporte rien d'autre que son mouvement.
+ * The image stays motionless, framed edge to edge: a parallax has no final
+ * state to preserve, it brings nothing other than its movement.
  *
  * @module
  */
@@ -38,10 +38,10 @@ import {
 } from '@odoro-cli/engine'
 import { useEffect, useRef, type CSSProperties, type ReactElement } from 'react'
 
-/** Part de la hauteur du cadre reservee au debordement, a force 1. */
+/** Share of the frame height reserved for the overflow, at strength 1. */
 const OVERSCAN = 0.15
 
-/** Premier ancetre dont le contenu defile reellement. */
+/** First ancestor whose content really scrolls. */
 function scrollParentOf(element: HTMLElement): HTMLElement | null {
   let node = element.parentElement
   while (node !== null) {
@@ -52,26 +52,26 @@ function scrollParentOf(element: HTMLElement): HTMLElement | null {
   return null
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface ParallaxImageOwnProps {
-  /** Source de l'image. */
+  /** Source of the image. */
   src: string
-  /** Texte de remplacement. Chaine vide si l'image est purement decorative. */
+  /** Alternative text. Empty string if the image is purely decorative. */
   alt: string
-  /** Rapport largeur sur hauteur du cadre. @defaultValue 1.777 */
+  /** Width to height ratio of the frame. @defaultValue 1.777 */
   ratio?: number
-  /** Force du glissement, de 0 a 1. @defaultValue 0.35 */
+  /** Strength of the slide, from 0 to 1. @defaultValue 0.35 */
   strength?: number
 }
 
-/** Toutes les proprietes : les siennes, plus celles d'une image. */
+/** All properties: its own, plus those of an image. */
 export type ParallaxImageProps = Customisable<ParallaxImageOwnProps, 'img'>
 
 /**
- * Fait glisser une image dans son cadre au fil du defilement.
+ * Slides an image inside its frame along with the scroll.
  *
  * @example
- * <ParallaxImage src="/photo.jpg" alt="Vue de l atelier" strength={0.5} />
+ * <ParallaxImage src="/photo.jpg" alt="View of the workshop" strength={0.5} />
  */
 export function ParallaxImage({
   src,
@@ -84,16 +84,17 @@ export function ParallaxImage({
   const host = useRef<HTMLDivElement | null>(null)
   const image = useRef<HTMLImageElement | null>(null)
 
-  const force = Math.min(1, Math.max(0, strength))
+  const amount = Math.min(1, Math.max(0, strength))
 
   useEffect(() => {
-    if (reduced || force === 0) return
+    if (reduced || amount === 0) return
 
     const frame = host.current
     if (frame === null) return
 
-    // Le parent qui defile est cherche une fois : il ne change pas pendant la
-    // vie du composant, et le chercher a chaque image couterait pour rien.
+    // The scrolling parent is looked up once: it does not change during the
+    // life of the component, and looking it up on every frame would cost for
+    // nothing.
     const scroller = scrollParentOf(frame)
 
     const subscription = clock.subscribe(
@@ -105,9 +106,9 @@ export function ParallaxImage({
         const viewTop = scroller === null ? 0 : scroller.getBoundingClientRect().top
         const viewHeight = scroller === null ? window.innerHeight : scroller.clientHeight
 
-        // Progression de la traversee : 0 quand le cadre entre par le bas,
-        // 1 quand il sort par le haut, ramenee a [-1, 1] pour que l'image
-        // soit centree au milieu du champ.
+        // Progress of the crossing: 0 when the frame enters from the bottom,
+        // 1 when it leaves through the top, brought back to [-1, 1] so that
+        // the image is centred in the middle of the viewport.
         const total = viewHeight + box.height
         const progress = Math.min(
           1,
@@ -115,28 +116,28 @@ export function ParallaxImage({
         )
         const centred = progress * 2 - 1
 
-        const shift = -centred * box.height * force * OVERSCAN
+        const shift = -centred * box.height * amount * OVERSCAN
         target.style.transform = `translate3d(0,${shift.toFixed(2)}px,0)`
       },
-      { priority: CLOCK_PRIORITY.input, name: 'image en parallaxe' },
+      { priority: CLOCK_PRIORITY.input, name: 'parallax image' },
     )
 
     return () => subscription.unsubscribe()
-  }, [reduced, force])
+  }, [reduced, amount])
 
   const { className, style } = mergePresentation(
     { className: 'o-relative o-overflow-hidden' },
     rest,
   )
 
-  // L'image deborde du cadre de la marge exacte que la translation promene :
-  // a force 1, quinze pour cent au-dessus et au-dessous.
+  // The image overflows the frame by exactly the margin the translation walks
+  // around: at strength 1, fifteen percent above and below.
   const imageStyle: CSSProperties =
-    reduced || force === 0
+    reduced || amount === 0
       ? {}
       : {
-          top: `${String(-force * OVERSCAN * 100)}%`,
-          height: `${String(100 + force * OVERSCAN * 200)}%`,
+          top: `${String(-amount * OVERSCAN * 100)}%`,
+          height: `${String(100 + amount * OVERSCAN * 200)}%`,
         }
 
   return (

@@ -41,7 +41,7 @@
  */
 
 import { Icon } from '@odoro-cli/icons'
-import { ArrowRight, ArrowUpRight, Sun, Waves, Wind } from '@odoro-cli/icons/filaire'
+import { ArrowRight, ArrowUpRight, Sun, Waves, Wind } from '@odoro-cli/icons/outline'
 import { Reveal } from '@odoro-cli/libs/motion'
 import { useEffect, useMemo, useState, type ReactElement } from 'react'
 

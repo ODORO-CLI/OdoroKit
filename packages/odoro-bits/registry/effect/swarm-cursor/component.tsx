@@ -1,31 +1,31 @@
 /**
- * Nuee : une poignee de points en orbite autour du pointeur.
+ * Swarm: a handful of dots orbiting the pointer.
  *
- * ## Deux mouvements superposes, et c'est tout
+ * ## Two superimposed movements, and that is all
  *
- * Chaque point additionne une **poursuite** — sa propre position amortie vers
- * le pointeur — et une **orbite** — un tour lent autour de cette position, a
- * son rayon et a sa vitesse. Rien d'autre : ni collision, ni cohesion, ni
- * regles de nuee. Une simulation de boids ferait le meme dessin pour dix fois
- * le prix, et son resultat serait moins previsible d'une machine a l'autre.
+ * Each dot adds a **chase** — its own position damped towards the pointer —
+ * and an **orbit** — a slow turn around that position, at its own radius and
+ * its own speed. Nothing else: no collision, no cohesion, no flocking rules. A
+ * boids simulation would make the same drawing for ten times the price, and
+ * its result would be less predictable from one machine to the next.
  *
- * Ce qui donne l'impression d'un essaim vivant, c'est que chaque point a une
- * prise differente sur le pointeur. Au repos, les orbites se rejoignent en un
- * anneau qui tourne ; des que la main file, les points les moins accroches
- * restent en arriere et la nuee s'etire en comete. La dispersion est donc une
- * consequence de la vitesse, jamais une valeur qu'on anime.
+ * What gives the impression of a living swarm is that each dot has a different
+ * grip on the pointer. At rest, the orbits come together into a turning ring;
+ * as soon as the hand flies, the least attached dots stay behind and the swarm
+ * stretches into a comet. The dispersion is therefore a consequence of the
+ * speed, never a value that gets animated.
  *
- * ## Pourquoi l'orbite est en tours par seconde
+ * ## Why the orbit is in turns per second
  *
- * Un increment d'angle par image tournerait deux fois plus vite a cent vingt
- * images par seconde. L'angle avance donc en fonction du temps ecoule, comme
- * l'amortissement de la poursuite.
+ * An angle increment per frame would turn twice as fast at a hundred and
+ * twenty frames per second. The angle therefore advances as a function of the
+ * elapsed time, like the damping of the chase.
  *
- * ## Ou elle ne se montre pas
+ * ## Where it does not show itself
  *
- * Sans pointeur fin, aucun point n'est cree. Sous mouvement reduit non plus :
- * une nuee est un mouvement perpetuel, et il n'en reste pas d'etat final a
- * poser. Le curseur du systeme n'est jamais masque.
+ * Without a fine pointer, no dot is created. Nor under reduced motion: a swarm
+ * is perpetual movement, and no final state is left to apply. The system
+ * cursor is never hidden.
  *
  * @module
  */
@@ -45,39 +45,39 @@ import {
   type ReactNode,
 } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface SwarmCursorOwnProps {
   /**
-   * Zone ou la nuee vit.
+   * Area where the swarm lives.
    *
-   * Fournie, elle n'ecoute que cette zone et y est coupee. Absente, elle prend
-   * la page entiere, en couche fixe qui n'intercepte rien.
+   * Provided, it listens only to that area and is clipped to it. Absent, it
+   * takes the whole page, as a fixed layer that intercepts nothing.
    */
   children?: ReactNode
-  /** Nombre de points. @defaultValue 12 */
+  /** Number of dots. @defaultValue 12 */
   count?: number
-  /** Rayon de l orbite, en pixels. @defaultValue 40 */
+  /** Radius of the orbit, in pixels. @defaultValue 40 */
   radius?: number
-  /** Vitesse d orbite, en tours par seconde. @defaultValue 0.4 */
+  /** Orbit speed, in turns per second. @defaultValue 0.4 */
   speed?: number
-  /** Dispersion : de combien les prises different d un point a l autre. @defaultValue 0.65 */
+  /** Dispersion: how much the grips differ from one dot to the next. @defaultValue 0.65 */
   spread?: number
-  /** Diametre d un point, en pixels. @defaultValue 6 */
+  /** Diameter of a dot, in pixels. @defaultValue 6 */
   dotSize?: number
-  /** Couleur des points. Une valeur, pas un role. @defaultValue la couleur du texte */
+  /** Colour of the dots. A value, not a role. @defaultValue the text colour */
   color?: string
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type SwarmCursorProps = Customisable<SwarmCursorOwnProps>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-swarm-cursor'
 
-/** Au-dela, la nuee devient une tache et chaque image coute pour rien. */
+/** Beyond this, the swarm becomes a smudge and every frame costs for nothing. */
 const MAX_DOTS = 32
 
-/** Pose les regles de la nuee, une fois par document. */
+/** Sets the swarm rules, once per document. */
 function ensureSwarmCursorRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -85,9 +85,9 @@ function ensureSwarmCursorRule(): void {
   const style = document.createElement('style')
   style.id = STYLE_ID
   style.textContent = [
-    // La position de la zone vit dans une regle sans specificite : une
-    // classe de l appelant — `o-absolute` pour la poser dans un cadre —
-    // doit pouvoir la remplacer, ce qu'un style en ligne interdirait.
+    // The positioning of the area lives in a rule with no specificity: a
+    // class from the caller — `o-absolute` to place it inside a frame —
+    // must be able to replace it, which an inline style would forbid.
     ':where([data-o-swarm-host="zone"]){position:relative;overflow:hidden}',
     ':where([data-o-swarm-host="page"]){position:fixed;inset:0;z-index:9998;pointer-events:none}',
     '[data-o-swarm-layer]{',
@@ -100,14 +100,14 @@ function ensureSwarmCursorRule(): void {
 }
 
 /**
- * Fait tourner une nuee de points autour du pointeur.
+ * Turns a swarm of dots around the pointer.
  *
  * @example
- * // Sur la page entiere.
+ * // Over the whole page.
  * <SwarmCursor />
  *
  * @example
- * // Nuee large, lente et tres dispersee, limitee a un heros.
+ * // Wide, slow and heavily dispersed swarm, confined to a hero.
  * <SwarmCursor count={20} radius={70} speed={0.25} spread={0.9}>
  *   <section className="o-p-16">…</section>
  * </SwarmCursor>
@@ -131,7 +131,7 @@ export function SwarmCursor({
   useEffect(() => {
     if (host === null || reduced) return
     if (typeof window === 'undefined') return
-    // Pointeur grossier : rien a entourer, rien n'est cree.
+    // Coarse pointer: nothing to surround, nothing is created.
     if (!window.matchMedia('(pointer: fine)').matches) return
 
     const total = Math.max(3, Math.min(MAX_DOTS, Math.round(count)))
@@ -168,12 +168,12 @@ export function SwarmCursor({
         node,
         x: away,
         y: away,
-        // La prise descend le long du rang : c'est elle qui etire la nuee
-        // quand la main file. Voir l'en-tete du module.
+        // The grip decreases along the rank: it is what stretches the swarm
+        // when the hand flies. See the module header.
         grip: 16 * (1 - rank * spread),
         angle: rank * Math.PI * 2,
-        // Un sens et une cadence propres : sinon les points restent en
-        // formation et l'anneau se lit comme une roue dentee.
+        // A direction and a cadence of its own: otherwise the dots stay in
+        // formation and the ring reads as a cogwheel.
         turn: (Math.random() < 0.5 ? -1 : 1) * (0.6 + Math.random() * 0.8),
         reach: radius * (0.4 + Math.random() * 0.8),
       })
@@ -227,7 +227,7 @@ export function SwarmCursor({
           dot.node.style.transform = `translate3d(${orbitX.toFixed(1)}px,${orbitY.toFixed(1)}px,0)`
         }
       },
-      { name: 'swarm-cursor : nuee', priority: CLOCK_PRIORITY.default },
+      { name: 'swarm-cursor : swarm', priority: CLOCK_PRIORITY.default },
     )
 
     return () => {

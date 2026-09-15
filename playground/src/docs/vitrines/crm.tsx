@@ -47,7 +47,7 @@
  */
 
 import { Icon } from '@odoro-cli/icons'
-import { ArrowUpRight, NotebookPen, Receipt, Scale } from '@odoro-cli/icons/filaire'
+import { ArrowUpRight, NotebookPen, Receipt, Scale } from '@odoro-cli/icons/outline'
 import {
   useMemo,
   useState,

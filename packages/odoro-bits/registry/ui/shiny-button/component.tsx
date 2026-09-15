@@ -1,31 +1,33 @@
 /**
- * Bouton a liseré tournant, en CSS seul.
+ * Button with a turning edge light, in CSS alone.
  *
- * ## Aucun JavaScript n'anime quoi que ce soit
+ * ## No JavaScript animates anything
  *
- * Le liseré est un dégradé conique dont l'angle est une propriété enregistrée
- * par `@property`. Sans cet enregistrement, `--gradient-angle` serait une
- * chaîne pour le navigateur, et une chaîne ne s'interpole pas : l'animation
- * sauterait de zéro à trois cent soixante degrés d'un coup. Déclarée comme
- * `<angle>`, elle devient une valeur animable, et le compositeur s'en charge.
+ * The edge light is a conic gradient whose angle is a property registered by
+ * `@property`. Without that registration, `--gradient-angle` would be a
+ * string for the browser, and a string does not interpolate: the animation
+ * would jump from zero to three hundred and sixty degrees at once. Declared
+ * as an `<angle>`, it becomes an animatable value, and the compositor takes
+ * care of it.
  *
- * C'est la seule raison pour laquelle ce bouton n'ouvre pas de boucle.
+ * This is the only reason why this button opens no loop.
  *
- * ## Ce qui a été retiré de l'implémentation d'origine
+ * ## What was removed from the original implementation
  *
- * Un `@import` de Google Fonts, posé dans la feuille du composant. Il coûtait
- * une requête bloquante à la première peinture, pour imposer une police que le
- * projet n'a pas forcément choisie. La police vient donc du token `--o-font-sans`.
+ * An `@import` of Google Fonts, laid in the stylesheet of the component. It
+ * cost a blocking request on the first paint, to impose a font that the
+ * project has not necessarily chosen. The font therefore comes from the token
+ * `--o-font-sans`.
  *
- * Et les couleurs, écrites en dur — un noir, un blanc, un bleu nommé. Elles
- * sont maintenant lues dans la palette, ce qui les fait suivre le thème.
+ * And the colours, hard-coded — a black, a white, a named blue. They are now
+ * read from the palette, which makes them follow the theme.
  *
- * ## L'animation est en pause au repos
+ * ## The animation is paused at rest
  *
- * Les trois couches tournent, mais `animation-play-state: paused` les fige tant
- * que le bouton n'est ni survolé ni au focus. Un liseré qui tourne en
- * permanence sur une page qui en compte cinq occupe le compositeur sans que
- * personne ne le regarde.
+ * The three layers turn, but `animation-play-state: paused` freezes them as
+ * long as the button is neither hovered nor focused. An edge light turning
+ * permanently on a page that holds five of them keeps the compositor busy
+ * without anyone watching it.
  *
  * @module
  */
@@ -33,25 +35,25 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import { type ReactElement, type ReactNode } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface ShinyButtonOwnProps {
-  /** Contenu du bouton. */
+  /** Content of the button. */
   children: ReactNode
   /**
-   * Tokens du fond, du texte, du liseré et de son éclat au survol.
+   * Tokens of the background, the text, the edge light and its glow on hover.
    *
-   * Quatre, dans cet ordre. Le troisième porte la couleur qui tourne ; le
-   * quatrième celle qui la remplace quand le bouton s'éveille.
+   * Four, in that order. The third one carries the colour that turns; the
+   * fourth one that which replaces it when the button wakes up.
    */
   colors?: readonly [string, string, string, string]
-  /** Durée d'un tour du liseré, en millisecondes. @defaultValue 3000 */
+  /** Duration of one turn of the edge light, in milliseconds. @defaultValue 3000 */
   spin?: number
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type ShinyButtonProps = Customisable<ShinyButtonOwnProps, 'button'>
 
-/** Tokens employes par defaut. */
+/** Tokens used by default. */
 const DEFAULT_TOKENS = [
   '--o-palette-zinc-950',
   '--o-palette-zinc-50',
@@ -59,25 +61,27 @@ const DEFAULT_TOKENS = [
   '--o-palette-brand-300',
 ] as const
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-shiny-button'
 
 /**
- * Pose les regles du bouton, une fois par document.
+ * Applies the rules of the button, once per document.
  *
- * ## Pourquoi `@property` est indispensable ici
+ * ## Why `@property` is indispensable here
  *
- * Une variable CSS ordinaire n'a pas de type : le navigateur la traite comme du
- * texte, et deux textes ne s'interpolent pas. L'animation existerait, mais elle
- * passerait d'une valeur a l'autre sans transition — un liseré qui claque au
- * lieu de tourner.
+ * An ordinary CSS variable has no type: the browser treats it as text, and two
+ * texts do not interpolate. The animation would exist, but it would go from
+ * one value to the other without transition — an edge light that snaps instead
+ * of turning.
  *
- * `@property` donne un type, une valeur initiale et une regle d'heritage. C'est
- * ce qui rend `--gradient-angle` animable, et donc tout ce fichier possible.
+ * `@property` gives a type, an initial value and an inheritance rule. That is
+ * what makes `--gradient-angle` animatable, and therefore this whole file
+ * possible.
  *
- * La valeur initiale de l'éclat est `transparent` et non une couleur nommée :
- * `initial-value` n'accepte pas `var()`, et y écrire un blanc figerait une
- * couleur hors de la palette. L'élément la remplace immédiatement par son token.
+ * The initial value of the glow is `transparent` and not a named colour:
+ * `initial-value` does not accept `var()`, and writing a white there would
+ * freeze a colour outside the palette. The element replaces it immediately
+ * with its token.
  */
 function ensureShinyRules(): void {
   if (typeof document === 'undefined') return
@@ -114,7 +118,7 @@ function ensureShinyRules(): void {
 
     '[data-o-shiny]:active{translate:0 1px}',
 
-    // Semis de points, masque par un secteur tournant.
+    // Scattering of dots, masked by a turning sector.
     '[data-o-shiny]::before{--size:calc(100% - 6px);width:var(--size);height:var(--size);',
     'background:radial-gradient(circle at 2px 2px,var(--o-shiny-fg) 0.5px,transparent 0) padding-box;',
     'background-size:4px 4px;background-repeat:space;',
@@ -122,7 +126,7 @@ function ensureShinyRules(): void {
     'mask-image:conic-gradient(from calc(var(--o-shiny-angle) + 45deg),black,transparent 10% 90%,black);',
     'border-radius:inherit;opacity:0.4;z-index:-1}',
 
-    // Reflet interne, qui tourne dans l'autre sens.
+    // Internal reflection, turning the other way.
     '[data-o-shiny]::after{width:100%;aspect-ratio:1;',
     'background:linear-gradient(-50deg,transparent,var(--o-shiny-edge),transparent);',
     '-webkit-mask-image:radial-gradient(circle at bottom,transparent 40%,black);',
@@ -134,7 +138,7 @@ function ensureShinyRules(): void {
     'transition:opacity var(--o-duration-slower) var(--o-ease-standard);',
     'animation:calc(var(--o-shiny-spin) * 1.5) o-shiny-breathe linear infinite}',
 
-    // Les trois couches tournent, et restent en pause tant qu'on ne les regarde pas.
+    // The three layers turn, and stay paused as long as nobody looks at them.
     '[data-o-shiny],[data-o-shiny]::before,[data-o-shiny]::after{',
     'animation:o-shiny-turn linear infinite var(--o-shiny-spin),',
     'o-shiny-turn linear infinite calc(var(--o-shiny-spin) / 0.4) reverse paused;',
@@ -150,8 +154,8 @@ function ensureShinyRules(): void {
     '@keyframes o-shiny-turn{to{--o-shiny-angle:360deg}}',
     '@keyframes o-shiny-breathe{from,to{scale:1}50%{scale:1.2}}',
 
-    // Le liseré est un agrement : sous mouvement reduit il ne tourne plus, et
-    // le bouton garde son etat final — visible, lisible, cliquable.
+    // The edge light is an ornament: under reduced motion it no longer turns,
+    // and the button keeps its final state — visible, legible, clickable.
     '@media (prefers-reduced-motion:reduce){',
     '[data-o-shiny],[data-o-shiny]::before,[data-o-shiny]::after,',
     '[data-o-shiny]>span::before{animation:none}}',
@@ -160,20 +164,20 @@ function ensureShinyRules(): void {
 }
 
 /**
- * Bouton dont le liseré tourne au survol.
+ * Button whose edge light turns on hover.
  *
  * @example
- * <ShinyButton onClick={souscrire}>Acceder sans limite</ShinyButton>
+ * <ShinyButton onClick={subscribe}>Unlimited access</ShinyButton>
  *
  * @example
- * // Les quatre couleurs viennent de la palette : fond, texte, lisere, eclat.
+ * // The four colours come from the palette: background, text, edge, glow.
  * <ShinyButton colors={[
  *   '--o-palette-zinc-950',
  *   '--o-palette-zinc-50',
  *   '--o-palette-emerald-500',
  *   '--o-palette-emerald-300',
  * ]}>
- *   Publier
+ *   Publish
  * </ShinyButton>
  */
 export function ShinyButton({
@@ -193,9 +197,9 @@ export function ShinyButton({
       data-o-shiny
       className={className}
       style={{
-        // Les quatre tokens deviennent les variables que la feuille consomme.
-        // Elles sont posees en ligne parce qu'elles dependent des props, et
-        // qu'une feuille unique par document ne peut pas les porter.
+        // The four tokens become the variables that the stylesheet consumes.
+        // They are set inline because they depend on the props, and a single
+        // stylesheet per document cannot carry them.
         ['--o-shiny-bg' as string]: `var(${colors[0]})`,
         ['--o-shiny-fg' as string]: `var(${colors[1]})`,
         ['--o-shiny-edge' as string]: `var(${colors[2]})`,

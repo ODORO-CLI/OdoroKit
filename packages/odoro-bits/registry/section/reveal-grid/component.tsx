@@ -1,28 +1,26 @@
 /**
- * Grille revelee en cascade.
+ * Grid revealed in a cascade.
  *
- * ## Pourquoi des transitions CSS et pas une timeline
+ * ## Why CSS transitions and not a timeline
  *
- * Chaque element fait le meme trajet, decale dans le temps. C'est exactement ce
- * qu'une transition CSS avec un delai sait faire, et le compositeur du
- * navigateur s'en charge seul : aucun JavaScript ne s'execute pendant
- * l'animation.
+ * Every element makes the same journey, offset in time. That is exactly what a
+ * CSS transition with a delay knows how to do, and the compositor of the
+ * browser handles it on its own: no JavaScript runs during the animation.
  *
- * Une timeline apporterait le controle du milieu de course — une pause, un
- * retour arriere, un enchainement. Rien de tout cela n'est utile ici, et le
- * prix serait un orchestrateur charge pour deplacer six cartes une fois.
+ * A timeline would bring control over the middle of the run — a pause, a step
+ * backwards, a chaining. None of that is useful here, and the price would be a
+ * loaded orchestrator to move six cards once.
  *
- * ## Le declenchement, et ce qu'il ne doit pas casser
+ * ## The trigger, and what it must not break
  *
- * L'observateur d'intersection ne pose l'attribut qu'une fois, puis se
- * deconnecte. Rejouer la cascade a chaque passage donne une page qui
- * s'agite quand on remonte, ce qui est fatigant plus qu'elegant — d'ou
- * `once` par defaut.
+ * The intersection observer sets the attribute only once, then disconnects.
+ * Replaying the cascade on every pass gives a page that fidgets when you scroll
+ * back up, which is tiring more than it is elegant — hence `once` by default.
  *
- * Et l'etat de depart n'est pose que si l'animation va vraiment avoir lieu.
- * Sous mouvement reduit, les elements sont simplement la : une cascade
- * neutralisee qui laisserait la grille invisible serait un defaut
- * d'accessibilite, pas un respect de la preference.
+ * And the starting state is only applied if the animation is really going to
+ * take place. Under reduced motion the elements are simply there: a neutralised
+ * cascade that left the grid invisible would be an accessibility defect, not a
+ * respect of the preference.
  *
  * @module
  */
@@ -37,32 +35,32 @@ import {
   type ReactNode,
 } from 'react'
 
-/** Proprietes propres au composant. */
+/** Props specific to the component. */
 export interface RevealGridOwnProps {
-  /** Les elements de la grille. */
+  /** The elements of the grid. */
   children: ReactNode
-  /** Colonnes au-dela du palier moyen. @defaultValue 3 */
+  /** Columns beyond the medium breakpoint. @defaultValue 3 */
   columns?: number
-  /** Decalage entre deux elements, en millisecondes. @defaultValue 70 */
+  /** Offset between two elements, in milliseconds. @defaultValue 70 */
   stagger?: number
-  /** Hauteur de la montee, en pixels. @defaultValue 24 */
+  /** Height of the rise, in pixels. @defaultValue 24 */
   distance?: number
-  /** Ne rejoue pas quand la section repasse dans le champ. @defaultValue true */
+  /** Does not replay when the section comes back into view. @defaultValue true */
   once?: boolean
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type RevealGridProps = Customisable<RevealGridOwnProps>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-reveal-grid'
 
 /**
- * Pose l'etat de depart et l'arrivee, une fois par document.
+ * Applies the starting state and the arrival, once per document.
  *
- * L'etat de depart doit s'appliquer avant le premier rendu peint : le poser
- * depuis JavaScript laisserait une image ou la grille apparait en entier avant
- * de disparaitre pour se recomposer.
+ * The starting state has to apply before the first painted render: setting it
+ * from JavaScript would leave a frame where the grid appears whole before
+ * disappearing to recompose itself.
  */
 function ensureRevealRule(): void {
   if (typeof document === 'undefined') return
@@ -77,9 +75,9 @@ function ensureRevealRule(): void {
     'transform var(--o-duration-slow) var(--o-ease-entrance);',
     'transition-delay:var(--o-reveal-delay)}',
     '[data-o-reveal-grid-shown] > *{opacity:1;transform:none}',
-    // Le nombre de colonnes passe par une variable : une regle par valeur
-    // possible serait soit incomplete, soit interminable, et un `style` pose
-    // dans le composant s'appliquerait a toutes les grilles de la page.
+    // The number of columns goes through a variable: one rule per possible
+    // value would be either incomplete or endless, and a `style` set inside the
+    // component would apply to every grid on the page.
     '@media (min-width:48rem){[data-o-reveal-grid]{grid-template-columns:repeat(var(--o-reveal-columns),minmax(0,1fr))}}',
     '@media (prefers-reduced-motion:reduce){',
     '[data-o-reveal-grid] > *{opacity:1;transform:none;transition:none}}',
@@ -88,12 +86,12 @@ function ensureRevealRule(): void {
 }
 
 /**
- * Revele une grille en cascade.
+ * Reveals a grid in a cascade.
  *
  * @example
  * <RevealGrid columns={3} stagger={60}>
- *   {projets.map((projet) => (
- *     <article key={projet.id}>…</article>
+ *   {projects.map((project) => (
+ *     <article key={project.id}>…</article>
  *   ))}
  * </RevealGrid>
  */

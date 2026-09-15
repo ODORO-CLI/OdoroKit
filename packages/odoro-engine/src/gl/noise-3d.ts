@@ -1,38 +1,38 @@
 /**
- * Bruit tridimensionnel, pour les scenes 3D.
+ * Three-dimensional noise, for 3D scenes.
  *
- * ## Pourquoi une version separee du bruit plein ecran
+ * ## Why a version separate from the fullscreen noise
  *
- * Le bruit du backend leger prend un point du plan : c'est tout ce dont a
- * besoin un effet qui couvre l'ecran. Deformer une sphere demande autre chose.
+ * The noise of the light backend takes a point of the plane: that is all a
+ * fullscreen effect needs. Deforming a sphere calls for something else.
  *
- * On pourrait projeter la surface sur un plan — latitude et longitude — et
- * echantillonner le bruit plan. Le resultat porte alors deux defauts qu'aucun
- * reglage ne corrige : une couture la ou la longitude se referme, et un
- * ecrasement aux poles, la ou toute une bande de surface se replie sur un
- * point. Ils se voient immediatement sur un objet qui tourne.
+ * One could project the surface onto a plane — latitude and longitude — and
+ * sample the planar noise. The result then carries two flaws that no setting
+ * corrects: a seam where the longitude closes back on itself, and a squashing
+ * at the poles, where a whole band of surface folds onto a point. They are
+ * immediately visible on a rotating object.
  *
- * Le bruit tridimensionnel n'a ni couture ni pole : il est defini partout dans
- * l'espace, et la surface ne fait que le traverser.
+ * Three-dimensional noise has neither seam nor pole: it is defined everywhere
+ * in space, and the surface merely passes through it.
  *
- * ## Ce que c'est
+ * ## What it is
  *
- * Un bruit de valeur sur un reseau cubique. Une valeur pseudo-aleatoire par
- * sommet, une interpolation lissee entre les huit sommets de la maille, et une
- * somme d'octaves de frequences doublees.
+ * Value noise on a cubic lattice. One pseudo-random value per vertex, a
+ * smoothed interpolation between the eight vertices of the cell, and a sum of
+ * octaves at doubled frequencies.
  *
- * Ecrit depuis ses principes, comme le reste des shaders livres. Le multiplieur
- * du hachage est l'inverse de pi : une valeur irrationnelle decorrele les trois
- * coordonnees, la ou un nombre rond ferait apparaitre des alignements.
+ * Written from first principles, like the rest of the shipped shaders. The
+ * hash multiplier is the inverse of pi: an irrational value decorrelates the
+ * three coordinates, where a round number would make alignments appear.
  *
  * @module
  */
 
 /**
- * Fonctions de bruit tridimensionnel, a prefixer a un shader.
+ * Three-dimensional noise functions, to prefix to a shader.
  *
  * @example
- * const vertex = `${NOISE_FUNCTIONS_3D}\n${MON_VERTEX}`
+ * const vertex = `${NOISE_FUNCTIONS_3D}\n${MY_VERTEX}`
  */
 export const NOISE_FUNCTIONS_3D = /* glsl */ `
 float odoroHash3(vec3 p) {
@@ -45,8 +45,9 @@ float odoroNoise3(vec3 p) {
   vec3 cell = floor(p);
   vec3 local = fract(p);
 
-  // Interpolation lissee : la derivee s'annule aux sommets, ce qui supprime
-  // les aretes visibles du reseau. Une interpolation lineaire les laisserait.
+  // Smoothed interpolation: the derivative vanishes at the vertices, which
+  // removes the visible edges of the lattice. A linear interpolation would
+  // leave them.
   vec3 weight = local * local * (3.0 - 2.0 * local);
 
   float c000 = odoroHash3(cell + vec3(0.0, 0.0, 0.0));
@@ -70,15 +71,14 @@ float odoroFbm3(vec3 p, int octaves) {
   float amplitude = 0.5;
   vec3 point = p;
 
-  // La borne de boucle est constante, et la sortie se fait par rupture : le
-  // premier niveau de GLSL n'accepte pas une condition qui depend d'un
-  // uniforme, et un shader qui ne compile pas chez la moitie des visiteurs
-  // n'est pas un shader.
+  // The loop bound is constant, and the exit is done by break: the first level
+  // of GLSL does not accept a condition that depends on a uniform, and a shader
+  // that does not compile for half the visitors is not a shader.
   for (int i = 0; i < 8; i += 1) {
     if (i >= octaves) break;
     sum += amplitude * odoroNoise3(point);
-    // Un facteur legerement superieur a deux evite que les octaves ne se
-    // realignent sur le meme reseau, ce qui produirait un motif repetitif.
+    // A factor slightly greater than two keeps the octaves from realigning on
+    // the same lattice, which would produce a repetitive pattern.
     point *= 2.03;
     amplitude *= 0.5;
   }

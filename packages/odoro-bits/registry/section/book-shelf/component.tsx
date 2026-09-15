@@ -1,38 +1,37 @@
 /**
- * Étagère : des volumes rangés, qu'on fait tourner et qu'on tire du rayon.
+ * Bookshelf: stored volumes, that can be turned and pulled off the shelf.
  *
- * ## Ce que ce composant rend, et ce qu'il laisse à la page
+ * ## What this component renders, and what it leaves to the page
  *
- * Il rend **la scène**, et rien d'autre : les planches, les tranches, les
- * volumes, la rotation, le survol et la sélection. Le panneau de détail, le
- * bandeau de catalogue, l'en-tête — toute la chrome autour — appartiennent à la
- * page, qui les rend avec ses propres composants et son propre routeur.
+ * It renders **the scene**, and nothing else: the planks, the edges, the
+ * volumes, the rotation, the hover and the selection. The detail panel, the
+ * catalog banner, the header — all the chrome around it — belong to the page,
+ * which renders them with its own components and its own router.
  *
- * La frontière passe par `onSelect` : la scène dit quel volume est ouvert, la
- * page décide de ce qu'elle en affiche. Un composant 3D qui rendrait aussi le
- * texte imposerait sa typographie, sa langue et sa mise en page à toute page
- * qui l'installe.
+ * The border runs through `onSelect`: the scene says which volume is open, the
+ * page decides what it displays of it. A 3D component that also rendered the
+ * text would impose its typography, its language and its layout on every page
+ * that installs it.
  *
- * ## Les couleurs sont des tokens, pas des valeurs
+ * ## The colors are tokens, not values
  *
- * Chaque volume porte trois teintes — le dos, la toile des plats, la tranche —
- * et chacune est un **nom de variable**, lue dans la palette au montage et
- * relue quand le thème change. Écrites en dur, elles resteraient identiques
- * dans un thème clair, où une reliure noire sur un mur crème ne veut rien dire.
+ * Every volume carries three hues — the spine, the cloth of the boards, the
+ * edge — and each one is a **variable name**, read from the palette on mount
+ * and read again when the theme changes. Hard-coded, they would stay identical
+ * in a light theme, where a black binding on a cream wall means nothing.
  *
- * ## Le survol et la sélection sont deux gestes différents
+ * ## Hover and selection are two different gestures
  *
- * Le survol soulève le volume de quelques millimètres : c'est ce qui dit qu'il
- * est saisissable. La sélection le tire du rayon et le présente de trois
- * quarts. Confondre les deux — tout sortir au survol — rend le rayon illisible
- * dès que le pointeur le traverse.
+ * Hover lifts the volume by a few millimeters: that is what says it can be
+ * grabbed. Selection pulls it off the shelf and presents it three quarters on.
+ * Mixing the two — taking everything out on hover — makes the shelf unreadable
+ * as soon as the pointer crosses it.
  *
- * ## Ce qui n'est pas ouvert ici
+ * ## What is not opened here
  *
- * Ni boucle d'animation, ni observateur de taille, ni observateur de
- * visibilité. `useScene` les porte : il arbitre la surface, suit le
- * redimensionnement, suspend le rendu hors du champ et s'abonne à la boucle
- * unique du moteur.
+ * No animation loop, no size observer, no visibility observer. `useScene`
+ * carries them: it arbitrates the surface, follows the resizing, suspends the
+ * render out of view and subscribes to the single loop of the engine.
  *
  * @module
  */
@@ -48,88 +47,88 @@ import { useEffect, useRef, useState, type ReactElement } from 'react'
 
 import { usePoster } from '@registre/hooks/usePoster'
 
-/** Un volume du rayon. */
+/** One volume of the shelf. */
 export interface ShelfVolume {
-  /** Identifiant, unique dans l'etagere. */
+  /** Identifier, unique within the bookshelf. */
   readonly id: string
-  /** Titre, transmis a `onSelect`. */
+  /** Title, passed on to `onSelect`. */
   readonly title: string
-  /** Rayon sur lequel il est pose, en partant du haut. */
+  /** Shelf it is placed on, counting from the top. */
   readonly shelf: number
-  /** Position sur ce rayon, en partant de la gauche. */
+  /** Position on that shelf, counting from the left. */
   readonly slot: number
-  /** Token du dos. */
+  /** Token of the spine. */
   readonly spine: string
-  /** Token de la toile des plats. */
+  /** Token of the cloth of the boards. */
   readonly cloth: string
-  /** Token de la tranche. */
+  /** Token of the edge. */
   readonly edge: string
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to the component. */
 export interface BookShelfOwnProps {
-  /** Les volumes. Le registre n'en embarque aucun : c'est le catalogue du projet. */
+  /** The volumes. The registry ships none: this is the catalog of the project. */
   volumes: readonly ShelfVolume[]
-  /** Identifiant du volume ouvert, impose par l'application. */
+  /** Identifier of the open volume, imposed by the application. */
   selected?: string | null
-  /** Appele quand un volume est choisi, ou refermé — `null` alors. */
+  /** Called when a volume is chosen, or closed again — `null` then. */
   onSelect?: (id: string | null) => void
-  /** Tokens des planches et du mur du fond. */
+  /** Tokens of the planks and of the back wall. */
   colors?: readonly [string, string]
-  /** Classes du repli. */
+  /** Classes of the fallback. */
   poster?: string
 }
 
-/** Toutes les proprietes. */
+/** All the props. */
 export type BookShelfProps = Customisable<BookShelfOwnProps, 'section'>
 
-/** Tokens employes par defaut pour le meuble. */
+/** Tokens used by default for the furniture. */
 const DEFAULT_TOKENS = ['--o-palette-stone-700', '--o-palette-stone-900'] as const
 
-/** Repli par defaut. */
+/** Default fallback. */
 const DEFAULT_POSTER = 'o-bg-gradient-to-b o-from-stone-800 o-to-stone-950'
 
 /**
- * Les mesures du meuble.
+ * The measurements of the furniture.
  *
- * Le format des volumes est un deux-tiers : c'est celui des livres de planches,
- * et c'est ce qui fait qu'un rayon se lit comme une bibliotheque plutot que
- * comme une rangee de boites.
+ * The format of the volumes is a two-thirds: it is the one of plate books, and
+ * it is what makes a shelf read like a library rather than like a row of
+ * boxes.
  */
 const M = {
   width: 0.887,
   height: 1.33,
   depth: 0.17,
-  /** Inclinaison au repos, en radians. Un rayon parfaitement droit sonne faux. */
+  /** Tilt at rest, in radians. A perfectly straight shelf rings false. */
   lean: -0.2,
-  /** Pas entre deux volumes. */
+  /** Step between two volumes. */
   pitch: 0.235,
-  /** Hauteur des deux rayons. */
+  /** Height of the two shelves. */
   shelves: [0.251, -1.241],
   plankHalf: 1.34,
   plankThick: 0.105,
   plankDepth: 0.8,
   wallZ: -0.43,
   bookZ: -0.18,
-  /** Soulevement au survol. */
+  /** Lift on hover. */
   lift: 0.045,
-  /** Sortie du volume choisi. */
+  /** Pull-out of the chosen volume. */
   pull: 0.52,
 } as const
 
-/** Borne une valeur. */
+/** Bounds a value. */
 function clamp(value: number, low: number, high: number): number {
   return Math.max(low, Math.min(high, value))
 }
 
 /**
- * Etagere de volumes.
+ * Bookshelf of volumes.
  *
  * @example
  * <BookShelf
- *   volumes={catalogue}
- *   selected={ouvert}
- *   onSelect={setOuvert}
+ *   volumes={catalog}
+ *   selected={open}
+ *   onSelect={setOpen}
  *   className="o-h-screen"
  * />
  */
@@ -144,8 +143,8 @@ export function BookShelf({
   const { quality, reduced } = useMotionState()
   const [element, setElement] = useState<HTMLElement | null>(null)
 
-  // Toutes les teintes en une seule lecture : celles du meuble, puis trois par
-  // volume. Elles entrent par leur texte, jamais par l'identite du tableau.
+  // Every hue in a single read: those of the furniture, then three per volume.
+  // They come in by their text, never by the identity of the array.
   const tokenList = [
     ...colors,
     ...volumes.flatMap((v) => [v.spine, v.cloth, v.edge]),
@@ -164,20 +163,20 @@ export function BookShelf({
   const selectedRef = useRef(selected)
   selectedRef.current = selected
 
-  /** Ce que le pointeur vise, en coordonnees normalisees. */
+  /** What the pointer aims at, in normalized coordinates. */
   const aim = useRef({ x: 0, y: 0, inside: false })
-  /** Identifiant survole, ecrit par la scene, lu par le curseur. */
+  /** Hovered identifier, written by the scene, read by the cursor. */
   const hovered = useRef<string | null>(null)
-  /** Rotation du meuble, accumulee par le glissement. */
+  /** Rotation of the furniture, accumulated by the drag. */
   const turn = useRef({ angle: 0, velocity: 0 })
   const dragging = useRef(false)
   const lastX = useRef(0)
   const moved = useRef(0)
 
-  // `HTMLElement` et non `HTMLDivElement` : la racine est une `section`, et une
-  // ref typee sur le div refuserait de la recevoir.
+  // `HTMLElement` and not `HTMLDivElement`: the root is a `section`, and a ref
+  // typed on the div would refuse to receive it.
   const { ref, ready, refused } = useScene<HTMLElement>({
-    name: 'etagere',
+    name: 'shelf',
     setup: (context: SceneContext) => {
       const { scene, camera, three } = context
       const tints = shadesRef.current
@@ -198,10 +197,10 @@ export function BookShelf({
       scene.add(key)
 
       const group = new three.Group()
-      group.name = 'etagere'
+      group.name = 'shelf'
       scene.add(group)
 
-      // Le mur du fond, puis les planches.
+      // The back wall, then the planks.
       const wall = new three.Mesh(
         new three.PlaneGeometry(M.plankHalf * 2.6, 5.4),
         new three.MeshStandardMaterial({ color: colour(1), roughness: 0.95 }),
@@ -222,9 +221,9 @@ export function BookShelf({
         group.add(plank)
       }
 
-      // Les volumes. Chacun est une boite dont les six faces ne portent pas la
-      // meme teinte : le dos se voit de face, la tranche sur le cote, la toile
-      // au-dessus. Un materiau unique donnerait un bloc de couleur.
+      // The volumes. Each one is a box whose six faces do not carry the same
+      // hue: the spine is seen from the front, the edge on the side, the cloth
+      // above. A single material would give a block of color.
       const geometry = new three.BoxGeometry(M.width, M.height, M.depth)
       const books: {
         mesh: InstanceType<typeof three.Mesh>
@@ -241,7 +240,7 @@ export function BookShelf({
         const make = (c: InstanceType<typeof three.Color>, rough: number) =>
           new three.MeshStandardMaterial({ color: c, roughness: rough })
 
-        // L'ordre des faces d'une boite : +x, -x, +y, -y, +z, -z.
+        // The order of the faces of a box: +x, -x, +y, -y, +z, -z.
         const materials = [
           make(edge, 0.55),
           make(edge, 0.55),
@@ -269,7 +268,7 @@ export function BookShelf({
       const advance = (frame: SceneFrame): void => {
         const delta = Math.min(frame.delta, 0.05)
 
-        // La rotation : le glissement la pousse, l'inertie la prolonge.
+        // The rotation: the drag pushes it, the inertia prolongs it.
         const state = turn.current
         if (!dragging.current) {
           state.angle += state.velocity
@@ -277,7 +276,7 @@ export function BookShelf({
         }
         group.rotation.y = clamp(state.angle, -0.55, 0.55)
 
-        // Le survol : un seul rayon par image, sur la liste des volumes.
+        // The hover: a single ray per frame, over the list of volumes.
         let over: string | null = null
         if (aim.current.inside) {
           pointer.set(aim.current.x, aim.current.y)
@@ -291,7 +290,7 @@ export function BookShelf({
         }
         hovered.current = over
 
-        // Chaque volume rejoint sa place : au rayon, souleve, ou sorti.
+        // Every volume joins its place: on the shelf, lifted, or pulled out.
         const open = selectedRef.current
         for (const book of books) {
           const isOpen = book.id === open
@@ -303,8 +302,8 @@ export function BookShelf({
           const targetLean = isOpen ? 0.075 : M.lean
           const targetYaw = isOpen ? 0.285 : 0
 
-          // Rattrapage exponentiel en fonction du temps ecoule : le meme
-          // reglage donne la meme course a soixante comme a cent vingt images.
+          // Exponential catch-up based on the elapsed time: the same setting
+          // gives the same travel at sixty as at a hundred and twenty frames.
           const factor = 1 - Math.exp(-8 * delta)
           book.mesh.position.x += (targetX - book.mesh.position.x) * factor
           book.mesh.position.y += (targetY - book.mesh.position.y) * factor
@@ -322,13 +321,13 @@ export function BookShelf({
       }
     },
     frame: ({ scene }, frame) => {
-      const group = scene.getObjectByName('etagere')
+      const group = scene.getObjectByName('shelf')
       const advance = group?.userData['advance']
       if (typeof advance === 'function') advance(frame)
     },
   })
 
-  // Le pointeur : vise, glisse, choisit. Lu sur l'hote, jamais sur la fenetre.
+  // The pointer: aims, drags, chooses. Read on the host, never on the window.
   useEffect(() => {
     if (element === null) return
 
@@ -357,8 +356,8 @@ export function BookShelf({
       turn.current.velocity = 0
     }
 
-    // Un clic est un relachement qui n'a pas glisse. Sans ce seuil, toute
-    // rotation terminee sur un volume l'ouvrirait.
+    // A click is a release that has not dragged. Without that threshold, any
+    // rotation ended on a volume would open it.
     const up = (): void => {
       const wasDrag = moved.current > 6
       dragging.current = false
@@ -415,9 +414,9 @@ export function BookShelf({
         <div style={waiting.style} className={`o-absolute o-inset-0 ${poster}`} />
       ) : null}
 
-      {/* Le rayon est une image pour l'oeil : la liste des volumes reste
-          atteignable au clavier, et c'est elle qui porte le choix. Sans elle,
-          une scene 3D est un cul-de-sac pour qui ne peut pas viser. */}
+      {/* The shelf is an image for the eye: the list of volumes stays reachable
+          from the keyboard, and it is the one that carries the choice. Without
+          it, a 3D scene is a dead end for whoever cannot aim. */}
       <ul className="o-sr-only">
         {volumes.map((volume) => (
           <li key={volume.id}>

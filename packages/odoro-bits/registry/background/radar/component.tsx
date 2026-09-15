@@ -1,23 +1,23 @@
 /**
- * Radar : un balayage circulaire, des graduations, des echos qui decroissent.
+ * Radar: a circular sweep, graduations, echoes that decay.
  *
- * ## Le principe
+ * ## The principle
  *
- * La difference entre l'angle du pixel et l'angle du temps, repliee modulo
- * 2pi, donne l'age du dernier passage : une exponentielle de cet age fait la
- * trainee. Les anneaux sont la partie fractionnaire du rayon, seuillee, et les
- * echos s'allument au passage du faisceau puis decroissent.
+ * The difference between the pixel's angle and the time's angle, folded modulo
+ * 2pi, gives the age of the last pass: an exponential of that age makes the
+ * trail. The rings are the fractional part of the radius, thresholded, and the
+ * echoes light up as the beam sweeps past, then decay.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur — les recopier ici en ferait autant
- * de versions a maintenir qu'il y a de fonds.
+ * It carries only what sets it apart: its shader, its settings and its fallback.
+ * Reading the tokens, converting them to floats and re-reading them when the
+ * theme changes all come from the engine — copying that here would leave as many
+ * versions to maintain as there are backgrounds.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en
- * accorde qu'une par backend — et sous mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface — it grants only one per
+ * backend — and under reduced motion.
  *
  * @module
  */
@@ -34,41 +34,41 @@ import { type ReactElement } from 'react'
 
 import { RADAR_FRAGMENT } from './radar.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface RadarControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to this component. */
 export interface RadarOwnProps {
-  /** Vitesse de rotation du balayage. @defaultValue 0.5 */
+  /** Speed of the sweep's rotation. @defaultValue 0.5 */
   speed?: number
-  /** Nombre d'anneaux de graduation. @defaultValue 4 */
+  /** Number of graduation rings. @defaultValue 4 */
   rings?: number
-  /** Persistance de la trainee et des echos. @defaultValue 0.7 */
+  /** Persistence of the trail and of the echoes. @defaultValue 0.7 */
   fade?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<RadarControls>
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type RadarProps = Customisable<RadarOwnProps>
 
-/** Tokens employes par defaut : l'ecran, les graduations, le faisceau. */
+/** Tokens used by default: the screen, the graduations, the beam. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-green-500',
   '--o-palette-green-200',
 ] as const
 
-/** Repli par defaut : une teinte figee, dans les memes tons. */
+/** Default fallback: a frozen tint, in the same tones. */
 const DEFAULT_FALLBACK = 'o-bg-zinc-50 dark:o-bg-zinc-950'
 
 /**
@@ -94,8 +94,8 @@ export function Radar({
     colors,
     uniforms: { uSpeed: speed, uRings: rings, uFade: fade, uEchos: 3 },
     name: 'radar',
-    // Le balayage et les anneaux sont des soustractions ; ce sont les echos —
-    // une exponentielle et une tache chacun — qui pesent, donc ils sont bornes.
+    // The sweep and the rings are subtractions; it is the echoes — one
+    // exponential and one blob each — that weigh, so they are the bounded ones.
     degrade: (quality) => ({
       uEchos: quality === 'low' ? 1 : 3,
     }),

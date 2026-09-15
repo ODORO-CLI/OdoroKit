@@ -1,22 +1,22 @@
 /**
- * Bulles : des disques qui montent et fusionnent en col quand ils se rapprochent.
+ * Bubbles: discs that rise and merge into a neck as they draw close.
  *
- * ## Le principe
+ * ## The principle
  *
- * Additionner des champs qui decroissent avec la distance, puis seuiller la somme : c est le principe des surfaces implicites.
+ * Adding fields that fall off with distance, then thresholding the sum: that is the principle of implicit surfaces.
  *
- * Le champ vaut un sur le bord du disque, si bien qu une bulle isolee retrouve exactement sa taille nominale.
+ * The field equals one on the disc's edge, so an isolated bubble recovers exactly its nominal size.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur — les recopier ici en ferait autant
- * de versions a maintenir qu'il y a de fonds.
+ * It carries only what sets it apart: its shader, its settings and its fallback.
+ * Reading the tokens, converting them to floats and re-reading them when the
+ * theme changes all come from the engine — copying them here would leave as
+ * many versions to maintain as there are backgrounds.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en
- * accorde qu'une par backend — et sous mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface — it grants only one
+ * per backend — and under reduced motion.
  *
  * @module
  */
@@ -32,42 +32,42 @@ import {
 } from '@odoro-cli/engine'
 import { type ReactElement } from 'react'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface BubblesControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to this component. */
 export interface BubblesOwnProps {
-  /** Vitesse de remontee. @defaultValue 0.25 */
+  /** Rising speed. @defaultValue 0.25 */
   speed?: number
-  /** Nombre de bulles. Borne a seize par le shader. @defaultValue 9 */
+  /** Number of bubbles. Capped at sixteen by the shader. @defaultValue 9 */
   count?: number
-  /** Rayon de reference. @defaultValue 0.09 */
+  /** Reference radius. @defaultValue 0.09 */
   radius?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<BubblesControls>
 }
 
-/** Toutes les proprietes. */
+/** Every property. */
 export type BubblesProps = Customisable<BubblesOwnProps>
 
-/** Tokens employes par defaut. */
+/** Tokens used by default. */
 const DEFAULT_TOKENS = ['--o-theme-bg', '--o-palette-fuchsia-600'] as const
 
-/** Repli par defaut : une teinte figee, dans les memes tons. */
+/** Default fallback: a frozen hue, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-t o-from-fuchsia-950 o-to-zinc-50 dark:o-to-zinc-950'
 
 /**
- * Bulles.
+ * Bubbles.
  *
  * @example
  * <div className="o-relative o-min-h-screen">
@@ -89,8 +89,8 @@ export function Bubbles({
     colors,
     uniforms: { uSpeed: speed, uScale: count, uRadius: radius },
     name: 'bubbles',
-    // En qualite basse, le reglage qui pese est borne : le motif reste
-    // reconnaissable une fois reduit.
+    // At low quality the setting that weighs is capped: the pattern stays
+    // recognisable once reduced.
     degrade: (quality) => ({
       uScale: quality === 'low' ? Math.min(count, 6) : count,
     }),

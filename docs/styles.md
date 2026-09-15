@@ -21,7 +21,7 @@ compressés — exactement ce que produisait la feuille de 1 724 Ko, sans les
 variables sans les utilitaires, et arrive sans style — sans erreur pour le
 signaler, puisque du CSS absent ne casse rien, il ne peint rien.
 
-Le moteur résout `@odoro-cli/libs/generateur` dans les dépendances du projet.
+Le moteur résout `@odoro-cli/libs/generator` dans les dépendances du projet.
 S'il ne le trouve pas, il élague la feuille reçue : sur un socle, il n'y a rien
 à élaguer.
 

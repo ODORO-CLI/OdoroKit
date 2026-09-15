@@ -1,36 +1,37 @@
 /**
- * Inscription a une lettre, avec ses quatre etats.
+ * Newsletter sign-up, with its four states.
  *
- * ## Les quatre etats existent, et ils sont nommes
+ * ## The four states exist, and they are named
  *
- * Repos, envoi, succes, erreur. La plupart des formulaires n'en implementent
- * que deux — avant et apres — et laissent le troisieme au hasard du reseau :
- * on clique, rien ne bouge, on reclique, et deux inscriptions partent. L'etat
- * d'envoi n'est donc pas une decoration : c'est lui qui empeche le second clic.
+ * Idle, sending, success, error. Most forms implement only two — before and
+ * after — and leave the third to the whims of the network: you click, nothing
+ * moves, you click again, and two sign-ups go out. The sending state is not a
+ * decoration, then: it is the one thing preventing the second click.
  *
- * L'erreur est le quatrieme, et elle est distincte du repos : revenir au repos
- * apres un echec efface la seule information utile de la seconde precedente.
+ * The error is the fourth, and it is distinct from idle: going back to idle
+ * after a failure erases the only useful information of the previous second.
  *
- * ## La region d'annonce existe avant le message
+ * ## The live region exists before the message
  *
- * C'est le detail qui fait echouer la moitie des implementations : une region
- * `role="status"` **inseree** en meme temps que son contenu n'est pas annoncee.
- * Le navigateur doit l'observer avant qu'elle change. Elle est donc toujours
- * dans le document, vide au repos, et c'est son texte qui change.
+ * This is the detail that sinks half the implementations: a `role="status"`
+ * region **inserted** at the same time as its content is not announced. The
+ * browser has to be watching it before it changes. It is therefore always in
+ * the document, empty when idle, and it is its text that changes.
  *
- * ## La validation est celle du navigateur, pas une expression reguliere
+ * ## Validation is the browser's, not a regular expression
  *
- * `type="email"` et `required` valident deja — mieux, et dans la langue de
- * l'utilisateur. Le composant lit `validity` plutot que de reecrire une regle
- * qui refusera un jour une adresse parfaitement valide. Il retient seulement
- * l'envoi par defaut, pour montrer le message a sa place plutot que dans une
- * bulle native qui disparait au premier clic.
+ * `type="email"` and `required` already validate — better, and in the language
+ * of the user. The component reads `validity` rather than rewriting a rule that
+ * will one day reject a perfectly valid address. It only holds back the default
+ * submission, to show the message in its place rather than in a native bubble
+ * that vanishes on the first click.
  *
- * ## Une reponse en retard ne doit pas ecraser l'etat courant
+ * ## A late response must not overwrite the current state
  *
- * Deux envois successifs, le premier plus lent que le second : sans garde, la
- * reponse du premier arrive apres et remplace le resultat du second. Chaque
- * envoi porte donc un numero, et seule la reponse du dernier est retenue.
+ * Two successive submissions, the first slower than the second: without a
+ * guard, the response of the first arrives afterwards and replaces the result
+ * of the second. Each submission therefore carries a number, and only the
+ * response of the last one is kept.
  *
  * @module
  */
@@ -49,62 +50,62 @@ import {
 
 import { useInView } from '@registre/hooks/useInView'
 
-/** Etat du formulaire. */
-export type NewsletterStatus = 'repos' | 'envoi' | 'succes' | 'erreur'
+/** Form state. */
+export type NewsletterStatus = 'idle' | 'sending' | 'success' | 'error'
 
-/** Les phrases affichees dans la region d'annonce. */
+/** The sentences shown in the live region. */
 export interface NewsletterMessages {
-  /** Pendant l'envoi. */
-  readonly envoi?: string
-  /** Apres une inscription reussie. */
-  readonly succes?: string
-  /** Apres un echec du service. */
-  readonly erreur?: string
-  /** Quand l'adresse saisie n'est pas valide. */
-  readonly invalide?: string
+  /** While sending. */
+  readonly sending?: string
+  /** After a successful sign-up. */
+  readonly success?: string
+  /** After a failure of the service. */
+  readonly error?: string
+  /** When the address entered is not valid. */
+  readonly invalid?: string
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to the component. */
 export interface NewsletterOwnProps {
   /**
-   * Envoie l'adresse. La promesse rejetee vaut echec, et son message est
-   * affiche s'il y en a un.
+   * Sends the address. A rejected promise counts as a failure, and its message
+   * is shown if there is one.
    *
-   * Sans cette fonction, le formulaire n'aboutit jamais : c'est voulu, un
-   * faux succes serait pire qu'un bouton inerte.
+   * Without this function the form never completes: that is deliberate, a fake
+   * success would be worse than an inert button.
    */
   onSubmit?: (email: string) => void | Promise<void>
-  /** Titre de la section. */
+  /** Section title. */
   title?: ReactNode
-  /** Ce que la lettre contient, et a quelle frequence. */
+  /** What the newsletter contains, and how often. */
   body?: ReactNode
-  /** Libelle du champ. @defaultValue 'Adresse e-mail' */
+  /** Field label. @defaultValue 'Email address' */
   fieldLabel?: string
-  /** Ce qui est ecrit sur le bouton. @defaultValue 'S inscrire' */
+  /** What is written on the button. @defaultValue 'Subscribe' */
   cta?: string
-  /** Les phrases affichees dans la region d'annonce. */
+  /** The sentences shown in the live region. */
   messages?: NewsletterMessages
-  /** Mention sous le formulaire : frequence, desinscription, donnees. */
+  /** Note under the form: frequency, unsubscribing, data. */
   note?: ReactNode
-  /** Nom de la section, annonce aux technologies d'assistance. */
+  /** Section name, announced to assistive technologies. */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type NewsletterProps = Customisable<NewsletterOwnProps, 'section'>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-newsletter'
 
-/** Phrases par defaut, remplacables une a une. */
-const PAR_DEFAUT: Required<NewsletterMessages> = {
-  envoi: 'Envoi en cours',
-  succes: 'C est fait : verifiez votre boite pour confirmer.',
-  erreur: 'L inscription n a pas abouti. Reessayez dans un instant.',
-  invalide: 'Cette adresse ne semble pas valide.',
+/** Default sentences, replaceable one by one. */
+const DEFAULTS: Required<NewsletterMessages> = {
+  sending: 'Sending',
+  success: 'Done: check your inbox to confirm.',
+  error: 'The sign-up did not go through. Try again in a moment.',
+  invalid: 'That address does not look valid.',
 }
 
-/** Pose les regles du formulaire, une fois par document. */
+/** Applies the form rules, once per document. */
 function ensureNewsletterRules(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -115,8 +116,8 @@ function ensureNewsletterRules(): void {
     '[data-o-news-ligne]{display:flex;flex-wrap:wrap;gap:0.5rem}',
     '[data-o-news-champ]{flex:1 1 14rem;min-width:0}',
 
-    // Le disque qui tourne pendant l'envoi. Il est decoratif : c'est la region
-    // d'annonce qui dit ce qui se passe.
+    // The disc that spins while sending. It is decorative: the live region is
+    // what tells what is going on.
     '[data-o-news-rouet]{',
     'display:inline-block;width:0.85em;height:0.85em;border-radius:9999px;',
     'border:2px solid currentColor;border-top-color:transparent;',
@@ -126,99 +127,99 @@ function ensureNewsletterRules(): void {
     '[data-o-news-annonce]{min-height:1.25rem}',
 
     '@media (prefers-reduced-motion:reduce){',
-    // Sans rotation, le disque garde sa forme : il reste le signe visible que
-    // quelque chose est en cours, ce que retirer l'element supprimerait.
+    // Without rotation the disc keeps its shape: it remains the visible sign
+    // that something is under way, which removing the element would take away.
     '[data-o-news-rouet]{animation:none;border-top-color:currentColor;opacity:0.5}}',
   ].join('')
   document.head.append(style)
 }
 
 /**
- * Formulaire d'inscription a une lettre.
+ * Newsletter sign-up form.
  *
  * @example
  * <Newsletter
- *   title="La lettre du registre"
- *   body="Une fois par mois, les entrees ajoutees et ce qu elles ont appris."
- *   onSubmit={async (email) => { await api.inscrire(email) }}
+ *   title="The registry newsletter"
+ *   body="Once a month, the entries added and what they taught."
+ *   onSubmit={async (email) => { await api.subscribe(email) }}
  * />
  */
 export function Newsletter({
   onSubmit,
   title,
   body,
-  fieldLabel = 'Adresse e-mail',
-  cta = 'S inscrire',
+  fieldLabel = 'Email address',
+  cta = 'Subscribe',
   messages,
   note,
   label,
   ...rest
 }: NewsletterProps): ReactElement {
   const { reduced } = useMotionState()
-  const { ref, vu } = useInView<HTMLElement>({ amount: 0.2 })
+  const { ref, inView } = useInView<HTMLElement>({ amount: 0.2 })
   const base = useId().replace(/[^a-zA-Z0-9]/g, '')
-  const [etat, setEtat] = useState<NewsletterStatus>('repos')
-  const [annonce, setAnnonce] = useState('')
-  const champ = useRef<HTMLInputElement | null>(null)
+  const [state, setState] = useState<NewsletterStatus>('idle')
+  const [announcement, setAnnouncement] = useState('')
+  const field = useRef<HTMLInputElement | null>(null)
 
-  // Chaque envoi porte un numero : une reponse en retard ne peut pas ecraser
-  // le resultat d'un envoi plus recent.
-  const envoi = useRef(0)
-  const monte = useRef(true)
+  // Each submission carries a number: a late response cannot overwrite the
+  // result of a more recent submission.
+  const submission = useRef(0)
+  const mounted = useRef(true)
 
   ensureNewsletterRules()
 
   useEffect(() => {
-    monte.current = true
+    mounted.current = true
     return () => {
-      monte.current = false
+      mounted.current = false
     }
   }, [])
 
-  const phrases = { ...PAR_DEFAUT, ...messages }
+  const phrases = { ...DEFAULTS, ...messages }
 
-  const soumettre = (event: FormEvent<HTMLFormElement>): void => {
-    // Retenu pour montrer le message a sa place : la bulle native disparait au
-    // premier clic et ne laisse rien derriere elle.
+  const submit = (event: FormEvent<HTMLFormElement>): void => {
+    // Held back to show the message in its place: the native bubble vanishes on
+    // the first click and leaves nothing behind it.
     event.preventDefault()
-    const element = champ.current
+    const element = field.current
     if (element === null) return
 
     if (!element.validity.valid) {
-      setEtat('erreur')
-      setAnnonce(phrases.invalide)
+      setState('error')
+      setAnnouncement(phrases.invalid)
       element.focus()
       return
     }
 
-    const adresse = element.value.trim()
-    const numero = envoi.current + 1
-    envoi.current = numero
+    const address = element.value.trim()
+    const number = submission.current + 1
+    submission.current = number
 
-    setEtat('envoi')
-    setAnnonce(phrases.envoi)
+    setState('sending')
+    setAnnouncement(phrases.sending)
 
-    void Promise.resolve(onSubmit?.(adresse)).then(
+    void Promise.resolve(onSubmit?.(address)).then(
       () => {
-        if (!monte.current || envoi.current !== numero) return
-        setEtat('succes')
-        setAnnonce(phrases.succes)
+        if (!mounted.current || submission.current !== number) return
+        setState('success')
+        setAnnouncement(phrases.success)
         element.value = ''
       },
-      (raison: unknown) => {
-        if (!monte.current || envoi.current !== numero) return
-        setEtat('erreur')
-        setAnnonce(
-          raison instanceof Error && raison.message !== ''
-            ? raison.message
-            : phrases.erreur,
+      (reason: unknown) => {
+        if (!mounted.current || submission.current !== number) return
+        setState('error')
+        setAnnouncement(
+          reason instanceof Error && reason.message !== ''
+            ? reason.message
+            : phrases.error,
         )
       },
     )
   }
 
-  const teinte =
-    etat === 'succes'
+  const hue =
+    state === 'success'
       ? 'color-mix(in oklab, var(--o-palette-emerald-600) 70%, var(--o-theme-fg))'
       : 'color-mix(in oklab, var(--o-palette-rose-600) 70%, var(--o-theme-fg))'
 
@@ -236,8 +237,8 @@ export function Newsletter({
       style={
         {
           ...style,
-          opacity: reduced || vu ? 1 : 0,
-          transform: reduced || vu ? 'none' : 'translateY(12px)',
+          opacity: reduced || inView ? 1 : 0,
+          transform: reduced || inView ? 'none' : 'translateY(12px)',
           transition:
             'opacity var(--o-duration-slower) var(--o-ease-entrance), transform var(--o-duration-slower) var(--o-ease-entrance)',
         } as CSSProperties
@@ -262,11 +263,11 @@ export function Newsletter({
       )}
 
       {/*
-        `noValidate` ne desactive que la bulle native, jamais le calcul : le
-        champ garde son `validity`, que le composant lit pour afficher le
-        message a un endroit qui ne disparait pas au premier clic.
+        `noValidate` only disables the native bubble, never the computation: the
+        field keeps its `validity`, which the component reads to show the
+        message somewhere that does not vanish on the first click.
       */}
-      <form onSubmit={soumettre} noValidate data-o-news-ligne="">
+      <form onSubmit={submit} noValidate data-o-news-ligne="">
         <div data-o-news-champ="">
           <label
             htmlFor={`${base}-email`}
@@ -276,22 +277,22 @@ export function Newsletter({
             {fieldLabel}
           </label>
           <input
-            ref={champ}
+            ref={field}
             id={`${base}-email`}
             name="email"
             type="email"
             required
             autoComplete="email"
             inputMode="email"
-            placeholder="prenom@exemple.fr"
-            disabled={etat === 'envoi'}
-            aria-invalid={etat === 'erreur'}
+            placeholder="name@example.com"
+            disabled={state === 'sending'}
+            aria-invalid={state === 'error'}
             aria-describedby={`${base}-annonce`}
             className="o-w-full o-rounded-lg o-px-3 o-py-2 o-text-sm focus:o-ring"
             style={{
               backgroundColor: 'var(--o-theme-surface)',
               border: `1px solid ${
-                etat === 'erreur' ? 'var(--o-palette-rose-600)' : 'var(--o-theme-line)'
+                state === 'error' ? 'var(--o-palette-rose-600)' : 'var(--o-theme-line)'
               }`,
               color: 'var(--o-theme-fg)',
             }}
@@ -300,35 +301,35 @@ export function Newsletter({
 
         <button
           type="submit"
-          // Le seul role de l'etat d'envoi : empecher le second clic, et donc
-          // la seconde inscription.
-          disabled={etat === 'envoi'}
+          // The only role of the sending state: prevent the second click, and
+          // therefore the second sign-up.
+          disabled={state === 'sending'}
           className="o-inline-flex o-items-center o-gap-2 o-self-end o-rounded-lg o-px-5 o-py-2 o-text-sm o-font-medium focus:o-ring"
           style={{
             backgroundColor: 'var(--o-palette-brand-600)',
             color: 'var(--o-palette-white)',
             border: '1px solid transparent',
-            cursor: etat === 'envoi' ? 'progress' : 'pointer',
-            opacity: etat === 'envoi' ? 0.75 : 1,
+            cursor: state === 'sending' ? 'progress' : 'pointer',
+            opacity: state === 'sending' ? 0.75 : 1,
           }}
         >
-          {etat === 'envoi' && <span aria-hidden data-o-news-rouet="" />}
+          {state === 'sending' && <span aria-hidden data-o-news-rouet="" />}
           {cta}
         </button>
       </form>
 
       {/*
-        Toujours presente, vide au repos : une region inseree en meme temps que
-        son message ne serait pas annoncee.
+        Always present, empty when idle: a region inserted at the same time as
+        its message would not be announced.
       */}
       <p
         id={`${base}-annonce`}
         role="status"
         data-o-news-annonce=""
         className="o-text-xs"
-        style={{ color: etat === 'repos' ? 'var(--o-theme-muted)' : teinte }}
+        style={{ color: state === 'idle' ? 'var(--o-theme-muted)' : hue }}
       >
-        {annonce}
+        {announcement}
       </p>
 
       {note !== undefined && (

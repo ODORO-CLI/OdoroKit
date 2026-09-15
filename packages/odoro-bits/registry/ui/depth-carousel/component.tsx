@@ -1,41 +1,41 @@
 /**
- * Carrousel en profondeur : une pile d'affiches rangees en Z, celle de devant
- * de face, les autres reculant de trois quarts.
+ * Depth carousel: a stack of posters filed along Z, the front one facing us,
+ * the others receding at three quarters.
  *
- * ## La position vient du rang, pas d'une mesure
+ * ## The position comes from the rank, not from a measurement
  *
- * Chaque affiche connait son ecart au cran courant — moins deux, moins un,
- * zero, un, deux — et en deduit son decalage lateral, son recul et son angle.
- * Il n'y a rien a mesurer : ni la largeur du cadre, ni la place prise par les
- * voisines. Changer de cran renumerote les ecarts, et la transition du
- * compositeur fait le trajet. Un seul rendu React par cran.
+ * Every poster knows its offset to the current step — minus two, minus one,
+ * zero, one, two — and derives from it its lateral shift, its setback and its
+ * angle. There is nothing to measure: neither the width of the frame, nor the
+ * room taken by the neighbours. Changing step renumbers the offsets, and the
+ * compositor transition makes the trip. A single React render per step.
  *
- * ## Le glisser n'ecrit qu'une transformation
+ * ## The drag writes only one transform
  *
- * Pendant le geste, c'est le plateau entier qui suit le doigt — une
- * transformation, une seule, ecrite directement sur l'element. Deplacer
- * chaque affiche pendant le glisser reviendrait a en ecrire autant qu'il y en
- * a, pour un mouvement que l'oeil lit comme un bloc. Au lacher, si le geste a
- * franchi le seuil, le cran change et le plateau reprend sa place.
+ * During the gesture, it is the whole deck that follows the finger — one
+ * transform, a single one, written straight on the element. Moving every
+ * poster during the drag would mean writing as many as there are, for a motion
+ * the eye reads as one block. On release, if the gesture has crossed the
+ * threshold, the step changes and the deck goes back in place.
  *
- * ## Ce n'est ni le carrousel, ni la galerie circulaire
+ * ## This is neither the carousel nor the circular gallery
  *
- * Le carrousel est un rail plat qui defile. La galerie circulaire est un
- * ruban continu que l'on pousse, sans cran ni bouton. Ici il y a une affiche
- * de devant, une seule, et deux boutons pour en changer : c'est un objet a
- * feuilleter, pas un ruban a parcourir.
+ * The carousel is a flat rail that scrolls past. The circular gallery is a
+ * continuous ribbon one pushes, with no step and no button. Here there is a
+ * front poster, a single one, and two buttons to change it: this is an object
+ * to leaf through, not a ribbon to travel along.
  *
- * ## Ce que voit un lecteur d'ecran
+ * ## What a screen reader sees
  *
- * Les affiches restent toutes dans le document — un lecteur d'ecran doit
- * pouvoir parcourir la collection sans avoir a la faire tourner. Seule
- * l'affiche de devant porte `aria-current`, et les deux boutons disent ou ils
- * menent plutot que « precedent » et « suivant » dans le vide.
+ * The posters all stay in the document — a screen reader must be able to go
+ * through the collection without having to spin it. Only the front poster
+ * carries `aria-current`, and the two buttons say where they lead rather than
+ * "previous" and "next" into the void.
  *
- * ## Mouvement reduit
+ * ## Reduced motion
  *
- * Aucune transition : l'affiche choisie est en place, a son etat final. Les
- * boutons, les fleches et le glisser restent les memes.
+ * No transition: the chosen poster is in place, at its final state. The
+ * buttons, the arrow keys and the drag stay the same.
  *
  * @module
  */
@@ -50,50 +50,50 @@ import {
   type ReactElement,
 } from 'react'
 
-/** Une affiche du carrousel. */
+/** A poster of the carousel. */
 export interface DepthCarouselItem {
-  /** Source de l'image. */
+  /** Source of the image. */
   readonly src: string
-  /** Texte de remplacement, obligatoire : c'est le contenu, pas une decoration. */
+  /** Alternative text, mandatory: this is the content, not a decoration. */
   readonly alt: string
-  /** Legende affichee sous l'affiche de devant. */
+  /** Caption shown under the front poster. */
   readonly caption?: string
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface DepthCarouselOwnProps {
-  /** Les affiches, dans l'ordre. */
+  /** The posters, in order. */
   items: readonly DepthCarouselItem[]
-  /** Nom du carrousel, annonce aux technologies d'assistance. */
+  /** Name of the carousel, announced to assistive technologies. */
   label: string
-  /** Affiche de devant, en mode controle. */
+  /** Front poster, in controlled mode. */
   index?: number
-  /** Affiche de devant au montage, en mode non controle. @defaultValue 0 */
+  /** Front poster on mount, in uncontrolled mode. @defaultValue 0 */
   defaultIndex?: number
-  /** Appele quand l'affiche de devant change. */
+  /** Called when the front poster changes. */
   onIndexChange?: (index: number) => void
-  /** Largeur de l'affiche de devant, en pixels. @defaultValue 300 */
+  /** Width of the front poster, in pixels. @defaultValue 300 */
   width?: number
-  /** Decalage lateral par cran d'ecart, en pixels. @defaultValue 110 */
+  /** Lateral shift per step of offset, in pixels. @defaultValue 110 */
   spread?: number
-  /** Recul par cran d'ecart, en pixels. @defaultValue 140 */
+  /** Setback per step of offset, in pixels. @defaultValue 140 */
   depth?: number
-  /** Angle de trois quarts des affiches de cote, en degres. @defaultValue 32 */
+  /** Three quarter angle of the side posters, in degrees. @defaultValue 32 */
   tilt?: number
-  /** Affiches visibles de chaque cote. @defaultValue 3 */
+  /** Posters visible on each side. @defaultValue 3 */
   visible?: number
 }
 
-/** Toutes les proprietes. */
+/** All the properties. */
 export type DepthCarouselProps = Customisable<DepthCarouselOwnProps>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-depth-carousel'
 
-/** Distance de glisser, en pixels, a partir de laquelle le cran change. */
-const SEUIL = 60
+/** Drag distance, in pixels, beyond which the step changes. */
+const THRESHOLD = 60
 
-/** Pose le plateau, les affiches et les commandes, une fois par document. */
+/** Places the deck, the posters and the controls, once per document. */
 function ensureDepthRules(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -103,14 +103,14 @@ function ensureDepthRules(): void {
   style.textContent = [
     '[data-o-depth]{display:flex;flex-direction:column;align-items:center;gap:1rem}',
     '[data-o-depth-scene]{',
-    'position:relative;width:100%;min-height:var(--o-depth-hauteur);',
+    'position:relative;width:100%;min-height:var(--o-depth-height);',
     'perspective:1100px;touch-action:pan-y;cursor:grab;',
     '}',
     '[data-o-depth-scene][data-o-depth-tire]{cursor:grabbing}',
     '[data-o-depth-scene]:focus-visible{outline:2px solid var(--o-depth-accent);outline-offset:4px;border-radius:1rem}',
     '[data-o-depth-plateau]{position:absolute;inset:0;transform-style:preserve-3d}',
     '[data-o-depth-affiche]{',
-    'position:absolute;top:50%;left:50%;margin:0;width:var(--o-depth-largeur);',
+    'position:absolute;top:50%;left:50%;margin:0;width:var(--o-depth-width);',
     'transform-origin:50% 50%;backface-visibility:hidden;',
     'transition:transform var(--o-duration-slow) var(--o-ease-emphasized),',
     'opacity var(--o-duration-slow) linear;',
@@ -131,7 +131,7 @@ function ensureDepthRules(): void {
     '[data-o-depth-barre] button:is(:hover,:focus-visible){border-color:var(--o-depth-accent)}',
     '[data-o-depth-barre] button:focus-visible{outline:2px solid var(--o-depth-accent);outline-offset:2px}',
     '[data-o-depth-barre] button:disabled{opacity:0.35;cursor:default}',
-    '[data-o-depth-rang]{font-variant-numeric:tabular-nums;font-size:0.8125em;color:var(--o-theme-muted)}',
+    '[data-o-depth-row]{font-variant-numeric:tabular-nums;font-size:0.8125em;color:var(--o-theme-muted)}',
     '@media (prefers-reduced-motion:reduce){',
     '[data-o-depth-affiche]{transition:none}',
     '}',
@@ -140,20 +140,20 @@ function ensureDepthRules(): void {
 }
 
 /**
- * Pile d'affiches feuilletee au bouton, a la fleche ou au glisser.
+ * Stack of posters leafed through by button, by arrow key or by drag.
  *
  * @example
  * <DepthCarousel
- *   label="Affiches du festival"
+ *   label="Festival posters"
  *   items={[
- *     { src: '/affiches/1998.jpg', alt: 'Affiche de 1998, typographie bleue', caption: 'Edition 1998' },
- *     { src: '/affiches/2004.jpg', alt: 'Affiche de 2004, photographie de nuit', caption: 'Edition 2004' },
+ *     { src: '/posters/1998.jpg', alt: '1998 poster, blue typography', caption: '1998 edition' },
+ *     { src: '/posters/2004.jpg', alt: '2004 poster, night photograph', caption: '2004 edition' },
  *   ]}
  * />
  *
  * @example
- * // Une pile serree, presque de face.
- * <DepthCarousel label="Pochettes" items={pochettes} spread={40} tilt={12} visible={2} />
+ * // A tight stack, almost facing us.
+ * <DepthCarousel label="Sleeves" items={sleeves} spread={40} tilt={12} visible={2} />
  */
 export function DepthCarousel({
   items,
@@ -168,68 +168,68 @@ export function DepthCarousel({
   visible = 3,
   ...rest
 }: DepthCarouselProps): ReactElement {
-  const plateau = useRef<HTMLDivElement | null>(null)
-  const tirer = useRef<{ x: number; id: number } | null>(null)
-  const [interne, setInterne] = useState(defaultIndex)
+  const deck = useRef<HTMLDivElement | null>(null)
+  const drag = useRef<{ x: number; id: number } | null>(null)
+  const [internal, setInternal] = useState(defaultIndex)
   ensureDepthRules()
 
-  const dernier = Math.max(0, items.length - 1)
-  const courant = Math.min(dernier, Math.max(0, index ?? interne))
-  const devant = items[courant]
+  const last = Math.max(0, items.length - 1)
+  const current = Math.min(last, Math.max(0, index ?? internal))
+  const front = items[current]
 
-  const aller = (suivant: number): void => {
-    const borne = Math.min(dernier, Math.max(0, suivant))
-    if (borne === courant) return
-    if (index === undefined) setInterne(borne)
-    onIndexChange?.(borne)
+  const goTo = (next: number): void => {
+    const bounded = Math.min(last, Math.max(0, next))
+    if (bounded === current) return
+    if (index === undefined) setInternal(bounded)
+    onIndexChange?.(bounded)
   }
 
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>): void => {
-    const cibles: Readonly<Record<string, number | undefined>> = {
-      ArrowRight: courant + 1,
-      ArrowLeft: courant - 1,
+    const targets: Readonly<Record<string, number | undefined>> = {
+      ArrowRight: current + 1,
+      ArrowLeft: current - 1,
       Home: 0,
-      End: dernier,
+      End: last,
     }
-    const cible = cibles[event.key]
-    if (cible === undefined) return
+    const target = targets[event.key]
+    if (target === undefined) return
     event.preventDefault()
-    aller(cible)
+    goTo(target)
   }
 
-  /** Ecrit le decalage du plateau sans passer par l'etat. */
-  const glisser = (dx: number): void => {
-    const cible = plateau.current
-    if (cible === null) return
-    cible.style.transform = dx === 0 ? '' : `translateX(${dx.toFixed(1)}px)`
+  /** Writes the shift of the deck without going through the state. */
+  const slide = (dx: number): void => {
+    const target = deck.current
+    if (target === null) return
+    target.style.transform = dx === 0 ? '' : `translateX(${dx.toFixed(1)}px)`
   }
 
   const onPointerDown = (event: ReactPointerEvent<HTMLDivElement>): void => {
     if (event.button !== 0 && event.pointerType === 'mouse') return
-    tirer.current = { x: event.clientX, id: event.pointerId }
+    drag.current = { x: event.clientX, id: event.pointerId }
     event.currentTarget.setPointerCapture(event.pointerId)
     event.currentTarget.setAttribute('data-o-depth-tire', '')
   }
 
   const onPointerMove = (event: ReactPointerEvent<HTMLDivElement>): void => {
-    const depart = tirer.current
-    if (depart === null || depart.id !== event.pointerId) return
-    // La resistance du tiers rappelle que le plateau ne suit pas indefiniment :
-    // le geste sert a franchir un seuil, pas a faire defiler.
-    glisser((event.clientX - depart.x) / 3)
+    const start = drag.current
+    if (start === null || start.id !== event.pointerId) return
+    // The one third resistance is a reminder that the deck does not follow
+    // forever: the gesture is there to cross a threshold, not to scroll.
+    slide((event.clientX - start.x) / 3)
   }
 
   const onPointerUp = (event: ReactPointerEvent<HTMLDivElement>): void => {
-    const depart = tirer.current
-    tirer.current = null
+    const start = drag.current
+    drag.current = null
     event.currentTarget.removeAttribute('data-o-depth-tire')
     if (event.currentTarget.hasPointerCapture(event.pointerId)) {
       event.currentTarget.releasePointerCapture(event.pointerId)
     }
-    glisser(0)
-    if (depart === null) return
-    const dx = event.clientX - depart.x
-    if (Math.abs(dx) >= SEUIL) aller(courant + (dx < 0 ? 1 : -1))
+    slide(0)
+    if (start === null) return
+    const dx = event.clientX - start.x
+    if (Math.abs(dx) >= THRESHOLD) goTo(current + (dx < 0 ? 1 : -1))
   }
 
   const { className, style } = mergePresentation({}, rest)
@@ -242,8 +242,8 @@ export function DepthCarousel({
       style={
         {
           '--o-depth-accent': 'var(--o-palette-brand-500)',
-          '--o-depth-largeur': `${String(width)}px`,
-          '--o-depth-hauteur': `${String(Math.round((width * 4) / 3))}px`,
+          '--o-depth-width': `${String(width)}px`,
+          '--o-depth-height': `${String(Math.round((width * 4) / 3))}px`,
           ...style,
         } as CSSProperties
       }
@@ -251,7 +251,7 @@ export function DepthCarousel({
       <div
         data-o-depth-scene=""
         role="group"
-        aria-roledescription="carrousel"
+        aria-roledescription="carousel"
         aria-label={label}
         tabIndex={0}
         onKeyDown={onKeyDown}
@@ -260,30 +260,30 @@ export function DepthCarousel({
         onPointerUp={onPointerUp}
         onPointerCancel={onPointerUp}
       >
-        <div ref={plateau} data-o-depth-plateau="">
-          {items.map((item, rang) => {
-            const ecart = rang - courant
-            const loin = Math.abs(ecart)
-            const cote = Math.sign(ecart)
+        <div ref={deck} data-o-depth-plateau="">
+          {items.map((item, rank) => {
+            const offset = rank - current
+            const distance = Math.abs(offset)
+            const side = Math.sign(offset)
 
             return (
               <figure
                 key={item.src}
                 data-o-depth-affiche=""
-                aria-current={ecart === 0 ? 'true' : undefined}
+                aria-current={offset === 0 ? 'true' : undefined}
                 style={{
                   transform: [
                     `translate(-50%,-50%)`,
-                    `translateX(${String(ecart * spread)}px)`,
-                    `translateZ(${String(-loin * depth)}px)`,
-                    `rotateY(${String(-cote * tilt)}deg)`,
+                    `translateX(${String(offset * spread)}px)`,
+                    `translateZ(${String(-distance * depth)}px)`,
+                    `rotateY(${String(-side * tilt)}deg)`,
                   ].join(' '),
-                  opacity: Math.max(0, 1 - loin * 0.22),
-                  zIndex: items.length - loin,
-                  // Au-dela des affiches visibles, plus rien n'est peint : ni
-                  // pixel, ni cible de pointeur. Le contenu reste dans le
-                  // document pour les lecteurs d'ecran.
-                  visibility: loin > visible ? 'hidden' : undefined,
+                  opacity: Math.max(0, 1 - distance * 0.22),
+                  zIndex: items.length - distance,
+                  // Beyond the visible posters, nothing is painted any more:
+                  // no pixel, no pointer target. The content stays in the
+                  // document for screen readers.
+                  visibility: distance > visible ? 'hidden' : undefined,
                 }}
               >
                 <img src={item.src} alt={item.alt} loading="lazy" decoding="async" />
@@ -293,28 +293,28 @@ export function DepthCarousel({
         </div>
       </div>
 
-      <p data-o-depth-legende="">{devant?.caption ?? ''}</p>
+      <p data-o-depth-legende="">{front?.caption ?? ''}</p>
 
       <div data-o-depth-barre="">
         <button
           type="button"
-          aria-label="Affiche precedente"
-          disabled={courant === 0}
+          aria-label="Previous poster"
+          disabled={current === 0}
           onClick={() => {
-            aller(courant - 1)
+            goTo(current - 1)
           }}
         >
           <span aria-hidden="true">&#8249;</span>
         </button>
-        <span data-o-depth-rang="">
-          {courant + 1} / {items.length}
+        <span data-o-depth-row="">
+          {current + 1} / {items.length}
         </span>
         <button
           type="button"
-          aria-label="Affiche suivante"
-          disabled={courant >= dernier}
+          aria-label="Next poster"
+          disabled={current >= last}
           onClick={() => {
-            aller(courant + 1)
+            goTo(current + 1)
           }}
         >
           <span aria-hidden="true">&#8250;</span>

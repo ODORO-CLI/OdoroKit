@@ -1,72 +1,104 @@
 /**
- * Le routeur du projet.
+ * The router of the project.
  *
- * ## Pourquoi il vit seul, dans son fichier
+ * ## Why it lives alone, in its own file
  *
- * C'est le seul endroit qui nomme la dependance de routage. Changer de routeur,
- * ajouter une route, en proteger une derriere une authentification : tout se
- * lit ici, et `App.tsx` n'a rien a en savoir au-dela de la ligne qui l'importe.
+ * This is the only place that names the routing dependency. Switching routers,
+ * adding a route, putting one behind authentication: it all reads here, and
+ * `App.tsx` needs to know nothing beyond the line that imports it.
  *
- * ## Pourquoi les pages sont passees, et non importees
+ * ## Why the pages are passed in, and not imported
  *
- * Ce fichier pourrait importer les pages depuis `App.tsx`. Les deux modules
- * s'importeraient alors l'un l'autre : cela fonctionne, mais l'ordre
- * d'evaluation devient une question a laquelle personne ne veut repondre le
- * jour ou quelque chose s'execute au chargement du module.
+ * This file could import the pages from `App.tsx`. The two modules would then
+ * import each other: that works, but evaluation order becomes a question
+ * nobody wants to answer the day something runs at module load.
  *
- * Les pages arrivent donc en proprietes. La dependance ne va que dans un sens —
- * `App.tsx` connait le routeur, le routeur ne connait que React — et la table
- * des routes reste lisible d'un coup d'oeil.
+ * So the pages arrive as properties. The dependency only goes one way —
+ * `App.tsx` knows the router, the router only knows React — and the route
+ * table stays readable at a glance.
  *
  * @module
  */
 
-import { Outlet, Route, Router, Routes } from '@odoro-cli/libs/router'
+import {
+  Outlet,
+  Route,
+  // Aliased: the component exported below is the one the application sees, and
+  // it takes the name `Router`.
+  Router as RouterProvider,
+  Routes,
+  createMemoryHistory,
+} from '@odoro-cli/libs/router'
 import type { ReactElement, ReactNode } from 'react'
 
 export { Link, useLocation } from '@odoro-cli/libs/router'
 
-/** Les pages que le routeur place. */
-export interface RouteurProps {
-  /** L'enveloppe commune : navigation, contenu, pied de page. */
-  readonly enveloppe: (contenu: ReactNode) => ReactElement
-  /** La page d'accueil. */
-  readonly accueil: ReactElement
-  /** La page « A propos ». */
-  readonly apropos: ReactElement
-  /** Ce qui s'affiche quand aucune route ne correspond. */
-  readonly introuvable: ReactElement
+/** The pages the router places. */
+export interface RouterProps {
+  /** The common shell: navigation, content, footer. */
+  readonly shell: (content: ReactNode) => ReactElement
+  /** The home page. */
+  readonly home: ReactElement
+  /** The "About" page. */
+  readonly about: ReactElement
+  /** The sign-in form. */
+  readonly signIn: ReactElement
+  /** The registration form. */
+  readonly register: ReactElement
+  /** The profile of the signed-in account. */
+  readonly profile: ReactElement
+  /** What shows when no route matches. */
+  readonly notFound: ReactElement
+  /**
+   * The address to render, when there is no address bar.
+   *
+   * That is the case while prerendering: the page is made on the build
+   * machine, where `window` does not exist and nothing says which route is
+   * being asked for. The in-memory history takes over then.
+   *
+   * In the browser it stays absent and the router reads the real address.
+   */
+  readonly url?: string
 }
 
 /**
- * La table des routes.
+ * The route table.
  *
  * @example
- * <Routeur
- *   enveloppe={(contenu) => <Coquille>{contenu}</Coquille>}
- *   accueil={<Accueil />}
- *   apropos={<APropos />}
- *   introuvable={<Introuvable />}
+ * <Router
+ *   shell={(content) => <Shell>{content}</Shell>}
+ *   home={<Home />}
+ *   about={<About />}
+ *   notFound={<NotFound />}
  * />
  */
-export function Routeur({
-  enveloppe,
-  accueil,
-  apropos,
-  introuvable,
-}: RouteurProps): ReactElement {
+export function Router({
+  shell,
+  home,
+  about,
+  signIn,
+  register,
+  profile,
+  notFound,
+  url,
+}: RouterProps): ReactElement {
   return (
-    <Router>
+    <RouterProvider
+      history={url === undefined ? undefined : createMemoryHistory([url])}
+    >
       <Routes>
-        {/* `Outlet` marque l'endroit ou la page courante se rend : c'est ce
-            qui permet a la navigation et au pied de page de ne pas etre
-            remontes a chaque changement de route. */}
-        <Route path="/" element={enveloppe(<Outlet />)}>
-          <Route index element={accueil} />
-          <Route path="a-propos" element={apropos} />
-          <Route path="*" element={introuvable} />
+        {/* `Outlet` marks the place where the current page renders: that is
+            what keeps the navigation and the footer from being remounted on
+            every route change. */}
+        <Route path="/" element={shell(<Outlet />)}>
+          <Route index element={home} />
+          <Route path="about" element={about} />
+          <Route path="sign-in" element={signIn} />
+          <Route path="register" element={register} />
+          <Route path="profile" element={profile} />
+          <Route path="*" element={notFound} />
         </Route>
       </Routes>
-    </Router>
+    </RouterProvider>
   )
 }

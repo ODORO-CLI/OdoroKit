@@ -1,22 +1,22 @@
 /**
- * Pluie : des trainees verticales, une vitesse par colonne.
+ * Rain: vertical trails, one speed per column.
  *
- * ## Le principe
+ * ## The principle
  *
- * L espace est decoupe en colonnes qui defilent independamment. Une goutte n est pas un objet : c est une attenuation fonction de la distance a la tete.
+ * Space is cut into columns that scroll independently. A drop is not an object: it is an attenuation as a function of the distance to its head.
  *
- * La coordonnee est repliee sur la colonne entiere : une goutte sortie par le bas rentre par le haut sans qu on ait a la creer.
+ * The coordinate is folded onto the whole column: a drop that leaves through the bottom comes back in at the top without anyone having to create it.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur — les recopier ici en ferait autant
- * de versions a maintenir qu'il y a de fonds.
+ * It carries only what sets it apart: its shader, its settings and its fallback.
+ * Reading the tokens, converting them to floats and re-reading them when the
+ * theme changes all come from the engine — copying that here would leave as many
+ * versions to maintain as there are backgrounds.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en
- * accorde qu'une par backend — et sous mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface — it grants only one per
+ * backend — and under reduced motion.
  *
  * @module
  */
@@ -32,42 +32,42 @@ import {
 } from '@odoro-cli/engine'
 import { type ReactElement } from 'react'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface RainControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to this component. */
 export interface RainOwnProps {
-  /** Vitesse de chute. @defaultValue 0.6 */
+  /** Falling speed. @defaultValue 0.6 */
   speed?: number
-  /** Nombre de colonnes. @defaultValue 60 */
+  /** Number of columns. @defaultValue 60 */
   columns?: number
-  /** Longueur des trainees. @defaultValue 0.35 */
+  /** Length of the trails. @defaultValue 0.35 */
   length?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<RainControls>
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type RainProps = Customisable<RainOwnProps>
 
-/** Tokens employes par defaut. */
+/** Tokens used by default. */
 const DEFAULT_TOKENS = ['--o-theme-bg', '--o-palette-sky-300'] as const
 
-/** Repli par defaut : une teinte figee, dans les memes tons. */
+/** Default fallback: a frozen tint, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-b o-from-zinc-50 dark:o-from-zinc-950 o-to-zinc-50 dark:o-to-sky-950'
 
 /**
- * Pluie.
+ * Rain.
  *
  * @example
  * <div className="o-relative o-min-h-screen">

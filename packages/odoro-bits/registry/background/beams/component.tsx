@@ -1,19 +1,19 @@
 /**
- * Faisceaux : des rais de lumiere obliques.
+ * Beams: oblique shafts of light.
  *
- * ## Ce que ce composant apporte, et ce qu'il delegue
+ * ## What this component brings, and what it delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur — les recopier ici en ferait autant
- * de versions a maintenir qu'il y a de fonds.
+ * It carries only what sets it apart: its shader, its settings and its
+ * fallback. Reading the tokens, turning them into floats and reading them
+ * again when the theme changes all come from the engine — copying them out
+ * here would make as many versions to maintain as there are backgrounds.
  *
- * ## Le repli n'est pas une precaution
+ * ## The fallback is not a precaution
  *
- * C'est la moitie du composant. Il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en
- * accorde qu'une par backend — et sous mouvement reduit, ou un fond anime
- * n'apporte rien d'autre que son mouvement.
+ * It is half of the component. It is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface — it grants only
+ * one per backend — and under reduced motion, where an animated background
+ * brings nothing beyond its movement.
  *
  * @module
  */
@@ -29,46 +29,46 @@ import {
 } from '@odoro-cli/engine'
 import { type ReactElement } from 'react'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface BeamsControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Props belonging to the component itself. */
 export interface BeamsOwnProps {
-  /** Vitesse de derive. @defaultValue 0.35 */
+  /** Drift speed. @defaultValue 0.35 */
   speed?: number
-  /** Nombre de rais. @defaultValue 9 */
+  /** Number of shafts. @defaultValue 9 */
   count?: number
-  /** Inclinaison, en radians. @defaultValue 0.35 */
+  /** Tilt, in radians. @defaultValue 0.35 */
   angle?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Classes of the fallback. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<BeamsControls>
 }
 
-/** Toutes les proprietes. */
+/** All the props. */
 export type BeamsProps = Customisable<BeamsOwnProps>
 
-/** Tokens employes par defaut. */
+/** Tokens used by default. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-brand-500',
   '--o-palette-fuchsia-500',
 ] as const
 
-/** Repli par defaut : un degrade fige, dans les memes tons. */
+/** Default fallback: a frozen gradient, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-b o-from-brand-900 o-to-zinc-50 dark:o-to-zinc-950'
 
 /**
- * Faisceaux : des rais de lumiere obliques.
+ * Beams: oblique shafts of light.
  *
  * @example
  * <div className="o-relative o-min-h-screen">
@@ -89,7 +89,7 @@ export function Beams({
     fragment: BEAMS_FRAGMENT,
     colors,
     uniforms: { uSpeed: speed, uScale: count, uAngle: angle },
-    name: 'faisceaux',
+    name: 'beams',
   })
 
   useOnReady(onReady, ready ? { colours, refused } : null, ref.current)

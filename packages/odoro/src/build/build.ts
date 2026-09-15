@@ -1,9 +1,8 @@
 /**
- * Compilation de production.
+ * Production build.
  *
- * Le document HTML est le point de depart : ses balises de script en modules
- * designent les entrees, et il est reecrit a la fin pour pointer vers les
- * fichiers empreintes.
+ * The HTML document is the starting point: its module script tags designate the
+ * entries, and it is rewritten at the end to point at the hashed files.
  *
  * @module
  */
@@ -11,71 +10,71 @@
 import { existsSync } from 'node:fs'
 import { cp, mkdir, readFile, rm, stat, writeFile } from 'node:fs/promises'
 import { basename, join, relative, resolve, sep } from 'node:path'
+import { gzipSync } from 'node:zlib'
 
 import { type BuildResult, build as esbuild } from 'esbuild'
 
 import type { ResolvedConfig } from '../config.js'
 import * as log from '../shared/logger.js'
-import { applyAlias, isBareSpecifier } from '../dev/transform.js'
+import { esbuildPluginsFrom, transformHtmlWith } from '../plugins.js'
+import { sourcePlugin } from '../shared/source.js'
 import { extractEntries } from '../dev/server.js'
-import { elaguer, motsDe } from './elaguer.js'
-import { fournisseurDe } from './fournisseur-css.js'
+import { prune, wordsIn } from './prune.js'
+import { cssProviderFor } from './css-provider.js'
+import { aliasPlugin } from './alias-plugin.js'
+import { assetUrls, buildManifest, chunksFor } from './manifest.js'
+import { prerender } from './prerender.js'
+import { assetsPlugin } from './assets.js'
 
-/** Normalise un chemin en separateurs d'URL. */
+/** Normalises a path to URL separators. */
 function toPosix(path: string): string {
   return path.split(sep).join('/')
 }
 
-/** Un fichier produit par la compilation. */
+/** A file produced by the build. */
 export interface BuiltFile {
-  /** Chemin relatif au dossier de sortie. */
+  /** Path relative to the output directory. */
   readonly path: string
-  /** Taille en octets. */
+  /** Size in bytes. */
   readonly bytes: number
+  /**
+   * Size once compressed, for text files.
+   *
+   * That is the one that counts: no server ships uncompressed JavaScript.
+   * Announcing the raw bytes makes every bundle look three times heavier than
+   * it arrives, and makes any trade-off on weight wrong.
+   */
+  readonly gzip?: number
 }
 
-/** Resultat d'une compilation de production. */
+/** Result of a production build. */
 export interface BuildOutput {
-  /** Dossier de sortie. */
+  /** Output directory. */
   readonly outDir: string
-  /** Fichiers produits, du plus gros au plus petit. */
+  /** Files produced, from largest to smallest. */
   readonly files: readonly BuiltFile[]
-  /** Duree totale, en millisecondes. */
+  /** Total duration, in milliseconds. */
   readonly elapsed: number
 }
 
-/** Construit les valeurs exposees au client via `import.meta.env`. */
-function buildEnv(config: ResolvedConfig): Record<string, string | boolean> {
-  const env: Record<string, string | boolean> = {
-    MODE: 'production',
-    DEV: false,
-    PROD: true,
-    BASE_URL: config.base,
-  }
-
-  for (const [key, value] of Object.entries(process.env)) {
-    if (key.startsWith(config.envPrefix) && value !== undefined) env[key] = value
-  }
-
-  return env
-}
+/** The extensions whose compressed size is announced. */
+const COMPRESSIBLE = ['.js', '.mjs', '.css', '.html', '.json', '.svg', '.txt', '.md']
 
 /**
- * Retrouve, dans le rapport de compilation, les fichiers produits pour une
- * entree donnee.
+ * Finds, in the build report, the files produced for a given entry.
  *
- * Le rattachement de la feuille de style passe par le champ `cssBundle` du
- * rapport, et non par une correspondance de noms : les empreintes du script et
- * de la feuille sont calculees separement et ne coincident pas.
+ * The stylesheet is attached through the `cssBundle` field of the report, and
+ * not through a name match: the hashes of the script and of the stylesheet are
+ * computed separately and do not coincide.
  */
 function outputsForEntry(
   result: BuildResult<{ metafile: true }>,
   entry: string,
   outDir: string,
   root: string,
-): { script: string | undefined; styles: string[] } {
-  // Les chemins du rapport sont relatifs au dossier de travail du
-  // compilateur — la racine du projet — et non au dossier courant.
+): { script: string | undefined; key: string | undefined; styles: string[] } {
+  // The paths of the report are relative to the working directory of the
+  // bundler — the project root — and not to the current directory.
   const toRelative = (file: string): string =>
     toPosix(relative(outDir, resolve(root, file)))
 
@@ -86,104 +85,106 @@ function outputsForEntry(
 
     return {
       script: toRelative(file),
+      // The key of the report, as it is: it is what the chunks are followed by,
+      // and converting it would make it impossible to find.
+      key: file,
       styles: meta.cssBundle === undefined ? [] : [toRelative(meta.cssBundle)],
     }
   }
 
-  return { script: undefined, styles: [] }
+  return { script: undefined, key: undefined, styles: [] }
 }
 
 /**
- * Taille la feuille de style aux besoins reels de l'application.
+ * Trims the stylesheet to the real needs of the application.
  *
- * ## Deux chemins, et pourquoi le premier est meilleur
+ * ## Two paths, and why the first is better
  *
- * **Generer**, quand le projet fournit un generateur : on produit exactement
- * les regles employees. Rien d'inutile n'est jamais cree.
+ * **Generating**, when the project provides a generator: exactly the rules in
+ * use are produced. Nothing useless is ever created.
  *
- * **Elaguer**, sinon : on part de la feuille livree et on en retire ce que rien
- * n'atteint. C'est la bonne reponse tant que la feuille arrive pre-generee,
- * mais c'est un detour — produire tout pour en jeter la quasi-totalite.
+ * **Pruning**, otherwise: we start from the shipped stylesheet and remove what
+ * nothing reaches. That is the right answer as long as the stylesheet arrives
+ * pre-generated, but it is a detour — produce everything to throw away almost
+ * all of it.
  *
- * ## Ce qui n'est jamais touche, dans les deux cas
+ * ## What is never touched, in both cases
  *
- * Le CSS de l'application. Le paquet produit contient la feuille de la
- * bibliotheque **et** les styles ecrits par le projet ; les remplacer en bloc
- * les effacerait. La generation retire donc les seuls utilitaires prefixes,
- * puis ajoute ceux qui servent — les variables, le preflight et les classes
- * semantiques de l'application traversent intacts.
+ * The CSS of the application. The produced bundle holds the library stylesheet
+ * **and** the styles written by the project; replacing them wholesale would
+ * erase them. Generation therefore removes only the prefixed utilities, then
+ * adds back the ones in use — the variables, the reset and the semantic classes
+ * of the application pass through untouched.
  *
- * ## Pourquoi apres le regroupement
+ * ## Why after bundling
  *
- * Une classe utilitaire ne vient pas seulement de la source de l'application :
- * les composants de bibliotheque portent les leurs, dans leur JavaScript deja
- * compile. Lire la source seule retirerait tout ce dont ils ont besoin, et
- * l'interface arriverait sans style — sans qu'aucune erreur ne soit levee,
- * puisque du CSS absent ne casse rien, il ne peint rien.
+ * A utility class does not come only from the application source: the library
+ * components carry their own, in their already compiled JavaScript. Reading the
+ * source alone would remove everything they need, and the interface would
+ * arrive unstyled — without any error being raised, since missing CSS breaks
+ * nothing, it just paints nothing.
  */
-async function taillerFeuilles(
+async function trimStylesheets(
   result: BuildResult<{ metafile: true }>,
   config: ResolvedConfig,
   html: string,
 ): Promise<void> {
-  const produits = Object.keys(result.metafile.outputs).map((f) =>
-    resolve(config.root, f),
-  )
+  const outputs = Object.keys(result.metafile.outputs).map((f) => resolve(config.root, f))
 
-  const feuilles = produits.filter((f) => f.endsWith('.css'))
-  if (feuilles.length === 0) return
+  const stylesheets = outputs.filter((f) => f.endsWith('.css'))
+  if (stylesheets.length === 0) return
 
-  // Tout ce qui part, document compris : une classe peut n'exister que dans
-  // l'index.
+  // Everything that ships, document included: a class may exist only in the
+  // index.
   const sources = [html]
-  for (const fichier of produits) {
-    if (fichier.endsWith('.js')) sources.push(await readFile(fichier, 'utf8'))
+  for (const file of outputs) {
+    if (file.endsWith('.js')) sources.push(await readFile(file, 'utf8'))
   }
 
-  const fournisseur = await fournisseurDe(config.root)
+  const provider = await cssProviderFor(config.root)
 
-  const employes = new Set<string>()
-  if (fournisseur !== undefined) {
-    for (const source of sources) for (const mot of motsDe(source)) employes.add(mot)
-    for (const garde of config.build.safelist) {
-      if (typeof garde === 'string') employes.add(garde)
+  const used = new Set<string>()
+  if (provider !== undefined) {
+    for (const source of sources) for (const word of wordsIn(source)) used.add(word)
+    for (const kept of config.build.safelist) {
+      if (typeof kept === 'string') used.add(kept)
     }
   }
 
-  for (const feuille of feuilles) {
-    const avant = await readFile(feuille, 'utf8')
+  for (const stylesheet of stylesheets) {
+    const before = await readFile(stylesheet, 'utf8')
 
-    if (fournisseur === undefined) {
-      const rapport = elaguer(avant, sources, { sauvegarde: config.build.safelist })
-      await writeFile(feuille, rapport.css, 'utf8')
+    if (provider === undefined) {
+      const report = prune(before, sources, { safelist: config.build.safelist })
+      await writeFile(stylesheet, report.css, 'utf8')
 
       log.info(
-        `  ${log.colors.dim('elagage')} ${basename(feuille)}  ` +
-          `${log.size(rapport.octetsAvant)} → ${log.size(rapport.octetsApres)}  ` +
-          `${log.colors.dim(`${String(rapport.gardees)} classes gardees`)}`,
+        `  ${log.colors.dim('pruning')} ${basename(stylesheet)}  ` +
+          `${log.size(report.bytesBefore)} → ${log.size(report.bytesAfter)}  ` +
+          `${log.colors.dim(`${String(report.kept)} classes kept`)}`,
       )
       continue
     }
 
-    // Un elagage a ensemble vide retire **tous** les utilitaires prefixes et
-    // ne garde que le reste : base, preflight, et le CSS de l'application.
-    const socle = elaguer(avant, [], {}).css
-    const utilitaires = fournisseur.renderUtilitairesPour(employes)
-    const apres = `${socle}\n${utilitaires}`
+    // A pruning run with an empty set removes **every** prefixed utility and
+    // keeps only the rest: base, reset, and the CSS of the application.
+    const base = prune(before, [], {}).css
+    const utilities = provider.renderUtilitiesFor(used)
+    const after = `${base}\n${utilities}`
 
-    await writeFile(feuille, apres, 'utf8')
+    await writeFile(stylesheet, after, 'utf8')
 
     log.info(
-      `  ${log.colors.dim('generation')} ${basename(feuille)}  ` +
-        `${log.size(Buffer.byteLength(avant))} → ${log.size(Buffer.byteLength(apres))}`,
+      `  ${log.colors.dim('generating')} ${basename(stylesheet)}  ` +
+        `${log.size(Buffer.byteLength(before))} → ${log.size(Buffer.byteLength(after))}`,
     )
   }
 }
 
 /**
- * Compile un projet pour la production.
+ * Builds a project for production.
  *
- * @param config Configuration resolue du projet.
+ * @param config Resolved configuration of the project.
  *
  * @example
  * const output = await buildProject(await loadConfig(process.cwd()))
@@ -193,19 +194,23 @@ export async function buildProject(config: ResolvedConfig): Promise<BuildOutput>
 
   const indexFile = join(config.root, 'index.html')
   if (!existsSync(indexFile)) {
-    throw new Error(`[odoro] Aucun "index.html" a la racine du projet (${config.root}).`)
+    throw new Error(`[odoro] No "index.html" at the project root (${config.root}).`)
   }
 
   const html = await readFile(indexFile, 'utf8')
   const entries = extractEntries(html, config.root)
   if (entries.length === 0) {
     throw new Error(
-      '[odoro] Aucun point d\'entree : "index.html" doit contenir un <script type="module" src="...">.',
+      '[odoro] No entry point: "index.html" must hold a <script type="module" src="...">.',
     )
   }
 
   await rm(config.outDir, { recursive: true, force: true })
   await mkdir(config.outDir, { recursive: true })
+
+  // The files dropped by the side builds — those of the workers — do not appear
+  // in the report of the main build.
+  const sideOutputs = new Set<string>()
 
   const result = await esbuild({
     entryPoints: [...entries],
@@ -220,15 +225,15 @@ export async function buildProject(config: ResolvedConfig): Promise<BuildOutput>
     outdir: join(config.outDir, 'assets'),
     absWorkingDir: config.root,
     publicPath: `${config.base}assets`,
-    // Les empreintes rendent les fichiers immuables : ils peuvent etre mis en
-    // cache indefiniment, et un deploiement n'invalide que ce qui a change.
+    // The hashes make the files immutable: they can be cached indefinitely, and
+    // a deployment only invalidates what has changed.
     entryNames: '[name]-[hash]',
     chunkNames: 'chunk-[hash]',
     assetNames: '[name]-[hash]',
     jsx: 'automatic',
     logLevel: 'silent',
     define: {
-      'import.meta.env': JSON.stringify(buildEnv(config)),
+      'import.meta.env': JSON.stringify(config.envClient),
       'process.env.NODE_ENV': JSON.stringify('production'),
       ...config.define,
     },
@@ -247,45 +252,44 @@ export async function buildProject(config: ResolvedConfig): Promise<BuildOutput>
       '.webm': 'file',
     },
     plugins: [
-      {
-        name: 'odoro-alias',
-        setup(builder) {
-          builder.onResolve({ filter: /.*/ }, (args) => {
-            if (args.kind === 'entry-point') return null
-            const aliased = applyAlias(args.path, config)
-            if (aliased === args.path || isBareSpecifier(aliased)) return null
-            return builder.resolve(aliased, {
-              kind: 'import-statement',
-              resolveDir: args.resolveDir,
-              importer: args.importer,
-              pluginData: { aliased: true },
-            })
-          })
-        },
-      },
+      // The order is that of resolution: the suffixes first, because they
+      // change the target; the aliases next; the pass over the sources last, it
+      // resolves nothing.
+      assetsPlugin(config, { outputs: sideOutputs }),
+      aliasPlugin(config),
+      sourcePlugin({ root: config.root, plugins: config.plugins, dev: false }),
+      ...esbuildPluginsFrom(config.plugins),
     ],
   })
 
-  if (config.build.elaguer) await taillerFeuilles(result, config, html)
+  if (config.build.prune) await trimStylesheets(result, config, html)
 
-  // Reecriture du document : chaque balise pointe vers le fichier empreinte.
+  const assetsDir = join(config.outDir, 'assets')
+  const context = { root: config.root, assetsDir, entries }
+
+  // Rewriting the document: every tag points at the hashed file.
   let output = html
   for (const entry of entries) {
-    const { script, styles } = outputsForEntry(
-      result,
-      entry,
-      join(config.outDir, 'assets'),
-      config.root,
-    )
-    if (script === undefined) continue
+    const { script, key, styles } = outputsForEntry(result, entry, assetsDir, config.root)
+    if (script === undefined || key === undefined) continue
 
     const original = new RegExp(
       `<script[^>]*type=["']module["'][^>]*src=["'][^"']*${basename(entry)}["'][^>]*></script>`,
       'i',
     )
+
+    // The preload comes before the script: the browser reads the document top
+    // to bottom, and a declaration placed after the tag it serves advances
+    // nothing.
+    const chunks = config.build.preload ? chunksFor(result, key, context) : []
+
     const tags = [
       ...styles.map(
         (style) => `<link rel="stylesheet" href="${config.base}assets/${style}">`,
+      ),
+      ...chunks.map(
+        (chunk) =>
+          `<link rel="modulepreload" crossorigin href="${config.base}assets/${chunk}">`,
       ),
       `<script type="module" crossorigin src="${config.base}assets/${script}"></script>`,
     ].join('\n    ')
@@ -293,23 +297,61 @@ export async function buildProject(config: ResolvedConfig): Promise<BuildOutput>
     output = output.replace(original, tags)
   }
 
-  await writeFile(join(config.outDir, 'index.html'), output, 'utf8')
+  // The document serves twice: written as it is at the root, and filled once
+  // per route during the prerender. Plugins see it only once per page —
+  // applying them here **and** there placed the same tag twice.
+  await writeFile(
+    join(config.outDir, 'index.html'),
+    await transformHtmlWith(config.plugins, output, { dev: false, route: '/' }),
+    'utf8',
+  )
+
+  if (config.build.manifest) {
+    await writeFile(
+      join(config.outDir, 'manifest.json'),
+      `${JSON.stringify(buildManifest(result, context), undefined, 2)}\n`,
+      'utf8',
+    )
+  }
 
   if (existsSync(config.publicDir)) {
     await cp(config.publicDir, config.outDir, { recursive: true })
   }
 
-  // Les tailles se lisent sur le disque, et non dans le rapport du
-  // compilateur : celui-ci decrit ce qu esbuild a ecrit, avant que l elagage
-  // n y touche. Un recapitulatif qui annonce 1,7 Mo en livrant 65 Ko est pire
-  // qu absent — il fait croire que rien n a marche.
+  // The prerender comes last: it starts from the **already rewritten**
+  // document, the one the visitor will receive, and merely fills its container.
+  // Doing it earlier would produce pages pointing at files without a hash.
+  if (config.build.prerender !== undefined) {
+    await prerender(config, output, {
+      outputs: sideOutputs,
+      ssr: true,
+      urls: assetUrls(result, context, config.base),
+    })
+  }
+
+  // The sizes are read from disk, and not from the bundler report: that one
+  // describes what esbuild wrote, before pruning touched it. A summary
+  // announcing 1.7 MB while shipping 65 kB is worse than none — it makes you
+  // believe nothing worked.
+  const all = new Set<string>([
+    ...Object.keys(result.metafile.outputs).map((file) => resolve(config.root, file)),
+    ...sideOutputs,
+  ])
+
   const files: BuiltFile[] = (
     await Promise.all(
-      Object.keys(result.metafile.outputs).map(async (file) => {
-        const chemin = resolve(config.root, file)
+      [...all].map(async (path) => {
+        const relativePath = toPosix(relative(config.outDir, path))
+        const bytes = (await stat(path)).size
+
+        if (!COMPRESSIBLE.some((extension) => relativePath.endsWith(extension))) {
+          return { path: relativePath, bytes }
+        }
+
         return {
-          path: toPosix(relative(config.outDir, chemin)),
-          bytes: (await stat(chemin)).size,
+          path: relativePath,
+          bytes,
+          gzip: gzipSync(await readFile(path), { level: 9 }).byteLength,
         }
       }),
     )
@@ -318,18 +360,35 @@ export async function buildProject(config: ResolvedConfig): Promise<BuildOutput>
   return { outDir: config.outDir, files, elapsed: Date.now() - started }
 }
 
-/** Affiche le recapitulatif d'une compilation. */
+/** Prints the summary of a build. */
 export function reportBuild(output: BuildOutput, root: string): void {
   const directory = toPosix(relative(root, output.outDir)) || '.'
   let total = 0
+  let compressed = 0
 
   for (const file of output.files) {
-    total += file.bytes
+    // A source map is never requested by the page: only a development tool
+    // downloads it, and only when it is opened. Counting it in the total
+    // announced 1.7 MB for a site that ships 90 kB — a wrong figure, and wrong
+    // in the direction that makes you give up useful things.
     if (file.path.endsWith('.map')) continue
+
+    total += file.bytes
+    compressed += file.gzip ?? file.bytes
+
+    const weight =
+      file.gzip === undefined
+        ? log.size(file.bytes)
+        : `${log.size(file.bytes)} ${log.colors.dim('|')} ${log.size(file.gzip)} gzip`
+
     log.info(
-      `  ${log.colors.dim(`${directory}/`)}${file.path}  ${log.colors.dim(log.size(file.bytes))}`,
+      `  ${log.colors.dim(`${directory}/`)}${file.path}  ${log.colors.dim(weight)}`,
     )
   }
 
-  log.success(`compile en ${log.duration(output.elapsed)} — ${log.size(total)} au total`)
+  log.success(
+    `built in ${log.duration(output.elapsed)} — ${log.size(total)} shipped, ` +
+      `${log.size(compressed)} over the wire` +
+      log.colors.dim(' (source maps excluded)'),
+  )
 }

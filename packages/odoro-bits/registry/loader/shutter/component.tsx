@@ -1,43 +1,42 @@
 /**
- * Rideau en lamelles verticales qui partent alternativement en haut et en bas.
+ * Curtain of vertical blades leaving alternately upwards and downwards.
  *
- * ## L'alternance est tout le sujet
+ * ## The alternation is the whole point
  *
- * Des lamelles qui montent toutes ensemble donnent un rideau qui se leve —
- * `counter-gate` le fait deja, en un seul bloc et pour moins cher. Ce qui
- * justifie de decouper la plaque, c'est que les lamelles partent en **sens
- * contraire** : une sur deux vers le haut, l'autre vers le bas. La page
- * apparait alors par un peigne qui s'ecarte, et non par une frontiere qui
- * remonte.
+ * Blades all rising together give a curtain going up — `counter-gate` already
+ * does that, in a single block and for less. What justifies cutting the plate
+ * up is that the blades leave in **opposite directions**: every other one
+ * upwards, the rest downwards. The page then appears through a comb parting,
+ * and not through a boundary moving up.
  *
- * C'est aussi ce qui rend le geste lisible sur un cadre large : deux
- * directions opposees se voient meme quand chaque lamelle est etroite, la ou
- * une translation commune se lit comme un simple fondu vers le haut.
+ * It is also what makes the gesture legible on a wide frame: two opposite
+ * directions show even when each blade is narrow, where a shared translation
+ * reads as a plain fade upwards.
  *
- * ## Un decalage court, depuis le bord
+ * ## A short offset, from the edge
  *
- * Les lamelles ne partent pas ensemble. Le decalage est volontairement plus
- * court que celui des stores : ici il n'y a pas de vague a raconter, seulement
- * a eviter que douze lamelles se mettent en mouvement dans la meme image, ce
- * qui se lit comme un unique bloc mal decoupe.
+ * The blades do not leave together. The offset is deliberately shorter than
+ * that of the blinds: there is no wave to tell here, only a need to keep
+ * twelve blades from setting off within the same frame, which reads as a
+ * single badly cut block.
  *
- * ## Un pixel de recouvrement
+ * ## One pixel of overlap
  *
- * Chaque lamelle mesure un pixel de plus que sa part exacte. Sur une largeur
- * qui ne se divise pas en un compte entier de pixels, des raies de fond
- * apparaitraient entre elles avant meme le debut du geste.
+ * Each blade measures one pixel more than its exact share. On a width that
+ * does not divide into a whole count of pixels, lines of background would
+ * appear between them even before the gesture begins.
  *
- * ## La sortie part au DEBUT, pas apres
+ * ## The exit fires at the START, not after
  *
- * `onDone` est appele quand la premiere lamelle **commence** a partir. Le
- * contenu entre par le peigne pendant qu'il s'ouvre ; attendre la fin donnerait
- * deux gestes qui se suivent la ou l'on en voulait un seul.
+ * `onDone` is called when the first blade **begins** to leave. The content
+ * comes in through the comb while it opens; waiting for the end would give two
+ * gestures following one another where one was wanted.
  *
- * ## Contenu ou plein ecran
+ * ## Contained or full screen
  *
- * Par defaut le rideau est `fixed`, couvre la fenetre et verrouille le
- * defilement du document. Avec `contained`, il devient `absolute`, se resout
- * contre le premier ancetre positionne et ne touche plus au defilement.
+ * By default the curtain is `fixed`, covers the window and locks the scrolling
+ * of the document. With `contained`, it becomes `absolute`, resolves against
+ * the first positioned ancestor and no longer touches scrolling.
  *
  * @module
  */
@@ -52,47 +51,46 @@ import {
   type ReactNode,
 } from 'react'
 
-/** Proprietes propres au composant. */
+/** Props of the component itself. */
 export interface ShutterOwnProps {
-  /** Le fond des lamelles. @defaultValue le fond du theme */
+  /** The background of the blades. @defaultValue the theme background */
   background?: string
-  /** L'encre du libelle. @defaultValue l'encre du theme */
+  /** The ink of the label. @defaultValue the theme ink */
   ink?: string
-  /** Ce qui s'affiche au centre pendant l'attente : un nom, une marque. */
+  /** What is displayed at the centre during the wait: a name, a brand. */
   label?: ReactNode
   /**
-   * Ce que les lecteurs d'ecran annoncent. Chaine vide pour n'annoncer que le
-   * libelle.
+   * What screen readers announce. Empty string to announce only the label.
    *
-   * @defaultValue 'Chargement'
+   * @defaultValue 'Loading'
    */
   status?: string
-  /** Nombre de lamelles. @defaultValue 12 */
+  /** Number of blades. @defaultValue 12 */
   blades?: number
-  /** Decalage entre deux lamelles, en millisecondes. @defaultValue 32 */
+  /** Offset between two blades, in milliseconds. @defaultValue 32 */
   stagger?: number
-  /** Combien de temps l'obturateur reste ferme, en millisecondes. @defaultValue 1200 */
+  /** How long the shutter stays closed, in milliseconds. @defaultValue 1200 */
   holdMs?: number
-  /** Duree du depart d'une lamelle, en millisecondes. @defaultValue 750 */
+  /** Time for one blade to leave, in milliseconds. @defaultValue 750 */
   exitMs?: number
   /**
-   * Etat controle : l'obturateur couvre tant que c'est `true`, et s'ouvre au
-   * premier `false`. Renseigne, il remplace `holdMs`.
+   * Controlled state: the shutter covers as long as this is `true`, and opens
+   * on the first `false`. When given, it replaces `holdMs`.
    */
   open?: boolean
-  /** Couvre le parent positionne plutot que la fenetre. @defaultValue false */
+  /** Covers the positioned parent rather than the window. @defaultValue false */
   contained?: boolean
-  /** Appele au **debut** de la sortie. Voir l'en-tete du module. */
+  /** Called at the **start** of the exit. See the module header. */
   onDone?: () => void
 }
 
-/** Toutes les proprietes. */
+/** All the props. */
 export type ShutterProps = Customisable<ShutterOwnProps, 'div'>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-shutter'
 
-/** Pose les regles de l'obturateur, une fois par document. */
+/** Sets up the rules of the shutter, once per document. */
 function ensureShutterRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -113,8 +111,8 @@ function ensureShutterRule(): void {
     'background:var(--o-shut-bg);',
     'transition:transform var(--o-shut-exit) cubic-bezier(0.76,0,0.24,1) var(--o-shut-d);',
     '}',
-    // Le sens est porte par un attribut plutot que par une variable : deux
-    // regles fixes valent mieux qu'un calcul de signe dans chaque transformee.
+    // The direction is carried by an attribute rather than a variable: two
+    // fixed rules are better than a sign computation in every transform.
     '[data-o-shut-out] [data-o-shut-blade="up"]{transform:translateY(-101%)}',
     '[data-o-shut-out] [data-o-shut-blade="down"]{transform:translateY(101%)}',
     '[data-o-shut-status]{',
@@ -127,20 +125,20 @@ function ensureShutterRule(): void {
 }
 
 /**
- * Couvre la page d'un obturateur, puis en ecarte les lamelles.
+ * Covers the page with a shutter, then parts its blades.
  *
  * @example
  * <Shutter label="Odoro" onDone={ouvrir} />
  *
  * @example
- * // Peu de lamelles, larges, et un depart presque simultane.
+ * // Few blades, wide, and an almost simultaneous departure.
  * <Shutter blades={6} stagger={12} onDone={ouvrir} />
  */
 export function Shutter({
   background = 'var(--o-theme-bg)',
   ink = 'var(--o-theme-fg)',
   label,
-  status = 'Chargement',
+  status = 'Loading',
   blades = 12,
   stagger = 32,
   holdMs = 1200,
@@ -151,131 +149,131 @@ export function Shutter({
   ...rest
 }: ShutterProps): ReactElement | null {
   const { reduced } = useMotionState()
-  const [sortant, setSortant] = useState(false)
-  const [parti, setParti] = useState(false)
+  const [exiting, setExiting] = useState(false)
+  const [gone, setGone] = useState(false)
 
-  // Dans une ref : la sortie ne s'annonce qu'une fois, et un rendu de plus ne
-  // doit pas rejouer le rappel.
-  const annonce = useRef(false)
-  const rappel = useRef(onDone)
-  rappel.current = onDone
+  // In a ref: the exit only announces itself once, and one more render must
+  // not replay the callback.
+  const announced = useRef(false)
+  const callback = useRef(onDone)
+  callback.current = onDone
 
   ensureShutterRule()
 
-  const nombre = Math.max(2, Math.round(blades))
+  const count = Math.max(2, Math.round(blades))
 
   useEffect(() => {
-    const annoncer = (): void => {
-      if (annonce.current) return
-      annonce.current = true
-      rappel.current?.()
+    const announce = (): void => {
+      if (announced.current) return
+      announced.current = true
+      callback.current?.()
     }
 
-    // Mouvement reduit : la sortie est immediate.
+    // Reduced motion: the exit is immediate.
     if (reduced) {
-      annoncer()
-      setParti(true)
+      announce()
+      setGone(true)
       return
     }
 
     if (open !== undefined) {
       if (!open) {
-        setSortant(true)
-        annoncer()
+        setExiting(true)
+        announce()
       }
       return
     }
 
-    const minuteur = window.setTimeout(() => {
-      setSortant(true)
-      annoncer()
+    const timer = window.setTimeout(() => {
+      setExiting(true)
+      announce()
     }, holdMs)
 
     return () => {
-      window.clearTimeout(minuteur)
+      window.clearTimeout(timer)
     }
   }, [reduced, open, holdMs])
 
-  // Un minuteur, et non `transitionend` : douze lamelles decalees emettent
-  // douze evenements, et le premier arrive quand onze couvrent encore l'ecran.
+  // A timer, and not `transitionend`: twelve offset blades emit twelve events,
+  // and the first one arrives when eleven still cover the screen.
   useEffect(() => {
-    if (!sortant) return
+    if (!exiting) return
 
-    const minuteur = window.setTimeout(
+    const timer = window.setTimeout(
       () => {
-        setParti(true)
+        setGone(true)
       },
-      exitMs + (nombre - 1) * stagger + 40,
+      exitMs + (count - 1) * stagger + 40,
     )
 
     return () => {
-      window.clearTimeout(minuteur)
+      window.clearTimeout(timer)
     }
-  }, [sortant, exitMs, nombre, stagger])
+  }, [exiting, exitMs, count, stagger])
 
-  // Le verrou de defilement, seulement quand l'obturateur couvre la fenetre.
+  // The scroll lock, only when the shutter covers the window.
   useEffect(() => {
-    if (contained || parti || reduced) return
+    if (contained || gone || reduced) return
 
-    // Un verrou COMPTE, et non memorise. Deux rideaux peuvent se chevaucher
-    // — rechargement a chaud, navigation, rendu concurrent — et le second
-    // memoriserait alors la valeur posee par le premier, « hidden », pour la
-    // restaurer en sortant : la page resterait bloquee sans erreur ni trace.
-    const racine = document.documentElement
-    const verrous = Number(racine.dataset['oPorteVerrous'] ?? '0')
-    if (verrous === 0) racine.dataset['oPorteAvant'] = racine.style.overflow
-    racine.dataset['oPorteVerrous'] = String(verrous + 1)
-    racine.style.overflow = 'hidden'
+    // A COUNTED lock, not a remembered one. Two curtains can overlap — hot
+    // reload, navigation, concurrent rendering — and the second one would then
+    // remember the value set by the first, "hidden", to restore it on the way
+    // out: the page would stay stuck with neither error nor trace.
+    const root = document.documentElement
+    const locks = Number(root.dataset['oGateLocks'] ?? '0')
+    if (locks === 0) root.dataset['oGatePrevious'] = root.style.overflow
+    root.dataset['oGateLocks'] = String(locks + 1)
+    root.style.overflow = 'hidden'
 
-    let rendu = false
-    const rendreLaMain = (): void => {
-      if (rendu) return
-      rendu = true
-      const reste = Number(racine.dataset['oPorteVerrous'] ?? '1') - 1
-      if (reste > 0) {
-        racine.dataset['oPorteVerrous'] = String(reste)
+    let released = false
+    const release = (): void => {
+      if (released) return
+      released = true
+      const remaining = Number(root.dataset['oGateLocks'] ?? '1') - 1
+      if (remaining > 0) {
+        root.dataset['oGateLocks'] = String(remaining)
         return
       }
-      racine.style.overflow = racine.dataset['oPorteAvant'] ?? ''
-      delete racine.dataset['oPorteVerrous']
-      delete racine.dataset['oPorteAvant']
+      root.style.overflow = root.dataset['oGatePrevious'] ?? ''
+      delete root.dataset['oGateLocks']
+      delete root.dataset['oGatePrevious']
     }
 
-    // Le garde-fou. Plus long que le plafond de n importe quel rideau, donc
-    // invisible en marche normale : il n existe que pour qu un retard ne
-    // puisse jamais laisser la page sans defilement.
-    const secours = window.setTimeout(rendreLaMain, 8000)
+    // The failsafe. Longer than the cap of any curtain, and so invisible in
+    // normal operation: it only exists so that a delay can never leave the
+    // page without scrolling.
+    const failsafe = window.setTimeout(release, 8000)
 
     return () => {
-      window.clearTimeout(secours)
-      rendreLaMain()
+      window.clearTimeout(failsafe)
+      release()
     }
-  }, [contained, parti, reduced])
+  }, [contained, gone, reduced])
 
-  if (parti) return null
+  if (gone) return null
 
   const { className, style } = mergePresentation({}, rest)
 
-  const styleObturateur = {
+  const shutterStyle = {
     ...style,
     '--o-shut-bg': background,
     '--o-shut-ink': ink,
     '--o-shut-exit': `${String(exitMs)}ms`,
-    '--o-shut-n': String(nombre),
+    '--o-shut-n': String(count),
   } as CSSProperties
 
   return (
     <div
       {...rest}
       className={className}
-      style={styleObturateur}
+      style={shutterStyle}
       data-o-shut=""
-      {...(sortant ? { 'data-o-shut-out': '' } : {})}
+      {...(exiting ? { 'data-o-shut-out': '' } : {})}
       {...(contained ? { 'data-o-shut-contained': '' } : {})}
     >
-      {/* Les lamelles sont du decor : elles ne doivent pas etre lues. */}
+      {/* The blades are decor: they must not be read. */}
       <div aria-hidden="true">
-        {Array.from({ length: nombre }, (_, index) => (
+        {Array.from({ length: count }, (_, index) => (
           <div
             key={index}
             data-o-shut-blade={index % 2 === 0 ? 'up' : 'down'}

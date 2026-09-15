@@ -1,27 +1,27 @@
 /**
- * Sonar : des impulsions concentriques qui s'elargissent depuis le pointeur.
+ * Sonar: concentric pulses widening out from the pointer.
  *
- * ## A quoi ce fond reagit
+ * ## What this background reacts to
  *
- * Au deplacement du pointeur, avec amortissement : le centre d'emission
- * rattrape le curseur en douceur, et les anneaux suivent — ils ne se
- * souviennent pas de leur origine. A la sortie du cadre, le hook ramene la
- * cible au centre et le sonar y revient de lui-meme.
+ * To the pointer moving, with damping: the point of emission catches up with
+ * the cursor smoothly, and the rings follow — they do not remember their
+ * origin. On leaving the frame, the hook brings the target back to the centre
+ * and the sonar returns there on its own.
  *
- * Ce qui distingue cette entree de `click-waves` : l'emission est continue
- * et suit le pointeur, la ou l'autre date chaque clic et laisse ses anneaux
- * au point exact de l'appui.
+ * What sets this entry apart from `click-waves`: the emission is continuous and
+ * follows the pointer, where the other one dates every click and leaves its
+ * rings at the exact point of the press.
  *
- * ## Le pont pointeur → shader
+ * ## The pointer → shader bridge
  *
- * Aucun rendu React par image : le composant mute en place un tableau stable
- * passe en uniform, et la surface relit ses uniforms a chaque image. La
- * recopie se fait dans la boucle du moteur, en priorite d'entree.
+ * No React render per frame: the component mutates in place a stable array
+ * passed as a uniform, and the surface re-reads its uniforms every frame. The
+ * copy happens in the engine loop, at input priority.
  *
- * ## Sous mouvement reduit
+ * ## Under reduced motion
  *
- * La surface est refusee par le moteur et le repli statique s'affiche : le
- * suivi du pointeur est un agrement, pas un contenu.
+ * The surface is refused by the engine and the static fallback is shown:
+ * pointer tracking is a nicety, not content.
  *
  * @module
  */
@@ -42,41 +42,41 @@ import { usePointerDamped } from '@registre/hooks/usePointerDamped'
 
 import { SONAR_FRAGMENT } from './sonar.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface SonarControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to this component. */
 export interface SonarOwnProps {
-  /** Vitesse de propagation des impulsions. @defaultValue 0.8 */
+  /** Speed at which the pulses propagate. @defaultValue 0.8 */
   speed?: number
-  /** Anneaux par hauteur de cadre. @defaultValue 6 */
+  /** Rings per frame height. @defaultValue 6 */
   spacing?: number
-  /** Vitesse d'extinction avec la distance. @defaultValue 1.6 */
+  /** Rate of fading with the distance. @defaultValue 1.6 */
   fade?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<SonarControls>
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type SonarProps = Customisable<SonarOwnProps>
 
-/** Tokens employes par defaut : le fond, les anneaux, le front des impulsions. */
+/** Tokens used by default: the background, the rings, the front of the pulses. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-emerald-500',
   '--o-palette-emerald-200',
 ] as const
 
-/** Repli par defaut : un degrade fige, dans les memes tons. */
+/** Default fallback: a frozen gradient, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-br o-from-zinc-50 dark:o-from-zinc-950 o-to-emerald-950'
 
@@ -100,21 +100,21 @@ export function Sonar({
 }: SonarProps): ReactElement {
   const [host, setHost] = useState<HTMLDivElement | null>(null)
 
-  // Tableau stable, mute en place : la surface relit les uniforms a chaque
-  // image, l'identite ne change pas, la mutation suffit — aucun setState.
+  // Stable array, mutated in place: the surface re-reads the uniforms every
+  // frame, the identity does not change, the mutation is enough — no setState.
   const uPointer = useRef<number[]>([0.5, 0.5]).current
 
-  const pointer = usePointerDamped({ host, speed: 3, name: 'sonar : pointeur' })
+  const pointer = usePointerDamped({ host, speed: 3, name: 'sonar : pointer' })
 
   useEffect(() => {
     const subscription = clock.subscribe(
       () => {
-        // Du repere du hook (centre, y vers le bas) vers celui de la texture
-        // (coin bas-gauche, y vers le haut).
+        // From the hook's frame (centred, y downwards) to the texture's
+        // (bottom-left corner, y upwards).
         uPointer[0] = (pointer.current.x + 1) / 2
         uPointer[1] = 1 - (pointer.current.y + 1) / 2
       },
-      { priority: CLOCK_PRIORITY.input, name: 'sonar : pont' },
+      { priority: CLOCK_PRIORITY.input, name: 'sonar : bridge' },
     )
     return () => subscription.unsubscribe()
   }, [pointer, uPointer])
@@ -130,8 +130,8 @@ export function Sonar({
     colors,
     uniforms: { uPointer, uSpeed: speed, uSpacing: spacing, uFade: fade },
     name: 'sonar',
-    // Des anneaux serres a densite de pixels reduite scintillent sur leur
-    // front : en qualite basse, ils s'espacent.
+    // Tight rings at a reduced pixel density shimmer on their front: at low
+    // quality, they spread out.
     degrade: (quality) => ({
       uSpacing: quality === 'low' ? Math.min(spacing, 4) : spacing,
     }),

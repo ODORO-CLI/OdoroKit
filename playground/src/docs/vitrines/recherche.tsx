@@ -41,7 +41,7 @@
  */
 
 import { Icon, type IconData } from '@odoro-cli/icons'
-import { Code, FileText, Folder, Mail, Search, Ticket } from '@odoro-cli/icons/filaire'
+import { Code, FileText, Folder, Mail, Search, Ticket } from '@odoro-cli/icons/outline'
 import { useMemo, useState, type CSSProperties, type ReactElement } from 'react'
 
 import { Crosshair } from '@/odoro/effect/Crosshair.jsx'

@@ -1,22 +1,22 @@
 /**
- * Soie : un ecoulement obtenu en deplacant le domaine deux fois de suite.
+ * Silk: a flow obtained by displacing the domain twice over.
  *
- * ## Le principe
+ * ## The principle
  *
- * Un bruit fractal seul donne des taches ; le meme bruit lu en un point deja deplace donne des volutes. Ici le deplacement est applique deux fois.
+ * A fractal noise on its own gives blotches; the same noise read at a point already displaced gives swirls. Here the displacement is applied twice.
  *
- * C est le plus couteux des fonds : chaque passe evalue le bruit trois fois. Les octaves sont le reglage a baisser.
+ * It is the costliest of the backgrounds: every pass evaluates the noise three times. The octaves are the setting to lower.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur — les recopier ici en ferait autant
- * de versions a maintenir qu'il y a de fonds.
+ * It carries only what sets it apart: its shader, its settings and its
+ * fallback. Reading the tokens, converting them to floats and re-reading them
+ * when the theme changes all come from the engine — copying that here would
+ * leave as many versions to maintain as there are backgrounds.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en
- * accorde qu'une par backend — et sous mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface — it grants only one
+ * per backend — and under reduced motion.
  *
  * @module
  */
@@ -32,46 +32,46 @@ import {
 } from '@odoro-cli/engine'
 import { type ReactElement } from 'react'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface SilkControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to this component. */
 export interface SilkOwnProps {
-  /** Vitesse de l ecoulement. @defaultValue 0.08 */
+  /** Speed of the flow. @defaultValue 0.08 */
   speed?: number
-  /** Echelle du motif. @defaultValue 1.6 */
+  /** Scale of the pattern. @defaultValue 1.6 */
   scale?: number
-  /** Nombre d octaves du bruit. @defaultValue 4 */
+  /** Number of octaves of the noise. @defaultValue 4 */
   octaves?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<SilkControls>
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type SilkProps = Customisable<SilkOwnProps>
 
-/** Tokens employes par defaut. */
+/** Tokens used by default. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-brand-500',
   '--o-palette-sky-300',
 ] as const
 
-/** Repli par defaut : une teinte figee, dans les memes tons. */
+/** Default fallback: a frozen tint, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-b o-from-zinc-50 dark:o-from-zinc-950 o-to-brand-900'
 
 /**
- * Soie.
+ * Silk.
  *
  * @example
  * <div className="o-relative o-min-h-screen">
@@ -93,8 +93,8 @@ export function Silk({
     colors,
     uniforms: { uSpeed: speed, uScale: scale, uOctaves: octaves },
     name: 'silk',
-    // En qualite basse, le reglage qui pese est borne : le motif reste
-    // reconnaissable une fois reduit.
+    // At low quality, the setting that weighs is bounded: the pattern stays
+    // recognisable once reduced.
     degrade: (quality) => ({
       uOctaves: quality === 'low' ? Math.min(octaves, 2) : octaves,
     }),

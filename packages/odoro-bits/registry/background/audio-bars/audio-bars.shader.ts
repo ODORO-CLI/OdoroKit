@@ -1,34 +1,34 @@
 /**
- * Shader des barres d'egaliseur.
+ * Shader of the audio bars.
  *
- * ## L'idee mathematique
+ * ## The mathematical idea
  *
- * Aucun son n'est ecoute : le niveau de chaque barre est un bruit de valeur
- * lu en (indice de barre, temps). Le bruit est lisse en temps — la barre
- * monte et descend, elle ne saute pas — et independant d'une barre a l'autre
- * — deux voisines ne bougent pas ensemble. C'est ce couple qui fait croire
- * a un spectre.
+ * No sound is listened to: the level of each bar is a value noise read at
+ * (bar index, time). The noise is smooth in time — the bar rises and falls,
+ * it does not jump — and independent from one bar to the next — two
+ * neighbours do not move together. It is that pair of properties that makes
+ * a spectrum believable.
  *
- * Une enveloppe en cloche centree sur le premier tiers donne plus de hauteur
- * aux graves qu'aux aigus, comme sur un vrai analyseur ; un battement lent
- * commun a toutes les barres tient lieu de mesure.
+ * A bell envelope centred on the first third gives more height to the low
+ * end than to the treble, as on a real analyser; a slow beat shared by
+ * every bar stands in for a bar of music.
  *
- * Le pic est un second bruit, lu plus lentement et pris au maximum avec le
- * niveau : il descend apres la barre, ce qui est exactement ce que fait un
- * indicateur de crete a retombee.
+ * The peak is a second noise, read more slowly and taken at the maximum
+ * with the level: it comes down after the bar, which is exactly what a
+ * falling peak indicator does.
  *
  * ## Uniforms
  *
- * - `uTime` — temps en secondes, fourni par le moteur.
- * - `uResolution` — taille du canevas en pixels, fournie par le moteur.
- * - `uColorA` — le fond.
- * - `uColorB` — le pied des barres.
- * - `uColorC` — leur sommet et le pic.
- * - `uBars` — nombre de barres.
- * - `uSpeed` — vitesse du spectre.
- * - `uGap` — espace entre barres, en fraction de leur pas.
- * - `uSegments` — nombre de segments par barre ; zero pour des barres pleines.
- * - `uMirror` — un pour un spectre symetrique autour du milieu.
+ * - `uTime` — time in seconds, supplied by the engine.
+ * - `uResolution` — canvas size in pixels, supplied by the engine.
+ * - `uColorA` — the background.
+ * - `uColorB` — the foot of the bars.
+ * - `uColorC` — their top and the peak.
+ * - `uBars` — number of bars.
+ * - `uSpeed` — speed of the spectrum.
+ * - `uGap` — space between bars, as a fraction of their pitch.
+ * - `uSegments` — number of segments per bar; zero for solid bars.
+ * - `uMirror` — one for a spectrum mirrored around the middle.
  */
 export const AUDIO_BARS_FRAGMENT = /* glsl */ `
 precision highp float;
@@ -46,20 +46,20 @@ uniform float uGap;
 uniform float uSegments;
 uniform float uMirror;
 
-// Nombre pseudo-aleatoire : projection sur une direction arbitraire, sinus
-// amplifie, partie fractionnaire.
-float barreHash(vec2 p) {
+// Pseudo-random number: projection onto an arbitrary direction, amplified
+// sine, fractional part.
+float barHash(vec2 p) {
   return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
 }
 
-// Bruit de valeur, lisse en temps seulement : les barres sont independantes,
-// donc l'interpolation ne se fait que sur l'axe du temps.
-float niveau(float bar, float t) {
+// Value noise, smooth in time only: the bars are independent, so the
+// interpolation happens along the time axis alone.
+float barLevel(float bar, float t) {
   float cell = floor(t);
   float local = fract(t);
   float smoothed = local * local * (3.0 - 2.0 * local);
-  float a = barreHash(vec2(bar, cell));
-  float b = barreHash(vec2(bar, cell + 1.0));
+  float a = barHash(vec2(bar, cell));
+  float b = barHash(vec2(bar, cell + 1.0));
   return mix(a, b, smoothed);
 }
 
@@ -69,35 +69,35 @@ void main() {
   float local = fract(vUv.x * bars);
   float t = uTime * uSpeed;
 
-  // Enveloppe en cloche sur le premier tiers : les graves montent plus haut.
+  // Bell envelope over the first third: the low end climbs higher.
   float position = (index + 0.5) / bars;
   float envelope = 0.35 + 0.65 * exp(-pow((position - 0.3) * 2.4, 2.0));
 
-  // Le battement commun : la mesure que toutes les barres suivent.
+  // The shared beat: the measure that every bar follows.
   float beat = 0.85 + 0.15 * sin(t * 2.4);
 
-  float level = envelope * beat * (0.12 + 0.88 * niveau(index, t * 3.0));
-  float peak = max(level, envelope * (0.12 + 0.88 * niveau(index + 0.5, t * 1.1))) + 0.03;
+  float level = envelope * beat * (0.12 + 0.88 * barLevel(index, t * 3.0));
+  float peak = max(level, envelope * (0.12 + 0.88 * barLevel(index + 0.5, t * 1.1))) + 0.03;
 
-  // La hauteur lue : depuis le bas, ou depuis le milieu en miroir.
+  // The height read: from the bottom, or from the middle when mirrored.
   float y = mix(vUv.y, abs(vUv.y - 0.5) * 2.0, uMirror);
   float px = 1.0 / max(uResolution.y, 1.0);
 
-  float demi = clamp(uGap, 0.0, 0.9) * 0.5;
-  float column = step(demi, local) * step(local, 1.0 - demi);
+  float halfGap = clamp(uGap, 0.0, 0.9) * 0.5;
+  float column = step(halfGap, local) * step(local, 1.0 - halfGap);
 
   float fill = (1.0 - smoothstep(level - px, level + px, y)) * column;
 
-  // Les segments : des rangees de fond a intervalle regulier.
+  // The segments: rows of background at a regular interval.
   float segments = max(uSegments, 0.0);
   float rows = fract(y * segments);
   float led = mix(1.0, step(0.25, rows), step(1.0, segments));
   fill *= led;
 
-  // Le pic : un segment fin, un cran au-dessus du niveau.
+  // The peak: a thin segment, one notch above the level.
   float cap = (1.0 - smoothstep(px * 1.5, px * 3.0, abs(y - peak))) * column;
 
-  // Du pied au sommet, la couleur monte vers l'eclat.
+  // From the foot to the top, the colour climbs towards the bright end.
   float rise = clamp(y / max(level, 0.001), 0.0, 1.0);
 
   vec3 colour = mix(uColorA, uColorB, fill);

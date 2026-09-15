@@ -60,7 +60,7 @@ import {
   ScrollText,
   ShieldCheck,
   Smartphone,
-} from '@odoro-cli/icons/filaire'
+} from '@odoro-cli/icons/outline'
 import { Reveal } from '@odoro-cli/libs/motion'
 import { Input, Slider } from '@odoro-cli/libs/ui'
 import { useState, type CSSProperties, type ReactElement, type ReactNode } from 'react'

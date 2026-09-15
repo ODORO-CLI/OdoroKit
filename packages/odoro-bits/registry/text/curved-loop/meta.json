@@ -24,13 +24,13 @@
       "description": "Balise rendue."
     },
     {
-      "name": "separateur",
+      "name": "separator",
       "type": "string",
       "default": " — ",
       "description": "Separateur insere entre deux repetitions."
     },
     {
-      "name": "courbure",
+      "name": "curve",
       "type": "number",
       "default": 0.5,
       "description": "Creux de la courbe, de 0 (droite) a 1.",
@@ -39,7 +39,7 @@
       "step": 0.05
     },
     {
-      "name": "taille",
+      "name": "size",
       "type": "number",
       "default": 96,
       "description": "Corps du texte, en unites du dessin (hauteur totale : 200).",
@@ -57,7 +57,7 @@
       "step": 5
     },
     {
-      "name": "sens",
+      "name": "direction",
       "type": "'gauche' | 'droite'",
       "default": "gauche",
       "description": "Sens de defilement.",

@@ -18,7 +18,7 @@ describe('Accordion', () => {
     { id: 'c', title: 'Archive', content: <p>Contenu C</p>, disabled: true },
   ]
 
-  it('rend toutes les sections fermees par defaut', () => {
+  it('renders every section closed by default', () => {
     render(<Accordion items={items} />)
     for (const header of screen.getAllByRole('button')) {
       expect(header.getAttribute('aria-expanded')).toBe('false')
@@ -26,7 +26,7 @@ describe('Accordion', () => {
     expect(screen.queryByText('Contenu A')).toBeNull()
   })
 
-  it('ouvre une section au clic et l annonce via aria-expanded', () => {
+  it('opens a section on a click and announces it through aria-expanded', () => {
     render(<Accordion items={items} />)
     const header = screen.getByRole('button', { name: 'Compte' })
     fireEvent.click(header)
@@ -35,7 +35,7 @@ describe('Accordion', () => {
     expect(screen.getByText('Contenu A')).toBeDefined()
   })
 
-  it('relie l en-tete a sa region', () => {
+  it('ties the header to its region', () => {
     render(<Accordion items={items} defaultValue="a" />)
     const header = screen.getByRole('button', { name: 'Compte' })
     const region = screen.getByRole('region')
@@ -43,7 +43,7 @@ describe('Accordion', () => {
     expect(region.getAttribute('aria-labelledby')).toBe(header.id)
   })
 
-  it('ne garde qu une section ouverte en mode single', async () => {
+  it('keeps only one section open in single mode', async () => {
     setReducedMotion(true)
     render(<Accordion items={items} defaultValue="a" />)
 
@@ -52,7 +52,7 @@ describe('Accordion', () => {
     await waitFor(() => expect(screen.queryByText('Contenu A')).toBeNull())
   })
 
-  it('referme la section ouverte quand collapsible l autorise', async () => {
+  it('closes the open section again when collapsible allows it', async () => {
     setReducedMotion(true)
     render(<Accordion items={items} defaultValue="a" />)
     const header = screen.getByRole('button', { name: 'Compte' })
@@ -62,7 +62,7 @@ describe('Accordion', () => {
     await waitFor(() => expect(screen.queryByText('Contenu A')).toBeNull())
   })
 
-  it('garde une section ouverte quand collapsible vaut false', () => {
+  it('keeps one section open when collapsible is false', () => {
     render(<Accordion items={items} defaultValue="a" collapsible={false} />)
     const header = screen.getByRole('button', { name: 'Compte' })
 
@@ -71,7 +71,7 @@ describe('Accordion', () => {
     expect(screen.getByText('Contenu A')).toBeDefined()
   })
 
-  it('laisse plusieurs sections ouvertes en mode multiple', () => {
+  it('leaves several sections open in multiple mode', () => {
     render(<Accordion items={items} type="multiple" />)
     fireEvent.click(screen.getByRole('button', { name: 'Compte' }))
     fireEvent.click(screen.getByRole('button', { name: 'Facturation' }))
@@ -80,26 +80,26 @@ describe('Accordion', () => {
     expect(screen.getByText('Contenu B')).toBeDefined()
   })
 
-  it('ignore le clic sur une section desactivee', () => {
+  it('ignores a click on a disabled section', () => {
     render(<Accordion items={items} />)
     fireEvent.click(screen.getByRole('button', { name: 'Archive' }))
     expect(screen.queryByText('Contenu C')).toBeNull()
   })
 
-  it('fonctionne en mode controle', () => {
+  it('works in controlled mode', () => {
     const onValueChange = vi.fn()
     render(<Accordion items={items} value="a" onValueChange={onValueChange} />)
     expect(screen.getByText('Contenu A')).toBeDefined()
 
     fireEvent.click(screen.getByRole('button', { name: 'Facturation' }))
     expect(onValueChange).toHaveBeenCalledWith(['b'])
-    // La valeur reste imposee par l'appelant.
+    // The value stays imposed by the caller.
     expect(screen.queryByText('Contenu B')).toBeNull()
   })
 })
 
 describe('Tooltip', () => {
-  it('apparait au focus clavier avec role tooltip', async () => {
+  it('appears on keyboard focus with role tooltip', async () => {
     render(
       <Tooltip content="Copier" delay={0}>
         <button type="button">Cible</button>
@@ -110,7 +110,7 @@ describe('Tooltip', () => {
     await waitFor(() => expect(screen.getByRole('tooltip').textContent).toBe('Copier'))
   })
 
-  it('decrit le declencheur par aria-describedby', async () => {
+  it('describes the trigger through aria-describedby', async () => {
     render(
       <Tooltip content="Copier" delay={0}>
         <button type="button">Cible</button>
@@ -126,7 +126,7 @@ describe('Tooltip', () => {
     })
   })
 
-  it('disparait au blur', async () => {
+  it('disappears on blur', async () => {
     render(
       <Tooltip content="Copier" delay={0}>
         <button type="button">Cible</button>
@@ -140,7 +140,7 @@ describe('Tooltip', () => {
     await waitFor(() => expect(screen.queryByRole('tooltip')).toBeNull())
   })
 
-  it('disparait sur Echap', async () => {
+  it('disappears on Escape', async () => {
     render(
       <Tooltip content="Copier" delay={0}>
         <button type="button">Cible</button>
@@ -156,7 +156,7 @@ describe('Tooltip', () => {
 })
 
 describe('Popover', () => {
-  it('ouvre et ferme au clic sur le declencheur', async () => {
+  it('opens and closes on a click on the trigger', async () => {
     render(<Popover trigger="Filtres">Panneau</Popover>)
     const trigger = screen.getByRole('button', { name: 'Filtres' })
     expect(trigger.getAttribute('aria-haspopup')).toBe('dialog')
@@ -170,7 +170,7 @@ describe('Popover', () => {
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
   })
 
-  it('ferme sur Echap et rend le focus au declencheur', async () => {
+  it('closes on Escape and gives the focus back to the trigger', async () => {
     render(<Popover trigger="Filtres">Panneau</Popover>)
     const trigger = screen.getByRole('button', { name: 'Filtres' })
     fireEvent.click(trigger)
@@ -181,7 +181,7 @@ describe('Popover', () => {
     expect(document.activeElement).toBe(trigger)
   })
 
-  it('ferme au clic exterieur', async () => {
+  it('closes on an outside click', async () => {
     render(
       <div>
         <Popover trigger="Filtres">Panneau</Popover>
@@ -195,7 +195,7 @@ describe('Popover', () => {
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
   })
 
-  it('fonctionne en mode controle', () => {
+  it('works in controlled mode', () => {
     const onOpenChange = vi.fn()
     render(
       <Popover trigger="Filtres" open={false} onOpenChange={onOpenChange}>
@@ -204,7 +204,7 @@ describe('Popover', () => {
     )
     fireEvent.click(screen.getByRole('button', { name: 'Filtres' }))
     expect(onOpenChange).toHaveBeenCalledWith(true)
-    // La valeur reste imposee par l'appelant.
+    // The value stays imposed by the caller.
     expect(screen.queryByRole('dialog')).toBeNull()
   })
 })
@@ -217,7 +217,7 @@ describe('DropdownMenu', () => {
     { id: 'supprimer', label: 'Supprimer', danger: true },
   ]
 
-  it('ouvre le menu et annonce son etat', () => {
+  it('opens the menu and announces its state', () => {
     render(<DropdownMenu label="Actions" items={items} />)
     const trigger = screen.getByRole('button', { name: 'Actions' })
     expect(trigger.getAttribute('aria-haspopup')).toBe('menu')
@@ -229,7 +229,7 @@ describe('DropdownMenu', () => {
     expect(screen.getAllByRole('menuitem')).toHaveLength(3)
   })
 
-  it('ouvre par fleche bas avec le focus sur le premier item', async () => {
+  it('opens with the down arrow with the focus on the first item', async () => {
     render(<DropdownMenu label="Actions" items={items} />)
     fireEvent.keyDown(screen.getByRole('button', { name: 'Actions' }), {
       key: 'ArrowDown',
@@ -242,7 +242,7 @@ describe('DropdownMenu', () => {
     )
   })
 
-  it('navigue aux fleches en bouclant et en sautant les separateurs', async () => {
+  it('navigates with the arrows, looping and skipping the separators', async () => {
     render(<DropdownMenu label="Actions" items={items} />)
     fireEvent.click(screen.getByRole('button', { name: 'Actions' }))
     const menu = screen.getByRole('menu')
@@ -254,7 +254,7 @@ describe('DropdownMenu', () => {
       ),
     )
 
-    // Le separateur est saute.
+    // The separator is skipped.
     fireEvent.keyDown(menu, { key: 'ArrowDown' })
     await waitFor(() =>
       expect(document.activeElement).toBe(
@@ -262,7 +262,7 @@ describe('DropdownMenu', () => {
       ),
     )
 
-    // La navigation boucle sur le premier item.
+    // The navigation loops back to the first item.
     fireEvent.keyDown(menu, { key: 'ArrowDown' })
     await waitFor(() =>
       expect(document.activeElement).toBe(
@@ -271,7 +271,7 @@ describe('DropdownMenu', () => {
     )
   })
 
-  it('va aux extremites avec Home et End', async () => {
+  it('goes to the ends with Home and End', async () => {
     render(<DropdownMenu label="Actions" items={items} />)
     fireEvent.click(screen.getByRole('button', { name: 'Actions' }))
     const menu = screen.getByRole('menu')
@@ -291,7 +291,7 @@ describe('DropdownMenu', () => {
     )
   })
 
-  it('selectionne un item et referme le menu', async () => {
+  it('selects an item and closes the menu again', async () => {
     const onSelect = vi.fn()
     render(
       <DropdownMenu
@@ -306,7 +306,7 @@ describe('DropdownMenu', () => {
     await waitFor(() => expect(screen.queryByRole('menu')).toBeNull())
   })
 
-  it('ignore la selection d un item desactive', () => {
+  it('ignores the selection of a disabled item', () => {
     const onSelect = vi.fn()
     render(
       <DropdownMenu
@@ -324,7 +324,7 @@ describe('DropdownMenu', () => {
     expect(screen.getByRole('menu')).toBeDefined()
   })
 
-  it('ferme sur Echap et rend le focus au declencheur', async () => {
+  it('closes on Escape and gives the focus back to the trigger', async () => {
     render(<DropdownMenu label="Actions" items={items} />)
     const trigger = screen.getByRole('button', { name: 'Actions' })
     fireEvent.click(trigger)
@@ -334,7 +334,7 @@ describe('DropdownMenu', () => {
     expect(document.activeElement).toBe(trigger)
   })
 
-  it('affiche le raccourci de l item', () => {
+  it('displays the shortcut of the item', () => {
     render(<DropdownMenu label="Actions" items={items} />)
     fireEvent.click(screen.getByRole('button', { name: 'Actions' }))
     expect(screen.getByText('Ctrl+R')).toBeDefined()
@@ -348,33 +348,33 @@ describe('Breadcrumb', () => {
     { label: 'OdoroKit' },
   ]
 
-  it('rend une navigation etiquetee avec une liste ordonnee', () => {
+  it('renders a labeled navigation with an ordered list', () => {
     render(<Breadcrumb items={items} />)
-    const nav = screen.getByRole('navigation', { name: "Fil d'Ariane" })
+    const nav = screen.getByRole('navigation', { name: 'Breadcrumb' })
     expect(nav.querySelector('ol')).not.toBeNull()
   })
 
-  it('marque la derniere etape avec aria-current=page', () => {
+  it('marks the last step with aria-current=page', () => {
     render(<Breadcrumb items={items} />)
     const current = screen.getByText('OdoroKit')
     expect(current.getAttribute('aria-current')).toBe('page')
     expect(current.tagName).toBe('SPAN')
   })
 
-  it('rend les etapes precedentes en liens', () => {
+  it('renders the previous steps as links', () => {
     render(<Breadcrumb items={items} />)
     expect(screen.getByRole('link', { name: 'Accueil' }).getAttribute('href')).toBe('/')
     expect(screen.queryByRole('link', { name: 'OdoroKit' })).toBeNull()
   })
 
-  it('accepte un separateur personnalise', () => {
+  it('accepts a custom separator', () => {
     render(<Breadcrumb items={items} separator="/" />)
     expect(screen.getAllByText('/')).toHaveLength(2)
   })
 })
 
 describe('Pagination', () => {
-  it('affiche la fenetre autour de la page courante avec les ellipses', () => {
+  it('displays the window around the current page with the ellipses', () => {
     render(<Pagination page={5} pageCount={10} onPageChange={vi.fn()} />)
 
     for (const name of ['1', '4', '5', '6', '10']) {
@@ -385,7 +385,7 @@ describe('Pagination', () => {
     expect(screen.getAllByText('…')).toHaveLength(2)
   })
 
-  it('omet les ellipses quand toutes les pages tiennent', () => {
+  it('omits the ellipses when every page fits', () => {
     render(<Pagination page={2} pageCount={3} onPageChange={vi.fn()} />)
     expect(screen.queryByText('…')).toBeNull()
     for (const name of ['1', '2', '3']) {
@@ -393,7 +393,7 @@ describe('Pagination', () => {
     }
   })
 
-  it('marque la page courante avec aria-current=page', () => {
+  it('marks the current page with aria-current=page', () => {
     render(<Pagination page={5} pageCount={10} onPageChange={vi.fn()} />)
     expect(screen.getByRole('button', { name: '5' }).getAttribute('aria-current')).toBe(
       'page',
@@ -403,37 +403,36 @@ describe('Pagination', () => {
     ).toBeNull()
   })
 
-  it('declenche onPageChange au clic sur un numero', () => {
+  it('fires onPageChange on a click on a number', () => {
     const onPageChange = vi.fn()
     render(<Pagination page={5} pageCount={10} onPageChange={onPageChange} />)
     fireEvent.click(screen.getByRole('button', { name: '6' }))
     expect(onPageChange).toHaveBeenCalledWith(6)
   })
 
-  it('navigue avec les boutons precedent et suivant', () => {
+  it('navigates with the previous and next buttons', () => {
     const onPageChange = vi.fn()
     render(<Pagination page={5} pageCount={10} onPageChange={onPageChange} />)
 
-    fireEvent.click(screen.getByRole('button', { name: 'Page precedente' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Previous page' }))
     expect(onPageChange).toHaveBeenCalledWith(4)
 
-    fireEvent.click(screen.getByRole('button', { name: 'Page suivante' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Next page' }))
     expect(onPageChange).toHaveBeenCalledWith(6)
   })
 
-  it('neutralise precedent en premiere page et suivant en derniere', () => {
+  it('neutralizes previous on the first page and next on the last', () => {
     const { rerender } = render(
       <Pagination page={1} pageCount={10} onPageChange={vi.fn()} />,
     )
     expect(
-      (screen.getByRole('button', { name: 'Page precedente' }) as HTMLButtonElement)
+      (screen.getByRole('button', { name: 'Previous page' }) as HTMLButtonElement)
         .disabled,
     ).toBe(true)
 
     rerender(<Pagination page={10} pageCount={10} onPageChange={vi.fn()} />)
     expect(
-      (screen.getByRole('button', { name: 'Page suivante' }) as HTMLButtonElement)
-        .disabled,
+      (screen.getByRole('button', { name: 'Next page' }) as HTMLButtonElement).disabled,
     ).toBe(true)
   })
 })
@@ -459,7 +458,7 @@ describe('Table', () => {
     { ref: 'F-002', total: '80 EUR' },
   ]
 
-  it('rend les en-tetes de colonnes avec scope=col', () => {
+  it('renders the column headers with scope=col', () => {
     render(<Table columns={columns} rows={rows} rowKey={(row) => row.ref} />)
     const headers = screen.getAllByRole('columnheader')
     expect(headers).toHaveLength(2)
@@ -467,13 +466,13 @@ describe('Table', () => {
     expect(headers[0]?.textContent).toBe('Reference')
   })
 
-  it('rend une ligne par entree, avec la cle ou le rendu personnalise', () => {
+  it('renders one row per entry, with the key or the custom rendering', () => {
     render(<Table columns={columns} rows={rows} rowKey={(row) => row.ref} />)
     expect(screen.getByText('F-001')).toBeDefined()
     expect(screen.getByText('120 EUR').tagName).toBe('STRONG')
   })
 
-  it('affiche le message vide sur toute la largeur', () => {
+  it('displays the empty message across the whole width', () => {
     render(
       <Table
         columns={columns}
@@ -486,7 +485,7 @@ describe('Table', () => {
     expect(cell.getAttribute('colspan')).toBe('2')
   })
 
-  it('masque la legende par defaut et l affiche sur demande', () => {
+  it('hides the caption by default and displays it on demand', () => {
     const { rerender } = render(
       <Table
         columns={columns}
@@ -511,7 +510,7 @@ describe('Table', () => {
 })
 
 describe('Drawer', () => {
-  it('ne rend rien quand il est ferme', () => {
+  it('renders nothing when it is closed', () => {
     render(
       <Drawer open={false} onClose={vi.fn()} title="Filtres">
         <p>Corps</p>
@@ -520,7 +519,7 @@ describe('Drawer', () => {
     expect(screen.queryByText('Filtres')).toBeNull()
   })
 
-  it('rend le titre, la description et le contenu quand il est ouvert', () => {
+  it('renders the title, the description and the content when it is open', () => {
     render(
       <Drawer open onClose={vi.fn()} title="Filtres" description="Affinez la liste.">
         <p>Corps</p>
@@ -535,14 +534,14 @@ describe('Drawer', () => {
     expect(screen.getByText('Corps')).toBeDefined()
   })
 
-  it('ferme depuis la croix', () => {
+  it('closes from the cross', () => {
     const onClose = vi.fn()
     render(<Drawer open onClose={onClose} title="Filtres" />)
-    fireEvent.click(screen.getByRole('button', { name: 'Fermer', hidden: true }))
+    fireEvent.click(screen.getByRole('button', { name: 'Close', hidden: true }))
     expect(onClose).toHaveBeenCalledTimes(1)
   })
 
-  it('ferme sur Echap en passant par l etat applicatif', () => {
+  it('closes on Escape by going through the application state', () => {
     const onClose = vi.fn()
     render(<Drawer open onClose={onClose} title="Filtres" />)
     const dialog = document.querySelector('dialog')
@@ -552,21 +551,21 @@ describe('Drawer', () => {
     expect(onClose).toHaveBeenCalledTimes(1)
   })
 
-  it('ferme au clic sur l arriere-plan', () => {
+  it('closes on a click on the backdrop', () => {
     const onClose = vi.fn()
     render(<Drawer open onClose={onClose} title="Filtres" />)
     fireEvent.click(document.querySelector('dialog') as HTMLDialogElement)
     expect(onClose).toHaveBeenCalledTimes(1)
   })
 
-  it('respecte closeOnBackdrop', () => {
+  it('respects closeOnBackdrop', () => {
     const onClose = vi.fn()
     render(<Drawer open onClose={onClose} title="Filtres" closeOnBackdrop={false} />)
     fireEvent.click(document.querySelector('dialog') as HTMLDialogElement)
     expect(onClose).not.toHaveBeenCalled()
   })
 
-  it('se demonte immediatement sous prefers-reduced-motion', () => {
+  it('unmounts immediately under prefers-reduced-motion', () => {
     setReducedMotion(true)
     const { rerender } = render(<Drawer open onClose={vi.fn()} title="Filtres" />)
     rerender(<Drawer open={false} onClose={vi.fn()} title="Filtres" />)

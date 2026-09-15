@@ -1,22 +1,22 @@
 /**
- * Voile sombre : une etoffe de bruit qui ondule au-dessus d'une lueur.
+ * Dark veil: a cloth of noise rippling above a glow.
  *
- * ## Le principe
+ * ## The principle
  *
- * Deux foyers lents font une lueur dans le bas du cadre ; un bruit fractal
- * deforme par lui-meme dessine un voile dont les plis derivent, et la lueur
- * ne passe que par ses trouees. Le voile se pose par melange borne vers sa
- * teinte profonde, pas par assombrissement : il reste lisible sur fond clair.
+ * Two slow sources make a glow at the bottom of the frame; a fractal noise
+ * warped by itself draws a veil whose folds drift, and the glow comes
+ * through only by its gaps. The veil is laid down by a capped mix towards
+ * its deep hue, not by darkening: it stays legible on a light background.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur.
+ * It carries only what sets it apart: its shader, its settings and its fallback.
+ * Reading the tokens, converting them to floats and re-reading them when the
+ * theme changes all come from the engine.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface et sous
- * mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface and under reduced
+ * motion.
  *
  * @module
  */
@@ -33,58 +33,58 @@ import { type ReactElement } from 'react'
 
 import { DARK_VEIL_FRAGMENT } from './dark-veil.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface DarkVeilControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to this component. */
 export interface DarkVeilOwnProps {
-  /** Vitesse de derive du voile. @defaultValue 0.5 */
+  /** Drift speed of the veil. @defaultValue 0.5 */
   speed?: number
-  /** Echelle des plis. Plus haut, plus fin. @defaultValue 1.8 */
+  /** Scale of the folds. Higher is finer. @defaultValue 1.8 */
   scale?: number
-  /** Epaisseur du voile. A zero, seule la lueur reste. @defaultValue 0.8 */
+  /** Thickness of the veil. At zero, only the glow remains. @defaultValue 0.8 */
   opacity?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<DarkVeilControls>
 }
 
-/** Toutes les proprietes. */
+/** Every property. */
 export type DarkVeilProps = Customisable<DarkVeilOwnProps>
 
-/** Tokens employes par defaut : le fond, la lueur, la teinte du voile. */
+/** Tokens used by default: the background, the glow, the veil's hue. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-violet-500',
   '--o-palette-indigo-950',
 ] as const
 
-/** Repli par defaut : un degrade fige, dans les memes tons. */
+/** Default fallback: a frozen gradient, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-t o-from-violet-100 dark:o-from-violet-950 o-to-zinc-50 dark:o-to-zinc-950'
 
 /**
- * Detail du bruit hors qualite basse.
+ * Noise detail outside low quality.
  *
- * Le voile demande trois sommes d'octaves — deux pour la deformation, une
- * pour la matiere — donc chaque octave se paie trois fois. C'est le seul
- * levier de cout du shader.
+ * The veil demands three sums of octaves — two for the warp, one for the
+ * substance — so every octave is paid for three times over. It is the
+ * shader's only lever on cost.
  */
 const OCTAVES = 4
 
-/** Detail du bruit en qualite basse. */
+/** Noise detail at low quality. */
 const LOW_OCTAVES = 2
 
 /**
- * Voile sombre.
+ * Dark veil.
  *
  * @example
  * <div className="o-relative o-min-h-screen">

@@ -1,5 +1,5 @@
 /**
- * Indicateur d'activite circulaire.
+ * Circular activity indicator.
  *
  * @module
  */
@@ -8,40 +8,40 @@ import { type HTMLAttributes, type ReactElement } from 'react'
 
 import { cx } from '../styles/cx.js'
 
-/** Diametre en pixels par taille. */
+/** Diameter in pixels per size. */
 const SIZE_PX: Readonly<Record<'sm' | 'md' | 'lg', number>> = {
   sm: 16,
   md: 24,
   lg: 32,
 }
 
-/** Proprietes de {@link Spinner}. */
+/** Properties of {@link Spinner}. */
 export interface SpinnerProps extends Omit<HTMLAttributes<HTMLSpanElement>, 'className'> {
-  /** Taille. @defaultValue 'md' */
+  /** Size. @defaultValue 'md' */
   size?: 'sm' | 'md' | 'lg'
   /**
-   * Libelle annonce aux lecteurs d'ecran, masque visuellement.
+   * Label announced to screen readers, visually hidden.
    *
-   * @defaultValue 'Chargement'
+   * @defaultValue 'Loading'
    */
   label?: string
-  /** Classes additionnelles. */
+  /** Additional classes. */
   className?: string
 }
 
 /**
- * Indicateur d'activite.
+ * Activity indicator.
  *
- * Le dessin herite de `currentColor` : il suffit de poser une classe de
- * couleur de texte sur le composant pour le teinter. L'etat est porte par
- * `role="status"` et un libelle masque, le SVG restant decoratif.
+ * The drawing inherits `currentColor`: applying a text color class on the
+ * component is enough to tint it. The state is carried by `role="status"`
+ * and a hidden label, the SVG staying decorative.
  *
  * @example
- * <Spinner size="lg" label="Chargement des projets" className="o-text-brand-600 dark:o-text-brand-400" />
+ * <Spinner size="lg" label="Loading projects" className="o-text-brand-600 dark:o-text-brand-400" />
  */
 export function Spinner({
   size = 'md',
-  label = 'Chargement',
+  label = 'Loading',
   className,
   ...rest
 }: SpinnerProps): ReactElement {

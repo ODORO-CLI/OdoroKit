@@ -1,28 +1,28 @@
 /**
- * Points qui sautent : trois points bondissent l'un apres l'autre.
+ * Bouncing dots: three dots leap one after the other.
  *
- * ## Un saut, pas une oscillation
+ * ## A jump, not an oscillation
  *
- * Un aller-retour en `ease-in-out` donne un flottement — le point ralentit
- * en haut et en bas de la meme facon, comme suspendu a un ressort. Un saut
- * ne ressemble pas a cela : le point part vite, ralentit au sommet, puis
- * retombe en accelerant et s'arrete net au sol. Les courbes sont donc posees
- * image cle par image cle — `ease-out` a la montee, `ease-in` a la descente —
- * et le point reste au sol un tiers du cycle : c'est cette pause qui fait
- * lire un rebond plutot qu'une vague.
+ * A round trip in `ease-in-out` gives a float — the dot slows at the top and
+ * at the bottom in the same way, as if hung from a spring. A jump does not
+ * look like that: the dot leaves fast, slows at the peak, then falls back
+ * accelerating and stops dead on the floor. The curves are therefore set
+ * keyframe by keyframe — `ease-out` on the way up, `ease-in` on the way down —
+ * and the dot stays on the floor for a third of the cycle: it is that pause
+ * that makes one read a bounce rather than a wave.
  *
- * Les trois points decalent leur depart d'un sixieme de cycle, en delai
- * negatif : la sequence est complete a la premiere image, sans point qui
- * attendrait son tour.
+ * The three dots offset their start by a sixth of a cycle, as a negative
+ * delay: the sequence is complete on the first frame, with no dot waiting for
+ * its turn.
  *
- * ## Un statut, pas un dessin
+ * ## A status, not a drawing
  *
- * L'element porte `role="status"` et un libelle pour les lecteurs d'ecran :
- * l'attente est une information, pas une decoration. Les points sont retires
- * de l'arbre d'accessibilite.
+ * The element carries `role="status"` and a label for screen readers: the
+ * wait is information, not decoration. The dots are removed from the
+ * accessibility tree.
  *
- * Sous mouvement reduit, les trois points reposent sur leur ligne de sol :
- * la figure se lit encore comme un chargeur, seul le saut s'arrete.
+ * Under reduced motion, the three dots rest on their floor line: the figure
+ * still reads as a loader, only the jump stops.
  *
  * @module
  */
@@ -30,10 +30,10 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-bouncing-dots'
 
-/** Pose les points et leur saut, une fois par document. */
+/** Applies the dots and their jump, once per document. */
 function ensureBounceRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -41,8 +41,8 @@ function ensureBounceRule(): void {
   const style = document.createElement('style')
   style.id = STYLE_ID
   style.textContent = [
-    // Le conteneur reserve la hauteur du saut : le point monte dedans, la
-    // mise en page ne bouge pas.
+    // The container reserves the height of the jump: the dot rises into it,
+    // the layout does not move.
     '[data-o-bouncing-dots]{',
     'display:inline-flex;align-items:flex-end;',
     'gap:calc(var(--o-bdots-size) * 0.5);',
@@ -54,13 +54,13 @@ function ensureBounceRule(): void {
     'animation:o-bouncing-dots-jump var(--o-bdots-speed) infinite;',
     'animation-delay:var(--o-bdots-delay);',
     '}',
-    // Montee en decelerant, descente en accelerant, puis un temps au sol.
+    // Rise while decelerating, fall while accelerating, then a beat on the floor.
     '@keyframes o-bouncing-dots-jump{',
     '0%{transform:translate3d(0,0,0);animation-timing-function:ease-out}',
     '33%{transform:translate3d(0,calc(var(--o-bdots-size) * -1.6),0);animation-timing-function:ease-in}',
     '66%,100%{transform:translate3d(0,0,0)}',
     '}',
-    // Trois points au sol : la figure dit encore « attente », sans saut.
+    // Three dots on the floor: the figure still says "waiting", with no jump.
     '@media (prefers-reduced-motion:reduce){',
     '[data-o-bouncing-dot]{animation:none;transform:none}',
     '}',
@@ -68,36 +68,36 @@ function ensureBounceRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface BouncingDotsOwnProps {
-  /** Diametre d'un point, en pixels. @defaultValue 10 */
+  /** Diameter of one dot, in pixels. @defaultValue 10 */
   size?: number
-  /** Duree d'un saut complet, en millisecondes. @defaultValue 800 */
+  /** Duration of one complete jump, in milliseconds. @defaultValue 800 */
   speed?: number
-  /** Couleur des points. @defaultValue la couleur du texte */
+  /** Colour of the dots. @defaultValue the text colour */
   color?: string
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */
+  /** Label announced to screen readers. @defaultValue 'Loading' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All the properties. */
 export type BouncingDotsProps = Customisable<BouncingDotsOwnProps, 'span'>
 
 /**
- * Signale une attente par trois points qui sautent tour a tour.
+ * Signals a wait with three dots jumping in turn.
  *
  * @example
  * <BouncingDots />
  *
  * @example
- * // Plus gros, plus lent, dans la teinte de marque.
+ * // Larger, slower, in the brand hue.
  * <BouncingDots size={14} speed={1200} color="var(--o-palette-brand-500)" />
  */
 export function BouncingDots({
   size = 10,
   speed = 800,
   color = 'currentColor',
-  label = 'Chargement',
+  label = 'Loading',
   ...rest
 }: BouncingDotsProps): ReactElement {
   ensureBounceRule()
@@ -127,8 +127,8 @@ export function BouncingDots({
           data-o-bouncing-dot=""
           style={
             {
-              // Un sixieme de cycle d'ecart, en negatif : la sequence est
-              // complete des la premiere image.
+              // A sixth of a cycle apart, negatively: the sequence is complete
+              // from the very first frame.
               '--o-bdots-delay': `${String(Math.round((-speed * dot) / 6))}ms`,
             } as CSSProperties
           }

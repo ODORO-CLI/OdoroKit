@@ -1,23 +1,23 @@
 /**
- * Dunes : des cretes superposees qui derivent en parallaxe.
+ * Dunes: stacked crests drifting in parallax.
  *
- * ## Le principe
+ * ## The principle
  *
- * Des courbes horizon — sinus charpente plus bruit — empilees du haut vers le
- * bas, chacune remplie sous elle par seuillage vertical. Chaque couche est
- * plus claire et plus lente que la precedente : c'est le desaccord des
- * vitesses qui fait la profondeur, pas un degrade.
+ * Horizon curves — a load-bearing sine plus noise — stacked from top to
+ * bottom, each one filled beneath itself by vertical thresholding. Every layer
+ * is lighter and slower than the one before: it is the mismatch of speeds that
+ * makes the depth, not a gradient.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur — les recopier ici en ferait autant
- * de versions a maintenir qu'il y a de fonds.
+ * It carries only what sets it apart: its shader, its settings and its fallback.
+ * Reading the tokens, converting them to floats and re-reading them when the
+ * theme changes all come from the engine — copying them here would leave as
+ * many versions to maintain as there are backgrounds.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en
- * accorde qu'une par backend — et sous mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface — it grants only one
+ * per backend — and under reduced motion.
  *
  * @module
  */
@@ -34,41 +34,41 @@ import { type ReactElement } from 'react'
 
 import { DUNES_FRAGMENT } from './dunes.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface DunesControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to this component. */
 export interface DunesOwnProps {
-  /** Vitesse de derive des couches. @defaultValue 0.1 */
+  /** Drift speed of the layers. @defaultValue 0.1 */
   speed?: number
-  /** Nombre de cretes empilees. @defaultValue 4 */
+  /** Number of stacked crests. @defaultValue 4 */
   layers?: number
-  /** Hauteur des ondulations. @defaultValue 0.12 */
+  /** Height of the undulations. @defaultValue 0.12 */
   amplitude?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<DunesControls>
 }
 
-/** Toutes les proprietes. */
+/** Every property. */
 export type DunesProps = Customisable<DunesOwnProps>
 
-/** Tokens employes par defaut : le ciel, la crete lointaine, la crete rasante. */
+/** Tokens used by default: the sky, the far crest, the grazing crest. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-orange-600',
   '--o-palette-amber-300',
 ] as const
 
-/** Repli par defaut : un degrade fige, dans les memes tons. */
+/** Default fallback: a frozen gradient, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-b o-from-amber-100 dark:o-from-amber-950 o-to-orange-200 dark:o-to-orange-950'
 
@@ -95,8 +95,8 @@ export function Dunes({
     colors,
     uniforms: { uSpeed: speed, uLayers: layers, uAmplitude: amplitude },
     name: 'dunes',
-    // Chaque crete est un sinus et un bruit de plus par pixel : c'est le
-    // reglage qui pese, donc celui qui est borne.
+    // Every crest is one more sine and one more noise per pixel: it is the
+    // setting that weighs, and so the one that is capped.
     degrade: (quality) => ({
       uLayers: quality === 'low' ? Math.min(layers, 3) : layers,
     }),

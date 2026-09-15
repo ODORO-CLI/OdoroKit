@@ -1,23 +1,23 @@
 /**
- * Nappe d'essence : des franges irisees serrees sur une eau sombre.
+ * Oil slick: tight iridescent fringes on a dark water.
  *
- * ## Le principe
+ * ## The principle
  *
- * Une couleur par interference, comme le film de savon, mais mince, tordue
- * et posee sur l'eau : les franges sont serrees et separees de bandes
- * sombres, enroulees en volutes par un bruit qui deforme le domaine, et
- * decoupees en lobes par un troisieme bruit — entre les lobes, l'eau ondule.
+ * A colour by interference, as with the soap film, but thin, twisted and laid
+ * on water: the fringes are tight and separated by dark bands, coiled into
+ * swirls by a noise warping the domain, and cut into lobes by a third noise —
+ * between the lobes, the water ripples.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur — les recopier ici en ferait autant
- * de versions a maintenir qu'il y a de fonds.
+ * It carries only what sets it apart: its shader, its settings and its
+ * fallback. Reading the tokens, converting them to floats and re-reading them
+ * when the theme changes all come from the engine — copying that here would
+ * leave as many versions to maintain as there are backgrounds.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en
- * accorde qu'une par backend — et sous mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface — it grants only one
+ * per backend — and under reduced motion.
  *
  * @module
  */
@@ -34,60 +34,60 @@ import { type ReactElement } from 'react'
 
 import { OIL_SLICK_FRAGMENT } from './oil-slick.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface OilSlickControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to this component. */
 export interface OilSlickOwnProps {
-  /** Vitesse de derive de la nappe. @defaultValue 0.12 */
+  /** Speed at which the slick drifts. @defaultValue 0.12 */
   speed?: number
-  /** Echelle du bruit. Plus haut, plus fin. @defaultValue 2.2 */
+  /** Scale of the noise. Higher is finer. @defaultValue 2.2 */
   scale?: number
-  /** Densite des franges. @defaultValue 6 */
+  /** Density of the fringes. @defaultValue 6 */
   fringes?: number
-  /** Force des reflets de l'eau. @defaultValue 0.3 */
+  /** Strength of the reflections on the water. @defaultValue 0.3 */
   ripple?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<OilSlickControls>
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type OilSlickProps = Customisable<OilSlickOwnProps>
 
-/** Tokens employes par defaut : l'eau, les deux teintes des franges. */
+/** Tokens used by default: the water, the two hues of the fringes. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-fuchsia-500',
   '--o-palette-cyan-400',
 ] as const
 
-/** Repli par defaut : un degrade fige, dans les memes tons. */
+/** Default fallback: a frozen gradient, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-bl o-from-zinc-50 dark:o-from-zinc-950 o-via-fuchsia-300 dark:o-via-fuchsia-900 o-to-cyan-300 dark:o-to-cyan-900'
 
 /**
- * Detail du bruit hors qualite basse.
+ * Noise detail outside low quality.
  *
- * Quatre sommes d'octaves par fragment — deux pour la torsion, une pour
- * l'epaisseur, une pour l'etendue — donc chaque octave se paie quatre fois.
- * C'est le seul levier de cout, et il n'a pas besoin d'etre une prop.
+ * Four octave sums per fragment — two for the twist, one for the thickness, one
+ * for the extent — so every octave is paid four times over. It is the only cost
+ * lever, and it does not need to be a prop.
  */
 const OCTAVES = 4
 
-/** Detail du bruit en qualite basse. */
+/** Noise detail at low quality. */
 const LOW_OCTAVES = 2
 
 /**
- * Nappe d'essence.
+ * Oil slick.
  *
  * @example
  * <div className="o-relative o-min-h-screen">

@@ -1,26 +1,26 @@
 /**
- * Glisser avec inertie : l'element se laisse trainer, file sur sa lancee,
- * puis revient a sa place en ressort.
+ * Drag with inertia: the element lets itself be dragged, flies on its own
+ * momentum, then springs back into place.
  *
- * ## Une seule integration, deux regimes
+ * ## A single integration, two regimes
  *
- * Pendant la prise, le pointeur ecrit directement la position — un objet
- * tenu doit coller a la main, tout amortissement se sentirait comme du
- * caoutchouc — et la boucle en derive la velocite, lissee d'un cran pour ne
- * pas retenir le bruit d'echantillonnage du dernier evenement.
+ * During the grab, the pointer writes the position directly — a held object
+ * must stick to the hand, any damping would feel like rubber — and the loop
+ * derives the velocity from it, smoothed by one notch so as not to keep the
+ * sampling noise of the last event.
  *
- * Au lacher, la meme boucle change de regime : la velocite acquise porte
- * l'element, et un ressort amorti le rappelle a l'origine
- * (`a = -ressort x position - friction x velocite`). C'est la physique la plus
- * simple qui donne a la fois la lancee, le depassement elastique et le retour.
- * Le pas de temps est borne : une image longue — onglet revenu au premier
- * plan — ferait exploser l'integration.
+ * On release, the same loop changes regime: the acquired velocity carries the
+ * element, and a damped spring pulls it back to the origin
+ * (`a = -spring x position - friction x velocity`). It is the simplest physics
+ * that gives at once the momentum, the elastic overshoot and the return. The
+ * time step is clamped: one long frame — a tab brought back to the foreground
+ * — would blow the integration up.
  *
- * ## Ce que le composant ne fait pas
+ * ## What the component does not do
  *
- * Pas de clavier : le glisser est un agrement, l'element n'a pas d'etat final
- * a atteindre — il revient toujours a sa place. Sous mouvement reduit, rien
- * n'ecoute et rien ne bouge : la position est fixe.
+ * No keyboard: dragging is an embellishment, the element has no final state to
+ * reach — it always comes back to its place. Under reduced motion, nothing
+ * listens and nothing moves: the position is fixed.
  *
  * @module
  */
@@ -34,33 +34,33 @@ import {
 } from '@odoro-cli/engine'
 import { useEffect, useState, type ReactElement, type ReactNode } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface InertiaDragOwnProps {
-  /** Ce qui se laisse trainer. */
+  /** What lets itself be dragged. */
   children: ReactNode
-  /** Freinage de la lancee. Plus haut, plus court. @defaultValue 8 */
+  /** Braking of the momentum. The higher, the shorter. @defaultValue 8 */
   friction?: number
-  /** Raideur du rappel vers la place d'origine. @defaultValue 120 */
+  /** Stiffness of the pull back to the original place. @defaultValue 120 */
   spring?: number
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type InertiaDragProps = Customisable<InertiaDragOwnProps>
 
 /**
- * Rend un element trainable, avec inertie et retour elastique.
+ * Makes an element draggable, with inertia and elastic return.
  *
  * @example
  * <InertiaDrag>
  *   <span className="o-inline-flex o-h-16 o-w-16 o-items-center o-justify-center o-rounded-full o-border-w-1 o-border-current">
- *     Moi
+ *     Me
  *   </span>
  * </InertiaDrag>
  *
  * @example
- * // Un retour raide, presque sans depassement.
+ * // A stiff return, with almost no overshoot.
  * <InertiaDrag friction={20} spring={300}>
- *   <Badge>Promo</Badge>
+ *   <Badge>Sale</Badge>
  * </InertiaDrag>
  */
 export function InertiaDrag({
@@ -85,8 +85,8 @@ export function InertiaDrag({
       dragging = true
       grip.x = event.clientX - position.x
       grip.y = event.clientY - position.y
-      // La capture garde le suivi meme quand le pointeur sort de l'element :
-      // sans elle, un geste vif lache la prise en pleine course.
+      // The capture keeps the tracking even when the pointer leaves the
+      // element: without it, a sharp gesture drops the grab mid-run.
       host.setPointerCapture(event.pointerId)
       host.style.cursor = 'grabbing'
       event.preventDefault()
@@ -110,12 +110,13 @@ export function InertiaDrag({
 
     const subscription = clock.subscribe(
       ({ delta }) => {
-        // Pas de temps borne : voir l'en-tete du module.
+        // Clamped time step: see the module header.
         const dt = Math.min(Math.max(delta, 1 / 240), 1 / 30)
 
         if (dragging) {
-          // La velocite se deduit du chemin parcouru, lissee d'un cran pour
-          // que la lancee reflete le geste et non le dernier soubresaut.
+          // The velocity is derived from the distance travelled, smoothed by
+          // one notch so that the momentum reflects the gesture and not the
+          // last jitter.
           velocity.x += ((position.x - previous.x) / dt - velocity.x) * 0.5
           velocity.y += ((position.y - previous.y) / dt - velocity.y) * 0.5
         } else {
@@ -124,8 +125,8 @@ export function InertiaDrag({
           position.x += velocity.x * dt
           position.y += velocity.y * dt
 
-          // Au voisinage du repos, on y est : laisser osciller des fractions
-          // de pixel garderait la boucle occupee a ne rien montrer.
+          // In the neighbourhood of rest, we are there: letting fractions of a
+          // pixel oscillate would keep the loop busy showing nothing.
           if (
             Math.abs(position.x) < 0.1 &&
             Math.abs(position.y) < 0.1 &&
@@ -157,8 +158,8 @@ export function InertiaDrag({
     }
   }, [host, reduced, friction, spring])
 
-  // Sous mouvement reduit, l'element n'est pas trainable : lui laisser le
-  // curseur de prise promettrait un geste qui ne repond pas.
+  // Under reduced motion, the element is not draggable: leaving it the grab
+  // cursor would promise a gesture that does not answer.
   const { className, style } = mergePresentation(
     {
       className: reduced

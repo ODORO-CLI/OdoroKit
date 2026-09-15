@@ -1,24 +1,24 @@
 /**
- * Metal en fusion : un bain de metal chaud : une croute qui se fend en veines, une coulee lente en bruit a deplacement de domaine, un coeur qui rayonne.
+ * Molten metal: a bath of hot metal: a crust cracking into veins, a slow flow in a domain-warped noise, a radiating core.
  *
- * ## Le principe
+ * ## The principle
  *
- * Un champ de chaleur en bruit fractal a deplacement de domaine, deux
- * passes pour que les coulees s'enroulent. La couleur est une rampe a
- * trois arrets — la croute est le fond lui-meme, puis le metal, puis le
- * coeur — et les veines sont les lignes de niveau du champ. Deux
- * lectures decalees donnent un relief eclaire en rasant.
+ * A heat field in a fractal noise with domain warping, two passes so that the
+ * flows coil. The colour is a ramp with three stops — the crust is the
+ * background itself, then the metal, then the core — and the veins are the
+ * level lines of the field. Two offset reads give a relief lit at a grazing
+ * angle.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur — les recopier ici en ferait autant
- * de versions a maintenir qu'il y a de fonds.
+ * It carries only what sets it apart: its shader, its settings and its
+ * fallback. Reading the tokens, converting them to floats and re-reading them
+ * when the theme changes all come from the engine — copying that here would
+ * leave as many versions to maintain as there are backgrounds.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en
- * accorde qu'une par backend — et sous mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface — it grants only one
+ * per backend — and under reduced motion.
  *
  * @module
  */
@@ -35,57 +35,57 @@ import { type ReactElement } from 'react'
 
 import { MOLTEN_METAL_FRAGMENT } from './molten-metal.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface MoltenMetalControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to this component. */
 export interface MoltenMetalOwnProps {
-  /** Vitesse de la coulee. @defaultValue 0.08 */
+  /** Speed of the flow. @defaultValue 0.08 */
   speed?: number
-  /** Echelle du champ. Plus haut, plus fin. @defaultValue 1.8 */
+  /** Scale of the field. Higher is finer. @defaultValue 1.8 */
   scale?: number
-  /** Part du bain qui est en fusion. @defaultValue 0.6 */
+  /** Share of the bath that is molten. @defaultValue 0.6 */
   heat?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<MoltenMetalControls>
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type MoltenMetalProps = Customisable<MoltenMetalOwnProps>
 
-/** Tokens employes par defaut : la croute, le metal, le coeur. */
+/** Tokens used by default: the crust, the metal, the core. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-red-600',
   '--o-palette-amber-300',
 ] as const
 
-/** Repli par defaut : un degrade fige, dans les memes tons. */
+/** Default fallback: a frozen gradient, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-t o-from-amber-300 dark:o-from-amber-700 o-via-red-300 dark:o-via-red-900 o-to-zinc-50 dark:o-to-zinc-950'
 
 /**
- * Detail hors qualite basse.
+ * Detail outside low quality.
  *
- * Le champ est lu trois fois, et chaque lecture est sept sommes
- * d'octaves : c'est le seul levier de cout, et il tombe a deux octaves.
+ * The field is read three times, and every read is seven octave sums: it is the
+ * only cost lever, and it drops to two octaves.
  */
 const DETAIL = 4
 
-/** Detail en qualite basse. */
+/** Detail at low quality. */
 const LOW_DETAIL = 2
 
 /**
- * Metal en fusion.
+ * Molten metal.
  *
  * @example
  * <div className="o-relative o-min-h-screen">

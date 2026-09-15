@@ -1,19 +1,19 @@
 /**
- * Champ de points : une grille de disques qui respirent.
+ * Dot field: a grid of breathing discs.
  *
- * ## Ce que ce composant apporte, et ce qu'il delegue
+ * ## What this component brings, and what it delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur — les recopier ici en ferait autant
- * de versions a maintenir qu'il y a de fonds.
+ * It carries only what sets it apart: its shader, its settings and its fallback.
+ * Reading the tokens, converting them to floats and re-reading them when the
+ * theme changes all come from the engine — copying them here would leave as
+ * many versions to maintain as there are backgrounds.
  *
- * ## Le repli n'est pas une precaution
+ * ## The fallback is not a precaution
  *
- * C'est la moitie du composant. Il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en
- * accorde qu'une par backend — et sous mouvement reduit, ou un fond anime
- * n'apporte rien d'autre que son mouvement.
+ * It is half the component. It is shown while the backend loads, when WebGL is
+ * missing, when the arbiter refuses the surface — it grants only one per
+ * backend — and under reduced motion, where an animated background brings
+ * nothing but its motion.
  *
  * @module
  */
@@ -29,45 +29,45 @@ import {
 } from '@odoro-cli/engine'
 import { type ReactElement } from 'react'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface DotsControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to this component. */
 export interface DotsOwnProps {
-  /** Vitesse de la respiration. @defaultValue 1.2 */
+  /** Speed of the breathing. @defaultValue 1.2 */
   speed?: number
-  /** Nombre de points par largeur. @defaultValue 14 */
+  /** Number of dots across the width. @defaultValue 14 */
   density?: number
-  /** Taille des points, en fraction de la cellule. @defaultValue 0.18 */
+  /** Dot size, as a fraction of the cell. @defaultValue 0.18 */
   radius?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<DotsControls>
 }
 
-/** Toutes les proprietes. */
+/** Every property. */
 export type DotsProps = Customisable<DotsOwnProps>
 
-/** Tokens employes par defaut. */
+/** Tokens used by default. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-brand-500',
   '--o-palette-fuchsia-500',
 ] as const
 
-/** Repli par defaut : un degrade fige, dans les memes tons. */
+/** Default fallback: a frozen gradient, in the same tones. */
 const DEFAULT_FALLBACK = 'o-bg-zinc-50 dark:o-bg-zinc-950'
 
 /**
- * Champ de points : une grille de disques qui respirent.
+ * Dot field: a grid of breathing discs.
  *
  * @example
  * <div className="o-relative o-min-h-screen">
@@ -88,9 +88,9 @@ export function Dots({
     fragment: DOTS_FRAGMENT,
     colors,
     uniforms: { uSpeed: speed, uScale: density, uRadius: radius },
-    name: 'points',
-    // En qualite basse, la densite est bornee : c'est le seul reglage qui
-    // pese vraiment, et le motif reste reconnaissable une fois reduit.
+    name: 'dots',
+    // At low quality the density is capped: it is the only setting that really
+    // weighs, and the pattern stays recognisable once reduced.
     degrade: (quality) => ({
       uScale: quality === 'low' ? Math.min(density, 8) : density,
     }),

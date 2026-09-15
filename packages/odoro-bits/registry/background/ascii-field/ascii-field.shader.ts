@@ -1,35 +1,35 @@
 /**
- * Shader du champ ASCII.
+ * Shader of the ASCII field.
  *
- * ## L'idee mathematique
+ * ## The mathematical idea
  *
- * Un champ de bruit — trois octaves de bruit de valeur en derive lente —
- * n'est jamais affiche tel quel. Il est echantillonne au centre de chaque
- * cellule de caractere, quantifie en dix niveaux, et chaque niveau choisit
- * un caractere de la rampe classique des convertisseurs d'images en texte,
- * ordonnee par nombre de pixels allumes : de l'espace au arobase. La
- * densite d'encre d'une cellule suit donc la valeur du champ, et l'image se
- * lit de loin comme un degrade, de pres comme du texte.
+ * A noise field — three octaves of value noise on a slow drift — is never
+ * shown as such. It is sampled at the centre of every character cell,
+ * quantised into ten levels, and each level picks a character from the
+ * classic ramp of the image-to-text converters, ordered by number of lit
+ * pixels: from the space to the at sign. The ink density of a cell thus
+ * follows the value of the field, and the image reads from afar as a
+ * gradient, from up close as text.
  *
- * ## Les glyphes
+ * ## The glyphs
  *
- * Aucune police, aucune texture : chaque caractere est un masque de
- * trente-cinq bits sur une grille de cinq par sept. Un flottant n'en tient
- * pas autant sans perte ; le masque est donc coupe en deux entiers, les
- * quatre lignes du haut et les trois du bas, chacun lu bit a bit par
- * division par une puissance de deux et parite.
+ * No font, no texture: every character is a mask of thirty-five bits over
+ * a grid of five by seven. A float does not hold that many without loss;
+ * the mask is therefore cut into two integers, the four top rows and the
+ * three bottom ones, each read bit by bit through division by a power of
+ * two and parity.
  *
  * ## Uniforms
  *
- * - `uTime` — temps en secondes, fourni par le moteur.
- * - `uResolution` — taille du canevas en pixels, fournie par le moteur.
- * - `uColorA` — le fond.
- * - `uColorB` — l'encre.
- * - `uColorC` — l'encre des niveaux les plus hauts.
- * - `uCells` — nombre de caracteres sur la largeur.
- * - `uSpeed` — vitesse de derive du champ.
- * - `uScale` — echelle du champ ; plus haut, plus de details.
- * - `uContrast` — contraste du champ avant quantification.
+ * - `uTime` — time in seconds, supplied by the engine.
+ * - `uResolution` — canvas size in pixels, supplied by the engine.
+ * - `uColorA` — the background.
+ * - `uColorB` — the ink.
+ * - `uColorC` — the ink of the highest levels.
+ * - `uCells` — number of characters across the width.
+ * - `uSpeed` — drift speed of the field.
+ * - `uScale` — scale of the field; higher means more detail.
+ * - `uContrast` — contrast of the field before quantisation.
  */
 export const ASCII_FIELD_FRAGMENT = /* glsl */ `
 precision highp float;
@@ -46,13 +46,13 @@ uniform float uSpeed;
 uniform float uScale;
 uniform float uContrast;
 
-// Nombre pseudo-aleatoire : projection sur une direction arbitraire, sinus
-// amplifie, partie fractionnaire.
+// Pseudo-random number: projection onto an arbitrary direction, amplified
+// sine, fractional part.
 float asciiHash(vec2 p) {
   return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
 }
 
-// Bruit de valeur : interpolation lissee entre les quatre coins de la cellule.
+// Value noise: smoothed interpolation between the four corners of the cell.
 float asciiNoise(vec2 p) {
   vec2 cell = floor(p);
   vec2 local = fract(p);
@@ -66,7 +66,7 @@ float asciiNoise(vec2 p) {
   return mix(mix(a, b, smoothed.x), mix(c, d, smoothed.x), smoothed.y);
 }
 
-// Trois octaves, borne constante.
+// Three octaves, constant bound.
 float asciiField(vec2 p) {
   float value = 0.0;
   float amplitude = 0.5;
@@ -78,13 +78,13 @@ float asciiField(vec2 p) {
   return value / 0.875;
 }
 
-// Le bit de rang donne d'un masque.
+// The bit of the given rank within a mask.
 float asciiBit(float mask, float index) {
   return mod(floor(mask / exp2(index)), 2.0);
 }
 
-// La rampe, par densite croissante : espace . - : + = % * # @. Deux
-// entiers par caractere : les quatre lignes du haut, les trois du bas.
+// The ramp, by increasing density: space . - : + = % * # @. Two integers
+// per character: the four top rows, the three bottom ones.
 vec2 asciiGlyph(float level) {
   if (level < 0.5) return vec2(0.0, 0.0);
   if (level < 1.5) return vec2(0.0, 396.0);
@@ -102,8 +102,8 @@ void main() {
   float aspect = uResolution.x / max(uResolution.y, 1.0);
   float cells = clamp(uCells, 10.0, 200.0);
 
-  // Une cellule : cinq par sept de glyphe, plus un interligne de chaque
-  // cote. Six unites de large, huit de haut.
+  // One cell: five by seven of glyph, plus one unit of leading on each
+  // side. Six units wide, eight tall.
   float cellW = aspect / cells;
   float cellH = cellW * 8.0 / 6.0;
 
@@ -111,14 +111,14 @@ void main() {
   vec2 id = floor(p);
   vec2 local = fract(p);
 
-  // Le champ, lu au centre de la cellule, puis contraste et quantifie.
+  // The field, read at the centre of the cell, then contrasted and quantised.
   vec2 centre = (id + 0.5) * vec2(cellW, cellH);
   float t = uTime * uSpeed;
   float value = asciiField(centre * uScale + vec2(t * 0.6, t * 0.35));
   value = clamp((value - 0.5) * max(uContrast, 0.1) + 0.5, 0.0, 0.999);
   float level = floor(value * 10.0);
 
-  // Le pixel du glyphe : la ligne choisit l'entier, la position le bit.
+  // The pixel of the glyph: the row picks the integer, the position the bit.
   vec2 g = vec2(floor(local.x * 6.0), floor(local.y * 8.0));
   float inside = step(g.x, 4.5) * step(g.y, 6.5);
   vec2 mask = asciiGlyph(level);

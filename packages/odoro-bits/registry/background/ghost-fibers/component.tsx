@@ -1,31 +1,31 @@
 /**
- * Fibres fantomes : des filaments qui derivent en travers du cadre et se
- * pincent vers le pointeur quand il passe sous eux.
+ * Ghost fibers: filaments that drift across the frame and pinch towards
+ * the pointer when it passes beneath them.
  *
- * ## A quoi ce fond reagit
+ * ## What this background reacts to
  *
- * Au deplacement du pointeur, avec amortissement : au droit du curseur, les
- * fibres sont tirees vers son ordonnee, d'autant plus qu'elles en sont
- * proches en abscisse. Le pincement est une interpolation, pas une force :
- * les fibres retrouvent leur trace des que le curseur s'eloigne, sans
- * ressort ni memoire. A la sortie du cadre, le hook ramene la cible au
+ * To pointer movement, with damping: level with the cursor, the fibers are
+ * pulled towards its ordinate, the more so the closer they are to it in
+ * abscissa. The pinch is an interpolation, not a force: the fibers recover
+ * their path as soon as the cursor moves away, with no spring and no
+ * memory. On leaving the frame, the hook brings the target back to the
  * centre.
  *
- * Ce qui distingue cette entree de `strands` : les meches y sont ancrees en
- * bas du cadre et balancent, sans pointeur. De `threads` : le faisceau y est
- * fixe et d'epaisseur constante. Et de `web-threads` : c'est une toile de
- * points relies, en scene 3D.
+ * What sets this entry apart from `strands`: there the locks are anchored at
+ * the bottom of the frame and sway, with no pointer. From `threads`: there
+ * the bundle is fixed and of constant thickness. And from `web-threads`:
+ * that is a web of joined points, in a 3D scene.
  *
- * ## Le pont pointeur → shader
+ * ## The pointer → shader bridge
  *
- * Aucun rendu React par image : le composant mute en place un tableau stable
- * passe en uniform, et la surface relit ses uniforms a chaque image. La
- * recopie se fait dans la boucle du moteur, en priorite d'entree.
+ * No React render per frame: the component mutates a stable array in place
+ * passed as a uniform, and the surface re-reads its uniforms every frame. The
+ * copy happens inside the engine loop, at input priority.
  *
- * ## Sous mouvement reduit
+ * ## Under reduced motion
  *
- * La surface est refusee par le moteur et le repli statique s'affiche : le
- * suivi du pointeur est un agrement, pas un contenu.
+ * The surface is refused by the engine and the static fallback shows: the
+ * pointer tracking is a nicety, not content.
  *
  * @module
  */
@@ -46,46 +46,46 @@ import { usePointerDamped } from '@registre/hooks/usePointerDamped'
 
 import { GHOST_FIBERS_FRAGMENT } from './ghost-fibers.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface GhostFibersControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to this component. */
 export interface GhostFibersOwnProps {
-  /** Nombre de fibres. Borne a douze par le shader. @defaultValue 9 */
+  /** Number of fibers. Capped at twelve by the shader. @defaultValue 9 */
   fibers?: number
-  /** Force de l'attraction vers le pointeur, entre zero et un. @defaultValue 0.7 */
+  /** Strength of the attraction towards the pointer, between zero and one. @defaultValue 0.7 */
   bend?: number
-  /** Vitesse de derive des fibres. @defaultValue 0.6 */
+  /** Drift speed of the fibers. @defaultValue 0.6 */
   speed?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<GhostFibersControls>
 }
 
-/** Toutes les proprietes. */
+/** Every property. */
 export type GhostFibersProps = Customisable<GhostFibersOwnProps>
 
-/** Tokens employes par defaut : le fond, les fibres au repos, les fibres tirees. */
+/** Tokens used by default: the background, the fibers at rest, the pulled fibers. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-theme-muted',
   '--o-palette-cyan-300',
 ] as const
 
-/** Repli par defaut : une teinte figee, dans les memes tons. */
+/** Default fallback: a frozen hue, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-b o-from-zinc-50 dark:o-from-zinc-950 o-via-cyan-100 dark:o-via-cyan-950 o-to-zinc-50 dark:o-to-zinc-950'
 
 /**
- * Fibres fantomes.
+ * Ghost fibers.
  *
  * @example
  * <div className="o-relative o-min-h-screen">
@@ -104,21 +104,21 @@ export function GhostFibers({
 }: GhostFibersProps): ReactElement {
   const [host, setHost] = useState<HTMLDivElement | null>(null)
 
-  // Tableau stable, mute en place : la surface relit les uniforms a chaque
-  // image, l'identite ne change pas, la mutation suffit — aucun setState.
+  // Stable array, mutated in place: the surface re-reads the uniforms every
+  // frame, the identity never changes, mutating is enough — no setState.
   const uPointer = useRef<number[]>([0.5, 0.5]).current
 
-  const pointer = usePointerDamped({ host, speed: 3.5, name: 'ghost-fibers : pointeur' })
+  const pointer = usePointerDamped({ host, speed: 3.5, name: 'ghost-fibers : pointer' })
 
   useEffect(() => {
     const subscription = clock.subscribe(
       () => {
-        // Du repere du hook (centre, y vers le bas) vers celui de la texture
-        // (coin bas-gauche, y vers le haut).
+        // From the hook's frame (centred, y downwards) to the texture's frame
+        // (bottom-left corner, y upwards).
         uPointer[0] = (pointer.current.x + 1) / 2
         uPointer[1] = 1 - (pointer.current.y + 1) / 2
       },
-      { priority: CLOCK_PRIORITY.input, name: 'ghost-fibers : pont' },
+      { priority: CLOCK_PRIORITY.input, name: 'ghost-fibers : bridge' },
     )
     return () => subscription.unsubscribe()
   }, [pointer, uPointer])
@@ -134,8 +134,8 @@ export function GhostFibers({
     colors,
     uniforms: { uPointer, uFibers: fibers, uBend: bend, uSpeed: speed },
     name: 'ghost-fibers',
-    // Chaque fibre coute deux exponentielles par fragment : c'est le seul
-    // levier qui compte, et il se regle par le nombre.
+    // Each fiber costs two exponentials per fragment: it is the only lever
+    // that counts, and it is set by the count.
     degrade: (quality) => ({
       uFibers: quality === 'low' ? Math.min(fibers, 5) : fibers,
     }),

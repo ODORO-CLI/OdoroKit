@@ -34,7 +34,7 @@
       "step": 2
     },
     {
-      "name": "inclinaison",
+      "name": "tilt",
       "type": "number",
       "default": 6,
       "unit": "deg",
@@ -44,7 +44,7 @@
       "step": 0.5
     },
     {
-      "name": "course",
+      "name": "travel",
       "type": "number",
       "default": 1,
       "description": "Course du reglage, en hauteurs de fenetre.",

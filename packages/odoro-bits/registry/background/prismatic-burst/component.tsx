@@ -1,24 +1,24 @@
 /**
- * Eclat prismatique : des rais qui tournent autour d un foyer et changent de teinte sur le tour, traverses par des anneaux qui s eloignent.
+ * Prismatic burst: rays that turn around a focus and shift their hue around the turn, crossed by rings that travel away.
  *
- * ## Le principe
+ * ## The principle
  *
- * Des rais radiaux comme les rayons crepusculaires, mais ils tournent,
- * leur teinte tourne entre deux tokens selon l'angle, et des anneaux
- * partent du foyer en relevant les rais qu'ils traversent. Le bruit
- * angulaire reste une somme de sinus a frequences entieres, pour que le
- * tour se referme sans couture.
+ * Radial rays like crepuscular rays, but they turn, their hue rotates
+ * between two tokens according to the angle, and rings leave the focus
+ * lifting the rays they cross on their way. The angular noise stays a
+ * sum of sines at integer frequencies, so that the turn closes back on
+ * itself with no seam.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur — les recopier ici en ferait autant
- * de versions a maintenir qu'il y a de fonds.
+ * It carries only what sets it apart: its shader, its settings and its fallback.
+ * Reading the tokens, converting them to floats and re-reading them when the
+ * theme changes all come from the engine — copying that here would leave as many
+ * versions to maintain as there are backgrounds.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en
- * accorde qu'une par backend — et sous mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface — it grants only one per
+ * backend — and under reduced motion.
  *
  * @module
  */
@@ -35,61 +35,61 @@ import { type ReactElement } from 'react'
 
 import { PRISMATIC_BURST_FRAGMENT } from './prismatic-burst.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface PrismaticBurstControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to this component. */
 export interface PrismaticBurstOwnProps {
-  /** Position horizontale du foyer, en fraction du cadre. @defaultValue 0.5 */
+  /** Horizontal position of the focus, as a fraction of the frame. @defaultValue 0.5 */
   x?: number
-  /** Position verticale du foyer, en fraction du cadre. @defaultValue 0.5 */
+  /** Vertical position of the focus, as a fraction of the frame. @defaultValue 0.5 */
   y?: number
-  /** Nombre de rais sur le tour. @defaultValue 10 */
+  /** Number of rays around the turn. @defaultValue 10 */
   spokes?: number
-  /** Vitesse de rotation et des pulsations. @defaultValue 0.5 */
+  /** Speed of the rotation and of the pulses. @defaultValue 0.5 */
   speed?: number
-  /** Force des anneaux qui partent du foyer. @defaultValue 0.6 */
+  /** Strength of the rings leaving the focus. @defaultValue 0.6 */
   burst?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<PrismaticBurstControls>
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type PrismaticBurstProps = Customisable<PrismaticBurstOwnProps>
 
-/** Tokens employes par defaut : le fond, les deux teintes des rais. */
+/** Tokens used by default: the background, the two hues of the rays. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-fuchsia-500',
   '--o-palette-cyan-400',
 ] as const
 
-/** Repli par defaut : un degrade fige, dans les memes tons. */
+/** Default fallback: a frozen gradient, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-br o-from-fuchsia-200 dark:o-from-fuchsia-900 o-via-zinc-50 dark:o-via-zinc-950 o-to-cyan-200 dark:o-to-cyan-900'
 
 /**
- * Detail hors qualite basse.
+ * Detail outside low quality.
  *
- * Le nombre de rais est une frequence, pas une boucle : il ne coute
- * rien. Ce sont les harmoniques du bruit angulaire qui sont bornees.
+ * The number of rays is a frequency, not a loop: it costs nothing at
+ * all. It is the harmonics of the angular noise that are bounded.
  */
 const DETAIL = 3
 
-/** Detail en qualite basse. */
+/** Detail at low quality. */
 const LOW_DETAIL = 1
 
 /**
- * Eclat prismatique.
+ * Prismatic burst.
  *
  * @example
  * <div className="o-relative o-min-h-screen">

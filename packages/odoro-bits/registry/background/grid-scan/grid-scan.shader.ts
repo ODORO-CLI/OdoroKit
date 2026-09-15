@@ -1,31 +1,31 @@
 /**
- * Shader de la grille balayee.
+ * Shader for the scanned grid.
  *
- * ## L'idee mathematique
+ * ## The mathematical idea
  *
- * Une grille est lue, jamais dessinee : la distance a la ligne la plus
- * proche est la partie fractionnaire des coordonnees, recentree. Par-dessus,
- * une barre parcourt un axe du cadre a vitesse constante. Elle ne s'arrete
- * pas au bord : sa course inclut une marge de chaque cote, si bien qu'elle
- * sort du cadre avant de reapparaitre de l'autre — un saut a l'ecran se
- * remarquerait, une sortie ne se remarque pas.
+ * A grid is read, never drawn: the distance to the nearest line is the
+ * fractional part of the coordinates, recentred. Over it, a bar travels one
+ * axis of the frame at constant speed. It does not stop at the edge: its run
+ * includes a margin on each side, so that it leaves the frame before
+ * reappearing on the other side — a jump on screen would be noticed, an
+ * exit is not.
  *
- * La trainee n'est pas un degrade continu. Chaque cellule deja balayee
- * s'eteint a son rythme, depuis une intensite qui lui est propre : un
- * balayage uniforme se lirait comme un simple degrade qui glisse, alors que
- * des cellules inegales se lisent comme des cellules activees.
+ * The trail is not a continuous gradient. Every cell already scanned fades
+ * at its own rate, from an intensity of its own: a uniform sweep would read
+ * as a plain gradient that slides, whereas uneven cells read as cells that
+ * have been switched on.
  *
  * ## Uniforms
  *
- * - `uTime` — temps en secondes, fourni par le moteur.
- * - `uResolution` — taille du canevas en pixels, fournie par le moteur.
- * - `uColorA` — le fond.
- * - `uColorB` — les lignes.
- * - `uColorC` — la barre et les cellules qu'elle allume.
- * - `uCells` — nombre de cellules sur la hauteur.
- * - `uSpeed` — vitesse de la barre.
- * - `uTrail` — longueur de la trainee, en cellules.
- * - `uVertical` — un si la barre parcourt la largeur, zero pour la hauteur.
+ * - `uTime` — time in seconds, supplied by the engine.
+ * - `uResolution` — canvas size in pixels, supplied by the engine.
+ * - `uColorA` — the background.
+ * - `uColorB` — the lines.
+ * - `uColorC` — the bar and the cells it lights.
+ * - `uCells` — number of cells across the height.
+ * - `uSpeed` — speed of the bar.
+ * - `uTrail` — length of the trail, in cells.
+ * - `uVertical` — one if the bar travels the width, zero for the height.
  */
 export const GRID_SCAN_FRAGMENT = /* glsl */ `
 precision highp float;
@@ -42,7 +42,7 @@ uniform float uSpeed;
 uniform float uTrail;
 uniform float uVertical;
 
-// Nombre pseudo-aleatoire, stable par cellule.
+// Pseudo-random number, stable per cell.
 float hash(vec2 cell) {
   return fract(sin(dot(cell, vec2(127.1, 311.7))) * 43758.5453);
 }
@@ -52,32 +52,32 @@ void main() {
   float cells = clamp(uCells, 2.0, 60.0);
   vec2 p = vUv * vec2(aspect, 1.0) * cells;
 
-  // Un pixel, en unites de cellule.
+  // One pixel, in cell units.
   float px = cells / max(uResolution.y, 1.0);
 
   vec2 id = floor(p);
   vec2 local = abs(fract(p) - 0.5);
   float lines = 1.0 - smoothstep(px * 0.4, px * 1.4, 0.5 - max(local.x, local.y));
 
-  // L'axe balaye : la hauteur par defaut, la largeur si vertical.
+  // The scanned axis: the height by default, the width if vertical.
   float extent = mix(1.0, aspect, uVertical) * cells;
   float axis = mix(p.y, p.x, uVertical);
   float centre = mix(id.y, id.x, uVertical) + 0.5;
 
-  // La barre parcourt l'axe avec une marge de chaque cote : elle sort du
-  // cadre avant de repartir, sans jamais sauter a l'ecran.
+  // The bar travels the axis with a margin on each side: it leaves the
+  // frame before setting off again, without ever jumping on screen.
   float margin = cells * 0.2;
   float head = fract(uTime * uSpeed * 0.2) * (extent + 2.0 * margin) - margin;
 
-  // Le front : un trait vif a la position de la barre.
+  // The front: a sharp stroke at the position of the bar.
   float front = 1.0 - smoothstep(0.0, px * 3.0, abs(head - axis));
 
-  // La trainee : chaque cellule deja balayee s'eteint a son rythme, depuis
-  // une intensite qui lui est propre.
+  // The trail: every cell already scanned fades at its own rate, from an
+  // intensity of its own.
   float behind = head - centre;
   float wake = step(0.0, behind) * exp(-behind / max(uTrail, 0.2)) * (0.4 + 0.6 * hash(id));
 
-  // Un halo doux de part et d'autre du front, porte par les lignes.
+  // A soft halo on either side of the front, carried by the lines.
   float halo = exp(-abs(head - axis) * 0.8);
 
   vec3 colour = mix(uColorA, uColorB, lines * (0.35 + 0.65 * halo));

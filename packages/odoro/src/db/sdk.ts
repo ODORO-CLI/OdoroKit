@@ -1,40 +1,41 @@
 /**
- * Le chargement du SDK de la plateforme.
+ * Loading of the platform SDK.
  *
- * ## Pourquoi il n'est pas une dependance
+ * ## Why it is not a dependency
  *
- * Ce binaire est telecharge a chaque `npm create odoro`. Chaque dependance qui
- * s'y ajoute est payee par tous ceux qui echafaudent un projet, y compris ceux
- * qui n'emploieront jamais la plateforme — c'est-a-dire la majorite.
+ * This binary is downloaded on every `npm create odoro`. Every dependency added
+ * to it is paid for by everyone who scaffolds a project, including those who
+ * will never use the platform — that is, the majority.
  *
- * `@odoro-cli/cloud-sdk` est donc importe **dynamiquement**, et seulement quand une
- * commande `db:*` est appelee. Son absence n'est pas une panne : c'est l'etat
- * normal d'un projet qui emploie sa propre base.
+ * `@odoro-cli/cloud-sdk` is therefore imported **dynamically**, and only when a
+ * `db:*` command is called. Its absence is not a failure: it is the normal
+ * state of a project that uses its own database.
  *
- * ## Ce que l'absence doit produire
+ * ## What the absence must produce
  *
- * Pas une trace d'execution sur un module introuvable. Une phrase qui dit quel
- * paquet installer, et pourquoi la commande en a besoin. C'est la difference
- * entre une commande qu'on peut employer et une commande qui echoue sur un
- * message que personne ne rattache a une installation manquante.
+ * Not a runtime trace about a module that cannot be found. A sentence saying
+ * which package to install, and why the command needs it. That is the
+ * difference between a command one can use and a command that fails on a
+ * message nobody connects to a missing install.
  *
  * @module
  */
 
-/** Le paquet qui porte les commandes de base. */
+/** The package that carries the database commands. */
 export const SDK_PACKAGE = '@odoro-cli/cloud-sdk'
 
-/** Ce qu'un chargement rend. */
+/** What a load returns. */
 export type SdkLoad =
   | { readonly ok: true; readonly sdk: CloudSdk }
   | { readonly ok: false; readonly reason: string }
 
 /**
- * La surface du SDK que ce CLI emploie.
+ * The surface of the SDK this CLI uses.
  *
- * Decrite ici plutot qu'importee : importer les types ferait du paquet une
- * dependance de compilation, et ce depot n'en a pas — la communication entre
- * les deux depots passe par le paquet publie, dans un seul sens.
+ * Described here rather than imported: importing the types would make the
+ * package a build dependency, and this repository has none — the communication
+ * between the two repositories goes through the published package, in a single
+ * direction.
  */
 export interface CloudSdk {
   createClient: (config: { baseUrl: string; token: string }) => {
@@ -67,7 +68,7 @@ export interface CloudSdk {
 }
 
 /**
- * Charge le SDK, ou explique ce qui manque.
+ * Loads the SDK, or explains what is missing.
  *
  * @example
  * const load = await loadSdk()
@@ -78,9 +79,9 @@ export interface CloudSdk {
  */
 export async function loadSdk(): Promise<SdkLoad> {
   try {
-    // Le specificateur passe par une variable : ecrit en clair, un empaqueteur
-    // tenterait de le resoudre a la compilation et echouerait sur un paquet
-    // volontairement absent.
+    // The specifier goes through a variable: written in plain sight, a bundler
+    // would try to resolve it at build time and would fail on a package that is
+    // deliberately absent.
     const specifier = SDK_PACKAGE
     const sdk = (await import(specifier)) as CloudSdk
     return { ok: true, sdk }
@@ -88,12 +89,12 @@ export async function loadSdk(): Promise<SdkLoad> {
     return {
       ok: false,
       reason:
-        `Cette commande a besoin de ${SDK_PACKAGE}, qui n'est pas installe.\n` +
+        `This command needs ${SDK_PACKAGE}, which is not installed.\n` +
         `\n` +
         `  npm install --save-dev ${SDK_PACKAGE}\n` +
         `\n` +
-        `Il n'est pas fourni avec odoro : ce binaire est telecharge a chaque\n` +
-        `creation de projet, et la plupart n'emploient pas la plateforme.`,
+        `It does not ship with odoro: this binary is downloaded on every\n` +
+        `project creation, and most projects do not use the platform.`,
     }
   }
 }

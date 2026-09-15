@@ -1,158 +1,157 @@
 /**
- * Copie dans le presse-papiers, avec l'etat que l'interface doit montrer.
+ * Copies to the clipboard, along with the state the interface has to show.
  *
- * ## Pourquoi un etat, et pas seulement un appel
+ * ## Why a state, and not just a call
  *
- * Copier ne produit aucun retour visible : rien ne bouge, aucun son, et le
- * presse-papiers ne se regarde pas. Sans confirmation, on reclique — puis on
- * va coller ailleurs pour verifier. La confirmation n'est donc pas un ornement,
- * c'est la seule preuve que l'action a eu lieu.
+ * Copying produces no visible feedback: nothing moves, no sound, and the
+ * clipboard cannot be looked at. Without a confirmation, people click again —
+ * then go paste somewhere else to check. The confirmation is therefore not an
+ * ornament, it is the only proof that the action happened.
  *
- * Elle doit aussi s'effacer. Un « copie ! » qui reste indefiniment ne dit plus
- * rien de la derniere action, et le bouton semble bloque dans un etat.
+ * It also has to fade. A "copied!" that stays forever no longer says anything
+ * about the last action, and the button looks stuck in a state.
  *
- * ## Pourquoi l'echec est un etat a part entiere
+ * ## Why failure is a state of its own
  *
- * L'API du presse-papiers echoue pour des raisons ordinaires : page servie
- * sans chiffrement, permission refusee, document sans focus. Traiter l'echec
- * comme un succes est le pire des deux mondes — on affiche « copie » et le
- * collage rend autre chose. L'appelant peut alors proposer la selection
- * manuelle, qui reste toujours possible.
+ * The clipboard API fails for ordinary reasons: page served without
+ * encryption, permission denied, document without focus. Treating failure as
+ * success is the worst of both worlds — we display "copied" and the paste
+ * yields something else. The caller can then offer manual selection, which is
+ * always still possible.
  *
- * ## Pourquoi il reste un chemin de repli
+ * ## Why a fallback path remains
  *
- * `navigator.clipboard` exige un contexte securise. En developpement sur une
- * adresse du reseau local — un telephone qui pointe vers la machine — il
- * n'existe tout simplement pas. La vieille commande d'edition, elle, marche
- * encore partout ; elle est depreciee, pas retiree, et c'est la difference
- * entre un bouton qui fonctionne et un bouton qui ne fonctionne que chez celui
- * qui l'a ecrit.
+ * `navigator.clipboard` requires a secure context. In development on a local
+ * network address — a phone pointing at the machine — it simply does not
+ * exist. The old editing command, on the other hand, still works everywhere;
+ * it is deprecated, not removed, and that is the difference between a button
+ * that works and a button that only works for the person who wrote it.
  *
- * ## Pourquoi le demontage est surveille
+ * ## Why unmounting is watched
  *
- * La copie est asynchrone et le retour au repos est differe. Un panneau ferme
- * entre-temps — c'est le cas courant, on copie puis on ferme — verrait deux
- * ecritures d'etat sur un composant disparu : un minuteur qui survit, et une
- * promesse qui se resout dans le vide.
+ * The copy is asynchronous and the return to rest is deferred. A panel closed
+ * in the meantime — the common case, one copies then closes — would see two
+ * state writes on a component that is gone: a timer that outlives it, and a
+ * promise that resolves into the void.
  *
  * @module
  */
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 
-/** Ou en est la derniere copie. */
-export type CopyState = 'repos' | 'copie' | 'echec'
+/** Where the last copy stands. */
+export type CopyState = 'idle' | 'copied' | 'failed'
 
-/** Options de `useCopy`. */
+/** Options of `useCopy`. */
 export interface CopyOptions {
   /**
-   * Delai avant le retour au repos, en millisecondes.
+   * Delay before the return to rest, in milliseconds.
    *
    * @defaultValue 1600
    */
-  delai?: number
+  delay?: number
 }
 
-/** Ce que le crochet rend. */
+/** What the hook returns. */
 export interface CopyHandle {
-  /** Etat de la derniere copie. */
-  readonly etat: CopyState
+  /** State of the last copy. */
+  readonly state: CopyState
   /**
-   * Copie un texte.
+   * Copies a text.
    *
-   * @returns `true` si le presse-papiers a bien recu le texte.
+   * @returns `true` if the clipboard did receive the text.
    */
-  copier(texte: string): Promise<boolean>
+  copy(text: string): Promise<boolean>
 }
 
 /**
- * Ecrit dans le presse-papiers par la commande d'edition du document.
+ * Writes to the clipboard through the document editing command.
  *
- * Le champ est place hors du champ visible plutot que masque : un element
- * `display: none` ne peut pas etre selectionne, et la commande n'aurait alors
- * rien a copier.
+ * The field is placed outside the visible area rather than hidden: a
+ * `display: none` element cannot be selected, and the command would then have
+ * nothing to copy.
  */
-function copieDeSecours(texte: string): boolean {
+function fallbackCopy(text: string): boolean {
   if (typeof document === 'undefined') return false
 
-  const champ = document.createElement('textarea')
-  champ.value = texte
-  champ.setAttribute('readonly', '')
-  champ.setAttribute('aria-hidden', 'true')
-  champ.style.position = 'fixed'
-  champ.style.top = '0'
-  champ.style.left = '-9999px'
+  const field = document.createElement('textarea')
+  field.value = text
+  field.setAttribute('readonly', '')
+  field.setAttribute('aria-hidden', 'true')
+  field.style.position = 'fixed'
+  field.style.top = '0'
+  field.style.left = '-9999px'
 
-  document.body.append(champ)
-  const focusPrecedent = document.activeElement
+  document.body.append(field)
+  const previousFocus = document.activeElement
 
   try {
-    champ.select()
+    field.select()
     return document.execCommand('copy')
   } catch {
     return false
   } finally {
-    champ.remove()
-    // Rendre le focus : sans cela, le bouton qu'on vient de cliquer le perd,
-    // et la navigation au clavier repart du debut du document.
-    if (focusPrecedent instanceof HTMLElement) focusPrecedent.focus()
+    field.remove()
+    // Give focus back: without this, the button that was just clicked loses
+    // it, and keyboard navigation restarts from the top of the document.
+    if (previousFocus instanceof HTMLElement) previousFocus.focus()
   }
 }
 
 /**
- * Copie dans le presse-papiers, avec un etat qui retombe seul.
+ * Copies to the clipboard, with a state that falls back on its own.
  *
  * @example
- * const { etat, copier } = useCopy()
+ * const { state, copy } = useCopy()
  *
- * <button type="button" onClick={() => void copier(commande)}>
- *   {etat === 'copie' ? 'Copie' : etat === 'echec' ? 'Echec' : 'Copier'}
+ * <button type="button" onClick={() => void copy(commande)}>
+ *   {state === 'copied' ? 'Copied' : state === 'failed' ? 'Failed' : 'Copy'}
  * </button>
  */
 export function useCopy(options: CopyOptions = {}): CopyHandle {
-  const { delai = 1600 } = options
+  const { delay = 1600 } = options
 
-  const [etat, setEtat] = useState<CopyState>('repos')
-  const minuteur = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
-  const monte = useRef(true)
+  const [state, setEtat] = useState<CopyState>('idle')
+  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
+  const mounted = useRef(true)
 
   useEffect(() => {
-    monte.current = true
+    mounted.current = true
     return () => {
-      monte.current = false
-      clearTimeout(minuteur.current)
+      mounted.current = false
+      clearTimeout(timer.current)
     }
   }, [])
 
-  const copier = useCallback(
-    async (texte: string): Promise<boolean> => {
-      let reussi = false
+  const copy = useCallback(
+    async (text: string): Promise<boolean> => {
+      let succeeded = false
 
       try {
         if (typeof navigator !== 'undefined' && navigator.clipboard !== undefined) {
-          await navigator.clipboard.writeText(texte)
-          reussi = true
+          await navigator.clipboard.writeText(text)
+          succeeded = true
         } else {
-          reussi = copieDeSecours(texte)
+          succeeded = fallbackCopy(text)
         }
       } catch {
-        // Permission refusee, document sans focus, contexte non securise : la
-        // vieille commande reste une chance, pas une certitude.
-        reussi = copieDeSecours(texte)
+        // Permission denied, document without focus, insecure context: the old
+        // command stays a chance, not a certainty.
+        succeeded = fallbackCopy(text)
       }
 
-      if (!monte.current) return reussi
+      if (!mounted.current) return succeeded
 
-      clearTimeout(minuteur.current)
-      setEtat(reussi ? 'copie' : 'echec')
-      minuteur.current = setTimeout(() => {
-        if (monte.current) setEtat('repos')
-      }, delai)
+      clearTimeout(timer.current)
+      setEtat(succeeded ? 'copied' : 'failed')
+      timer.current = setTimeout(() => {
+        if (mounted.current) setEtat('idle')
+      }, delay)
 
-      return reussi
+      return succeeded
     },
-    [delai],
+    [delay],
   )
 
-  return { etat, copier }
+  return { state, copy }
 }

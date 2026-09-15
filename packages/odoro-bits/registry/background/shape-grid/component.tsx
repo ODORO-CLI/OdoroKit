@@ -1,23 +1,22 @@
 /**
- * Grille de formes : rond, carre ou triangle par cellule, chacun tournant a
- * sa vitesse.
+ * Shape grid: a circle, a square or a triangle per cell, each turning at its
+ * own speed.
  *
- * ## Ce qui le distingue des trames de points
+ * ## What sets it apart from the dot rasters
  *
- * La matrice de points et la grille de spots posent un point identique par
- * cellule et animent la trame entiere. Ici, chaque cellule porte une forme
- * differente, orientee et cadencee a part : c'est une collection, pas une
- * trame.
+ * The dot matrix and the spot grid lay down an identical dot per cell and
+ * animate the whole raster. Here, every cell carries a different shape,
+ * oriented and paced on its own: it is a collection, not a raster.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur.
+ * It carries only what sets it apart: its shader, its settings and its
+ * fallback. Reading the tokens, converting them to floats and re-reading them
+ * when the theme changes all come from the engine.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface et sous
- * mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface and under reduced
+ * motion.
  *
  * @module
  */
@@ -34,45 +33,45 @@ import { type ReactElement } from 'react'
 
 import { SHAPE_GRID_FRAGMENT } from './shape-grid.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface ShapeGridControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to this component. */
 export interface ShapeGridOwnProps {
-  /** Vitesse de rotation moyenne. @defaultValue 0.4 */
+  /** Average rotation speed. @defaultValue 0.4 */
   speed?: number
-  /** Nombre de cellules sur la hauteur. @defaultValue 9 */
+  /** Number of cells across the height. @defaultValue 9 */
   density?: number
-  /** Rayon des formes, en fraction de la cellule. @defaultValue 0.28 */
+  /** Radius of the shapes, as a fraction of the cell. @defaultValue 0.28 */
   size?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<ShapeGridControls>
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type ShapeGridProps = Customisable<ShapeGridOwnProps>
 
-/** Tokens employes par defaut : le fond, puis les deux teintes des formes. */
+/** Tokens used by default: the background, then the two hues of the shapes. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-brand-500',
   '--o-palette-sky-400',
 ] as const
 
-/** Repli par defaut : une teinte figee, dans les memes tons. */
+/** Default fallback: a frozen tint, in the same tones. */
 const DEFAULT_FALLBACK = 'o-bg-zinc-50 dark:o-bg-zinc-950'
 
 /**
- * Grille de formes.
+ * Shape grid.
  *
  * @example
  * <div className="o-relative o-min-h-screen">

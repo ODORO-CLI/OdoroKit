@@ -1,23 +1,23 @@
 /**
- * Champ de particules : un semis qui derive lentement, allume au passage du
- * pointeur.
+ * Field of particles: a scatter that drifts slowly, lit as the pointer goes
+ * past.
  *
- * ## A quoi ce fond reagit
+ * ## What this background reacts to
  *
- * Au deplacement du pointeur, avec amortissement : les particules qu'il
- * couvre s'allument et prennent la teinte d'eclat, puis s'eteignent quand il
- * s'eloigne. A la sortie du cadre, le hook ramene la cible au centre. Le
- * champ, lui, derive en permanence, pointeur ou non.
+ * To pointer movement, with damping: the particles it covers light up and
+ * take on the sparkle hue, then die away as it moves off. On leaving the
+ * frame, the hook brings the target back to the centre. The field itself
+ * drifts continuously, pointer or no pointer.
  *
- * ## Le pont pointeur -> shader
+ * ## The pointer -> shader bridge
  *
- * Aucun rendu React par image : un tableau stable de deux flottants est mute
- * en place dans la boucle du moteur, en priorite d'entree, et la surface le
- * relit a chaque image.
+ * No React render per frame: a stable array of two floats is mutated in place
+ * in the engine loop, at input priority, and the surface re-reads it every
+ * frame.
  *
- * ## Sous mouvement reduit
+ * ## Under reduced motion
  *
- * La surface est refusee par le moteur et le repli statique s'affiche.
+ * The surface is refused by the engine and the static fallback is shown.
  *
  * @module
  */
@@ -38,56 +38,56 @@ import { usePointerDamped } from '@registre/hooks/usePointerDamped'
 
 import { PARTICLE_FIELD_FRAGMENT } from './particle-field.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface ParticleFieldControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to this component. */
 export interface ParticleFieldOwnProps {
-  /** Vitesse de la derive. @defaultValue 0.4 */
+  /** Speed of the drift. @defaultValue 0.4 */
   speed?: number
-  /** Densite du semis. @defaultValue 10 */
+  /** Density of the scatter. @defaultValue 10 */
   density?: number
-  /** Rayon de l'eclat autour du pointeur, en hauteurs de cadre. @defaultValue 0.22 */
+  /** Radius of the sparkle around the pointer, in frame heights. @defaultValue 0.22 */
   radius?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<ParticleFieldControls>
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type ParticleFieldProps = Customisable<ParticleFieldOwnProps>
 
-/** Tokens employes par defaut : le fond, les particules au repos, l'eclat. */
+/** Tokens used by default: the background, the particles at rest, the sparkle. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-theme-muted',
   '--o-palette-brand-500',
 ] as const
 
-/** Repli par defaut : une teinte figee, dans les memes tons. */
+/** Default fallback: a frozen tint, in the same tones. */
 const DEFAULT_FALLBACK = 'o-bg-zinc-50 dark:o-bg-zinc-950'
 
 /**
- * Couches hors qualite basse.
+ * Layers outside low quality.
  *
- * Chaque couche parcourt neuf cellules par fragment : c'est le seul levier de
- * cout du shader, et la couche lointaine est celle qui se voit le moins.
+ * Every layer walks nine cells per fragment: it is the only cost lever the
+ * shader has, and the far layer is the one that shows the least.
  */
 const LAYERS = 2
 
-/** Couches en qualite basse. */
+/** Layers at low quality. */
 const LOW_LAYERS = 1
 
 /**
- * Champ de particules.
+ * Field of particles.
  *
  * @example
  * <div className="o-relative o-min-h-screen">
@@ -106,21 +106,21 @@ export function ParticleField({
 }: ParticleFieldProps): ReactElement {
   const [host, setHost] = useState<HTMLDivElement | null>(null)
 
-  // Tableau stable, mute en place : la surface relit les uniforms a chaque
-  // image, l'identite ne change pas, la mutation suffit — aucun setState.
+  // Stable array, mutated in place: the surface re-reads the uniforms every
+  // frame, the identity does not change, the mutation is enough — no setState.
   const uPointer = useRef<number[]>([0.5, 0.5]).current
 
-  const pointer = usePointerDamped({ host, speed: 4, name: 'champ : pointeur' })
+  const pointer = usePointerDamped({ host, speed: 4, name: 'champ : pointer' })
 
   useEffect(() => {
     const subscription = clock.subscribe(
       () => {
-        // Du repere du hook (centre, y vers le bas) vers celui de la texture
-        // (coin bas-gauche, y vers le haut).
+        // From the hook's frame (centred, y downwards) to the texture's
+        // (bottom-left corner, y upwards).
         uPointer[0] = (pointer.current.x + 1) / 2
         uPointer[1] = 1 - (pointer.current.y + 1) / 2
       },
-      { priority: CLOCK_PRIORITY.input, name: 'champ : pont' },
+      { priority: CLOCK_PRIORITY.input, name: 'champ : bridge' },
     )
     return () => subscription.unsubscribe()
   }, [pointer, uPointer])

@@ -1,40 +1,39 @@
 /**
- * Coche de reussite : la coche se dessine en boucle pendant l'attente, se
- * pose pour de bon au succes, et cede la place a une croix a l'echec.
+ * Success tick: the tick draws itself on a loop during the wait, settles for
+ * good on success, and gives way to a cross on failure.
  *
- * ## Le meme geste, du debut a la fin
+ * ## The same gesture, from beginning to end
  *
- * La plupart des chargeurs a etats changent de figure au moment de la
- * reponse : un anneau qui tourne, puis une coche. Celui-ci ne change
- * jamais de figure — c'est la meme coche qui s'ebauche pendant l'attente et
- * qui s'arrete de s'effacer quand la reponse arrive. L'utilisateur voit
- * donc, des la premiere seconde, ce qu'il est en train d'attendre.
+ * Most loaders with states change figure the moment the answer arrives: a
+ * spinning ring, then a tick. This one never changes figure — it is the same
+ * tick that sketches itself during the wait and that stops fading away when
+ * the answer comes. The user therefore sees, from the very first second, what
+ * they are waiting for.
  *
- * Le trait est un tiret aussi long que le chemin, deplace par son
- * decalage : la coche se dessine de la pointe basse vers le haut, dans
- * l'ordre ou une main la tracerait. Le chemin declare une longueur de cent,
- * ce qui rend les images cles independantes de sa longueur reelle — et la
- * croix, qui est deux traits d'un seul chemin, se dessine avec exactement
- * les memes images cles.
+ * The stroke is a dash as long as the path, moved by its offset: the tick
+ * draws itself from the bottom point upwards, in the order a hand would trace
+ * it. The path declares a length of one hundred, which makes the keyframes
+ * independent of its real length — and the cross, which is two strokes of a
+ * single path, draws itself with exactly the same keyframes.
  *
- * Pendant l'attente, la coche se trace, tient, puis s'efface en fondu et
- * recommence : une ebauche, jamais une affirmation. A la reponse,
- * l'animation devient unique et se fige sur sa derniere image — c'est la
- * seule difference entre « peut-etre » et « oui ».
+ * During the wait, the tick traces itself, holds, then fades out and starts
+ * again: a sketch, never an assertion. On the answer, the animation becomes a
+ * single run and freezes on its last frame — that is the only difference
+ * between "maybe" and "yes".
  *
- * Le disque derriere le trait n'apparait qu'a la reponse : il donne au
- * resultat un poids que l'attente n'a pas.
+ * The disc behind the stroke only appears on the answer: it gives the result
+ * a weight the wait does not have.
  *
- * ## Un statut qui parle
+ * ## A status that speaks
  *
- * L'element porte `role="status"` : le libelle hors ecran change avec
- * l'etat, et le changement est annonce sans voler le focus. C'est le seul
- * canal par lequel un lecteur d'ecran apprend que l'operation a reussi —
- * une couleur et une forme ne se lisent pas a voix haute. Le dessin, lui,
- * est retire de l'arbre d'accessibilite.
+ * The element carries `role="status"`: the offscreen label changes with the
+ * state, and the change is announced without stealing focus. It is the only
+ * channel through which a screen reader learns that the operation succeeded —
+ * a colour and a shape are not read out loud. The drawing itself is removed
+ * from the accessibility tree.
  *
- * Sous mouvement reduit, la marque est entierement tracee dans chaque etat,
- * disque compris : c'est l'etat final, celui qui informe.
+ * Under reduced motion, the mark is fully traced in every state, disc
+ * included: that is the final state, the one that informs.
  *
  * @module
  */
@@ -42,19 +41,19 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-checkmark-success'
 
-/** La coche, de la pointe basse vers le haut. */
+/** The tick, from the bottom point upwards. */
 const CHECK = 'M 26 52 L 43 69 L 76 32'
 
-/** La croix, deux traits d'un seul chemin : le trace les enchaine. */
+/** The cross, two strokes of a single path: the trace chains them. */
 const CROSS = 'M 34 34 L 66 66 M 66 34 L 34 66'
 
-/** Etats possibles du composant. */
-export type CheckmarkState = 'chargement' | 'succes' | 'echec'
+/** Possible states of the component. */
+export type CheckmarkState = 'loading' | 'success' | 'error'
 
-/** Pose la marque, son trace et ses etats, une fois par document. */
+/** Sets the mark, its trace and its states, once per document. */
 function ensureCheckmarkRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -67,22 +66,22 @@ function ensureCheckmarkRule(): void {
     '[data-o-checkmark-mark]{stroke-dasharray:100 100;stroke-dashoffset:100}',
     '[data-o-checkmark-halo]{opacity:0;transform-box:view-box;transform-origin:50px 50px}',
     '[data-o-checkmark-shake]{transform-box:view-box;transform-origin:50px 50px}',
-    // Attente : la coche s'ebauche sans fin.
-    '[data-o-checkmark="chargement"] [data-o-checkmark-mark]{',
+    // Waiting: the tick sketches itself endlessly.
+    '[data-o-checkmark="loading"] [data-o-checkmark-mark]{',
     'animation:o-checkmark-loop var(--o-check-speed) infinite;',
     '}',
-    // Reponse : un seul trace, fige sur sa derniere image.
-    '[data-o-checkmark="succes"] [data-o-checkmark-mark],',
-    '[data-o-checkmark="echec"] [data-o-checkmark-mark]{',
+    // Answer: a single trace, frozen on its last frame.
+    '[data-o-checkmark="success"] [data-o-checkmark-mark],',
+    '[data-o-checkmark="error"] [data-o-checkmark-mark]{',
     'animation:o-checkmark-draw var(--o-check-speed) cubic-bezier(0.65,0,0.35,1) forwards;',
     '}',
-    '[data-o-checkmark="succes"] [data-o-checkmark-halo],',
-    '[data-o-checkmark="echec"] [data-o-checkmark-halo]{',
+    '[data-o-checkmark="success"] [data-o-checkmark-halo],',
+    '[data-o-checkmark="error"] [data-o-checkmark-halo]{',
     'animation:o-checkmark-pop var(--o-check-speed) cubic-bezier(0.34,1.56,0.64,1) forwards;',
     '}',
-    // Un refus se secoue la tete : deux allers-retours courts, apres le
-    // trace, jamais pendant.
-    '[data-o-checkmark="echec"] [data-o-checkmark-shake]{',
+    // A refusal shakes its head: two short back-and-forths, after the trace,
+    // never during.
+    '[data-o-checkmark="error"] [data-o-checkmark-shake]{',
     'animation:o-checkmark-shake calc(var(--o-check-speed) * 0.5) ease-in-out calc(var(--o-check-speed) * 0.7) 1;',
     '}',
     '@keyframes o-checkmark-loop{',
@@ -101,80 +100,81 @@ function ensureCheckmarkRule(): void {
     '60%{transform:translateX(5px)}',
     '85%{transform:translateX(-2px)}',
     '}',
-    // Marque entierement tracee, disque pose au besoin : l'etat final.
+    // Mark fully traced, disc laid down where needed: the final state.
     //
-    // Les selecteurs y sont aussi precis que ceux des etats : une requete de
-    // media n'ajoute aucune specificite, et une regle plus courte perdrait
-    // contre `[data-o-checkmark="chargement"] [data-o-checkmark-mark]` —
-    // l'animation continuerait de tourner sous mouvement reduit.
+    // The selectors here are as precise as those of the states: a media query
+    // adds no specificity, and a shorter rule would lose against
+    // `[data-o-checkmark="loading"] [data-o-checkmark-mark]` — the
+    // animation would keep running under reduced motion.
     '@media (prefers-reduced-motion:reduce){',
     '[data-o-checkmark] [data-o-checkmark-mark]{animation:none;stroke-dashoffset:0;opacity:1}',
     '[data-o-checkmark] [data-o-checkmark-shake]{animation:none;transform:none}',
     '[data-o-checkmark] [data-o-checkmark-halo]{animation:none;transform:none}',
-    '[data-o-checkmark="succes"] [data-o-checkmark-halo],',
-    '[data-o-checkmark="echec"] [data-o-checkmark-halo]{opacity:1}',
+    '[data-o-checkmark="success"] [data-o-checkmark-halo],',
+    '[data-o-checkmark="error"] [data-o-checkmark-halo]{opacity:1}',
     '}',
   ].join('')
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface CheckmarkSuccessOwnProps {
-  /** Cote du dessin, en pixels. @defaultValue 56 */
+  /** Side of the drawing, in pixels. @defaultValue 56 */
   size?: number
-  /** Epaisseur du trait, en pixels. @defaultValue 6 */
+  /** Stroke thickness, in pixels. @defaultValue 6 */
   thickness?: number
-  /** Duree d'un trace, en millisecondes. @defaultValue 900 */
+  /** Duration of one trace, in milliseconds. @defaultValue 900 */
   speed?: number
-  /** Etat de l'operation. @defaultValue 'chargement' */
+  /** State of the operation. @defaultValue 'loading' */
   state?: CheckmarkState
-  /** Couleur de la marque. @defaultValue la couleur du texte */
+  /** Colour of the mark. @defaultValue the text colour */
   color?: string
-  /** Libelle annonce pendant l'attente. @defaultValue 'Chargement' */
+  /** Label announced during the wait. @defaultValue 'Loading' */
   label?: string
-  /** Libelle annonce au succes. @defaultValue 'Termine' */
-  labelSucces?: string
-  /** Libelle annonce a l'echec. @defaultValue 'Echec' */
-  labelEchec?: string
+  /** Label announced on success. @defaultValue 'Done' */
+  successLabel?: string
+  /** Label announced on failure. @defaultValue 'Failed' */
+  errorLabel?: string
 }
 
-/** Toutes les proprietes. */
+/** All the properties. */
 export type CheckmarkSuccessProps = Customisable<CheckmarkSuccessOwnProps, 'span'>
 
 /**
- * Signale une attente puis son issue par une coche qui se dessine.
+ * Signals a wait and then its outcome with a tick that draws itself.
  *
  * @example
- * <CheckmarkSuccess state={enCours ? 'chargement' : 'succes'} />
+ * <CheckmarkSuccess state={pending ? 'loading' : 'success'} />
  *
  * @example
- * // Un refus, plus grand, dans une teinte d'alerte.
- * <CheckmarkSuccess state="echec" size={80} color="var(--o-palette-red-500)" />
+ * // A refusal, bigger, in an alert hue.
+ * <CheckmarkSuccess state="error" size={80} color="var(--o-palette-red-500)" />
  */
 export function CheckmarkSuccess({
   size = 56,
   thickness = 6,
   speed = 900,
-  state = 'chargement',
+  state = 'loading',
   color = 'currentColor',
-  label = 'Chargement',
-  labelSucces = 'Termine',
-  labelEchec = 'Echec',
+  label = 'Loading',
+  successLabel = 'Done',
+  errorLabel = 'Failed',
   ...rest
 }: CheckmarkSuccessProps): ReactElement {
   ensureCheckmarkRule()
 
   const { className, style } = mergePresentation({}, rest)
 
-  // Le dessin vit dans une vue de 100 unites : l'epaisseur demandee en
-  // pixels est convertie pour que le trait garde sa mesure a toute taille.
+  // The drawing lives in a view of 100 units: the thickness asked for in
+  // pixels is converted so that the stroke keeps its measure at any size.
   const stroke = Math.min((thickness / size) * 100, 20)
 
-  // La croix ne partage pas la coche : c'est le contraire du succes, pas sa
-  // variante. Le trace, lui, est exactement le meme.
-  const mark = state === 'echec' ? CROSS : CHECK
+  // The cross does not share the tick: it is the opposite of success, not a
+  // variant of it. The trace, on the other hand, is exactly the same.
+  const mark = state === 'error' ? CROSS : CHECK
 
-  const spoken = state === 'succes' ? labelSucces : state === 'echec' ? labelEchec : label
+  const spoken =
+    state === 'success' ? successLabel : state === 'error' ? errorLabel : label
 
   const loaderStyle = {
     ...style,
@@ -205,10 +205,10 @@ export function CheckmarkSuccess({
           />
           <path
             data-o-checkmark-mark=""
-            // La cle force React a remonter un chemin neuf quand la figure
-            // change : l'animation repart du debut au lieu de continuer sur
-            // l'ancienne, ce qui montrerait une croix a demi tracee.
-            key={state === 'echec' ? 'croix' : 'coche'}
+            // The key forces React to mount a fresh path when the figure
+            // changes: the animation starts over instead of carrying on from
+            // the old one, which would show a half-traced cross.
+            key={state === 'error' ? 'cross' : 'check'}
             d={mark}
             pathLength={100}
             fill="none"

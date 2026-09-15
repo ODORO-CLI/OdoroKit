@@ -1,32 +1,31 @@
 /**
- * Anneau degrade : un degrade conique masque en anneau, en rotation.
+ * Gradient ring: a conic gradient masked into a ring, rotating.
  *
- * ## Un degrade, un masque, une rotation
+ * ## A gradient, a mask, a rotation
  *
- * Le disque porte un degrade conique qui va du transparent a la couleur
- * pleine sur un tour complet. Un masque radial ne garde que la couronne
- * exterieure : le disque devient un anneau dont l'intensite croit sur tout
- * le tour, sans tete ni queue nettes. C'est ce qui le distingue d'un arc
- * sur une piste : ici rien n'est decoupe, la couleur s'eteint continument.
+ * The disc carries a conic gradient that goes from transparent to the full
+ * color over a complete turn. A radial mask keeps only the outer crown: the
+ * disc becomes a ring whose intensity grows over the whole turn, with no
+ * crisp head or tail. That is what sets it apart from an arc on a track:
+ * here nothing is cut out, the color fades out continuously.
  *
- * Le degrade se termine par une couture — pleine couleur a 360 degres,
- * transparent a 0 degre. Un point rond de l'epaisseur de l'anneau est pose
- * sur cette couture : il devient la tete du mouvement et arrondit une fin de
- * degrade qui, seule, serait coupee au rasoir.
+ * The gradient ends on a seam — full color at 360 degrees, transparent at 0
+ * degrees. A round dot the thickness of the ring is placed on that seam: it
+ * becomes the head of the movement and rounds off an end of gradient which,
+ * on its own, would be cut with a razor.
  *
- * Le masque est un degrade radial dont la couleur ne compte pas, seule son
- * opacite : `currentColor` y fait office de plein, sans introduire une
- * valeur de couleur qui n'appartiendrait a aucun theme.
+ * The mask is a radial gradient whose color does not matter, only its
+ * opacity: `currentColor` stands in for solid there, without introducing a
+ * color value that would belong to no theme.
  *
- * ## Un statut, pas un dessin
+ * ## A status, not a drawing
  *
- * L'element porte `role="status"` et un libelle pour les lecteurs d'ecran :
- * l'attente est une information, pas une decoration. L'anneau, lui, est
- * retire de l'arbre d'accessibilite.
+ * The element carries `role="status"` and a label for screen readers: the
+ * wait is information, not decoration. The ring itself is removed from the
+ * accessibility tree.
  *
- * Sous mouvement reduit, l'anneau reste tete en haut : un anneau qui
- * s'eteint sur son tour se lit encore comme un chargeur, seul le mouvement
- * s'arrete.
+ * Under reduced motion, the ring stays head up: a ring that fades out over
+ * its turn still reads as a loader, only the movement stops.
  *
  * @module
  */
@@ -34,10 +33,10 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Id of the injected stylesheet. */
 const STYLE_ID = 'o-gradient-ring'
 
-/** Pose l'anneau, son masque et sa rotation, une fois par document. */
+/** Sets the ring, its mask and its rotation, once per document. */
 function ensureGradientRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -55,7 +54,7 @@ function ensureGradientRule(): void {
     `-webkit-mask:${mask};mask:${mask};`,
     'animation:o-gradient-ring-spin var(--o-grad-speed) linear infinite;',
     '}',
-    // La tete : un point rond sur la couture du degrade.
+    // The head: a round dot on the seam of the gradient.
     '[data-o-grad-disc]::after{',
     'content:"";position:absolute;top:0;left:50%;',
     'width:var(--o-grad-thickness);height:var(--o-grad-thickness);',
@@ -70,31 +69,31 @@ function ensureGradientRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** The component's own props. */
 export interface GradientRingOwnProps {
-  /** Diametre de l'anneau, en pixels. @defaultValue 48 */
+  /** Diameter of the ring, in pixels. @defaultValue 48 */
   size?: number
-  /** Epaisseur de l'anneau, en pixels. @defaultValue 6 */
+  /** Thickness of the ring, in pixels. @defaultValue 6 */
   thickness?: number
-  /** Duree d'un tour, en millisecondes. @defaultValue 1000 */
+  /** Duration of one turn, in milliseconds. @defaultValue 1000 */
   speed?: number
-  /** Couleur de la tete. @defaultValue la couleur du texte */
+  /** Color of the head. @defaultValue the text color */
   color?: string
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */
+  /** Label announced to screen readers. @defaultValue 'Loading' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type GradientRingProps = Customisable<GradientRingOwnProps, 'span'>
 
 /**
- * Signale une attente par un anneau qui s'eteint sur son tour.
+ * Signals a wait with a ring that fades out over its turn.
  *
  * @example
  * <GradientRing />
  *
  * @example
- * // Plus grand, plus lent, dans la teinte de marque.
+ * // Bigger, slower, in the brand hue.
  * <GradientRing size={80} thickness={10} speed={1800} color="var(--o-palette-brand-500)" />
  */
 export function GradientRing({
@@ -102,7 +101,7 @@ export function GradientRing({
   thickness = 6,
   speed = 1000,
   color = 'currentColor',
-  label = 'Chargement',
+  label = 'Loading',
   ...rest
 }: GradientRingProps): ReactElement {
   ensureGradientRule()
@@ -113,7 +112,7 @@ export function GradientRing({
     ...style,
     width: `${String(size)}px`,
     height: `${String(size)}px`,
-    // Une epaisseur au-dela du rayon fermerait l'anneau en disque.
+    // A thickness beyond the radius would close the ring into a disc.
     '--o-grad-thickness': `${String(Math.min(thickness, size / 2))}px`,
     '--o-grad-speed': `${String(speed)}ms`,
     '--o-grad-color': color,

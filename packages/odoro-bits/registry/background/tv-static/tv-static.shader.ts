@@ -1,24 +1,24 @@
 /**
- * Shader des parasites.
+ * Shader of the static.
  *
- * ## L'idee mathematique
+ * ## The mathematical idea
  *
- * De la neige televisuelle : un bruit blanc par cellule d'ecran, hache par
- * paliers de temps — un tirage par palier et non par image, sans quoi le
- * scintillement serait insoutenable a soixante images par seconde. Des bandes
- * sombres defilent lentement a la verticale, comme une synchronisation qui
- * derive, et un dosage de teinte tire le gris vers la couleur du tube.
+ * Television snow: a white noise per screen cell, chopped into time steps —
+ * one draw per step and not per frame, without which the shimmer would be
+ * unbearable at sixty frames per second. Dark bands scroll slowly downwards,
+ * like a synchronisation that is drifting, and a measure of tint pulls the
+ * grey towards the colour of the tube.
  *
  * ## Uniforms
  *
- * - `uTime` — temps en secondes, fourni par le moteur.
- * - `uResolution` — taille du canevas en pixels, fournie par le moteur.
- * - `uColorA` — le noir du tube.
- * - `uColorB` — la teinte vers laquelle le gris est tire.
- * - `uColorC` — le blanc du grain.
- * - `uFps` — cadence des paliers de tirage.
- * - `uBanding` — profondeur des bandes sombres.
- * - `uTint` — dosage de la teinte ; zero, l'image reste grise.
+ * - `uTime` — time in seconds, supplied by the engine.
+ * - `uResolution` — canvas size in pixels, supplied by the engine.
+ * - `uColorA` — the black of the tube.
+ * - `uColorB` — the tint the grey is pulled towards.
+ * - `uColorC` — the white of the grain.
+ * - `uFps` — rate of the draw steps.
+ * - `uBanding` — depth of the dark bands.
+ * - `uTint` — measure of the tint; at zero, the image stays grey.
  */
 export const TV_STATIC_FRAGMENT = /* glsl */ `
 precision highp float;
@@ -34,39 +34,39 @@ uniform float uFps;
 uniform float uBanding;
 uniform float uTint;
 
-// Nombre pseudo-aleatoire : projection sur une direction arbitraire, sinus
-// amplifie, partie fractionnaire.
-float parasiteHash(vec2 p) {
+// Pseudo-random number: projection onto an arbitrary direction, amplified
+// sine, fractional part.
+float tvStaticHash(vec2 p) {
   return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
 }
 
 void main() {
-  // Le temps est hache en paliers : un tirage par palier, pas par image. La
-  // graine change entierement d'un palier a l'autre, mais reste figee entre
-  // deux — c'est ce qui donne le grain d'un tube, pas d'un stroboscope.
+  // Time is chopped into steps: one draw per step, not per frame. The seed
+  // changes entirely from one step to the next, but stays frozen between two
+  // — this is what gives the grain of a tube, not of a strobe light.
   float cadence = max(uFps, 1.0);
-  float palier = floor(uTime * cadence);
+  float timeStep = floor(uTime * cadence);
 
-  // Un grain de deux pixels d'ecran : plus fin, il disparaitrait dans le
-  // filtrage ; plus gros, il deviendrait une mosaique.
-  vec2 cellule = floor(vUv * uResolution * 0.5);
-  float grain = parasiteHash(cellule + vec2(palier * 57.0, palier * 113.0));
+  // A grain two screen pixels across: any finer, it would vanish into the
+  // filtering; any coarser, it would become a mosaic.
+  vec2 cell = floor(vUv * uResolution * 0.5);
+  float grain = tvStaticHash(cell + vec2(timeStep * 57.0, timeStep * 113.0));
 
-  // Les bandes sombres : deux sinus de frequences non multiples qui defilent
-  // lentement vers le bas, comme une synchronisation verticale qui derive.
-  float defile = vUv.y + uTime * 0.06;
-  float bande = 1.0 - clamp(uBanding, 0.0, 1.0) * (
-    0.32 * (0.5 + 0.5 * sin(defile * 18.8496)) +
-    0.18 * (0.5 + 0.5 * sin(defile * 43.9823))
+  // The dark bands: two sines of non-multiple frequencies that scroll slowly
+  // downwards, like a vertical synchronisation that is drifting.
+  float scroll = vUv.y + uTime * 0.06;
+  float band = 1.0 - clamp(uBanding, 0.0, 1.0) * (
+    0.32 * (0.5 + 0.5 * sin(scroll * 18.8496)) +
+    0.18 * (0.5 + 0.5 * sin(scroll * 43.9823))
   );
 
-  float valeur = grain * bande;
+  float value = grain * band;
 
-  // Le gris d'abord, la teinte ensuite : la desaturation est le repos du
-  // reglage, la couleur du tube son extreme.
-  vec3 gris = mix(uColorA, uColorC, valeur);
-  vec3 teinte = mix(uColorA, uColorB, valeur);
-  vec3 colour = mix(gris, teinte, clamp(uTint, 0.0, 1.0));
+  // The grey first, the tint after: desaturation is the resting point of the
+  // setting, the colour of the tube its far end.
+  vec3 grey = mix(uColorA, uColorC, value);
+  vec3 tint = mix(uColorA, uColorB, value);
+  vec3 colour = mix(grey, tint, clamp(uTint, 0.0, 1.0));
 
   gl_FragColor = vec4(colour, 1.0);
 }

@@ -1,23 +1,22 @@
 /**
- * Comparaison avant / apres.
+ * Before / after comparison.
  *
- * ## C'est un curseur, pas une image cliquable
+ * ## It is a slider, not a clickable image
  *
- * La plupart des comparateurs se pilotent au pointeur et nulle part ailleurs :
- * au clavier, ils sont muets, et un lecteur d'ecran n'annonce que deux images
- * superposees sans dire ce qu'elles font la.
+ * Most comparators are driven by the pointer and nowhere else: on the
+ * keyboard, they are mute, and a screen reader announces nothing but two
+ * superimposed images without saying what they are doing there.
  *
- * Le role est donc celui d'un curseur, avec ses valeurs et son nom. Les
- * fleches le deplacent, `Origine` et `Fin` le poussent aux extremites, et la
- * position est annoncee en pourcentage. Cela ne coute que des attributs.
+ * The role is therefore that of a slider, with its values and its name. The
+ * arrows move it, `Home` and `End` push it to the ends, and the position is
+ * announced as a percentage. It costs nothing but attributes.
  *
- * ## La position ne passe pas par React
+ * ## The position does not go through React
  *
- * Elle change a chaque mouvement du pointeur. La porter dans l'etat
- * provoquerait un rendu par evenement pendant tout le glissement, pour
- * deplacer un decoupage que le compositeur sait animer seul. Une variable CSS
- * suffit ; l'etat React ne sert qu'a l'annonce accessible, mise a jour au
- * relachement.
+ * It changes on every movement of the pointer. Carrying it in state would
+ * cause one render per event over the whole drag, to move a clip that the
+ * compositor knows how to animate on its own. A CSS variable is enough; React
+ * state serves only the accessible announcement, updated on release.
  *
  * @module
  */
@@ -31,42 +30,42 @@ import {
   type ReactElement,
 } from 'react'
 
-/** Une des deux images comparees. */
+/** One of the two compared images. */
 export interface CompareImage {
   /** Source. */
   readonly src: string
-  /** Texte de remplacement. */
+  /** Alternative text. */
   readonly alt: string
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface CompareOwnProps {
-  /** Image revelee a gauche de la poignee. */
+  /** Image revealed to the left of the handle. */
   before: CompareImage
-  /** Image revelee a droite de la poignee. */
+  /** Image revealed to the right of the handle. */
   after: CompareImage
-  /** Rapport largeur sur hauteur. @defaultValue 1.777 */
+  /** Width to height ratio. @defaultValue 1.777 */
   ratio?: number
-  /** Position initiale de la poignee, en pourcentage. @defaultValue 50 */
+  /** Initial position of the handle, as a percentage. @defaultValue 50 */
   start?: number
-  /** Nom du curseur, annonce aux technologies d'assistance. */
+  /** Name of the slider, announced to assistive technologies. */
   label: string
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type CompareProps = Customisable<CompareOwnProps>
 
-/** Pas du deplacement au clavier, en pourcentage. */
+/** Keyboard movement step, as a percentage. */
 const STEP = 2
 
 /**
- * Compare deux images.
+ * Compares two images.
  *
  * @example
  * <Compare
- *   label="Avant et apres retouche"
- *   before={{ src: '/avant.jpg', alt: 'Avant retouche' }}
- *   after={{ src: '/apres.jpg', alt: 'Apres retouche' }}
+ *   label="Before and after retouching"
+ *   before={{ src: '/before.jpg', alt: 'Before retouching' }}
+ *   after={{ src: '/after.jpg', alt: 'After retouching' }}
  * />
  */
 export function Compare({
@@ -131,9 +130,9 @@ export function Compare({
       />
 
       {/*
-        L'image de gauche est decoupee par un `clip-path` plutot que par une
-        largeur : redimensionner l'element deformerait l'image, alors qu'un
-        decoupage laisse les deux exactement superposees.
+        The left image is clipped by a `clip-path` rather than by a width:
+        resizing the element would distort the image, whereas a clip leaves
+        both exactly superimposed.
       */}
       <img
         src={before.src}
@@ -148,7 +147,7 @@ export function Compare({
         aria-valuemin={0}
         aria-valuemax={100}
         aria-valuenow={announced}
-        aria-valuetext={`${String(announced)} pour cent`}
+        aria-valuetext={`${String(announced)} percent`}
         tabIndex={0}
         onKeyDown={(event) => {
           const delta =

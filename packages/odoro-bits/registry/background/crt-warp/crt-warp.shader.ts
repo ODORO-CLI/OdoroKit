@@ -1,37 +1,37 @@
 /**
- * Shader de la courbure cathodique.
+ * Cathode-ray warp shader.
  *
- * ## L'idee mathematique
+ * ## The mathematical idea
  *
- * Un tube n'est pas plat : l'image est bombee vers le spectateur. Le
- * bombement se lit a l'envers — pour chaque pixel de l'ecran, on cherche
- * quel point de l'image plate y aboutit — et il se resume a une seule
- * formule : les coordonnees centrees sont etirees d'un facteur qui croit
- * avec le carre de leur distance au centre. Les coins de l'image sont tires
- * hors du cadre, et la silhouette de l'ecran devient un coussin.
+ * A tube is not flat: the image bulges towards the viewer. The bulge is
+ * read backwards — for each pixel of the screen, we look for which point
+ * of the flat image ends up there — and it comes down to a single formula:
+ * the centred coordinates are stretched by a factor that grows with the
+ * square of their distance to the centre. The image's corners are pulled
+ * out of the frame, and the screen's silhouette becomes a pincushion.
  *
- * Le verre n'est pas parfait non plus. Il decompose la lumiere pres des
- * bords : les deux teintes de l'image sont lues a deux positions legerement
- * ecartees, d'autant plus que le pixel est loin du centre. Une grille
- * d'ouverture — des colonnes verticales fines, celles d'un tube a masque a
- * fentes — est posee par-dessus, et une vignette respire lentement. Elle
- * ramene vers le fond, elle n'assombrit pas : sur un theme clair, un tube
- * eteint est blanc, pas noir.
+ * Nor is the glass perfect. It splits the light near the edges: the image's
+ * two hues are read at two slightly separated positions, the more so the
+ * further the pixel lies from the centre. An aperture grid — fine
+ * vertical columns, those of a slot-mask tube — is laid over the top, and
+ * a vignette breathes slowly. It pulls back towards the background, it
+ * does not darken: on a light theme, a tube that is off is white, not
+ * black.
  *
- * L'image elle-meme est un signal lent : deux ondes, l'une qui monte,
- * l'autre qui derive en travers, meles par produit.
+ * The image itself is a slow signal: two waves, one rising, the other
+ * drifting across, blended by product.
  *
  * ## Uniforms
  *
- * - `uTime` — temps en secondes, fourni par le moteur.
- * - `uResolution` — taille du canevas en pixels, fournie par le moteur.
- * - `uColorA` — le fond, le tube eteint.
- * - `uColorB` — la premiere teinte du signal.
- * - `uColorC` — la seconde.
- * - `uCurve` — bombement du tube.
- * - `uLines` — nombre de colonnes de la grille d'ouverture sur la largeur.
- * - `uAberration` — ecart des teintes pres des bords.
- * - `uSpeed` — vitesse du signal.
+ * - `uTime` — time in seconds, supplied by the engine.
+ * - `uResolution` — canvas size in pixels, supplied by the engine.
+ * - `uColorA` — the background, the tube switched off.
+ * - `uColorB` — the first hue of the signal.
+ * - `uColorC` — the second.
+ * - `uCurve` — bulge of the tube.
+ * - `uLines` — number of aperture-grid columns across the width.
+ * - `uAberration` — separation of the hues near the edges.
+ * - `uSpeed` — speed of the signal.
  */
 export const CRT_WARP_FRAGMENT = /* glsl */ `
 precision highp float;
@@ -48,8 +48,8 @@ uniform float uLines;
 uniform float uAberration;
 uniform float uSpeed;
 
-// Le signal affiche : deux ondes lentes, l'une qui monte, l'autre qui
-// derive en travers. Rendu entre zero et un pour chaque teinte.
+// The displayed signal: two slow waves, one rising, the other drifting
+// across. Returned between zero and one for each hue.
 vec2 crtSignal(vec2 uv, float t) {
   float rise = 0.5 + 0.5 * sin(uv.y * 5.0 - t * 0.9 + sin(uv.x * 3.0 + t * 0.4) * 0.8);
   float drift = 0.5 + 0.5 * sin(uv.x * 4.0 + t * 0.6 + uv.y * 2.5);
@@ -60,22 +60,22 @@ void main() {
   float aspect = uResolution.x / max(uResolution.y, 1.0);
   float t = uTime * uSpeed;
 
-  // Le bombement : les coordonnees centrees, etirees avec le carre de leur
-  // distance au centre. Les coins partent hors du cadre.
+  // The bulge: the centred coordinates, stretched with the square of their
+  // distance to the centre. The corners leave the frame.
   vec2 centred = (vUv - 0.5) * 2.0;
   vec2 scaled = centred * vec2(aspect, 1.0);
   float r2 = dot(scaled, scaled) / (1.0 + aspect * aspect);
   vec2 warped = centred * (1.0 + uCurve * r2 * 2.0);
   vec2 uv = warped * 0.5 + 0.5;
 
-  // La silhouette de l'ecran : ce qui tombe hors de l'image plate est le
-  // tube eteint, avec un bord adouci d'un pixel ou deux.
+  // The screen's silhouette: whatever falls outside the flat image is the
+  // tube switched off, with an edge softened by a pixel or two.
   float px = 1.0 / max(uResolution.y, 1.0);
   float inset = min(min(uv.x, 1.0 - uv.x), min(uv.y, 1.0 - uv.y));
   float screen = smoothstep(0.0, px * 3.0, inset);
 
-  // Le verre decompose : chaque teinte est lue a sa propre position,
-  // ecartee du centre en proportion de la distance.
+  // The glass splits: each hue is read at its own position, moved out from
+  // the centre in proportion to the distance.
   vec2 spread = centred * uAberration * 0.012;
   float rise = crtSignal(uv + spread, t).x;
   float drift = crtSignal(uv - spread, t).y;
@@ -83,17 +83,17 @@ void main() {
   vec3 image = mix(uColorA, uColorB, rise * 0.75);
   image = mix(image, uColorC, drift * 0.7);
 
-  // La grille d'ouverture : des colonnes fines, lues dans l'espace bombe
-  // pour qu'elles se courbent avec l'image.
-  float grille = 0.5 + 0.5 * sin(uv.x * max(uLines, 1.0) * 6.28318);
-  image = mix(image, uColorA, (1.0 - grille * grille) * 0.22);
+  // The aperture grid: fine columns, read in the bulged space so that they
+  // curve along with the image.
+  float grid = 0.5 + 0.5 * sin(uv.x * max(uLines, 1.0) * 6.28318);
+  image = mix(image, uColorA, (1.0 - grid * grid) * 0.22);
 
-  // La vignette respire, et ramene vers le fond plutot que vers le noir.
+  // The vignette breathes, and pulls back towards the background, not black.
   float breath = 0.5 + 0.08 * sin(uTime * 0.7);
   float edge = smoothstep(breath, breath + 0.7, r2 * 2.2);
   image = mix(image, uColorA, edge * 0.7);
 
-  // Un reflet fige sur le verre, en haut a gauche.
+  // A frozen reflection on the glass, at the top left.
   vec2 glare = scaled - vec2(-0.45 * aspect, 0.55);
   float shine = exp(-dot(glare, glare) * 3.0) * 0.14;
   image = mix(image, uColorC, shine);

@@ -1,26 +1,25 @@
 /**
- * Points qui respirent : trois points pulsent en canon.
+ * Breathing dots: three dots pulse in canon.
  *
- * ## Une animation, trois delais negatifs
+ * ## One animation, three negative delays
  *
- * Les trois points jouent exactement la meme animation ; seule leur phase
- * differe, par un delai negatif d'un tiers de cycle chacun. Un delai positif
- * ferait attendre les deux derniers points au premier rendu — pendant un
- * instant, un seul point serait visible, et le chargeur aurait l'air casse.
- * Negatif, chaque point demarre deja au milieu de sa course : le canon est
- * la des la premiere image.
+ * The three dots play exactly the same animation; only their phase differs, by
+ * a negative delay of a third of a cycle each. A positive delay would make the
+ * last two dots wait at the first render — for a moment, a single dot would be
+ * visible, and the loader would look broken. Negative, each dot already starts
+ * in the middle of its run: the canon is there from the very first frame.
  *
- * Aucun JavaScript apres le premier rendu : trois animations declarees une
- * fois, tenues par le compositeur.
+ * No JavaScript after the first render: three animations declared once, held
+ * by the compositor.
  *
- * ## Un statut, pas un dessin
+ * ## A status, not a drawing
  *
- * L'element porte `role="status"` et un libelle pour les lecteurs d'ecran :
- * l'attente est une information, pas une decoration. Les points, eux, sont
- * retires de l'arbre d'accessibilite.
+ * The element carries `role="status"` and a label for screen readers: the wait
+ * is information, not decoration. The dots themselves are removed from the
+ * accessibility tree.
  *
- * Sous mouvement reduit, les trois points restent pleins et immobiles : la
- * figure se lit encore comme un chargeur, seul le mouvement s'arrete.
+ * Under reduced motion, the three dots stay full and still: the figure still
+ * reads as a loader, only the motion stops.
  *
  * @module
  */
@@ -28,10 +27,10 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-dots-loader'
 
-/** Pose les points et leur respiration, une fois par document. */
+/** Sets the dots and their breathing, once per document. */
 function ensureDotsRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -53,7 +52,7 @@ function ensureDotsRule(): void {
     '0%,100%{transform:scale(0.6);opacity:0.35}',
     '50%{transform:scale(1);opacity:1}',
     '}',
-    // Trois points pleins : la figure dit encore « attente », sans pulsation.
+    // Three full dots: the figure still says "waiting", without a pulse.
     '@media (prefers-reduced-motion:reduce){',
     '[data-o-dots-dot]{animation:none;transform:none;opacity:1}',
     '}',
@@ -61,36 +60,36 @@ function ensureDotsRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface DotsLoaderOwnProps {
-  /** Diametre d'un point, en pixels. @defaultValue 10 */
+  /** Diameter of one dot, in pixels. @defaultValue 10 */
   size?: number
-  /** Duree d'un cycle de respiration, en millisecondes. @defaultValue 900 */
+  /** Duration of one breathing cycle, in milliseconds. @defaultValue 900 */
   speed?: number
-  /** Couleur des points. @defaultValue la couleur du texte */
+  /** Colour of the dots. @defaultValue the text colour */
   color?: string
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */
+  /** Label announced to screen readers. @defaultValue 'Loading' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All the properties. */
 export type DotsLoaderProps = Customisable<DotsLoaderOwnProps, 'span'>
 
 /**
- * Signale une attente par trois points qui respirent en canon.
+ * Signals a wait with three dots breathing in canon.
  *
  * @example
  * <DotsLoader />
  *
  * @example
- * // Plus grand, plus lent, dans la teinte de marque.
+ * // Bigger, slower, in the brand hue.
  * <DotsLoader size={14} speed={1400} color="var(--o-palette-brand-500)" />
  */
 export function DotsLoader({
   size = 10,
   speed = 900,
   color = 'currentColor',
-  label = 'Chargement',
+  label = 'Loading',
   ...rest
 }: DotsLoaderProps): ReactElement {
   ensureDotsRule()
@@ -120,8 +119,8 @@ export function DotsLoader({
           data-o-dots-dot=""
           style={
             {
-              // Un tiers de cycle d'ecart, en negatif : le canon est complet
-              // des la premiere image.
+              // A third of a cycle apart, negative: the canon is complete from
+              // the very first frame.
               '--o-dots-delay': `${String(Math.round((-speed * dot) / 3))}ms`,
             } as CSSProperties
           }

@@ -1,45 +1,44 @@
 /**
- * Phases de lune : un disque eteint sur lequel la part eclairee croit
- * jusqu'a la pleine lune, puis decroit de l'autre bord.
+ * Moon phases: an unlit disc on which the lit share grows until the full moon,
+ * then wanes from the other edge.
  *
- * ## Le terminateur est une demi-ellipse
+ * ## The terminator is a half ellipse
  *
- * La frontiere entre l'ombre et la lumiere n'est pas une droite : c'est le
- * bord d'un hemisphere vu de biais, donc une demi-ellipse dont la largeur
- * varie du rayon a moins le rayon. A largeur positive elle bombe vers la
- * droite et decoupe un croissant ; nulle, elle est droite et donne le
- * premier quartier ; negative, elle bombe vers la gauche et la lune est
- * gibbeuse.
+ * The boundary between shadow and light is not a straight line: it is the edge
+ * of a hemisphere seen at an angle, and therefore a half ellipse whose width
+ * varies from the radius to minus the radius. At a positive width it bulges to
+ * the right and carves out a crescent; at zero it is straight and gives the
+ * first quarter; negative, it bulges to the left and the moon is gibbous.
  *
- * Le trace de la part eclairee est fait de quatre cubiques : deux pour le
- * demi-cercle exterieur, deux pour le terminateur. On aurait pu employer
- * des arcs, mais un arc porte un drapeau de sens qui bascule au passage du
- * quartier, et un drapeau ne s'interpole pas. Une cubique, elle, n'a que
- * des points : le trace reste affine en la largeur du terminateur, et le
- * navigateur peut passer d'une phase a l'autre en interpolant simplement
- * trois traces — nouvelle lune, pleine lune, nouvelle lune.
+ * The path of the lit share is made of four cubics: two for the outer half
+ * circle, two for the terminator. Arcs could have been used, but an arc
+ * carries a sweep flag that flips at the quarter, and a flag does not
+ * interpolate. A cubic, on the other hand, has only points: the path stays
+ * affine in the width of the terminator, and the browser can go from one phase
+ * to the next by simply interpolating three paths — new moon, full moon, new
+ * moon.
  *
- * ## Le retournement invisible
+ * ## The invisible flip
  *
- * Ce trace eclaire toujours le bord droit. Or une lune decroissante est
- * eclairee a gauche. Plutot que de dessiner un second jeu de formes, le
- * groupe est retourne d'un coup au milieu du cycle — c'est-a-dire exactement
- * a la pleine lune, quand la figure est un disque parfait, symetrique, et
- * que le retournement ne se voit pas. La seconde moitie du cycle rejoue donc
- * la premiere a l'envers, dans le bon sens astronomique.
+ * This path always lights the right edge. A waning moon, however, is lit on
+ * the left. Rather than draw a second set of shapes, the group is flipped all
+ * at once in the middle of the cycle — that is to say exactly at the full
+ * moon, when the figure is a perfect, symmetrical disc, and the flip cannot be
+ * seen. The second half of the cycle therefore replays the first in reverse,
+ * in the right astronomical direction.
  *
- * Le disque eteint reste dessous en permanence, a faible opacite : sans
- * lui, la nouvelle lune serait un vide, et le chargeur disparaitrait.
+ * The unlit disc stays underneath at all times, at low opacity: without it,
+ * the new moon would be a void, and the loader would disappear.
  *
- * ## Un statut, pas un dessin
+ * ## A status, not a drawing
  *
- * L'element porte `role="status"` et un libelle pour les lecteurs d'ecran :
- * l'attente est une information, pas une decoration. Le dessin est retire
- * de l'arbre d'accessibilite.
+ * The element carries `role="status"` and a label for screen readers: waiting
+ * is information, not decoration. The drawing is removed from the
+ * accessibility tree.
  *
- * SMIL ignore la preference de mouvement reduit : c'est donc le composant
- * qui la lit, et qui n'insere pas les animations quand elle est active. Il
- * reste un premier quartier, la phase la plus reconnaissable.
+ * SMIL ignores the reduced motion preference: so it is the component that
+ * reads it, and that does not insert the animations when it is on. What
+ * remains is a first quarter, the most recognisable phase.
  *
  * @module
  */
@@ -47,27 +46,27 @@
 import { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-moon-phases'
 
-/** Rayon de la lune, en unites de la vue. */
+/** Radius of the moon, in view units. */
 const RADIUS = 40
 
 /**
- * Constante de l'approximation d'un quart d'ellipse par une cubique.
+ * Constant of the approximation of a quarter ellipse by a cubic.
  *
- * Quatre cubiques dont les tangentes sont a cette fraction du rayon
- * s'ecartent du cercle de moins d'un millieme : a cette taille, l'ecart est
- * cent fois plus petit qu'un pixel.
+ * Four cubics whose tangents are at this fraction of the radius stray from the
+ * circle by less than a thousandth: at this size, the gap is a hundred times
+ * smaller than a pixel.
  */
 const KAPPA = 0.5522847498
 
 /**
- * Trace de la part eclairee, pour une largeur de terminateur donnee.
+ * Path of the lit share, for a given terminator width.
  *
- * A `+RADIUS` le terminateur epouse le bord droit et la part eclairee est
- * vide : nouvelle lune. A zero il est droit : premier quartier. A
- * `-RADIUS` il epouse le bord gauche et le disque est plein : pleine lune.
+ * At `+RADIUS` the terminator hugs the right edge and the lit share is empty:
+ * new moon. At zero it is straight: first quarter. At `-RADIUS` it hugs the
+ * left edge and the disc is full moon.
  */
 function litPath(width: number): string {
   const r = RADIUS.toFixed(3)
@@ -79,32 +78,32 @@ function litPath(width: number): string {
 
   return [
     `M 0 ${negR}`,
-    // Le bord exterieur, toujours le meme : deux quarts de cercle a droite.
+    // The outer edge, always the same: two quarter circles on the right.
     `C ${k} ${negR} ${r} ${negK} ${r} 0`,
     `C ${r} ${k} ${k} ${r} 0 ${r}`,
-    // Le terminateur, remontant : deux quarts d'ellipse de demi-largeur w.
+    // The terminator, going back up: two quarter ellipses of half width w.
     `C ${wk} ${r} ${w} ${k} ${w} 0`,
     `C ${w} ${negK} ${wk} ${negR} 0 ${negR}`,
     'Z',
   ].join(' ')
 }
 
-/** Les trois traces du cycle : nouvelle, pleine, nouvelle. */
+/** The three paths of the cycle: new, full, new. */
 const PHASES = [litPath(RADIUS), litPath(-RADIUS), litPath(RADIUS)].join(';')
 
-/** Le premier quartier : le terminateur est droit. */
+/** The first quarter: the terminator is straight. */
 const QUARTER = litPath(0)
 
 /**
- * Une acceleration douce sur chaque moitie du cycle.
+ * A gentle easing on each half of the cycle.
  *
- * La largeur du terminateur suit alors une courbe proche du cosinus, qui
- * est la loi reelle : la phase change lentement pres de la nouvelle et de
- * la pleine lune, vite aux quartiers.
+ * The width of the terminator then follows a curve close to a cosine, which is
+ * the real law: the phase changes slowly near the new and the full moon, fast
+ * at the quarters.
  */
 const KEY_SPLINES = '0.4 0 0.6 1;0.4 0 0.6 1'
 
-/** Pose le cadre, une fois par document. */
+/** Sets up the frame, once per document. */
 function ensureMoonRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -118,36 +117,36 @@ function ensureMoonRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** Props of the component itself. */
 export interface MoonPhasesOwnProps {
-  /** Diametre de la lune, en pixels. @defaultValue 48 */
+  /** Diameter of the moon, in pixels. @defaultValue 48 */
   size?: number
-  /** Duree d'une lunaison complete, en millisecondes. @defaultValue 3600 */
+  /** Duration of a complete lunation, in milliseconds. @defaultValue 3600 */
   speed?: number
-  /** Couleur de la lune. @defaultValue la couleur du texte */
+  /** Colour of the moon. @defaultValue the text colour */
   color?: string
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */
+  /** Label announced to screen readers. @defaultValue 'Loading' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All the props. */
 export type MoonPhasesProps = Customisable<MoonPhasesOwnProps, 'span'>
 
 /**
- * Signale une attente par une lune qui parcourt ses phases.
+ * Signals a wait through a moon walking its phases.
  *
  * @example
  * <MoonPhases />
  *
  * @example
- * // Plus grande, plus lente, dans la teinte de marque.
+ * // Bigger, slower, in the brand hue.
  * <MoonPhases size={80} speed={6000} color="var(--o-palette-brand-500)" />
  */
 export function MoonPhases({
   size = 48,
   speed = 3600,
   color = 'currentColor',
-  label = 'Chargement',
+  label = 'Loading',
   ...rest
 }: MoonPhasesProps): ReactElement {
   ensureMoonRule()

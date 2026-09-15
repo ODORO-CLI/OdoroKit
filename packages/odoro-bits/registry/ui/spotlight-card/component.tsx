@@ -1,36 +1,36 @@
 /**
- * Carte projecteur : un halo amorti suit le pointeur sur la surface, et la
- * bordure s'eclaire la ou il passe.
+ * Spotlight card: a damped glow follows the pointer on the surface, and the
+ * border lights up where it passes.
  *
- * ## Ce qui la distingue de la carte a lueur
+ * ## What sets it apart from the glow card
  *
- * La carte a lueur ne peint que l'anneau, et colle au pointeur. Ici la
- * lumiere se repand **sur la surface** — un projecteur pose au-dessus de la
- * carte — et l'anneau n'est que le bord de ce faisceau, la ou il touche le
- * filet. Et le halo est amorti : il arrive un peu apres le geste, comme une
- * lampe qu'on oriente. C'est ce retard qui lui donne une masse ; un halo
- * colle au pointeur se lit comme un curseur, pas comme une lumiere.
+ * The glow card paints only the ring, and sticks to the pointer. Here the
+ * light spreads **on the surface** — a spotlight placed above the card — and
+ * the ring is only the edge of that beam, where it touches the hairline. And
+ * the glow is damped: it arrives slightly after the gesture, like a lamp being
+ * aimed. It is that lag which gives it a mass; a glow stuck to the pointer
+ * reads as a cursor, not as a light.
  *
- * ## Deux calques, deux variables
+ * ## Two layers, two variables
  *
- * Le halo est un `::before` sous le contenu, l'anneau un `::after` obtenu par
- * le meme masque que la carte a lueur. Tous deux lisent la meme position,
- * ecrite en deux variables depuis la boucle du moteur : React ne rend qu'au
- * montage, quel que soit le nombre de pixels parcourus.
+ * The glow is a `::before` under the content, the ring an `::after` obtained
+ * by the same mask as the glow card. Both read the same position, written in
+ * two variables from the loop of the engine: React only renders on mount,
+ * whatever the number of pixels travelled.
  *
- * ## Pourquoi la position vient de la boucle et non de l'evenement
+ * ## Why the position comes from the loop and not from the event
  *
- * L'amortissement est calcule par le crochet de pointeur, a chaque image, dans
- * une ref. Ecrire la position depuis l'evenement de pointeur la ferait sauter
- * au rythme irregulier ou le systeme le livre ; la lire dans la boucle donne
- * un trajet continu, et permet de cesser d'ecrire des que le halo est arrive.
+ * The damping is computed by the pointer hook, on each frame, in a ref.
+ * Writing the position from the pointer event would make it jump at the
+ * irregular rate at which the system delivers it; reading it in the loop gives
+ * a continuous travel, and lets us stop writing as soon as the glow is there.
  *
- * ## Inerte la ou il n'y a pas de pointeur fin, et sous mouvement reduit
+ * ## Inert where there is no fine pointer, and under reduced motion
  *
- * Au doigt il n'y a pas de survol : le halo n'apparaitrait qu'au toucher,
- * comme un rate. Sous mouvement reduit, un halo qui suit le geste est
- * precisement ce qui est demande de retirer. Dans les deux cas la carte est
- * une carte, avec sa surface et son filet.
+ * On a finger there is no hover: the glow would only appear on touch, like a
+ * misfire. Under reduced motion, a glow that follows the gesture is precisely
+ * what is asked to be removed. In both cases the card is a card, with its
+ * surface and its hairline.
  *
  * @module
  */
@@ -52,27 +52,27 @@ import {
 
 import { usePointerDamped } from '@registre/hooks/usePointerDamped'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface SpotlightCardOwnProps {
-  /** Contenu de la carte. */
+  /** Content of the card. */
   children: ReactNode
-  /** Rayon du halo, en pixels. @defaultValue 260 */
+  /** Radius of the glow, in pixels. @defaultValue 260 */
   radius?: number
-  /** Intensite du halo sur la surface, de zero a un. @defaultValue 0.35 */
+  /** Intensity of the glow on the surface, from zero to one. @defaultValue 0.35 */
   strength?: number
-  /** Vitesse a laquelle le halo rejoint le pointeur. Plus haut, plus sec. @defaultValue 8 */
+  /** Speed at which the glow catches up with the pointer. Higher, sharper. @defaultValue 8 */
   speed?: number
-  /** Couleur du projecteur. @defaultValue teinte de marque */
+  /** Colour of the spotlight. @defaultValue brand hue */
   color?: string
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type SpotlightCardProps = Customisable<SpotlightCardOwnProps>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-spotlight-card'
 
-/** Pose la surface, le halo et l'anneau, une fois par document. */
+/** Applies the surface, the glow and the ring, once per document. */
 function ensureSpotlightRules(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -80,15 +80,15 @@ function ensureSpotlightRules(): void {
   const style = document.createElement('style')
   style.id = STYLE_ID
   style.textContent = [
-    // Pas d'overflow cache : il rognerait l'anneau, qui vit sur la bordure.
-    // Les deux calques prennent l'arrondi par eux-memes.
+    // No hidden overflow: it would clip the ring, which lives on the border.
+    // Both layers take the rounding by themselves.
     '[data-o-spot]{',
     'position:relative;isolation:isolate;',
     'background:var(--o-theme-surface);',
     'border:1px solid var(--o-theme-line);',
     '}',
-    // Le halo : sous le contenu grace au contexte d'empilement isole, mais
-    // au-dessus du fond de la carte.
+    // The glow: under the content thanks to the isolated stacking context, but
+    // above the background of the card.
     '[data-o-spot]::before{',
     'content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;',
     'border-radius:inherit;',
@@ -97,7 +97,7 @@ function ensureSpotlightRules(): void {
     'transparent 70%);',
     'opacity:0;transition:opacity 320ms ease;',
     '}',
-    // L'anneau : le meme degrade, retenu sur le filet par un masque.
+    // The ring: the same gradient, held on the hairline by a mask.
     '[data-o-spot]::after{',
     'content:"";position:absolute;inset:-1px;pointer-events:none;',
     'border-radius:inherit;padding:1px;',
@@ -114,17 +114,17 @@ function ensureSpotlightRules(): void {
 }
 
 /**
- * Pose un projecteur amorti sur une carte.
+ * Places a damped spotlight on a card.
  *
  * @example
  * <SpotlightCard className="o-rounded-xl o-p-6">
- *   <h3>Une carte</h3>
+ *   <h3>A card</h3>
  * </SpotlightCard>
  *
  * @example
- * // Un faisceau etroit et vif, d'une autre teinte.
+ * // A narrow, vivid beam, in another hue.
  * <SpotlightCard radius={160} strength={0.6} color="var(--o-palette-sky-500)">
- *   Contenu
+ *   Content
  * </SpotlightCard>
  */
 export function SpotlightCard({
@@ -137,12 +137,12 @@ export function SpotlightCard({
 }: SpotlightCardProps): ReactElement {
   const { reduced } = useMotionState()
   const [host, setHost] = useState<HTMLElement | null>(null)
-  const pointer = usePointerDamped({ host, speed, name: 'projecteur : pointeur' })
+  const pointer = usePointerDamped({ host, speed, name: 'spotlight: pointer' })
   ensureSpotlightRules()
 
   useEffect(() => {
     if (host === null || reduced) return
-    if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return
+    if (!window.matchMedia('(hover) and (pointer: fine)').matches) return
 
     let lastX = -1
     let lastY = -1
@@ -155,8 +155,8 @@ export function SpotlightCard({
         const x = ((pointer.current.x + 1) / 2) * 100
         const y = ((pointer.current.y + 1) / 2) * 100
 
-        // Une fois le halo arrive, ou eteint et revenu au centre, il n'y a
-        // plus rien a ecrire : le style reste tel quel.
+        // Once the glow has arrived, or gone out and returned to the centre,
+        // there is nothing left to write: the style stays as it is.
         if (Math.abs(x - lastX) < 0.02 && Math.abs(y - lastY) < 0.02) return
 
         lastX = x
@@ -164,7 +164,7 @@ export function SpotlightCard({
         host.style.setProperty('--o-spot-x', `${x.toFixed(2)}%`)
         host.style.setProperty('--o-spot-y', `${y.toFixed(2)}%`)
       },
-      { priority: CLOCK_PRIORITY.render, name: 'projecteur' },
+      { priority: CLOCK_PRIORITY.render, name: 'spotlight' },
     )
 
     host.addEventListener('pointerenter', onEnter, { passive: true })

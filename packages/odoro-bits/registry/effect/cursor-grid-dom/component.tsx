@@ -1,39 +1,38 @@
 /**
- * Grille au pointeur, en elements du document.
+ * Pointer grid, made of document elements.
  *
- * ## Pourquoi une version DOM d'un fond deja ecrit en shader
+ * ## Why a DOM version of a background already written as a shader
  *
- * `background/magnet-grid` fait le meme geste sur le processeur graphique, et
- * le fait mieux : des milliers de points, aucun element. Mais il demande WebGL,
- * il occupe une surface entiere, et ses points ne sont pas des objets — on ne
- * peut ni les mesurer, ni s'y accrocher, ni les laisser heriter d'une couleur
- * de texte. Cette entree-ci est faite pour les cas ou l'on veut le motif dans
- * une carte, une barre laterale ou un en-tete, sans reveiller une surface
- * graphique pour une centaine de points.
+ * `background/magnet-grid` makes the same gesture on the graphics processor,
+ * and makes it better: thousands of dots, no elements. But it requires WebGL,
+ * it occupies a whole surface, and its dots are not objects — they cannot be
+ * measured, hooked onto, or left to inherit a text colour. This entry is made
+ * for the cases where the pattern is wanted inside a card, a sidebar or a
+ * header, without waking a graphics surface for a hundred dots.
  *
- * C'est un choix de cout, pas de rendu : au-dela de quelques centaines de
- * points, le shader reprend l'avantage, et c'est lui qu'il faut poser.
+ * It is a choice of cost, not of rendering: beyond a few hundred dots, the
+ * shader takes the lead again, and it is the one to reach for.
  *
- * ## Le pas commande le nombre, pas l'inverse
+ * ## The step commands the count, not the other way round
  *
- * On regle un ecartement en pixels, et le nombre de points en decoule. Une
- * grille a nombre fixe se distend quand le cadre grandit : le motif change de
- * densite selon la place, ce qui n'est jamais ce qu'on veut d'une trame. Un
- * observateur de taille reconstruit donc les points quand le cadre change, et
- * seulement alors.
+ * A spacing is set in pixels, and the number of dots follows from it. A grid
+ * with a fixed count stretches when the frame grows: the pattern changes
+ * density depending on the room, which is never what one wants from a pattern.
+ * A resize observer therefore rebuilds the dots when the frame changes, and
+ * only then.
  *
- * ## Ce que chaque point fait
+ * ## What each dot does
  *
- * Il s'ecarte du pointeur — ou s'en rapproche — d'une force qui decroit avec
- * la distance, et il s'allume dans le meme mouvement. Les deux viennent de la
- * meme mesure : un point deplace qui resterait pale se lirait comme un defaut
- * d'alignement.
+ * It moves away from the pointer — or towards it — by a strength that decays
+ * with distance, and it lights up in the same movement. Both come from the
+ * same measurement: a displaced dot that stayed pale would read as a
+ * misalignment.
  *
- * ## Sous mouvement reduit
+ * ## Under reduced motion
  *
- * La trame est rendue, au repos, sans souscription a la boucle. Une grille de
- * points est un motif qui vaut par lui-meme : c'est bien l'etat final, pas
- * l'etat initial.
+ * The pattern is rendered, at rest, with no subscription to the loop. A grid
+ * of dots is a pattern that stands on its own: this really is the final state,
+ * not the initial one.
  *
  * @module
  */
@@ -49,41 +48,41 @@ import { useEffect, useState, type CSSProperties, type ReactElement } from 'reac
 
 import { usePointerDamped } from '@registre/hooks/usePointerDamped'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface CursorGridDomOwnProps {
-  /** Ecartement des points, en pixels. @defaultValue 28 */
+  /** Spacing of the dots, in pixels. @defaultValue 28 */
   spacing?: number
-  /** Portee de l aimant, en pixels. @defaultValue 140 */
+  /** Reach of the magnet, in pixels. @defaultValue 140 */
   radius?: number
-  /** Ecart maximal d un point, en pixels. @defaultValue 12 */
+  /** Maximum offset of a dot, in pixels. @defaultValue 12 */
   force?: number
-  /** Attire les points au lieu de les repousser. @defaultValue false */
+  /** Attracts the dots instead of pushing them away. @defaultValue false */
   attract?: boolean
-  /** Diametre d un point, en pixels. @defaultValue 3 */
+  /** Diameter of a dot, in pixels. @defaultValue 3 */
   dotSize?: number
-  /** Couleur des points. Une valeur, pas un role. @defaultValue la couleur du texte */
+  /** Colour of the dots. A value, not a role. @defaultValue the text colour */
   color?: string
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type CursorGridDomProps = Customisable<CursorGridDomOwnProps>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-cursor-grid-dom'
 
 /**
- * Plafond de points.
+ * Ceiling on the number of dots.
  *
- * Au-dela, c'est le fond en shader qu'il faut poser : voir l'en-tete du
- * module. Le plafond n'est pas une precaution, c'est la frontiere entre les
- * deux entrees.
+ * Beyond it, the shader background is the one to reach for: see the module
+ * header. The ceiling is not a precaution, it is the border between the two
+ * entries.
  */
 const MAX_DOTS = 900
 
-/** Opacite d un point au repos. */
+/** Opacity of a dot at rest. */
 const IDLE_OPACITY = 0.25
 
-/** Pose les regles de la trame, une fois par document. */
+/** Sets the pattern rules, once per document. */
 function ensureCursorGridDomRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -98,10 +97,9 @@ function ensureCursorGridDomRule(): void {
 }
 
 /**
- * Pose une trame de points qui reagit au pointeur.
+ * Lays a pattern of dots that reacts to the pointer.
  *
- * Le composant occupe la boite qu on lui donne : c'est a l appelant de la
- * dimensionner.
+ * The component fills the box it is given: sizing it is up to the caller.
  *
  * @example
  * <div className="o-relative o-h-64 o-rounded-xl">
@@ -109,7 +107,7 @@ function ensureCursorGridDomRule(): void {
  * </div>
  *
  * @example
- * // Trame serree qui aspire les points au lieu de les chasser.
+ * // Tight pattern that sucks the dots in instead of chasing them away.
  * <CursorGridDom spacing={18} radius={200} force={18} attract />
  */
 export function CursorGridDom({
@@ -126,7 +124,7 @@ export function CursorGridDom({
 
   ensureCursorGridDomRule()
 
-  const pointer = usePointerDamped({ host, speed: 8, name: 'cursor-grid-dom : pointeur' })
+  const pointer = usePointerDamped({ host, speed: 8, name: 'cursor-grid-dom : pointer' })
 
   useEffect(() => {
     if (host === null) return
@@ -138,12 +136,12 @@ export function CursorGridDom({
     host.append(layer)
 
     let dots: { node: HTMLElement; x: number; y: number }[] = []
-    // La taille est relevee a la construction, jamais dans la boucle : lire
-    // `clientWidth` par image forcerait une mise en page par image.
+    // The size is read at build time, never in the loop: reading `clientWidth`
+    // per frame would force a layout per frame.
     let width = 0
     let height = 0
 
-    /** Refait la trame pour la taille courante du cadre. */
+    /** Rebuilds the pattern for the current size of the frame. */
     const build = (): void => {
       layer.replaceChildren()
       dots = []
@@ -154,8 +152,8 @@ export function CursorGridDom({
       const lines = Math.max(1, Math.floor(height / step))
       if (cols * lines > MAX_DOTS) return
 
-      // Les restes sont partages a gauche et a droite : la trame reste centree
-      // dans son cadre au lieu de coller a un bord.
+      // The leftovers are shared left and right: the pattern stays centred in
+      // its frame instead of sticking to one edge.
       const offsetX = (width - (cols - 1) * step) / 2
       const offsetY = (height - (lines - 1) * step) / 2
 
@@ -181,12 +179,12 @@ export function CursorGridDom({
 
     build()
 
-    // Le cadre peut changer de taille sans que la fenetre bouge : c'est
-    // l element qu'on observe, pas `window`.
+    // The frame can change size without the window moving: it is the element
+    // that is observed, not `window`.
     const observer = new ResizeObserver(build)
     observer.observe(host)
 
-    // Sous mouvement reduit, la trame reste telle quelle : rien ne s'abonne.
+    // Under reduced motion, the pattern stays as it is: nothing subscribes.
     if (reduced) {
       return () => {
         observer.disconnect()
@@ -198,7 +196,8 @@ export function CursorGridDom({
 
     const subscription = clock.subscribe(
       () => {
-        // Du repere du crochet (centre, [-1, 1]) vers les pixels du cadre.
+        // From the hook's frame of reference (centred, [-1, 1]) to the pixels
+        // of the frame.
         const pointerX = ((pointer.current.x + 1) / 2) * Math.max(width, 1)
         const pointerY = ((pointer.current.y + 1) / 2) * Math.max(height, 1)
 
@@ -211,8 +210,8 @@ export function CursorGridDom({
             dot.node.style.opacity = String(IDLE_OPACITY)
             continue
           }
-          // Decroissance douce vers le bord de la portee : une decroissance
-          // lineaire laisserait un cercle net autour de la main.
+          // Soft decay towards the edge of the reach: a linear decay would
+          // leave a sharp circle around the hand.
           const weight = 1 - distance / Math.max(radius, 1)
           const eased = weight * weight
           const reach = (force * eased * pull) / Math.max(distance, 1)
@@ -222,7 +221,7 @@ export function CursorGridDom({
           dot.node.style.opacity = (IDLE_OPACITY + (1 - IDLE_OPACITY) * eased).toFixed(3)
         }
       },
-      { name: 'cursor-grid-dom : trame', priority: CLOCK_PRIORITY.default },
+      { name: 'cursor-grid-dom : pattern', priority: CLOCK_PRIORITY.default },
     )
 
     return () => {

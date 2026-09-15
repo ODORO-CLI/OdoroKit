@@ -1,23 +1,23 @@
 /**
- * Barres d'egaliseur : des barres verticales qui pulsent comme un analyseur de spectre.
+ * Audio bars: vertical bars pulsing like a spectrum analyser.
  *
- * ## Le principe
+ * ## The principle
  *
- * Aucun son n'est ecoute : chaque barre lit un bruit de valeur lisse en
- * temps et independant de ses voisines, sous une enveloppe qui favorise les
- * graves et un battement commun qui tient lieu de mesure. Un indicateur de
- * crete, lu plus lentement, retombe apres la barre.
+ * No sound is listened to: every bar reads a value noise, smooth in time
+ * and independent from its neighbours, under an envelope that favours the
+ * low end and a shared beat that stands in for a bar of music. A peak
+ * indicator, read more slowly, falls back after the bar.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur — les recopier ici en ferait autant
- * de versions a maintenir qu'il y a de fonds.
+ * It carries only what sets it apart: its shader, its settings and its
+ * fallback. Reading the tokens, turning them into floats and reading them
+ * again when the theme changes all come from the engine — copying them out
+ * here would make as many versions to maintain as there are backgrounds.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en
- * accorde qu'une par backend — et sous mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads,
+ * when WebGL is missing, when the arbiter refuses the surface — it grants
+ * only one per backend — and under reduced motion.
  *
  * @module
  */
@@ -34,59 +34,59 @@ import { type ReactElement } from 'react'
 
 import { AUDIO_BARS_FRAGMENT } from './audio-bars.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface AudioBarsControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Props belonging to the component itself. */
 export interface AudioBarsOwnProps {
-  /** Nombre de barres. Borne a quatre-vingt-seize par le shader. @defaultValue 48 */
+  /** Number of bars. Capped at ninety-six by the shader. @defaultValue 48 */
   bars?: number
-  /** Vitesse du spectre. @defaultValue 1 */
+  /** Speed of the spectrum. @defaultValue 1 */
   speed?: number
-  /** Espace entre barres, en fraction de leur pas. @defaultValue 0.35 */
+  /** Space between bars, as a fraction of their pitch. @defaultValue 0.35 */
   gap?: number
-  /** Segments par barre. Zero donne des barres pleines. @defaultValue 24 */
+  /** Segments per bar. Zero gives solid bars. @defaultValue 24 */
   segments?: number
-  /** Spectre symetrique autour du milieu. @defaultValue false */
+  /** Spectrum mirrored around the middle. @defaultValue false */
   mirror?: boolean
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Classes of the fallback. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<AudioBarsControls>
 }
 
-/** Toutes les proprietes. */
+/** All the props. */
 export type AudioBarsProps = Customisable<AudioBarsOwnProps>
 
-/** Tokens employes par defaut : le fond, le pied des barres, leur sommet. */
+/** Tokens used by default: the background, the foot of the bars, their top. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-brand-500',
   '--o-palette-amber-300',
 ] as const
 
-/** Repli par defaut : un degrade fige, dans les memes tons. */
+/** Default fallback: a frozen gradient, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-t o-from-brand-950 o-to-zinc-50 dark:o-to-zinc-950'
 
 /**
- * Nombre de barres en qualite basse.
+ * Number of bars at low quality.
  *
- * Le cout par fragment ne bouge pas avec le nombre de barres. Ce qui bouge,
- * c'est la largeur des segments et des espaces : sous deux pixels, ils
- * scintillent. Moins de barres, plus larges, et le trame tient.
+ * The cost per fragment does not move with the number of bars. What does
+ * move is the width of the segments and of the gaps: below two pixels,
+ * they shimmer. Fewer bars, wider ones, and the pattern holds.
  */
 const LOW_BARS = 24
 
 /**
- * Barres d'egaliseur.
+ * Audio bars.
  *
  * @example
  * <div className="o-relative o-min-h-screen">

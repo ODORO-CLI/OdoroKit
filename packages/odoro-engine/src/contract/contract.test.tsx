@@ -11,10 +11,10 @@ afterEach(() => {
   motionPolicy.configure({ quality: 'auto', reducedMotion: 'respect' })
 })
 
-describe('niveau 3 — le passe-plat', () => {
-  it('concatene les classes plutot que de les remplacer', () => {
-    // Un composant qui ecraserait ses propres classes perdrait sa mise en
-    // forme des qu'on veut seulement le decaler d'un cran.
+describe('level 3 — the pass-through', () => {
+  it('concatenates the classes rather than replacing them', () => {
+    // A component that overwrote its own classes would lose its formatting as
+    // soon as you only wanted to shift it by one notch.
     const merged = mergePresentation(
       { className: 'o-relative o-overflow-hidden' },
       { className: 'o-mt-8' },
@@ -22,7 +22,7 @@ describe('niveau 3 — le passe-plat', () => {
     expect(merged.className).toBe('o-relative o-overflow-hidden o-mt-8')
   })
 
-  it('laisse les styles de l appelant l emporter', () => {
+  it('lets the caller styles win', () => {
     const merged = mergePresentation(
       { style: { opacity: 1, color: 'red' } },
       { style: { opacity: 0.5 } },
@@ -30,154 +30,154 @@ describe('niveau 3 — le passe-plat', () => {
     expect(merged.style).toEqual({ opacity: 0.5, color: 'red' })
   })
 
-  it('ne rend aucun style quand personne n en donne', () => {
-    // Un objet vide poserait un attribut style inutile sur chaque element.
+  it('returns no style when nobody gives one', () => {
+    // An empty object would set a useless style attribute on every element.
     expect(mergePresentation({}, {}).style).toBeUndefined()
   })
 
-  it('ne rend aucune classe quand personne n en donne', () => {
+  it('returns no class when nobody gives one', () => {
     expect(mergePresentation({}, {}).className).toBeUndefined()
   })
 
-  it('ignore une classe vide', () => {
+  it('ignores an empty class', () => {
     expect(
       mergePresentation({ className: 'o-flex' }, { className: '  ' }).className,
     ).toBe('o-flex')
   })
 
-  it('transmet les attributs DOM au travers du type', () => {
+  it('passes the DOM attributes through the type', () => {
     interface OwnProps {
-      vitesse?: number
+      speed?: number
     }
 
-    function Aurore({ vitesse = 1, ...rest }: Customisable<OwnProps>): ReactElement {
-      const { className, style } = mergePresentation({ className: 'aurore' }, rest)
-      return <div {...rest} className={className} style={style} data-vitesse={vitesse} />
+    function Aurora({ speed = 1, ...rest }: Customisable<OwnProps>): ReactElement {
+      const { className, style } = mergePresentation({ className: 'aurora' }, rest)
+      return <div {...rest} className={className} style={style} data-speed={speed} />
     }
 
     render(
-      <Aurore
-        vitesse={2}
-        className="pose"
+      <Aurora
+        speed={2}
+        className="placed"
         style={{ opacity: 0.5 }}
-        data-testid="hote"
-        aria-label="fond anime"
+        data-testid="host"
+        aria-label="animated background"
       />,
     )
 
-    const element = screen.getByTestId('hote')
-    expect(element.className).toBe('aurore pose')
+    const element = screen.getByTestId('host')
+    expect(element.className).toBe('aurora placed')
     expect(element.style.opacity).toBe('0.5')
-    expect(element.getAttribute('aria-label')).toBe('fond anime')
-    expect(element.dataset['vitesse']).toBe('2')
+    expect(element.getAttribute('aria-label')).toBe('animated background')
+    expect(element.dataset['speed']).toBe('2')
   })
 })
 
-describe('niveau 4 — le slot de rendu', () => {
+describe('level 4 — the render slot', () => {
   interface SlotArgs {
     progress: number
   }
 
-  function Barre({ children }: { children?: Slot<SlotArgs> }): ReactElement {
+  function Bar({ children }: { children?: Slot<SlotArgs> }): ReactElement {
     return (
       <div>
         {fromSlot(children, { progress: 0.42 }, () => (
-          <span>par defaut</span>
+          <span>default</span>
         ))}
       </div>
     )
   }
 
-  it('rend le balisage par defaut quand aucun slot n est fourni', () => {
-    render(<Barre />)
-    expect(screen.getByText('par defaut')).toBeDefined()
+  it('renders the default markup when no slot is supplied', () => {
+    render(<Bar />)
+    expect(screen.getByText('default')).toBeDefined()
   })
 
-  it('rend le slot et lui transmet ce qui a ete calcule', () => {
-    render(<Barre>{({ progress }) => <span>{progress}</span>}</Barre>)
+  it('renders the slot and passes it what was computed', () => {
+    render(<Bar>{({ progress }) => <span>{progress}</span>}</Bar>)
     expect(screen.getByText('0.42')).toBeDefined()
   })
 
-  it('ne calcule pas le defaut quand un slot est fourni', () => {
-    // Le defaut contient souvent des elements entiers : le construire pour le
-    // jeter aussitot serait du travail perdu a chaque rendu.
+  it('does not compute the default when a slot is supplied', () => {
+    // The default often contains whole elements: building it only to throw it
+    // away would be wasted work on every render.
     const fallback = vi.fn(() => null)
     fromSlot(() => null, {}, fallback)
     expect(fallback).not.toHaveBeenCalled()
   })
 })
 
-describe('niveau 5 — l echappatoire', () => {
-  /** Composant minimal exposant `onReady`, comme le ferait une entree reelle. */
+describe('level 5 — the escape hatch', () => {
+  /** Minimal component exposing `onReady`, as a real entry would. */
   function Piece({
     onReady,
-    poids = 1,
+    weight = 1,
   }: {
-    onReady?: ReadyCallback<{ nom: string }>
-    poids?: number
+    onReady?: ReadyCallback<{ name: string }>
+    weight?: number
   }): ReactElement {
     const [element, setElement] = useState<HTMLElement | null>(null)
-    const [handle] = useState(() => ({ nom: 'timeline' }))
+    const [handle] = useState(() => ({ name: 'timeline' }))
 
     useOnReady(onReady, handle, element)
-    return <div ref={setElement} data-testid="piece" data-poids={poids} />
+    return <div ref={setElement} data-testid="piece" data-weight={weight} />
   }
 
-  it('appelle le rappel une fois l objet et l element disponibles', () => {
+  it('calls the callback once the object and the element are available', () => {
     const onReady = vi.fn()
     render(<Piece onReady={onReady} />)
 
     expect(onReady).toHaveBeenCalledTimes(1)
-    expect(onReady.mock.calls[0]?.[0]).toMatchObject({ handle: { nom: 'timeline' } })
+    expect(onReady.mock.calls[0]?.[0]).toMatchObject({ handle: { name: 'timeline' } })
     expect(onReady.mock.calls[0]?.[0].element).toBeInstanceOf(HTMLElement)
   })
 
-  it('ne rejoue pas le rappel quand le parent se rerend', () => {
-    // Le cas qui justifie la reference : l'appelant ecrit une fonction en
-    // ligne, donc une valeur neuve a chaque rendu. Un effet qui en dependrait
-    // rejouerait l'echappatoire pour un survol ailleurs dans la page.
-    const appels = vi.fn()
+  it('does not replay the callback when the parent re-renders', () => {
+    // The case that justifies the ref: the caller writes an inline function,
+    // so a fresh value on every render. An effect that depended on it would
+    // replay the escape hatch for a hover elsewhere on the page.
+    const calls = vi.fn()
 
     function Parent(): ReactElement {
       const [n, setN] = useState(0)
       return (
         <>
           <button type="button" onClick={() => setN(n + 1)}>
-            rerendre
+            re-render
           </button>
-          <Piece poids={n} onReady={(context) => appels(context.handle.nom)} />
+          <Piece weight={n} onReady={(context) => calls(context.handle.name)} />
         </>
       )
     }
 
     render(<Parent />)
-    expect(appels).toHaveBeenCalledTimes(1)
+    expect(calls).toHaveBeenCalledTimes(1)
 
-    act(() => screen.getByText('rerendre').click())
-    act(() => screen.getByText('rerendre').click())
+    act(() => screen.getByText('re-render').click())
+    act(() => screen.getByText('re-render').click())
 
-    expect(screen.getByTestId('piece').dataset['poids']).toBe('2')
-    expect(appels).toHaveBeenCalledTimes(1)
+    expect(screen.getByTestId('piece').dataset['weight']).toBe('2')
+    expect(calls).toHaveBeenCalledTimes(1)
   })
 
-  it('appelle le nettoyage rendu par le rappel', () => {
-    // Une echappatoire qui pose un abonnement sans pouvoir le retirer serait
-    // une fuite offerte par l'API elle-meme.
-    const nettoyage = vi.fn()
-    const { unmount } = render(<Piece onReady={() => nettoyage} />)
+  it('calls the cleanup returned by the callback', () => {
+    // An escape hatch that sets a subscription without being able to remove it
+    // would be a leak offered by the API itself.
+    const cleanup = vi.fn()
+    const { unmount } = render(<Piece onReady={() => cleanup} />)
 
-    expect(nettoyage).not.toHaveBeenCalled()
+    expect(cleanup).not.toHaveBeenCalled()
     unmount()
-    expect(nettoyage).toHaveBeenCalledTimes(1)
+    expect(cleanup).toHaveBeenCalledTimes(1)
   })
 
-  it('ne fait rien sans rappel', () => {
+  it('does nothing without a callback', () => {
     expect(() => render(<Piece />)).not.toThrow()
   })
 
-  it('transmet l etat du mouvement', () => {
-    // L'echappatoire contourne l'API du composant, pas la preference de
-    // l'utilisateur : le rappel doit pouvoir la consulter.
+  it('passes the motion state', () => {
+    // The escape hatch bypasses the component's API, not the user's
+    // preference: the callback must be able to consult it.
     motionPolicy.configure({ reducedMotion: 'force' })
 
     const onReady = vi.fn()

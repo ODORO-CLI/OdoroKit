@@ -1,5 +1,5 @@
 /**
- * Interrupteur a deux etats.
+ * Two-state toggle.
  *
  * @module
  */
@@ -18,8 +18,8 @@ import {
 import { cx, variants } from '../styles/cx.js'
 
 /**
- * Classes de la piste, exposees pour composer un interrupteur sur mesure sans
- * dupliquer la table de variantes.
+ * Track classes, exposed to compose a bespoke toggle without duplicating the
+ * variant table.
  */
 export const switchClasses = variants({
   base: cx(
@@ -40,7 +40,7 @@ export const switchClasses = variants({
   defaults: { size: 'md', checked: 'false' },
 })
 
-/** Taille du pouce par taille de piste. */
+/** Thumb size per track size. */
 const THUMB_SIZE: Readonly<Record<'sm' | 'md' | 'lg', string>> = {
   sm: 'o-h-3 o-w-3',
   md: 'o-h-4 o-w-4',
@@ -48,8 +48,8 @@ const THUMB_SIZE: Readonly<Record<'sm' | 'md' | 'lg', string>> = {
 }
 
 /**
- * Course du pouce par taille : largeur de piste moins pouce et padding, pour
- * qu'il s'arrete au ras du bord oppose.
+ * Thumb travel per size: track width minus thumb and padding, so that it
+ * stops flush with the opposite edge.
  */
 const THUMB_TRAVEL: Readonly<Record<'sm' | 'md' | 'lg', string>> = {
   sm: 'o-translate-x-3',
@@ -57,44 +57,44 @@ const THUMB_TRAVEL: Readonly<Record<'sm' | 'md' | 'lg', string>> = {
   lg: 'o-translate-x-6',
 }
 
-/** Proprietes de {@link Switch}. */
+/** Properties of {@link Switch}. */
 export interface SwitchProps extends Omit<
   ButtonHTMLAttributes<HTMLButtonElement>,
   'className' | 'defaultChecked' | 'role' | 'aria-checked'
 > {
-  /** Libelle de l'interrupteur, rendu a cote et clicable. Obligatoire. */
+  /** Label of the toggle, rendered next to it and clickable. Required. */
   label: ReactNode
-  /** Complement affiche sous le libelle. */
+  /** Complement displayed under the label. */
   description?: ReactNode
-  /** Etat en mode controle. */
+  /** State in controlled mode. */
   checked?: boolean
-  /** Etat initial en mode non controle. @defaultValue false */
+  /** Initial state in uncontrolled mode. @defaultValue false */
   defaultChecked?: boolean
-  /** Appele avec le nouvel etat a chaque bascule. */
+  /** Called with the new state on every toggle. */
   onCheckedChange?: (checked: boolean) => void
-  /** Taille. @defaultValue 'md' */
+  /** Size. @defaultValue 'md' */
   size?: 'sm' | 'md' | 'lg'
-  /** Classes additionnelles appliquees a la piste. */
+  /** Additional classes applied to the track. */
   className?: string
-  /** Classes additionnelles appliquees au conteneur. */
+  /** Additional classes applied to the container. */
   wrapperClassName?: string
-  /** Ref vers l'element natif. */
+  /** Ref to the native element. */
   ref?: Ref<HTMLButtonElement>
 }
 
 /**
- * Interrupteur.
+ * Toggle.
  *
- * Un `<button role="switch">` plutot qu'une case a cocher : l'effet est
- * immediat, sans notion de formulaire a soumettre. L'etat est porte par
- * `aria-checked`, la bascule repond au clic comme a Espace ou Entree (natif
- * du bouton). Le pouce glisse par transformation : une propriete composee,
- * aucune recomposition.
+ * A `<button role="switch">` rather than a checkbox: the effect is immediate,
+ * with no notion of a form to submit. The state is carried by `aria-checked`,
+ * the toggle answers to a click as well as to Space or Enter (native to the
+ * button). The thumb slides by transform: a composited property, no
+ * recomposition.
  *
  * @example
  * <Switch
  *   label="Notifications"
- *   description="Recevoir un courriel a chaque commentaire."
+ *   description="Receive an email on every comment."
  *   defaultChecked
  *   onCheckedChange={setEnabled}
  * />

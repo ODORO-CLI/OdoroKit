@@ -1,27 +1,26 @@
 /**
- * Rideau par bandes : le contenu est revele par des bandes verticales qui se
- * retirent en cascade.
+ * Banded curtain: the content is revealed by vertical bands that withdraw in
+ * cascade.
  *
- * ## Des surcouches, pas un masque sur le contenu
+ * ## Overlays, not a mask on the content
  *
- * Le contenu est rendu normalement des le premier instant ; ce sont des
- * bandes opaques posees par-dessus qui le cachent, puis remontent l'une apres
- * l'autre. Masquer le contenu lui-meme — opacite, clip — le ferait disparaitre
- * pour les lecteurs d'ecran et pour la recherche dans la page, alors qu'il
- * est la et n'attend que d'etre vu.
+ * The content is rendered normally from the very first instant; it is opaque
+ * bands laid over it that hide it, then rise one after the other. Masking the
+ * content itself — opacity, clip — would make it disappear for screen readers
+ * and for in-page search, when it is there and only waiting to be seen.
  *
- * Chaque bande est lancee par l'API Web Animations avec un delai croissant ;
- * quand la derniere se termine, la surcouche entiere quitte le DOM. Rien ne
- * reste au-dessus du contenu, pas meme d'invisible.
+ * Each band is launched by the Web Animations API with an increasing delay;
+ * when the last one ends, the whole overlay leaves the DOM. Nothing remains
+ * above the content, not even invisibly.
  *
- * ## Le declenchement vient du champ
+ * ## The trigger comes from the viewport
  *
- * Le rideau attend que la zone entre dans le champ, via le crochet
- * `useInView` — qui s'ouvre de lui-meme si l'observation est impossible : un
- * rideau qui ne se leve jamais est le pire defaut possible.
+ * The curtain waits for the area to enter the viewport, through the `useInView`
+ * hook — which opens by itself if observation is impossible: a curtain that
+ * never rises is the worst possible fault.
  *
- * Sous mouvement reduit, la surcouche n'est pas rendue du tout : le contenu
- * est immediatement visible.
+ * Under reduced motion, the overlay is not rendered at all: the content is
+ * immediately visible.
  *
  * @module
  */
@@ -31,36 +30,36 @@ import { useEffect, useState, type ReactElement, type ReactNode } from 'react'
 
 import { useInView } from '@registre/hooks/useInView'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface RevealMaskOwnProps {
-  /** Contenu a reveler. */
+  /** Content to reveal. */
   children: ReactNode
-  /** Nombre de bandes. @defaultValue 4 */
+  /** Number of bands. @defaultValue 4 */
   bands?: number
-  /** Duree du retrait d'une bande, en millisecondes. @defaultValue 600 */
+  /** Duration of the withdrawal of one band, in milliseconds. @defaultValue 600 */
   duration?: number
-  /** Decalage entre deux bandes voisines, en millisecondes. @defaultValue 90 */
+  /** Offset between two neighbouring bands, in milliseconds. @defaultValue 90 */
   step?: number
-  /** Couleur des bandes. @defaultValue le token d'encre */
+  /** Colour of the bands. @defaultValue the ink token */
   color?: string
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type RevealMaskProps = Customisable<RevealMaskOwnProps>
 
 /**
- * Revele son contenu par bandes, a l'entree dans le champ.
+ * Reveals its content in bands, on entering the viewport.
  *
- * Pour rejouer l'animation, remonter le composant — une `key` differente
- * suffit.
+ * To replay the animation, remount the component — a different `key` is
+ * enough.
  *
  * @example
  * <RevealMask>
- *   <img src={couverture} alt="Couverture du numero 12" />
+ *   <img src={cover} alt="Cover of issue 12" />
  * </RevealMask>
  *
  * @example
- * // Six bandes serrees, dans la couleur de marque.
+ * // Six tight bands, in the brand colour.
  * <RevealMask bands={6} step={60} color="var(--o-palette-brand-500)">
  *   <article className="o-p-8">…</article>
  * </RevealMask>
@@ -74,12 +73,12 @@ export function RevealMask({
   ...rest
 }: RevealMaskProps): ReactElement {
   const { reduced } = useMotionState()
-  const { ref, vu } = useInView<HTMLDivElement>()
+  const { ref, inView } = useInView<HTMLDivElement>()
   const [veil, setVeil] = useState<HTMLDivElement | null>(null)
   const [done, setDone] = useState(false)
 
   useEffect(() => {
-    if (veil === null || !vu) return
+    if (veil === null || !inView) return
 
     const strips = veil.querySelectorAll('[data-o-reveal-band]')
     let finished = 0
@@ -87,8 +86,8 @@ export function RevealMask({
 
     strips.forEach((strip, index) => {
       const animation = strip.animate(
-        // Un cran au-dela de 100% : un sous-pixel de bande qui traine se
-        // voit comme un fil sombre en haut du contenu.
+        // One notch past 100%: a sub-pixel of band left behind shows as a dark
+        // thread at the top of the content.
         [{ transform: 'translateY(0)' }, { transform: 'translateY(-101%)' }],
         {
           duration,
@@ -99,8 +98,8 @@ export function RevealMask({
       )
       animation.onfinish = () => {
         finished += 1
-        // La surcouche ne part que lorsque la derniere bande est levee :
-        // la retirer bande par bande ferait autant de rendus React.
+        // The overlay only leaves once the last band is raised: removing it
+        // band by band would mean as many React renders.
         if (finished === strips.length) setDone(true)
       }
       animations.push(animation)
@@ -109,7 +108,7 @@ export function RevealMask({
     return () => {
       for (const animation of animations) animation.cancel()
     }
-  }, [veil, vu, duration, step])
+  }, [veil, inView, duration, step])
 
   const { className, style } = mergePresentation({}, rest)
 
@@ -121,8 +120,8 @@ export function RevealMask({
       style={{ position: 'relative', overflow: 'hidden', ...style }}
     >
       {children}
-      {/* Sous mouvement reduit, pas de rideau du tout ; une fois leve, il
-          quitte le DOM. */}
+      {/* Under reduced motion, no curtain at all; once raised, it leaves the
+          DOM. */}
       {reduced || done ? null : (
         <div
           aria-hidden

@@ -1,23 +1,23 @@
 /**
- * Parasites : la neige d'un televiseur, hachee par paliers.
+ * Static: the snow of a television set, chopped into steps.
  *
- * ## Le principe
+ * ## The principle
  *
- * Un bruit blanc par cellule d'ecran, retire par paliers de temps — un tirage
- * par palier et non par image, qui scintillerait trop. Des bandes sombres
- * defilent lentement a la verticale, et un dosage de teinte tire le gris vers
- * la couleur du tube.
+ * A white noise per screen cell, drawn again at each time step — one draw per
+ * step and not per frame, which would shimmer far too much. Dark bands scroll
+ * slowly downwards, and a measure of tint pulls the grey towards the colour of
+ * the tube.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur — les recopier ici en ferait autant
- * de versions a maintenir qu'il y a de fonds.
+ * It carries only what sets it apart: its shader, its settings and its
+ * fallback. Reading the tokens, converting them to floats and re-reading them
+ * when the theme changes all come from the engine — copying that here would
+ * leave as many versions to maintain as there are backgrounds.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en
- * accorde qu'une par backend — et sous mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface — it grants only one
+ * per backend — and under reduced motion.
  *
  * @module
  */
@@ -34,41 +34,41 @@ import { type ReactElement } from 'react'
 
 import { TV_STATIC_FRAGMENT } from './tv-static.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface TvStaticControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to this component. */
 export interface TvStaticOwnProps {
-  /** Cadence des paliers de tirage. @defaultValue 12 */
+  /** Rate of the draw steps. @defaultValue 12 */
   fps?: number
-  /** Profondeur des bandes sombres. @defaultValue 0.3 */
+  /** Depth of the dark bands. @defaultValue 0.3 */
   banding?: number
-  /** Dosage de la teinte. Zero, l'image reste grise. @defaultValue 0.4 */
+  /** Measure of the tint. At zero, the image stays grey. @defaultValue 0.4 */
   tint?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<TvStaticControls>
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type TvStaticProps = Customisable<TvStaticOwnProps>
 
-/** Tokens employes par defaut : le noir du tube, la teinte, le grain clair. */
+/** Tokens used by default: the black of the tube, the tint, the light grain. */
 const DEFAULT_TOKENS = ['--o-theme-bg', '--o-palette-indigo-300', '--o-theme-fg'] as const
 
-/** Repli par defaut : une teinte figee, dans les memes tons. */
+/** Default fallback: a frozen tint, in the same tones. */
 const DEFAULT_FALLBACK = 'o-bg-zinc-100 dark:o-bg-zinc-900'
 
 /**
- * Parasites.
+ * Static.
  *
  * @example
  * <div className="o-relative o-min-h-screen">
@@ -90,8 +90,8 @@ export function TvStatic({
     colors,
     uniforms: { uFps: fps, uBanding: banding, uTint: tint },
     name: 'tv-static',
-    // Le fragment coute un hachage quelle que soit la cadence ; ce qui pese,
-    // c'est le rythme des images reellement differentes, donc il est borne.
+    // The fragment costs one hash whatever the rate; what weighs is the pace
+    // of the genuinely different frames, so it is capped.
     degrade: (quality) => ({
       uFps: quality === 'low' ? Math.min(fps, 8) : fps,
     }),

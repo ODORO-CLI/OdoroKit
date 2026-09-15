@@ -1,23 +1,24 @@
 /**
- * Aquarelle : des taches qui s'etalent, sechent et s'effacent.
+ * Watercolour: blots that spread, dry and fade away.
  *
- * ## Le principe
+ * ## The principle
  *
- * Chaque tache vit un cycle a phase propre : elle s'etale vite puis freine,
- * son pigment migre vers le bord en sechant — le lisere sombre de
- * l'aquarelle — puis elle s'efface et renait ailleurs. Le bord suit un bruit
- * fixe dans le plan, comme l'eau suit les fibres du papier.
+ * Each blot lives through a cycle with a phase of its own: it spreads fast
+ * then slows down, its pigment migrates towards the edge as it dries — the
+ * dark rim of a watercolour — then it fades away and is born again
+ * elsewhere. The edge follows a noise fixed in the plane, the way water
+ * follows the fibres of the paper.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur — les recopier ici en ferait autant
- * de versions a maintenir qu'il y a de fonds.
+ * It carries only what sets it apart: its shader, its settings and its
+ * fallback. Reading the tokens, converting them to floats and re-reading them
+ * when the theme changes all come from the engine — copying that here would
+ * leave as many versions to maintain as there are backgrounds.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en
- * accorde qu'une par backend — et sous mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface — it grants only one
+ * per backend — and under reduced motion.
  *
  * @module
  */
@@ -34,56 +35,56 @@ import { type ReactElement } from 'react'
 
 import { WATERCOLOR_FRAGMENT } from './watercolor.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface WatercolorControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to this component. */
 export interface WatercolorOwnProps {
-  /** Vitesse du cycle. @defaultValue 0.25 */
+  /** Speed of the cycle. @defaultValue 0.25 */
   speed?: number
-  /** Nombre de taches vivantes. @defaultValue 6 */
+  /** Number of living blots. @defaultValue 6 */
   blots?: number
-  /** Frange du bord. @defaultValue 0.5 */
+  /** Fringe of the edge. @defaultValue 0.5 */
   bleed?: number
-  /** Grain du papier. @defaultValue 0.3 */
+  /** Grain of the paper. @defaultValue 0.3 */
   grain?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<WatercolorControls>
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type WatercolorProps = Customisable<WatercolorOwnProps>
 
-/** Tokens employes par defaut : le papier, les deux pigments. */
+/** Tokens used by default: the paper, the two pigments. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-brand-500',
   '--o-palette-sky-400',
 ] as const
 
-/** Repli par defaut : un lavis fige, dans les memes tons. */
+/** Default fallback: a frozen wash, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-br o-from-zinc-50 dark:o-from-zinc-950 o-via-brand-200 dark:o-via-brand-900 o-to-sky-200 dark:o-to-sky-900'
 
 /**
- * Nombre de taches en qualite basse.
+ * Number of blots at low quality.
  *
- * Chaque tache lit une somme d'octaves pour sa frange : c'est le seul levier
- * de cout du shader.
+ * Each blot reads a sum of octaves for its fringe: it is the shader's only
+ * cost lever.
  */
 const LOW_BLOTS = 3
 
 /**
- * Aquarelle.
+ * Watercolour.
  *
  * @example
  * <div className="o-relative o-min-h-screen">
@@ -106,7 +107,7 @@ export function Watercolor({
     colors,
     uniforms: { uSpeed: speed, uBlots: blots, uBleed: bleed, uGrain: grain },
     name: 'watercolor',
-    // Le nombre de taches est le seul reglage qui pese : c'est le seul borne.
+    // The number of blots is the only setting that weighs: the only one capped.
     degrade: (quality) => ({
       uBlots: quality === 'low' ? Math.min(blots, LOW_BLOTS) : blots,
     }),

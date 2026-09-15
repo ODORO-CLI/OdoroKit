@@ -1,20 +1,20 @@
 /**
- * Nappe figee : quatre taches de couleur, sans shader et sans mouvement.
+ * Static mesh: four colour blots, with no shader and no motion.
  *
- * ## Ce que la version figee garde de la nappe animee
+ * ## What the frozen version keeps of the animated mesh
  *
- * La nappe en shader melange ses taches en continu ; celle-ci les pose une fois
- * pour toutes, aux tiers du cadre, la ou une composition les attend. Pour une
- * page qui n'a pas besoin de mouvement — ou qui a deja depense sa surface
- * graphique ailleurs — le resultat au repos est indiscernable, et le cout tombe
- * a quatre degrades radiaux.
+ * The shader mesh blends its blots continuously; this one lays them down once
+ * and for all, at the thirds of the frame, where a composition expects them.
+ * For a page that does not need motion — or that has already spent its graphics
+ * surface elsewhere — the result at rest is indistinguishable, and the cost
+ * drops to four radial gradients.
  *
- * ## Pourquoi la couche interne deborde du cadre
+ * ## Why the inner layer overflows the frame
  *
- * Le flou est un filtre : il rend translucides les bords de ce qu'il floute.
- * Applique a une couche exactement ajustee, il ferait apparaitre un lisere du
- * fond tout autour. La couche interne deborde donc du rayon de flou de chaque
- * cote, et l'element racine recadre le surplus.
+ * The blur is a filter: it makes translucent the edges of whatever it blurs.
+ * Applied to a layer fitted exactly, it would reveal a hairline of the
+ * background all around. The inner layer therefore overflows by the blur radius
+ * on every side, and the root element crops the excess.
  *
  * @module
  */
@@ -22,27 +22,27 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import { type CSSProperties, type ReactElement } from 'react'
 
-/** Proprietes propres au composant. */
+/** Props specific to this component. */
 export interface MeshStaticOwnProps {
-  /** Intensite des taches, entre 0 et 1. @defaultValue 0.5 */
+  /** Intensity of the blots, between 0 and 1. @defaultValue 0.5 */
   strength?: number
-  /** Rayon du flou, en pixels. Zero pour des taches nettes. @defaultValue 24 */
+  /** Radius of the blur, in pixels. Zero for crisp blots. @defaultValue 24 */
   blur?: number
-  /** Couleur de la premiere tache. */
+  /** Colour of the first blot. */
   color?: string
-  /** Couleur de la deuxieme tache. */
+  /** Colour of the second blot. */
   accent?: string
-  /** Couleur de la troisieme tache. */
+  /** Colour of the third blot. */
   tint?: string
-  /** Couleur du fond. */
+  /** Colour of the background. */
   background?: string
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type MeshStaticProps = Customisable<MeshStaticOwnProps>
 
 /**
- * Nappe figee de fond.
+ * Static background mesh.
  *
  * @example
  * <div className="o-relative o-min-h-screen">

@@ -1,34 +1,33 @@
 /**
- * Barre laterale en traits : une colonne de traits qui s'allongent a
- * l'approche du pointeur et decouvrent leur libelle. Le trait de la page
- * courante reste long, en teinte de marque.
+ * Sidebar made of lines: a column of lines that stretch as the pointer comes
+ * near and uncover their label. The line of the current page stays long, in
+ * the brand hue.
  *
- * ## Ce qui la distingue de la barre a loupe
+ * ## What sets it apart from the magnifying dock
  *
- * La loupe grossit un element entier, vers le haut, dans une barre
- * horizontale. Ici rien ne grossit : un trait s'allonge, sur l'axe qui
- * s'eloigne du bord de l'ecran, et le libelle apparait a son bout. La
- * colonne ne bouge pas d'un pixel — un trait plus long n'a pas de largeur
- * de boite, puisqu'il est une echelle sur sa longueur. C'est la barre d'une
- * page longue : posee sur un bord, muette au repos, lisible des qu'on s'en
- * approche.
+ * The dock magnifies a whole element, upwards, in a horizontal bar. Here
+ * nothing is magnified: a line stretches, along the axis that moves away
+ * from the edge of the screen, and the label shows up at its end. The
+ * column does not move by a single pixel — a longer line has no box width,
+ * since it is a scale along its length. This is the nav of a long page:
+ * set against an edge, mute at rest, legible as soon as one comes
+ * close to it.
  *
- * ## La distance est lue sur un pointeur amorti
+ * ## The distance is read on a damped pointer
  *
- * Le pointeur vient du crochet amorti, dans une ref, lu dans la boucle du
- * moteur. Les traits suivent donc la main avec un leger retard, et se
- * couchent en glissant plutot qu'en sautant. Le profil est une cosinusoide
- * relevee, comme celui de la loupe, et pour la meme raison : plate aux
- * bords, elle ne fait sursauter aucun trait quand le pointeur entre dans son
- * rayon.
+ * The pointer comes from the damped hook, in a ref, read inside the engine
+ * loop. The lines therefore follow the hand with a slight delay, and lie
+ * back by sliding rather than by jumping. The profile is a raised cosine,
+ * like the dock's, and for the same reason: flat at the edges, it makes no
+ * line start when the pointer enters its radius.
  *
- * ## Deux chemins pour la meme forme
+ * ## Two paths to the same shape
  *
- * Hors de la barre, ou sans pointeur fin, ou sous mouvement reduit, les
- * traits ne sont pas ecrits par la boucle : le survol et le focus les
- * allongent par une transition CSS. Le libelle, lui, apparait toujours par
- * la feuille, sur survol, focus et page courante. L'etat final est le meme,
- * seul le trajet change.
+ * Outside the nav, or without a fine pointer, or under reduced motion, the
+ * lines are not written by the loop: hover and focus stretch them through a
+ * CSS transition. The label, for its part, always shows up through the
+ * stylesheet, on hover, on focus and on the current page. The final state is
+ * the same, only the route changes.
  *
  * @module
  */
@@ -52,43 +51,43 @@ import {
 
 import { usePointerDamped } from '@registre/hooks/usePointerDamped'
 
-/** Un element de navigation. */
+/** A navigation item. */
 export interface NavItem {
-  /** Libelle affiche. */
+  /** Displayed label. */
   readonly label: string
-  /** Cible du lien. Sans cible, l'element est un bouton. */
+  /** Target of the link. Without a target, the item is a button. */
   readonly href?: string
-  /** Icone placee avant le libelle. */
+  /** Icon placed before the label. */
   readonly icon?: ReactNode
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to the component. */
 export interface LineSidebarOwnProps {
-  /** Les liens, de haut en bas. */
+  /** The links, from top to bottom. */
   items: readonly NavItem[]
-  /** Bord de l'ecran ou la barre est posee : les traits partent de ce bord. @defaultValue 'left' */
+  /** Screen edge the nav is set against: the lines start from that edge. @defaultValue 'left' */
   side?: 'left' | 'right'
-  /** Allongement maximal d'un trait, atteint sous le pointeur. @defaultValue 2.4 */
+  /** Maximum stretch of a line, reached under the pointer. @defaultValue 2.4 */
   extend?: number
-  /** Rayon d'influence du pointeur, en pixels. @defaultValue 90 */
+  /** Radius of influence of the pointer, in pixels. @defaultValue 90 */
   reach?: number
-  /** Vitesse a laquelle les traits suivent le pointeur. Plus haut, plus sec. @defaultValue 10 */
+  /** Speed at which the lines follow the pointer. Higher is drier. @defaultValue 10 */
   speed?: number
-  /** Index de la page courante. */
+  /** Index of the current page. */
   active?: number
-  /** Appele quand l'utilisateur choisit un lien. */
+  /** Called when the user picks a link. */
   onActiveChange?: (index: number) => void
-  /** Nom du bloc pour les lecteurs d'ecran. @defaultValue 'Navigation' */
+  /** Name of the block for screen readers. @defaultValue 'Navigation' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All the props. */
 export type LineSidebarProps = Customisable<LineSidebarOwnProps, 'nav'>
 
-/** Identifiant de la feuille injectee. */
+/** Id of the injected stylesheet. */
 const STYLE_ID = 'o-line-sidebar'
 
-/** Pose la colonne, les traits et les libelles, une fois par document. */
+/** Sets the column, the lines and the labels, once per document. */
 function ensureLineRules(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -105,8 +104,8 @@ function ensureLineRules(): void {
     '}',
     '[data-o-lines][data-o-lines-right] [data-o-lines-item]{flex-direction:row-reverse}',
     '[data-o-lines-item]:focus-visible{outline:2px solid currentColor;outline-offset:2px;border-radius:2px}',
-    // Le trait : une echelle sur sa longueur, depuis le bord. La transition
-    // ne sert qu'au survol et au repos ; sous le pointeur, c'est la boucle.
+    // The line: a scale along its length, from the edge. The transition only
+    // serves hover and rest; under the pointer, the loop writes.
     '[data-o-lines-bar]{',
     'display:block;width:1.25rem;height:2px;flex:none;border-radius:1px;',
     'background:currentColor;opacity:0.5;',
@@ -134,7 +133,7 @@ function ensureLineRules(): void {
     '[data-o-lines-item][aria-current] [data-o-lines-label],',
     '[data-o-lines-item][data-o-lines-near] [data-o-lines-label]{opacity:1;transform:none}',
     '[data-o-lines-item][aria-current] [data-o-lines-label]{color:var(--o-palette-brand-500)}',
-    // Le filet du bord : la barre est posee contre lui.
+    // The rule of the edge: the nav is set against it.
     '[data-o-lines]{border-left:1px solid var(--o-theme-line)}',
     '[data-o-lines][data-o-lines-right]{border-left:0;border-right:1px solid var(--o-theme-line)}',
     '@media (prefers-reduced-motion:reduce){[data-o-lines-bar],[data-o-lines-label]{transition:none}}',
@@ -143,21 +142,21 @@ function ensureLineRules(): void {
 }
 
 /**
- * Colonne de traits qui s'allongent a l'approche du pointeur.
+ * Column of lines that stretch as the pointer comes near.
  *
  * @example
  * <LineSidebar
  *   items={[
  *     { label: 'Intro', href: '#intro' },
- *     { label: 'Methode', href: '#methode' },
- *     { label: 'Resultats', href: '#resultats' },
- *     { label: 'Suite', href: '#suite' },
+ *     { label: 'Method', href: '#method' },
+ *     { label: 'Results', href: '#results' },
+ *     { label: 'Next', href: '#next' },
  *   ]}
  *   active={1}
  * />
  *
  * @example
- * // Posee a droite, traits plus longs, rayon plus large.
+ * // Set on the right, longer lines, wider radius.
  * <LineSidebar items={sections} side="right" extend={3} reach={140} />
  */
 export function LineSidebar({
@@ -173,13 +172,13 @@ export function LineSidebar({
 }: LineSidebarProps): ReactElement {
   const { reduced } = useMotionState()
   const [host, setHost] = useState<HTMLElement | null>(null)
-  const pointer = usePointerDamped({ host, speed, name: 'traits : pointeur' })
+  const pointer = usePointerDamped({ host, speed, name: 'lines: pointer' })
   ensureLineRules()
 
-  // Memoisee sur `host` : la fonction ne lit rien d'autre, et sans cela elle
-  // serait recreee a chaque rendu. L'effet qui l'emploie se reabonnerait alors
-  // a l'horloge et reposerait ses ecouteurs a chaque image — le contraire de ce
-  // qu'un tableau de dependances est cense empecher.
+  // Memoised on `host`: the function reads nothing else, and without that it
+  // would be recreated on every render. The effect that uses it would then
+  // resubscribe to the clock and reset its listeners on every frame — the
+  // opposite of what a dependency array is meant to prevent.
   const links = useCallback(
     (): HTMLElement[] =>
       Array.from(host?.querySelectorAll<HTMLElement>('[data-o-lines-item]') ?? []),
@@ -188,7 +187,7 @@ export function LineSidebar({
 
   useEffect(() => {
     if (host === null || reduced) return
-    if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return
+    if (!window.matchMedia('(hover) and (pointer: fine)').matches) return
 
     let inside = false
 
@@ -207,7 +206,7 @@ export function LineSidebar({
     }
     const onLeave = (): void => {
       inside = false
-      // Le repos est ecrit une fois ; la transition CSS ramene les traits.
+      // Rest is written once; the CSS transition brings the lines back.
       rest_()
     }
 
@@ -221,9 +220,9 @@ export function LineSidebar({
           const bar = link.querySelector<HTMLElement>('[data-o-lines-bar]')
           if (bar === null) continue
           const own = link.getBoundingClientRect()
-          const centre = own.top + own.height / 2
-          const t = Math.min(1, Math.abs(y - centre) / reach)
-          // Cosinusoide relevee : plate aux bords, arrondie au sommet.
+          const center = own.top + own.height / 2
+          const t = Math.min(1, Math.abs(y - center) / reach)
+          // Raised cosine: flat at the edges, rounded at the top.
           const bump = (Math.cos(t * Math.PI) + 1) / 2
           const k = 1 + (extend - 1) * bump
           bar.style.transform = `scaleX(${k.toFixed(3)})`
@@ -231,7 +230,7 @@ export function LineSidebar({
           else link.removeAttribute('data-o-lines-near')
         }
       },
-      { priority: CLOCK_PRIORITY.render, name: 'traits' },
+      { priority: CLOCK_PRIORITY.render, name: 'lines' },
     )
 
     host.addEventListener('pointerenter', onEnter, { passive: true })

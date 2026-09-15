@@ -1,23 +1,23 @@
 /**
- * Observation de l'entree d'un element dans le viewport.
+ * Observation of an element entering the viewport.
  *
  * @module
  */
 
 import { type RefObject, useEffect, useRef, useState } from 'react'
 
-/** Options de {@link useInView}. */
+/** Options of {@link useInView}. */
 export interface InViewOptions {
   /**
-   * Proportion de l'element devant etre visible pour le considerer entre.
+   * Proportion of the element that must be visible to consider it entered.
    * @defaultValue 0
    */
   threshold?: number
-  /** Marge appliquee au viewport d'observation. @defaultValue '0px' */
+  /** Margin applied to the observation viewport. @defaultValue '0px' */
   rootMargin?: string
   /**
-   * Fige la valeur a `true` apres la premiere entree : l'observation cesse,
-   * l'element ne redevient jamais « hors champ ».
+   * Freezes the value at `true` after the first entry: the observation stops,
+   * the element never becomes "out of view" again.
    *
    * @defaultValue false
    */
@@ -25,16 +25,16 @@ export interface InViewOptions {
 }
 
 /**
- * Indique si un element est visible dans le viewport.
+ * Tells whether an element is visible in the viewport.
  *
- * Sans `IntersectionObserver` — rendu serveur, vieux navigateur — l'element
- * est repute visible : du contenu conditionne a la visibilite ne doit jamais
- * rester cache faute d'API.
+ * Without `IntersectionObserver` — server rendering, old browser — the element
+ * is deemed visible: content conditioned on visibility must never
+ * stay hidden for want of an API.
  *
  * @example
  * const [ref, inView] = useInView<HTMLElement>({ threshold: 0.4, once: true })
  *
- * return <section ref={ref} className={inView ? 'o-animate-fade-in-up' : 'o-invisible'} />
+ * return <section ref={ref} className={inView? 'o-animate-fade-in-up': 'o-invisible'} />
  */
 export function useInView<T extends Element = HTMLElement>(
   options: InViewOptions = {},

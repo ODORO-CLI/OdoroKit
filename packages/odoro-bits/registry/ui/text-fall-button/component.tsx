@@ -1,32 +1,32 @@
 /**
- * Bouton a lettres qui tombent : au survol, chaque lettre du libelle tombe
- * hors du bouton, et une seconde rangee descend prendre sa place.
+ * Falling letters button: on hover, each letter of the label falls out of the
+ * button, and a second row comes down to take its place.
  *
- * ## Deux rangees, un seul libelle
+ * ## Two rows, a single label
  *
- * Le libelle est ecrit trois fois dans le DOM, et une seule compte pour
- * l'accessibilite : une copie lisible, hors ecran, que les lecteurs
- * annoncent. Les deux rangees visibles sont decoupees en lettres et retirees
- * de l'arbre d'accessibilite — vingt `span` pour un mot de six lettres, c'est
- * une lecture insupportable, et le libelle entier est deja la.
+ * The label is written three times in the DOM, and only one of them counts
+ * for accessibility: a readable copy, off screen, that screen readers
+ * announce. The two visible rows are split into letters and taken out of the
+ * accessibility tree — twenty `span` for a six letter word makes for an
+ * unbearable reading, and the whole label is already there.
  *
- * Le bouton a fond deploye croise lui aussi deux copies, mais a l'horizontale
- * et en bloc ; ici la chute est verticale, et lettre par lettre.
+ * The expanding background button also crosses two copies, but horizontally
+ * and as a block; here the fall is vertical, and letter by letter.
  *
- * ## Le decalage est une variable par lettre
+ * ## The offset is one variable per letter
  *
- * Chaque lettre porte son index dans `--o-fall-i`, et la feuille en fait un
- * retard : `index x ecart`. Le survol ne change qu'un selecteur ; il n'y a
- * ni boucle, ni etat, ni JavaScript a l'evenement. L'ordre est le meme a
- * l'aller et au retour : les lettres remontent comme elles sont tombees,
- * de gauche a droite.
+ * Each letter carries its index in `--o-fall-i`, and the stylesheet turns it
+ * into a delay: `index x gap`. Hovering only changes a selector; there is no
+ * loop, no state, no JavaScript on the event. The order is the same on the
+ * way out and on the way back: the letters come back up the way they fell,
+ * from left to right.
  *
- * ## La largeur ne bouge pas
+ * ## The width does not move
  *
- * La seconde rangee est posee par-dessus la premiere, en absolu, avec les
- * memes lettres : le bouton mesure toujours son libelle, et les voisins ne
- * sautent pas quand il s'anime. Les espaces sont des espaces insecables,
- * pour qu'un `inline-block` ne les avale pas.
+ * The second row is laid on top of the first, in absolute position, with the
+ * same letters: the button always measures its label, and the neighbors do
+ * not jump when it animates. The spaces are non breaking spaces, so that an
+ * `inline-block` does not swallow them.
  *
  * @module
  */
@@ -34,27 +34,27 @@
 import { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'
 import { type CSSProperties, type ElementType, type ReactElement } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface TextFallButtonOwnProps {
-  /** Libelle du bouton, en texte : il est decoupe en lettres. */
+  /** Label of the button, as text: it is split into letters. */
   children: string
-  /** Cible du lien. Avec elle, le bouton est rendu comme un lien. */
+  /** Target of the link. With it, the button is rendered as a link. */
   href?: string
-  /** Duree de la chute d'une lettre, en millisecondes. @defaultValue 380 */
+  /** Duration of the fall of one letter, in milliseconds. @defaultValue 380 */
   duration?: number
-  /** Ecart entre deux lettres voisines, en millisecondes. @defaultValue 22 */
+  /** Gap between two neighboring letters, in milliseconds. @defaultValue 22 */
   stagger?: number
-  /** La rangee qui descend prend la teinte de marque. @defaultValue true */
+  /** The row that comes down takes the brand hue. @defaultValue true */
   accent?: boolean
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type TextFallButtonProps = Customisable<TextFallButtonOwnProps, 'button'>
 
-/** Identifiant de la feuille injectee. */
+/** Id of the injected stylesheet. */
 const STYLE_ID = 'o-text-fall-button'
 
-/** Pose les deux rangees et leur chute, une fois par document. */
+/** Sets up the two rows and their fall, once per document. */
 function ensureFallRules(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -74,7 +74,7 @@ function ensureFallRules(): void {
     '[data-o-fall]:disabled,[data-o-fall][aria-disabled="true"]{',
     'opacity:0.5;cursor:not-allowed;pointer-events:none}',
 
-    // La copie lisible : hors ecran, jamais cachee aux lecteurs.
+    // The readable copy: off screen, never hidden from screen readers.
     '[data-o-fall-label]{position:absolute;width:1px;height:1px;overflow:hidden;',
     'clip-path:inset(50%);white-space:nowrap}',
 
@@ -88,8 +88,8 @@ function ensureFallRules(): void {
     'opacity var(--o-fall-duration) linear;',
     'transition-delay:calc(var(--o-fall-i) * var(--o-fall-stagger));',
     '}',
-    // La rangee du dessus attend au-dessus du bouton ; elle descend avec
-    // une courbe qui freine, la premiere tombe avec une courbe qui accelere.
+    // The upper row waits above the button; it comes down with a curve that
+    // slows, while the first one falls with a curve that speeds up.
     '[data-o-fall-row="next"] [data-o-fall-letter]{',
     'transform:translateY(-130%) rotate(-6deg);opacity:0;',
     'transition-timing-function:cubic-bezier(0.2,0.8,0.3,1),linear}',
@@ -98,8 +98,8 @@ function ensureFallRules(): void {
     '[data-o-fall]:is(:hover,:focus-visible) [data-o-fall-row="next"] [data-o-fall-letter]{',
     'transform:translateY(0) rotate(0);opacity:1}',
 
-    // Mouvement reduit : la seconde rangee est deja en place au survol, la
-    // premiere s'efface sans tomber.
+    // Reduced motion: the second row is already in place on hover, and the
+    // first one fades out without falling.
     '@media (prefers-reduced-motion:reduce){',
     '[data-o-fall-letter]{transition:none}',
     '}',
@@ -107,7 +107,7 @@ function ensureFallRules(): void {
   document.head.append(style)
 }
 
-/** Une rangee de lettres, retiree de l'arbre d'accessibilite. */
+/** One row of letters, taken out of the accessibility tree. */
 function Row({ text, role }: { text: string; role: 'first' | 'next' }): ReactElement {
   return (
     <span aria-hidden="true" data-o-fall-row={role}>
@@ -125,15 +125,15 @@ function Row({ text, role }: { text: string; role: 'first' | 'next' }): ReactEle
 }
 
 /**
- * Bouton dont les lettres tombent au survol.
+ * Button whose letters fall on hover.
  *
  * @example
- * <TextFallButton onClick={telecharger}>Telecharger</TextFallButton>
+ * <TextFallButton onClick={download}>Download</TextFallButton>
  *
  * @example
- * // Un lien, chute plus lente et sans changement de teinte.
+ * // A link, slower fall and no change of hue.
  * <TextFallButton href="/journal" duration={600} stagger={35} accent={false}>
- *   Lire le journal
+ *   Read the journal
  * </TextFallButton>
  */
 export function TextFallButton({

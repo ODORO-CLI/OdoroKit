@@ -1,27 +1,26 @@
 /**
- * Chargeur orbital : trois arcs concentriques tournent a contresens.
+ * Orbit loader: three concentric arcs turning in alternating directions.
  *
- * ## Trois bordures, aucun JavaScript
+ * ## Three borders, no JavaScript
  *
- * Chaque arc est un anneau dont une seule portion de bordure est peinte —
- * le reste est transparent — et que le compositeur fait tourner. Trois
- * rotations declarees une fois, a des vitesses et des sens alternes : le
- * croisement des arcs suffit a dire « quelque chose travaille », sans une
- * ligne de JavaScript apres le premier rendu.
+ * Each arc is a ring of which only one portion of the border is painted — the
+ * rest is transparent — and which the compositor spins. Three rotations
+ * declared once, at alternating speeds and directions: the crossing of the
+ * arcs is enough to say "something is working", without a line of JavaScript
+ * after the first render.
  *
- * Ce chargeur ne compte rien, et ne pretend pas compter : c'est un signe
- * d'attente, pas une mesure. Quand il y a une vraie progression a montrer,
- * `counter-gate` est le bon outil.
+ * This loader counts nothing, and does not claim to count: it is a sign of
+ * waiting, not a measurement. When there is real progress to show,
+ * `counter-gate` is the right tool.
  *
- * ## Un statut, pas un dessin
+ * ## A status, not a drawing
  *
- * L'element porte `role="status"` et un libelle pour les lecteurs d'ecran :
- * l'attente est une information, pas une decoration. Les arcs, eux, sont
- * retires de l'arbre d'accessibilite.
+ * The element carries `role="status"` and a label for screen readers: waiting
+ * is information, not decoration. The arcs themselves are removed from the
+ * accessibility tree.
  *
- * Sous mouvement reduit, les arcs restent en place : la figure — trois
- * portions d'anneaux decalees — se lit encore comme un chargeur, seul le
- * mouvement s'arrete.
+ * Under reduced motion, the arcs stay put: the figure — three offset portions
+ * of rings — still reads as a loader, only the movement stops.
  *
  * @module
  */
@@ -29,25 +28,25 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import { type CSSProperties, type ReactElement } from 'react'
 
-/** Proprietes propres au composant. */
+/** Props of the component itself. */
 export interface OrbitLoaderOwnProps {
-  /** Diametre de l'anneau exterieur, en pixels. @defaultValue 48 */
+  /** Diameter of the outer ring, in pixels. @defaultValue 48 */
   size?: number
-  /** Duree d'un tour de l'anneau exterieur, en millisecondes. @defaultValue 1200 */
+  /** Duration of one turn of the outer ring, in milliseconds. @defaultValue 1200 */
   speed?: number
-  /** Couleur des arcs. @defaultValue la couleur du texte */
+  /** Colour of the arcs. @defaultValue the text colour */
   color?: string
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */
+  /** Label announced to screen readers. @defaultValue 'Loading' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All the props. */
 export type OrbitLoaderProps = Customisable<OrbitLoaderOwnProps, 'span'>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-orbit-loader'
 
-/** Pose les anneaux et leur rotation, une fois par document. */
+/** Sets up the rings and their rotation, once per document. */
 function ensureLoaderRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -66,8 +65,8 @@ function ensureLoaderRule(): void {
     'animation-direction:var(--o-loader-direction);',
     '}',
     '@keyframes o-orbit-loader-spin{from{transform:rotate(0turn)}to{transform:rotate(1turn)}}',
-    // Les arcs figes restent decales d'un tiers de tour : la figure se lit
-    // encore comme un chargeur.
+    // The frozen arcs stay a third of a turn apart: the figure still reads as a
+    // loader.
     '@media (prefers-reduced-motion:reduce){',
     '[data-o-orbit-ring]{animation:none;transform:rotate(var(--o-loader-rest))}',
     '}',
@@ -76,20 +75,20 @@ function ensureLoaderRule(): void {
 }
 
 /**
- * Signale une attente par trois arcs qui tournent a contresens.
+ * Signals a wait through three arcs turning in alternating directions.
  *
  * @example
  * <OrbitLoader />
  *
  * @example
- * // Plus grand, plus lent, dans la teinte de marque.
+ * // Bigger, slower, in the brand hue.
  * <OrbitLoader size={72} speed={2000} color="var(--o-palette-brand-500)" />
  */
 export function OrbitLoader({
   size = 48,
   speed = 1200,
   color = 'currentColor',
-  label = 'Chargement',
+  label = 'Loading',
   ...rest
 }: OrbitLoaderProps): ReactElement {
   ensureLoaderRule()
@@ -103,8 +102,8 @@ export function OrbitLoader({
     '--o-loader-color': color,
   } as CSSProperties
 
-  // Trois anneaux : chacun plus petit, plus rapide, et a contresens du
-  // precedent. L'inertie visuelle vient du croisement, pas de la vitesse.
+  // Three rings: each one smaller, faster, and turning against the previous
+  // one. The visual inertia comes from the crossing, not from the speed.
   const rings = [0, 1, 2].map((ring) => ({
     inset: `${String(ring * 16)}%`,
     speed: Math.round(speed * (1 + ring * 0.5)),

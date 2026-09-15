@@ -1,19 +1,18 @@
 /**
- * Pre-compilation des dependances.
+ * Prebundling of the dependencies.
  *
- * Deux raisons la rendent indispensable, et non optionnelle :
+ * Two reasons make it indispensable, and not optional:
  *
- * 1. beaucoup de paquets ne sont encore distribues qu'en modules CommonJS, que
- *    le navigateur ne sait pas charger ;
- * 2. une dependance eclatee en centaines de petits fichiers declencherait
- *    autant de requetes au premier chargement.
+ * 1. many packages are still distributed only as CommonJS modules, which the
+ *    browser cannot load;
+ * 2. a dependency split into hundreds of small files would trigger as many
+ *    requests on the first load.
  *
- * Le piege, lui, est ailleurs : si `react` et `react-dom/client` etaient
- * compiles separement, chacun embarquerait sa copie de React. Deux instances
- * de React dans une meme page cassent les hooks et les contextes, avec des
- * symptomes deroutants. Tous les specificateurs sont donc **compiles en une
- * seule passe**, avec decoupage : le code commun se retrouve dans un fragment
- * partage, et l'instance reste unique.
+ * The trap lies elsewhere: if `react` and `react-dom/client` were bundled
+ * separately, each would carry its own copy of React. Two instances of React in
+ * the same page break hooks and contexts, with baffling symptoms. Every
+ * specifier is therefore **bundled in a single pass**, with splitting: the
+ * common code ends up in a shared chunk, and the instance stays unique.
  *
  * @module
  */
@@ -28,6 +27,8 @@ import { fileURLToPath, pathToFileURL } from 'node:url'
 import { type Plugin, build } from 'esbuild'
 
 import type { ResolvedConfig } from '../config.js'
+import { sourcePlugin } from '../shared/source.js'
+import { readSuffix } from '../shared/suffixes.js'
 import { inspectDependency, renderInteropProxy } from './interop.js'
 import {
   ASSET_EXTENSIONS,
@@ -40,28 +41,28 @@ import {
 
 export { depFileName }
 
-/** Nom du fichier decrivant l'etat du cache. */
+/** Name of the file describing the state of the cache. */
 const MANIFEST = 'manifest.json'
 
-/** Etat enregistre du cache de dependances. */
+/** Recorded state of the dependency cache. */
 interface DepsManifest {
-  /** Empreinte de l'ensemble compile. */
+  /** Hash of the bundled set. */
   hash: string
-  /** Specificateurs disponibles. */
+  /** Specifiers available. */
   specifiers: string[]
 }
 
-/** Resultat de la pre-compilation. */
+/** Result of the prebundling. */
 export interface OptimizedDeps {
-  /** Dossier contenant les modules compiles. */
+  /** Directory holding the bundled modules. */
   readonly directory: string
-  /** Specificateurs disponibles. */
+  /** Specifiers available. */
   readonly specifiers: readonly string[]
-  /** `true` si une compilation a reellement eu lieu. */
+  /** `true` when a build actually took place. */
   readonly rebuilt: boolean
 }
 
-/** Plugin qui enregistre les specificateurs nus sans les suivre. */
+/** Plugin that records the bare specifiers without following them. */
 function collectBareImports(config: ResolvedConfig, found: Set<string>): Plugin {
   return {
     name: 'odoro-scan-deps',
@@ -71,9 +72,18 @@ function collectBareImports(config: ResolvedConfig, found: Set<string>): Plugin 
 
         const aliased = applyAlias(args.path, config)
 
-        // Les feuilles de style et les ressources ne sont pas des modules
-        // JavaScript : les suivre ferait echouer le parcours, et elles n'ont
-        // de toute facon rien a faire dans le cache de dependances.
+        // A suffixed import designates the file as something other than a
+        // module: `?raw` wants its text, `?url` its address, `?worker` a
+        // worker. The scan has nothing to look for there, and trying to load
+        // them made it fail as soon as a `.md` was imported — so before the
+        // server even opened, on an error that spoke of a missing loader.
+        if (readSuffix(aliased) !== undefined) {
+          return { path: aliased, external: true }
+        }
+
+        // Stylesheets and assets are not JavaScript modules: following them
+        // would make the scan fail, and they have no business in the dependency
+        // cache anyway.
         if (
           hasExtension(aliased, STYLE_EXTENSIONS) ||
           hasExtension(aliased, ASSET_EXTENSIONS)
@@ -90,16 +100,16 @@ function collectBareImports(config: ResolvedConfig, found: Set<string>): Plugin 
 }
 
 /**
- * Parcourt le code du projet a la recherche des dependances reellement
- * importees, transitivement.
+ * Walks the project code looking for the dependencies actually imported,
+ * transitively.
  *
- * Se fonder sur le champ `dependencies` du manifeste ne suffirait pas : une
- * application importe `react-dom/client`, jamais `react-dom` tout court.
+ * Relying on the `dependencies` field of the manifest would not be enough: an
+ * application imports `react-dom/client`, never plain `react-dom`.
  *
- * @param entries Points d'entree du projet, en chemins absolus.
+ * @param entries Entry points of the project, as absolute paths.
  *
  * @example
- * const specifiers = await scanDependencies(config, ['/projet/src/main.tsx'])
+ * const specifiers = await scanDependencies(config, ['/project/src/main.tsx'])
  */
 export async function scanDependencies(
   config: ResolvedConfig,
@@ -118,22 +128,29 @@ export async function scanDependencies(
     logLevel: 'silent',
     absWorkingDir: config.root,
     jsx: 'automatic',
-    // Le serveur compile en JSX de developpement : sans ce reglage, le
-    // parcours chercherait `react/jsx-runtime` la ou le navigateur demandera
-    // `react/jsx-dev-runtime`, et la dependance manquerait a l'appel.
+    // The server compiles with the development JSX: without this setting, the
+    // scan would look for `react/jsx-runtime` where the browser will ask for
+    // `react/jsx-dev-runtime`, and the dependency would be missing.
     jsxDev: true,
-    plugins: [collectBareImports(config, found)],
+    // The same pass as the build one: a module reached by a pattern is a module
+    // of the project, and its dependencies must be prebundled like the others.
+    // Without that, a page loaded only through `import.meta.glob` would ask at
+    // runtime for a dependency the cache does not hold.
+    plugins: [
+      collectBareImports(config, found),
+      sourcePlugin({ root: config.root, plugins: config.plugins, dev: true }),
+    ],
   })
 
   return [...found].sort()
 }
 
 /**
- * Compile un ensemble de specificateurs en une seule passe.
+ * Bundles a set of specifiers in a single pass.
  *
- * @param config Configuration resolue du projet.
- * @param specifiers Specificateurs a compiler.
- * @param force Recompile meme si le cache semble valide.
+ * @param config Resolved configuration of the project.
+ * @param specifiers Specifiers to bundle.
+ * @param force Rebuilds even when the cache looks valid.
  *
  * @example
  * const deps = await optimizeDeps(config, ['react', 'react-dom/client'])
@@ -144,42 +161,42 @@ export async function optimizeDeps(
   force = false,
 ): Promise<OptimizedDeps> {
   try {
-    return await compilerDeps(config, specifiers, force)
+    return await buildDeps(config, specifiers, force)
   } catch (cause) {
-    // Deux serveurs lances sur le meme projet compilent le meme cache : l'un
-    // efface le dossier pendant que l'autre y ecrit, et la lecture echoue sur
-    // un fichier qui existait une milliseconde plus tot.
+    // Two servers started on the same project bundle the same cache: one erases
+    // the directory while the other writes into it, and the read fails on a
+    // file that existed a millisecond earlier.
     //
-    // Le cas est devenu courant depuis que le serveur glisse vers un port
-    // libre au lieu de s'arreter : `npm run dev` deux fois de suite demarre
-    // maintenant deux serveurs.
+    // The case has become common since the server slides to a free port instead
+    // of stopping: `npm run dev` twice in a row now starts two servers.
     //
-    // Une seconde tentative suffit : celui qui a gagne la course a fini, son
-    // manifeste est ecrit, et la voie rapide le reprend sans rien recompiler.
-    if (!estUneCourse(cause)) throw cause
+    // A second attempt is enough: the one that won the race has finished, its
+    // manifest is written, and the fast path picks it up without rebuilding
+    // anything.
+    if (!isRaceError(cause)) throw cause
 
-    await new Promise((suite) => setTimeout(suite, DELAI_COURSE))
-    return compilerDeps(config, specifiers, force)
+    await new Promise((next) => setTimeout(next, RACE_DELAY))
+    return buildDeps(config, specifiers, force)
   }
 }
 
-/** Le temps laisse a l'autre processus pour finir ce qu'il a commence. */
-const DELAI_COURSE = 400
+/** The time left to the other process to finish what it started. */
+const RACE_DELAY = 400
 
 /**
- * L'echec vient-il d'un autre processus qui travaille au meme endroit ?
+ * Does the failure come from another process working in the same place?
  *
- * Ces codes disent qu'un fichier a disparu ou qu'il est tenu ailleurs. Tout le
- * reste — un paquet introuvable, une erreur de compilation — est une vraie
- * erreur du projet : la retenter ne ferait que la repeter plus tard.
+ * These codes say that a file has disappeared or that it is held elsewhere.
+ * Everything else — a package not found, a build error — is a real project
+ * error: retrying would only repeat it later.
  */
-function estUneCourse(cause: unknown): boolean {
+function isRaceError(cause: unknown): boolean {
   const code = (cause as NodeJS.ErrnoException | null)?.code
   return code === 'ENOENT' || code === 'EPERM' || code === 'EBUSY'
 }
 
-/** Compile le cache des dependances. Voir `optimizeDeps` pour la reprise. */
-async function compilerDeps(
+/** Bundles the dependency cache. See `optimizeDeps` for the retry. */
+async function buildDeps(
   config: ResolvedConfig,
   specifiers: readonly string[],
   force: boolean,
@@ -191,9 +208,9 @@ async function compilerDeps(
     .update(JSON.stringify(sorted))
     .update(await lockfileFingerprint(config.root))
     .update(entriesFingerprint(config.root, sorted))
-    // La version du moteur fait partie de la cle : une correction de la
-    // pre-compilation elle-meme doit perimer le cache, sans quoi un projet
-    // continue de servir des fichiers produits par la version precedente.
+    // The engine version is part of the key: a fix in the prebundling itself
+    // must expire the cache, otherwise a project keeps serving files produced
+    // by the previous version.
     .update(engineVersion())
     .digest('hex')
     .slice(0, 16)
@@ -211,8 +228,8 @@ async function compilerDeps(
   await mkdir(directory, { recursive: true })
 
   if (sorted.length > 0) {
-    // Les paquets CommonJS passent par un module intermediaire qui declare
-    // leurs exports nommes ; les modules natifs sont compiles directement.
+    // CommonJS packages go through an intermediate module declaring their named
+    // exports; native modules are bundled directly.
     const proxies = join(directory, 'proxies')
     await mkdir(proxies, { recursive: true })
 
@@ -233,9 +250,9 @@ async function compilerDeps(
     }
 
     await build({
-      // Les noms de sortie sont imposes : un specificateur a sous-chemin
-      // produirait sinon une arborescence, et deux paquets differents
-      // pourraient se disputer le meme nom de fichier.
+      // The output names are imposed: a specifier with a subpath would
+      // otherwise produce a directory tree, and two different packages could
+      // fight over the same file name.
       entryPoints,
       bundle: true,
       format: 'esm',
@@ -258,7 +275,7 @@ async function compilerDeps(
   return { directory, specifiers: sorted, rebuilt: true }
 }
 
-/** Version du moteur, lue une seule fois dans son propre manifeste. */
+/** Version of the engine, read only once from its own manifest. */
 let cachedVersion: string | undefined
 
 function engineVersion(): string {
@@ -274,7 +291,7 @@ function engineVersion(): string {
           version?: string
         }
         if (parsed.name === 'odoro') {
-          cachedVersion = parsed.version ?? 'inconnue'
+          cachedVersion = parsed.version ?? 'unknown'
           return cachedVersion
         }
       } catch {
@@ -286,32 +303,31 @@ function engineVersion(): string {
     directory = parent
   }
 
-  cachedVersion = 'inconnue'
+  cachedVersion = 'unknown'
   return cachedVersion
 }
 
 /**
- * Empreinte des fichiers d'entree des dependances.
+ * Fingerprint of the entry files of the dependencies.
  *
- * ## Pourquoi le verrou ne suffit pas
+ * ## Why the lockfile is not enough
  *
- * Un fichier de verrouillage change quand une **version** change. Une
- * dependance liee depuis le meme depot — le cas de tout monorepo qui developpe
- * sa propre librairie — garde la meme version d'un bout a l'autre du travail,
- * pendant que son `dist/` est recompile dix fois par jour.
+ * A lockfile changes when a **version** changes. A dependency linked from the
+ * same repository — the case of any monorepo that develops its own library —
+ * keeps the same version from one end of the work to the other, while its
+ * `dist/` is rebuilt ten times a day.
  *
- * Sans cette empreinte, le serveur continue de servir la pre-compilation
- * precedente, et le navigateur reclame un export qui n'existait pas encore.
- * L'erreur ne dit rien de sa cause — elle parle d'un module qui « ne fournit
- * pas » un export que le code source, lui, exporte bel et bien.
+ * Without this fingerprint, the server keeps serving the previous prebundle,
+ * and the browser asks for an export that did not exist yet. The error says
+ * nothing about its cause — it speaks of a module that "does not provide" an
+ * export the source code does in fact export.
  *
- * La date de modification et la taille suffisent : lire le contenu de chaque
- * entree a chaque demarrage couterait plus cher que la pre-compilation
- * elle-meme.
+ * The modification date and the size are enough: reading the content of every
+ * entry on each start would cost more than the prebundling itself.
  *
- * Un specificateur qui ne se resout pas est ignore : ce n'est pas ici qu'on
- * signale une dependance manquante, et echouer au calcul d'une cle de cache
- * empecherait le serveur de demarrer pour une raison sans rapport.
+ * A specifier that does not resolve is ignored: this is not where a missing
+ * dependency is reported, and failing while computing a cache key would stop
+ * the server from starting for an unrelated reason.
  */
 function entriesFingerprint(root: string, specifiers: readonly string[]): string {
   const resolver = createRequire(pathToFileURL(join(root, 'package.json')))
@@ -324,7 +340,7 @@ function entriesFingerprint(root: string, specifiers: readonly string[]): string
   return parts.join('|')
 }
 
-/** Ramene des specificateurs a la liste des paquets qu'ils designent. */
+/** Reduces specifiers to the list of packages they designate. */
 function packageNames(specifiers: readonly string[]): string[] {
   const names = new Set<string>()
 
@@ -341,39 +357,39 @@ function packageNames(specifiers: readonly string[]): string[] {
 }
 
 /**
- * Empreinte des fichiers qu'un paquet publie.
+ * Fingerprint of the files a package publishes.
  *
- * ## Pourquoi ne pas resoudre le specificateur directement
+ * ## Why not resolve the specifier directly
  *
- * `require.resolve` applique la condition `require`. Un paquet ESM pur n'en
- * declare pas, la resolution echoue, et l'empreinte devient constante : le
- * cache ne s'invalide plus jamais. C'etait le cas de tous les paquets du
- * depot, c'est-a-dire exactement ceux qu'on recompile dix fois par jour.
+ * `require.resolve` applies the `require` condition. A pure ESM package
+ * declares none, the resolution fails, and the fingerprint becomes constant:
+ * the cache never invalidates again. That was the case of every package of the
+ * repository, that is, exactly those that are rebuilt ten times a day.
  *
- * Le manifeste, lui, est toujours atteignable — `./package.json` figure dans
- * la carte d'exports de tout paquet correct, et le resolveur retombe sinon sur
- * le chemin de fichier. De la, les cibles declarees dans `exports` donnent les
- * fichiers reellement servis.
+ * The manifest, for its part, is always reachable — `./package.json` appears in
+ * the export map of any correct package, and the resolver otherwise falls back
+ * on the file path. From there, the targets declared in `exports` give the
+ * files actually served.
  */
 function packageFingerprint(name: string, resolver: NodeJS.Require): string {
   let manifestPath: string
   try {
     manifestPath = resolver.resolve(`${name}/package.json`)
   } catch {
-    return 'introuvable'
+    return 'not-found'
   }
 
   let manifest: { exports?: unknown; main?: unknown; module?: unknown }
   try {
     manifest = JSON.parse(readFileSync(manifestPath, 'utf8')) as typeof manifest
   } catch {
-    return 'illisible'
+    return 'unreadable'
   }
 
   const directory = dirname(manifestPath)
   const targets = new Set<string>()
 
-  /** Releve toute chaine ressemblant a un chemin de fichier. */
+  /** Records every string that looks like a file path. */
   const collect = (node: unknown): void => {
     if (typeof node === 'string') {
       if (node.startsWith('./')) targets.add(node)
@@ -396,7 +412,7 @@ function packageFingerprint(name: string, resolver: NodeJS.Require): string {
   return parts.join(',')
 }
 
-/** Date et taille d'un fichier, ou zero s'il n'existe pas. */
+/** Date and size of a file, or zero when it does not exist. */
 function statSafe(path: string): string {
   try {
     const stats = statSync(path)
@@ -407,9 +423,8 @@ function statSafe(path: string): string {
 }
 
 /**
- * Empreinte du fichier de verrouillage, quand il existe : une dependance mise
- * a jour doit invalider le cache meme si la liste des specificateurs n'a pas
- * bouge.
+ * Fingerprint of the lockfile, when there is one: an updated dependency must
+ * invalidate the cache even when the list of specifiers has not moved.
  */
 async function lockfileFingerprint(root: string): Promise<string> {
   for (const name of ['pnpm-lock.yaml', 'package-lock.json', 'yarn.lock', 'bun.lock']) {
@@ -419,5 +434,5 @@ async function lockfileFingerprint(root: string): Promise<string> {
       .update(await readFile(file))
       .digest('hex')
   }
-  return 'sans-verrou'
+  return 'no-lockfile'
 }

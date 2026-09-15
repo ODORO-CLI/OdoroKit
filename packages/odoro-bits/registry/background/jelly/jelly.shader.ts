@@ -1,33 +1,33 @@
 /**
- * Shaders de la gelee : une sphere qui tremble la ou on la touche.
+ * Jelly shaders: a sphere that wobbles where it is touched.
  *
- * ## L'idee
+ * ## The idea
  *
- * Chaque sommet est deplace le long de sa normale — sa position sur la
- * sphere unite — d'une hauteur qui somme trois choses par impact : un creux
- * bref a l'endroit du choc, une onde qui court sur la surface en s'amortissant,
- * et un balancement de toute la masse dans l'axe du coup. La distance a
- * l'impact est geodesique — l'angle entre les deux directions — pour que
- * l'onde soit ronde sur la sphere, pas ecrasee sur les cotes.
+ * Each vertex is displaced along its normal — its position on the unit
+ * sphere — by a height that sums three things per impact: a brief hollow at
+ * the place of the blow, a wave that runs over the surface as it dies out,
+ * and a swaying of the whole mass along the axis of the blow. The distance
+ * to the impact is geodesic — the angle between the two directions — so that
+ * the wave is round on the sphere, not squashed on the sides.
  *
- * Un bruit lent fait respirer la surface entre deux coups : une gelee
- * immobile n'est plus une gelee.
+ * A slow noise makes the surface breathe between two blows: a jelly that
+ * stands still is no longer a jelly.
  *
- * ## La normale
+ * ## The normal
  *
- * Elle est recalculee par differences finies sur la sphere : la hauteur est
- * evaluee en deux points voisins, dans le plan tangent, et le produit
- * vectoriel des deux ecarts donne la normale de la surface deplacee. Sans
- * cela, la lumiere ignorerait les ondes, et elles ne se verraient que sur le
- * contour.
+ * It is recomputed by finite differences on the sphere: the height is
+ * evaluated at two neighbouring points, in the tangent plane, and the cross
+ * product of the two offsets gives the normal of the displaced surface.
+ * Without it, the light would ignore the waves, and they would only be seen
+ * on the outline.
  *
- * Le bruit est fourni par le moteur (`NOISE_FUNCTIONS_3D`), prefixe au
- * vertex.
+ * The noise is supplied by the engine (`NOISE_FUNCTIONS_3D`), prefixed to
+ * the vertex.
  *
  * @module
  */
 
-/** Vertex shader : impacts, respiration, normale par differences finies. */
+/** Vertex shader: impacts, breathing, normal by finite differences. */
 export const JELLY_VERTEX = /* glsl */ `
 uniform float uTime;
 uniform vec4 uImpacts[4];
@@ -40,7 +40,7 @@ varying vec3 vViewPosition;
 
 const int IMPACTS = 4;
 
-// Hauteur de la surface en une direction : respiration plus impacts.
+// Height of the surface in one direction: breathing plus impacts.
 float jellyHeight(vec3 n) {
   float total = (odoroNoise3(n * 1.6 + vec3(0.0, uTime * 0.35, 0.0)) - 0.5) * 0.35;
 
@@ -52,14 +52,14 @@ float jellyHeight(vec3 n) {
     float angle = acos(clamp(along, -1.0, 1.0));
     float fade = exp(-age * uDamping);
 
-    // Le creux du doigt, qui se relache vite.
+    // The hollow of the finger, which releases quickly.
     float dent = -exp(-angle * angle * 10.0) * exp(-age * 7.0) * 1.2;
-    // L'onde qui court depuis l'impact, plus faible en s'eloignant.
-    float onde = cos(angle * 5.0 - age * uStiffness) * exp(-angle * 0.8) * fade * 0.5;
-    // Le balancement de toute la masse dans l'axe du coup.
-    float masse = along * sin(age * uStiffness * 0.55) * fade * 0.35;
+    // The wave running out from the impact, fainter as it travels away.
+    float wave = cos(angle * 5.0 - age * uStiffness) * exp(-angle * 0.8) * fade * 0.5;
+    // The swaying of the whole mass along the axis of the blow.
+    float mass = along * sin(age * uStiffness * 0.55) * fade * 0.35;
 
-    total += dent + onde + masse;
+    total += dent + wave + mass;
   }
 
   return total;
@@ -73,7 +73,7 @@ void main() {
   vec3 n = normalize(position);
   vec3 p = jellyPoint(n);
 
-  // Deux tangentes, deux points voisins, une normale.
+  // Two tangents, two neighbouring points, one normal.
   vec3 helper = abs(n.y) < 0.9 ? vec3(0.0, 1.0, 0.0) : vec3(1.0, 0.0, 0.0);
   vec3 t1 = normalize(cross(n, helper));
   vec3 t2 = cross(n, t1);
@@ -89,7 +89,7 @@ void main() {
 }
 `
 
-/** Fragment shader : corps translucide, fresnel, deux reflets. */
+/** Fragment shader: translucent body, fresnel, two highlights. */
 export const JELLY_FRAGMENT = /* glsl */ `
 precision highp float;
 
@@ -104,19 +104,19 @@ void main() {
   vec3 view = normalize(-vViewPosition);
   float facing = max(dot(normal, view), 0.0);
 
-  // Le bord s'eclaircit : la lumiere traverse la gelee la ou elle est mince.
+  // The edge brightens: the light goes through the jelly where it is thin.
   float fresnel = pow(1.0 - facing, 2.5);
 
   vec3 light = normalize(vec3(-0.5, 0.9, 0.7));
   float diffuse = max(dot(normal, light), 0.0);
   float specular = pow(max(dot(normal, normalize(light + view)), 0.0), 90.0);
 
-  // Un second reflet, plus large et plus bas : le rebond de la table.
+  // A second highlight, broader and lower: the bounce off the table.
   vec3 bounce = normalize(vec3(0.7, -0.3, 0.5));
-  float rebond = pow(max(dot(normal, normalize(bounce + view)), 0.0), 30.0) * 0.3;
+  float rebound = pow(max(dot(normal, normalize(bounce + view)), 0.0), 30.0) * 0.3;
 
   vec3 colour = uBody * (0.55 + 0.45 * diffuse);
-  colour = mix(colour, uHighlight, clamp(fresnel * 0.55 + specular + rebond, 0.0, 1.0));
+  colour = mix(colour, uHighlight, clamp(fresnel * 0.55 + specular + rebound, 0.0, 1.0));
 
   gl_FragColor = vec4(colour, 0.72 + fresnel * 0.28);
 }

@@ -1,36 +1,34 @@
 /**
- * Curseur qui frappe : un mot se tape caractere par caractere derriere un
- * curseur qui clignote, tient, puis s'efface.
+ * Typing cursor: a word types itself character by character behind a cursor
+ * that blinks, holds, then erases itself.
  *
- * ## Une frappe sans minuteur
+ * ## Typing without a timer
  *
- * La machine a ecrire de la categorie texte joue des phrases entieres avec un
- * minuteur, parce qu'elle possede un rythme et des etapes. Un chargeur n'a
- * besoin ni de l'un ni des autres : un seul mot, en boucle, dont la seule
- * information est « ca travaille ». Il tient donc en CSS.
+ * The typewriter of the text category plays whole sentences with a timer,
+ * because it has a rhythm and steps. A loader needs neither: a single word, on
+ * a loop, whose only information is "work is happening". So it fits in CSS.
  *
- * Le mecanisme est une largeur qui grandit par paliers, autant de paliers que
- * de caracteres, sur un texte qui ne coupe pas et deborde masque. Cela exige
- * une fonte a chasse fixe : c'est elle qui fait qu'un palier vaut exactement
- * un caractere, et que la largeur finale se calcule en `ch` sans mesurer
- * quoi que ce soit. La fonte mono du systeme est prise pour cela.
+ * The mechanism is a width growing in steps, as many steps as there are
+ * characters, on a text that does not wrap and overflows hidden. That requires
+ * a fixed-pitch font: it is what makes one step worth exactly one character,
+ * and the final width computable in `ch` without measuring anything. The
+ * system mono font is used for that.
  *
- * Le curseur est la bordure droite du meme element : il suit la frappe sans
- * qu'on le positionne. Il clignote sur sa propre animation, plus courte que
- * le cycle, et continue pendant la tenue — c'est ce qui dit que rien n'est
- * fige.
+ * The cursor is the right border of the same element: it follows the typing
+ * without being positioned. It blinks on its own animation, shorter than the
+ * cycle, and carries on during the hold — that is what says nothing is frozen.
  *
- * L'effacement se fait par les memes paliers, a rebours : la ligne rentre
- * comme elle est sortie, et le cycle se referme sur un curseur seul.
+ * The erasing happens through the same steps, in reverse: the line goes back
+ * in the way it came out, and the cycle closes on a lone cursor.
  *
- * ## Un statut, pas un dessin
+ * ## A status, not a drawing
  *
- * L'element porte `role="status"` et un libelle pour les lecteurs d'ecran.
- * Le texte peint est retire de l'arbre d'accessibilite : masque par sa
- * largeur, il serait lu tronque ou complet selon l'instant.
+ * The element carries `role="status"` and a label for screen readers. The
+ * painted text is removed from the accessibility tree: masked by its width, it
+ * would be read truncated or complete depending on the moment.
  *
- * Sous mouvement reduit, le mot est complet et le curseur fixe : la ligne
- * se lit encore comme une saisie en cours, seule la frappe s'arrete.
+ * Under reduced motion, the word is complete and the cursor fixed: the line
+ * still reads as an entry in progress, only the typing stops.
  *
  * @module
  */
@@ -38,10 +36,10 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-typing-cursor'
 
-/** Pose la ligne, sa frappe et son curseur, une fois par document. */
+/** Sets up the line, its typing and its cursor, once per document. */
 function ensureTypingCursorRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -59,12 +57,12 @@ function ensureTypingCursorRule(): void {
     'border-right:0.09em solid currentColor;',
     'animation-name:o-tc-type,o-tc-blink;',
     'animation-duration:var(--o-tc-speed),800ms;',
-    // Un palier par caractere pour la frappe ; un seul cran pour le curseur,
-    // qui est allume ou eteint, jamais entre les deux.
+    // One step per character for the typing; a single notch for the cursor,
+    // which is on or off, never in between.
     'animation-timing-function:steps(var(--o-tc-steps),end),steps(1,end);',
     'animation-iteration-count:infinite,infinite;',
     '}',
-    // Frappe sur le premier tiers et demi, tenue, puis effacement a rebours.
+    // Typing over the first third and a half, hold, then erasing in reverse.
     '@keyframes o-tc-type{0%{width:0}45%,72%{width:var(--o-tc-width)}100%{width:0}}',
     '@keyframes o-tc-blink{0%,100%{border-color:currentColor}50%{border-color:transparent}}',
     '@media (prefers-reduced-motion:reduce){',
@@ -74,39 +72,39 @@ function ensureTypingCursorRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** Props of the component itself. */
 export interface TypingCursorOwnProps {
-  /** Le texte frappe. @defaultValue 'Chargement' */
+  /** The typed text. @defaultValue 'Loading' */
   text?: string
-  /** Corps du texte, en pixels. @defaultValue 16 */
+  /** Size of the text, in pixels. @defaultValue 16 */
   size?: number
-  /** Duree d'un cycle, frappe, tenue et effacement, en millisecondes. @defaultValue 3200 */
+  /** Duration of one cycle — typing, hold and erasing — in milliseconds. @defaultValue 3200 */
   speed?: number
-  /** Couleur du texte et du curseur. @defaultValue la couleur du texte */
+  /** Colour of the text and of the cursor. @defaultValue the text colour */
   color?: string
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */
+  /** Label announced to screen readers. @defaultValue 'Loading' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All the props. */
 export type TypingCursorProps = Customisable<TypingCursorOwnProps, 'span'>
 
 /**
- * Signale une attente par un mot qui se tape derriere un curseur.
+ * Signals a wait through a word typing itself behind a cursor.
  *
  * @example
  * <TypingCursor />
  *
  * @example
- * // Un autre mot, plus lent, dans la teinte de marque.
+ * // Another word, slower, in the brand hue.
  * <TypingCursor text="Connexion" speed={4200} color="var(--o-palette-brand-500)" />
  */
 export function TypingCursor({
-  text = 'Chargement',
+  text = 'Loading',
   size = 16,
   speed = 3200,
   color = 'currentColor',
-  label = 'Chargement',
+  label = 'Loading',
   ...rest
 }: TypingCursorProps): ReactElement {
   ensureTypingCursorRule()

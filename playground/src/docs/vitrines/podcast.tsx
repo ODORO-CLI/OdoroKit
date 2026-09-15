@@ -46,7 +46,7 @@ import {
   Rss,
   SkipBack,
   SkipForward,
-} from '@odoro-cli/icons/filaire'
+} from '@odoro-cli/icons/outline'
 import { useState, type CSSProperties, type ReactElement, type ReactNode } from 'react'
 
 import { AudioBars } from '@/odoro/background/AudioBars.jsx'

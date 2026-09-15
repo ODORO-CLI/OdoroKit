@@ -1,5 +1,5 @@
 /**
- * Decalage temporel de la revelation d'une liste d'enfants.
+ * Time offset of the reveal of a list of children.
  *
  * @module
  */
@@ -16,41 +16,41 @@ import {
 import { type RevealPresetName } from './presets.js'
 import { Reveal, type RevealTiming } from './Reveal.jsx'
 
-/** Proprietes de {@link Stagger}. */
+/** Properties of {@link Stagger}. */
 export interface StaggerProps extends RevealTiming, ComponentPropsWithoutRef<'div'> {
-  /** Element conteneur rendu. @defaultValue 'div' */
+  /** Rendered container element. @defaultValue 'div' */
   as?: ElementType
-  /** Element enveloppant chaque enfant. @defaultValue 'div' */
+  /** Element wrapping each child. @defaultValue 'div' */
   itemAs?: ElementType
-  /** Etat de depart nomme, transmis a chaque {@link Reveal}. */
+  /** Named starting state, passed on to each {@link Reveal}. */
   preset?: RevealPresetName
-  /** Enfants a reveler l'un apres l'autre. */
+  /** Children to reveal one after the other. */
   children?: ReactNode
-  /** Ecart entre deux enfants, en millisecondes. @defaultValue 60 */
+  /** Gap between two children, in milliseconds. @defaultValue 60 */
   step?: number
   /**
-   * Plafond du retard cumule, en millisecondes. Au-dela, tous les enfants
-   * restants partagent le meme retard : une liste de cent elements ne doit pas
-   * finir de s'afficher six secondes apres la premiere.
+   * Ceiling of the cumulated delay, in milliseconds. Beyond it, all the
+   * remaining children share the same delay: a list of a hundred elements must not
+   * finish showing six seconds after the first one.
    *
    * @defaultValue 600
    */
   maxDelay?: number
-  /** Ne joue l'animation qu'une seule fois. @defaultValue true */
+  /** Plays the animation only once. @defaultValue true */
   once?: boolean
-  /** Desactive l'animation. */
+  /** Disables the animation. */
   disabled?: boolean
-  /** Proportion visible declenchant la revelation. @defaultValue 0.15 */
+  /** Visible proportion triggering the reveal. @defaultValue 0.15 */
   threshold?: number
-  /** Marge appliquee au viewport d'observation. @defaultValue '0px' */
+  /** Margin applied to the observation viewport. @defaultValue '0px' */
   rootMargin?: string
 }
 
 /**
- * Revele ses enfants les uns apres les autres, chacun avec un retard croissant.
+ * Reveals its children one after the other, each with an increasing delay.
  *
- * Chaque enfant est observe individuellement : dans une longue liste, seuls
- * ceux qui entrent reellement a l'ecran s'animent.
+ * Each child is observed individually: in a long list, only
+ * those that actually enter the screen animate.
  *
  * @example
  * <Stagger step={80} className="o-grid o-grid-cols-3 o-gap-4">
@@ -82,8 +82,8 @@ export function Stagger({
     rest,
     items.map((child, index) => (
       <Reveal
-        // L'index est un identifiant stable ici : `Children.toArray` conserve
-        // les cles d'origine sur les enfants, et ce wrapper n'a pas d'etat.
+        // The index is a stable identifier here: `Children.toArray` keeps
+        // the original keys on the children, and this wrapper has no state.
         key={index}
         as={itemAs}
         preset={preset}

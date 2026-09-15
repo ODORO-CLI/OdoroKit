@@ -4,7 +4,7 @@
   "type": "module",
   "license": "UNLICENSED",
   "author": "BouBouw",
-  "description": "Module d'icones Odoro : plusieurs jeux normalises sur un meme contrat, un export par icone pour que l'elagage fonctionne.",
+  "description": "Odoro icon module: several packs normalised on one contract, one export per icon so that tree shaking works.",
   "engines": {
     "node": ">=20"
   },
@@ -17,25 +17,25 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
-    "./filaire": {
-      "types": "./dist/filaire.d.ts",
-      "import": "./dist/filaire.js"
+    "./outline": {
+      "types": "./dist/outline.d.ts",
+      "import": "./dist/outline.js"
     },
     "./compact": {
       "types": "./dist/compact.d.ts",
       "import": "./dist/compact.js"
     },
-    "./classique": {
-      "types": "./dist/classique.d.ts",
-      "import": "./dist/classique.js"
+    "./classic": {
+      "types": "./dist/classic.d.ts",
+      "import": "./dist/classic.js"
     },
-    "./etendu": {
-      "types": "./dist/etendu.d.ts",
-      "import": "./dist/etendu.js"
+    "./extended": {
+      "types": "./dist/extended.d.ts",
+      "import": "./dist/extended.js"
     },
-    "./marques": {
-      "types": "./dist/marques.d.ts",
-      "import": "./dist/marques.js"
+    "./brands": {
+      "types": "./dist/brands.d.ts",
+      "import": "./dist/brands.js"
     },
     "./catalogue.json": "./dist/catalogue.json",
     "./package.json": "./package.json"

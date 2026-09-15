@@ -1,5 +1,5 @@
 /**
- * Silhouette de chargement.
+ * Loading skeleton.
  *
  * @module
  */
@@ -8,30 +8,30 @@ import { type CSSProperties, type HTMLAttributes, type ReactElement } from 'reac
 
 import { cx } from '../styles/cx.js'
 
-/** Proprietes de {@link Skeleton}. */
+/** Properties of {@link Skeleton}. */
 export interface SkeletonProps extends Omit<HTMLAttributes<HTMLDivElement>, 'className'> {
-  /** Forme de la silhouette. @defaultValue 'text' */
+  /** Shape of the skeleton. @defaultValue 'text' */
   variant?: 'text' | 'circle' | 'rect'
-  /** Largeur, en toute unite CSS (nombre : pixels). */
+  /** Width, in any CSS unit (number: pixels). */
   width?: string | number
-  /** Hauteur, en toute unite CSS (nombre : pixels). */
+  /** Height, in any CSS unit (number: pixels). */
   height?: string | number
   /**
-   * Nombre de lignes pour la variante `text` ; la derniere est raccourcie a
-   * 60 % pour evoquer une fin de paragraphe.
+   * Number of lines for the `text` variant; the last one is shortened to
+   * 60% to evoke the end of a paragraph.
    *
    * @defaultValue 1
    */
   lines?: number
-  /** Classes additionnelles. */
+  /** Additional classes. */
   className?: string
 }
 
 /**
- * Silhouette animee affichee pendant un chargement.
+ * Animated skeleton displayed during a load.
  *
- * Toujours `aria-hidden` : elle ne porte aucune information — c'est au
- * conteneur d'annoncer le chargement (`aria-busy`, `role="status"`...).
+ * Always `aria-hidden`: it carries no information — it is up to the
+ * container to announce the load (`aria-busy`, `role="status"`...).
  *
  * @example
  * <Skeleton variant="text" lines={3} />

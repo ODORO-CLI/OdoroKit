@@ -1,30 +1,30 @@
 #!/usr/bin/env node
 /**
- * Construit le catalogue des templates de sites.
+ * Builds the catalogue of site templates.
  *
- * ## Pourquoi un script plutot qu'une liste ecrite
+ * ## Why a script rather than a written list
  *
- * La liste et les dossiers divergeraient au premier ajout : on copie un
- * template, on oublie la ligne, et il n'apparait nulle part — sans que rien
- * n'echoue, puisqu'une liste incomplete reste une liste valide. Le dossier fait
- * donc foi, et le catalogue en est deduit.
+ * The list and the folders would diverge on the first addition: you copy a
+ * template, you forget the line, and it shows up nowhere — without anything
+ * failing, since an incomplete list is still a valid list. The folder is
+ * therefore the source of truth, and the catalogue is derived from it.
  *
- * ## L'ordre est declare, pas devine
+ * ## The order is declared, not guessed
  *
- * Le tri alphabetique rangerait le point de depart avant les sites finis, ce
- * qui est l'inverse de ce qu'on veut montrer. Chaque manifeste porte donc son
- * `order`, et le script trie dessus. A egalite, le nom departage — sans quoi
- * l'ordre dependrait de celui du systeme de fichiers, qui n'est pas le meme
- * partout.
+ * Alphabetical sorting would put the starting point before the finished sites,
+ * which is the opposite of what we want to show. Each manifest therefore
+ * carries its own `order`, and the script sorts on it. On a tie, the name
+ * decides — without which the order would depend on the file system's, which
+ * is not the same everywhere.
  *
- * ## Ce qui est verifie
+ * ## What is checked
  *
- * Qu'un manifeste existe, qu'il porte les champs que la page consomme, et que
- * l'image d'apercu qu'il declare est bien la. Un apercu manquant est le defaut
- * le plus probable — c'est la seule piece qui ne se produit pas en ecrivant du
- * texte — et le seul qui ne se verrait pas avant la mise en ligne.
+ * That a manifest exists, that it carries the fields the page consumes, and
+ * that the preview image it declares is actually there. A missing preview is
+ * the most likely defect — it is the only piece that is not produced by
+ * writing text — and the only one that would go unseen before going live.
  *
- * Emploi :
+ * Usage:
  *
  *     node scripts/build-templates.mjs
  *
@@ -35,49 +35,49 @@ import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from '
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-const RACINE = resolve(dirname(fileURLToPath(import.meta.url)), '..')
-const SOURCE = join(RACINE, 'templates')
+const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
+const SOURCE = join(ROOT, 'templates')
 
-/** Les champs qu'une fiche doit porter pour que la page sache l'afficher. */
-const REQUIS = ['name', 'title', 'description', 'kind', 'order', 'stack', 'licence']
+/** The fields an entry must carry for the page to know how to display it. */
+const REQUIRED = ['name', 'title', 'description', 'kind', 'order', 'stack', 'licence']
 
-/** Natures de template reconnues. */
-const NATURES = ['site', 'starter', 'library']
+/** Recognised template kinds. */
+const KINDS = ['site', 'starter', 'library']
 
-/** Lit et verifie un manifeste. */
-function lire(nom) {
-  const chemin = join(SOURCE, nom, 'template.json')
-  if (!existsSync(chemin)) return { nom, problemes: ['aucun template.json'] }
+/** Reads and checks a manifest. */
+function read(name) {
+  const path = join(SOURCE, name, 'template.json')
+  if (!existsSync(path)) return { name, problems: ['no template.json'] }
 
   let meta
   try {
-    meta = JSON.parse(readFileSync(chemin, 'utf8'))
+    meta = JSON.parse(readFileSync(path, 'utf8'))
   } catch (cause) {
-    return { nom, problemes: [`template.json illisible : ${String(cause)}`] }
+    return { name, problems: [`unreadable template.json: ${String(cause)}`] }
   }
 
-  const problemes = []
-  for (const champ of REQUIS) {
-    if (meta[champ] === undefined) problemes.push(`champ manquant : ${champ}`)
+  const problems = []
+  for (const field of REQUIRED) {
+    if (meta[field] === undefined) problems.push(`missing field: ${field}`)
   }
-  if (meta.name !== nom) {
-    problemes.push(`le nom declare (${String(meta.name)}) ne correspond pas au dossier`)
+  if (meta.name !== name) {
+    problems.push(`the declared name (${String(meta.name)}) does not match the folder`)
   }
-  if (meta.kind !== undefined && !NATURES.includes(meta.kind)) {
-    problemes.push(`nature inconnue : ${String(meta.kind)}`)
-  }
-
-  // L'apercu est la seule piece qui ne s'ecrit pas : elle se photographie, et
-  // c'est donc celle qu'on oublie.
-  if (meta.preview !== undefined && !existsSync(join(SOURCE, nom, meta.preview))) {
-    problemes.push(`apercu declare mais absent : ${String(meta.preview)}`)
+  if (meta.kind !== undefined && !KINDS.includes(meta.kind)) {
+    problems.push(`unknown kind: ${String(meta.kind)}`)
   }
 
-  return { nom, meta, problemes }
+  // The preview is the only piece that is not written: it is photographed, and
+  // it is therefore the one we forget.
+  if (meta.preview !== undefined && !existsSync(join(SOURCE, name, meta.preview))) {
+    problems.push(`preview declared but absent: ${String(meta.preview)}`)
+  }
+
+  return { name, meta, problems }
 }
 
-/** Rend le module que la documentation consomme. */
-function moduleCatalogue(entrees) {
+/** Renders the module the documentation consumes. */
+function catalogueModule(entries) {
   return [
     '/* Genere par scripts/build-templates.mjs. Ne pas editer a la main. */',
     '',
@@ -99,46 +99,46 @@ function moduleCatalogue(entrees) {
     '',
     '/** Les templates, deja tries : les sites, le point de depart, la bibliotheque. */',
     'export const TEMPLATES: readonly TemplateEntry[] = ' +
-      JSON.stringify(entrees, null, 2),
+      JSON.stringify(entries, null, 2),
     '',
   ].join('\n')
 }
 
-const dossiers = readdirSync(SOURCE).filter((nom) =>
-  statSync(join(SOURCE, nom)).isDirectory(),
+const folders = readdirSync(SOURCE).filter((name) =>
+  statSync(join(SOURCE, name)).isDirectory(),
 )
 
-const lus = dossiers.map(lire)
-const problemes = lus.flatMap(({ nom, problemes }) =>
-  problemes.map((p) => `${nom} : ${p}`),
+const entriesRead = folders.map(read)
+const problems = entriesRead.flatMap(({ name, problems }) =>
+  problems.map((p) => `${name}: ${p}`),
 )
 
-if (problemes.length > 0) {
-  console.error(`Catalogue invalide — ${problemes.length} probleme(s) :\n`)
-  for (const probleme of problemes) console.error(`  · ${probleme}`)
+if (problems.length > 0) {
+  console.error(`Invalid catalogue — ${problems.length} problem(s):\n`)
+  for (const problem of problems) console.error(`  · ${problem}`)
   console.error('')
   process.exitCode = 1
 } else {
-  // L'ordre declare d'abord, le nom pour departager : sans le second, deux
-  // templates de meme rang se rangeraient selon le systeme de fichiers.
-  const entrees = lus
+  // The declared order first, the name to break the tie: without the second,
+  // two templates of the same rank would be ordered by the file system.
+  const entries = entriesRead
     .map(({ meta }) => meta)
     .sort((a, b) => a.order - b.order || a.name.localeCompare(b.name))
 
   writeFileSync(
     join(SOURCE, 'index.json'),
-    `${JSON.stringify(entrees, null, 2)}\n`,
+    `${JSON.stringify(entries, null, 2)}\n`,
     'utf8',
   )
   writeFileSync(
-    join(RACINE, 'playground', 'src', 'docs', 'templates.generated.ts'),
-    moduleCatalogue(entrees),
+    join(ROOT, 'playground', 'src', 'docs', 'templates.generated.ts'),
+    catalogueModule(entries),
     'utf8',
   )
 
-  const sansApercu = entrees.filter((e) => e.preview === undefined).map((e) => e.name)
-  console.log(`Catalogue compile — ${entrees.length} template(s).`)
-  if (sansApercu.length > 0) {
-    console.log(`  Sans apercu : ${sansApercu.join(', ')}.`)
+  const withoutPreview = entries.filter((e) => e.preview === undefined).map((e) => e.name)
+  console.log(`Catalogue compiled — ${entries.length} template(s).`)
+  if (withoutPreview.length > 0) {
+    console.log(`  Without preview: ${withoutPreview.join(', ')}.`)
   }
 }

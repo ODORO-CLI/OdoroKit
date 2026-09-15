@@ -1,5 +1,5 @@
 /**
- * Encart de message contextuel.
+ * Contextual message callout.
  *
  * @module
  */
@@ -16,11 +16,11 @@ import {
 import { usePresence } from '../motion/usePresence.js'
 import { cx, variants } from '../styles/cx.js'
 
-/** Registre visuel d'un encart. */
+/** Visual register of a callout. */
 export type AlertTone = 'info' | 'success' | 'warning' | 'danger'
 
 /**
- * Classes de l'encart, exposees pour habiller un conteneur equivalent.
+ * Callout classes, exposed to style an equivalent container.
  *
  * @example
  * <section className={alertClasses({ tone: 'warning' })}>...</section>
@@ -40,7 +40,7 @@ export const alertClasses = variants({
   defaults: { tone: 'info' },
 })
 
-/** Couleur de l'icone par registre. */
+/** Icon color per register. */
 const ICON_TONE_CLASSES: Readonly<Record<AlertTone, string>> = {
   info: 'o-text-sky-600 dark:o-text-sky-400',
   success: 'o-text-emerald-600 dark:o-text-emerald-400',
@@ -48,7 +48,7 @@ const ICON_TONE_CLASSES: Readonly<Record<AlertTone, string>> = {
   danger: 'o-text-red-600 dark:o-text-red-400',
 }
 
-/** Traces des icones par registre : i cercle, coche cercle, triangle, octogone. */
+/** Icon paths per register: circled i, circled check, triangle, octagon. */
 const ICON_PATHS: Readonly<Record<AlertTone, ReactElement>> = {
   info: (
     <>
@@ -82,7 +82,7 @@ const ICON_PATHS: Readonly<Record<AlertTone, ReactElement>> = {
   ),
 }
 
-/** Icone par defaut du registre demande. */
+/** Default icon of the requested register. */
 function ToneIcon({ tone }: { tone: AlertTone }): ReactElement {
   return (
     <svg
@@ -101,41 +101,40 @@ function ToneIcon({ tone }: { tone: AlertTone }): ReactElement {
   )
 }
 
-/** Proprietes de {@link Alert}. */
+/** Properties of {@link Alert}. */
 export interface AlertProps extends Omit<
   HTMLAttributes<HTMLDivElement>,
   'className' | 'title'
 > {
-  /** Registre visuel. @defaultValue 'info' */
+  /** Visual register. @defaultValue 'info' */
   tone?: AlertTone
-  /** Titre court, en gras au-dessus du corps. */
+  /** Short title, in bold above the body. */
   title?: ReactNode
-  /** Corps du message. */
+  /** Body of the message. */
   children?: ReactNode
   /**
-   * Icone en tete d'encart. Non fournie : une icone par defaut assortie au
-   * registre. `null` : aucune icone.
+   * Icon at the head of the callout. Not provided: a default icon matched to
+   * the register. `null`: no icon.
    */
   icon?: ReactNode
   /**
-   * Rend l'encart fermable : un bouton de fermeture apparait et l'encart
-   * disparait avec une animation de sortie avant que ce rappel ne soit
-   * invoque.
+   * Makes the callout dismissible: a close button appears and the callout
+   * disappears with an exit animation before this callback is invoked.
    */
   onClose?: () => void
-  /** Classes additionnelles. */
+  /** Additional classes. */
   className?: string
 }
 
 /**
- * Encart de message.
+ * Message callout.
  *
- * Le registre `danger` porte `role="alert"`, qui interrompt la lecture en
- * cours ; les autres registres se contentent de `role="status"`.
+ * The `danger` register carries `role="alert"`, which interrupts the reading
+ * in progress; the other registers settle for `role="status"`.
  *
  * @example
- * <Alert tone="success" title="Enregistre" onClose={() => setSaved(false)}>
- *   Le projet a bien ete enregistre.
+ * <Alert tone="success" title="Saved" onClose={() => setSaved(false)}>
+ *   The project has been saved.
  * </Alert>
  */
 export function Alert({
@@ -156,8 +155,8 @@ export function Alert({
   const closeRef = useRef(onClose)
   closeRef.current = onClose
 
-  // L'appelant n'est prevenu qu'une fois l'animation de sortie terminee :
-  // c'est a lui de retirer l'encart de son arbre.
+  // The caller is only notified once the exit animation is over: it is up to
+  // it to remove the callout from its tree.
   useEffect(() => {
     if (isMounted || visible) return
     closeRef.current?.()
@@ -185,7 +184,7 @@ export function Alert({
         <button
           type="button"
           onClick={() => setVisible(false)}
-          aria-label="Fermer le message"
+          aria-label="Close the message"
           className="o-shrink-0 o-cursor-pointer o-rounded-sm o-text-zinc-500 dark:o-text-zinc-400 hover:o-text-zinc-900 dark:hover:o-text-zinc-50 o-transition"
         >
           <svg

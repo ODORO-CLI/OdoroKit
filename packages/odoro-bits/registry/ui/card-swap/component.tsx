@@ -1,35 +1,34 @@
 /**
- * Echange de cartes : une pile dont la carte de devant saute a l'arriere a
- * intervalle regulier, et les autres avancent d'un rang.
+ * Card swap: a stack whose front card hops to the back at a regular interval,
+ * and the others move up one rank.
  *
- * ## Le rang est un etat, la position en decoule
+ * ## The rank is a state, the position follows from it
  *
- * Chaque carte connait son rang — zero devant, puis un, deux — et le rang
- * donne une transformation : un peu plus haut, un peu plus a droite, un peu
- * plus petit a chaque cran. L'echange n'est qu'un decalage de l'index de
- * tete, un rendu React toutes les quelques secondes, jamais par image. Les
- * transitions font le trajet entre deux rangs.
+ * Every card knows its rank — zero at the front, then one, two — and the rank
+ * yields a transform: slightly higher, slightly further right, slightly
+ * smaller at each notch. The swap is nothing but a shift of the head index, a
+ * React render every few seconds, never per frame. The transitions make the
+ * travel between two ranks.
  *
- * ## La carte qui part fait un saut, les autres glissent
+ * ## The leaving card hops, the others slide
  *
- * Un simple echange de transformations ferait traverser la carte de devant
- * au travers de la pile. Elle recoit donc une animation a trois temps :
- * elle descend hors de la pile, passe sous elle, et remonte a l'arriere.
- * Les images cles lisent ses deux positions en variables, si bien que la
- * meme animation sert quel que soit le nombre de cartes. Son plan passe a
- * l'arriere des le depart : au moment ou elle remonte, elle est deja sous
- * les autres.
+ * A plain exchange of transforms would send the front card straight through
+ * the stack. It therefore gets a three-beat animation: it drops out of the
+ * stack, passes underneath it, and rises back at the rear. The keyframes read
+ * its two positions from variables, so the same animation serves whatever the
+ * number of cards. Its layer moves to the back from the very start: by the
+ * time it rises, it is already under the others.
  *
- * ## La pile se fige sous le pointeur
+ * ## The stack freezes under the pointer
  *
- * Une pile qui echange ses cartes pendant qu'on lit celle de devant est une
- * pile qu'on ne peut pas lire. Le survol, et le focus d'un element de la
- * carte, suspendent l'intervalle.
+ * A stack that swaps its cards while one is reading the front one is a stack
+ * that cannot be read. Hover, and focus on an element of the card, suspend
+ * the interval.
  *
- * ## Sous mouvement reduit
+ * ## Under reduced motion
  *
- * La pile est posee et ne tourne plus. Un echange qui se rejoue en boucle
- * n'a pas d'etat final ; l'etat de repos est la pile elle-meme.
+ * The stack is laid out and no longer turns. A swap that loops forever has no
+ * final state; the rest state is the stack itself.
  *
  * @module
  */
@@ -45,25 +44,25 @@ import {
   type ReactNode,
 } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface CardSwapOwnProps {
-  /** Les cartes, de deux a cinq. La premiere donne sa taille a la pile. */
+  /** The cards, from two to five. The first one gives the stack its size. */
   children: ReactNode
-  /** Temps entre deux echanges, en millisecondes. @defaultValue 3000 */
+  /** Time between two swaps, in milliseconds. @defaultValue 3000 */
   interval?: number
-  /** Duree d'un echange, en millisecondes. @defaultValue 700 */
+  /** Duration of one swap, in milliseconds. @defaultValue 700 */
   duration?: number
-  /** Decalage entre deux rangs, en pixels. @defaultValue 16 */
+  /** Offset between two ranks, in pixels. @defaultValue 16 */
   offset?: number
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type CardSwapProps = Customisable<CardSwapOwnProps>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-card-swap'
 
-/** Pose la pile et le saut, une fois par document. */
+/** Applies the stack and the hop, once per document. */
 function ensureSwapRules(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -79,7 +78,7 @@ function ensureSwapRules(): void {
     'opacity var(--o-swap-duration) linear;',
     '}',
     '[data-o-swap-item]:first-child{position:relative}',
-    // La carte qui part : trois temps, lus dans ses deux variables.
+    // The leaving card: three beats, read from its two variables.
     '[data-o-swap-item][data-o-swap-out]{',
     'transition:none;',
     'animation:o-card-swap-hop var(--o-swap-duration) cubic-bezier(0.2,0,0,1) both;',
@@ -97,18 +96,18 @@ function ensureSwapRules(): void {
 }
 
 /**
- * Fait tourner une pile de cartes, la premiere passant a l'arriere.
+ * Turns a stack of cards, the first one moving to the back.
  *
  * @example
  * <CardSwap>
- *   <article className="o-w-64 o-rounded-xl o-p-6">Une</article>
- *   <article className="o-w-64 o-rounded-xl o-p-6">Deux</article>
- *   <article className="o-w-64 o-rounded-xl o-p-6">Trois</article>
+ *   <article className="o-w-64 o-rounded-xl o-p-6">One</article>
+ *   <article className="o-w-64 o-rounded-xl o-p-6">Two</article>
+ *   <article className="o-w-64 o-rounded-xl o-p-6">Three</article>
  * </CardSwap>
  *
  * @example
- * // Plus lent, pile plus etalee.
- * <CardSwap interval={5000} offset={24}>{cartes}</CardSwap>
+ * // Slower, with a more spread-out stack.
+ * <CardSwap interval={5000} offset={24}>{cards}</CardSwap>
  */
 export function CardSwap({
   children,
@@ -141,8 +140,8 @@ export function CardSwap({
     return () => window.clearInterval(timer)
   }, [reduced, count, interval, duration])
 
-  // La carte qui vient de quitter la tete fait son saut, puis redevient une
-  // carte ordinaire de la pile une fois le trajet fini.
+  // The card that has just left the head makes its hop, then becomes an
+  // ordinary card of the stack again once the travel is over.
   useEffect(() => {
     if (head === previous.current) return
     setLeaving(previous.current)

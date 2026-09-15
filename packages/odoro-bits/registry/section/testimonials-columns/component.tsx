@@ -1,39 +1,39 @@
 /**
- * Colonnes de temoignages qui defilent.
+ * Columns of testimonials that scroll.
  *
- * ## Pourquoi des colonnes en sens contraires
+ * ## Why columns in opposite directions
  *
- * Une seule bande qui monte se lit comme un generique de fin : l'oeil la suit
- * et attend qu'elle finisse. Deux colonnes qui se croisent ne donnent aucun
- * sens de lecture privilegie, et l'oeil s'arrete sur ce qui l'interesse au
- * lieu de poursuivre le mouvement. C'est la difference entre un defilement
- * qu'on subit et un mur qu'on parcourt.
+ * A single band going up reads like closing credits: the eye follows it and
+ * waits for it to end. Two columns crossing each other give no privileged
+ * reading direction, and the eye stops on what interests it instead of
+ * carrying on with the motion. That is the difference between a scroll one
+ * endures and a wall one browses.
  *
- * ## La boucle sans couture, et l'erreur d'un demi-espace
+ * ## The seamless loop, and the half-gap mistake
  *
- * Le procede est connu : la liste est ecrite deux fois, et la piste glisse de
- * la moitie de sa hauteur. Il ne marche que si chaque element occupe exactement
- * la meme place, espace compris — or un `gap` de flexbox se pose **entre** les
- * elements, pas apres le dernier. Sur 2n elements, il y a 2n-1 intervalles, et
- * la piste revient donc un demi-espace trop tot : un sursaut par tour, assez
- * discret pour passer la relecture et assez visible pour agacer.
+ * The technique is well known: the list is written twice, and the track slides
+ * by half its height. It only works if every item takes exactly the same room,
+ * spacing included — but a flexbox `gap` sits **between** the items, not after
+ * the last one. Over 2n items there are 2n-1 intervals, and the track
+ * therefore comes back half a gap too early: one jolt per turn, discreet
+ * enough to pass review and visible enough to annoy.
  *
- * L'espacement est ici une marge basse portee par chaque element. Chacun pese
- * alors sa hauteur plus l'espace, la moitie de la piste vaut exactement une
- * periode, et la boucle est invisible.
+ * The spacing is here a bottom margin carried by each item. Each one then
+ * weighs its height plus the spacing, half the track is worth exactly one
+ * period, and the loop is invisible.
  *
- * ## Le second exemplaire n'existe pas pour la lecture
+ * ## The second copy does not exist for reading
  *
- * Il est decoratif : un lecteur d'ecran qui entendrait chaque temoignage deux
- * fois croirait a un defaut de la page. Les doublons sont donc masques un a
- * un, ce qui laisse la vraie liste complete et lisible.
+ * It is decorative: a screen reader hearing every testimonial twice would
+ * think the page was broken. The duplicates are therefore hidden one by one,
+ * which leaves the real list complete and readable.
  *
- * ## Ce qui arrete le mouvement
+ * ## What stops the motion
  *
- * Le survol et le focus clavier — on ne lit pas un texte qui bouge — et
- * l'absence de la section a l'ecran : tant qu'elle n'est pas entree dans le
- * champ, aucune animation n'est lancee. Sous mouvement reduit, les colonnes
- * sont immobiles et le mur se parcourt au defilement de la page.
+ * Hover and keyboard focus — one does not read a text that moves — and the
+ * section being off screen: as long as it has not entered the viewport, no
+ * animation is started. Under reduced motion, the columns are still and the
+ * wall is browsed by scrolling the page.
  *
  * @module
  */
@@ -43,44 +43,44 @@ import { type CSSProperties, type ReactElement, type ReactNode } from 'react'
 
 import { useInView } from '@registre/hooks/useInView'
 
-/** Un temoignage. */
+/** A testimonial. */
 export interface Testimonial {
-  /** Ce qui est dit. */
+  /** What is said. */
   readonly quote: ReactNode
-  /** Qui le dit. */
+  /** Who says it. */
   readonly author: string
-  /** Fonction, entreprise, ou ce qui situe la personne. */
+  /** Role, company, or whatever places the person. */
   readonly role?: string
-  /** Adresse d'un portrait. Sans elle, les initiales tiennent lieu de vignette. */
+  /** URL of a portrait. Without it, the initials stand in as the thumbnail. */
   readonly avatar?: string
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to the component. */
 export interface TestimonialsColumnsOwnProps {
-  /** Les temoignages. Ils sont repartis en colonnes dans l'ordre donne. */
+  /** The testimonials. They are spread across columns in the given order. */
   items: readonly Testimonial[]
-  /** Nombre de colonnes au-dela du palier moyen. @defaultValue 3 */
+  /** Number of columns beyond the medium breakpoint. @defaultValue 3 */
   columns?: number
-  /** Duree d'un tour complet, en millisecondes. @defaultValue 40000 */
+  /** Duration of one full turn, in milliseconds. @defaultValue 40000 */
   duration?: number
-  /** Hauteur visible du mur, en pixels. @defaultValue 480 */
+  /** Visible height of the wall, in pixels. @defaultValue 480 */
   height?: number
-  /** Nom de la section, annonce aux technologies d'assistance. */
+  /** Name of the section, announced to assistive technology. */
   label?: string
-  /** Intitule affiche au-dessus du mur. */
+  /** Heading displayed above the wall. */
   title?: ReactNode
 }
 
-/** Toutes les proprietes. */
+/** Every prop. */
 export type TestimonialsColumnsProps = Customisable<
   TestimonialsColumnsOwnProps,
   'section'
 >
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-testimonials-columns'
 
-/** Pose les regles du mur, une fois par document. */
+/** Applies the wall rules, once per document. */
 function ensureColumnsRules(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -91,31 +91,31 @@ function ensureColumnsRules(): void {
     '[data-o-tcol-wall]{',
     'display:grid;gap:1rem;overflow:hidden;',
     'grid-template-columns:1fr;',
-    'height:var(--o-tcol-hauteur);',
-    // Le haut et le bas s'effacent : sans cela, les cartes sont coupees net
-    // par le bord et le mur ressemble a un contenu tronque plutot qu'a un
-    // defilement continu.
+    'height:var(--o-tcol-height);',
+    // The top and the bottom fade out: without that, the cards are cut sharp
+    // by the edge and the wall looks like truncated content rather than a
+    // continuous scroll.
     '-webkit-mask-image:var(--o-tcol-fondu);mask-image:var(--o-tcol-fondu);',
     '}',
     '@media (min-width:48rem){[data-o-tcol-wall]{',
-    'grid-template-columns:repeat(var(--o-tcol-colonnes),minmax(0,1fr))}}',
+    'grid-template-columns:repeat(var(--o-tcol-columns),minmax(0,1fr))}}',
 
     '[data-o-tcol-track]{display:flex;flex-direction:column;list-style:none;margin:0;padding:0;',
-    'animation:o-tcol-monte var(--o-tcol-duree) linear infinite;animation-play-state:paused}',
-    // L'espacement est une marge basse, jamais un `gap` : voir l'en-tete du
-    // module. Chaque element doit peser exactement la meme chose pour que la
-    // moitie de la piste vaille une periode.
+    'animation:o-tcol-monte var(--o-tcol-duration) linear infinite;animation-play-state:paused}',
+    // The spacing is a bottom margin, never a `gap`: see the module header.
+    // Every item must weigh exactly the same for half the track to be worth
+    // one period.
     '[data-o-tcol-track]>li{margin-block-end:1rem}',
-    '[data-o-tcol-col][data-sens="bas"] [data-o-tcol-track]{animation-name:o-tcol-descend}',
-    '[data-o-tcol-vu] [data-o-tcol-track]{animation-play-state:running}',
+    '[data-o-tcol-col][data-direction="bas"] [data-o-tcol-track]{animation-name:o-tcol-descend}',
+    '[data-o-tcol-seen] [data-o-tcol-track]{animation-play-state:running}',
     '[data-o-tcol-col]:hover [data-o-tcol-track],',
     '[data-o-tcol-col]:focus-within [data-o-tcol-track]{animation-play-state:paused}',
 
     '@keyframes o-tcol-monte{from{transform:translateY(0)}to{transform:translateY(-50%)}}',
     '@keyframes o-tcol-descend{from{transform:translateY(-50%)}to{transform:translateY(0)}}',
 
-    // Immobile, le mur reste un mur : il se parcourt au defilement de la page,
-    // et rien n'est cache.
+    // Still, the wall stays a wall: it is browsed by scrolling the page, and
+    // nothing is hidden.
     '@media (prefers-reduced-motion:reduce){',
     '[data-o-tcol-wall]{height:auto;-webkit-mask-image:none;mask-image:none}',
     '[data-o-tcol-track]{animation:none}}',
@@ -123,29 +123,29 @@ function ensureColumnsRules(): void {
   document.head.append(style)
 }
 
-/** Initiales d'un nom, pour la vignette de repli. */
-function initiales(nom: string): string {
-  return nom
+/** Initials of a name, for the fallback thumbnail. */
+function initials(name: string): string {
+  return name
     .split(/\s+/)
     .slice(0, 2)
-    .map((mot) => mot.charAt(0).toUpperCase())
+    .map((word) => word.charAt(0).toUpperCase())
     .join('')
 }
 
-/** Repartit les temoignages en colonnes, en conservant l'ordre de lecture. */
-function repartir(
+/** Spreads the testimonials across columns, keeping the reading order. */
+function spread(
   items: readonly Testimonial[],
-  colonnes: number,
+  columns: number,
 ): readonly (readonly Testimonial[])[] {
-  const paquets: Testimonial[][] = Array.from({ length: colonnes }, () => [])
+  const buckets: Testimonial[][] = Array.from({ length: columns }, () => [])
   items.forEach((item, index) => {
-    paquets[index % colonnes]?.push(item)
+    buckets[index % columns]?.push(item)
   })
-  return paquets.filter((paquet) => paquet.length > 0)
+  return buckets.filter((bucket) => bucket.length > 0)
 }
 
-/** Une carte de temoignage. */
-function Carte({ item }: { item: Testimonial }): ReactElement {
+/** A testimonial card. */
+function Card({ item }: { item: Testimonial }): ReactElement {
   return (
     <figure
       className="o-rounded-xl o-p-5"
@@ -165,7 +165,7 @@ function Carte({ item }: { item: Testimonial }): ReactElement {
               backgroundColor: 'color-mix(in oklab, var(--o-theme-fg) 10%, transparent)',
             }}
           >
-            {initiales(item.author)}
+            {initials(item.author)}
           </span>
         ) : (
           <img
@@ -193,14 +193,14 @@ function Carte({ item }: { item: Testimonial }): ReactElement {
 }
 
 /**
- * Un mur de temoignages en colonnes qui se croisent.
+ * A wall of testimonials in columns that cross each other.
  *
  * @example
  * <TestimonialsColumns
- *   label="Ce qu on en dit"
+ *   label="What people say"
  *   items={[
- *     { quote: 'Installe en une commande, retouche le lendemain.', author: 'Camille Roy' },
- *     { quote: 'Le repli sans WebGL nous a evite une refonte.', author: 'Sami Belkacem' },
+ *     { quote: 'Installed in one command, tweaked the next day.', author: 'Camille Roy' },
+ *     { quote: 'The fallback without WebGL saved us a rewrite.', author: 'Sami Belkacem' },
  *   ]}
  * />
  */
@@ -214,10 +214,10 @@ export function TestimonialsColumns({
   ...rest
 }: TestimonialsColumnsProps): ReactElement {
   const { reduced } = useMotionState()
-  const { ref, vu } = useInView<HTMLElement>({ amount: 0.05 })
+  const { ref, inView } = useInView<HTMLElement>({ amount: 0.05 })
   ensureColumnsRules()
 
-  const paquets = repartir(items, Math.max(1, Math.round(columns)))
+  const buckets = spread(items, Math.max(1, Math.round(columns)))
 
   const { className, style } = mergePresentation(
     { className: 'o-flex o-flex-col o-gap-8' },
@@ -243,41 +243,42 @@ export function TestimonialsColumns({
 
       <div
         data-o-tcol-wall=""
-        data-o-tcol-vu={vu && !reduced ? '' : undefined}
+        data-o-tcol-seen={inView && !reduced ? '' : undefined}
         style={
           {
-            '--o-tcol-colonnes': String(paquets.length),
-            '--o-tcol-duree': `${String(duration)}ms`,
-            '--o-tcol-hauteur': `${String(height)}px`,
+            '--o-tcol-columns': String(buckets.length),
+            '--o-tcol-duration': `${String(duration)}ms`,
+            '--o-tcol-height': `${String(height)}px`,
             '--o-tcol-fondu':
               'linear-gradient(to bottom, transparent, var(--o-theme-fg) 10%, var(--o-theme-fg) 90%, transparent)',
           } as CSSProperties
         }
       >
-        {paquets.map((paquet, colonne) => (
+        {buckets.map((bucket, column) => (
           <div
-            key={colonne}
+            key={column}
             data-o-tcol-col=""
-            // Une colonne sur deux descend : deux sens opposes retirent au mur
-            // son sens de lecture, et l'oeil s'arrete au lieu de suivre.
-            data-sens={colonne % 2 === 1 ? 'bas' : 'haut'}
+            // Every other column goes down: two opposite directions take the
+            // wall's reading direction away, and the eye stops instead of
+            // following.
+            data-direction={column % 2 === 1 ? 'down' : 'up'}
           >
             <ul data-o-tcol-track="">
-              {paquet.map((item, index) => (
-                <li key={`vrai-${String(index)}`}>
-                  <Carte item={item} />
+              {bucket.map((item, index) => (
+                <li key={`real-${String(index)}`}>
+                  <Card item={item} />
                 </li>
               ))}
               {/*
-                Le second exemplaire ne sert qu'a fermer la boucle. Il est
-                masque element par element : un lecteur d'ecran doit entendre
-                la liste une fois. Immobile, il n'a plus de raison d'etre — et
-                montrerait chaque temoignage deux fois de suite.
+                The second copy only exists to close the loop. It is hidden item
+                by item: a screen reader must hear the list once. Still, it has
+                no reason to be — and would show every testimonial twice in a
+                row.
               */}
               {!reduced &&
-                paquet.map((item, index) => (
-                  <li key={`copie-${String(index)}`} aria-hidden>
-                    <Carte item={item} />
+                bucket.map((item, index) => (
+                  <li key={`copy-${String(index)}`} aria-hidden>
+                    <Card item={item} />
                   </li>
                 ))}
             </ul>

@@ -1,63 +1,62 @@
 /**
- * Enregistrement des plugins d'animation.
+ * Registration of the animation plugins.
  *
- * ## Idempotent, et pourquoi cela compte
+ * ## Idempotent, and why that matters
  *
- * Enregistrer deux fois le meme plugin est un bug classique en mode strict de
- * React : chaque effet y est execute deux fois au montage, et un enregistrement
- * naif produit alors des declencheurs de defilement en double — qui se
- * declenchent deux fois, se rafraichissent deux fois, et laissent la moitie
- * d'entre eux orphelins au demontage. Le symptome ne se voit qu'en
- * developpement, jamais en production, ce qui en fait un excellent piege.
+ * Registering the same plugin twice is a classic bug in React strict mode:
+ * every effect there runs twice on mount, and a naive registration then
+ * produces duplicate scroll triggers — which fire twice, refresh twice, and
+ * leave half of them orphaned on unmount. The symptom only shows in
+ * development, never in production, which makes it an excellent trap.
  *
- * Chaque plugin n'est donc charge et enregistre **qu'une seule fois**, et les
- * demandes concurrentes partagent la meme promesse.
+ * Each plugin is therefore loaded and registered **only once**, and concurrent
+ * requests share the same promise.
  *
- * ## Jamais cote serveur
+ * ## Never on the server
  *
- * Les plugins touchent au document a leur enregistrement. Sur un rendu serveur,
- * la demande est simplement ignoree : elle sera honoree au montage.
+ * The plugins touch the document on registration. On a server render, the
+ * request is simply ignored: it will be honoured on mount.
  *
- * ## Charges a la demande
+ * ## Loaded on demand
  *
- * Un projet qui n'anime que du texte ne telecharge pas le declencheur de
- * defilement. C'est une contrainte de conception, pas une optimisation
- * ulterieure : les imports sont dynamiques et le decoupage en decoule.
+ * A project that only animates text does not download the scroll trigger. This
+ * is a design constraint, not a later optimisation: the imports are dynamic
+ * and the code splitting follows from it.
  *
  * @module
  */
 
 import gsap from 'gsap'
 
-/** Plugins que le moteur sait charger. */
+/** Plugins the engine knows how to load. */
 export type PluginName = 'ScrollTrigger' | 'SplitText' | 'Observer' | 'ScrollSmoother'
 
-/** Chargement en cours ou termine, par plugin. */
+/** Loading in progress or finished, per plugin. */
 const loading = new Map<PluginName, Promise<boolean>>()
 
-/** Plugins effectivement enregistres. */
+/** Plugins actually registered. */
 const registered = new Set<PluginName>()
 
 /**
- * Valeurs des plugins resolus.
+ * Values of the resolved plugins.
  *
- * Les types de ces plugins sont declares globalement par la bibliotheque, mais
- * leur **valeur** n'existe qu'apres le chargement dynamique : elle est donc
- * conservee ici, et lue par les accesseurs typés plus bas.
+ * The types of these plugins are declared globally by the library, but their
+ * **value** only exists after the dynamic load: it is therefore kept here, and
+ * read by the typed accessors below.
  */
 const values = new Map<PluginName, unknown>()
 
-/** Indique si l'environnement peut accueillir un plugin. */
+/** Tells whether the environment can host a plugin. */
 function isBrowser(): boolean {
   return typeof window !== 'undefined' && typeof document !== 'undefined'
 }
 
 /**
- * Charge le module d'un plugin.
+ * Loads the module of a plugin.
  *
- * Le `switch` est deliberement explicite plutot qu'un import calcule : un
- * chemin construit dynamiquement empeche tout outil de compilation de decouper
- * le code, et la promesse d'un chargement a la demande serait vide.
+ * The `switch` is deliberately explicit rather than a computed import: a
+ * dynamically built path prevents any build tool from splitting the code, and
+ * the promise of on-demand loading would be empty.
  */
 async function importPlugin(name: PluginName): Promise<unknown> {
   switch (name) {
@@ -73,11 +72,11 @@ async function importPlugin(name: PluginName): Promise<unknown> {
 }
 
 /**
- * Garantit qu'un plugin est charge et enregistre.
+ * Guarantees that a plugin is loaded and registered.
  *
- * @returns `true` si le plugin est utilisable, `false` hors navigateur ou si
- *   le chargement a echoue. Un echec n'est jamais fatal : l'appelant retombe
- *   sur un comportement sans animation.
+ * @returns `true` if the plugin is usable, `false` outside a browser or if the
+ *   load failed. A failure is never fatal: the caller falls back on a
+ *   behaviour without animation.
  *
  * @example
  * if (await ensurePlugin('ScrollTrigger')) {
@@ -92,8 +91,8 @@ export function ensurePlugin(name: PluginName): Promise<boolean> {
 
   const pending = importPlugin(name)
     .then((plugin) => {
-      // `registerPlugin` est lui-meme tolerant aux doublons, mais s'y fier
-      // laisserait le compte des plugins enregistres faux pour le diagnostic.
+      // `registerPlugin` is itself tolerant of duplicates, but relying on it
+      // would leave the count of registered plugins wrong for the diagnostics.
       if (!registered.has(name)) {
         gsap.registerPlugin(plugin as Parameters<typeof gsap.registerPlugin>[0])
         registered.add(name)
@@ -102,9 +101,9 @@ export function ensurePlugin(name: PluginName): Promise<boolean> {
       return true
     })
     .catch((cause: unknown) => {
-      console.error(`[odoro] chargement du plugin "${name}" impossible`, cause)
-      // Le retrait autorise une nouvelle tentative : un echec reseau ponctuel
-      // ne doit pas condamner le plugin pour la duree de la session.
+      console.error(`[odoro] could not load the plugin "${name}"`, cause)
+      // The removal allows a new attempt: a one-off network failure must not
+      // condemn the plugin for the duration of the session.
       loading.delete(name)
       return false
     })
@@ -114,9 +113,9 @@ export function ensurePlugin(name: PluginName): Promise<boolean> {
 }
 
 /**
- * Charge plusieurs plugins en parallele.
+ * Loads several plugins in parallel.
  *
- * @returns `true` si **tous** sont utilisables.
+ * @returns `true` if **all** of them are usable.
  *
  * @example
  * await ensurePlugins(['ScrollTrigger', 'SplitText'])
@@ -127,7 +126,7 @@ export async function ensurePlugins(names: readonly PluginName[]): Promise<boole
 }
 
 /**
- * Indique si un plugin est deja enregistre, sans rien declencher.
+ * Tells whether a plugin is already registered, without triggering anything.
  *
  * @example
  * isPluginRegistered('ScrollTrigger')
@@ -136,15 +135,15 @@ export function isPluginRegistered(name: PluginName): boolean {
   return registered.has(name)
 }
 
-/** Plugins enregistres, pour le panneau de diagnostic. */
+/** Registered plugins, for the diagnostics panel. */
 export function registeredPlugins(): readonly PluginName[] {
   return [...registered]
 }
 
 /**
- * Charge le declencheur de defilement et rend sa valeur.
+ * Loads the scroll trigger and returns its value.
  *
- * @returns La classe, ou `null` hors navigateur ou si le chargement echoue.
+ * @returns The class, or `null` outside a browser or if the load fails.
  *
  * @example
  * const ScrollTriggerClass = await loadScrollTrigger()
@@ -157,9 +156,9 @@ export async function loadScrollTrigger(): Promise<typeof ScrollTrigger | null> 
 }
 
 /**
- * Charge le decoupeur de texte et rend sa valeur.
+ * Loads the text splitter and returns its value.
  *
- * @returns La classe, ou `null` hors navigateur ou si le chargement echoue.
+ * @returns The class, or `null` outside a browser or if the load fails.
  *
  * @example
  * const SplitTextClass = await loadSplitText()
@@ -171,8 +170,8 @@ export async function loadSplitText(): Promise<typeof SplitText | null> {
 }
 
 /**
- * Oublie les enregistrements. Reserve aux tests : les plugins restent
- * enregistres aupres de la bibliotheque, seul le suivi est remis a zero.
+ * Forgets the registrations. Reserved for the tests: the plugins stay
+ * registered with the library, only the tracking is reset.
  *
  * @internal
  */

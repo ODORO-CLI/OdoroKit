@@ -1,29 +1,29 @@
 /**
- * Moteur d'animation d'Odoro.
+ * Odoro animation engine.
  *
- * ## Principe
+ * ## Principle
  *
- * L'interpolation est confiee au moteur d'animation du navigateur
- * (`Element.animate`), qui s'execute sur le fil de composition. Aucune boucle
- * `requestAnimationFrame` n'est ouverte en JavaScript : une animation en cours
- * ne ralentit pas si le fil principal est occupe, et ne consomme rien quand
- * l'onglet est masque.
+ * Interpolation is handed over to the browser animation engine
+ * (`Element.animate`), which runs on the compositor thread. No
+ * `requestAnimationFrame` loop is opened in JavaScript: a running animation
+ * does not slow down if the main thread is busy, and consumes nothing when
+ * the tab is hidden.
  *
- * ## Ressorts physiques
+ * ## Physical springs
  *
- * Cette version n'implemente **que des courbes de Bezier**, issues des design
- * tokens. Un ressort physique ne s'exprime pas comme une courbe de Bezier : il
- * faudrait echantillonner la solution de l'oscillateur amorti en une centaine
- * d'etapes, ou revenir a une boucle JavaScript — ce qui annulerait le benefice
- * de l'approche. Les deux voies restent ouvertes pour une version ulterieure ;
- * l'echantillonnage se brancherait derriere un `easing: 'spring(...)'` sans
- * changer l'API publique.
+ * This version implements **only Bezier curves**, taken from the design
+ * tokens. A physical spring cannot be expressed as a Bezier curve: one
+ * would have to sample the solution of the damped oscillator into a hundred
+ * or so steps, or go back to a JavaScript loop — which would cancel the benefit
+ * of the approach. Both paths stay open for a later version;
+ * the sampling would plug in behind an `easing: 'spring(...)'` without
+ * changing the public API.
  *
- * ## Animations reduites
+ * ## Reduced motion
  *
- * `prefers-reduced-motion` est consulte par tous les composants et hooks du
- * module. L'animation est neutralisee, jamais l'etat final : un contenu revele
- * reste visible, un element sortant est bien demonte.
+ * `prefers-reduced-motion` is consulted by every component and hook of the
+ * module. The animation is neutralized, never the final state: revealed content
+ * stays visible, an exiting element is indeed unmounted.
  *
  * @example
  * import { Reveal, Stagger, useAnimate, usePresence } from '@odoro-cli/libs/motion'

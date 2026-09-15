@@ -1,37 +1,38 @@
 /**
- * Image dans le texte : le mot est rempli par la photo, le reste du cadre est
- * voile, et un halo ouvre le voile la ou passe le pointeur.
+ * Image inside text: the word is filled by the photograph, the rest of the
+ * frame is veiled, and a halo opens the veil where the pointer passes.
  *
- * ## Trois calques, et une seule image telechargee
+ * ## Three layers, and a single image downloaded
  *
- * L'image reelle est au fond, avec son texte de remplacement : c'est elle que
- * lisent les technologies d'assistance, et c'est elle qui reste si le
- * decoupage par le texte n'est pas supporte. Au-dessus, un voile de la
- * couleur de fond du theme la retient. Au-dessus encore, le mot — du vrai
- * texte dans le document — porte la meme source en fond et la retient dans
- * ses lettres par `background-clip: text`.
+ * The real image is at the bottom, with its alternative text: it is the one
+ * assistive technologies read, and the one that remains if clipping by the
+ * text is not supported. Above it, a veil in the background colour of the
+ * theme holds it back. Above that again, the word — real text in the document
+ * — carries the same source as a background and holds it inside its letters
+ * through `background-clip: text`.
  *
- * Le navigateur ne telecharge la source qu'une fois : le fond du texte et
- * l'image partagent la meme entree de cache.
+ * The browser downloads the source only once: the background of the text and
+ * the image share the same cache entry.
  *
- * ## Pourquoi un halo plutot qu'un voile uniforme
+ * ## Why a halo rather than a uniform veil
  *
- * Un voile plein donne un logotype : joli, mais mort. Le halo est un degrade
- * radial dont le centre est ecrit en deux variables CSS depuis l'evenement de
- * pointeur — aucun rendu React — et il rend a la photo un disque autour du
- * geste. Le mot reste lisible partout, la photo se devine autour.
+ * A solid veil gives a logotype: pretty, but dead. The halo is a radial
+ * gradient whose centre is written into two CSS variables from the pointer
+ * event — no React render — and it gives back to the photograph a disc around
+ * the gesture. The word stays readable everywhere, the photograph is sensed
+ * around it.
  *
- * ## Ce que le repli garantit
+ * ## What the fallback guarantees
  *
- * Sans `background-clip: text`, un texte transparent serait un texte absent.
- * Une regle `@supports` rend alors au mot l'encre du theme et lui retire son
- * fond : la composition perd son effet, jamais son contenu.
+ * Without `background-clip: text`, transparent text would be absent text. A
+ * `@supports` rule then gives the word back the ink of the theme and removes
+ * its background: the composition loses its effect, never its content.
  *
- * ## Sous mouvement reduit
+ * ## Under reduced motion
  *
- * Le halo est ferme et le cadre ne s'abonne a rien : il reste l'image, son
- * voile et le mot rempli par la photo — l'etat final de la composition, pas
- * son etat d'attente.
+ * The halo is closed and the frame subscribes to nothing: what remains is the
+ * image, its veil and the word filled by the photograph — the final state of
+ * the composition, not its waiting state.
  *
  * @module
  */
@@ -39,14 +40,14 @@
 import { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-image-mask-text'
 
 /**
- * Pose les regles de la composition, une fois par document.
+ * Sets the rules of the composition, once per document.
  *
- * Elles ne peuvent pas etre des styles en ligne : le decoupage prefixe et la
- * regle `@supports` n'existent pas dans l'attribut `style`.
+ * They cannot be inline styles: the prefixed clipping and the `@supports` rule
+ * do not exist inside the `style` attribute.
  */
 function ensureMaskTextRule(): void {
   if (typeof document === 'undefined') return
@@ -55,8 +56,9 @@ function ensureMaskTextRule(): void {
   const style = document.createElement('style')
   style.id = STYLE_ID
   style.textContent = [
-    // La taille du mot est exprimee en pour cent de la largeur du cadre :
-    // pose dans une colonne etroite, la composition garde ses proportions.
+    // The size of the word is expressed as a percentage of the width of the
+    // frame: laid inside a narrow column, the composition keeps its
+    // proportions.
     '[data-o-mask-text]{container-type:inline-size}',
     '[data-o-mt-ink]{',
     'background-image:var(--o-mt-src);background-size:cover;',
@@ -65,8 +67,8 @@ function ensureMaskTextRule(): void {
     '-webkit-background-clip:text;background-clip:text;',
     'color:transparent;',
     '}',
-    // Voir l'en-tete : un texte transparent sans decoupage est un texte
-    // absent. Le repli lui rend l'encre du theme.
+    // See the header: transparent text with no clipping is absent text. The
+    // fallback gives it back the ink of the theme.
     '@supports not ((-webkit-background-clip:text) or (background-clip:text)){',
     '[data-o-mt-ink]{background-image:none;color:var(--o-theme-fg)}',
     '}',
@@ -74,43 +76,43 @@ function ensureMaskTextRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface ImageMaskTextOwnProps {
-  /** Source de l'image. */
+  /** Source of the image. */
   src: string
-  /** Texte de remplacement de l'image. */
+  /** Alternative text of the image. */
   alt: string
-  /** Le mot rempli par l'image. */
+  /** The word filled by the image. */
   text: string
-  /** Rapport largeur sur hauteur du cadre. @defaultValue 1.777 */
+  /** Width to height ratio of the frame. @defaultValue 1.777 */
   ratio?: number
   /**
-   * Taille du mot, en pour cent de la largeur du cadre.
+   * Size of the word, as a percentage of the width of the frame.
    *
-   * Pas en pixels : la composition doit tenir dans sa colonne quelle qu'en
-   * soit la largeur.
+   * Not in pixels: the composition must fit inside its column whatever its
+   * width.
    *
    * @defaultValue 18
    */
   size?: number
-  /** Opacite du voile pose sur l'image, de 0 a 1. @defaultValue 0.92 */
+  /** Opacity of the veil laid over the image, from 0 to 1. @defaultValue 0.92 */
   veil?: number
-  /** Rayon du halo qui ouvre le voile, en pixels. Zero le supprime. @defaultValue 190 */
+  /** Radius of the halo that opens the veil, in pixels. Zero removes it. @defaultValue 190 */
   halo?: number
 }
 
-/** Toutes les proprietes : les siennes, plus celles d'une image. */
+/** All properties: its own, plus those of an image. */
 export type ImageMaskTextProps = Customisable<ImageMaskTextOwnProps, 'img'>
 
 /**
- * Remplit un mot avec une image, sous un voile perce par le pointeur.
+ * Fills a word with an image, under a veil pierced by the pointer.
  *
  * @example
- * <ImageMaskText src="/atelier.jpg" alt="Vue de l atelier" text="ODORO" />
+ * <ImageMaskText src="/workshop.jpg" alt="View of the workshop" text="ODORO" />
  *
  * @example
- * // Voile plus leger, sans halo : un titre pose sur la photo.
- * <ImageMaskText src="/atelier.jpg" alt="" text="2026" veil={0.6} halo={0} />
+ * // Lighter veil, no halo: a title laid over the photograph.
+ * <ImageMaskText src="/workshop.jpg" alt="" text="2026" veil={0.6} halo={0} />
  */
 export function ImageMaskText({
   src,
@@ -126,8 +128,8 @@ export function ImageMaskText({
   ensureMaskTextRule()
 
   const cover = Math.min(1, Math.max(0, veil))
-  // Le halo n'a pas de sens sans pointeur qui le promene : sous mouvement
-  // reduit, le voile redevient uniforme.
+  // The halo makes no sense without a pointer to walk it around: under reduced
+  // motion, the veil becomes uniform again.
   const radius = reduced ? 0 : Math.max(0, halo)
 
   const { className, style } = mergePresentation(
@@ -138,9 +140,8 @@ export function ImageMaskText({
   const hostStyle = {
     ...style,
     aspectRatio: String(ratio),
-    // Les guillemets de la source sont neutralises : une apostrophe double
-    // dans un nom de fichier fermerait la fonction `url` et emporterait la
-    // declaration entiere.
+    // The quotes of the source are neutralised: a double quote in a file name
+    // would close the `url` function and take the whole declaration with it.
     '--o-mt-src': `url("${src.replaceAll('"', '%22')}")`,
     '--o-mt-size': String(Math.max(1, size)),
     '--o-mt-x': '50%',
@@ -156,8 +157,8 @@ export function ImageMaskText({
         radius === 0
           ? undefined
           : (event) => {
-              // Le centre du halo en pourcentage du cadre : deux ecritures de
-              // variable, aucun rendu React pendant le geste.
+              // The centre of the halo as a percentage of the frame: two
+              // variable writes, no React render during the gesture.
               const box = event.currentTarget.getBoundingClientRect()
               const x = ((event.clientX - box.left) / Math.max(box.width, 1)) * 100
               const y = ((event.clientY - box.top) / Math.max(box.height, 1)) * 100
@@ -183,8 +184,8 @@ export function ImageMaskText({
         className="o-size-full o-object-cover"
       />
 
-      {/* Le voile : decoratif, hors d'atteinte du pointeur, perce par le halo
-          quand il y en a un. */}
+      {/* The veil: decorative, out of reach of the pointer, pierced by the
+          halo when there is one. */}
       <div
         aria-hidden
         className="o-absolute o-inset-0 o-pointer-events-none"
@@ -197,8 +198,8 @@ export function ImageMaskText({
         }}
       />
 
-      {/* Le mot : du vrai texte, lisible par les technologies d'assistance
-          comme par la recherche du navigateur. */}
+      {/* The word: real text, readable by assistive technologies as well as by
+          the browser's own search. */}
       <span
         data-o-mt-ink=""
         className="o-absolute o-inset-0 o-flex o-items-center o-justify-center o-text-center o-font-black o-tracking-tighter o-select-none"

@@ -1,31 +1,29 @@
 /**
- * Anneaux orbitaux : des anneaux de points en orbite inclinee autour d'un
- * centre vide.
+ * Orbit rings of points in tilted orbit around an empty centre.
  *
- * ## Pourquoi des points instancies, et pas un shader
+ * ## Why instanced points, and not a shader
  *
- * Les positions sont analytiques — un cercle, une inclinaison, une rotation
- * — et rien ne depend de l'image precedente. Un shader de fragment pourrait
- * les resoudre, mais il devrait, pour chaque pixel, projeter des anneaux en
- * trois dimensions et trier leur profondeur. Un nuage de points par anneau
- * fait ce travail dans le pipeline : la geometrie est construite une fois, et
- * la boucle ne touche que des rotations — trois nombres par anneau, aucun
- * attribut reecrit. C'est la technique la plus simple qui tienne la cadence,
- * et la moins couteuse des deux.
+ * The positions are analytic — a circle, a tilt, a rotation — and nothing
+ * depends on the previous frame. A fragment shader could solve them, but for
+ * every pixel it would have to project rings in three dimensions and sort their
+ * depth. A point cloud per ring does that work in the pipeline: the geometry is
+ * built once, and the loop only ever touches rotations — three numbers per
+ * ring, no attribute rewritten. It is the simplest technique that holds the
+ * frame rate, and the cheaper of the two.
  *
- * ## La composition
+ * ## The composition
  *
- * Chaque anneau a son rayon, son inclinaison et son sens de rotation, en
- * alternance : deux anneaux voisins tournent en sens contraire, sans quoi
- * l'ensemble se lirait comme un seul disque. Le centre reste vide — c'est ce
- * qui le distingue d'une sphere ceinte d'anneaux — et l'ensemble precesse
- * lentement pour que les anneaux se croisent.
+ * Each ring has its radius, its tilt and its direction of rotation, in
+ * alternation: two neighbouring rings turn in opposite directions, without
+ * which the whole would read as a single disc. The centre stays empty — that is
+ * what sets it apart from a sphere girded with rings — and the whole precesses
+ * slowly so that the rings cross.
  *
- * ## Ce que ce composant ne fait pas
+ * ## What this component does not do
  *
- * Il n'ouvre ni boucle d'animation, ni observateur : `useScene` les porte. Il
- * n'ecrit aucune couleur : le fond et les anneaux sont lus dans les tokens,
- * et repeints en place quand le theme bascule.
+ * It opens neither an animation loop nor an observer: `useScene` carries them.
+ * It writes no colour: the background and the rings are read from the tokens,
+ * and repainted in place when the theme flips.
  *
  * @module
  */
@@ -41,41 +39,41 @@ import { useEffect, useRef, useState, type ReactElement } from 'react'
 
 import { usePoster } from '@registre/hooks/usePoster'
 
-/** Proprietes propres au composant. */
+/** Props specific to this component. */
 export interface OrbitRingsOwnProps {
-  /** Nombre d'anneaux. @defaultValue 5 */
+  /** Number of rings. @defaultValue 5 */
   rings?: number
-  /** Points par anneau. @defaultValue 320 */
+  /** Points per ring. @defaultValue 320 */
   points?: number
-  /** Vitesse de rotation du premier anneau, en tours par minute. @defaultValue 3 */
+  /** Rotation speed of the first ring, in turns per minute. @defaultValue 3 */
   rpm?: number
-  /** Inclinaison de base des anneaux, en radians. @defaultValue 0.6 */
+  /** Base tilt of the rings, in radians. @defaultValue 0.6 */
   tilt?: number
-  /** Tokens : le fond, l'anneau interieur, l'anneau exterieur. */
+  /** Tokens: the background, the inner ring, the outer ring. */
   colors?: readonly [string, string, string]
-  /** Classes du repli. */
+  /** Fallback classes. */
   poster?: string
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type OrbitRingsProps = Customisable<OrbitRingsOwnProps>
 
-/** Tokens employes par defaut. */
+/** Tokens used by default. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-brand-500',
   '--o-palette-fuchsia-400',
 ] as const
 
-/** Repli par defaut : un halo fige, dans les memes tons. */
+/** Default fallback: a frozen halo, in the same tones. */
 const DEFAULT_POSTER =
   'o-bg-gradient-to-br o-from-zinc-50 dark:o-from-zinc-950 o-via-brand-100 dark:o-via-brand-950 o-to-zinc-50 dark:o-to-zinc-950'
 
 /**
- * Points par anneau en qualite basse.
+ * Points per ring at low quality.
  *
- * Chaque point est un sommet : le cout croit lineairement avec leur nombre,
- * et c'est le seul levier qui compte ici.
+ * Every point is a vertex: the cost grows linearly with their number, and it is
+ * the only lever that counts here.
  */
 const LOW_POINTS = 140
 
@@ -84,18 +82,18 @@ type Group = InstanceType<Three['Group']>
 type PointsObject = InstanceType<Three['Points']>
 type PointsMaterial = InstanceType<Three['PointsMaterial']>
 
-/** Un anneau vivant : ce qui tourne, et a quelle cadence. */
+/** A live ring: what turns, and at what rate. */
 interface Orbit {
   readonly ring: PointsObject
   readonly material: PointsMaterial
-  /** Vitesse angulaire, en radians par seconde, signee. */
+  /** Angular velocity, in radians per second, signed. */
   readonly rate: number
-  /** Part du chemin entre l'anneau interieur et l'exterieur, pour la teinte. */
+  /** Share of the way between the inner and the outer ring, for the hue. */
   readonly mix: number
 }
 
 /**
- * Anneaux orbitaux.
+ * Orbit rings.
  *
  * @example
  * <div className="o-relative o-h-96 o-overflow-hidden">
@@ -120,7 +118,7 @@ export function OrbitRings({
   const context = useRef<SceneContext | null>(null)
 
   const { ref, ready, refused } = useScene({
-    name: 'anneaux-orbitaux',
+    name: 'orbit-rings',
     setup: (scene) => {
       context.current = scene
       const { three, renderer, camera, quality } = scene
@@ -129,8 +127,8 @@ export function OrbitRings({
       const bgColour = new three.Color(bg?.[0] ?? 0, bg?.[1] ?? 0, bg?.[2] ?? 0)
       renderer.setClearColor(bgColour.convertSRGBToLinear(), 1)
 
-      // La camera est un peu au-dessus du plan : vus de face, des anneaux
-      // inclines ne seraient que des ellipses plates.
+      // The camera sits a little above the plane: seen head-on, tilted rings
+      // would be nothing but flat ellipses.
       camera.position.set(0, 1.4, 5.4)
       camera.lookAt(0, 0, 0)
 
@@ -138,7 +136,7 @@ export function OrbitRings({
       const total = Math.max(rings, 1)
 
       const group = new three.Group()
-      group.name = 'anneaux'
+      group.name = 'rings'
       cluster.current = group
       orbits.current = []
 
@@ -146,8 +144,8 @@ export function OrbitRings({
         const radius = 1.1 + index * 0.32
         const share = total === 1 ? 0 : index / (total - 1)
 
-        // Un cercle dans le plan XZ, epaissi d'un leger bruit : un anneau de
-        // poussiere, pas un trait.
+        // A circle in the XZ plane, thickened by a slight noise: a ring of
+        // dust, not a stroke.
         const positions = new Float32Array(perRing * 3)
         for (let p = 0; p < perRing; p += 1) {
           const angle = (p / perRing) * Math.PI * 2
@@ -172,16 +170,15 @@ export function OrbitRings({
 
         const ring = new three.Points(geometry, material)
 
-        // Le pivot porte l'inclinaison ; l'anneau tourne dans son propre plan.
-        // Separer les deux evite de composer des rotations a chaque image.
+        // The pivot carries the tilt; the ring turns in its own plane.
+        // Separating the two avoids composing rotations every frame.
         const pivot = new three.Group()
         pivot.rotation.x = tilt + index * 0.22 * (index % 2 === 0 ? 1 : -1)
         pivot.rotation.z = index * 0.45
         pivot.add(ring)
         group.add(pivot)
 
-        // Sens alterne, et les anneaux exterieurs plus lents : comme des
-        // orbites reelles.
+        // Alternating direction, and the outer rings slower: like real orbits.
         const direction = index % 2 === 0 ? 1 : -1
         const rate = ((rpm * Math.PI * 2) / 60) * direction * (1 - share * 0.5)
         orbits.current.push({ ring, material, rate, mix: share })
@@ -197,7 +194,7 @@ export function OrbitRings({
     },
 
     frame: (_, { time, delta }) => {
-      // Chaque anneau tourne dans son plan ; l'ensemble precesse lentement.
+      // Each ring turns in its plane; the whole precesses slowly.
       for (const orbit of orbits.current) {
         orbit.ring.rotation.y += orbit.rate * delta
       }
@@ -208,8 +205,8 @@ export function OrbitRings({
     },
   })
 
-  // Le theme a bascule : les tokens sont relus et les couleurs repeintes en
-  // place. La scene n'est pas reconstruite.
+  // The theme has flipped: the tokens are re-read and the colours repainted in
+  // place. The scene is not rebuilt.
   useEffect(() => {
     const scene = context.current
     if (scene === null || orbits.current.length === 0) return

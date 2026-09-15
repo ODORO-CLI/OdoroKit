@@ -1,23 +1,23 @@
 /**
- * Braises : des points chauds qui montent, scintillent et s'eteignent.
+ * Embers: hot points that rise, twinkle and go out.
  *
- * ## Le principe
+ * ## The principle
  *
- * Une braise par cellule d'une grille hachee, sur trois profondeurs. La
- * grille descend colonne par colonne, donc les braises montent chacune a son
- * rythme. Ce qui les distingue d'une neige inversee : leur lumiere depend de
- * leur hauteur dans le cadre — pleine en bas, eteinte avant le haut.
+ * One ember per cell of a hashed grid, across three depths. The grid descends
+ * column by column, so the embers each rise at their own pace. What sets them
+ * apart from inverted snow: their light depends on their height in the frame —
+ * full at the bottom, out before the top.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur — les recopier ici en ferait autant
- * de versions a maintenir qu'il y a de fonds.
+ * It carries only what sets it apart: its shader, its settings and its fallback.
+ * Reading the tokens, converting them to floats and re-reading them when the
+ * theme changes all come from the engine — copying them here would leave as
+ * many versions to maintain as there are backgrounds.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en
- * accorde qu'une par backend — et sous mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface — it grants only one
+ * per backend — and under reduced motion.
  *
  * @module
  */
@@ -34,57 +34,57 @@ import { type ReactElement } from 'react'
 
 import { EMBERS_FRAGMENT } from './embers.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface EmbersControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to this component. */
 export interface EmbersOwnProps {
-  /** Vitesse de la montee. @defaultValue 0.5 */
+  /** Speed of the rise. @defaultValue 0.5 */
   speed?: number
-  /** Densite du semis. @defaultValue 9 */
+  /** Density of the scatter. @defaultValue 9 */
   density?: number
-  /** Portee du halo doux autour de chaque braise. @defaultValue 1 */
+  /** Reach of the soft halo around each ember. @defaultValue 1 */
   glow?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<EmbersControls>
 }
 
-/** Toutes les proprietes. */
+/** Every property. */
 export type EmbersProps = Customisable<EmbersOwnProps>
 
-/** Tokens employes par defaut : le fond, le corps des braises, leur pointe. */
+/** Tokens used by default: the background, the body of the embers, their tip. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-orange-500',
   '--o-palette-amber-200',
 ] as const
 
-/** Repli par defaut : la lueur du foyer figee, dans les memes tons. */
+/** Default fallback: the frozen glow of the hearth, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-t o-from-orange-200 dark:o-from-orange-950 o-to-zinc-50 dark:o-to-zinc-950'
 
 /**
- * Couches hors qualite basse.
+ * Layers outside low quality.
  *
- * Chaque couche parcourt neuf cellules par fragment : c'est le seul levier de
- * cout du shader, et la couche la plus lointaine est la plus faible.
+ * Every layer walks nine cells per fragment: it is the shader's only cost
+ * lever, and the farthest layer is the faintest.
  */
 const LAYERS = 3
 
-/** Couches en qualite basse. */
+/** Layers at low quality. */
 const LOW_LAYERS = 2
 
 /**
- * Braises.
+ * Embers.
  *
  * @example
  * <div className="o-relative o-min-h-screen">

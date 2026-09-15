@@ -1,28 +1,28 @@
 /**
- * Vortex torsade : un couloir dont les aretes s'enroulent en helice, qui
- * pivote, et dont la teinte tourne autour de la paroi.
+ * Twisted vortex: a corridor whose ribs wind into a helix, which pivots, and
+ * whose hue turns around the wall.
  *
- * ## Le principe
+ * ## The principle
  *
- * La profondeur vaut l'inverse du rayon, comme dans le tunnel ; mais l'angle
- * est tordu avec la profondeur, le tout pivote avec le temps et le point de
- * fuite se promene. Les parois portent six aretes en helice, des bandes qui
- * avancent, et une teinte qui glisse d'une couleur a l'autre.
+ * Depth is the inverse of the radius, as in the tunnel; but the angle is
+ * twisted with depth, the whole thing pivots with time and the vanishing
+ * point wanders. The walls carry six helical ribs, bands that advance, and a
+ * hue that slides from one colour to the other.
  *
- * Ce qui distingue cette entree de `tunnel` : la torsion, la rotation, le
- * point de fuite mobile, et deux teintes au lieu d'une. Le tunnel est un
- * couloir droit et monochrome ; ceci est un vortex.
+ * What sets this entry apart from `tunnel`: the twist, the rotation, the
+ * moving vanishing point, and two hues instead of one. The tunnel is a
+ * straight, monochrome corridor; this is a vortex.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur — les recopier ici en ferait autant
- * de versions a maintenir qu'il y a de fonds.
+ * It carries only what sets it apart: its shader, its settings and its
+ * fallback. Reading the tokens, converting them to floats and re-reading them
+ * when the theme changes all come from the engine — copying that here would
+ * leave as many versions to maintain as there are backgrounds.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en
- * accorde qu'une par backend — et sous mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface — it grants only one
+ * per backend — and under reduced motion.
  *
  * @module
  */
@@ -39,48 +39,48 @@ import { type ReactElement } from 'react'
 
 import { WORMHOLE_FRAGMENT } from './wormhole.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface WormholeControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to this component. */
 export interface WormholeOwnProps {
-  /** Vitesse d'avancee. @defaultValue 0.5 */
+  /** Speed of travel. @defaultValue 0.5 */
   speed?: number
-  /** Torsion des aretes avec la profondeur. @defaultValue 1 */
+  /** Twist of the ribs with depth. @defaultValue 1 */
   twist?: number
-  /** Vitesse de rotation de l'ensemble. @defaultValue 0.3 */
+  /** Rotation speed of the whole. @defaultValue 0.3 */
   spin?: number
-  /** Densite des bandes de profondeur. @defaultValue 8 */
+  /** Density of the depth bands. @defaultValue 8 */
   rings?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<WormholeControls>
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type WormholeProps = Customisable<WormholeOwnProps>
 
-/** Tokens employes par defaut : le fond, les deux teintes des parois. */
+/** Tokens used by default: the background, the two hues of the walls. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-fuchsia-500',
   '--o-palette-cyan-400',
 ] as const
 
-/** Repli par defaut : un degrade fige, dans les memes tons. */
+/** Default fallback: a frozen gradient, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-br o-from-zinc-50 dark:o-from-zinc-950 o-to-fuchsia-100 dark:o-to-fuchsia-950'
 
 /**
- * Vortex torsade.
+ * Twisted vortex.
  *
  * @example
  * <div className="o-relative o-min-h-screen">
@@ -103,8 +103,8 @@ export function Wormhole({
     colors,
     uniforms: { uSpeed: speed, uTwist: twist, uSpin: spin, uRings: rings },
     name: 'wormhole',
-    // Des bandes serrees au loin battent avec la grille de pixels a densite
-    // reduite : en qualite basse, elles s'espacent.
+    // Tight bands in the distance beat against the pixel grid at a reduced
+    // density: at low quality, they spread apart.
     degrade: (quality) => ({
       uRings: quality === 'low' ? Math.min(rings, 5) : rings,
     }),

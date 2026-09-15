@@ -1,39 +1,38 @@
 /**
- * Mot tournant : un seul mot change dans une phrase qui, elle, ne bouge pas.
+ * Rotating word: a single word changes inside a sentence that does not move.
  *
- * ## Ce n'est pas la machine a ecrire
+ * ## This is not the typewriter
  *
- * `typewriter` frappe puis efface des phrases entieres, caractere par
- * caractere : le regard suit le curseur. Ici la phrase est fixe et lisible du
- * debut a la fin, seul un mot se substitue. C'est ce qu'on veut pour un titre
- * de page — « Construisez plus **vite** / plus **sur** / **ensemble** » — la ou
- * une phrase qui s'efface obligerait a relire a chaque tour.
+ * `typewriter` types then erases whole sentences, character by character: the
+ * eye follows the caret. Here the sentence is fixed and readable from start to
+ * finish, and only one word is substituted. It is what one wants for a page
+ * heading — "Build **faster** / more **safely** / **together**" — where a
+ * sentence that erases itself would force a re-read on every turn.
  *
- * ## La largeur ne saute pas, et sans mesurer quoi que ce soit
+ * ## The width does not jump, and without measuring anything
  *
- * Le probleme classique : « vite » est plus court qu'« ensemble », donc la fin
- * de la phrase se deplace a chaque tour. La reponse habituelle consiste a
- * mesurer chaque mot en JavaScript pour reserver la largeur du plus long — ce
- * qui suppose que les polices soient chargees, se refait a chaque
- * redimensionnement, et se trompe entre-temps.
+ * The classic problem: "faster" is shorter than "together", so the end of the
+ * sentence moves on every turn. The usual answer is to measure each word in
+ * JavaScript to reserve the width of the longest — which assumes the fonts are
+ * loaded, has to be redone on every resize, and is wrong in the meantime.
  *
- * Une grille en ligne le fait toute seule. Tous les mots occupent la **meme
- * cellule** ; la cellule prend la largeur du plus large, et l'on n'a rien
- * mesure. Le navigateur sait faire cela depuis toujours, et il le refait tout
- * seul quand la police change.
+ * An inline grid does it on its own. Every word occupies the **same cell**;
+ * the cell takes the width of the widest, and nothing has been measured. The
+ * browser has been able to do this forever, and it redoes it by itself when
+ * the font changes.
  *
- * ## Le premier mot est le mot lu
+ * ## The first word is the word that is read
  *
- * Un lecteur d'ecran ne doit pas entendre huit variantes a la suite. La phrase
- * porte donc un mot, un seul, dans le flux normal ; la pile qui tourne est
- * `aria-hidden`. Ce que l'on entend est une phrase complete et sensee, ce que
- * l'on voit est la meme phrase qui respire.
+ * A screen reader must not hear eight variants in a row. The sentence
+ * therefore carries one word, a single one, in the normal flow; the rotating
+ * stack is `aria-hidden`. What one hears is a complete and sensible sentence,
+ * what one sees is the same sentence breathing.
  *
- * ## Elle ne tourne que sous les yeux
+ * ## It only turns under the eye
  *
- * L'intervalle s'arrete des que le composant sort du champ. Une page qui garde
- * trois titres en train de tourner dans des sections qu'on ne regarde pas
- * reveille le processeur pour rien, et cela se sent sur la batterie.
+ * The interval stops as soon as the component leaves the viewport. A page that
+ * keeps three headings turning in sections nobody is looking at wakes the
+ * processor for nothing, and it shows on the battery.
  *
  * @module
  */
@@ -49,31 +48,31 @@ import {
 
 import { useInView } from '@registre/hooks/useInView'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface RotatingWordsOwnProps {
-  /** Les mots qui se succedent. Le premier est celui que l'on lit. */
+  /** The words that follow one another. The first is the one that is read. */
   words: readonly string[]
-  /** Balise rendue. @defaultValue 'span' */
+  /** Rendered tag. @defaultValue 'span' */
   as?: ElementType
-  /** Temps d'affichage d'un mot, en millisecondes. @defaultValue 2200 */
+  /** Time a word is shown, in milliseconds. @defaultValue 2200 */
   interval?: number
-  /** Duree de la substitution, en millisecondes. @defaultValue 420 */
+  /** Duration of the substitution, in milliseconds. @defaultValue 420 */
   duration?: number
   /**
-   * Sens du mouvement.
+   * Direction of the movement.
    *
-   * @defaultValue 'haut'
+   * @defaultValue 'up'
    */
-  sens?: 'haut' | 'bas'
+  direction?: 'up' | 'down'
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type RotatingWordsProps = Customisable<RotatingWordsOwnProps, 'span'>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-rotating-words'
 
-/** Pose les regles de la pile, une fois par document. */
+/** Sets the stack rules, once per document. */
 function ensureRotatingRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -81,20 +80,21 @@ function ensureRotatingRule(): void {
   const style = document.createElement('style')
   style.id = STYLE_ID
   style.textContent = [
-    // La grille en ligne donne la largeur du plus long mot, sans mesure.
+    // The inline grid gives the width of the longest word, with no measuring.
     '[data-o-rotating]{display:inline-grid;vertical-align:bottom;overflow:hidden;text-align:left}',
     '[data-o-rotating]>*{grid-area:1/1}',
     '[data-o-rotating-stack]{display:inline-grid}',
     '[data-o-rotating-stack]>*{grid-area:1/1}',
     '[data-o-rotating-word]{',
     'opacity:0;',
-    'transform:translateY(var(--o-rotating-depart));',
+    'transform:translateY(var(--o-rotating-enter));',
     'transition:opacity var(--o-rotating-duration) ease,transform var(--o-rotating-duration) cubic-bezier(0.22,1,0.36,1);',
     '}',
-    '[data-o-rotating-word][data-actif]{opacity:1;transform:translateY(0)}',
-    // Le mot qui vient de partir s'en va dans le sens du mouvement, plutot que
-    // de revenir sur ses pas : sans cela, l'entrant et le sortant se croisent.
-    '[data-o-rotating-word][data-sortant]{opacity:0;transform:translateY(var(--o-rotating-sortie))}',
+    '[data-o-rotating-word][data-active]{opacity:1;transform:translateY(0)}',
+    // The word that has just left goes away in the direction of the movement,
+    // rather than retracing its steps: without that, the entering and the
+    // leaving words cross each other.
+    '[data-o-rotating-word][data-leaving]{opacity:0;transform:translateY(var(--o-rotating-exit))}',
     '[data-o-rotating-hidden]{color:transparent}',
     '@media (prefers-reduced-motion:reduce){[data-o-rotating-word]{transition:none}}',
   ].join('')
@@ -102,91 +102,93 @@ function ensureRotatingRule(): void {
 }
 
 /**
- * Fait tourner un mot dans une phrase fixe.
+ * Rotates a word inside a fixed sentence.
  *
  * @example
  * <p className="o-text-4xl">
- *   Construisez plus{' '}
- *   <RotatingWords words={['vite', 'sur', 'ensemble']} className="o-text-brand-600" />
+ *   Build more{' '}
+ *   <RotatingWords words={['quickly', 'safely', 'together']} className="o-text-brand-600" />
  * </p>
  *
  * @example
- * // Vers le bas, et plus lentement.
- * <RotatingWords words={['hier', 'aujourd hui', 'demain']} sens="bas" interval={3200} />
+ * // Downwards, and more slowly.
+ * <RotatingWords words={['yesterday', 'today', 'tomorrow']} direction="down" interval={3200} />
  */
 export function RotatingWords({
   words,
   as: Tag = 'span',
   interval = 2200,
   duration = 420,
-  sens = 'haut',
+  direction = 'up',
   ...rest
 }: RotatingWordsProps): ReactElement {
   const { reduced } = useMotionState()
-  const { ref: refVue, vu } = useInView<HTMLElement>({ once: false })
+  const { ref: viewRef, inView } = useInView<HTMLElement>({ once: false })
   const [index, setIndex] = useState(0)
-  const [precedent, setPrecedent] = useState<number | undefined>(undefined)
+  const [previous, setPrevious] = useState<number | undefined>(undefined)
 
   ensureRotatingRule()
 
   useEffect(() => {
-    // En mouvement reduit, le premier mot reste. La phrase garde son sens, et
-    // c'est tout ce que la rotation apportait.
-    if (reduced || !vu || words.length < 2) return
+    // Under reduced motion, the first word stays. The sentence keeps its
+    // meaning, and that is all the rotation brought.
+    if (reduced || !inView || words.length < 2) return
 
-    const minuteur = setInterval(
+    const timer = setInterval(
       () => {
-        setIndex((courant) => {
-          setPrecedent(courant)
-          return (courant + 1) % words.length
+        setIndex((current) => {
+          setPrevious(current)
+          return (current + 1) % words.length
         })
       },
       Math.max(duration, interval),
     )
 
     return () => {
-      clearInterval(minuteur)
+      clearInterval(timer)
     }
-  }, [vu, reduced, words.length, interval, duration])
+  }, [inView, reduced, words.length, interval, duration])
 
   const { className, style } = mergePresentation({}, rest)
 
-  // Le sens decide d'ou vient l'entrant et ou va le sortant. Les deux vont
-  // dans la meme direction : c'est ce qui donne l'impression d'un rouleau.
-  const depart = sens === 'haut' ? '0.9em' : '-0.9em'
-  const sortie = sens === 'haut' ? '-0.9em' : '0.9em'
+  // The direction decides where the entering word comes from and where the
+  // leaving one goes. Both go the same way: that is what gives the impression
+  // of a roller.
+  const entry = direction === 'up' ? '0.9em' : '-0.9em'
+  const exit = direction === 'up' ? '-0.9em' : '0.9em'
 
-  const styleRotation = {
+  const rotationStyle = {
     ...style,
     '--o-rotating-duration': `${String(duration)}ms`,
-    '--o-rotating-depart': depart,
-    '--o-rotating-sortie': sortie,
+    '--o-rotating-enter': entry,
+    '--o-rotating-exit': exit,
   } as CSSProperties
 
-  const anime = !reduced && words.length > 1
-  const lu = words[0] ?? ''
+  const animating = !reduced && words.length > 1
+  const spoken = words[0] ?? ''
 
   return (
     <Tag
       {...rest}
-      ref={refVue}
+      ref={viewRef}
       className={className}
-      style={styleRotation}
+      style={rotationStyle}
       data-o-rotating=""
     >
-      {/* Le mot lu, dans le flux : c'est lui qui est annonce et copie. */}
-      <span {...(anime ? { 'data-o-rotating-hidden': '' } : {})}>{lu}</span>
+      {/* The word that is read, in the flow: it is the one announced and
+          copied. */}
+      <span {...(animating ? { 'data-o-rotating-hidden': '' } : {})}>{spoken}</span>
 
-      {anime && (
+      {animating && (
         <span aria-hidden="true" data-o-rotating-stack="">
-          {words.map((mot, i) => (
+          {words.map((word, i) => (
             <span
-              key={mot}
+              key={word}
               data-o-rotating-word=""
-              {...(i === index ? { 'data-actif': '' } : {})}
-              {...(i === precedent && i !== index ? { 'data-sortant': '' } : {})}
+              {...(i === index ? { 'data-active': '' } : {})}
+              {...(i === previous && i !== index ? { 'data-leaving': '' } : {})}
             >
-              {mot}
+              {word}
             </span>
           ))}
         </span>

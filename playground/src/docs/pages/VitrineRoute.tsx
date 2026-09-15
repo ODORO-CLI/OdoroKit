@@ -26,7 +26,7 @@
  */
 
 import { Icon } from '@odoro-cli/icons'
-import { ArrowLeft, Palette as IconePalette } from '@odoro-cli/icons/filaire'
+import { ArrowLeft, Palette as IconePalette } from '@odoro-cli/icons/outline'
 import { Link, useParams } from '@odoro-cli/libs/router'
 import {
   lazy,

@@ -55,7 +55,7 @@ import {
   TriangleAlert,
   Utensils,
   Wifi,
-} from '@odoro-cli/icons/filaire'
+} from '@odoro-cli/icons/outline'
 import { useState, type CSSProperties, type ReactElement } from 'react'
 
 import { Constellation } from '@/odoro/background/Constellation.jsx'

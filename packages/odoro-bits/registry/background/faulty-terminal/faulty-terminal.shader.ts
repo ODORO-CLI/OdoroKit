@@ -1,38 +1,38 @@
 /**
- * Shader du terminal defaillant.
+ * Faulty terminal shader.
  *
- * ## L'idee mathematique
+ * ## The mathematical idea
  *
- * Un ecran de caracteres, ligne par ligne. Le texte se tape : un front
- * avance sur les lignes a vitesse constante, la ligne en cours ne montre
- * que les caracteres deja tapes, et un curseur clignote a leur suite. Quand
- * la derniere ligne est pleine, l'ecran s'efface et tout recommence.
+ * A screen of characters, line by line. The text types itself: a front
+ * advances down the lines at constant speed, the current line shows only
+ * the characters already typed, and a cursor blinks after them. When the
+ * last line is full, the screen clears and it all starts over.
  *
- * Les defauts sont haches par paliers de temps, jamais continus : une
- * panne se produit, tient quelques images, cesse. Trois defauts. Le
- * scintillement baisse toute l'image d'un coup. Le dechirement decale
- * horizontalement une bande de lignes, d'un nombre entier de colonnes — un
- * decalage fractionnaire se lirait comme un flou, pas comme une coupure.
- * La corruption remplace le glyphe de quelques cellules par un autre,
- * pendant la meme bande.
+ * The faults are chopped into steps of time, never continuous: a failure
+ * occurs, holds for a few frames, stops. Three faults. The flicker dims the
+ * whole picture at once. The tearing shifts a band of lines sideways, by a
+ * whole number of columns — a fractional shift would read as blur, not as a
+ * cut. The corruption replaces the glyph of a few cells with another one,
+ * during the same
+ * band.
  *
- * ## Les glyphes
+ * ## The glyphs
  *
- * Aucune police, aucune texture : chaque glyphe est un masque de quinze bits
- * sur une grille de trois par cinq, ecrit en clair comme un entier, et lu
- * bit a bit par division par une puissance de deux et parite.
+ * No font, no texture: each glyph is a fifteen-bit mask on a three by five
+ * grid, written out in the clear as an integer, and read bit by bit by
+ * division by a power of two and parity.
  *
  * ## Uniforms
  *
- * - `uTime` — temps en secondes, fourni par le moteur.
- * - `uResolution` — taille du canevas en pixels, fournie par le moteur.
- * - `uColorA` — le fond.
- * - `uColorB` — le phosphore du texte.
- * - `uColorC` — le curseur et les cellules corrompues.
- * - `uColumns` — nombre de colonnes sur la largeur.
- * - `uSpeed` — vitesse de frappe, en lignes par seconde.
- * - `uFlicker` — force du scintillement.
- * - `uTearing` — frequence et amplitude des dechirements.
+ * - `uTime` — time in seconds, supplied by the engine.
+ * - `uResolution` — canvas size in pixels, supplied by the engine.
+ * - `uColorA` — the background.
+ * - `uColorB` — the phosphor of the text.
+ * - `uColorC` — the cursor and the corrupted cells.
+ * - `uColumns` — number of columns across the width.
+ * - `uSpeed` — typing speed, in lines per second.
+ * - `uFlicker` — strength of the flicker.
+ * - `uTearing` — frequency and amplitude of the tearing.
  */
 export const FAULTY_TERMINAL_FRAGMENT = /* glsl */ `
 precision highp float;
@@ -49,18 +49,18 @@ uniform float uSpeed;
 uniform float uFlicker;
 uniform float uTearing;
 
-// Nombre pseudo-aleatoire : projection sur une direction arbitraire, sinus
-// amplifie, partie fractionnaire.
+// Pseudo-random number: projection onto an arbitrary direction, amplified
+// sine, fractional part.
 float termHash(vec2 p) {
   return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
 }
 
-// Le bit de rang donne d'un masque.
+// The bit of a given rank in a mask.
 float termBit(float mask, float index) {
   return mod(floor(mask / exp2(index)), 2.0);
 }
 
-// Seize glyphes sur trois par cinq, le bit de poids fort en haut a gauche.
+// Sixteen glyphs on three by five, the most significant bit top left.
 float termGlyph(float id) {
   if (id < 0.5) return 31599.0;
   if (id < 1.5) return 11415.0;
@@ -87,12 +87,12 @@ void main() {
   float cellH = cellW * 1.5;
   float rows = floor(1.0 / cellH);
 
-  // Les pannes sont hachees : une graine par palier d'un quart de seconde.
+  // The failures are chopped: one seed per quarter-second step.
   float burst = floor(uTime * 4.0);
   float faulty = step(1.0 - clamp(uTearing, 0.0, 1.0) * 0.45, termHash(vec2(burst, 3.0)));
 
-  // Le dechirement : une bande de lignes decalee d'un nombre entier de
-  // colonnes, pendant la duree de la panne.
+  // The tearing: a band of lines shifted by a whole number of columns, for
+  // as long as the failure lasts.
   float y = (1.0 - vUv.y) / cellH;
   float bandTop = termHash(vec2(burst, 5.0)) * rows;
   float bandRows = 1.0 + floor(termHash(vec2(burst, 9.0)) * 4.0);
@@ -103,14 +103,14 @@ void main() {
   vec2 id = floor(p);
   vec2 local = fract(p);
 
-  // Le front de frappe : quelle ligne se tape, et jusqu'ou.
+  // The typing front: which line is being typed, and how far.
   float page = rows + 4.0;
   float progress = mod(uTime * uSpeed, page);
   float line = floor(progress);
   float epoch = floor(uTime * uSpeed / page);
 
-  // Chaque ligne a sa longueur, tiree de son rang et de la page. Quelques
-  // lignes restent vides : un terminal aere ses sorties.
+  // Each line has its own length, drawn from its rank and from the page. A
+  // few lines stay empty: a terminal spaces out its output.
   float lineSeed = termHash(vec2(id.y, epoch));
   float lineLength = step(0.15, lineSeed) * (4.0 + floor(lineSeed * (columns - 8.0)));
   float typed = fract(progress) * lineLength;
@@ -119,7 +119,7 @@ void main() {
   float typing = step(abs(id.y - line), 0.5) * step(id.x, typed - 1.0);
   float shown = max(written, typing) * step(id.x, columns - 1.0);
 
-  // La corruption : pendant la panne, quelques cellules changent de glyphe.
+  // The corruption: during the failure, a few cells change glyph.
   float corrupt = faulty * inBand * step(0.7, termHash(id + burst));
   float glyph = floor(termHash(vec2(id.x * 1.7 + id.y * 3.1, epoch + corrupt * burst)) * 16.0);
 
@@ -127,12 +127,12 @@ void main() {
   float inside = step(g.x, 2.5) * step(g.y, 4.5);
   float bit = termBit(termGlyph(glyph), (4.0 - g.y) * 3.0 + (2.0 - g.x)) * inside;
 
-  // Le curseur : un bloc plein a la suite du texte tape, qui clignote.
+  // The cursor: a solid block after the typed text, blinking.
   float cursorCol = floor(typed);
   float cursor = step(abs(id.y - line), 0.5) * step(abs(id.x - cursorCol), 0.5)
     * step(0.5, fract(uTime * 2.0)) * step(g.x, 2.5) * step(g.y, 4.5);
 
-  // Le scintillement : toute l'image baisse par paliers rapides.
+  // The flicker: the whole picture dims in fast steps.
   float dim = 1.0 - clamp(uFlicker, 0.0, 1.0) * 0.5 * termHash(vec2(floor(uTime * 24.0), 1.0)) * faulty;
 
   float ink = bit * shown * dim;

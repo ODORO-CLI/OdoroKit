@@ -1,35 +1,34 @@
 /**
- * Pendule : une masse au bout d'une tige oscille autour d'un pivot, le long
- * d'un arc trace en pointille.
+ * Pendulum: a bob at the end of a rod swings around a pivot, along an arc
+ * drawn as a dashed line.
  *
- * ## Une seule courbe, parce que c'est la bonne
+ * ## A single curve, because it is the right one
  *
- * Un pendule aux petites amplitudes est le mouvement harmonique par
- * excellence : sa position est un sinus du temps, lent aux extremes,
- * rapide au passage par la verticale. La courbe `ease-in-out` en est une
- * approximation tres proche sur une demi-periode, et c'est la seule ou
- * elle est juste — une chute, un rebond, un choc appellent d'autres
- * courbes. Ici, deux demi-periodes, une par sens, et rien d'autre.
+ * A pendulum at small amplitudes is harmonic motion par excellence: its
+ * position is a sine of time, slow at the extremes, fast as it passes through
+ * the vertical. The `ease-in-out` curve is a very close approximation of that
+ * over a half period, and it is the only place where it is right — a fall, a
+ * bounce, an impact call for other curves. Here, two half periods, one per
+ * direction, and nothing else.
  *
- * L'arc en pointille est ce qui distingue ce pendule d'une bille qui se
- * balance : il montre l'amplitude, et la masse le parcourt exactement,
- * parce que son rayon est la longueur de la tige. Il est decoupe par un
- * `clip-path` en secteur, ouvert de l'angle de l'oscillation de part et
- * d'autre de la verticale.
+ * The dashed arc is what tells this pendulum apart from a swinging bead: it
+ * shows the amplitude, and the bob walks it exactly, because its radius is the
+ * length of the rod. It is cut out by a wedge `clip-path`, opened by the angle
+ * of the swing on either side of the vertical.
  *
- * Une animation de rotation, tenue par le compositeur, aucun JavaScript
- * apres le premier rendu. La tige et la masse tournent ensemble : c'est le
- * bras entier qui pivote, autour du point d'attache.
+ * One rotation animation, held by the compositor, no JavaScript after the
+ * first render. The rod and the bob turn together: it is the whole arm that
+ * pivots, around the attachment point.
  *
- * ## Un statut, pas un dessin
+ * ## A status, not a drawing
  *
- * L'element porte `role="status"` et un libelle pour les lecteurs d'ecran :
- * l'attente est une information, pas une decoration. Le pendule est retire
- * de l'arbre d'accessibilite.
+ * The element carries `role="status"` and a label for screen readers: waiting
+ * is information, not decoration. The pendulum is removed from the
+ * accessibility tree.
  *
- * Sous mouvement reduit, la masse pend a la verticale sous son arc : c'est
- * l'etat ou tout pendule finit par revenir, et la figure se reconnait
- * encore.
+ * Under reduced motion, the bob hangs vertically under its arc: that is the
+ * state every pendulum eventually returns to, and the figure is still
+ * recognisable.
  *
  * @module
  */
@@ -37,28 +36,28 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-pendulum'
 
-/** Longueur de la tige, en diametres de masse. */
+/** Length of the rod, in bob diameters. */
 const ROD = 3.5
 
-/** Diametre du pivot, en diametres de masse. */
+/** Diameter of the pivot, in bob diameters. */
 const PIVOT = 0.5
 
-/** Amplitude de part et d'autre de la verticale, en degres. */
+/** Amplitude on either side of the vertical, in degrees. */
 const ANGLE = 32
 
 /**
- * Demi-ouverture du secteur qui decoupe l'arc, en pour cent de la boite.
+ * Half opening of the wedge that cuts out the arc, in per cent of the box.
  *
- * Le secteur part du centre de la boite et s'ouvre vers le bas : a la
- * hauteur du bord inferieur, il s'ecarte de `tan(ANGLE)` fois le rayon de
- * part et d'autre du milieu.
+ * The wedge starts from the centre of the box and opens downwards: at the
+ * height of the bottom edge, it spreads by `tan(ANGLE)` times the radius on
+ * either side of the middle.
  */
 const WEDGE = Number((50 * Math.tan((ANGLE * Math.PI) / 180)).toFixed(1))
 
-/** Pose le pivot, l'arc, le bras et son oscillation, une fois par document. */
+/** Sets up the pivot, the arc, the arm and its swing, once per document. */
 function ensurePendulumRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -66,8 +65,8 @@ function ensurePendulumRule(): void {
   const style = document.createElement('style')
   style.id = STYLE_ID
   style.textContent = [
-    // La boite est assez large pour la masse a son point le plus ecarte,
-    // et assez haute pour le pivot, la tige et la moitie de la masse.
+    // The box is wide enough for the bob at its furthest point, and tall
+    // enough for the pivot, the rod and half the bob.
     '[data-o-pendulum]{',
     'position:relative;display:inline-block;',
     `width:calc(var(--o-pendulum-size) * ${String((2 * ROD * Math.sin((ANGLE * Math.PI) / 180) + 1.3).toFixed(2))});`,
@@ -79,8 +78,8 @@ function ensurePendulumRule(): void {
     `margin-left:calc(var(--o-pendulum-size) * ${String(-PIVOT / 2)});`,
     'border-radius:50%;background:var(--o-pendulum-color);',
     '}',
-    // Un cercle en pointille centre sur le pivot, du rayon de la tige,
-    // dont seul un secteur vers le bas est conserve.
+    // A dashed circle centred on the pivot, of the radius of the rod, of which
+    // only a downward wedge is kept.
     '[data-o-pendulum-arc]{',
     'position:absolute;left:50%;',
     `top:calc(var(--o-pendulum-size) * ${String(PIVOT / 2 - ROD)});`,
@@ -89,8 +88,8 @@ function ensurePendulumRule(): void {
     'border-radius:50%;border:1px dashed var(--o-pendulum-color);opacity:0.35;',
     `clip-path:polygon(50% 50%,${String(50 - WEDGE)}% 100%,${String(50 + WEDGE)}% 100%);`,
     '}',
-    // Le bras est un point sans taille au pivot : tige et masse s'y
-    // accrochent, et tournent avec lui.
+    // The arm is a point with no size at the pivot: the rod and the bob hang
+    // from it, and turn with it.
     '[data-o-pendulum-arm]{',
     'position:absolute;left:50%;width:0;height:0;',
     `top:calc(var(--o-pendulum-size) * ${String(PIVOT / 2)});`,
@@ -109,13 +108,13 @@ function ensurePendulumRule(): void {
     'width:var(--o-pendulum-size);height:var(--o-pendulum-size);',
     'border-radius:50%;background:var(--o-pendulum-color);',
     '}',
-    // Lent aux extremes, rapide a la verticale : un sinus, en deux moities.
+    // Slow at the extremes, fast at the vertical: a sine, in two halves.
     '@keyframes o-pendulum-swing{',
     `0%{transform:rotate(${String(ANGLE)}deg);animation-timing-function:ease-in-out}`,
     `50%{transform:rotate(${String(-ANGLE)}deg);animation-timing-function:ease-in-out}`,
     `100%{transform:rotate(${String(ANGLE)}deg)}`,
     '}',
-    // Une masse a la verticale sous son arc : la figure est dite, au repos.
+    // A bob vertical under its arc: the figure is stated, at rest.
     '@media (prefers-reduced-motion:reduce){',
     '[data-o-pendulum-arm]{animation:none;transform:none}',
     '}',
@@ -123,36 +122,36 @@ function ensurePendulumRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** Props of the component itself. */
 export interface PendulumOwnProps {
-  /** Diametre de la masse, en pixels. @defaultValue 12 */
+  /** Diameter of the bob, in pixels. @defaultValue 12 */
   size?: number
-  /** Duree d'un aller-retour, en millisecondes. @defaultValue 1600 */
+  /** Duration of one round trip, in milliseconds. @defaultValue 1600 */
   speed?: number
-  /** Couleur de la masse, de la tige, du pivot et de l'arc. @defaultValue la couleur du texte */
+  /** Colour of the bob, the rod, the pivot and the arc. @defaultValue the text colour */
   color?: string
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */
+  /** Label announced to screen readers. @defaultValue 'Loading' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All the props. */
 export type PendulumProps = Customisable<PendulumOwnProps, 'span'>
 
 /**
- * Signale une attente par un pendule qui oscille le long de son arc.
+ * Signals a wait through a pendulum swinging along its arc.
  *
  * @example
  * <Pendulum />
  *
  * @example
- * // Plus gros, plus lent, dans la teinte de marque.
+ * // Bigger, slower, in the brand hue.
  * <Pendulum size={16} speed={2400} color="var(--o-palette-brand-500)" />
  */
 export function Pendulum({
   size = 12,
   speed = 1600,
   color = 'currentColor',
-  label = 'Chargement',
+  label = 'Loading',
   ...rest
 }: PendulumProps): ReactElement {
   ensurePendulumRule()

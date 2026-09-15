@@ -1,37 +1,36 @@
 /**
- * Gelee qui tremble : un pave arrondi s'affaisse sur sa base, rebondit, et
- * ses oscillations s'eteignent avant de repartir.
+ * Wobbling jelly: a rounded block sags onto its base, bounces back, and its
+ * oscillations die away before it starts again.
  *
- * ## Le tremblement est un amortissement
+ * ## The wobble is a damping
  *
- * Une gelee qui alterne deux etats fait un metronome. Ce qui la rend molle,
- * c'est que chaque rebond est plus faible que le precedent : l'ecrasement
- * initial est franc, le retour depasse un peu, le suivant beaucoup moins,
- * et le dernier se devine a peine. La suite des amplitudes est donc
- * decroissante, et les paliers se resserrent — c'est ce que fait une masse
- * molle qui dissipe son energie.
+ * A jelly that alternates between two states makes a metronome. What makes it
+ * soft is that each bounce is weaker than the last: the initial squash is
+ * sharp, the return overshoots a little, the next one much less, and the last
+ * is barely visible. The sequence of amplitudes is therefore decreasing, and
+ * the steps draw closer together — which is what a soft mass dissipating its
+ * energy does.
  *
- * L'ancrage est en bas : la matiere s'ecrase vers sa base et le sommet
- * seul se deplace. Ancree au centre, la forme se dilaterait des deux cotes
- * a la fois, ce qui est le mouvement d'un ballon, pas d'une gelee posee.
+ * The anchor is at the bottom: the matter squashes towards its base and only
+ * the top moves. Anchored at the centre, the shape would expand on both sides
+ * at once, which is the motion of a balloon, not of a jelly set down.
  *
- * ## Le rayon fait la matiere
+ * ## The radius makes the matter
  *
- * L'echelle seule donnerait un rectangle qui s'aplatit. Ce sont les rayons
- * de coin qui font la gelee : ils s'allongent la ou la matiere s'etale, se
- * resserrent la ou elle se tend, et chaque coin a son propre rayon
- * horizontal et vertical. C'est la seule propriete animee qui ne soit pas
- * une transformation ; sur une forme de cette taille, le cout est celui
- * d'un seul rectangle redessine.
+ * Scale alone would give a rectangle flattening. It is the corner radii that
+ * make the jelly: they stretch where the matter spreads, tighten where it
+ * pulls, and each corner has its own horizontal and vertical radius. It is the
+ * only animated property that is not a transform; on a shape of this size, the
+ * cost is that of a single rectangle redrawn.
  *
- * ## Un statut, pas un dessin
+ * ## A status, not a drawing
  *
- * L'element porte `role="status"` et un libelle pour les lecteurs d'ecran :
- * l'attente est une information, pas une decoration. La forme est retiree
- * de l'arbre d'accessibilite.
+ * The element carries `role="status"` and a label for screen readers: the wait
+ * is information, not decoration. The shape is removed from the accessibility
+ * tree.
  *
- * Sous mouvement reduit, le pave reste au repos, coins arrondis : la figure
- * se lit encore, seul le tremblement s'arrete.
+ * Under reduced motion, the block stays at rest, corners rounded: the figure
+ * still reads, only the wobble stops.
  *
  * @module
  */
@@ -39,10 +38,10 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-jelly-loader'
 
-/** Pose la gelee et son tremblement amorti, une fois par document. */
+/** Sets the jelly and its damped wobble, once per document. */
 function ensureJellyRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -52,13 +51,13 @@ function ensureJellyRule(): void {
   style.textContent = [
     '[data-o-jelly-loader]{display:inline-flex;align-items:flex-end;justify-content:center}',
     '[data-o-jelly-body]{',
-    // La taille ne se negocie pas : le libelle voisin est un element de
-    // meme rang, et sans cela il pourrait comprimer la gelee.
+    // The size is not up for negotiation: the neighbouring label is an
+    // element of the same rank, and without this it could squeeze the jelly.
     'flex:none;',
     'width:var(--o-jelly-size);height:var(--o-jelly-size);',
     'background:var(--o-jelly-color);',
     'border-radius:26%;',
-    // La base ne bouge pas : c'est le sol de la gelee.
+    // The base does not move: it is the ground of the jelly.
     'transform-origin:50% 100%;',
     'animation:o-jelly-loader-wobble var(--o-jelly-speed) ease-in-out infinite;',
     '}',
@@ -78,36 +77,36 @@ function ensureJellyRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface JellyLoaderOwnProps {
-  /** Cote du pave au repos, en pixels. @defaultValue 40 */
+  /** Side of the block at rest, in pixels. @defaultValue 40 */
   size?: number
-  /** Duree d'un tremblement complet, en millisecondes. @defaultValue 1600 */
+  /** Duration of one full wobble, in milliseconds. @defaultValue 1600 */
   speed?: number
-  /** Couleur de la gelee. @defaultValue la couleur du texte */
+  /** Colour of the jelly. @defaultValue the text colour */
   color?: string
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */
+  /** Label announced to screen readers. @defaultValue 'Loading' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All the properties. */
 export type JellyLoaderProps = Customisable<JellyLoaderOwnProps, 'span'>
 
 /**
- * Signale une attente par un pave de gelee qui tremble sur sa base.
+ * Signals a wait with a block of jelly wobbling on its base.
  *
  * @example
  * <JellyLoader />
  *
  * @example
- * // Plus grande, plus lente, dans la teinte de marque.
+ * // Bigger, slower, in the brand hue.
  * <JellyLoader size={64} speed={2400} color="var(--o-palette-brand-500)" />
  */
 export function JellyLoader({
   size = 40,
   speed = 1600,
   color = 'currentColor',
-  label = 'Chargement',
+  label = 'Loading',
   ...rest
 }: JellyLoaderProps): ReactElement {
   ensureJellyRule()
@@ -116,8 +115,8 @@ export function JellyLoader({
 
   const loaderStyle = {
     ...style,
-    // La boite reserve la place du rebond le plus haut : sans cette marge,
-    // le sommet deborderait de la ligne de texte.
+    // The box reserves the room for the highest bounce: without that margin,
+    // the top would spill out of the line of text.
     width: `${String(Math.round(size * 1.3))}px`,
     height: `${String(Math.round(size * 1.2))}px`,
     '--o-jelly-size': `${String(size)}px`,

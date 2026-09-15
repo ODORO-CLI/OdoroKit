@@ -1,23 +1,23 @@
 /**
- * Plan technique : un quadrillage clair sur fond profond, avec des croix aux
- * intersections principales.
+ * Blueprint: a light grid over a deep background, with crosses at the main
+ * intersections.
  *
- * ## Comment les croix sont dessinees sans script
+ * ## How the crosses are drawn without a script
  *
- * Une croix n'est pas un motif que les degrades donnent directement : un
- * degrade lineaire remplit toute sa tuile dans l'axe perpendiculaire, et deux
- * couches se superposent au lieu de s'intersecter. La solution tient en deux
- * couches empilees dans le bon ordre : un degrade conique dessine une etoile a
- * quatre branches par grande tuile, et un degrade radial couleur de fond,
- * pose au-dessus, la recouvre au-dela d'un petit rayon. Ne reste visible que
- * le coeur de l'etoile — une croix — et le quadrillage, place plus haut dans
- * la pile, n'est pas touche.
+ * A cross is not a pattern that gradients hand over directly: a linear
+ * gradient fills its whole tile along the perpendicular axis, and two
+ * layers stack instead of intersecting. The answer lies in two layers piled
+ * in the right order: a conic gradient draws a four-branch star per large
+ * tile, and a radial gradient the colour of the background, laid over it,
+ * covers that star beyond a small radius. All that stays visible is the
+ * core of the star — a cross — and the grid, placed higher in the stack, is
+ * left untouched.
  *
- * ## Pourquoi les croix tombent une intersection sur quatre
+ * ## Why the crosses land on one intersection in four
  *
- * Marquer chaque noeud transformerait le plan en tissu. Une croix toutes les
- * quatre mailles donne le reperage sans la surcharge — c'est le role des
- * reperes d'un vrai plan, pas leur decoration.
+ * Marking every node would turn the blueprint into fabric. One cross every
+ * four cells gives the bearings without the clutter — that is the role of
+ * the reference marks on a real drawing, not their decoration.
  *
  * @module
  */
@@ -25,23 +25,23 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import { type CSSProperties, type ReactElement } from 'react'
 
-/** Proprietes propres au composant. */
+/** Props belonging to the component itself. */
 export interface BlueprintOwnProps {
-  /** Pas de la maille, en pixels. Les croix tombent toutes les quatre mailles. @defaultValue 24 */
+  /** Pitch of the cell, in pixels. The crosses land every four cells. @defaultValue 24 */
   cell?: number
-  /** Opacite des traits, entre 0 et 1. @defaultValue 0.4 */
+  /** Opacity of the lines, between 0 and 1. @defaultValue 0.4 */
   strength?: number
-  /** Couleur des traits et des croix. */
+  /** Colour of the lines and of the crosses. */
   color?: string
-  /** Couleur du fond. */
+  /** Colour of the background. */
   background?: string
 }
 
-/** Toutes les proprietes. */
+/** All the props. */
 export type BlueprintProps = Customisable<BlueprintOwnProps>
 
 /**
- * Plan technique de fond.
+ * Blueprint background.
  *
  * @example
  * <div className="o-relative o-min-h-screen">
@@ -56,8 +56,9 @@ export function Blueprint({
   background = 'var(--o-theme-bg, oklch(98.5% 0 0))',
   ...rest
 }: BlueprintProps): ReactElement {
-  // Les croix sont plus affirmees que la maille : ce sont des reperes, pas une
-  // texture, et a force egale elles disparaitraient dans le quadrillage.
+  // The crosses are stated more firmly than the cell: they are reference
+  // marks, not a texture, and at equal strength they would vanish into the
+  // grid.
   const line = `color-mix(in oklab, ${color} ${String(Math.round(strength * 55))}%, transparent)`
   const cross = `color-mix(in oklab, ${color} ${String(Math.min(100, Math.round(strength * 150)))}%, transparent)`
 
@@ -67,12 +68,12 @@ export function Blueprint({
   const offset = `${String(major / 2)}px`
   const radius = `${String(Math.round(cell / 3))}px`
 
-  // L'etoile a quatre branches : des secteurs de 12 degres centres sur les
-  // quatre points cardinaux de chaque grande tuile.
+  // The four-branch star: sectors of 12 degrees centred on the four cardinal
+  // points of every large tile.
   const star = `conic-gradient(from -6deg, ${cross} 0 12deg, transparent 0 90deg, ${cross} 0 102deg, transparent 0 180deg, ${cross} 0 192deg, transparent 0 270deg, ${cross} 0 282deg, transparent 0)`
 
-  // Le cache : couleur de fond partout sauf dans un petit disque central. Il
-  // couvre l'etoile situee dessous, pas la maille situee dessus.
+  // The mask: the background colour everywhere save in a small central disc.
+  // It covers the star that lies below, not the cell grid that lies above.
   const cutter = `radial-gradient(circle, transparent ${radius}, ${background} ${radius})`
 
   const { className, style } = mergePresentation({}, rest)

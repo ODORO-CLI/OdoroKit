@@ -1,5 +1,5 @@
 /**
- * Groupe de boutons radio dessines au-dessus des inputs natifs.
+ * Group of radio buttons drawn on top of the native inputs.
  *
  * @module
  */
@@ -8,52 +8,52 @@ import { type ReactElement, type ReactNode, useCallback, useId, useState } from 
 
 import { cx } from '../styles/cx.js'
 
-/** Un choix de {@link RadioGroup}. */
+/** One choice of {@link RadioGroup}. */
 export interface RadioItem {
-  /** Valeur soumise. */
+  /** Submitted value. */
   readonly value: string
-  /** Libelle affiche. */
+  /** Displayed label. */
   readonly label: ReactNode
-  /** Complement affiche sous le libelle. */
+  /** Complement displayed under the label. */
   readonly description?: ReactNode
-  /** Rend le choix non selectionnable. */
+  /** Makes the choice unselectable. */
   readonly disabled?: boolean
 }
 
-/** Proprietes de {@link RadioGroup}. */
+/** Properties of {@link RadioGroup}. */
 export interface RadioGroupProps {
-  /** Libelle du groupe, rendu en `<legend>`. Obligatoire. */
+  /** Label of the group, rendered as a `<legend>`. Required. */
   label: ReactNode
-  /** Choix, dans l'ordre d'affichage. */
+  /** Choices, in display order. */
   items: readonly RadioItem[]
-  /** Valeur selectionnee en mode controle. */
+  /** Selected value in controlled mode. */
   value?: string
-  /** Valeur initiale en mode non controle. */
+  /** Initial value in uncontrolled mode. */
   defaultValue?: string
-  /** Appele avec la nouvelle valeur a chaque selection. */
+  /** Called with the new value on every selection. */
   onValueChange?: (value: string) => void
-  /** Sens d'empilement des choix. @defaultValue 'vertical' */
+  /** Stacking direction of the choices. @defaultValue 'vertical' */
   orientation?: 'vertical' | 'horizontal'
-  /** Classes additionnelles appliquees au `<fieldset>`. */
+  /** Additional classes applied to the `<fieldset>`. */
   className?: string
 }
 
 /**
- * Groupe de boutons radio.
+ * Group of radio buttons.
  *
- * Le `<fieldset>` et sa `<legend>` donnent le nom de groupe aux lecteurs
- * d'ecran ; les inputs natifs (masques par `o-sr-only`) portent la navigation
- * clavier du groupe (fleches, un seul arret de tabulation). Le `name` commun
- * est genere : deux groupes sur la meme page ne se volent jamais la selection.
- * Comme pour la case a cocher, l'anneau de focus de la pastille est pose par
- * l'etat React, faute de selecteur utilitaire ciblant l'input voisin.
+ * The `<fieldset>` and its `<legend>` give the group name to screen readers;
+ * the native inputs (hidden by `o-sr-only`) carry the keyboard navigation of
+ * the group (arrows, a single tab stop). The shared `name` is generated: two
+ * groups on the same page never steal each other's selection.
+ * As for the checkbox, the focus ring of the dot is applied by the React
+ * state, for want of a utility selector targeting the neighboring input.
  *
  * @example
  * <RadioGroup
- *   label="Visibilite"
- *   defaultValue="prive"
+ *   label="Visibility"
+ *   defaultValue="private"
  *   items={[
- *     { value: 'prive', label: 'Prive', description: 'Vous seul y accedez.' },
+ *     { value: 'private', label: 'Private', description: 'Only you can access it.' },
  *     { value: 'public', label: 'Public' },
  *   ]}
  * />
@@ -74,9 +74,9 @@ export function RadioGroup({
 
   const select = useCallback(
     (next: string, itemDisabled: boolean) => {
-      // Un navigateur ne delivre pas de clic a un input desactive, mais un
-      // clic programmatique (tests, `element.click()`) passe outre : le garde
-      // rend l'etat desactive fiable dans les deux cas.
+      // A browser does not deliver a click to a disabled input, but a
+      // programmatic click (tests, `element.click()`) goes through: the guard
+      // makes the disabled state reliable in both cases.
       if (itemDisabled) return
       if (value === undefined) setInternal(next)
       onValueChange?.(next)
@@ -85,8 +85,8 @@ export function RadioGroup({
   )
 
   return (
-    // Le navigateur dote le fieldset d'une bordure et de marges : remises a
-    // zero pour qu'il soit invisible dans la mise en page.
+    // The browser gives the fieldset a border and margins: reset to zero so
+    // that it stays invisible in the layout.
     <fieldset className={cx('o-m-0 o-border-w-0 o-p-0', className)}>
       <legend className="o-p-0 o-text-sm o-font-medium o-text-zinc-900 dark:o-text-zinc-50">
         {label}

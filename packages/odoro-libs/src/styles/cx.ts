@@ -1,10 +1,10 @@
 /**
- * Composition de noms de classes et helper de variantes.
+ * Class name composition and variant helper.
  *
- * Equivalent minimal de `clsx` + `cva`, sans dependance. Les variantes
- * composees (`compoundVariants`) sont volontairement absentes : elles ne sont
- * pas necessaires aux composants d'`@odoro-cli/libs/ui`, et leur absence garde ce
- * module lisible d'un seul coup d'oeil.
+ * Minimal equivalent of `clsx` + `cva`, with no dependency. Compound variants
+ * (`compoundVariants`) are deliberately absent: they are not needed by the
+ * components of `@odoro-cli/libs/ui`, and leaving them out keeps this module
+ * readable at a single glance.
  *
  * @module
  */
@@ -12,13 +12,13 @@
 import type { OdoroClassName } from './generated/classNames.js'
 
 /**
- * Une classe utilitaire d'Odoro, ou n'importe quelle chaine. L'union avec
- * `string` preserve l'autocompletion des classes connues tout en laissant
- * passer les classes applicatives.
+ * An Odoro utility class, or any string at all. The union with `string`
+ * preserves autocompletion of the known classes while still letting
+ * application classes through.
  */
 export type ClassName = OdoroClassName | (string & Record<never, never>)
 
-/** Toute valeur acceptee par {@link cx}. */
+/** Any value accepted by {@link cx}. */
 export type ClassValue =
   | ClassName
   | number
@@ -29,10 +29,10 @@ export type ClassValue =
   | { readonly [key: string]: unknown }
 
 /**
- * Concatene des noms de classes en ignorant les valeurs vides.
+ * Concatenates class names, ignoring empty values.
  *
- * Accepte des chaines, des nombres, des tableaux imbriques et des objets dont
- * les cles sont conservees quand la valeur est vraie.
+ * Accepts strings, numbers, nested arrays and objects whose keys are kept
+ * when the value is truthy.
  *
  * @example
  * cx('o-flex', condition && 'o-hidden', { 'o-p-4': padded }, ['o-gap-2'])
@@ -59,31 +59,30 @@ export function cx(...inputs: readonly ClassValue[]): string {
   return parts.join(' ')
 }
 
-/** Table des variantes : nom de variante -> valeur -> classes. */
+/** Variant table: variant name -> value -> classes. */
 export type VariantSchema = Readonly<Record<string, Readonly<Record<string, ClassValue>>>>
 
-/** Proprietes acceptees par une fonction de variantes. */
+/** Properties accepted by a variant function. */
 export type VariantProps<S extends VariantSchema> = {
   [K in keyof S]?: keyof S[K] | null | undefined
 } & { className?: ClassValue }
 
-/** Configuration passee a {@link variants}. */
+/** Configuration passed to {@link variants}. */
 export interface VariantsConfig<S extends VariantSchema> {
-  /** Classes appliquees quelles que soient les variantes. */
+  /** Classes applied whatever the variants are. */
   base?: ClassValue
-  /** Tables de variantes. */
+  /** Variant tables. */
   variants?: S
   /**
-   * Valeur retenue pour chaque variante non fournie a l'appel. Comme dans
-   * `cva`, `null` et `undefined` sont equivalents : tous deux retombent sur
-   * la valeur par defaut. Une variante sans defaut et non fournie n'ajoute
-   * aucune classe.
+   * Value kept for every variant not supplied at the call site. As in `cva`,
+   * `null` and `undefined` are equivalent: both fall back on the default
+   * value. A variant with no default and not supplied adds no class at all.
    */
   defaults?: { [K in keyof S]?: keyof S[K] }
 }
 
 /**
- * Construit une fonction qui resout un jeu de variantes en chaine de classes.
+ * Builds a function that resolves a set of variants into a class string.
  *
  * @example
  * const button = variants({

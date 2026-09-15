@@ -1,32 +1,32 @@
 /**
- * Autocollant dont un coin se decolle.
+ * Sticker with one corner peeling off.
  *
- * ## Deux traces qui se completent
+ * ## Two paths that complete each other
  *
- * Le coin n'est pas dessine par-dessus le contenu : il en est **retire**. Le
- * contenu est decoupe par un polygone auquel il manque un triangle d'angle, et
- * ce meme triangle est repeint a cote, dans la couleur du dos et sous une
- * ombre. Les deux traces bougent ensemble, si bien que la matiere semble
- * passer de l'un a l'autre au lieu de se dedoubler.
+ * The corner is not drawn over the content: it is **taken out** of it. The
+ * content is clipped by a polygon missing a corner triangle, and that same
+ * triangle is repainted next to it, in the colour of the back and under a
+ * shadow. Both paths move together, so that the material seems to pass from
+ * one to the other instead of doubling up.
  *
- * L'approche naive — faire tourner le coin en perspective — demanderait de
- * couper l'element en deux dans le document, donc de dupliquer le contenu. Ici
- * il n'y en a qu'un, et il reste selectionnable.
+ * The naive approach — turning the corner in perspective — would require
+ * cutting the element in two in the document, hence duplicating the content.
+ * Here there is only one, and it stays selectable.
  *
- * ## Pourquoi une transition et pas une animation
+ * ## Why a transition and not an animation
  *
- * Le decollage n'a pas de duree propre : il suit une intention — la main qui
- * arrive, la main qui repart — et doit pouvoir s'inverser au milieu. C'est la
- * definition d'une transition. Une animation, elle, se rejouerait depuis le
- * debut a chaque changement d'avis.
+ * The peel has no duration of its own: it follows an intention — the hand
+ * arriving, the hand leaving — and must be able to reverse midway. That is the
+ * definition of a transition. An animation, on the other hand, would replay
+ * from the start on every change of mind.
  *
- * Le clavier declenche par `focus-within` : une carte qui contient un lien doit
- * se decoller aussi pour qui n'a pas de souris.
+ * The keyboard triggers through `focus-within`: a card that contains a link
+ * must also peel for anyone without a mouse.
  *
- * ## Sous mouvement reduit
+ * ## Under reduced motion
  *
- * L'etat demande est applique sans transition : ce qui disparait est le
- * glissement du coin, pas le coin lui-meme.
+ * The requested state is applied without a transition: what disappears is the
+ * slide of the corner, not the corner itself.
  *
  * @module
  */
@@ -34,43 +34,43 @@
 import { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'
 import { useState, type CSSProperties, type ReactElement, type ReactNode } from 'react'
 
-/** Coin qui se souleve. */
+/** Corner that lifts. */
 export type PeelCorner = 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface StickerPeelOwnProps {
-  /** Contenu de l'autocollant. */
+  /** Content of the sticker. */
   children: ReactNode
-  /** Coin qui se souleve. @defaultValue 'top-right' */
+  /** Corner that lifts. @defaultValue 'top-right' */
   corner?: PeelCorner
-  /** Longueur du coin souleve, en pixels. @defaultValue 72 */
+  /** Length of the lifted corner, in pixels. @defaultValue 72 */
   size?: number
-  /** Duree du decollage, en millisecondes. @defaultValue 420 */
+  /** Duration of the peel, in milliseconds. @defaultValue 420 */
   duration?: number
-  /** Garde le coin souleve, sans attendre le survol. @defaultValue false */
+  /** Keeps the corner lifted, without waiting for a hover. @defaultValue false */
   peeled?: boolean
-  /** Couleur du dos de l'autocollant. */
+  /** Colour of the back of the sticker. */
   back?: string
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type StickerPeelProps = Customisable<StickerPeelOwnProps>
 
-/** Geometrie d'un coin : ce qu'on retire, et ce qu'on repose a cote. */
+/** Geometry of a corner: what is taken out, and what is laid back next to it. */
 interface CornerShape {
-  /** Trace du contenu, une fois le triangle d'angle retire. */
+  /** Path of the content, once the corner triangle is taken out. */
   readonly content: (cut: string) => string
-  /** Position du rabat dans la zone. */
+  /** Position of the flap in the area. */
   readonly box: CSSProperties
-  /** Trace du rabat, dans sa propre boite carree. */
+  /** Path of the flap, inside its own square box. */
   readonly flap: string
-  /** Sens du degrade qui donne le relief au dos. */
+  /** Direction of the gradient that gives the back its relief. */
   readonly angle: string
-  /** Decalage de l'ombre portee. */
+  /** Offset of the drop shadow. */
   readonly shadow: string
 }
 
-/** Les quatre coins, ecrits une fois. */
+/** The four corners, written once. */
 const CORNERS: Readonly<Record<PeelCorner, CornerShape>> = {
   'top-right': {
     content: (cut) =>
@@ -106,17 +106,17 @@ const CORNERS: Readonly<Record<PeelCorner, CornerShape>> = {
 }
 
 /**
- * Decolle un coin de son contenu.
+ * Peels a corner off its content.
  *
  * @example
  * <StickerPeel className="o-rounded-xl o-bg-brand-500 o-p-6">
- *   <p>Offre de lancement</p>
+ *   <p>Launch offer</p>
  * </StickerPeel>
  *
  * @example
- * // Un grand coin, decolle en permanence, en bas a gauche.
+ * // A large corner, permanently peeled, at the bottom left.
  * <StickerPeel peeled corner="bottom-left" size={140}>
- *   <img src="/vignette.jpg" alt="" />
+ *   <img src="/thumbnail.jpg" alt="" />
  * </StickerPeel>
  */
 export function StickerPeel({
@@ -157,8 +157,8 @@ export function StickerPeel({
         {children}
       </div>
 
-      {/* Le triangle retire au contenu, repose a la meme place : c'est le dos
-          de l'autocollant, pas une decoration ajoutee. */}
+      {/* The triangle taken out of the content, laid back in the same place:
+          it is the back of the sticker, not an added decoration. */}
       <span
         aria-hidden
         style={{

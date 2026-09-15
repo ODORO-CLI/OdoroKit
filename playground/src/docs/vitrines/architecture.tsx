@@ -40,7 +40,7 @@
 
 import { type SceneContext } from '@odoro-cli/engine/three'
 import { Icon } from '@odoro-cli/icons'
-import { ArrowRight, ArrowUpRight } from '@odoro-cli/icons/filaire'
+import { ArrowRight, ArrowUpRight } from '@odoro-cli/icons/outline'
 import { useMemo, useRef, useState, type ReactElement, type ReactNode } from 'react'
 
 import { Magnetic } from '@/odoro/effect/Magnetic.jsx'

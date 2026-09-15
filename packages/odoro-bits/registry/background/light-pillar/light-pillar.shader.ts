@@ -1,33 +1,34 @@
 /**
- * Shader de la colonne de lumiere.
+ * Light pillar shader.
  *
- * ## L'idee mathematique
+ * ## The mathematical idea
  *
- * Une colonne verticale, c'est une distance a un axe. Deux profils s'y
- * superposent : une gaussienne etroite pour le coeur, une exponentielle
- * large pour le halo — la lumiere reelle a un centre net et une traine qui
- * ne finit jamais tout a fait, et une seule courbe ne fait pas les deux.
+ * A vertical column is a distance to an axis. Two profiles are laid over
+ * it: a narrow gaussian for the core, a wide exponential for the halo —
+ * real light has a sharp centre and a trail which never quite ends, and a
+ * single curve cannot give both.
  *
- * La respiration est la largeur qui oscille, sur deux periodes non
- * multiples pour ne pas battre comme un metronome. Les stries sont un bruit
- * 1D de la hauteur qui monte : trois sinus de frequences non multiples,
- * pour que la lumiere semble couler dans la colonne plutot que clignoter.
+ * The breathing is the width oscillating, on two periods that are not
+ * multiples so as not to beat like a metronome. The streaks are a 1D noise
+ * of the height, climbing: three sines of frequencies that are not
+ * multiples, so the light seems to flow inside the column rather than
+ * blink.
  *
- * La lumiere se pose sur le fond par melange borne vers ses teintes, jamais
- * par assombrissement : la colonne reste lisible sur un fond clair.
+ * The light is laid over the background by a bounded mix towards its hues,
+ * never by darkening: the column stays legible on a light background.
  *
  * ## Uniforms
  *
- * - `uTime` — temps en secondes, fourni par le moteur.
- * - `uResolution` — taille du canevas en pixels, fournie par le moteur.
- * - `uColorA` — le fond.
- * - `uColorB` — le halo.
- * - `uColorC` — le coeur.
- * - `uX` — position horizontale de l'axe, en fraction du cadre.
- * - `uWidth` — largeur du coeur, en fraction de la hauteur.
- * - `uBreath` — vitesse de la respiration.
- * - `uGlow` — etendue du halo.
- * - `uDetail` — nombre d'harmoniques des stries, et donc leur cout.
+ * - `uTime` — time in seconds, supplied by the engine.
+ * - `uResolution` — canvas size in pixels, supplied by the engine.
+ * - `uColorA` — the background.
+ * - `uColorB` — the halo.
+ * - `uColorC` — the core.
+ * - `uX` — horizontal position of the axis, as a fraction of the frame.
+ * - `uWidth` — width of the core, as a fraction of the height.
+ * - `uBreath` — speed of the breathing.
+ * - `uGlow` — extent of the halo.
+ * - `uDetail` — number of harmonics in the streaks, and so their cost.
  */
 export const LIGHT_PILLAR_FRAGMENT = /* glsl */ `
 precision highp float;
@@ -48,44 +49,44 @@ uniform float uDetail;
 void main() {
   float aspect = uResolution.x / max(uResolution.y, 1.0);
   vec2 p = vec2(vUv.x * aspect, vUv.y);
-  float axe = uX * aspect;
+  float axis = uX * aspect;
   float t = uTime;
-  int harmoniques = int(clamp(uDetail, 1.0, 3.0));
+  int harmonics = int(clamp(uDetail, 1.0, 3.0));
 
-  // La respiration : deux periodes non multiples, pour que la colonne ne
-  // batte jamais deux fois de la meme facon.
-  float souffle = 0.5
+  // The breathing: two periods that are not multiples, so the column never
+  // beats twice the same way.
+  float breath = 0.5
     + 0.3 * sin(t * uBreath * 1.3)
     + 0.2 * sin(t * uBreath * 0.47 + 1.7);
-  float largeur = max(uWidth, 0.01) * (0.8 + 0.4 * souffle);
+  float width = max(uWidth, 0.01) * (0.8 + 0.4 * breath);
 
-  // Les stries : un bruit 1D de la hauteur qui monte, en harmoniques bornees.
-  float strie = 0.5 + 0.5 * sin(vUv.y * 9.0 - t * 0.8);
-  if (harmoniques >= 2) {
-    strie = strie * 0.6 + (0.5 + 0.5 * sin(vUv.y * 23.0 + t * 1.3)) * 0.4;
+  // The streaks: a 1D noise of the climbing height, in bounded harmonics.
+  float streak = 0.5 + 0.5 * sin(vUv.y * 9.0 - t * 0.8);
+  if (harmonics >= 2) {
+    streak = streak * 0.6 + (0.5 + 0.5 * sin(vUv.y * 23.0 + t * 1.3)) * 0.4;
   }
-  if (harmoniques >= 3) {
-    strie = strie * 0.75 + (0.5 + 0.5 * sin(vUv.y * 51.0 - t * 2.1)) * 0.25;
+  if (harmonics >= 3) {
+    streak = streak * 0.75 + (0.5 + 0.5 * sin(vUv.y * 51.0 - t * 2.1)) * 0.25;
   }
 
-  // Le coeur, gaussien et net ; le halo, exponentiel et sans fin.
-  float d = abs(p.x - axe);
-  float coeur = exp(-(d * d) / (largeur * largeur * 0.25));
-  float halo = exp(-d / (largeur * 4.0)) * uGlow;
+  // The core, gaussian and sharp; the halo, exponential and endless.
+  float d = abs(p.x - axis);
+  float core = exp(-(d * d) / (width * width * 0.25));
+  float halo = exp(-d / (width * 4.0)) * uGlow;
 
-  // Les extremites : la colonne s'eteint vers les bords, un peu plus vite en
-  // haut, comme un jet qui se disperse en montant.
-  float hauteur = smoothstep(0.0, 0.18, vUv.y) * smoothstep(1.0, 0.7, vUv.y);
+  // The ends: the column fades out towards the edges, a little faster at the
+  // top, like a jet scattering as it rises.
+  float height = smoothstep(0.0, 0.18, vUv.y) * smoothstep(1.0, 0.7, vUv.y);
 
-  // Le pied : la lumiere qui touche le sol s'etale en une flaque.
-  float pied = exp(-(d * d) * 6.0 - vUv.y * vUv.y * 30.0) * 0.5;
+  // The foot: the light touching the ground spreads into a pool.
+  float foot = exp(-(d * d) * 6.0 - vUv.y * vUv.y * 30.0) * 0.5;
 
-  // Les stries marquent le coeur ; sur le halo, elles ne font qu'affleurer,
-  // sinon elles barrent tout le cadre de bandes horizontales.
-  float voile = clamp((halo * (0.88 + 0.12 * strie) + pied) * hauteur, 0.0, 1.0);
-  vec3 colour = mix(uColorA, uColorB, voile);
-  colour = mix(colour, uColorC, clamp(coeur * hauteur * (0.6 + 0.4 * strie), 0.0, 1.0));
-  colour += uColorC * coeur * hauteur * 0.25 * souffle;
+  // The streaks mark the core; on the halo they only just surface, otherwise
+  // they bar the whole frame with horizontal bands.
+  float veil = clamp((halo * (0.88 + 0.12 * streak) + foot) * height, 0.0, 1.0);
+  vec3 colour = mix(uColorA, uColorB, veil);
+  colour = mix(colour, uColorC, clamp(core * height * (0.6 + 0.4 * streak), 0.0, 1.0));
+  colour += uColorC * core * height * 0.25 * breath;
 
   gl_FragColor = vec4(clamp(colour, 0.0, 1.0), 1.0);
 }

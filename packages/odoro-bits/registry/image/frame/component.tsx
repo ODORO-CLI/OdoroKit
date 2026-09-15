@@ -1,25 +1,25 @@
 /**
- * Cadre d'image : rapport fige, chargement couvert, revelation en douceur.
+ * Image frame: fixed ratio, covered loading, gentle reveal.
  *
- * ## Le rapport est pose avant l'image
+ * ## The ratio is set before the image
  *
- * Une image sans dimensions declarees occupe zero pixel jusqu'a son
- * chargement, puis pousse brutalement tout ce qui la suit. C'est le decalage
- * de mise en page le plus courant du web, et il est entierement evitable : le
- * cadre reserve la place des le premier rendu, a partir du seul rapport.
+ * An image with no declared dimensions occupies zero pixels until it loads,
+ * then brutally pushes everything that follows it. It is the most common
+ * layout shift on the web, and it is entirely avoidable: the frame reserves
+ * the space from the first render, from the ratio alone.
  *
- * ## La revelation n'est pas un ornement
+ * ## The reveal is not an ornament
  *
- * Entre le moment ou la place est reservee et celui ou l'image arrive, il y a
- * un rectangle vide. Le laisser tel quel donne une page trouee ; y poser une
- * silhouette dit qu'il se passe quelque chose. Le fondu, lui, evite le
- * clignotement d'une apparition seche.
+ * Between the moment the space is reserved and the moment the image arrives,
+ * there is an empty rectangle. Leaving it as it is gives a page full of holes;
+ * putting a silhouette in it says that something is happening. The fade, for
+ * its part, avoids the flicker of a blunt appearance.
  *
- * ## Ce qui n'est pas fait ici
+ * ## What is not done here
  *
- * Ni miniature floue, ni jeu de sources : cela demande une chaine de
- * traitement d'images que ce composant n'a pas a decider. `srcSet` et `sizes`
- * passent par le passe-plat et arrivent tels quels sur la balise.
+ * Neither a blurred thumbnail nor a set of sources: that requires an image
+ * processing pipeline that this component has no business deciding. `srcSet`
+ * and `sizes` go through the pass-through and land as they are on the tag.
  *
  * @module
  */
@@ -27,14 +27,14 @@
 import { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'
 import { useState, type CSSProperties, type ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-frame'
 
 /**
- * Pose la regle d'agrandissement, une fois par document.
+ * Sets the enlargement rule, once per document.
  *
- * Elle ne peut pas etre un style en ligne : elle depend du survol du cadre,
- * pas de celui de l'image.
+ * It cannot be an inline style: it depends on the hover of the frame, not on
+ * that of the image.
  */
 function ensureFrameRule() {
   if (typeof document === 'undefined') return
@@ -47,31 +47,31 @@ function ensureFrameRule() {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface FrameOwnProps {
-  /** Source de l'image. */
+  /** Source of the image. */
   src: string
-  /** Texte de remplacement. Chaine vide si l'image est purement decorative. */
+  /** Alternative text. Empty string if the image is purely decorative. */
   alt: string
-  /** Rapport largeur sur hauteur. @defaultValue 1.777 */
+  /** Width to height ratio. @defaultValue 1.777 */
   ratio?: number
-  /** Ajustement dans le cadre. @defaultValue 'cover' */
+  /** Fit inside the frame. @defaultValue 'cover' */
   fit?: 'cover' | 'contain'
-  /** Agrandissement au survol, de 0 a 0.3. @defaultValue 0 */
+  /** Enlargement on hover, from 0 to 0.3. @defaultValue 0 */
   zoom?: number
 }
 
-/** Toutes les proprietes : les siennes, plus celles d'une image. */
+/** All properties: its own, plus those of an image. */
 export type FrameProps = Customisable<FrameOwnProps, 'img'>
 
 /**
- * Encadre une image.
+ * Frames an image.
  *
  * @example
- * <Frame src="/photo.jpg" alt="Vue de l atelier" ratio={16 / 9} zoom={0.06} />
+ * <Frame src="/photo.jpg" alt="View of the workshop" ratio={16 / 9} zoom={0.06} />
  *
  * @example
- * // Le passe-plat porte ce que le composant n a pas a decider.
+ * // The pass-through carries what the component has no business deciding.
  * <Frame
  *   src="/photo.jpg"
  *   alt=""
@@ -110,8 +110,8 @@ export function Frame({
     <div
       className={className}
       style={{ ...style, aspectRatio: String(ratio) }}
-      // Le survol agrandit l'image, pas le cadre : sans quoi la mise en page
-      // bougerait, ce que le rapport fige existe justement pour empecher.
+      // The hover enlarges the image, not the frame: otherwise the layout
+      // would move, which the fixed ratio exists precisely to prevent.
       data-o-frame-zoom={zoom > 0 && !reduced ? '' : undefined}
     >
       {loaded ? null : (

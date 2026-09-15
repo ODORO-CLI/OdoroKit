@@ -1,17 +1,17 @@
 /**
- * Cree un vrai projet a partir des paquets du depot, sans rien publier.
+ * Creates a real project from the packages of the repository, without
+ * publishing anything.
  *
- * Les paquets ne sont pas encore sur npm : un projet echafaude ne peut donc
- * pas resoudre `odoro` ni `@odoro-cli/libs`. Ce script fait le detour complet —
- * compilation, empaquetage, echafaudage, reecriture des dependances vers les
- * archives locales, installation — pour qu'un essai reel tienne en une
- * commande.
+ * The packages are not on npm yet: a scaffolded project therefore cannot
+ * resolve `odoro` nor `@odoro-cli/libs`. This script takes the full detour —
+ * build, packing, scaffolding, rewriting of the dependencies towards the local
+ * archives, install — so that a real trial fits in one command.
  *
- * Usage :
+ * Usage:
  *
- *   node scripts/try-create.mjs <dossier> [--template react-ts|react-ts-server]
+ *   node scripts/try-create.mjs <folder> [--template react-ts|react-ts-server]
  *
- * Exemple :
+ * Example:
  *
  *   node scripts/try-create.mjs ../essai-odoro --template react-ts-server
  */
@@ -32,7 +32,7 @@ const target = resolve(
 const templateIndex = args.indexOf('--template')
 const template = templateIndex >= 0 ? (args[templateIndex + 1] ?? 'react-ts') : 'react-ts'
 
-/** Execute une commande en laissant sa sortie visible. */
+/** Runs a command, leaving its output visible. */
 function run(command, commandArgs, cwd) {
   execFileSync(command, commandArgs, {
     cwd,
@@ -41,9 +41,9 @@ function run(command, commandArgs, cwd) {
   })
 }
 
-/** Affiche une etape. */
+/** Prints a step. */
 function step(message) {
-  process.stdout.write(`\n\u001b[35m→\u001b[0m ${message}\n`)
+  process.stdout.write(`\n[35m→[0m ${message}\n`)
 }
 
 const version = JSON.parse(
@@ -54,11 +54,11 @@ const archives = join(ROOT, 'node_modules', '.odoro-archives')
 mkdirSync(archives, { recursive: true })
 
 /**
- * Les paquets a empaqueter, par template.
+ * The packages to pack, by template.
  *
- * Le nom publie et le dossier different depuis le passage au scope : `npm pack`
- * nomme l'archive d'apres le premier — `@odoro-cli/libs` donne
- * `odoro-libs-0.0.0.tgz` — mais le dossier, lui, n'a pas bouge.
+ * The published name and the folder differ since the move to the scope: `npm
+ * pack` names the archive after the first — `@odoro-cli/libs` gives
+ * `odoro-libs-0.0.0.tgz` — but the folder itself has not moved.
  */
 const PACKAGES = [
   { name: '@odoro-cli/libs', folder: 'odoro-libs', field: 'dependencies' },
@@ -68,15 +68,15 @@ const PACKAGES = [
     : []),
 ]
 
-step('Compilation des paquets')
+step('Building the packages')
 for (const pkg of PACKAGES) run('pnpm', ['--filter', pkg.name, 'run', 'build'], ROOT)
 
-step('Empaquetage, comme a la publication')
+step('Packing, as at publication time')
 for (const pkg of PACKAGES) {
   run('npm', ['pack', '--pack-destination', archives], join(ROOT, 'packages', pkg.folder))
 }
 
-step(`Echafaudage du template "${template}" dans ${target}`)
+step(`Scaffolding the "${template}" template into ${target}`)
 mkdirSync(dirname(target), { recursive: true })
 run(
   'node',
@@ -94,39 +94,36 @@ run(
   dirname(target),
 )
 
-step('Substitution des dependances par les archives locales')
+step('Substituting the dependencies with the local archives')
 const manifestPath = join(target, 'package.json')
 const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'))
 for (const pkg of PACKAGES) {
-  // `npm pack` nomme l'archive d'apres le nom publie : l'arobase tombe et le
-  // slash devient un tiret.
+  // `npm pack` names the archive after the published name: the at sign drops
+  // and the slash becomes a dash.
   const archive = `${pkg.name.replace(/^@/, '').replace('/', '-')}-${version}.tgz`
   manifest[pkg.field][pkg.name] = `file:${join(archives, archive)}`
 }
 writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, 'utf8')
 
-step('Installation')
-// npm plutot que pnpm : les archives locales y sont copiees, pas liees, ce qui
-// reproduit fidelement ce que recevra un utilisateur final.
+step('Install')
+// npm rather than pnpm: local archives are copied there, not linked, which
+// faithfully reproduces what an end user will receive.
 run('npm', ['install', '--no-audit', '--no-fund'], target)
 
 const scripts = existsSync(join(target, 'scripts', 'dev.mjs'))
-  ? [
-      'npm run dev',
-      '  client sur http://localhost:5180, serveur sur http://localhost:3001',
-    ]
+  ? ['npm run dev', '  client on http://localhost:5180, server on http://localhost:3001']
   : ['npm run dev', '  http://localhost:5180']
 
 process.stdout.write(
   [
     '',
-    '\u001b[32mProjet pret.\u001b[0m',
+    '[32mProject ready.[0m',
     '',
     `  cd ${target}`,
     `  ${scripts[0]}`,
     `  ${scripts[1]}`,
     '',
-    '  npm run build && npm run preview   pour verifier la compilation',
+    '  npm run build && npm run preview   to check the build',
     '',
   ].join('\n'),
 )

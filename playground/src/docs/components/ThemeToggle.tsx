@@ -9,7 +9,7 @@
  */
 
 import { Icon, type IconData } from '@odoro-cli/icons'
-import { Monitor, Moon, Sun } from '@odoro-cli/icons/filaire'
+import { Monitor, Moon, Sun } from '@odoro-cli/icons/outline'
 import { type ReactElement, useEffect, useState } from 'react'
 
 const STORAGE_KEY = 'odoro-docs-theme'

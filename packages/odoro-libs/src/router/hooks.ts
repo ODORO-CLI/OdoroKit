@@ -1,5 +1,5 @@
 /**
- * Hooks publics du routeur.
+ * Public hooks of the router.
  *
  * @module
  */
@@ -15,21 +15,19 @@ import {
 } from './context.js'
 import type { Location, NavigateOptions, RouteMatch, RouteParams } from './types.js'
 
-/** Lit le contexte de navigation ou echoue avec un message exploitable. */
+/** Reads the navigation context or fails with an actionable message. */
 function useNavigation(hook: string): NavigationContextValue {
   const value = useContext(NavigationContext)
   if (value === null) {
-    throw new Error(
-      `[odoro/router] ${hook}() doit etre appele a l'interieur d'un <Router>.`,
-    )
+    throw new Error(`[odoro/router] ${hook}() must be called inside a <Router>.`)
   }
   return value
 }
 
 /**
- * Retourne l'emplacement courant.
+ * Returns the current location.
  *
- * @throws {Error} Hors d'un `<Router>`.
+ * @throws {Error} Outside of a `<Router>`.
  *
  * @example
  * const { pathname, search } = useLocation()
@@ -37,33 +35,31 @@ function useNavigation(hook: string): NavigationContextValue {
 export function useLocation(): Location {
   const location = useContext(LocationContext)
   if (location === null) {
-    throw new Error(
-      "[odoro/router] useLocation() doit etre appele a l'interieur d'un <Router>.",
-    )
+    throw new Error('[odoro/router] useLocation() must be called inside a <Router>.')
   }
   return location
 }
 
 /**
- * Retourne la fonction de navigation programmatique.
+ * Returns the programmatic navigation function.
  *
- * @throws {Error} Hors d'un `<Router>`.
+ * @throws {Error} Outside of a `<Router>`.
  *
  * @example
  * const navigate = useNavigate()
- * navigate('/users/42')                    // empile une entree
- * navigate('/login', { replace: true })    // remplace l'entree courante
- * navigate(-1)                             // retour arriere
+ * navigate('/users/42')                    // pushes an entry
+ * navigate('/login', { replace: true })    // replaces the current entry
+ * navigate(-1)                             // goes back
  */
 export function useNavigate(): NavigateFunction {
   return useNavigation('useNavigate').navigate
 }
 
 /**
- * Retourne les parametres extraits de l'URL pour la route courante.
+ * Returns the parameters extracted from the URL for the current route.
  *
- * Les valeurs sont `string | undefined` : un segment optionnel absent vaut
- * `undefined`, et le type le rappelle a l'appel.
+ * The values are `string | undefined`: a missing optional segment is
+ * `undefined`, and the type recalls it at the call site.
  *
  * @example
  * const { id } = useParams()
@@ -74,8 +70,8 @@ export function useParams(): RouteParams {
 }
 
 /**
- * Retourne la chaine des routes correspondant au chemin courant, de la racine
- * a la feuille. Utile pour construire un fil d'Ariane.
+ * Returns the chain of the routes matching the current path, from the root to
+ * the leaf. Useful to build a breadcrumb.
  *
  * @example
  * const crumbs = useMatches().map((match) => match.pathnameBase)
@@ -84,25 +80,24 @@ export function useMatches(): readonly RouteMatch[] {
   return useContext(RouteContext).matches
 }
 
-/** Valeur acceptee pour remplacer la chaine de requete. */
+/** Value accepted to replace the query string. */
 export type SearchParamsInit =
   | URLSearchParams
   | string
   | Record<string, string>
   | readonly (readonly [string, string])[]
 
-/** Signature du setter retourne par {@link useSearchParams}. */
+/** Signature of the setter returned by {@link useSearchParams}. */
 export type SetSearchParams = (
   next: SearchParamsInit | ((current: URLSearchParams) => SearchParamsInit),
   options?: NavigateOptions,
 ) => void
 
 /**
- * Lit et met a jour la chaine de requete.
+ * Reads and updates the query string.
  *
- * L'objet retourne est une `URLSearchParams` reconstruite a chaque changement
- * de `location.search` : le muter n'a aucun effet, il faut passer par le
- * setter.
+ * The returned object is a `URLSearchParams` rebuilt on every change of
+ * `location.search`: mutating it has no effect, the setter must be used.
  *
  * @example
  * const [params, setParams] = useSearchParams()

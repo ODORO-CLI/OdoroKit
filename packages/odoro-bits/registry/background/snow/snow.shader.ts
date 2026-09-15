@@ -1,25 +1,24 @@
 /**
- * Shader de la neige.
+ * Shader of the snow.
  *
- * ## L'idee mathematique
+ * ## The mathematical idea
  *
- * Trois couches de flocons, un par cellule d'une grille hachee. La chute est
- * une translation verticale de la grille — les couches proches tombent plus
- * vite et plus gros, c'est la parallaxe — et chaque flocon derive
- * lateralement sur un sinus dont la phase est hachee : deux flocons voisins
- * ne se balancent jamais ensemble. Le flocon est un halo en exponentielle de
- * la distance, somme sur les neuf cellules voisines.
+ * Three layers of flakes, one per cell of a hashed grid. The fall is a vertical
+ * translation of the grid — the near layers fall faster and bigger, that is the
+ * parallax — and every flake drifts sideways on a sine whose phase is hashed:
+ * two neighbouring flakes never sway together. The flake is a halo exponential
+ * in the distance, summed over the nine neighbouring cells.
  *
  * ## Uniforms
  *
- * - `uTime` — temps en secondes, fourni par le moteur.
- * - `uResolution` — taille du canevas en pixels, fournie par le moteur.
- * - `uColorA` — la nuit d'hiver.
- * - `uColorB` — les flocons lointains, bleutes.
- * - `uColorC` — les flocons proches, blancs.
- * - `uSpeed` — vitesse de chute.
- * - `uDensity` — nombre de cellules sur le plus petit cote.
- * - `uDrift` — amplitude du balancement lateral.
+ * - `uTime` — time in seconds, supplied by the engine.
+ * - `uResolution` — canvas size in pixels, supplied by the engine.
+ * - `uColorA` — the winter night.
+ * - `uColorB` — the distant flakes, bluish.
+ * - `uColorC` — the near flakes, white.
+ * - `uSpeed` — speed of the fall.
+ * - `uDensity` — number of cells across the shorter side.
+ * - `uDrift` — amplitude of the sideways sway.
  */
 export const SNOW_FRAGMENT = /* glsl */ `
 precision highp float;
@@ -35,54 +34,54 @@ uniform float uSpeed;
 uniform float uDensity;
 uniform float uDrift;
 
-// Nombre pseudo-aleatoire : projection sur une direction arbitraire, sinus
-// amplifie, partie fractionnaire.
-float neigeHash(vec2 p) {
+// Pseudo-random number: projection onto an arbitrary direction, amplified sine,
+// fractional part.
+float snowHash(vec2 p) {
   return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
 }
 
-// Deux nombres decorreles pour une meme cellule : le second est hache depuis
-// un point decale, sans quoi x et y seraient lies.
-vec2 neigeHash2(vec2 p) {
-  return vec2(neigeHash(p), neigeHash(p + vec2(37.3, 17.7)));
+// Two decorrelated numbers for one cell: the second is hashed from an offset
+// point, without which x and y would be tied together.
+vec2 snowHash2(vec2 p) {
+  return vec2(snowHash(p), snowHash(p + vec2(37.3, 17.7)));
 }
 
-// Une couche de flocons : la grille descend avec le temps, et chaque pixel
-// somme les neuf cellules voisines — un halo depasse de sa cellule, et sans
-// ce parcours il serait tranche a chaque bord de maille.
-vec3 neigeCouche(vec2 uv, float aspect, float t, float profondeur, vec3 teinte, float eclat) {
-  // Proche : moins de cellules, donc des flocons plus gros, et une chute plus
-  // rapide. C'est la parallaxe qui fait lire la profondeur.
-  float maille = max(uDensity, 2.0) * (1.6 - 0.4 * profondeur);
-  float chute = t * (0.6 + 0.5 * profondeur);
+// One layer of flakes: the grid descends with time, and every pixel sums the
+// nine neighbouring cells — a halo overflows its cell, and without that walk it
+// would be sliced at every cell boundary.
+vec3 snowLayer(vec2 uv, float aspect, float t, float depth, vec3 tint, float glint) {
+  // Near: fewer cells, hence bigger flakes, and a faster fall. It is the
+  // parallax that makes the depth read.
+  float cellSize = max(uDensity, 2.0) * (1.6 - 0.4 * depth);
+  float fall = t * (0.6 + 0.5 * depth);
 
-  vec2 p = vec2(uv.x * aspect, uv.y + chute + profondeur * 3.17) * maille;
+  vec2 p = vec2(uv.x * aspect, uv.y + fall + depth * 3.17) * cellSize;
   vec2 cell = floor(p);
-  vec3 somme = vec3(0.0);
+  vec3 total = vec3(0.0);
 
-  float portee = 0.012 + 0.01 * profondeur;
+  float reach = 0.012 + 0.01 * depth;
 
   for (int dx = -1; dx <= 1; dx += 1) {
     for (int dy = -1; dy <= 1; dy += 1) {
-      vec2 voisine = cell + vec2(float(dx), float(dy));
-      vec2 graine = neigeHash2(voisine);
+      vec2 neighbour = cell + vec2(float(dx), float(dy));
+      vec2 seed = snowHash2(neighbour);
 
-      // La derive laterale : un sinus par flocon, a phase et frequence
-      // hachees — deux voisins ne se balancent jamais a l'unisson.
-      float balancement = uDrift * 0.4 * sin(t * (0.6 + graine.x * 0.8) + graine.y * 6.28318);
+      // The sideways drift: one sine per flake, with hashed phase and
+      // frequency — two neighbours never sway in unison.
+      float sway = uDrift * 0.4 * sin(t * (0.6 + seed.x * 0.8) + seed.y * 6.28318);
 
-      vec2 centre = voisine + 0.5 + (graine - 0.5) * 0.6 + vec2(balancement, 0.0);
-      vec2 ecart = p - centre;
+      vec2 centre = neighbour + 0.5 + (seed - 0.5) * 0.6 + vec2(sway, 0.0);
+      vec2 offset = p - centre;
 
-      // Le flocon : un halo en exponentielle du carre de la distance, le
-      // profil d'un point de lumiere adouci par l'air.
-      float halo = exp(-dot(ecart, ecart) / portee);
+      // The flake: a halo exponential in the squared distance, the profile of a
+      // point of light softened by the air.
+      float halo = exp(-dot(offset, offset) / reach);
 
-      somme += teinte * halo * eclat * (0.5 + 0.5 * graine.x);
+      total += tint * halo * glint * (0.5 + 0.5 * seed.x);
     }
   }
 
-  return somme;
+  return total;
 }
 
 void main() {
@@ -90,9 +89,9 @@ void main() {
   float t = uTime * uSpeed;
 
   vec3 colour = uColorA;
-  colour += neigeCouche(vUv, aspect, t, 0.0, uColorB, 0.35);
-  colour += neigeCouche(vUv, aspect, t, 1.0, mix(uColorB, uColorC, 0.5), 0.55);
-  colour += neigeCouche(vUv, aspect, t, 2.0, uColorC, 0.8);
+  colour += snowLayer(vUv, aspect, t, 0.0, uColorB, 0.35);
+  colour += snowLayer(vUv, aspect, t, 1.0, mix(uColorB, uColorC, 0.5), 0.55);
+  colour += snowLayer(vUv, aspect, t, 2.0, uColorC, 0.8);
 
   gl_FragColor = vec4(colour, 1.0);
 }

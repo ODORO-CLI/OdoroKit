@@ -1,33 +1,33 @@
 /**
- * Shader des eclaboussures.
+ * Shader for the splashes.
  *
- * ## L'idee mathematique
+ * ## The mathematical idea
  *
- * Dix taches vivantes a la fois, chacune deposee par la boucle quand le
- * pointeur bouge. Une tache n'est pas un disque : son rayon est module par
- * deux harmoniques de l'angle polaire, dephasees par une graine tiree de sa
- * date de depot. Deux taches n'ont donc jamais le meme contour.
+ * Ten blots alive at once, each one deposited by the loop when the pointer
+ * moves. A blot is not a disc: its radius is modulated by two harmonics of
+ * the polar angle, phase-shifted by a seed drawn from its deposit time. No
+ * two blots ever share the same outline.
  *
- * Elle s'ouvre vite puis se stabilise — une exponentielle croissante — et
- * s'eteint lentement, en exponentielle decroissante de l'age. Les
- * contributions se somment, et la teinte est leur moyenne ponderee : deux
- * taches qui se recouvrent melangent leurs couleurs au lieu de se masquer,
- * ce qu'une peinture fraiche fait aussi.
+ * It opens out quickly then settles — a rising exponential — and dies away
+ * slowly, as a falling exponential of the age. The contributions add up,
+ * and the hue is their weighted average: two blots that overlap mix their
+ * colours instead of masking each other, which is what fresh paint does
+ * too.
  *
- * Un depot a -1000 donne un age enorme, donc une contribution nulle : les
- * emplacements vides du tampon sont inertes d'office.
+ * A deposit at -1000 gives a huge age, hence a nil contribution: the empty
+ * slots of the buffer are inert from the start.
  *
  * ## Uniforms
  *
- * - `uTime` — temps en secondes, fourni par le moteur.
- * - `uResolution` — taille du canevas en pixels, fournie par le moteur.
- * - `uColorA` — le fond.
- * - `uColorB` — la premiere teinte de peinture.
- * - `uColorC` — la seconde teinte de peinture.
- * - `uSplash` — dix depots (x, y, date de depot), tampon circulaire.
- * - `uLife` — duree de vie d une tache, en secondes.
- * - `uSize` — rayon d une tache, en hauteurs de cadre.
- * - `uLobes` — irregularite du contour, entre zero et un.
+ * - `uTime` — time in seconds, supplied by the engine.
+ * - `uResolution` — canvas size in pixels, supplied by the engine.
+ * - `uColorA` — the background.
+ * - `uColorB` — the first paint hue.
+ * - `uColorC` — the second paint hue.
+ * - `uSplash` — ten deposits (x, y, deposit time), ring buffer.
+ * - `uLife` — lifetime of a blot, in seconds.
+ * - `uSize` — radius of a blot, in frame heights.
+ * - `uLobes` — irregularity of the outline, between zero and one.
  */
 export const SPLASH_CURSOR_FRAGMENT = /* glsl */ `
 precision highp float;
@@ -44,7 +44,7 @@ uniform float uLife;
 uniform float uSize;
 uniform float uLobes;
 
-// Graine d'une tache : sa date de depot suffit, elle est unique.
+// Seed of a blot: its deposit time is enough, it is unique.
 float splashSeed(float birth) {
   return fract(sin(birth * 78.233) * 43758.5453123);
 }
@@ -56,16 +56,16 @@ void main() {
   float amount = 0.0;
   vec3 tint = vec3(0.0);
 
-  // Borne constante : la specification du langage l'exige, et dix taches
-  // suffisent a couvrir un geste rapide sans laisser de trou.
+  // Constant bound: the language specification demands it, and ten blots
+  // are enough to cover a fast gesture without leaving a hole.
   for (int i = 0; i < 10; i += 1) {
     vec3 blot = uSplash[i];
     vec2 d = p - blot.xy * vec2(aspect, 1.0);
     float age = max(uTime - blot.z, 0.0);
     float seed = splashSeed(blot.z);
 
-    // Le contour : deux harmoniques basses de l'angle, dephasees par la
-    // graine. Plus hautes, la tache tournerait a l'etoile.
+    // The outline: two low harmonics of the angle, phase-shifted by the
+    // seed. Any higher and the blot would turn into a star.
     float angle = atan(d.y, d.x);
     float lobes = 1.0
       + uLobes * 0.22 * sin(angle * 3.0 + seed * 24.0)
@@ -81,8 +81,8 @@ void main() {
     tint += mix(uColorB, uColorC, fract(seed * 6.0)) * blob;
   }
 
-  // Moyenne ponderee : la ou rien n'est depose, le quotient n'est jamais
-  // evalue puisque le melange retombe entierement sur le fond.
+  // Weighted average: where nothing is deposited, the quotient never
+  // matters since the mix falls back entirely onto the background.
   vec3 paint = tint / max(amount, 0.0001);
   vec3 colour = mix(uColorA, paint, clamp(amount, 0.0, 1.0));
 

@@ -16,12 +16,12 @@
     "check:catalogue": "node scripts/check-catalogue.mjs http://localhost:5190",
     "check:classes": "node scripts/check-classes.mjs http://localhost:5190",
     "check:demos": "node scripts/check-demos.mjs http://localhost:5190",
-    "check:fonds": "node scripts/check-fonds.mjs http://localhost:5190",
-    "check:galerie": "node scripts/check-galerie.mjs http://localhost:5190",
+    "check:backgrounds": "node scripts/check-backgrounds.mjs http://localhost:5190",
+    "check:gallery": "node scripts/check-gallery.mjs http://localhost:5190",
     "check:hmr": "node scripts/hmr-check.mjs",
-    "check:icones": "node scripts/check-icones.mjs http://localhost:5190",
+    "check:icons": "node scripts/check-icons.mjs http://localhost:5190",
     "check:interaction": "node scripts/check-interaction.mjs http://localhost:5190",
-    "check:moteur": "node scripts/check-moteur.mjs http://localhost:5190",
+    "check:engine": "node scripts/check-engine.mjs http://localhost:5190",
     "check:smoke": "node scripts/smoke.mjs",
     "dev": "pnpm -r --parallel --filter \"./packages/*\" run dev",
     "format": "prettier --write .",
@@ -34,7 +34,7 @@
     "try:create": "node scripts/try-create.mjs",
     "typecheck": "pnpm -r run typecheck",
     "version-packages": "changeset version && pnpm install --lockfile-only",
-    "deployer": "node scripts/deployer.mjs"
+    "deploy": "node scripts/deploy.mjs"
   },
   "devDependencies": {
     "@changesets/cli": "^2.29.7",

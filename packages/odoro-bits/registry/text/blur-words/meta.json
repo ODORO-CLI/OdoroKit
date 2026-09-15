@@ -73,7 +73,7 @@
       "step": 100
     },
     {
-      "name": "boucle",
+      "name": "loop",
       "type": "boolean",
       "default": true,
       "description": "Rejouer le cycle sans fin."

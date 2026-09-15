@@ -27,7 +27,7 @@ export interface JeuModule {
     readonly module: string
     readonly title: string
     readonly summary: string
-    readonly mode: 'trait' | 'plein'
+    readonly mode: 'outline' | 'solid'
     readonly stroke?: number
     readonly count: number
   }
@@ -64,7 +64,7 @@ export function IconesJeu({ jeu }: { jeu: JeuModule }): ReactElement {
         </code>
       </div>
 
-      {INFO.module !== 'marques' ? null : (
+      {INFO.module !== 'brands' ? null : (
         <Callout tone="warning">
           Ces traces sont des <strong>marques deposees</strong>. Aucune licence de code ne
           regit leur emploi : ce sont les regles de chaque proprietaire. Designer un

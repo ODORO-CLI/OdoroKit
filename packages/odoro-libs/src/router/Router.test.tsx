@@ -11,12 +11,12 @@ import { createMemoryHistory, type RouterHistory } from './history.js'
 import { useLocation, useNavigate, useParams, useSearchParams } from './hooks.js'
 
 beforeEach(() => {
-  // jsdom n'implemente pas le defilement : le routeur l'appelle a chaque
-  // navigation, on le neutralise pour garder les tests silencieux.
+  // jsdom does not implement scrolling: the router calls it on every
+  // navigation, we neutralize it to keep the tests silent.
   vi.spyOn(window, 'scrollTo').mockImplementation(() => undefined)
 })
 
-/** Monte un arbre dans un `<Router>` adosse a un historique en memoire. */
+/** Mounts a tree in a `<Router>` backed by an in-memory history. */
 function renderAt(ui: ReactElement, path = '/'): { history: RouterHistory } {
   const history = createMemoryHistory([path])
   render(
@@ -55,34 +55,34 @@ const appRoutes = (
   </Routes>
 )
 
-describe('rendu des routes', () => {
-  it('rend la route index de la racine', () => {
+describe('rendering of the routes', () => {
+  it('renders the index route of the root', () => {
     renderAt(appRoutes, '/')
     expect(screen.getByRole('heading', { name: 'Accueil' })).toBeDefined()
   })
 
-  it('rend le layout parent autour de la route fille', () => {
+  it('renders the parent layout around the child route', () => {
     renderAt(appRoutes, '/about')
     expect(screen.getByRole('navigation')).toBeDefined()
     expect(screen.getByRole('heading', { name: 'A propos' })).toBeDefined()
   })
 
-  it('expose les parametres de route', () => {
+  it('exposes the route parameters', () => {
     renderAt(appRoutes, '/users/42')
     expect(screen.getByText('Utilisateur 42')).toBeDefined()
   })
 
-  it('rend une route catch-all imbriquee', () => {
+  it('renders a nested catch-all route', () => {
     renderAt(appRoutes, '/docs/guide/intro')
     expect(screen.getByRole('heading', { name: 'Docs' })).toBeDefined()
   })
 
-  it('rend la page 404 par defaut quand rien ne correspond', () => {
+  it('renders the default 404 page when nothing matches', () => {
     renderAt(appRoutes, '/inconnu')
     expect(screen.getByRole('alert').textContent).toContain('404')
   })
 
-  it('accepte une page 404 personnalisee', () => {
+  it('accepts a custom 404 page', () => {
     renderAt(
       <Routes notFound={<p>Perdu</p>}>
         <Route path="/" element={<h1>Accueil</h1>} />
@@ -92,7 +92,7 @@ describe('rendu des routes', () => {
     expect(screen.getByText('Perdu')).toBeDefined()
   })
 
-  it('rend un layout sans element de facon transparente', () => {
+  it('renders a layout without an element transparently', () => {
     renderAt(
       <Routes>
         <Route path="/">
@@ -103,7 +103,7 @@ describe('rendu des routes', () => {
     expect(screen.getByText('Contenu')).toBeDefined()
   })
 
-  it('traverse un fragment dans la declaration des routes', () => {
+  it('traverses a fragment in the route declaration', () => {
     renderAt(
       <Routes>
         <>
@@ -115,29 +115,29 @@ describe('rendu des routes', () => {
   })
 })
 
-describe('navigation par Link', () => {
-  it('navigue sans rechargement au clic', async () => {
+describe('navigation through Link', () => {
+  it('navigates without a reload on click', async () => {
     const { history } = renderAt(appRoutes, '/')
     screen.getByRole('link', { name: 'Profil' }).click()
     await waitFor(() => expect(screen.getByText('Utilisateur 42')).toBeDefined())
     expect(history.getSnapshot().location.pathname).toBe('/users/42')
   })
 
-  it('produit un href reel', () => {
+  it('produces a real href', () => {
     renderAt(appRoutes, '/')
     expect(screen.getByRole('link', { name: 'Profil' }).getAttribute('href')).toBe(
       '/users/42',
     )
   })
 
-  it('laisse le navigateur gerer un clic avec modificateur', () => {
+  it('lets the browser handle a click with a modifier', () => {
     const { history } = renderAt(appRoutes, '/')
     const link = screen.getByRole('link', { name: 'Profil' })
     link.dispatchEvent(new MouseEvent('click', { bubbles: true, metaKey: true }))
     expect(history.getSnapshot().location.pathname).toBe('/')
   })
 
-  it('laisse le navigateur gerer un lien avec target', () => {
+  it('lets the browser handle a link with a target', () => {
     const { history } = renderAt(
       <Routes>
         <Route
@@ -156,7 +156,7 @@ describe('navigation par Link', () => {
   })
 })
 
-describe('navigation programmatique', () => {
+describe('programmatic navigation', () => {
   function Controls(): ReactElement {
     const navigate = useNavigate()
     return (
@@ -175,20 +175,20 @@ describe('navigation programmatique', () => {
     </Routes>
   )
 
-  it('empile une entree avec push', async () => {
+  it('pushes an entry with push', async () => {
     const { history } = renderAt(routes, '/')
     screen.getByRole('button', { name: 'Aller' }).click()
     await waitFor(() => expect(history.getSnapshot().location.pathname).toBe('/about'))
     expect(history.getSnapshot().navigationType).toBe('PUSH')
   })
 
-  it('remplace l entree courante avec replace', async () => {
+  it('replaces the current entry with replace', async () => {
     const { history } = renderAt(routes, '/')
     screen.getByRole('button', { name: 'Remplacer' }).click()
     await waitFor(() => expect(history.getSnapshot().navigationType).toBe('REPLACE'))
   })
 
-  it('revient en arriere avec un delta negatif', async () => {
+  it('goes back with a negative delta', async () => {
     const { history } = renderAt(routes, '/')
     screen.getByRole('button', { name: 'Aller' }).click()
     await waitFor(() => expect(history.getSnapshot().location.pathname).toBe('/about'))
@@ -200,7 +200,7 @@ describe('navigation programmatique', () => {
 })
 
 describe('hooks', () => {
-  it('useLocation expose pathname, search et hash', () => {
+  it('useLocation exposes pathname, search and hash', () => {
     function Probe(): ReactElement {
       const location = useLocation()
       return <p>{`${location.pathname}|${location.search}|${location.hash}`}</p>
@@ -214,7 +214,7 @@ describe('hooks', () => {
     expect(screen.getByText('/blog|?page=2|#top')).toBeDefined()
   })
 
-  it('useSearchParams lit et met a jour la chaine de requete', async () => {
+  it('useSearchParams reads and updates the query string', async () => {
     function Filters(): ReactElement {
       const [params, setParams] = useSearchParams()
       return (
@@ -236,7 +236,7 @@ describe('hooks', () => {
     expect(screen.getByRole('button', { name: 'page=2' })).toBeDefined()
   })
 
-  it('echoue avec un message explicite hors du Router', () => {
+  it('fails with an explicit message outside of the Router', () => {
     function Orphan(): ReactElement {
       useLocation()
       return <p>jamais</p>
@@ -245,29 +245,29 @@ describe('hooks', () => {
   })
 })
 
-describe('chargement paresseux', () => {
-  it('affiche le fallback puis la page', async () => {
+describe('lazy loading', () => {
+  it('shows the fallback then the page', async () => {
     const loader = vi.fn(() => Promise.resolve({ default: () => <h1>Chargee</h1> }))
 
     renderAt(
-      <Routes fallback={<p>Chargement</p>}>
+      <Routes fallback={<p>Loading</p>}>
         <Route path="/" element={<p>Accueil</p>} />
         <Route path="/late" lazy={loader} />
       </Routes>,
       '/late',
     )
 
-    expect(screen.getByText('Chargement')).toBeDefined()
+    expect(screen.getByText('Loading')).toBeDefined()
     await waitFor(() =>
       expect(screen.getByRole('heading', { name: 'Chargee' })).toBeDefined(),
     )
-    // Le module n'est demande qu'une fois, meme sous StrictMode.
+    // The module is only requested once, even under StrictMode.
     expect(loader).toHaveBeenCalledTimes(1)
   })
 })
 
-describe('Route hors contexte', () => {
-  it('echoue si un Route est rendu directement', () => {
+describe('Route outside of its context', () => {
+  it('fails when a Route is rendered directly', () => {
     expect(() => render(<Route path="/" />)).toThrow(/<Routes>/)
   })
 })

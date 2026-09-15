@@ -1,22 +1,22 @@
 /**
- * Lignes de balayage : un ecran cathodique, sa barre qui roule et son grain.
+ * Scanlines: a cathode-ray screen, its rolling bar and its grain.
  *
- * ## Le principe
+ * ## The principle
  *
- * Tout tient dans des fonctions periodiques du seul axe vertical : un sinus pour les lignes, une partie fractionnaire decalee par le temps pour la barre.
+ * Everything fits into periodic functions of the vertical axis alone: a sine for the lines, a fractional part offset by time for the bar.
  *
- * Le grain est rejoue par paliers de temps, jamais par image — un tirage par image scintille au lieu de granuler.
+ * The grain is replayed in time steps, never per frame — one draw per frame flickers instead of granulating.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur — les recopier ici en ferait autant
- * de versions a maintenir qu'il y a de fonds.
+ * It carries only what sets it apart: its shader, its settings and its
+ * fallback. Reading the tokens, converting them to floats and re-reading them
+ * when the theme changes all come from the engine — copying that here would
+ * leave as many versions to maintain as there are backgrounds.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en
- * accorde qu'une par backend — et sous mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface — it grants only one
+ * per backend — and under reduced motion.
  *
  * @module
  */
@@ -33,45 +33,45 @@ import { type ReactElement } from 'react'
 
 import { SCANLINES_FRAGMENT } from './scanlines.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface ScanlinesControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to this component. */
 export interface ScanlinesOwnProps {
-  /** Vitesse de la barre qui roule. @defaultValue 0.5 */
+  /** Speed of the rolling bar. @defaultValue 0.5 */
   speed?: number
-  /** Nombre de lignes sur la hauteur. @defaultValue 90 */
+  /** Number of lines across the height. @defaultValue 90 */
   lines?: number
-  /** Part du grain anime. @defaultValue 0.4 */
+  /** Share of the animated grain. @defaultValue 0.4 */
   flicker?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<ScanlinesControls>
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type ScanlinesProps = Customisable<ScanlinesOwnProps>
 
-/** Tokens employes par defaut : le tube, le phosphore, la barre. */
+/** Tokens used by default: the tube, the phosphor, the bar. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-green-400',
   '--o-palette-emerald-200',
 ] as const
 
-/** Repli par defaut : une teinte figee, dans les memes tons. */
+/** Default fallback: a frozen tint, in the same tones. */
 const DEFAULT_FALLBACK = 'o-bg-zinc-50 dark:o-bg-zinc-950'
 
 /**
- * Lignes de balayage.
+ * Scanlines.
  *
  * @example
  * <div className="o-relative o-min-h-screen">
@@ -93,9 +93,9 @@ export function Scanlines({
     colors,
     uniforms: { uSpeed: speed, uLines: lines, uFlicker: flicker },
     name: 'scanlines',
-    // Le grain est la seule valeur recalculee a chaque palier de temps : sur
-    // un ecran dont la densite a ete plafonnee, c'est aussi ce qui fourmille
-    // le plus. Il est donc le reglage borne.
+    // The grain is the only value recomputed at every time step: on a screen
+    // whose density has been capped, it is also what swarms the most. It is
+    // therefore the bounded setting.
     degrade: (quality) => ({
       uFlicker: quality === 'low' ? Math.min(flicker, 0.15) : flicker,
     }),

@@ -36,7 +36,7 @@
 
 import { useMotionState } from '@odoro-cli/engine'
 import { Icon } from '@odoro-cli/icons'
-import { ArrowRight, Check } from '@odoro-cli/icons/filaire'
+import { ArrowRight, Check } from '@odoro-cli/icons/outline'
 import { Input } from '@odoro-cli/libs/ui'
 import { useState, type CSSProperties, type ReactElement } from 'react'
 

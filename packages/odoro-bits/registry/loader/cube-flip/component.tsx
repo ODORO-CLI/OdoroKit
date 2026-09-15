@@ -1,40 +1,37 @@
 /**
- * Cube qui bascule : un cube en CSS 3D bascule d'un quart de tour, marque un
- * temps, puis bascule sur l'autre axe.
+ * Flipping cube: a CSS 3D cube tips by a quarter turn, pauses, then tips on
+ * the other axis.
  *
- * ## Quatre bascules qui reviennent au depart
+ * ## Four flips that come back to the start
  *
- * Un cube qui roulerait toujours dans le meme sens ne reviendrait pas a son
- * orientation de depart a la fin du cycle, et la boucle montrerait une
- * couture. Ici les quatre bascules dessinent un aller-retour : un quart de
- * tour sur X, un quart sur Y, retour sur X, retour sur Y. La derniere image
- * du cycle est exactement la premiere.
+ * A cube always rolling the same way would not come back to its starting
+ * orientation at the end of the cycle, and the loop would show a seam. Here
+ * the four flips draw a round trip: a quarter turn on X, a quarter on Y, back
+ * on X, back on Y. The last frame of the cycle is exactly the first.
  *
- * Entre deux bascules, une pause. Sans elle, le cube tourne en continu et
- * l'oeil ne distingue plus les faces : c'est la pause qui fait lire « une
- * face, puis une autre ».
+ * Between two flips, a pause. Without it, the cube turns continuously and the
+ * eye no longer tells the faces apart: it is the pause that makes one read
+ * "one face, then another".
  *
- * ## Deux boites, deux roles
+ * ## Two boxes, two roles
  *
- * La boite exterieure porte une inclinaison fixe — un peu de haut, un peu de
- * cote — pour qu'on voie toujours trois faces. La boite interieure porte
- * l'animation. Separer les deux evite de re-encoder l'inclinaison dans
- * chaque image cle, et donne un etat de repos qui se lit comme un cube et
- * non comme un carre.
+ * The outer box carries a fixed tilt — a little from above, a little from the
+ * side — so that three faces are always visible. The inner box carries the
+ * animation. Separating the two avoids re-encoding the tilt in every
+ * keyframe, and gives a rest state that reads as a cube and not as a square.
  *
- * Les faces sont des nuances de la meme couleur, obtenues par melange avec
- * du transparent : le cube suit la couleur du texte, ou celle qu'on lui
- * donne, sans jamais en ecrire une en dur.
+ * The faces are shades of the same colour, obtained by mixing with
+ * transparent: the cube follows the text colour, or the one it is given,
+ * without ever hard coding one.
  *
- * ## Un statut, pas un dessin
+ * ## A status, not a drawing
  *
- * L'element porte `role="status"` et un libelle pour les lecteurs d'ecran :
- * l'attente est une information, pas une decoration. Le cube, lui, est
- * retire de l'arbre d'accessibilite.
+ * The element carries `role="status"` and a label for screen readers: the
+ * wait is information, not decoration. The cube itself is removed from the
+ * accessibility tree.
  *
- * Sous mouvement reduit, le cube reste incline et immobile : trois faces
- * visibles, la figure se lit encore comme un chargeur, seul le mouvement
- * s'arrete.
+ * Under reduced motion, the cube stays tilted and still: three faces visible,
+ * the figure still reads as a loader, only the movement stops.
  *
  * @module
  */
@@ -42,16 +39,16 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-cube-flip'
 
 /**
- * Les six faces : leur placement autour du centre et leur nuance.
+ * The six faces: their placement around the centre and their shade.
  *
- * La nuance est un pourcentage de la couleur, le reste etant transparent.
- * Trois valeurs suffisent a donner du relief : une face pleine, une face
- * moyenne, une face sombre. Les faces opposees partagent leur nuance, pour
- * que le cube ait le meme aspect apres une bascule.
+ * The shade is a percentage of the colour, the rest being transparent. Three
+ * values are enough to give relief: a full face, a middle face, a dark face.
+ * Opposite faces share their shade, so that the cube looks the same after a
+ * flip.
  */
 const FACES: ReadonlyArray<{ readonly place: string; readonly shade: number }> = [
   { place: 'rotateY(0deg)', shade: 100 },
@@ -62,7 +59,7 @@ const FACES: ReadonlyArray<{ readonly place: string; readonly shade: number }> =
   { place: 'rotateX(-90deg)', shade: 82 },
 ]
 
-/** Pose le cube et ses bascules, une fois par document. */
+/** Applies the cube and its flips, once per document. */
 function ensureCubeFlipRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -70,8 +67,8 @@ function ensureCubeFlipRule(): void {
   const style = document.createElement('style')
   style.id = STYLE_ID
   style.textContent = [
-    // Une perspective courte : le cube est petit, une perspective longue le
-    // rendrait plat comme une projection orthogonale.
+    // A short perspective: the cube is small, a long perspective would make it
+    // flat like an orthographic projection.
     '[data-o-cube-flip]{',
     'display:inline-block;line-height:0;',
     'width:var(--o-cube-size);height:var(--o-cube-size);',
@@ -87,15 +84,15 @@ function ensureCubeFlipRule(): void {
     'transform-style:preserve-3d;',
     'animation:o-cube-flip-turn var(--o-cube-speed) ease-in-out infinite;',
     '}',
-    // Les faces sont translucides : sans cette ligne, on verrait les faces
-    // arriere a travers les faces avant.
+    // The faces are translucent: without this line, the back faces would show
+    // through the front faces.
     '[data-o-cube-flip-face]{',
     'position:absolute;inset:0;backface-visibility:hidden;',
     'background:color-mix(in oklab, var(--o-cube-color) var(--o-cube-shade), transparent);',
     'transform:var(--o-cube-place) translateZ(calc(var(--o-cube-size) / 2));',
     '}',
-    // Quatre bascules et quatre pauses. Chaque bascule ne change qu'un
-    // axe, et le cycle revient a (0, 0) sans couture.
+    // Four flips and four pauses. Each flip changes only one axis, and the
+    // cycle comes back to (0, 0) with no seam.
     '@keyframes o-cube-flip-turn{',
     '0%,8%{transform:rotateX(0deg) rotateY(0deg)}',
     '25%,33%{transform:rotateX(-90deg) rotateY(0deg)}',
@@ -110,36 +107,36 @@ function ensureCubeFlipRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface CubeFlipOwnProps {
-  /** Arete du cube, en pixels. @defaultValue 32 */
+  /** Edge of the cube, in pixels. @defaultValue 32 */
   size?: number
-  /** Duree d'un cycle de quatre bascules, en millisecondes. @defaultValue 2400 */
+  /** Duration of one cycle of four flips, in milliseconds. @defaultValue 2400 */
   speed?: number
-  /** Couleur du cube. @defaultValue la couleur du texte */
+  /** Colour of the cube. @defaultValue the text colour */
   color?: string
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */
+  /** Label announced to screen readers. @defaultValue 'Loading' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All the properties. */
 export type CubeFlipProps = Customisable<CubeFlipOwnProps, 'span'>
 
 /**
- * Signale une attente par un cube qui bascule face apres face.
+ * Signals a wait with a cube tipping face after face.
  *
  * @example
  * <CubeFlip />
  *
  * @example
- * // Plus grand, plus lent, dans la teinte de marque.
+ * // Bigger, slower, in the brand hue.
  * <CubeFlip size={56} speed={3600} color="var(--o-palette-brand-500)" />
  */
 export function CubeFlip({
   size = 32,
   speed = 2400,
   color = 'currentColor',
-  label = 'Chargement',
+  label = 'Loading',
   ...rest
 }: CubeFlipProps): ReactElement {
   ensureCubeFlipRule()

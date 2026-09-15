@@ -1,31 +1,32 @@
 /**
- * Barre de progression de lecture.
+ * Reading progress bar.
  *
- * ## Ce que ce composant montre
+ * ## What this component shows
  *
- * C'est l'implementation de reference du contrat de personnalisation : les
- * cinq niveaux y sont, et dans cet ordre.
+ * It is the reference implementation of the customisation contract: the five
+ * levels are all here, and in this order.
  *
- * 1. **Tokens** — la couleur et la duree viennent de `--o-palette-brand-600` et
- *    `--o-duration-fast`. Changer le theme change la barre, sans la toucher.
+ * 1. **Tokens** — the colour and the duration come from
+ *    `--o-palette-brand-600` and `--o-duration-fast`. Changing the theme
+ *    changes the bar, without touching it.
  * 2. **Props** — `target`, `thickness`, `position`.
- * 3. **Passe-plat** — `className`, `style` et les attributs DOM arrivent sur
- *    l'element racine, avec les classes du composant conservees.
- * 4. **Slot de rendu** — `children` recoit la progression et remplace la
- *    barre, en gardant la mesure.
- * 5. **`onReady`** — donne la lecture imperative, pour ce que rien de ce qui
- *    precede ne permet.
+ * 3. **Pass-through** — `className`, `style` and the DOM attributes land on
+ *    the root element, with the component's own classes preserved.
+ * 4. **Render slot** — `children` receives the progress and replaces the bar,
+ *    keeping the measurement.
+ * 5. **`onReady`** — gives the imperative reading, for what none of the
+ *    preceding levels allows.
  *
- * ## Pourquoi la progression n'est pas un etat React
+ * ## Why the progress is not React state
  *
- * Elle change a chaque image. La rendre comme etat provoquerait soixante
- * rendus par seconde pendant tout le defilement de la page, pour deplacer un
- * rectangle que le compositeur sait deja animer seul. La valeur est donc
- * ecrite directement dans le `transform` de la barre.
+ * It changes on every frame. Rendering it as state would cause sixty renders
+ * per second over the whole scroll of the page, to move a rectangle that the
+ * compositor already knows how to animate on its own. The value is therefore
+ * written directly into the `transform` of the bar.
  *
- * Le slot de rendu est l'exception, et elle est assumee : quelqu'un qui veut
- * afficher un pourcentage en chiffres a besoin d'un rendu. Il n'a lieu que si
- * un slot est fourni, et sa cadence est bornee — voir `sampling`.
+ * The render slot is the exception, and a deliberate one: somebody who wants
+ * to display a percentage in figures needs a render. It only happens if a slot
+ * is supplied, and its rate is capped — see `sampling`.
  *
  * @module
  */
@@ -47,62 +48,62 @@ import {
   type RefObject,
 } from 'react'
 
-/** Lecture imperative offerte a l'echappatoire. */
+/** Imperative reading offered to the escape hatch. */
 export interface ScrollProgressControls {
-  /** Progression courante, de 0 a 1. */
+  /** Current progress, from 0 to 1. */
   read(): number
-  /** L'element de la barre, pour en reprendre le rendu entierement. */
+  /** The element of the bar, to take over its rendering entirely. */
   readonly bar: HTMLElement | null
 }
 
-/** Ce que le slot de rendu recoit. */
+/** What the render slot receives. */
 export interface ScrollProgressState {
-  /** Progression courante, de 0 a 1. */
+  /** Current progress, from 0 to 1. */
   readonly progress: number
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface ScrollProgressOwnProps {
-  /** Element dont on suit la lecture. Par defaut, la page entiere. */
+  /** Element whose reading is followed. By default, the whole page. */
   target?: RefObject<HTMLElement | null>
-  /** Epaisseur de la barre, en pixels. @defaultValue 3 */
+  /** Thickness of the bar, in pixels. @defaultValue 3 */
   thickness?: number
-  /** Bord auquel la barre est ancree. @defaultValue 'top' */
+  /** Edge the bar is anchored to. @defaultValue 'top' */
   position?: 'top' | 'bottom'
-  /** Slot de rendu. Remplace la barre en gardant la mesure. */
+  /** Render slot. Replaces the bar while keeping the measurement. */
   children?: Slot<ScrollProgressState>
-  /** Echappatoire, appelee une fois la mesure en place. */
+  /** Escape hatch, called once the measurement is in place. */
   onReady?: ReadyCallback<ScrollProgressControls>
 }
 
-/** Toutes les proprietes : les siennes, plus celles d'un `div`. */
+/** All properties: its own, plus those of a `div`. */
 export type ScrollProgressProps = Customisable<ScrollProgressOwnProps>
 
 /**
- * Pas d'echantillonnage du slot de rendu, en centiemes.
+ * Sampling step of the render slot, in hundredths.
  *
- * Sans lui, un slot provoquerait un rendu React par image. Cent paliers sont
- * plus fins que ce qu'un affichage en pourcentage peut montrer, et divisent le
- * nombre de rendus par l'ordre de grandeur qui separe une image d'un centieme
- * de course.
+ * Without it, a slot would cause one React render per frame. A hundred steps
+ * are finer than what a percentage display can show, and divide the number of
+ * renders by the order of magnitude that separates a frame from a hundredth of
+ * the run.
  */
 const SAMPLING = 100
 
 /**
- * Barre de progression de lecture.
+ * Reading progress bar.
  *
  * @example
- * // Le cas courant : rien a regler.
+ * // The common case: nothing to set.
  * <ScrollProgress />
  *
  * @example
- * // Niveaux 3 et 4 : pose dans la mise en page, et rendu remplace.
+ * // Levels 3 and 4: placed in the layout, and rendering replaced.
  * <ScrollProgress className="o-z-50" position="bottom">
  *   {({ progress }) => <span>{Math.round(progress * 100)} %</span>}
  * </ScrollProgress>
  *
  * @example
- * // Niveau 5 : ce que l'API n'a pas prevu.
+ * // Level 5: what the API did not foresee.
  * <ScrollProgress
  *   onReady={({ handle, motion }) => {
  *     if (motion.reduced) return
@@ -122,8 +123,8 @@ export function ScrollProgress({
   const bar = useRef<HTMLDivElement | null>(null)
   const progress = useRef(0)
 
-  // Le slot n'existe pas la plupart du temps : l'etat n'est alors jamais
-  // ecrit, et le composant ne provoque aucun rendu pendant le defilement.
+  // The slot does not exist most of the time: the state is then never written,
+  // and the component causes no render during the scroll.
   const [sampled, setSampled] = useState(0)
   const hasSlot = children !== undefined
 
@@ -140,34 +141,33 @@ export function ScrollProgress({
     [hasSlot],
   )
 
-  // L'element observe est resolu a chaque rendu plutot que lu une fois au
-  // montage. Une cible placee **plus loin dans l'arbre** que cette barre — le
-  // cas naturel, puisqu'une barre se pose en tete — a sa ref encore vide quand
-  // les effets s'executent : la progression restait alors a zero, sans erreur
-  // et sans declencheur enregistre.
+  // The observed element is resolved on every render rather than read once at
+  // mount. A target placed **further down the tree** than this bar — the
+  // natural case, since a bar is laid at the top — still has an empty ref when
+  // the effects run: the progress then stayed at zero, with no error and no
+  // trigger registered.
   const [observed, setObserved] = useState<HTMLElement | null>(null)
-  // Sans liste de dependances, volontairement : `target.current` se remplit
-  // apres le commit sans que `target` change, donc aucune dependance ne
-  // signalerait son arrivee. La regle craint une chaine de mises a jour ;
-  // elle ne peut pas se produire ici, `setState` avec la meme valeur ne
-  // provoquant aucun rendu.
+  // With no dependency list, deliberately: `target.current` fills in after the
+  // commit without `target` changing, so no dependency would signal its
+  // arrival. The rule fears a chain of updates; it cannot happen here, since
+  // `setState` with the same value causes no render.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     const next = target === undefined ? document.documentElement : target.current
-    // `setState` avec la meme valeur ne provoque aucun rendu : la resolution a
-    // chaque rendu ne coute donc rien une fois la cible trouvee.
+    // `setState` with the same value causes no render: resolving on every
+    // render therefore costs nothing once the target is found.
     setObserved(next)
   })
 
   useScrollScrub<HTMLElement>(onProgress, {
     element: observed,
-    // Bornes d'une lecture, pas d'une traversee : la progression commence
-    // quand le haut du contenu atteint le haut de la fenetre, et s'acheve
-    // quand son bas atteint le bas. Les bornes par defaut mesureraient le
-    // passage de l'element dans le champ, ce qui n'est pas la meme chose.
+    // Bounds of a reading, not of a crossing: the progress starts when the top
+    // of the content reaches the top of the window, and ends when its bottom
+    // reaches the bottom. The default bounds would measure the passage of the
+    // element through the viewport, which is not the same thing.
     start: 'top top',
     end: 'bottom bottom',
-    name: 'progression de lecture',
+    name: 'reading progress',
   })
 
   const [host, setHost] = useState<HTMLElement | null>(null)
@@ -201,8 +201,8 @@ export function ScrollProgress({
             background: 'var(--o-palette-brand-600)',
             transform: 'scaleX(0)',
             transformOrigin: 'left',
-            // La barre suit le defilement : la transition ne sert qu'a lisser
-            // les sauts, pas a animer la course elle-meme.
+            // The bar follows the scroll: the transition only smooths the
+            // jumps, it does not animate the run itself.
             transition: 'opacity var(--o-duration-fast) linear',
             willChange: 'transform',
           }}

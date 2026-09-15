@@ -1,98 +1,99 @@
 /**
- * Politique de mouvement.
+ * Motion policy.
  *
- * Un module unique decide si une animation joue, a quelle intensite et a quel
- * niveau de qualite. Il agrege la preference systeme, le reglage explicite de
- * l'application, la visibilite de l'onglet, la charge mesuree, et — quand le
- * navigateur les expose — le niveau de batterie et le type de connexion. Il
- * suit aussi le theme du document, parce qu'un fond qui lit ses couleurs dans
- * les tokens doit les relire quand la page bascule.
+ * A single module decides whether an animation plays, at what intensity and at
+ * what quality level. It aggregates the system preference, the explicit
+ * setting of the application, the visibility of the tab, the measured load,
+ * and — when the browser exposes them — the battery level and the connection
+ * type. It also follows the theme of the document, because a background that
+ * reads its colours from the tokens must read them again when the page
+ * switches.
  *
- * ## Pourquoi ici et pas dans chaque composant
+ * ## Why here and not in every component
  *
- * Parce que c'est le genre de regle qu'on applique consciencieusement aux dix
- * premiers composants et qu'on oublie au quarantieme. Centralisee, elle ne
- * peut pas etre oubliee : un composant qui interroge la politique la respecte
- * par construction.
+ * Because this is the kind of rule you apply conscientiously to the first ten
+ * components and forget at the fortieth. Centralised, it cannot be forgotten:
+ * a component that queries the policy respects it by construction.
  *
- * ## La regle qui compte
+ * ## The rule that matters
  *
- * Quand le mouvement est desactive, **l'etat final est applique**, jamais
- * l'etat initial. Un texte qui devait apparaitre apparait, sans transition.
- * Aucun contenu ne disparait parce que l'utilisateur a demande moins
- * d'animations — c'est le defaut d'accessibilite le plus courant des
- * bibliotheques d'animation, et il est ici structurellement impossible.
+ * When motion is disabled, **the final state is applied**, never the initial
+ * state. A text that was to appear appears, without a transition. No content
+ * disappears because the user asked for fewer animations — this is the most
+ * common accessibility flaw of animation libraries, and here it is
+ * structurally impossible.
  *
  * @module
  */
 
 import { clock } from './clock.js'
 
-/** Reglage de qualite demande par l'application. */
+/** Quality setting requested by the application. */
 export type QualitySetting = 'low' | 'auto' | 'high'
 
-/** Qualite effectivement retenue. */
+/** Quality actually selected. */
 export type QualityLevel = 'low' | 'medium' | 'high'
 
-/** Conduite a tenir face a la preference systeme. */
+/** Behaviour to adopt towards the system preference. */
 export type ReducedMotionSetting = 'respect' | 'force' | 'ignore'
 
-/** Theme effectif du document. */
+/** Effective theme of the document. */
 export type ThemeLevel = 'light' | 'dark'
 
-/** Etat courant de la politique. */
+/** Current state of the policy. */
 export interface MotionState {
-  /** `true` si les animations doivent etre neutralisees. */
+  /** `true` if animations must be neutralised. */
   readonly reduced: boolean
-  /** Qualite retenue pour les rendus couteux. */
+  /** Quality selected for expensive renders. */
   readonly quality: QualityLevel
-  /** `true` si l'onglet est visible. */
+  /** `true` if the tab is visible. */
   readonly visible: boolean
   /**
-   * Theme effectif du document : `data-theme` sur la racine quand il est pose,
-   * la preference systeme sinon. Un composant qui lit ses couleurs dans les
-   * tokens s'en sert pour les relire a la bascule.
+   * Effective theme of the document: `data-theme` on the root when it is set,
+   * the system preference otherwise. A component that reads its colours from
+   * the tokens uses it to read them again on the toggle.
    */
   readonly theme: ThemeLevel
   /**
-   * Images par seconde relevees au dernier changement d'etat. Pour une lecture
-   * instantanee, interroger `clock.fps` : cette valeur-ci ne bouge pas a
-   * chaque image, precisement pour ne pas provoquer un rendu par seconde.
+   * Frames per second recorded at the last state change. For an instantaneous
+   * reading, query `clock.fps`: this value does not move on every frame,
+   * precisely so as not to cause one render per second.
    */
   readonly fps: number
-  /** Motif de la qualite courante, pour le diagnostic. */
+  /** Reason for the current quality, for diagnostics. */
   readonly reason: string
 }
 
-/** Reglages acceptes par la politique. */
+/** Settings accepted by the policy. */
 export interface MotionPolicyOptions {
-  /** Qualite demandee. @defaultValue 'auto' */
+  /** Requested quality. @defaultValue 'auto' */
   quality?: QualitySetting
-  /** Conduite face a `prefers-reduced-motion`. @defaultValue 'respect' */
+  /** Behaviour towards `prefers-reduced-motion`. @defaultValue 'respect' */
   reducedMotion?: ReducedMotionSetting
 }
 
-/** Seuils de rétrogradation et de remontee, en images par seconde. */
+/** Downgrade and upgrade thresholds, in frames per second. */
 const DEGRADE_BELOW = 45
 const UPGRADE_ABOVE = 55
 
 /**
- * Duree pendant laquelle la mesure doit rester du meme cote du seuil.
+ * Duration for which the measurement must stay on the same side of the
+ * threshold.
  *
- * La remontee est bien plus lente que la retrogradation : mieux vaut rester
- * une seconde de trop en qualite basse que d'osciller entre deux niveaux, ce
- * qui se voit immediatement a l'ecran.
+ * The upgrade is far slower than the downgrade: better to stay one second too
+ * long at low quality than to oscillate between two levels, which is
+ * immediately visible on screen.
  */
 const DEGRADE_AFTER_MS = 1000
 const UPGRADE_AFTER_MS = 4000
 
-/** Sous-ensemble de l'API reseau, absente de la plateforme type. */
+/** Subset of the network API, missing from the typed platform. */
 interface NetworkInformation {
   saveData?: boolean
   effectiveType?: string
 }
 
-/** Sous-ensemble de l'API batterie. */
+/** Subset of the battery API. */
 interface BatteryStatus {
   charging: boolean
   level: number
@@ -108,15 +109,14 @@ class MotionPolicy {
   private forcedTheme: ThemeLevel | undefined
   private visible = true
   private resolved: QualityLevel = 'high'
-  private reason = 'reglage initial'
+  private reason = 'initial setting'
   private lowPower = false
 
   private since = 0
   private pending: QualityLevel | undefined
   /**
-   * Instantane conserve. `useSyncExternalStore` compare les instantanes par
-   * identite : en reconstruire un a chaque lecture provoquerait une boucle de
-   * rendu sans fin.
+   * Retained snapshot. `useSyncExternalStore` compares snapshots by identity:
+   * rebuilding one on every read would cause an endless render loop.
    */
   private snapshot: MotionState = {
     reduced: false,
@@ -124,23 +124,23 @@ class MotionPolicy {
     visible: true,
     theme: 'light',
     fps: 0,
-    reason: 'reglage initial',
+    reason: 'initial setting',
   }
   private readonly listeners = new Set<(state: MotionState) => void>()
   private installed = false
   private teardown: (() => void)[] = []
 
   /**
-   * Etat courant.
+   * Current state.
    *
-   * La reference ne change qu'a un changement reel : c'est ce qui rend cet
-   * etat consommable par `useSyncExternalStore`.
+   * The reference only changes on a real change: that is what makes this state
+   * consumable by `useSyncExternalStore`.
    */
   public get state(): MotionState {
     return this.snapshot
   }
 
-  /** Recalcule l'instantane, et signale s'il a change. */
+  /** Recomputes the snapshot, and reports whether it changed. */
   private refresh(): boolean {
     const next: MotionState = {
       reduced: this.isReduced(),
@@ -166,31 +166,31 @@ class MotionPolicy {
     return true
   }
 
-  /** Determine si les animations doivent etre neutralisees. */
+  /** Determines whether animations must be neutralised. */
   private isReduced(): boolean {
     if (this.reducedMotion === 'force') return true
     if (this.reducedMotion === 'ignore') return false
     return this.systemReduced
   }
 
-  /** Applique des reglages, et reevalue immediatement. */
+  /** Applies settings, and re-evaluates immediately. */
   public configure(options: MotionPolicyOptions): void {
     if (options.quality !== undefined) this.quality = options.quality
     if (options.reducedMotion !== undefined) this.reducedMotion = options.reducedMotion
 
     if (this.quality === 'low') {
       this.resolved = 'low'
-      this.reason = 'qualite imposee'
+      this.reason = 'forced quality'
     } else if (this.quality === 'high') {
       this.resolved = 'high'
-      this.reason = 'qualite imposee'
+      this.reason = 'forced quality'
     }
 
     this.install()
     this.emit()
   }
 
-  /** Abonne un ecouteur aux changements d'etat. */
+  /** Subscribes a listener to state changes. */
   public subscribe(listener: (state: MotionState) => void): () => void {
     this.listeners.add(listener)
     this.install()
@@ -202,7 +202,7 @@ class MotionPolicy {
     for (const listener of this.listeners) listener(this.snapshot)
   }
 
-  /** Installe les observateurs de plateforme, une seule fois. */
+  /** Installs the platform observers, only once. */
   private install(): void {
     if (this.installed || typeof window === 'undefined') return
     this.installed = true
@@ -228,8 +228,8 @@ class MotionPolicy {
     }
 
     if (typeof document !== 'undefined') {
-      // Le theme pose par l'application l'emporte sur la preference systeme,
-      // dans les deux sens — la meme regle que la feuille de style.
+      // The theme set by the application wins over the system preference, in
+      // both directions — the same rule as the stylesheet.
       const readForced = (): void => {
         const value = document.documentElement.dataset['theme']
         this.forcedTheme = value === 'dark' || value === 'light' ? value : undefined
@@ -265,17 +265,17 @@ class MotionPolicy {
   }
 
   /**
-   * Lit les indices d'appareil contraint.
+   * Reads the hints of a constrained device.
    *
-   * Ces API ne sont pas universelles : leur absence n'est pas une erreur, elle
-   * signifie simplement qu'aucune contrainte n'est connue.
+   * These APIs are not universal: their absence is not an error, it simply
+   * means that no constraint is known.
    */
   private readLowPower(): void {
     const connection = (navigator as Navigator & { connection?: NetworkInformation })
       .connection
     if (connection?.saveData === true) {
       this.lowPower = true
-      this.reason = 'economie de donnees demandee'
+      this.reason = 'data saving requested'
     }
 
     const getBattery = (
@@ -290,7 +290,7 @@ class MotionPolicy {
           const constrained = !battery.charging && battery.level < 0.2
           if (constrained !== this.lowPower) {
             this.lowPower = constrained
-            if (constrained) this.reason = 'batterie faible'
+            if (constrained) this.reason = 'low battery'
             this.emit()
           }
         }
@@ -302,10 +302,10 @@ class MotionPolicy {
   }
 
   /**
-   * Surveille la charge et ajuste la qualite quand le reglage est automatique.
+   * Watches the load and adjusts the quality when the setting is automatic.
    *
-   * La mesure est relevee une fois par seconde, pas a chaque image : reagir a
-   * une seule image lente produirait un clignotement de qualite.
+   * The measurement is taken once per second, not on every frame: reacting to
+   * a single slow frame would produce a flicker of quality.
    */
   private watchLoad(): void {
     const timer = setInterval(() => {
@@ -340,8 +340,8 @@ class MotionPolicy {
 
       this.resolved = target
       this.reason = this.lowPower
-        ? 'appareil contraint'
-        : `${fps} images par seconde mesurees`
+        ? 'constrained device'
+        : `${fps} frames per second measured`
       this.pending = undefined
       this.emit()
     }, 1000)
@@ -360,7 +360,7 @@ class MotionPolicy {
   }
 
   /**
-   * Retire les observateurs. Reserve aux tests et a la fermeture d'une page.
+   * Removes the observers. Reserved for the tests and for closing a page.
    */
   public dispose(): void {
     for (const stop of this.teardown) stop()
@@ -370,7 +370,7 @@ class MotionPolicy {
     this.quality = 'auto'
     this.reducedMotion = 'respect'
     this.resolved = 'high'
-    this.reason = 'reglage initial'
+    this.reason = 'initial setting'
     this.lowPower = false
     this.pending = undefined
     this.systemReduced = false
@@ -381,22 +381,22 @@ class MotionPolicy {
       visible: true,
       theme: 'light',
       fps: 0,
-      reason: 'reglage initial',
+      reason: 'initial setting',
     }
   }
 }
 
 /**
- * Politique de la page.
+ * Policy of the page.
  *
  * @example
  * import { motionPolicy } from '@odoro-cli/engine'
  *
  * if (motionPolicy.state.reduced) {
- *   element.style.opacity = '1' // etat final, immediatement
+ *   element.style.opacity = '1' // final state, immediately
  * }
  */
 export const motionPolicy = new MotionPolicy()
 
-/** Type de la politique, pour les signatures qui la recoivent. */
+/** Type of the policy, for the signatures that receive it. */
 export type MotionPolicyInstance = MotionPolicy

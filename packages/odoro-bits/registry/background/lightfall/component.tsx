@@ -1,23 +1,22 @@
 /**
- * Cascade de lumiere : des gouttes lumineuses qui tombent en colonnes.
+ * Lightfall: luminous drops falling in columns.
  *
- * ## Le principe
+ * ## The principle
  *
- * Une goutte par colonne, a sa propre cadence : une tete nette et une
- * trainee exponentielle au-dessus d'elle. Trois profondeurs se superposent,
- * plus fines et plus pales en s'eloignant, sur un rideau qui descend du haut.
- * Distinct de la pluie : des gouttes larges et lumineuses qui trainent, pas
- * des stries fines.
+ * One drop per column, each at its own cadence: a sharp head and an
+ * exponential trail above it. Three depths are stacked, finer and paler as
+ * they recede, over a curtain coming down from the top. Distinct from rain:
+ * wide luminous drops that trail, not thin streaks.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur.
+ * It carries only what sets it apart: its shader, its settings and its fallback.
+ * Reading the tokens, converting them to floats and re-reading them when the
+ * theme changes all come from the engine.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface et sous
- * mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface and under reduced
+ * motion.
  *
  * @module
  */
@@ -34,58 +33,57 @@ import { type ReactElement } from 'react'
 
 import { LIGHTFALL_FRAGMENT } from './lightfall.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface LightfallControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to this component. */
 export interface LightfallOwnProps {
-  /** Vitesse de chute. @defaultValue 1 */
+  /** Falling speed. @defaultValue 1 */
   speed?: number
-  /** Nombre de colonnes sur la hauteur du cadre. @defaultValue 9 */
+  /** Number of columns across the height of the frame. @defaultValue 9 */
   density?: number
-  /** Longueur des trainees, en hauteurs de cadre. @defaultValue 0.25 */
+  /** Length of the trails, in frame heights. @defaultValue 0.25 */
   length?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<LightfallControls>
 }
 
-/** Toutes les proprietes. */
+/** Every property. */
 export type LightfallProps = Customisable<LightfallOwnProps>
 
-/** Tokens employes par defaut : le fond, le rideau, les gouttes. */
+/** Tokens used by default: the background, the curtain, the drops. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-sky-500',
   '--o-palette-cyan-300',
 ] as const
 
-/** Repli par defaut : un degrade fige, dans les memes tons. */
+/** Default fallback: a frozen gradient, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-b o-from-sky-100 dark:o-from-sky-900 o-to-zinc-50 dark:o-to-zinc-950'
 
 /**
- * Profondeurs superposees hors qualite basse.
+ * Depths stacked outside low quality.
  *
- * Chaque profondeur est une couche entiere de gouttes : c'est le seul levier
- * de cout du shader, et la plus lointaine est aussi la plus pale — celle qui
- * manque le moins.
+ * Every depth is a whole layer of drops: it is the shader's only lever on
+ * cost, and the furthest one is also the palest — the one least missed.
  */
 const LAYERS = 3
 
-/** Profondeurs en qualite basse. */
+/** Depths at low quality. */
 const LOW_LAYERS = 1
 
 /**
- * Cascade de lumiere.
+ * Lightfall.
  *
  * @example
  * <div className="o-relative o-min-h-screen">

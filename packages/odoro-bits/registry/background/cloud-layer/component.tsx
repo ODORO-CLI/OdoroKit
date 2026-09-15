@@ -1,23 +1,23 @@
 /**
- * Couches de nuages : des masses de bruit fractal empilees, qui derivent en
- * parallaxe.
+ * Cloud layers: stacked masses of fractal noise, drifting in
+ * parallax.
  *
- * ## Le principe
+ * ## The principle
  *
- * Trois couches seuillees par la couverture, chacune a sa vitesse et son
- * echelle ; une seconde lecture du bruit, decalee vers la lumiere, eclaire
- * les sommets et laisse les dessous dans l'ombre. Distinct de la fumee et
- * de la nebuleuse : des masses opaques, eclairees, en profondeur.
+ * Three layers thresholded by the coverage, each at its own speed and its
+ * own scale; a second lookup into the noise, shifted towards the light,
+ * lights the tops and leaves the undersides in shadow. Distinct from smoke
+ * and from the nebula: opaque masses, lit, in depth.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur.
+ * It carries only what sets it apart: its shader, its settings and its fallback.
+ * Reading the tokens, converting them to floats and re-reading them when the
+ * theme changes all come from the engine.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface et sous
- * mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface and under reduced
+ * motion.
  *
  * @module
  */
@@ -34,58 +34,58 @@ import { type ReactElement } from 'react'
 
 import { CLOUD_LAYER_FRAGMENT } from './cloud-layer.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface CloudLayerControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to this component. */
 export interface CloudLayerOwnProps {
-  /** Vitesse de derive de la couche proche. @defaultValue 0.08 */
+  /** Drift speed of the near layer. @defaultValue 0.08 */
   speed?: number
-  /** Echelle des masses. Plus haut, plus fin. @defaultValue 2 */
+  /** Scale of the masses. Higher is finer. @defaultValue 2 */
   scale?: number
-  /** Couverture du ciel, de zero a un. @defaultValue 0.55 */
+  /** Sky coverage, from zero to one. @defaultValue 0.55 */
   coverage?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<CloudLayerControls>
 }
 
-/** Toutes les proprietes. */
+/** Every property. */
 export type CloudLayerProps = Customisable<CloudLayerOwnProps>
 
-/** Tokens employes par defaut : le fond, l'ombre des nuages, leurs sommets. */
+/** Tokens used by default: the background, the clouds' shadow, their tops. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-slate-400',
   '--o-palette-sky-100',
 ] as const
 
-/** Repli par defaut : un degrade fige, dans les memes tons. */
+/** Default fallback: a frozen gradient, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-t o-from-slate-100 dark:o-from-slate-900 o-to-zinc-50 dark:o-to-zinc-950'
 
 /**
- * Detail du bruit hors qualite basse.
+ * Noise detail outside low quality.
  *
- * Chaque couche lit le bruit deux fois — la masse et sa lumiere — et il y a
- * trois couches : chaque octave se paie six fois. C'est le seul levier de
- * cout du shader.
+ * Each layer reads the noise twice — the mass and its light — and there are
+ * three layers: every octave is paid for six times over. It is the shader's
+ * only lever on cost.
  */
 const OCTAVES = 5
 
-/** Detail du bruit en qualite basse. */
+/** Noise detail at low quality. */
 const LOW_OCTAVES = 3
 
 /**
- * Couches de nuages.
+ * Cloud layers.
  *
  * @example
  * <div className="o-relative o-min-h-screen">

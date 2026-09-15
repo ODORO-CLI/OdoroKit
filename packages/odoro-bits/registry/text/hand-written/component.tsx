@@ -1,42 +1,41 @@
 /**
- * Signature : un trace se dessine d'un seul geste, comme au stylo.
+ * Signature: a stroke draws itself in a single gesture, as with a pen.
  *
- * ## Un tiret aussi long que le chemin
+ * ## A dash as long as the path
  *
- * Le trait n'est pas revele par un masque qui glisse : c'est un tiret dont la
- * longueur vaut le chemin entier, deplace par son propre decalage. Quand le
- * decalage vaut la longueur, le tiret est entierement sorti et rien n'est
- * peint ; quand il retombe a zero, le trait est complet. Le crayon avance
- * donc le long de la courbe, en suivant ses boucles et ses retours — ce
- * qu'aucun masque rectangulaire ne saurait faire.
+ * The stroke is not revealed by a sliding mask: it is a dash whose length
+ * equals the whole path, moved by its own offset. When the offset equals the
+ * length, the dash is entirely out and nothing is painted; when it falls back
+ * to zero, the stroke is complete. The pen therefore advances along the curve,
+ * following its loops and its returns — something no rectangular mask could
+ * do.
  *
- * Le chemin declare une longueur de cent : les images cles se lisent en pour
- * cent et valent pour n'importe quelle signature, quelle que soit la longueur
- * reelle de son contour. C'est ce qui permet de passer la sienne en propriete
- * sans toucher a rien d'autre.
+ * The path declares a length of one hundred: the keyframes read as percentages
+ * and hold for any signature, whatever the real length of its outline. That is
+ * what makes it possible to pass one's own as a property without touching
+ * anything else.
  *
- * ## Pas de forme en creux
+ * ## No hollow shape
  *
- * `logo-draw` laisse voir sa marque en filigrane pendant le trace : un logo a
- * demi dessine n'est qu'un fragment, et l'oeil a besoin de savoir ce qui
- * manque. Une signature, non — la voir d'avance detruirait le seul interet du
- * geste. On ne la lit qu'une fois posee.
+ * `logo-draw` lets its mark show as a watermark during the drawing: a
+ * half-drawn logo is only a fragment, and the eye needs to know what is
+ * missing. A signature, no — seeing it in advance would destroy the only point
+ * of the gesture. It is read only once laid down.
  *
- * ## Le trace complet est l'etat de depart
+ * ## The complete stroke is the starting state
  *
- * Le decalage vaut zero dans la feuille : sans JavaScript, la signature est
- * la, entiere. C'est le code de l'animation qui la retire avant de la
- * reposer, jamais le rendu.
+ * The offset is zero in the stylesheet: without JavaScript, the signature is
+ * there, whole. It is the animation code that takes it away before laying it
+ * down again, never the render.
  *
- * ## Ce que la signature n'est pas
+ * ## What the signature is not
  *
- * Un dessin, pas un texte. Le nom qu'elle porte figure une fois, d'un seul
- * tenant, pour les lecteurs d'ecran ; le trace est retire de l'arbre
- * d'accessibilite.
+ * A drawing, not a text. The name it carries appears once, in one piece, for
+ * screen readers; the stroke is removed from the accessibility tree.
  *
- * ## Mouvement reduit
+ * ## Reduced motion
  *
- * La signature entierement tracee, a l'arret : c'est l'etat d'arrivee.
+ * The signature fully drawn, at a standstill: that is the arrival state.
  *
  * @module
  */
@@ -46,53 +45,53 @@ import { useEffect, type ElementType, type ReactElement } from 'react'
 
 import { useInView } from '@registre/hooks/useInView'
 
-/** Ce qui declenche le trace. */
-export type HandWrittenDeclenchement = 'montage' | 'vue' | 'survol'
+/** What triggers the drawing. */
+export type HandWrittenTrigger = 'mount' | 'view' | 'hover'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface HandWrittenOwnProps {
-  /** Nom que la signature porte, annonce aux lecteurs d'ecran. */
+  /** Name the signature carries, announced to screen readers. */
   children: string
-  /** Balise rendue. @defaultValue 'span' */
+  /** Rendered tag. @defaultValue 'span' */
   as?: ElementType
   /**
-   * Trace de la signature, en donnees de chemin SVG. Un seul trait continu :
-   * une signature ne leve pas le stylo.
-   * @defaultValue un paraphe
+   * Stroke of the signature, as SVG path data. A single continuous stroke: a
+   * signature does not lift the pen.
+   * @defaultValue a flourish
    */
   path?: string
-  /** Vue du trace. A changer avec le chemin. @defaultValue '0 0 320 110' */
+  /** View of the stroke. To be changed along with the path. @defaultValue '0 0 320 110' */
   viewBox?: string
-  /** Largeur du dessin, en pixels. @defaultValue 280 */
+  /** Width of the drawing, in pixels. @defaultValue 280 */
   width?: number
-  /** Epaisseur du trait, en unites de la vue. @defaultValue 5 */
+  /** Thickness of the stroke, in view units. @defaultValue 5 */
   thickness?: number
-  /** Duree du trace, en millisecondes. @defaultValue 1800 */
+  /** Duration of the drawing, in milliseconds. @defaultValue 1800 */
   duration?: number
-  /** Couleur de l'encre. @defaultValue la couleur du texte */
+  /** Colour of the ink. @defaultValue the text colour */
   color?: string
   /**
-   * Quand tracer.
+   * When to draw.
    *
-   * `vue` attend l'entree dans le champ, `montage` part tout de suite,
-   * `survol` rejoue a chaque entree du pointeur.
+   * `view` waits for the entry into the viewport, `mount` starts right away,
+   * `hover` replays on every entry of the pointer.
    *
-   * @defaultValue 'vue'
+   * @defaultValue 'view'
    */
-  declenchement?: HandWrittenDeclenchement
+  trigger?: HandWrittenTrigger
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type HandWrittenProps = Customisable<HandWrittenOwnProps, 'span'>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-hand-written'
 
 /**
- * Paraphe par defaut : une boucle initiale, trois jambages, et le trait de
- * soulignement qui revient sous le mot sans que le stylo se soit leve.
+ * Default flourish: an opening loop, three downstrokes, and the underline that
+ * comes back beneath the word without the pen having been lifted.
  */
-const PARAPHE = [
+const FLOURISH = [
   'M 26 74',
   'C 18 44, 44 18, 66 26',
   'C 86 34, 78 66, 60 74',
@@ -114,13 +113,13 @@ const PARAPHE = [
   'C 84 93, 48 90, 30 84',
 ].join(' ')
 
-/** Vue du paraphe par defaut. */
-const PARAPHE_VUE = '0 0 320 110'
+/** View of the default flourish. */
+const FLOURISH_VIEW = '0 0 320 110'
 
-/** Sortie reguliere, a peine ralentie a la fin : une main ne freine pas. */
-const COURBE = 'cubic-bezier(0.35, 0.1, 0.3, 1)'
+/** Even ease out, barely slowed at the end: a hand does not brake. */
+const CURVE = 'cubic-bezier(0.35, 0.1, 0.3, 1)'
 
-/** Pose le trace, une fois par document. */
+/** Sets the drawing, once per document. */
 function ensureHandRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -130,24 +129,24 @@ function ensureHandRule(): void {
   style.textContent = [
     '[data-o-hand]{display:inline-block;line-height:0}',
     '[data-o-hand] svg{display:block;height:auto}',
-    // Decalage nul : la signature est posee. Voir l'en-tete du module.
+    // Zero offset: the signature is laid down. See the module header.
     '[data-o-hand-line]{stroke-dasharray:100 100;stroke-dashoffset:0}',
   ].join('')
   document.head.append(style)
 }
 
 /**
- * Trace une signature manuscrite.
+ * Draws a handwritten signature.
  *
  * @example
  * <HandWritten>Odoro</HandWritten>
  *
  * @example
- * // Sa propre signature, dans sa propre vue, rejouee au survol.
+ * // One's own signature, in its own view, replayed on hover.
  * <HandWritten
  *   path="M 10 60 C 60 10, 120 90, 190 40"
  *   viewBox="0 0 200 100"
- *   declenchement="survol"
+ *   trigger="hover"
  * >
  *   Camille
  * </HandWritten>
@@ -155,18 +154,18 @@ function ensureHandRule(): void {
 export function HandWritten({
   children,
   as: Tag = 'span',
-  path = PARAPHE,
-  viewBox = PARAPHE_VUE,
+  path = FLOURISH,
+  viewBox = FLOURISH_VIEW,
   width = 280,
   thickness = 5,
   duration = 1800,
   color = 'currentColor',
-  declenchement = 'vue',
+  trigger = 'view',
   ...rest
 }: HandWrittenProps): ReactElement {
   const { reduced } = useMotionState()
-  const { ref, vu } = useInView<HTMLElement>({
-    immediat: declenchement === 'montage',
+  const { ref, inView } = useInView<HTMLElement>({
+    immediate: trigger === 'mount',
   })
 
   ensureHandRule()
@@ -175,52 +174,52 @@ export function HandWritten({
     const element = ref.current
     if (element === null || reduced) return
 
-    const trait = element.querySelector<SVGPathElement>('[data-o-hand-line]')
-    if (trait === null) return
+    const stroke = element.querySelector<SVGPathElement>('[data-o-hand-line]')
+    if (stroke === null) return
 
     let animation: Animation | null = null
 
-    const arreter = (): void => {
+    const stop = (): void => {
       animation?.cancel()
       animation = null
     }
 
-    const jouer = (): void => {
-      arreter()
-      animation = trait.animate(
+    const play = (): void => {
+      stop()
+      animation = stroke.animate(
         [{ strokeDashoffset: '100' }, { strokeDashoffset: '0' }],
-        { duration, easing: COURBE, fill: 'both' },
+        { duration, easing: CURVE, fill: 'both' },
       )
     }
 
-    if (declenchement === 'survol') {
-      // Rien n'est efface d'avance : la signature attend, posee, et c'est
-      // l'animation elle-meme qui la retire le temps de la reecrire.
-      const entrer = (): void => {
-        jouer()
+    if (trigger === 'hover') {
+      // Nothing is erased in advance: the signature waits, laid down, and it
+      // is the animation itself that takes it away while it rewrites it.
+      const onEnter = (): void => {
+        play()
       }
-      element.addEventListener('pointerenter', entrer)
+      element.addEventListener('pointerenter', onEnter)
       return () => {
-        element.removeEventListener('pointerenter', entrer)
-        arreter()
+        element.removeEventListener('pointerenter', onEnter)
+        stop()
       }
     }
 
-    if (!vu) {
-      // L'etat efface est ecrit ici, pas dans le rendu : voir l'en-tete.
-      trait.style.strokeDashoffset = '100'
+    if (!inView) {
+      // The erased state is written here, not in the render: see the header.
+      stroke.style.strokeDashoffset = '100'
       return
     }
 
-    jouer()
+    play()
     return () => {
-      arreter()
-      trait.style.removeProperty('stroke-dashoffset')
+      stop()
+      stroke.style.removeProperty('stroke-dashoffset')
     }
-  }, [ref, reduced, vu, path, duration, declenchement])
+  }, [ref, reduced, inView, path, duration, trigger])
 
-  // La largeur est une base, pas une contrainte : elle passe en premier pour
-  // qu'un `style` de l'appelant l'emporte.
+  // The width is a base, not a constraint: it comes first so that a `style`
+  // from the caller wins.
   const { className, style } = mergePresentation(
     { style: { width: `${String(width)}px` } },
     rest,
@@ -228,7 +227,7 @@ export function HandWritten({
 
   return (
     <Tag {...rest} ref={ref} className={className} style={style} data-o-hand="">
-      {/* Le nom, d'un seul tenant, pour les lecteurs d'ecran. */}
+      {/* The name, in one piece, for screen readers. */}
       <span className="o-sr-only">{children}</span>
       <svg aria-hidden viewBox={viewBox} width="100%">
         <path

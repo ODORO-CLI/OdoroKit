@@ -1,9 +1,9 @@
 /**
- * Configuration du moteur Odoro.
+ * Configuration of the Odoro engine.
  *
- * Le fichier `odoro.config.ts` est compile a la volee puis importe : il peut
- * donc etre ecrit en TypeScript et utiliser toute la puissance du langage,
- * sans etape de build prealable.
+ * The `odoro.config.ts` file is compiled on the fly then imported: it can
+ * therefore be written in TypeScript and use the full power of the language,
+ * with no prior build step.
  *
  * @module
  */
@@ -16,109 +16,230 @@ import { pathToFileURL } from 'node:url'
 import { build } from 'esbuild'
 
 import { guessAliasPaths } from './add/aliases.js'
+import type { OdoroPlugin } from './plugins.js'
+import { loadEnv, clientEnv } from './shared/env.js'
 
-/** Reglages du serveur de developpement. */
+/** Certificate of an HTTPS development server. */
+export interface HttpsConfig {
+  /** Path to the certificate, relative to the project root. */
+  cert: string
+  /** Path to the private key, relative to the project root. */
+  key: string
+}
+
+/** Development server settings. */
 export interface ServerConfig {
-  /** Port d'ecoute. @defaultValue 5180 */
+  /** Port to listen on. @defaultValue 5180 */
   port?: number
-  /** Interface d'ecoute. @defaultValue 'localhost' */
+  /** Interface to listen on. @defaultValue 'localhost' */
   host?: string
   /**
-   * Redirections de requetes, du prefixe de chemin vers l'origine cible.
+   * Request forwarding, from path prefix to target origin.
    *
    * @example
    * { '/api': 'http://localhost:3001' }
    */
   proxy?: Record<string, string>
+  /**
+   * Serves over HTTPS, with the given certificate.
+   *
+   * Required as soon as an interface demands a secure origin: camera,
+   * microphone, clipboard, service worker.
+   */
+  https?: HttpsConfig
+  /**
+   * Fails if the requested port is taken, instead of sliding to the next one.
+   *
+   * @defaultValue false
+   */
+  strictPort?: boolean
+  /** Opens the browser on startup. @defaultValue false */
+  open?: boolean
 }
 
-/** Reglages de la compilation de production. */
+/** Prerendering settings. */
+export interface PrerenderConfig {
+  /**
+   * The routes rendered at build time.
+   *
+   * When empty, the ones the server entry exports under the name `routes` are
+   * taken.
+   */
+  routes?: readonly string[]
+  /**
+   * Server entry, relative to the root.
+   *
+   * @defaultValue 'src/entry-server.tsx'
+   */
+  entry?: string
+}
+
+/** Production build settings. */
 export interface BuildConfig {
-  /** Dossier de sortie, relatif a la racine. @defaultValue 'dist' */
+  /** Output directory, relative to the root. @defaultValue 'dist' */
   outDir?: string
-  /** Minifie le code produit. @defaultValue true */
+  /** Minifies the produced code. @defaultValue true */
   minify?: boolean
-  /** Emet des cartes de source. @defaultValue true */
+  /** Emits source maps. @defaultValue true */
   sourcemap?: boolean
-  /** Cible de compilation. @defaultValue 'es2022' */
+  /** Build target. @defaultValue 'es2022' */
   target?: string
   /**
-   * Retire de la feuille de style les classes utilitaires que rien n'emploie.
+   * Removes from the stylesheet the utility classes nothing uses.
    *
-   * La bibliotheque livre une feuille pre-generee qui les contient toutes ;
-   * une application donnee en emploie une fraction. L'elagage lit le code
-   * **produit** — donc les composants de bibliotheque autant que la source de
-   * l'application — et ne garde que ce qui est atteignable.
+   * The library ships a pre-generated stylesheet holding them all; a given
+   * application uses a fraction of it. Pruning reads the **produced** code —
+   * so the library components as much as the application source — and keeps
+   * only what is reachable.
    *
-   * Une classe assemblee a l'execution (`o-text-${couleur}`) n'existe nulle
-   * part sous sa forme finale et disparaitra : la declarer dans
-   * `safelist` est le seul moyen de la garder.
+   * A class assembled at runtime (`o-text-${color}`) exists nowhere in its
+   * final form and will disappear: declaring it in `safelist` is the only way
+   * to keep it.
    *
    * @defaultValue true
    */
-  elaguer?: boolean
+  prune?: boolean
   /**
-   * Les classes gardees quoi qu'il arrive, malgre l'elagage.
+   * The classes kept no matter what, despite pruning.
    *
-   * Une chaine garde une classe ; une expression reguliere garde toutes celles
-   * qu'elle reconnait.
+   * A string keeps one class; a regular expression keeps every class it
+   * matches.
    *
    * @example
    * { safelist: [/^o-text-/, 'o-animate-spin'] }
    */
   safelist?: readonly (string | RegExp)[]
+  /**
+   * Writes `manifest.json` next to the produced files.
+   *
+   * It gives, for each entry, the hashed file, its stylesheets and its chunks.
+   * That is what a server reads to place the tags itself, when the project
+   * document does not carry them.
+   *
+   * @defaultValue true
+   */
+  manifest?: boolean
+  /**
+   * Declares the shared chunks as `modulepreload` in the document.
+   *
+   * Without it, the browser only discovers a chunk after reading the module
+   * that imports it: as many round trips as there are levels of depth, on the
+   * critical path.
+   *
+   * @defaultValue true
+   */
+  preload?: boolean
+  /**
+   * Renders the routes to HTML at build time.
+   *
+   * `true` takes the defaults; an array gives the routes; the object form
+   * allows naming another entry point.
+   *
+   * @defaultValue false
+   *
+   * @example
+   * { prerender: ['/', '/about'] }
+   */
+  prerender?: boolean | readonly string[] | PrerenderConfig
 }
 
-/** Configuration d'un projet Odoro. */
+/** Configuration of an Odoro project. */
 export interface OdoroConfig {
-  /** Racine du projet. @defaultValue le dossier courant */
+  /** Project root. @defaultValue the current directory */
   root?: string
-  /** Prefixe des URL publiques. @defaultValue '/' */
+  /** Prefix of public URLs. @defaultValue '/' */
   base?: string
-  /** Dossier des fichiers copies tels quels. @defaultValue 'public' */
+  /** Directory of files copied as is. @defaultValue 'public' */
   publicDir?: string
-  /** Reglages du serveur de developpement. */
+  /** Development server settings. */
   server?: ServerConfig
-  /** Reglages de la compilation de production. */
+  /** Production build settings. */
   build?: BuildConfig
   /**
-   * Alias de chemins d'import, du prefixe vers un chemin relatif a la racine.
+   * Import path aliases, from prefix to a path relative to the root.
    *
    * @example
    * { '@': 'src' }
    */
   alias?: Record<string, string>
-  /** Remplacements textuels appliques a la compilation. */
+  /** Textual replacements applied at build time. */
   define?: Record<string, string>
   /**
-   * Prefixe des variables d'environnement exposees au client via
+   * Prefix of the environment variables exposed to the client through
    * `import.meta.env`.
    *
    * @defaultValue 'ODORO_'
    */
   envPrefix?: string
+  /**
+   * Directory where the `.env` files are looked up.
+   *
+   * @defaultValue the project root
+   */
+  envDir?: string
+  /**
+   * Build mode: it chooses the `.env` files read and feeds
+   * `import.meta.env.MODE`.
+   *
+   * @defaultValue 'development' for `dev`, 'production' for `build`
+   */
+  mode?: string
+  /** Plugins applied to the build and to the server. */
+  plugins?: readonly OdoroPlugin[]
 }
 
-/** Configuration une fois les valeurs par defaut appliquees. */
+/** Prerendering, once resolved. */
+export interface ResolvedPrerender {
+  /** Routes to render; when empty, those of the server entry. */
+  readonly routes: readonly string[]
+  /** Absolute path of the server entry. */
+  readonly entry: string
+}
+
+/** Production build, once resolved. */
+export interface ResolvedBuild {
+  readonly outDir: string
+  readonly minify: boolean
+  readonly sourcemap: boolean
+  readonly target: string
+  readonly prune: boolean
+  readonly safelist: readonly (string | RegExp)[]
+  readonly manifest: boolean
+  readonly preload: boolean
+  /** `undefined` when prerendering is not requested. */
+  readonly prerender: ResolvedPrerender | undefined
+}
+
+/** Configuration once the default values are applied. */
 export interface ResolvedConfig {
   readonly root: string
   readonly base: string
   readonly publicDir: string
   readonly outDir: string
-  readonly server: Required<Omit<ServerConfig, 'proxy'>> & {
+  readonly server: Required<Omit<ServerConfig, 'proxy' | 'https'>> & {
     proxy: Record<string, string>
+    https: HttpsConfig | undefined
   }
-  readonly build: Required<BuildConfig>
+  readonly build: ResolvedBuild
   readonly alias: Record<string, string>
   readonly define: Record<string, string>
   readonly envPrefix: string
-  /** Chemin du fichier de configuration effectivement charge, s'il existe. */
+  readonly envDir: string
+  /** Mode retained. */
+  readonly mode: string
+  /** Every variable read, prefixed or not. Never leaves the machine. */
+  readonly env: Readonly<Record<string, string>>
+  /** What the client code reads in `import.meta.env`. */
+  readonly envClient: Readonly<Record<string, string | boolean>>
+  /** Plugins declared by the project. */
+  readonly plugins: readonly OdoroPlugin[]
+  /** Path of the configuration file actually loaded, if there is one. */
   readonly configFile: string | undefined
 }
 
 /**
- * Identite sur la configuration, presente uniquement pour le typage et
- * l'autocompletion dans `odoro.config.ts`.
+ * Identity on the configuration, present only for typing and completion in
+ * `odoro.config.ts`.
  *
  * @example
  * import { defineConfig } from 'odoro'
@@ -131,16 +252,16 @@ export function defineConfig(config: OdoroConfig): OdoroConfig {
   return config
 }
 
-/** Noms de fichiers de configuration reconnus, par ordre de priorite. */
+/** Recognised configuration file names, in order of priority. */
 const CONFIG_FILES = ['odoro.config.ts', 'odoro.config.js', 'odoro.config.mjs'] as const
 
 /**
- * Compile puis importe un fichier de configuration.
+ * Compiles then imports a configuration file.
  *
- * Le passage par un fichier intermediaire est necessaire : `import()` ne sait
- * pas charger du TypeScript. Ce fichier est depose **dans le projet**, et non
- * dans un dossier temporaire du systeme : les dependances de la configuration
- * restent externes, et Node ne saurait les resoudre depuis ailleurs.
+ * Going through an intermediate file is necessary: `import()` cannot load
+ * TypeScript. That file is written **inside the project**, and not in a system
+ * temporary directory: the dependencies of the configuration stay external, and
+ * Node could not resolve them from anywhere else.
  */
 async function importConfigFile(file: string, root: string): Promise<OdoroConfig> {
   const directory = join(root, 'node_modules', '.odoro')
@@ -155,34 +276,33 @@ async function importConfigFile(file: string, root: string): Promise<OdoroConfig
       platform: 'node',
       target: 'node20',
       write: false,
-      // Seul le code du projet est inline ; ses dependances restent externes,
-      // sans quoi il faudrait resoudre tout node_modules pour lire trois lignes.
+      // Only the project code is inlined; its dependencies stay external,
+      // otherwise the whole node_modules would have to be resolved to read
+      // three lines.
       packages: 'external',
-      // `packages: 'external'` ne suffit pas : un `baseUrl` dans le
-      // `tsconfig.json` fait chercher les imports nus depuis la racine du
-      // projet, ou `odoro.json` — le fichier du registre — est trouve avant le
-      // paquet. L'import cesse alors d'etre un import de paquet, la regle
-      // ci-dessus ne s'applique plus, et la compilation echoue sur un
-      // `defineConfig` introuvable dans un fichier de configuration.
+      // `packages: 'external'` is not enough: a `baseUrl` in the
+      // `tsconfig.json` makes bare imports be looked up from the project root,
+      // where `odoro.json` — the registry file — is found before the package.
+      // The import then stops being a package import, the rule above no longer
+      // applies, and the build fails on a `defineConfig` missing from a
+      // configuration file.
       //
-      // Le nommer explicitement le met hors d'atteinte de cette resolution. La
-      // liste vaut pour les projets deja crees : eux portent encore un
-      // `baseUrl`, et on ne peut pas reecrire leur tsconfig.
+      // Naming it explicitly puts it out of reach of that resolution. The list
+      // matters for projects already created: they still carry a `baseUrl`, and
+      // their tsconfig cannot be rewritten.
       external: ['odoro'],
     })
 
     const code = result.outputFiles[0]?.text
     if (code === undefined) {
-      throw new Error(`[odoro] La configuration "${file}" n'a produit aucun code.`)
+      throw new Error(`[odoro] Configuration "${file}" produced no code.`)
     }
 
     await writeFile(output, code, 'utf8')
     const module = (await import(pathToFileURL(output).href)) as { default?: OdoroConfig }
 
     if (module.default === undefined) {
-      throw new Error(
-        `[odoro] La configuration "${file}" doit avoir un export par defaut.`,
-      )
+      throw new Error(`[odoro] Configuration "${file}" must have a default export.`)
     }
     return module.default
   } finally {
@@ -191,10 +311,38 @@ async function importConfigFile(file: string, root: string): Promise<OdoroConfig
 }
 
 /**
- * Charge la configuration d'un projet et applique les valeurs par defaut.
+ * Resolves the prerendering setting.
  *
- * @param root Racine du projet.
- * @param overrides Reglages issus de la ligne de commande, prioritaires.
+ * The entry point must exist: asking for it without writing it is a project
+ * error, and the build will say so rather than produce a site without HTML
+ * while letting you believe prerendering happened.
+ */
+function resolvePrerender(
+  requested: BuildConfig['prerender'],
+  root: string,
+): ResolvedPrerender | undefined {
+  if (requested === undefined || requested === false) return undefined
+
+  const raw =
+    requested === true
+      ? {}
+      : Array.isArray(requested)
+        ? { routes: requested as readonly string[] }
+        : (requested as PrerenderConfig)
+
+  return {
+    routes: raw.routes ?? [],
+    entry: resolve(root, raw.entry ?? 'src/entry-server.tsx'),
+  }
+}
+
+/**
+ * Loads the configuration of a project and applies the default values.
+ *
+ * @param root Project root.
+ * @param overrides Settings coming from the command line, which take priority.
+ * @param defaultMode Mode retained when neither the command line nor the
+ *   configuration file names one.
  *
  * @example
  * const config = await loadConfig(process.cwd(), { server: { port: 4000 } })
@@ -202,6 +350,7 @@ async function importConfigFile(file: string, root: string): Promise<OdoroConfig
 export async function loadConfig(
   root: string,
   overrides: OdoroConfig = {},
+  defaultMode = 'production',
 ): Promise<ResolvedConfig> {
   const absoluteRoot = resolve(root)
 
@@ -227,11 +376,30 @@ export async function loadConfig(
   }
 
   const base = merged.base ?? '/'
-  // `publicDir` et `outDir` sont relatifs a la **racine du projet**, pas au
-  // dossier depuis lequel la commande est lancee : un projet dont le client
-  // vit dans un sous-dossier reste configurable d'une seule ligne.
+  // `publicDir` and `outDir` are relative to the **project root**, not to the
+  // directory the command is run from: a project whose client lives in a
+  // subdirectory stays configurable in a single line.
   const projectRoot =
     merged.root === undefined ? absoluteRoot : resolve(absoluteRoot, merged.root)
+
+  const mode = merged.mode ?? defaultMode
+  const envPrefix = merged.envPrefix ?? 'ODORO_'
+  const envDir =
+    merged.envDir === undefined ? projectRoot : resolve(projectRoot, merged.envDir)
+
+  const environment = await loadEnv(envDir, mode, envPrefix)
+
+  // The values read join the process environment, without ever overwriting what
+  // is already there. That is what lets the code **of the machine** — a
+  // development script, a plugin, the database command — read the same `.env`
+  // as the client, without reading it again itself.
+  //
+  // Only the prefixed part goes to the browser; this one stays here.
+  for (const [key, value] of Object.entries(environment.all)) {
+    process.env[key] ??= value
+  }
+
+  const https = merged.server?.https
 
   return {
     root: projectRoot,
@@ -242,28 +410,46 @@ export async function loadConfig(
       port: merged.server?.port ?? 5180,
       host: merged.server?.host ?? 'localhost',
       proxy: merged.server?.proxy ?? {},
+      https: https === undefined ? undefined : { ...https },
+      strictPort: merged.server?.strictPort ?? false,
+      open: merged.server?.open ?? false,
     },
     build: {
       outDir: merged.build?.outDir ?? 'dist',
       minify: merged.build?.minify ?? true,
       sourcemap: merged.build?.sourcemap ?? true,
       target: merged.build?.target ?? 'es2022',
-      // Actif par defaut : une feuille qui contient toutes les classes
-      // possibles est un accident de generation, pas une intention.
-      elaguer: merged.build?.elaguer ?? true,
+      // On by default: a stylesheet holding every possible class is a
+      // generation accident, not an intention.
+      prune: merged.build?.prune ?? true,
       safelist: merged.build?.safelist ?? [],
+      // On by default: the manifest only costs a file of a few lines, and
+      // preloading removes a cascade of requests nobody sees on a local machine
+      // and everybody suffers elsewhere.
+      manifest: merged.build?.manifest ?? true,
+      preload: merged.build?.preload ?? true,
+      prerender: resolvePrerender(merged.build?.prerender, projectRoot),
     },
-    // Les alias declares dans `tsconfig.json` sont repris d'office. Sans
-    // cela, un projet qui suit `odoro init` — lequel deduit son prefixe du
-    // tsconfig — aurait a redeclarer le meme alias ici pour que le serveur
-    // sache le resoudre. Deux endroits pour la meme verite, et une erreur
-    // qui n'apparait qu'au premier import.
+    // The aliases declared in `tsconfig.json` are picked up automatically.
+    // Without that, a project following `odoro init` — which infers its prefix
+    // from the tsconfig — would have to redeclare the same alias here for the
+    // server to resolve it. Two places for the same truth, and an error that
+    // only shows up on the first import.
     //
-    // La configuration l'emporte : c'est elle qu'on ecrit pour corriger un
-    // cas que la deduction n'attrape pas.
+    // The configuration wins: it is what you write to fix a case the inference
+    // does not catch.
     alias: { ...(await guessAliasPaths(projectRoot)), ...merged.alias },
     define: merged.define ?? {},
-    envPrefix: merged.envPrefix ?? 'ODORO_',
+    envPrefix,
+    envDir,
+    mode,
+    env: environment.all,
+    envClient: clientEnv(
+      environment.client,
+      mode,
+      base.endsWith('/') ? base : `${base}/`,
+    ),
+    plugins: merged.plugins ?? [],
     configFile: file,
   }
 }

@@ -1,23 +1,22 @@
 /**
- * Cartes qui se figent et s'empilent au defilement.
+ * Cards that pin and stack as the page scrolls.
  *
- * ## Le collage est natif, et il doit le rester
+ * ## Pinning is native, and it must stay that way
  *
- * `position: sticky` fait tout le travail de position : la carte suit le
- * defilement jusqu'a son point d'ancrage, puis s'y fige pendant que la
- * suivante monte. Reproduire cela a la main demanderait de mesurer, de
- * calculer, et de reecrire une transformation par image — pour un resultat qui
- * traine d'une image derriere le contenu.
+ * `position: sticky` does all the positioning work: the card follows the
+ * scroll up to its anchor point, then pins there while the next one rises.
+ * Reproducing that by hand would mean measuring, computing, and rewriting one
+ * transform per frame — for a result that trails a frame behind the content.
  *
- * Le seul reglage que le natif ne donne pas est la **reduction** de la carte
- * figee quand la suivante la recouvre. C'est ce que la boucle ecrit, et rien
- * d'autre.
+ * The only setting the native behaviour does not give is the **shrinking** of
+ * the pinned card when the next one covers it. That is what the loop writes,
+ * and nothing else.
  *
- * ## Chaque carte a son propre ancrage
+ * ## Every card has its own anchor
  *
- * Empiler des cartes au meme endroit les ferait disparaitre les unes sous les
- * autres. Chacune s'ancre donc quelques pixels plus bas que la precedente : le
- * bord de celles du dessous reste visible, et l'empilement se lit.
+ * Stacking cards at the same spot would make them disappear one under another.
+ * Each one therefore anchors a few pixels lower than the previous one: the
+ * edge of those underneath stays visible, and the stack reads.
  *
  * @module
  */
@@ -37,22 +36,22 @@ import {
   type ReactNode,
 } from 'react'
 
-/** Proprietes propres au composant. */
+/** Props specific to the component. */
 export interface StickyStackOwnProps {
-  /** Les cartes. */
+  /** The cards. */
   children: ReactNode
-  /** Distance au haut de la fenetre, en pixels. @defaultValue 96 */
+  /** Distance to the top of the viewport, in pixels. @defaultValue 96 */
   offset?: number
-  /** Decalage visible entre deux cartes empilees, en pixels. @defaultValue 24 */
+  /** Visible offset between two stacked cards, in pixels. @defaultValue 24 */
   gap?: number
-  /** Reduction de la carte quand la suivante arrive, de 0 a 0.3. @defaultValue 0.05 */
+  /** Shrink of the card when the next one arrives, from 0 to 0.3. @defaultValue 0.05 */
   shrink?: number
 }
 
-/** Toutes les proprietes. */
+/** Every prop. */
 export type StickyStackProps = Customisable<StickyStackOwnProps>
 
-/** Une carte figee, qui se reduit quand la suivante la recouvre. */
+/** A pinned card, which shrinks when the next one covers it. */
 function Card({
   index,
   offset,
@@ -74,9 +73,9 @@ function Card({
     (progress: number) => {
       const target = inner.current
       if (target === null) return
-      // La reduction ne commence qu'a la seconde moitie de la traversee :
-      // avant, la carte n'est pas encore recouverte, et la voir retrecir sans
-      // raison se lit comme un defaut.
+      // The shrinking only starts at the second half of the crossing: before
+      // that, the card is not covered yet, and seeing it shrink for no reason
+      // reads as a defect.
       const started = Math.max(0, progress * 2 - 1)
       target.style.transform = `scale(${(1 - started * shrink).toFixed(4)})`
     },
@@ -84,7 +83,7 @@ function Card({
   )
 
   const { ref } = useScrollScrub<HTMLDivElement>(onProgress, {
-    name: 'cartes empilees',
+    name: 'sticky stack',
   })
 
   return (
@@ -104,13 +103,13 @@ function Card({
 }
 
 /**
- * Empile des cartes au fil du defilement.
+ * Stacks cards as the page scrolls.
  *
  * @example
  * <StickyStack offset={120} shrink={0.06}>
- *   {etapes.map((etape) => (
- *     <article key={etape.id} className="o-rounded-xl o-border-w-1 o-p-8">
- *       {etape.titre}
+ *   {steps.map((step) => (
+ *     <article key={step.id} className="o-rounded-xl o-border-w-1 o-p-8">
+ *       {step.title}
  *     </article>
  *   ))}
  * </StickyStack>

@@ -1,23 +1,23 @@
 /**
- * Bokeh : des disques flous multi-profondeur qui derivent lateralement.
+ * Bokeh: multi-depth blurred discs drifting sideways.
  *
- * ## Le principe
+ * ## The principle
  *
- * Trois couches de disques, un par cellule hachee : plus la couche est
- * proche, plus ses disques sont grands, flous et lents — le rendu d'un
- * objectif, qui rend flou ce qui est hors du plan de nettete. Le bord de
- * chaque disque est un smoothstep dont la largeur est le reglage de flou.
+ * Three layers of discs, one per hashed cell: the closer the layer, the
+ * larger, blurrier and slower its discs — the rendering of a lens, which
+ * blurs what lies outside the plane of focus. The edge of each disc is a
+ * smoothstep whose width is the blur setting.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur — les recopier ici en ferait autant
- * de versions a maintenir qu'il y a de fonds.
+ * It carries only what sets it apart: its shader, its settings and its fallback.
+ * Reading the tokens, converting them to floats and re-reading them when the
+ * theme changes all come from the engine — copying them here would leave as
+ * many versions to maintain as there are backgrounds.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en
- * accorde qu'une par backend — et sous mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface — it grants only one
+ * per backend — and under reduced motion.
  *
  * @module
  */
@@ -34,41 +34,41 @@ import { type ReactElement } from 'react'
 
 import { BOKEH_FRAGMENT } from './bokeh.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface BokehControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to this component. */
 export interface BokehOwnProps {
-  /** Vitesse de derive laterale. @defaultValue 0.3 */
+  /** Lateral drift speed. @defaultValue 0.3 */
   speed?: number
-  /** Nombre de cellules sur le plus petit cote. @defaultValue 6 */
+  /** Number of cells across the shorter side. @defaultValue 6 */
   density?: number
-  /** Largeur du bord flou des disques. @defaultValue 0.5 */
+  /** Width of the discs' blurred edge. @defaultValue 0.5 */
   blur?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<BokehControls>
 }
 
-/** Toutes les proprietes. */
+/** Every property. */
 export type BokehProps = Customisable<BokehOwnProps>
 
-/** Tokens employes par defaut : l'obscurite, puis les deux teintes chaudes. */
+/** Tokens used by default: the darkness, then the two warm hues. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-amber-400',
   '--o-palette-rose-400',
 ] as const
 
-/** Repli par defaut : un degrade fige, dans les memes tons. */
+/** Default fallback: a frozen gradient, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-b o-from-zinc-50 dark:o-from-stone-950 o-to-zinc-100 dark:o-to-stone-900'
 
@@ -95,9 +95,9 @@ export function Bokeh({
     colors,
     uniforms: { uSpeed: speed, uDensity: density, uBlur: blur },
     name: 'bokeh',
-    // Trois couches de neuf cellules chacune : une maille plus large fait
-    // moins de disques qui se recouvrent, c'est le reglage qui pese, donc
-    // celui qui est borne.
+    // Three layers of nine cells each: a wider mesh makes fewer overlapping
+    // discs, so it is the setting that weighs, and therefore the one that is
+    // bounded.
     degrade: (quality) => ({
       uDensity: quality === 'low' ? Math.min(density, 4) : density,
     }),

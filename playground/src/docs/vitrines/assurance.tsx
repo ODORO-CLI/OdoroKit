@@ -34,7 +34,7 @@
  */
 
 import { Icon } from '@odoro-cli/icons'
-import { ArrowRight, ArrowUpRight, Umbrella } from '@odoro-cli/icons/filaire'
+import { ArrowRight, ArrowUpRight, Umbrella } from '@odoro-cli/icons/outline'
 import { useId, useMemo, useState, type CSSProperties, type ReactElement } from 'react'
 
 import { StickyStack } from '@/odoro/section/StickyStack.jsx'

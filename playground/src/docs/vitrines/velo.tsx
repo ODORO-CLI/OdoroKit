@@ -32,7 +32,7 @@
  */
 
 import { Icon } from '@odoro-cli/icons'
-import { ArrowRight, ArrowUpRight, Check, Wrench } from '@odoro-cli/icons/filaire'
+import { ArrowRight, ArrowUpRight, Check, Wrench } from '@odoro-cli/icons/outline'
 import { Reveal } from '@odoro-cli/libs/motion'
 import { Select } from '@odoro-cli/libs/ui'
 import { useEffect, useRef, useState, type CSSProperties, type ReactElement } from 'react'

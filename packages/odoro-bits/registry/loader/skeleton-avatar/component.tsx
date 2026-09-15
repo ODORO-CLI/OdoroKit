@@ -1,30 +1,29 @@
 /**
- * Avatar en attente : un disque et ses lignes a cote, le motif d'une
- * identite qui n'est pas encore arrivee.
+ * Avatar in waiting: a disc and its lines beside it, the pattern of an
+ * identity that has not arrived yet.
  *
- * ## Le disque d'abord, et pourquoi il est rond
+ * ## The disc first, and why it is round
  *
- * C'est la forme qui fait reconnaitre le motif : un rond suivi de deux
- * lignes se lit « quelqu'un » avant qu'aucun nom ne soit la. Les blocs
- * rectangulaires de `skeleton-lines` ne le disent pas, et une carte entiere
- * en dit trop. Ce squelette-ci est celui d'un en-tete d'auteur, d'un fil de
- * commentaires, d'une liste de membres.
+ * It is the shape that makes the pattern recognisable: a round followed by two
+ * lines reads as "somebody" before any name is there. The rectangular blocks
+ * of `skeleton-lines` do not say that, and a whole card says too much. This
+ * skeleton is the one for an author header, a comment thread, a member list.
  *
- * La premiere ligne est plus courte et plus epaisse que la seconde : un nom
- * puis un role, pas deux phrases. Sans cette difference, le motif redevient
- * un paragraphe.
+ * The first line is shorter and thicker than the second: a name and then a
+ * role, not two sentences. Without that difference, the pattern turns back
+ * into a paragraph.
  *
- * ## Plusieurs lignes de la liste, un seul rythme
+ * ## Several rows of the list, a single rhythm
  *
- * `rows` repete le motif : une liste de personnes en attente. Le retard du
- * reflet suit la lecture, de haut en bas et de gauche a droite, pour que la
- * liste se parcoure comme une liste et non comme un clignotement collectif.
+ * `rows` repeats the pattern: a list of people in waiting. The shimmer delay
+ * follows the reading, top to bottom and left to right, so that the list is
+ * scanned as a list and not as a collective blink.
  *
- * ## Un statut, pas un dessin
+ * ## A status, not a drawing
  *
- * L'element porte `role="status"` et un libelle ; les blocs sont retires de
- * l'arbre d'accessibilite. Sous mouvement reduit, ils restent pleins et
- * immobiles : la place reste tenue, elle ne s'efface pas.
+ * The element carries `role="status"` and a label; the blocks are removed from
+ * the accessibility tree. Under reduced motion, they stay full and still: the
+ * room stays held, it does not fade away.
  *
  * @module
  */
@@ -32,13 +31,13 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-skeleton-avatar'
 
-/** Largeurs des lignes, de la premiere a la derniere, en pourcentage. */
+/** Widths of the lines, from the first to the last, as percentages. */
 const WIDTHS = [45, 70, 60, 52] as const
 
-/** Pose le disque, ses lignes et leur animation, une fois par document. */
+/** Sets the disc, its lines and their animation, once per document. */
 function ensureSkeletonAvatarRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -47,7 +46,7 @@ function ensureSkeletonAvatarRule(): void {
   style.id = STYLE_ID
   style.textContent = [
     '[data-o-skav]{display:flex;flex-direction:column;gap:1rem;width:100%}',
-    // Le disque ne se comprime jamais : c'est lui qui porte le motif.
+    // The disc never squeezes: it is what carries the pattern.
     '[data-o-skav-row]{display:flex;align-items:center;gap:0.85rem}',
     '[data-o-skav-stack]{display:flex;flex-direction:column;gap:0.5rem;flex:1 1 auto;min-width:0}',
     '[data-o-skav-fill]{',
@@ -61,7 +60,7 @@ function ensureSkeletonAvatarRule(): void {
     '[data-o-skav-line]{',
     'height:var(--o-skav-line);border-radius:var(--o-skav-radius);',
     '}',
-    // La premiere ligne porte le nom : plus epaisse que les suivantes.
+    // The first line carries the name: thicker than the ones that follow.
     '[data-o-skav-stack] [data-o-skav-line]:first-child{height:calc(var(--o-skav-line) * 1.35)}',
     '[data-o-skav-shimmer] [data-o-skav-fill]::after{',
     'content:"";position:absolute;inset:0;',
@@ -84,35 +83,35 @@ function ensureSkeletonAvatarRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface SkeletonAvatarOwnProps {
-  /** Nombre de personnes en attente. @defaultValue 1 */
+  /** Number of people in waiting. @defaultValue 1 */
   rows?: number
-  /** Nombre de lignes a cote du disque. @defaultValue 2 */
+  /** Number of lines beside the disc. @defaultValue 2 */
   lines?: number
-  /** Diametre du disque, en pixels. @defaultValue 44 */
+  /** Diameter of the disc, in pixels. @defaultValue 44 */
   size?: number
-  /** Rayon des angles des lignes, en pixels. @defaultValue 6 */
+  /** Corner radius of the lines, in pixels. @defaultValue 6 */
   radius?: number
-  /** Reflet qui traverse plutot qu'une pulsation d'ensemble. @defaultValue true */
+  /** A shimmer going across rather than an overall pulse. @defaultValue true */
   shimmer?: boolean
-  /** Duree d'un passage du reflet ou d'une pulsation, en millisecondes. @defaultValue 1600 */
+  /** Duration of one shimmer pass or one pulse, in milliseconds. @defaultValue 1600 */
   speed?: number
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement du profil' */
+  /** Label announced to screen readers. @defaultValue 'Loading profile' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All the properties. */
 export type SkeletonAvatarProps = Customisable<SkeletonAvatarOwnProps, 'div'>
 
 /**
- * Reserve la place d'un avatar et de son identite.
+ * Reserves the room for an avatar and its identity.
  *
  * @example
  * <SkeletonAvatar />
  *
  * @example
- * // Une liste de membres, en pulsation.
+ * // A member list, pulsed.
  * <SkeletonAvatar rows={4} size={36} shimmer={false} />
  */
 export function SkeletonAvatar({
@@ -122,7 +121,7 @@ export function SkeletonAvatar({
   radius = 6,
   shimmer = true,
   speed = 1600,
-  label = 'Chargement du profil',
+  label = 'Loading profile',
   ...rest
 }: SkeletonAvatarProps): ReactElement {
   ensureSkeletonAvatarRule()
@@ -135,14 +134,14 @@ export function SkeletonAvatar({
   const hostStyle = {
     ...style,
     '--o-skav-size': `${String(size)}px`,
-    // Les lignes sont dimensionnees par le disque : le motif tient a ses
-    // proportions, pas a deux reglages qui pourraient diverger.
+    // The lines are sized by the disc: the pattern holds by its proportions,
+    // not by two settings that could drift apart.
     '--o-skav-line': `${String(Math.round(size * 0.18))}px`,
     '--o-skav-radius': `${String(radius)}px`,
     '--o-skav-speed': `${String(speed)}ms`,
   } as CSSProperties
 
-  /** Retard du reflet, dans l'ordre de lecture de la liste. */
+  /** Shimmer delay, in the reading order of the list. */
   const delay = (rank: number): CSSProperties =>
     ({
       '--o-skav-delay': `${String(Math.round((speed / 10) * rank))}ms`,

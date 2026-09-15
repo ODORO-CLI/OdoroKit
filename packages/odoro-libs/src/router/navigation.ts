@@ -1,67 +1,67 @@
 /**
- * Le point d'abonnement aux changements de route.
+ * The subscription point for route changes.
  *
- * ## Pourquoi le router expose un evenement plutot qu'une integration
+ * ## Why the router exposes an event rather than an integration
  *
- * `@odoro-cli/engine` doit detruire les declencheurs de defilement de la page qui
- * part, et rafraichir les positions **apres** que la nouvelle page a rendu.
- * Sans cela, les declencheurs gardent les positions de l'ancienne page : les
- * animations liees au defilement se declenchent trop tot ou trop tard, et le
- * defaut disparait au rechargement — ce qui le rend presque impossible a
- * attribuer a la navigation.
+ * `@odoro-cli/engine` must destroy the scroll triggers of the page that is
+ * leaving, and refresh the positions **after** the new page has rendered.
+ * Without that, the triggers keep the positions of the old page: the
+ * animations tied to scrolling fire too early or too late, and the defect
+ * disappears on reload — which makes it almost impossible to attribute to the
+ * navigation.
  *
- * Le router ne connait pas le moteur, et ne doit pas le connaitre. Il annonce
- * seulement qu'une navigation a lieu, avant et apres. Le branchement se fait
- * de l'autre cote.
+ * The router does not know the engine, and must not know it. It only
+ * announces that a navigation is happening, before and after. The wiring is
+ * done on the other side.
  *
- * ## Pourquoi deux moments et pas un
+ * ## Why two moments and not one
  *
- * `before` arrive pendant que l'ancienne page est encore montee : c'est le
- * seul instant ou l'on peut liberer ce qui lui appartient. `after` arrive une
- * fois la nouvelle page rendue : c'est le seul instant ou mesurer a un sens.
+ * `before` arrives while the old page is still mounted: it is the only
+ * instant where what belongs to it can be released. `after` arrives once the
+ * new page has rendered: it is the only instant where measuring makes sense.
  *
- * Un evenement unique obligerait l'abonne a deviner dans quel etat se trouve
- * le document, et il devinerait mal.
+ * A single event would force the subscriber to guess in which state the
+ * document is, and it would guess wrong.
  *
- * ## Ce que `after` ne garantit pas
+ * ## What `after` does not guarantee
  *
- * Il est emis apres le rendu, pas apres le chargement des images et des
- * polices. Une image qui arrive ensuite deplace la mise en page et invalide
- * les positions mesurees. C'est a l'abonne d'attendre ce qu'il doit attendre —
- * `@odoro-cli/engine` le fait dans `onRouteChange`, et c'est pour cela que cette
- * fonction existe de son cote plutot qu'ici.
+ * It is emitted after the render, not after the images and the fonts have
+ * loaded. An image that arrives afterwards shifts the layout and invalidates
+ * the measured positions. It is up to the subscriber to wait for what it must
+ * wait for — `@odoro-cli/engine` does it in `onRouteChange`, and that is why
+ * this function exists on its side rather than here.
  *
  * @module
  */
 
-/** Le moment d'une navigation. */
+/** The moment of a navigation. */
 export type NavigationPhase =
-  /** L'ancienne page est encore montee. */
+  /** The old page is still mounted. */
   | 'before'
-  /** La nouvelle page a rendu. */
+  /** The new page has rendered. */
   | 'after'
 
-/** Ce qu'un abonne recoit. */
+/** What a subscriber receives. */
 export interface NavigationEvent {
   readonly phase: NavigationPhase
-  /** Chemin quitte. Vaut le chemin courant au tout premier rendu. */
+  /** Path being left. Equals the current path on the very first render. */
   readonly from: string
-  /** Chemin atteint. */
+  /** Path being reached. */
   readonly to: string
 }
 
-/** Un abonne. */
+/** A subscriber. */
 export type NavigationListener = (event: NavigationEvent) => void
 
 const listeners = new Set<NavigationListener>()
 
 /**
- * Abonne un ecouteur aux changements de route.
+ * Subscribes a listener to the route changes.
  *
- * @returns De quoi se desabonner.
+ * @returns What is needed to unsubscribe.
  *
  * @example
- * // Cote moteur, au montage du fournisseur :
+ * // On the engine side, when the provider mounts:
  * const off = onNavigation((event) => {
  *   if (event.phase === 'before') killScrollTriggers()
  *   else void onRouteChange()
@@ -73,23 +73,23 @@ export function onNavigation(listener: NavigationListener): () => void {
 }
 
 /**
- * Emet un evenement de navigation.
+ * Emits a navigation event.
  *
- * Appele par le router. Un abonne qui echoue ne doit pas empecher les autres
- * d'etre prevenus, ni interrompre la navigation : l'erreur est signalee et le
- * parcours continue.
+ * Called by the router. A subscriber that fails must not prevent the others
+ * from being notified, nor interrupt the navigation: the error is reported
+ * and the walk carries on.
  */
 export function emitNavigation(event: NavigationEvent): void {
   for (const listener of listeners) {
     try {
       listener(event)
     } catch (cause) {
-      console.error('[odoro] un abonne a la navigation a echoue', cause)
+      console.error('[odoro] a navigation subscriber failed', cause)
     }
   }
 }
 
-/** Vide les abonnements. Reserve aux tests. */
+/** Clears the subscriptions. Reserved for tests. */
 export function resetNavigationListeners(): void {
   listeners.clear()
 }

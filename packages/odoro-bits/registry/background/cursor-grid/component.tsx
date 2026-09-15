@@ -1,30 +1,30 @@
 /**
- * Grille au curseur : une nappe de paves qui s'allument autour du pointeur
- * et gardent la trace de son passage.
+ * Cursor grid: a sheet of tiles that light up around the pointer and keep
+ * the trace of its passage.
  *
- * ## A quoi ce fond reagit
+ * ## What this background reacts to
  *
- * Au deplacement du pointeur, par deux positions plutot qu'une : la vive,
- * amortie court, allume les paves proches ; la retardee, un second
- * amortissement pose sur la premiere, laisse une trainee plus large et plus
- * sourde derriere le geste. Deux positions suffisent la ou un tampon
- * d'historique serait autrement necessaire.
+ * To pointer movement, through two positions rather than one: the live one,
+ * damped short, lights the nearby tiles; the lagged one, a second damping
+ * laid over the first, leaves a broader and duller trail behind the
+ * gesture. Two positions are enough where a history buffer would otherwise
+ * be needed.
  *
- * Ce qui distingue cette entree de `magnet-grid` : celle-ci deplace des
- * points, ici rien ne bouge — ce sont des paves qui s'allument. De
- * `grid-distortion` : la grille y est grossie par une lentille, pas
- * eclairee. Et de `tiles-flip`, ou les tuiles se retournent.
+ * What sets this entry apart from `magnet-grid`: that one moves points,
+ * here nothing moves — tiles light up. From `grid-distortion`: there the
+ * grid is magnified by a lens, not lit. And from `tiles-flip`, where the
+ * tiles turn over.
  *
- * ## Le pont pointeur → shader
+ * ## The pointer → shader bridge
  *
- * Aucun rendu React par image : deux tableaux stables passes en uniforms
- * sont mutes en place dans la boucle du moteur, en priorite d'entree. La
- * surface relit ses uniforms a chaque image.
+ * No React render per frame: two stable arrays passed as uniforms are
+ * mutated in place inside the engine loop, at input priority. The surface
+ * re-reads its uniforms every frame.
  *
- * ## Sous mouvement reduit
+ * ## Under reduced motion
  *
- * La surface est refusee par le moteur et le repli statique s'affiche : le
- * suivi du pointeur est un agrement, pas un contenu.
+ * The surface is refused by the engine and the static fallback shows: the
+ * pointer tracking is a nicety, not content.
  *
  * @module
  */
@@ -45,49 +45,49 @@ import { usePointerDamped } from '@registre/hooks/usePointerDamped'
 
 import { CURSOR_GRID_FRAGMENT } from './cursor-grid.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface CursorGridControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to this component. */
 export interface CursorGridOwnProps {
-  /** Nombre de cellules sur la hauteur. Borne a quarante-huit par le shader. @defaultValue 14 */
+  /** Number of cells across the height. Capped at forty-eight by the shader. @defaultValue 14 */
   cells?: number
-  /** Portee de l'allumage, en hauteurs de cadre. @defaultValue 0.28 */
+  /** Reach of the lighting, in frame heights. @defaultValue 0.28 */
   radius?: number
-  /** Force de la trainee laissee par le geste. @defaultValue 0.7 */
+  /** Strength of the trail left by the gesture. @defaultValue 0.7 */
   trail?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<CursorGridControls>
 }
 
-/** Toutes les proprietes. */
+/** Every property. */
 export type CursorGridProps = Customisable<CursorGridOwnProps>
 
-/** Tokens employes par defaut : le fond, le filet et la trainee, les paves vifs. */
+/** Tokens used by default: the background, the line and the trail, the live tiles. */
 const DEFAULT_TOKENS = ['--o-theme-bg', '--o-theme-line', '--o-palette-sky-400'] as const
 
-/** Repli par defaut : une teinte figee, dans les memes tons. */
+/** Default fallback: a frozen hue, in the same tones. */
 const DEFAULT_FALLBACK = 'o-bg-zinc-50 dark:o-bg-zinc-950'
 
 /**
- * Vitesse de rattrapage de la position retardee, en unites par seconde.
+ * Catch-up speed of the lagged position, in units per second.
  *
- * Bien plus lente que celle du pointeur vif : c'est l'ecart entre les deux
- * qui dessine la trainee.
+ * Far slower than that of the live pointer: it is the gap between the two
+ * that draws the trail.
  */
 const ECHO_SPEED = 1.6
 
 /**
- * Grille au curseur.
+ * Cursor grid.
  *
  * @example
  * <div className="o-relative o-min-h-screen">
@@ -106,32 +106,32 @@ export function CursorGrid({
 }: CursorGridProps): ReactElement {
   const [host, setHost] = useState<HTMLDivElement | null>(null)
 
-  // Tableaux stables, mutes en place : la surface relit les uniforms a
-  // chaque image, l'identite ne change pas, la mutation suffit.
+  // Stable arrays, mutated in place: the surface re-reads the uniforms every
+  // frame, the identity never changes, mutating is enough.
   const uPointer = useRef<number[]>([0.5, 0.5]).current
   const uEcho = useRef<number[]>([0.5, 0.5]).current
 
-  const pointer = usePointerDamped({ host, speed: 6, name: 'cursor-grid : pointeur' })
+  const pointer = usePointerDamped({ host, speed: 6, name: 'cursor-grid : pointer' })
 
   useEffect(() => {
     const subscription = clock.subscribe(
       ({ delta }) => {
-        // Du repere du hook (centre, y vers le bas) vers celui de la texture
-        // (coin bas-gauche, y vers le haut).
+        // From the hook's frame (centred, y downwards) to the texture's frame
+        // (bottom-left corner, y upwards).
         const x = (pointer.current.x + 1) / 2
         const y = 1 - (pointer.current.y + 1) / 2
         uPointer[0] = x
         uPointer[1] = y
 
-        // Second amortissement, pose sur le premier. La fraction depend du
-        // temps ecoule : le retard est le meme a toute cadence d'affichage.
+        // Second damping, laid over the first. The fraction depends on the elapsed
+        // time: the lag is the same at any display rate.
         const factor = 1 - Math.exp(-ECHO_SPEED * delta)
         const ex = uEcho[0] ?? x
         const ey = uEcho[1] ?? y
         uEcho[0] = ex + (x - ex) * factor
         uEcho[1] = ey + (y - ey) * factor
       },
-      { priority: CLOCK_PRIORITY.input, name: 'cursor-grid : pont' },
+      { priority: CLOCK_PRIORITY.input, name: 'cursor-grid : bridge' },
     )
     return () => subscription.unsubscribe()
   }, [pointer, uPointer, uEcho])
@@ -147,8 +147,8 @@ export function CursorGrid({
     colors,
     uniforms: { uPointer, uEcho, uCells: cells, uRadius: radius, uTrail: trail },
     name: 'cursor-grid',
-    // Une grille serree scintille sur ses filets a densite de pixels
-    // reduite : en qualite basse, les paves s'elargissent.
+    // A tight grid shimmers on its lines at reduced pixel density: at low
+    // quality the tiles grow wider.
     degrade: (quality) => ({
       uCells: quality === 'low' ? Math.min(cells, 10) : cells,
     }),

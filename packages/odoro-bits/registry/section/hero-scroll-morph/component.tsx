@@ -1,38 +1,38 @@
 /**
- * Hero dont le media s'ouvre au fil du defilement.
+ * Hero whose media opens along the scroll.
  *
- * ## Le media ne change pas de largeur : il change de fenetre
+ * ## The media does not change width : it changes window
  *
- * La version evidente anime `width`, et c'est celle qu'il faut ecarter. Une
- * largeur est une propriete de mise en page : le navigateur recalcule la
- * position de tout ce qui suit, a chaque image, pendant tout le defilement.
- * Sur une page longue, cela se sent avant meme de profiler.
+ * The obvious version animates `width`, and that is the one to rule out. A
+ * width is a layout property : the browser recalculates the position of
+ * everything that follows, on every frame, for the whole scroll. On a long
+ * page, it is felt even before profiling.
  *
- * Le media garde donc sa taille, et c'est la **fenetre** par laquelle on le
- * voit qui s'ouvre — un `clip-path` en `inset`, que le navigateur traite au
- * dessin et non a la mise en page. Le resultat est le meme a l'oeil, et rien
- * ne bouge autour.
+ * The media therefore keeps its size, and it is the **window** through which
+ * one sees it that opens — a `clip-path` in `inset`, which the browser handles
+ * at paint and not at layout. The result is the same to the eye, and nothing
+ * moves around it.
  *
- * ## La progression est lue dans la boucle, pas rendue
+ * ## Progress is read in the loop, not rendered
  *
- * Une valeur qui change a chaque image n'a rien a faire dans un etat React :
- * elle provoquerait un rendu complet par image, pour ecrire un nombre dans une
- * variable CSS. Elle est donc lue a la priorite des mesures, arrondie au
- * centieme, et n'est ecrite que lorsqu'elle change vraiment.
+ * A value that changes on every frame has no place in a React state : it would
+ * cause a full render per frame, in order to write a number into a CSS
+ * variable. It is therefore read at the measure priority, rounded to the
+ * hundredth, and written only when it really changes.
  *
- * ## Le champ n'est pas toujours la fenetre
+ * ## The view is not always the window
  *
- * Pose dans un panneau a debordement — un apercu, un tiroir — le hero se
- * mesure par rapport a ce panneau. Le conteneur qui defile est cherche une
- * fois au montage : `getComputedStyle` par image couterait plus cher que tout
- * le reste du composant.
+ * Placed in an overflowing panel — a preview, a drawer — the hero measures
+ * itself against that panel. The scrolling container is looked up once on
+ * mount : `getComputedStyle` per frame would cost more than all the rest of
+ * the component.
  *
- * ## Ce que le mouvement reduit donne
+ * ## What reduced motion gives
  *
- * L'etat d'arrivee : le media pleinement ouvert, la legende visible. Un hero
- * fige a son etat de depart montrerait un media rogne et une legende absente,
- * c'est-a-dire un contenu incomplet — ce qui n'est pas ce que la preference
- * demande.
+ * The arrival state : the media fully open, the caption visible. A hero
+ * frozen at its starting state would show a cropped media and a missing
+ * caption, that is to say incomplete content — which is not what the
+ * preference asks for.
  *
  * @module
  */
@@ -53,43 +53,43 @@ import {
   type ReactNode,
 } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface HeroScrollMorphOwnProps {
-  /** Titre du hero. */
+  /** Title of the hero. */
   title: ReactNode
-  /** Le media : image, video, capture, scene. */
+  /** The media : image, video, screenshot, scene. */
   children: ReactNode
-  /** Phrase sous le titre. */
+  /** Sentence under the title. */
   subtitle?: ReactNode
-  /** Legende sous le media, qui apparait a mesure que la fenetre s'ouvre. */
+  /** Caption under the media, which appears as the window opens. */
   caption?: ReactNode
   /**
-   * Largeur visible du media au repos, en pourcentage de sa largeur pleine.
+   * Visible width of the media at rest, as a percentage of its full width.
    *
    * @defaultValue 62
    */
   startWidth?: number
   /**
-   * Part de la hauteur de la section sur laquelle la transformation s'acheve.
+   * Share of the height of the section over which the transform completes.
    *
-   * `0.6` la termine avant que la section quitte le champ, ce qui laisse voir
-   * le media ouvert. Une valeur de 1 la fait finir au moment ou l'on ne la
-   * regarde plus.
+   * `0.6` ends it before the section leaves the view, which lets the open media
+   * be seen. A value of 1 makes it finish at the moment one no longer looks at
+   * it.
    *
    * @defaultValue 0.6
    */
   travel?: number
-  /** Nom de la section, annonce aux technologies d'assistance. */
+  /** Name of the section, announced to assistive technologies. */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All the properties. */
 export type HeroScrollMorphProps = Customisable<HeroScrollMorphOwnProps, 'section'>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-hero-scroll-morph'
 
-/** Pose les regles du hero, une fois par document. */
+/** Sets the rules of the hero, once per document. */
 function ensureMorphRules(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -98,8 +98,8 @@ function ensureMorphRules(): void {
   style.id = STYLE_ID
   style.textContent = [
     '[data-o-hsm]{--o-hsm-reste:1}',
-    // Tout est exprime en « ce qu'il reste a parcourir » : a l'arrivee la
-    // valeur vaut zero, et chaque calcul se lit comme « rien de plus ».
+    // Everything is expressed as "what is left to travel" : on arrival the
+    // value is zero, and every calculation reads as "nothing more".
     '[data-o-hsm-media]{',
     'clip-path:inset(',
     'calc(var(--o-hsm-marge-y) * var(--o-hsm-reste))',
@@ -110,8 +110,8 @@ function ensureMorphRules(): void {
 
     '[data-o-hsm-legende]{opacity:calc(1 - var(--o-hsm-reste))}',
 
-    // L'etat d'arrivee, et non l'etat de depart : un media rogne serait un
-    // contenu incomplet, pas une animation neutralisee.
+    // The arrival state, and not the starting state : a cropped media would be
+    // incomplete content, not a neutralised animation.
     '@media (prefers-reduced-motion:reduce){',
     '[data-o-hsm]{--o-hsm-reste:0}',
     '[data-o-hsm-media]{will-change:auto}}',
@@ -120,31 +120,31 @@ function ensureMorphRules(): void {
 }
 
 /**
- * Trouve le conteneur qui defile autour d'un element.
+ * Finds the scrolling container around an element.
  *
- * Appele une seule fois, au montage : `getComputedStyle` force un calcul de
- * style, et le repeter par image annulerait le soin pris ailleurs.
+ * Called once only, on mount : `getComputedStyle` forces a style calculation,
+ * and repeating it per frame would undo the care taken elsewhere.
  */
-function conteneurDefilant(element: Element): HTMLElement | null {
+function scrollingContainer(element: Element): HTMLElement | null {
   let parent = element.parentElement
   while (parent !== null) {
-    const debordement = getComputedStyle(parent).overflowY
-    if (debordement === 'auto' || debordement === 'scroll') return parent
+    const overflow = getComputedStyle(parent).overflowY
+    if (overflow === 'auto' || overflow === 'scroll') return parent
     parent = parent.parentElement
   }
   return null
 }
 
 /**
- * Hero dont le media s'ouvre au defilement.
+ * Hero whose media opens on scroll.
  *
  * @example
  * <HeroScrollMorph
- *   title="Le registre, en clair"
- *   subtitle="Des composants copies chez vous, pas lies."
- *   caption="Capture de la commande d installation"
+ *   title="The registry, in plain words"
+ *   subtitle="Components copied to your side, not linked."
+ *   caption="Screenshot of the install command"
  * >
- *   <img src="/apercu.png" alt="" className="o-size-full o-object-cover" />
+ *   <img src="/preview.png" alt="" className="o-size-full o-object-cover" />
  * </HeroScrollMorph>
  */
 export function HeroScrollMorph({
@@ -158,44 +158,41 @@ export function HeroScrollMorph({
   ...rest
 }: HeroScrollMorphProps): ReactElement {
   const { reduced } = useMotionState()
-  const [hote, setHote] = useState<HTMLElement | null>(null)
-  const dernier = useRef(-1)
+  const [host, setHost] = useState<HTMLElement | null>(null)
+  const last = useRef(-1)
 
   ensureMorphRules()
 
   useEffect(() => {
-    if (hote === null || reduced) return
+    if (host === null || reduced) return
 
-    const conteneur = conteneurDefilant(hote)
-    const course = Math.max(0.05, travel)
+    const container = scrollingContainer(host)
+    const run = Math.max(0.05, travel)
 
     const subscription = clock.subscribe(
       () => {
-        const boite = hote.getBoundingClientRect()
-        if (boite.height === 0) return
+        const box = host.getBoundingClientRect()
+        if (box.height === 0) return
 
-        const hautDuChamp = conteneur === null ? 0 : conteneur.getBoundingClientRect().top
+        const topOfView = container === null ? 0 : container.getBoundingClientRect().top
 
-        // « Combien de moi est deja passe au-dessus du champ », rapporte a la
-        // course voulue. A l'arrivee de la page, la valeur vaut zero : le hero
-        // demarre donc ferme, ce qui est le seul depart qui ait du sens.
-        const p = Math.min(
-          1,
-          Math.max(0, (hautDuChamp - boite.top) / (boite.height * course)),
-        )
+        // "How much of me has already passed above the view", related to the
+        // wanted run. On arrival on the page, the value is zero : the hero
+        // therefore starts closed, which is the only start that makes sense.
+        const p = Math.min(1, Math.max(0, (topOfView - box.top) / (box.height * run)))
 
-        const centieme = Math.round(p * 100)
-        if (centieme === dernier.current) return
-        dernier.current = centieme
-        hote.style.setProperty('--o-hsm-reste', (1 - centieme / 100).toFixed(2))
+        const hundredth = Math.round(p * 100)
+        if (hundredth === last.current) return
+        last.current = hundredth
+        host.style.setProperty('--o-hsm-reste', (1 - hundredth / 100).toFixed(2))
       },
-      { name: 'hero au defilement', priority: CLOCK_PRIORITY.layout },
+      { name: 'hero on scroll', priority: CLOCK_PRIORITY.layout },
     )
 
     return () => {
       subscription.unsubscribe()
     }
-  }, [hote, reduced, travel])
+  }, [host, reduced, travel])
 
   const { className, style } = mergePresentation(
     { className: 'o-flex o-flex-col o-items-center o-gap-8 o-py-16' },
@@ -205,15 +202,15 @@ export function HeroScrollMorph({
   return (
     <section
       {...rest}
-      ref={setHote}
+      ref={setHost}
       aria-label={label}
       data-o-hsm=""
       className={className}
       style={
         {
           ...style,
-          // La marge de depart se deduit de la largeur voulue : une fenetre a
-          // 62 % laisse 19 % de chaque cote.
+          // The starting margin is deduced from the wanted width : a window at
+          // 62 % leaves 19 % on each side.
           '--o-hsm-marge-x': `${((100 - startWidth) / 2).toFixed(2)}%`,
           '--o-hsm-marge-y': `${((100 - startWidth) / 4).toFixed(2)}%`,
         } as CSSProperties

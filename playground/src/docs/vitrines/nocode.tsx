@@ -44,7 +44,7 @@ import {
   CircleCheck,
   Plug,
   TriangleAlert,
-} from '@odoro-cli/icons/filaire'
+} from '@odoro-cli/icons/outline'
 import {
   useMemo,
   useState,

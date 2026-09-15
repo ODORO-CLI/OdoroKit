@@ -1,24 +1,24 @@
 /**
- * Reflet d'objectif : une source, sa strie et ses fantomes qui suivent le
- * pointeur.
+ * Lens flare: a source, its streak and its ghosts following the
+ * pointer.
  *
- * ## A quoi ce fond reagit
+ * ## What this background reacts to
  *
- * Au deplacement du pointeur, avec amortissement : la source le rattrape en
- * douceur, et la chaine de fantomes se reordonne le long de l'axe qui joint
- * la source au centre du cadre. A la sortie du cadre, le hook ramene la
- * cible au centre — le reflet s'y recentre de lui-meme.
+ * To the pointer moving, with damping: the source catches up with it
+ * gently, and the chain of ghosts reorders itself along the axis joining the
+ * source to the centre of the frame. On leaving the frame, the hook brings
+ * the target back to the centre — the flare recentres itself there.
  *
- * ## Le pont pointeur -> shader
+ * ## The pointer -> shader bridge
  *
- * Aucun rendu React par image : un tableau stable de deux flottants est mute
- * en place dans la boucle du moteur, en priorite d'entree, et la surface le
- * relit a chaque image.
+ * No React render per frame: a stable array of two floats is mutated in
+ * place inside the engine loop, at input priority, and the surface reads it
+ * again every frame.
  *
- * ## Sous mouvement reduit
+ * ## Under reduced motion
  *
- * La surface est refusee par le moteur et le repli statique s'affiche : le
- * suivi du pointeur est un agrement, pas un contenu.
+ * The surface is refused by the engine and the static fallback shows: the
+ * pointer tracking is a nicety, not content.
  *
  * @module
  */
@@ -39,46 +39,46 @@ import { usePointerDamped } from '@registre/hooks/usePointerDamped'
 
 import { LENS_FLARE_FRAGMENT } from './lens-flare.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface LensFlareControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to this component. */
 export interface LensFlareOwnProps {
-  /** Intensite globale du reflet. @defaultValue 1 */
+  /** Overall intensity of the flare. @defaultValue 1 */
   intensity?: number
-  /** Nombre de fantomes le long de l'axe. @defaultValue 4 */
+  /** Number of ghosts along the axis. @defaultValue 4 */
   ghosts?: number
-  /** Longueur de la strie anamorphique, en hauteurs de cadre. @defaultValue 0.5 */
+  /** Length of the anamorphic streak, in frame heights. @defaultValue 0.5 */
   streak?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<LensFlareControls>
 }
 
-/** Toutes les proprietes. */
+/** Every property. */
 export type LensFlareProps = Customisable<LensFlareOwnProps>
 
-/** Tokens employes par defaut : le fond, la teinte chaude, la teinte froide. */
+/** Tokens used by default: the background, the warm hue, the cool hue. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-amber-400',
   '--o-palette-sky-400',
 ] as const
 
-/** Repli par defaut : un degrade fige, dans les memes tons. */
+/** Default fallback: a frozen gradient, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-br o-from-amber-100 dark:o-from-amber-900 o-to-zinc-50 dark:o-to-zinc-950'
 
 /**
- * Reflet d'objectif.
+ * Lens flare.
  *
  * @example
  * <div className="o-relative o-min-h-screen">
@@ -97,23 +97,23 @@ export function LensFlare({
 }: LensFlareProps): ReactElement {
   const [host, setHost] = useState<HTMLDivElement | null>(null)
 
-  // Tableau stable, mute en place : la surface relit les uniforms a chaque
-  // image, l'identite ne change pas, la mutation suffit — aucun setState.
+  // Stable array, mutated in place: the surface re-reads the uniforms every
+  // frame, the identity never changes, mutating is enough — no setState.
   const uPointer = useRef<number[]>([0.5, 0.5]).current
 
-  // Un rattrapage plus lent que la torche : un reflet d'objectif est lourd,
-  // il glisse derriere le curseur au lieu de le coller.
-  const pointer = usePointerDamped({ host, speed: 2.5, name: 'reflet : pointeur' })
+  // A slower catch-up than the torch: a lens flare is heavy, it slides
+  // behind the cursor instead of sticking to it.
+  const pointer = usePointerDamped({ host, speed: 2.5, name: 'sheen : pointer' })
 
   useEffect(() => {
     const subscription = clock.subscribe(
       () => {
-        // Du repere du hook (centre, y vers le bas) vers celui de la texture
-        // (coin bas-gauche, y vers le haut).
+        // From the hook's frame (centred, y downwards) to the texture's frame
+        // (bottom-left corner, y upwards).
         uPointer[0] = (pointer.current.x + 1) / 2
         uPointer[1] = 1 - (pointer.current.y + 1) / 2
       },
-      { priority: CLOCK_PRIORITY.input, name: 'reflet : pont' },
+      { priority: CLOCK_PRIORITY.input, name: 'sheen : bridge' },
     )
     return () => subscription.unsubscribe()
   }, [pointer, uPointer])

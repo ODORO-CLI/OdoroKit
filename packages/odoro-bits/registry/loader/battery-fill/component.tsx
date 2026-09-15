@@ -1,35 +1,34 @@
 /**
- * Batterie qui se charge : un boitier a plot dont le niveau se remplit par
- * la gauche.
+ * Battery charging: a cased cell with a terminal, whose level fills from the
+ * left.
  *
- * ## Une echelle, pas une barre
+ * ## A scale, not a bar
  *
- * Le niveau est un seul rectangle mis a l'echelle horizontalement, ancre
- * sur le bord gauche du boitier. Une largeur animee obligerait le
- * navigateur a redessiner la geometrie a chaque image ; une echelle est une
- * transformation, que le compositeur applique sans rien recalculer.
+ * The level is a single rectangle scaled horizontally, anchored on the left
+ * edge of the case. An animated width would force the browser to redraw the
+ * geometry on every frame; a scale is a transform, which the compositor
+ * applies without recomputing anything.
  *
- * Le boitier est un contour, le plot une forme pleine : c'est la silhouette
- * qui dit « batterie », pas la couleur. Rien n'est ecrit en dur, tout suit
- * `currentColor` — une batterie rouge en fin de course est une decision de
- * page, pas du composant.
+ * The case is an outline, the terminal a solid shape: it is the silhouette
+ * that says "battery", not the colour. Nothing is hard coded, everything
+ * follows `currentColor` — a red battery running out is a decision of the
+ * page, not of the component.
  *
- * ## Deux modes, deux honnetetes
+ * ## Two modes, two kinds of honesty
  *
- * Le mode determine recoit `value` et le montre tel quel : la batterie est
- * un `role="progressbar"` complet, valeur comprise. Le niveau glisse d'une
- * valeur a l'autre par une transition, jamais par un saut.
+ * The determinate mode receives `value` and shows it as is: the battery is a
+ * complete `role="progressbar"`, value included. The level slides from one
+ * value to the next through a transition, never through a jump.
  *
- * Le mode `indeterminate` est la charge en cours : le niveau balaye le
- * boitier sans fin, l'eclair apparait, et le `progressbar` est declare
- * **sans** valeur — c'est ainsi que la specification decrit une progression
- * inconnue. Le niveau y est a demi-opaque pour que l'eclair, lui plein,
- * reste lisible qu'il soit sur le vide ou sur le plein : deux formes de la
- * meme couleur ne se distinguent que par leur densite.
+ * The `indeterminate` mode is charging in progress: the level sweeps the case
+ * endlessly, the bolt appears, and the `progressbar` is declared **without** a
+ * value — that is how the specification describes an unknown progression. The
+ * level is half opaque there so that the bolt, itself solid, stays legible
+ * whether it sits over the empty or over the full: two shapes of the same
+ * colour are told apart only by their density.
  *
- * Sous mouvement reduit, la valeur saute sans transition et la charge
- * s'arrete a mi-course : la batterie se lit encore, seul le mouvement
- * s'arrete.
+ * Under reduced motion, the value jumps with no transition and the charge
+ * stops at mid-course: the battery still reads, only the movement stops.
  *
  * @module
  */
@@ -37,16 +36,16 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-battery-fill'
 
-/** Bord gauche de la zone remplissable, en unites de la vue. */
+/** Left edge of the fillable area, in view units. */
 const LEFT = 8
 
-/** Eclair de charge, centre dans le boitier. */
+/** Charging bolt, centred in the case. */
 const BOLT = 'M 52 11 L 38 27 L 46 27 L 42 37 L 56 21 L 48 21 Z'
 
-/** Pose le boitier, sa transition et sa charge, une fois par document. */
+/** Applies the case, its transition and its charge, once per document. */
 function ensureBatteryRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -56,7 +55,7 @@ function ensureBatteryRule(): void {
   style.textContent = [
     '[data-o-battery-fill]{display:inline-block;line-height:0}',
     '[data-o-battery-fill] svg{display:block}',
-    // L'echelle part du bord gauche du boitier, en unites de la vue.
+    // The scale starts from the left edge of the case, in view units.
     '[data-o-battery-level]{',
     `transform-box:view-box;transform-origin:${String(LEFT)}px 24px;`,
     'transition:transform var(--o-duration-base) var(--o-ease-standard);',
@@ -65,8 +64,8 @@ function ensureBatteryRule(): void {
     'transition:none;',
     'animation:o-battery-fill-charge var(--o-battery-speed) ease-in-out infinite;',
     '}',
-    // Le niveau repart de presque rien : une charge qui recommence pleine
-    // ressemblerait a un clignotement, pas a une montee.
+    // The level restarts from almost nothing: a charge that begins again full
+    // would look like a blink, not like a rise.
     '@keyframes o-battery-fill-charge{',
     '0%{transform:scaleX(0.04)}',
     '80%,100%{transform:scaleX(1)}',
@@ -88,34 +87,34 @@ function ensureBatteryRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface BatteryFillOwnProps {
-  /** Charge, de 0 a 100. Ignoree en mode indetermine. @defaultValue 58 */
+  /** Charge, from 0 to 100. Ignored in indeterminate mode. @defaultValue 58 */
   value?: number
-  /** Charge en cours, sans valeur mesurable. @defaultValue false */
+  /** Charging in progress, with no measurable value. @defaultValue false */
   indeterminate?: boolean
-  /** Largeur de la batterie, en pixels. @defaultValue 96 */
+  /** Width of the battery, in pixels. @defaultValue 96 */
   size?: number
-  /** Duree d une charge complete, en millisecondes. @defaultValue 2400 */
+  /** Duration of a full charge, in milliseconds. @defaultValue 2400 */
   speed?: number
-  /** Couleur du boitier et du niveau. @defaultValue la couleur du texte */
+  /** Colour of the case and of the level. @defaultValue the text colour */
   color?: string
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */
+  /** Label announced to screen readers. @defaultValue 'Loading' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All the properties. */
 export type BatteryFillProps = Customisable<BatteryFillOwnProps, 'span'>
 
 /**
- * Batterie dont le niveau dit la charge, ou se remplit sans fin.
+ * Battery whose level tells the charge, or fills endlessly.
  *
  * @example
- * // Charge reelle.
+ * // Real charge.
  * <BatteryFill value={battery.level * 100} />
  *
  * @example
- * // Charge en cours, dans la teinte de marque.
+ * // Charging in progress, in the brand hue.
  * <BatteryFill indeterminate color="var(--o-palette-brand-500)" />
  */
 export function BatteryFill({
@@ -124,7 +123,7 @@ export function BatteryFill({
   size = 96,
   speed = 2400,
   color = 'currentColor',
-  label = 'Chargement',
+  label = 'Loading',
   ...rest
 }: BatteryFillProps): ReactElement {
   ensureBatteryRule()
@@ -136,8 +135,8 @@ export function BatteryFill({
   const hostStyle = {
     ...style,
     width: `${String(size)}px`,
-    // La vue fait 100 sur 48 : la hauteur suit, sans quoi le boitier
-    // s'etirerait.
+    // The view is 100 by 48: the height follows, otherwise the case would
+    // stretch.
     height: `${String(Math.round(size * 0.48))}px`,
     color,
     '--o-battery-speed': `${String(speed)}ms`,
@@ -152,8 +151,8 @@ export function BatteryFill({
       data-o-battery-charging={indeterminate ? '' : undefined}
       role="progressbar"
       aria-label={label}
-      // Un progressbar sans aria-valuenow est indetermine : c'est la maniere
-      // normative de dire « j'avance, mais je ne sais pas de combien ».
+      // A progressbar with no aria-valuenow is indeterminate: it is the
+      // normative way to say "I am moving, but I do not know by how much".
       aria-valuemin={indeterminate ? undefined : 0}
       aria-valuemax={indeterminate ? undefined : 100}
       aria-valuenow={indeterminate ? undefined : Math.round(clamped)}

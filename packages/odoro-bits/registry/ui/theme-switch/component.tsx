@@ -1,27 +1,27 @@
 /**
- * Interrupteur jour nuit : un soleil qui devient lune.
+ * Day night switch: a sun that turns into a moon.
  *
- * ## Decoratif, et honnete sur ce point
+ * ## Decorative, and honest about it
  *
- * Ce composant ne touche pas au theme du site : il expose un etat et le
- * signale, c'est tout. Brancher la bascule sur un vrai changement de theme
- * est le travail de la page — un composant du registre qui ecrirait sur
- * `document.documentElement` prendrait une decision qui ne lui appartient
- * pas.
+ * This component does not touch the theme of the site: it exposes a state
+ * and reports it, that is all. Wiring the toggle to a real theme change is
+ * the work of the page — a registry component writing on
+ * `document.documentElement` would take a decision that is not its own to
+ * take.
  *
- * ## Un `role="switch"`, pas une case a cocher
+ * ## A `role="switch"`, not a checkbox
  *
- * L'element est un bouton avec `role="switch"` et `aria-checked` : les
- * lecteurs d'ecran annoncent « active / desactive », le vocabulaire exact
- * d'un interrupteur. Une case a cocher annoncerait « coche », ce qui decrit
- * un formulaire, pas une bascule d'ambiance.
+ * The element is a button with `role="switch"` and `aria-checked`: screen
+ * readers announce "on / off", the exact vocabulary of a switch. A checkbox
+ * would announce "checked", which describes a form, not a toggle of
+ * ambience.
  *
- * ## Le soleil et la lune sont deux dessins superposes
+ * ## The sun and the moon are two stacked drawings
  *
- * Chacun tourne et s'estompe en croisant l'autre : le morphing est une
- * rotation plus un fondu, deux proprietes composees. Les etoiles ne sont
- * que des points dont l'opacite suit l'etat nuit, avec un leger decalage
- * pour qu'elles s'allument apres l'arrivee de la lune.
+ * Each one rotates and fades out as it crosses the other: the morphing is a
+ * rotation plus a crossfade, two composited properties. The stars are only
+ * dots whose opacity follows the night state, with a slight delay so that
+ * they light up after the moon has arrived.
  *
  * @module
  */
@@ -29,27 +29,27 @@
 import { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'
 import { useState, type CSSProperties, type ReactElement } from 'react'
 
-/** Proprietes propres au composant. */
+/** Props specific to this component. */
 export interface ThemeSwitchOwnProps {
-  /** Etat nuit, en mode controle. */
+  /** Night state, in controlled mode. */
   checked?: boolean
-  /** Etat au montage, en mode non controle. @defaultValue false */
+  /** State at mount, in uncontrolled mode. @defaultValue false */
   defaultChecked?: boolean
-  /** Appele quand l'utilisateur bascule. */
+  /** Called when the user toggles. */
   onCheckedChange?: (checked: boolean) => void
-  /** Hauteur de l'interrupteur, en pixels. @defaultValue 32 */
+  /** Height of the switch, in pixels. @defaultValue 32 */
   size?: number
-  /** Nom de la bascule pour les lecteurs d'ecran. @defaultValue 'Mode nuit' */
+  /** Name of the toggle for screen readers. @defaultValue 'Night mode' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type ThemeSwitchProps = Customisable<ThemeSwitchOwnProps, 'button'>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-theme-switch'
 
-/** Pose la piste, le disque et les etoiles, une fois par document. */
+/** Sets the track, the thumb and the stars, once per document. */
 function ensureSwitchRules(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -66,7 +66,7 @@ function ensureSwitchRules(): void {
     '}',
     '[data-o-daynight][aria-checked="true"]{background:var(--o-daynight-night)}',
 
-    // Le disque porte les deux dessins et glisse d un bord a l autre.
+    // The thumb carries both drawings and slides from one edge to the other.
     '[data-o-daynight-thumb]{',
     'position:absolute;top:10%;left:5%;height:80%;aspect-ratio:1;',
     'transform:translateX(0);',
@@ -80,13 +80,13 @@ function ensureSwitchRules(): void {
     'transition:transform var(--o-duration-slow) var(--o-ease-standard),',
     'opacity var(--o-duration-slow) linear;',
     '}',
-    // Rotation croisee : chaque astre arrive en tournant, part en tournant.
+    // Crossed rotation: each body arrives turning, and leaves turning.
     '[data-o-daynight-sun]{color:var(--o-daynight-sunlight);opacity:1;transform:rotate(0deg)}',
     '[data-o-daynight-moon]{color:var(--o-daynight-moonlight);opacity:0;transform:rotate(-90deg)}',
     '[data-o-daynight][aria-checked="true"] [data-o-daynight-sun]{opacity:0;transform:rotate(90deg)}',
     '[data-o-daynight][aria-checked="true"] [data-o-daynight-moon]{opacity:1;transform:rotate(0deg)}',
 
-    // Les etoiles s allument apres l arrivee de la lune.
+    // The stars light up after the moon has arrived.
     '[data-o-daynight-star]{',
     'position:absolute;border-radius:999px;background:var(--o-daynight-moonlight);',
     'width:calc(var(--o-daynight-size) * 0.08);height:calc(var(--o-daynight-size) * 0.08);',
@@ -98,7 +98,7 @@ function ensureSwitchRules(): void {
     'opacity:0.9;transform:scale(1);transition-delay:calc(var(--o-duration-slow) / 2);',
     '}',
 
-    // Mouvement reduit : la bascule est instantanee, l etat reste lisible.
+    // Reduced motion: the toggle is instant, the state stays readable.
     '@media (prefers-reduced-motion:reduce){',
     '[data-o-daynight],[data-o-daynight-thumb],[data-o-daynight-thumb] svg,',
     '[data-o-daynight-star]{transition:none}',
@@ -107,7 +107,7 @@ function ensureSwitchRules(): void {
   document.head.append(style)
 }
 
-/** Positions des trois etoiles, en pourcentage de la piste. */
+/** Positions of the three stars, as a percentage of the track. */
 const STARS = [
   { left: '18%', top: '25%' },
   { left: '30%', top: '58%' },
@@ -115,21 +115,21 @@ const STARS = [
 ] as const
 
 /**
- * Interrupteur decoratif entre jour et nuit.
+ * Decorative switch between day and night.
  *
  * @example
  * <ThemeSwitch defaultChecked={false} />
  *
  * @example
- * // Mode controle : la page ecoute, et applique son theme elle-meme.
- * <ThemeSwitch checked={nuit} onCheckedChange={setNuit} size={40} />
+ * // Controlled mode: the page listens, and applies its theme itself.
+ * <ThemeSwitch checked={night} onCheckedChange={setNight} size={40} />
  */
 export function ThemeSwitch({
   checked,
   defaultChecked = false,
   onCheckedChange,
   size = 32,
-  label = 'Mode nuit',
+  label = 'Night mode',
   ...rest
 }: ThemeSwitchProps): ReactElement {
   const { reduced } = useMotionState()

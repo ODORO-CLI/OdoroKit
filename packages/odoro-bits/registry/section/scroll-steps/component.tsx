@@ -1,23 +1,22 @@
 /**
- * Etapes au defilement : un media colle, des etapes qui defilent.
+ * Steps on scroll: a sticky media, steps that scroll past.
  *
- * ## L'index ne change qu'au passage d'une etape
+ * ## The index only changes when a step is crossed
  *
- * La progression du defilement est continue, l'etape active ne l'est pas. Si
- * l'etat React suivait la progression, il changerait a chaque image et
- * provoquerait un rendu par image — pour afficher le meme media la plupart du
- * temps.
+ * Scroll progress is continuous, the active step is not. If React state
+ * followed the progress it would change on every frame and cause one render per
+ * frame — to show the same media most of the time.
  *
- * La progression est donc lue dans la boucle, mais l'etat n'est ecrit que
- * lorsque l'index calcule differe de celui en cours. Sur une section de quatre
- * etapes, cela fait trois rendus au lieu de plusieurs centaines.
+ * The progress is therefore read in the loop, but the state is only written
+ * when the computed index differs from the current one. On a section of four
+ * steps, that makes three renders instead of several hundred.
  *
- * ## Ce qui reste lisible sans defilement
+ * ## What stays readable without scrolling
  *
- * Toutes les etapes sont dans le document, dans l'ordre, et le media porte le
- * nom de l'etape active. Sur un petit ecran, la colonne collee passe au-dessus
- * et le contenu se lit comme une suite ordinaire. Une section qui n'existerait
- * qu'au defilement serait vide pour qui ne defile pas.
+ * Every step is in the document, in order, and the media carries the name of
+ * the active step. On a small screen the sticky column moves above and the
+ * content reads like an ordinary sequence. A section that existed only on
+ * scroll would be empty for whoever does not scroll.
  *
  * @module
  */
@@ -30,38 +29,38 @@ import {
 } from '@odoro-cli/engine'
 import { useCallback, useRef, useState, type ReactElement, type ReactNode } from 'react'
 
-/** Une etape. */
+/** One step. */
 export interface Step {
-  /** Intitule. */
+  /** Heading. */
   readonly title: string
-  /** Contenu. */
+  /** Content. */
   readonly body: ReactNode
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to the component. */
 export interface ScrollStepsOwnProps {
-  /** Les etapes, dans l'ordre de lecture. */
+  /** The steps, in reading order. */
   steps: readonly Step[]
-  /** Rend le media pour l'etape active. */
+  /** Renders the media for the active step. */
   render: (index: number) => ReactNode
-  /** Nom de la section, annonce aux technologies d'assistance. */
+  /** Section name, announced to assistive technologies. */
   label: string
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type ScrollStepsProps = Customisable<ScrollStepsOwnProps>
 
 /**
- * Fait suivre un media aux etapes d'un texte.
+ * Makes a media follow the steps of a text.
  *
  * @example
  * <ScrollSteps
- *   label="Comment ca marche"
+ *   label="How it works"
  *   steps={[
- *     { title: 'Ecrire', body: <p>Une entree de registre…</p> },
- *     { title: 'Valider', body: <p>Le schema refuse…</p> },
+ *     { title: 'Write', body: <p>A registry entry…</p> },
+ *     { title: 'Validate', body: <p>The schema rejects…</p> },
  *   ]}
- *   render={(index) => <Illustration etape={index} />}
+ *   render={(index) => <Illustration step={index} />}
  * />
  */
 export function ScrollSteps({
@@ -80,8 +79,8 @@ export function ScrollSteps({
         steps.length - 1,
         Math.max(0, Math.floor(progress * steps.length)),
       )
-      // L'etat n'est ecrit qu'au passage d'une etape : la progression est
-      // continue, l'index ne l'est pas.
+      // The state is only written when a step is crossed: the progress is
+      // continuous, the index is not.
       if (index !== current.current) {
         current.current = index
         setActive(index)
@@ -91,7 +90,7 @@ export function ScrollSteps({
   )
 
   const { ref } = useScrollScrub<HTMLDivElement>(onProgress, {
-    name: 'etapes au defilement',
+    name: 'scroll steps',
   })
 
   const { className, style } = mergePresentation(
@@ -102,9 +101,9 @@ export function ScrollSteps({
   return (
     <section {...rest} ref={ref} aria-label={label} className={className} style={style}>
       {/*
-        Sur petit ecran, la colonne collee passe au-dessus et cesse de coller :
-        deux colonnes empilees dont l'une reste figee donneraient un media qui
-        recouvre le texte.
+        On a small screen the sticky column moves above and stops sticking: two
+        stacked columns one of which stays pinned would give a media that covers
+        the text.
       */}
       <div className="lg:o-sticky lg:o-top-24 lg:o-self-start">
         <div className="o-overflow-hidden o-rounded-xl o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800">

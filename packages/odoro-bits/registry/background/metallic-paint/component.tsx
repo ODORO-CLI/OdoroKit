@@ -1,30 +1,30 @@
 /**
- * Peinture metallique : une plaque brossee et pailletee dont le reflet suit
- * le curseur.
+ * Metallic paint: a brushed and flaked plate whose highlight follows the
+ * cursor.
  *
- * ## A quoi ce fond reagit
+ * ## What this background reacts to
  *
- * Au deplacement du pointeur, avec amortissement : la lampe qui eclaire la
- * plaque est placee au curseur, un peu au-dessus du plan. Bouger le pointeur
- * revient donc a incliner la plaque, et le reflet balaie les stries de
- * brossage. A la sortie du cadre, le hook ramene la cible au centre.
+ * To the pointer moving, with damping: the lamp lighting the plate is placed at
+ * the cursor, a little above the plane. Moving the pointer therefore amounts to
+ * tilting the plate, and the highlight sweeps the brushing streaks. On leaving
+ * the frame, the hook brings the target back to the centre.
  *
- * Ce qui distingue cette entree de `liquid-chrome` : le chrome y reflete un
- * studio fixe, sans pointeur, et sa surface ondule ; ici la surface est
- * plate, mate, striee, et c'est la lampe qui bouge. De `molten-metal` : le
- * bain y est chaud et coule. Et de `ferrofluid`, qui deforme sa matiere sous
- * le pointeur au lieu de l'eclairer.
+ * What sets this entry apart from `liquid-chrome`: chrome there reflects a
+ * fixed studio, with no pointer, and its surface ripples; here the surface is
+ * flat, matte, streaked, and it is the lamp that moves. From `molten-metal`:
+ * the bath there is hot and flows. And from `ferrofluid`, which deforms its
+ * matter under the pointer instead of lighting it.
  *
- * ## Le pont pointeur → shader
+ * ## The pointer → shader bridge
  *
- * Aucun rendu React par image : le composant mute en place un tableau stable
- * passe en uniform, et la surface relit ses uniforms a chaque image. La
- * recopie se fait dans la boucle du moteur, en priorite d'entree.
+ * No React render per frame: the component mutates in place a stable array
+ * passed as a uniform, and the surface re-reads its uniforms every frame. The
+ * copy happens in the engine loop, at input priority.
  *
- * ## Sous mouvement reduit
+ * ## Under reduced motion
  *
- * La surface est refusee par le moteur et le repli statique s'affiche : le
- * suivi du pointeur est un agrement, pas un contenu.
+ * The surface is refused by the engine and the static fallback is shown:
+ * pointer tracking is a nicety, not content.
  *
  * @module
  */
@@ -45,46 +45,46 @@ import { usePointerDamped } from '@registre/hooks/usePointerDamped'
 
 import { METALLIC_PAINT_FRAGMENT } from './metallic-paint.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface MetallicPaintControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to this component. */
 export interface MetallicPaintOwnProps {
-  /** Profondeur des stries de brossage. @defaultValue 8 */
+  /** Depth of the brushing streaks. @defaultValue 8 */
   relief?: number
-  /** Durete du reflet, entre zero et un. @defaultValue 0.55 */
+  /** Hardness of the highlight, between zero and one. @defaultValue 0.55 */
   sheen?: number
-  /** Densite des paillettes, entre zero et un. @defaultValue 0.5 */
+  /** Density of the flakes, between zero and one. @defaultValue 0.5 */
   flakes?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<MetallicPaintControls>
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type MetallicPaintProps = Customisable<MetallicPaintOwnProps>
 
-/** Tokens employes par defaut : le fond, le metal, le reflet. */
+/** Tokens used by default: the background, the metal, the highlight. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-theme-muted',
   '--o-palette-amber-200',
 ] as const
 
-/** Repli par defaut : un degrade fige, dans les memes tons. */
+/** Default fallback: a frozen gradient, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-tr o-from-zinc-50 dark:o-from-zinc-950 o-to-amber-100 dark:o-to-amber-950'
 
 /**
- * Peinture metallique.
+ * Metallic paint.
  *
  * @example
  * <div className="o-relative o-min-h-screen">
@@ -103,22 +103,22 @@ export function MetallicPaint({
 }: MetallicPaintProps): ReactElement {
   const [host, setHost] = useState<HTMLDivElement | null>(null)
 
-  // Tableau stable, mute en place : la surface relit les uniforms a chaque
-  // image, l'identite ne change pas, la mutation suffit — aucun setState.
+  // Stable array, mutated in place: the surface re-reads the uniforms every
+  // frame, the identity does not change, the mutation is enough — no setState.
   const uPointer = useRef<number[]>([0.5, 0.5]).current
 
-  // Vitesse 3 : une plaque a de l'inertie, le reflet ne saute pas.
-  const pointer = usePointerDamped({ host, speed: 3, name: 'metallic-paint : pointeur' })
+  // Speed 3: a plate has inertia, the highlight does not jump.
+  const pointer = usePointerDamped({ host, speed: 3, name: 'metallic-paint : pointer' })
 
   useEffect(() => {
     const subscription = clock.subscribe(
       () => {
-        // Du repere du hook (centre, y vers le bas) vers celui de la texture
-        // (coin bas-gauche, y vers le haut).
+        // From the hook's frame (centred, y downwards) to the texture's
+        // (bottom-left corner, y upwards).
         uPointer[0] = (pointer.current.x + 1) / 2
         uPointer[1] = 1 - (pointer.current.y + 1) / 2
       },
-      { priority: CLOCK_PRIORITY.input, name: 'metallic-paint : pont' },
+      { priority: CLOCK_PRIORITY.input, name: 'metallic-paint : bridge' },
     )
     return () => subscription.unsubscribe()
   }, [pointer, uPointer])
@@ -134,9 +134,9 @@ export function MetallicPaint({
     colors,
     uniforms: { uPointer, uRelief: relief, uSheen: sheen, uFlakes: flakes },
     name: 'metallic-paint',
-    // Les stries et les paillettes vivent sous le pixel a densite reduite :
-    // elles s'y lisent comme un fourmillement. Le relief est adouci et les
-    // paillettes coupees plutot que de laisser le bruit gagner.
+    // The streaks and the flakes live below the pixel at a reduced density:
+    // there they read as a swarming. The relief is softened and the flakes cut
+    // rather than letting the noise win.
     degrade: (quality) =>
       quality === 'low'
         ? { uRelief: relief * 0.5, uFlakes: 0 }

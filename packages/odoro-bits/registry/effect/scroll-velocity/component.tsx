@@ -1,26 +1,24 @@
 /**
- * Inclinaison au defilement : le conteneur penche avec la vitesse, pas la
- * position.
+ * Scroll tilt: the container leans with the speed, not with the position.
  *
- * ## La vitesse se mesure dans la boucle, pas dans l'evenement
+ * ## The speed is measured in the loop, not in the event
  *
- * L'evenement `scroll` arrive par paquets irreguliers ; en deriver une
- * vitesse donnerait une valeur qui saute. La position est donc relevee a
- * chaque image de la boucle du moteur, et la vitesse est le delta divise par
- * le temps ecoule — puis lissee par amortissement exponentiel, en fonction du
- * temps (`1 - exp(-amortissement x dt)`), pour que le meme reglage donne le
- * meme mouvement a soixante comme a cent vingt images par seconde. A l'arret,
- * la vitesse lissee retombe d'elle-meme : le retour amorti n'est pas un
- * second mecanisme, c'est le meme.
+ * The `scroll` event arrives in irregular batches; deriving a speed from it
+ * would give a value that jumps. The position is therefore read on every frame
+ * of the engine loop, and the speed is the delta divided by the elapsed time —
+ * then smoothed by exponential damping, as a function of time
+ * (`1 - exp(-damping x dt)`), so that the same setting gives the same movement
+ * at sixty as at a hundred and twenty frames per second. At a standstill, the
+ * smoothed speed falls back on its own: the damped return is not a second
+ * mechanism, it is the same one.
  *
- * ## Deux variables CSS, un transform pose une fois
+ * ## Two CSS variables, one transform applied once
  *
- * La boucle n'ecrit que `--o-sv-skew` et `--o-sv-shift` ; le transform qui
- * les consomme est pose au rendu, une fois. L'inclinaison et le decalage sont
- * bornes : une vitesse de defilement n'a pas de plafond, une inclinaison
- * lisible en a un.
+ * The loop writes nothing but `--o-sv-skew` and `--o-sv-shift`; the transform
+ * that consumes them is applied at render, once. The tilt and the offset are
+ * clamped: a scroll speed has no ceiling, a readable tilt does.
  *
- * Sous mouvement reduit, aucune souscription : le conteneur est immobile.
+ * Under reduced motion, no subscription: the container is motionless.
  *
  * @module
  */
@@ -34,30 +32,30 @@ import {
 } from '@odoro-cli/engine'
 import { useEffect, useState, type ReactElement, type ReactNode } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface ScrollVelocityOwnProps {
-  /** Contenu qui s'incline. */
+  /** Content that leans. */
   children: ReactNode
-  /** Ampleur de l'inclinaison et du decalage. @defaultValue 1 */
+  /** Amplitude of the tilt and of the offset. @defaultValue 1 */
   strength?: number
-  /** Vitesse du lissage et du retour. Plus haut, plus sec. @defaultValue 8 */
+  /** Speed of the smoothing and of the return. The higher, the snappier. @defaultValue 8 */
   damping?: number
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type ScrollVelocityProps = Customisable<ScrollVelocityOwnProps>
 
-/** Borne une valeur dans un intervalle symetrique. */
+/** Clamps a value inside a symmetric interval. */
 function clamp(value: number, limit: number): number {
   return Math.min(limit, Math.max(-limit, value))
 }
 
 /**
- * Premier ancetre qui defile reellement, ou rien : la page servira.
+ * First ancestor that really scrolls, or nothing: the page will do.
  *
- * Sans cette remontee, un conteneur pose dans une zone a defilement interne
- * — un apercu, un panneau — ne pencherait jamais : `window.scrollY` n'y
- * bouge pas.
+ * Without this walk up, a container placed inside an area with internal
+ * scrolling — a preview, a panel — would never lean: `window.scrollY` does not
+ * move there.
  */
 function findScroller(start: HTMLElement): HTMLElement | null {
   let node = start.parentElement
@@ -75,17 +73,17 @@ function findScroller(start: HTMLElement): HTMLElement | null {
 }
 
 /**
- * Incline son contenu proportionnellement a la vitesse de defilement.
+ * Leans its content in proportion to the scroll speed.
  *
  * @example
  * <ScrollVelocity className="o-space-y-8">
- *   {cartes.map((carte) => <Carte key={carte.id} {...carte} />)}
+ *   {cards.map((card) => <Card key={card.id} {...card} />)}
  * </ScrollVelocity>
  *
  * @example
- * // Une inclinaison discrete, au retour tres mou.
+ * // A discreet tilt, with a very soft return.
  * <ScrollVelocity strength={0.5} damping={4}>
- *   <img src={affiche} alt="Affiche du festival" />
+ *   <img src={poster} alt="Festival poster" />
  * </ScrollVelocity>
  */
 export function ScrollVelocity({
@@ -110,8 +108,8 @@ export function ScrollVelocity({
       ({ delta }) => {
         const dt = Math.max(delta, 1 / 240)
         const position = read()
-        // Vitesse instantanee en pixels par seconde, puis lissage dependant
-        // du temps : voir l'en-tete du module.
+        // Instantaneous speed in pixels per second, then time-dependent
+        // smoothing: see the module header.
         const instant = (position - previous) / dt
         previous = position
         velocity += (instant - velocity) * (1 - Math.exp(-damping * dt))
@@ -141,8 +139,8 @@ export function ScrollVelocity({
       {...rest}
       ref={setHost}
       className={className}
-      // Le transform est pose une fois ; la boucle n'ecrit que les deux
-      // variables. Sans souscription, les replis valent zero : immobile.
+      // The transform is applied once; the loop writes nothing but the two
+      // variables. With no subscription, the fallbacks are zero: motionless.
       style={{
         transform: 'translateY(var(--o-sv-shift, 0px)) skewY(var(--o-sv-skew, 0deg))',
         ...style,

@@ -1,36 +1,36 @@
 /**
- * Boucle courbe : une phrase defile sans fin le long d'un arc.
+ * Curved loop: a sentence scrolls endlessly along an arc.
  *
- * ## Pourquoi `startOffset` et rien d'autre
+ * ## Why `startOffset` and nothing else
  *
- * Le texte est pose sur un chemin par `textPath` : c'est le navigateur qui
- * calcule la position et l'inclinaison de chaque glyphe. Le faire defiler
- * revient alors a deplacer une seule valeur, `startOffset`, le long de ce
- * chemin. Aucune transformation, aucune mesure de glyphe, aucun rendu React :
- * un attribut ecrit par image.
+ * The text is laid on a path by `textPath`: it is the browser that computes
+ * the position and the tilt of each glyph. Scrolling it then amounts to moving
+ * a single value, `startOffset`, along that path. No transform, no glyph
+ * measurement, no React render: one attribute written per frame.
  *
- * Une translation ferait autre chose — elle glisserait le bloc de texte a
- * cote de la courbe au lieu de le faire courir dessus.
+ * A translation would do something else — it would slide the block of text
+ * alongside the curve instead of running it along it.
  *
- * ## Le motif est mesure, pas devine
+ * ## The pattern is measured, not guessed
  *
- * Pour qu'une boucle soit invisible, le decalage doit revenir a zero apres
- * exactement une repetition. Cette largeur depend de la police reellement
- * chargee : elle est donc lue une fois, sur une copie du motif hors champ,
- * puis le nombre de repetitions necessaires pour couvrir le chemin en est
- * deduit. Une repetition de plus est ajoutee, celle qui entre par le bord.
+ * For a loop to be invisible, the offset must come back to zero after exactly
+ * one repetition. That width depends on the font actually loaded: it is
+ * therefore read once, on a copy of the pattern kept off screen, and the
+ * number of repetitions needed to cover the path is derived from it. One extra
+ * repetition is added, the one entering from the edge.
  *
  * ## Distinction
  *
- * `circular-text` enroule une phrase sur un anneau ferme et fait tourner
- * l'anneau : la phrase ne bouge pas par rapport a son support. Ici le support
- * est ouvert et immobile, et c'est le texte qui court dessus, en continu.
+ * `circular-text` wraps a sentence on a closed ring and turns the ring: the
+ * sentence does not move relative to its support. Here the support is open and
+ * motionless, and it is the text that runs along it, continuously.
  *
- * ## Accessibilite
+ * ## Accessibility
  *
- * Le motif est repete autant de fois qu'il faut pour couvrir l'arc : lu tel
- * quel, il annoncerait la phrase cinq fois. Le dessin est donc retire de
- * l'arbre d'accessibilite, et la phrase y figure une fois, entiere.
+ * The pattern is repeated as many times as it takes to cover the arc: read as
+ * it is, it would announce the sentence five times. The drawing is therefore
+ * removed from the accessibility tree, and the sentence appears there once, in
+ * full.
  *
  * @module
  */
@@ -51,162 +51,164 @@ import {
   type ReactElement,
 } from 'react'
 
-/** Sens de defilement. */
-export type CurvedLoopSens = 'gauche' | 'droite'
+/** Direction of the scroll. */
+export type CurvedLoopDirection = 'left' | 'right'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface CurvedLoopOwnProps {
-  /** Phrase qui defile. */
+  /** Sentence that scrolls. */
   children: string
-  /** Balise rendue. @defaultValue 'div' */
+  /** Rendered tag. @defaultValue 'div' */
   as?: ElementType
-  /** Separateur insere entre deux repetitions. @defaultValue ' — ' */
-  separateur?: string
-  /** Creux de la courbe, de 0 (droite) a 1. @defaultValue 0.5 */
-  courbure?: number
-  /** Corps du texte, en unites du dessin (hauteur totale : 200). @defaultValue 96 */
-  taille?: number
-  /** Vitesse, en unites du dessin par seconde. @defaultValue 60 */
+  /** Separator inserted between two repetitions. @defaultValue ' — ' */
+  separator?: string
+  /** Dip of the curve, from 0 (straight) to 1. @defaultValue 0.5 */
+  curve?: number
+  /** Type size, in drawing units (total height: 200). @defaultValue 96 */
+  size?: number
+  /** Speed, in drawing units per second. @defaultValue 60 */
   speed?: number
-  /** Sens de defilement. @defaultValue 'gauche' */
-  sens?: CurvedLoopSens
+  /** Direction of the scroll. @defaultValue 'left' */
+  direction?: CurvedLoopDirection
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type CurvedLoopProps = Customisable<CurvedLoopOwnProps>
 
-/** Largeur du dessin, en unites internes. */
-const VUE_LARGEUR = 1000
+/** Width of the drawing, in internal units. */
+const VIEW_WIDTH = 1000
 
-/** Hauteur du dessin, en unites internes. */
-const VUE_HAUTEUR = 200
+/** Height of the drawing, in internal units. */
+const VIEW_HEIGHT = 200
 
-/** Repetitions rendues avant la premiere mesure. */
-const REPETITIONS_INITIALES = 4
+/** Repetitions rendered before the first measurement. */
+const INITIAL_REPEATS = 4
 
-/** Plafond de repetitions : une police tres etroite en demanderait mille. */
-const REPETITIONS_MAX = 40
+/** Ceiling on repetitions: a very narrow font would ask for a thousand. */
+const MAX_REPEATS = 40
 
 /**
- * Fait courir une phrase le long d'un arc, sans fin.
+ * Runs a sentence along an arc, endlessly.
  *
  * @example
- * <CurvedLoop className="o-w-full">Odoro, un registre de composants animes</CurvedLoop>
+ * <CurvedLoop className="o-w-full">Odoro, a registry of animated components</CurvedLoop>
  *
  * @example
- * // Un arc creux, lent, qui part vers la droite.
- * <CurvedLoop courbure={0.9} speed={28} sens="droite">Atelier</CurvedLoop>
+ * // A deep arc, slow, running to the right.
+ * <CurvedLoop curve={0.9} speed={28} direction="right">Workshop</CurvedLoop>
  */
 export function CurvedLoop({
   children,
   as: Tag = 'div',
-  separateur = ' — ',
-  courbure = 0.5,
-  taille = 96,
+  separator = ' — ',
+  curve = 0.5,
+  size = 96,
   speed = 60,
-  sens = 'gauche',
+  direction = 'left',
   ...rest
 }: CurvedLoopProps): ReactElement {
   const { reduced } = useMotionState()
 
-  const brut = useId()
-  // Un identifiant de React contient des deux-points ; place dans une
-  // reference de fragment, il devient fragile. On ne garde que ce qui est sur.
-  const cheminId = `o-curved-loop-${brut.replace(/[^a-zA-Z0-9_-]/g, '')}`
+  const raw = useId()
+  // A React identifier contains colons; placed inside a fragment reference, it
+  // becomes fragile. We keep only what is safe.
+  const pathId = `o-curved-loop-${raw.replace(/[^a-zA-Z0-9_-]/g, '')}`
 
-  const refChemin = useRef<SVGPathElement | null>(null)
-  const refMotif = useRef<SVGTextElement | null>(null)
-  const refTexte = useRef<SVGTextPathElement | null>(null)
+  const pathRef = useRef<SVGPathElement | null>(null)
+  const patternRef = useRef<SVGTextElement | null>(null)
+  const textRef = useRef<SVGTextPathElement | null>(null)
 
-  const [repetitions, setRepetitions] = useState(REPETITIONS_INITIALES)
+  const [repeats, setRepeats] = useState(INITIAL_REPEATS)
 
-  const motif = `${children}${separateur}`
+  const pattern = `${children}${separator}`
 
-  // Le creux : a zero la courbe est une droite, et le composant se comporte
-  // comme un bandeau defilant ordinaire.
-  const creux = Math.max(0, Math.min(1, courbure)) * 70
-  const chemin = `M 0 ${String(VUE_HAUTEUR / 2 + creux)} Q ${String(VUE_LARGEUR / 2)} ${String(VUE_HAUTEUR / 2 - creux * 1.8)} ${String(VUE_LARGEUR)} ${String(VUE_HAUTEUR / 2 + creux)}`
+  // The dip: at zero the curve is a straight line, and the component behaves
+  // like an ordinary scrolling banner.
+  const dip = Math.max(0, Math.min(1, curve)) * 70
+  const path = `M 0 ${String(VIEW_HEIGHT / 2 + dip)} Q ${String(VIEW_WIDTH / 2)} ${String(VIEW_HEIGHT / 2 - dip * 1.8)} ${String(VIEW_WIDTH)} ${String(VIEW_HEIGHT / 2 + dip)}`
 
   useEffect(() => {
-    const arc = refChemin.current
-    const gabarit = refMotif.current
-    const texte = refTexte.current
-    if (arc === null || gabarit === null || texte === null) return
+    const arc = pathRef.current
+    const template = patternRef.current
+    const text = textRef.current
+    if (arc === null || template === null || text === null) return
 
-    // Sans ces deux mesures — un environnement sans mise en page SVG — la
-    // boucle serait fausse. Le texte reste alors pose, immobile : lisible.
+    // Without these two measurements — an environment with no SVG layout — the
+    // loop would be wrong. The text then stays laid down, motionless:
+    // readable.
     if (
       typeof arc.getTotalLength !== 'function' ||
-      typeof gabarit.getComputedTextLength !== 'function'
+      typeof template.getComputedTextLength !== 'function'
     ) {
       return
     }
 
-    const largeurMotif = gabarit.getComputedTextLength()
-    if (largeurMotif <= 0) return
+    const patternWidth = template.getComputedTextLength()
+    if (patternWidth <= 0) return
 
-    const longueur = arc.getTotalLength()
-    const voulues = Math.min(
-      REPETITIONS_MAX,
-      Math.ceil((longueur + largeurMotif) / largeurMotif) + 1,
+    const length = arc.getTotalLength()
+    const wanted = Math.min(
+      MAX_REPEATS,
+      Math.ceil((length + patternWidth) / patternWidth) + 1,
     )
-    if (voulues !== repetitions) setRepetitions(voulues)
+    if (wanted !== repeats) setRepeats(wanted)
 
-    // Mouvement reduit : le motif est pose au depart du chemin et n'en bouge
-    // plus. L'arc, le texte et sa forme sont tous la — seul le defilement
-    // manque, et c'est exactement ce qui a ete demande.
+    // Reduced motion: the pattern is laid at the start of the path and no
+    // longer moves. The arc, the text and its shape are all there — only the
+    // scrolling is missing, and that is exactly what was asked for.
     if (reduced) {
-      texte.setAttribute('startOffset', '0')
+      text.setAttribute('startOffset', '0')
       return
     }
 
-    const signe = sens === 'gauche' ? -1 : 1
-    const depart = performance.now()
+    const sign = direction === 'left' ? -1 : 1
+    const startedAt = performance.now()
 
-    const abonnement = clock.subscribe(
+    const subscription = clock.subscribe(
       () => {
-        const parcouru = ((performance.now() - depart) / 1000) * speed
-        const cycle = (((parcouru * signe) % largeurMotif) + largeurMotif) % largeurMotif
-        // Le motif commence une repetition avant l'arc : celle qui sort par un
-        // bord n'est jamais rendue, et celle qui entre par l'autre est deja la.
-        texte.setAttribute('startOffset', (cycle - largeurMotif).toFixed(2))
+        const travelled = ((performance.now() - startedAt) / 1000) * speed
+        const cycle = (((travelled * sign) % patternWidth) + patternWidth) % patternWidth
+        // The pattern starts one repetition before the arc: the one leaving by
+        // one edge is never rendered, and the one entering by the other is
+        // already there.
+        text.setAttribute('startOffset', (cycle - patternWidth).toFixed(2))
       },
-      { name: 'boucle courbe', priority: CLOCK_PRIORITY.default },
+      { name: 'curved loop', priority: CLOCK_PRIORITY.default },
     )
 
     return () => {
-      abonnement.unsubscribe()
+      subscription.unsubscribe()
     }
-  }, [motif, chemin, taille, speed, sens, reduced, repetitions])
+  }, [pattern, path, size, speed, direction, reduced, repeats])
 
   const { className, style } = mergePresentation({ className: 'o-block' }, rest)
 
   return (
     <Tag {...rest} className={className} style={style}>
-      {/* La phrase, une fois, entiere, pour les lecteurs d'ecran. */}
+      {/* The sentence, once, in full, for screen readers. */}
       <span className="o-sr-only">{children}</span>
 
       <svg
         aria-hidden="true"
-        viewBox={`0 0 ${String(VUE_LARGEUR)} ${String(VUE_HAUTEUR)}`}
+        viewBox={`0 0 ${String(VIEW_WIDTH)} ${String(VIEW_HEIGHT)}`}
         className="o-block o-w-full"
         fill="currentColor"
       >
         <defs>
-          <path id={cheminId} ref={refChemin} d={chemin} fill="none" />
+          <path id={pathId} ref={pathRef} d={path} fill="none" />
         </defs>
 
         {/*
-          Le gabarit de mesure : une seule repetition, hors de la vue, dont on
-          lit la largeur reelle une fois la police chargee.
+          The measuring template: a single repetition, out of view, whose real
+          width is read once the font has loaded.
         */}
-        <text ref={refMotif} x={0} y={-VUE_HAUTEUR} fontSize={taille} visibility="hidden">
-          {motif}
+        <text ref={patternRef} x={0} y={-VIEW_HEIGHT} fontSize={size} visibility="hidden">
+          {pattern}
         </text>
 
-        <text fontSize={taille}>
-          <textPath ref={refTexte} href={`#${cheminId}`} startOffset="0">
-            {motif.repeat(repetitions)}
+        <text fontSize={size}>
+          <textPath ref={textRef} href={`#${pathId}`} startOffset="0">
+            {pattern.repeat(repeats)}
           </textPath>
         </text>
       </svg>

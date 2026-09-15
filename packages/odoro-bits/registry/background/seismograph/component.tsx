@@ -1,28 +1,28 @@
 /**
- * Sismographe : des traces horizontales sur un papier qui defile, qui tressaillent au clic.
+ * Seismograph: horizontal traces on a scrolling paper, twitching on a click.
  *
- * ## A quoi ce fond reagit
+ * ## What this background reacts to
  *
- * Au clic — ou au toucher — sur le cadre : chaque appui pose un stylet a son
- * abscisse et date une secousse dans un tampon circulaire de huit
- * emplacements. La secousse s'ecrit sur le papier au passage du stylet et
- * s'eloigne avec lui vers la gauche, plus forte sur les traces a la hauteur
- * du clic. Le deplacement du pointeur, lui, ne change rien.
+ * To a click — or a touch — on the frame: every press places a stylus at its
+ * abscissa and dates a shake in a ring buffer of eight slots. The shake is
+ * written on the paper as the stylus passes and moves away with it to the left,
+ * stronger on the traces at the height of the click. The pointer moving, on the
+ * other hand, changes nothing.
  *
- * ## Le pont clic → shader
+ * ## The click → shader bridge
  *
- * Aucun rendu React par image : le tampon est un tableau stable de vingt-
- * quatre flottants (huit fois x, y, temps de depart), mute en place a chaque
- * clic. La surface relit ses uniforms a chaque image, l'identite du tableau ne
- * change pas — la mutation suffit.
+ * No React render per frame: the buffer is a stable array of twenty-four floats
+ * (eight times x, y, start time), mutated in place on every click. The surface
+ * re-reads its uniforms every frame, the identity of the array does not change
+ * — the mutation is enough.
  *
- * Le temps ecrit dans le tampon est celui de l'horloge du moteur, memorise par
- * une souscription en priorite d'entree : c'est le meme temps que `uTime` du
- * shader, sans quoi la position de la secousse sur le papier serait fausse.
+ * The time written into the buffer is the engine clock's, kept by a
+ * subscription at input priority: it is the same time as the shader's `uTime`,
+ * without which the position of the shake on the paper would be wrong.
  *
- * ## Sous mouvement reduit
+ * ## Under reduced motion
  *
- * La surface est refusee par le moteur et le repli statique s'affiche.
+ * The surface is refused by the engine and the static fallback is shown.
  *
  * @module
  */
@@ -41,56 +41,56 @@ import { useEffect, useRef, useState, type ReactElement } from 'react'
 
 import { SEISMOGRAPH_FRAGMENT } from './seismograph.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface SeismographControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to this component. */
 export interface SeismographOwnProps {
-  /** Nombre de traces. Borne a huit par le shader. @defaultValue 5 */
+  /** Number of traces. Clamped to eight by the shader. @defaultValue 5 */
   traces?: number
-  /** Vitesse du papier, en largeurs de cadre par seconde. @defaultValue 0.12 */
+  /** Speed of the paper, in frame widths per second. @defaultValue 0.12 */
   scroll?: number
-  /** Vitesse d'amortissement des secousses. @defaultValue 1.5 */
+  /** Rate at which the shakes are damped. @defaultValue 1.5 */
   decay?: number
-  /** Force des secousses. @defaultValue 1 */
+  /** Strength of the shakes. @defaultValue 1 */
   amplitude?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<SeismographControls>
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type SeismographProps = Customisable<SeismographOwnProps>
 
-/** Tokens employes par defaut : le papier, l'encre, l'encre fraiche. */
+/** Tokens used by default: the paper, the ink, the fresh ink. */
 const DEFAULT_TOKENS = ['--o-theme-bg', '--o-theme-fg', '--o-palette-brand-500'] as const
 
-/** Repli par defaut : une teinte figee, dans les memes tons. */
+/** Default fallback: a frozen tint, in the same tones. */
 const DEFAULT_FALLBACK = 'o-bg-zinc-50 dark:o-bg-zinc-950'
 
-/** Nombre de secousses vivantes a la fois. */
+/** Number of shakes live at once. */
 const SLOTS = 8
 
 /**
- * Nombre de traces en qualite basse.
+ * Number of traces at low quality.
  *
- * Chaque fragment evalue trois fois sa trace — la pente vient d'une
- * difference finie — et chaque evaluation parcourt les huit clics. Le nombre
- * de traces ne change rien a ce compte ; mais des traces serrees, a densite
- * de pixels reduite, scintillent. Moins de traces, plus d'espace.
+ * Every fragment evaluates its trace three times — the slope comes from a
+ * finite difference — and every evaluation walks the eight clicks. The number
+ * of traces changes nothing to that count; but tightly packed traces, at a
+ * reduced pixel density, shimmer. Fewer traces, more space.
  */
 const LOW_TRACES = 3
 
 /**
- * Sismographe.
+ * Seismograph.
  *
  * @example
  * <div className="o-relative o-min-h-screen">
@@ -110,12 +110,12 @@ export function Seismograph({
 }: SeismographProps): ReactElement {
   const [host, setHost] = useState<HTMLDivElement | null>(null)
 
-  // Tampon stable, mute en place : huit fois (x, y, temps de depart). Un
-  // depart a -1000 donne un age enorme, donc une secousse eteinte d'office.
+  // Stable buffer, mutated in place: eight times (x, y, start time). A start at
+  // -1000 gives a huge age, hence a shake that is out from the start.
   const uClicks = useRef<number[]>(Array.from({ length: SLOTS * 3 }, () => -1000)).current
 
-  // Le temps de l'horloge du moteur — le meme que uTime du shader. C'est lui
-  // qui date les clics ; performance.now() donnerait une autre origine.
+  // The time of the engine clock — the same as the shader's uTime. It is what
+  // dates the clicks; performance.now() would give a different origin.
   const lastTime = useRef(0)
 
   useEffect(() => {
@@ -123,7 +123,7 @@ export function Seismograph({
       ({ time }) => {
         lastTime.current = time
       },
-      { priority: CLOCK_PRIORITY.input, name: 'seismograph : horloge' },
+      { priority: CLOCK_PRIORITY.input, name: 'seismograph : clock' },
     )
     return () => subscription.unsubscribe()
   }, [])
@@ -134,10 +134,10 @@ export function Seismograph({
     const onDown = (event: PointerEvent): void => {
       const bounds = host.getBoundingClientRect()
       const x = (event.clientX - bounds.left) / Math.max(bounds.width, 1)
-      // vUv a son origine en bas : l'axe vertical de l'ecran est inverse.
+      // vUv has its origin at the bottom: the vertical screen axis is flipped.
       const y = 1 - (event.clientY - bounds.top) / Math.max(bounds.height, 1)
 
-      // Tampon circulaire : tout se decale d'un cran, le nouveau clic en tete.
+      // Ring buffer: everything shifts by one slot, the new click at the head.
       for (let i = SLOTS - 1; i > 0; i -= 1) {
         uClicks[i * 3] = uClicks[(i - 1) * 3] ?? -1000
         uClicks[i * 3 + 1] = uClicks[(i - 1) * 3 + 1] ?? -1000

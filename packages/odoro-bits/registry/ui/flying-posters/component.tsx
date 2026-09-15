@@ -1,47 +1,47 @@
 /**
- * Affiches volantes : une colonne d'affiches qui viennent du fond, se posent
- * de face au milieu de l'ecran, puis filent vers le lecteur.
+ * Flying posters: a column of posters that come from the back, settle face-on
+ * in the middle of the screen, then rush toward the viewer.
  *
- * ## La position dans le cadre est la seule variable
+ * ## The position in the frame is the only variable
  *
- * Chaque affiche mesure la distance de son centre au centre du cadre,
- * ramenee entre moins un et un. En dessous du milieu, elle arrive : elle est
- * loin, inclinee, decalee sur le cote. Au milieu, elle est de face, entiere,
- * a sa place. Au-dessus, elle repart vers l'avant et s'efface.
+ * Each poster measures the distance from its center to the center of the
+ * frame, brought back between minus one and one. Below the middle, it is
+ * arriving: it is far, tilted, offset to the side. At the middle, it is
+ * face-on, whole, in place. Above, it leaves toward the front and fades out.
  *
- * Le cadre de reference est la lucarne qui defile s'il y en a une au-dessus
- * de la colonne, et la fenetre sinon. La distinction compte : dans un cadre
- * haut de trois cents pixels, mesurer contre la fenetre entiere donnerait a
- * toutes les affiches presque la meme distance, et la colonne resterait
- * inerte. L'ecoute, elle, se fait en capture sur le document — le defilement
- * ne remonte pas, et le composant n'a pas a se faire designer son conteneur.
+ * The reference frame is the scrolling port if there is one above the column,
+ * and the window otherwise. The distinction matters: inside a frame three
+ * hundred pixels tall, measuring against the whole window would give every
+ * poster almost the same distance, and the column would stay inert. The
+ * listening, for its part, happens in the capture phase on the document — the
+ * scroll event does not bubble, and the component should not have to be handed
+ * its container.
  *
- * ## Toutes les mesures, puis toutes les ecritures
+ * ## All the measurements, then all the writes
  *
- * Lire une boite apres avoir ecrit une transformation force le navigateur a
- * recalculer la mise en page, et le faire en alternance la fait recalculer
- * autant de fois qu'il y a d'affiches. Les boites sont donc relevees d'abord,
- * en une passe, et les transformations ecrites ensuite, en une autre.
+ * Reading a box after writing a transform forces the browser to recompute the
+ * layout, and doing it alternately makes it recompute as many times as there
+ * are posters. The boxes are therefore read first, in one pass, and the
+ * transforms written afterwards, in another.
  *
- * ## Une affiche par plan de fuite
+ * ## One poster per vanishing plane
  *
- * La perspective est posee sur la case, pas sur la colonne. Une perspective
- * commune a toute la colonne donnerait un point de fuite unique, tres haut ou
- * tres bas selon l'affiche, et les affiches des extremites paraitraient
- * penchees de travers. Chacune a donc son propre plan de fuite, centre sur
- * elle.
+ * The perspective is set on the cell, not on the column. A perspective shared
+ * by the whole column would give a single vanishing point, very high or very
+ * low depending on the poster, and the posters at the ends would look skewed.
+ * Each one therefore has its own vanishing plane, centered on it.
  *
- * ## Ce n'est pas la parallaxe
+ * ## This is not parallax
  *
- * La parallaxe decale sur l'axe vertical, dans le plan. Ici l'affiche
- * traverse la profondeur : elle change de taille par la perspective, pivote,
- * et passe devant le plan de l'ecran avant de disparaitre. C'est un
- * deplacement en Z, pas un decalage en Y.
+ * Parallax offsets along the vertical axis, within the plane. Here the poster
+ * crosses depth: it changes size through the perspective, pivots, and passes
+ * in front of the screen plane before disappearing. It is a move in Z, not an
+ * offset in Y.
  *
- * ## Mouvement reduit
+ * ## Reduced motion
  *
- * Aucun ecouteur, aucune transformation : une colonne d'affiches a plat,
- * lisibles, a leur etat final.
+ * No listener, no transform: a flat column of posters, legible, at their final
+ * state.
  *
  * @module
  */
@@ -49,63 +49,63 @@
 import { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'
 import { useEffect, useRef, type CSSProperties, type ReactElement } from 'react'
 
-/** Une affiche de la colonne. */
+/** One poster of the column. */
 export interface FlyingPostersItem {
-  /** Source de l'image. */
+  /** Source of the image. */
   readonly src: string
-  /** Texte de remplacement, obligatoire : c'est le contenu, pas une decoration. */
+  /** Alternative text, required: this is the content, not a decoration. */
   readonly alt: string
-  /** Legende affichee sous l'affiche. */
+  /** Caption displayed under the poster. */
   readonly caption?: string
 }
 
-/** Proprietes propres au composant. */
+/** Properties owned by the component. */
 export interface FlyingPostersOwnProps {
-  /** Les affiches, dans l'ordre de defilement. */
+  /** The posters, in scrolling order. */
   items: readonly FlyingPostersItem[]
-  /** Nom de la serie pour les lecteurs d'ecran. */
+  /** Name of the series for screen readers. */
   label: string
-  /** Distance a laquelle l'affiche attend son tour, en pixels. @defaultValue 420 */
+  /** Distance at which the poster waits its turn, in pixels. @defaultValue 420 */
   depth?: number
-  /** Inclinaison prise loin du milieu, en degres. @defaultValue 22 */
+  /** Tilt taken away from the middle, in degrees. @defaultValue 22 */
   tilt?: number
-  /** Ecart lateral pris a l'arrivee, en pixels. @defaultValue 60 */
+  /** Lateral offset taken on arrival, in pixels. @defaultValue 60 */
   drift?: number
-  /** Espace entre deux affiches, en pixels. @defaultValue 96 */
+  /** Space between two posters, in pixels. @defaultValue 96 */
   gap?: number
-  /** Largeur d'une affiche, en pixels. @defaultValue 400 */
+  /** Width of a poster, in pixels. @defaultValue 400 */
   width?: number
 }
 
-/** Toutes les proprietes. */
+/** All the properties. */
 export type FlyingPostersProps = Customisable<FlyingPostersOwnProps, 'ul'>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-flying-posters'
 
 /**
- * Le premier ancetre qui defile reellement, ou `null` si c'est la page.
+ * The first ancestor that really scrolls, or `null` if that is the page.
  *
- * « Qui peut defiler » ne suffit pas : un conteneur en `overflow: auto` dont
- * le contenu tient tout entier ne defile pas, et le prendre pour reference
- * figerait la colonne. La hauteur de defilement est donc verifiee aussi.
+ * "Able to scroll" is not enough: a container in `overflow: auto` whose content
+ * fits entirely does not scroll, and taking it as the reference would freeze
+ * the column. The scroll height is therefore checked as well.
  */
-function scrollingAncestor(depart: HTMLElement): HTMLElement | null {
-  let noeud = depart.parentElement
-  while (noeud !== null) {
-    const debord = getComputedStyle(noeud).overflowY
+function scrollingAncestor(start: HTMLElement): HTMLElement | null {
+  let node = start.parentElement
+  while (node !== null) {
+    const overflow = getComputedStyle(node).overflowY
     if (
-      (debord === 'auto' || debord === 'scroll') &&
-      noeud.scrollHeight > noeud.clientHeight
+      (overflow === 'auto' || overflow === 'scroll') &&
+      node.scrollHeight > node.clientHeight
     ) {
-      return noeud
+      return node
     }
-    noeud = noeud.parentElement
+    node = node.parentElement
   }
   return null
 }
 
-/** Pose la colonne, la scene de chaque affiche et son cadre, une fois par document. */
+/** Sets the column, the stage of each poster and its frame, once per document. */
 function ensurePostersRules(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -117,10 +117,10 @@ function ensurePostersRules(): void {
     'display:flex;flex-direction:column;align-items:center;gap:var(--o-fly-gap);',
     'margin:0;padding:0;list-style:none;',
     '}',
-    // Un plan de fuite par affiche : voir l'en-tete du module.
-    '[data-o-fly-case]{width:100%;perspective:var(--o-fly-vue);perspective-origin:50% 50%}',
+    // One vanishing plane per poster: see the module header.
+    '[data-o-fly-case]{width:100%;perspective:var(--o-fly-view);perspective-origin:50% 50%}',
     '[data-o-fly-affiche]{',
-    'margin:0 auto;width:min(100%,var(--o-fly-largeur));',
+    'margin:0 auto;width:min(100%,var(--o-fly-width));',
     'transform-origin:50% 50%;backface-visibility:hidden;',
     '}',
     '[data-o-fly-affiche] img{',
@@ -139,20 +139,20 @@ function ensurePostersRules(): void {
 }
 
 /**
- * Colonne d'affiches qui traversent la profondeur au defilement.
+ * Column of posters that cross depth on scroll.
  *
  * @example
  * <FlyingPosters
- *   label="Saison 2026"
+ *   label="Season 2026"
  *   items={[
- *     { src: '/saison/janvier.jpg', alt: 'Affiche de janvier, silhouette au piano', caption: 'Janvier' },
- *     { src: '/saison/mars.jpg', alt: 'Affiche de mars, danseuse de dos', caption: 'Mars' },
+ *     { src: '/season/january.jpg', alt: 'January poster, silhouette at the piano', caption: 'January' },
+ *     { src: '/season/march.jpg', alt: 'March poster, dancer seen from behind', caption: 'March' },
  *   ]}
  * />
  *
  * @example
- * // Arrivee plus lointaine, sans ecart lateral.
- * <FlyingPosters label="Serie" items={affiches} depth={700} drift={0} tilt={34} />
+ * // Arrival from further away, without lateral offset.
+ * <FlyingPosters label="Series" items={posters} depth={700} drift={0} tilt={34} />
  */
 export function FlyingPosters({
   items,
@@ -165,76 +165,74 @@ export function FlyingPosters({
   ...rest
 }: FlyingPostersProps): ReactElement {
   const { reduced } = useMotionState()
-  const colonne = useRef<HTMLUListElement | null>(null)
+  const column = useRef<HTMLUListElement | null>(null)
   ensurePostersRules()
 
   useEffect(() => {
-    // A plat, il n'y a rien a suivre : ni ecouteur, ni boucle.
+    // Flat, there is nothing to follow: no listener, no loop.
     if (reduced || typeof window === 'undefined') return
-    const hote = colonne.current
-    if (hote === null) return
+    const host = column.current
+    if (host === null) return
 
-    const affiches = Array.from(
-      hote.querySelectorAll<HTMLElement>('[data-o-fly-affiche]'),
-    )
-    const lucarne = scrollingAncestor(hote)
-    let image = 0
+    const posters = Array.from(host.querySelectorAll<HTMLElement>('[data-o-fly-affiche]'))
+    const port = scrollingAncestor(host)
+    let frameId = 0
 
-    const peindre = (): void => {
-      image = 0
-      // La lucarne fait autorite quand il y en a une : dans un cadre haut de
-      // trois cents pixels, mesurer contre la fenetre entiere donnerait a
-      // toutes les affiches presque la meme distance, et rien ne bougerait.
-      const cadre =
-        lucarne === null
-          ? { haut: 0, hauteur: window.innerHeight }
+    const paint = (): void => {
+      frameId = 0
+      // The scrolling port has authority when there is one: inside a frame
+      // three hundred pixels tall, measuring against the whole window would
+      // give every poster almost the same distance, and nothing would move.
+      const frame =
+        port === null
+          ? { top: 0, height: window.innerHeight }
           : (() => {
-              const boite = lucarne.getBoundingClientRect()
-              return { haut: boite.top, hauteur: boite.height }
+              const box = port.getBoundingClientRect()
+              return { top: box.top, height: box.height }
             })()
-      const milieu = cadre.haut + cadre.hauteur / 2
-      const demi = Math.max(1, cadre.hauteur / 2)
+      const middle = frame.top + frame.height / 2
+      const half = Math.max(1, frame.height / 2)
 
-      // Une passe de lecture, puis une passe d'ecriture : voir l'en-tete.
-      const ecarts = affiches.map((affiche) => {
-        const boite = affiche.getBoundingClientRect()
-        const centre = boite.top + boite.height / 2
-        return Math.min(1, Math.max(-1, (centre - milieu) / demi))
+      // One read pass, then one write pass: see the module header.
+      const offsets = posters.map((poster) => {
+        const box = poster.getBoundingClientRect()
+        const center = box.top + box.height / 2
+        return Math.min(1, Math.max(-1, (center - middle) / half))
       })
 
-      for (const [index, affiche] of affiches.entries()) {
-        const d = ecarts[index] ?? 0
-        // Loin en arriere tant qu'elle monte ; devant le plan de l'ecran une
-        // fois qu'elle l'a franchi, et moitie moins loin : passer trop pres
-        // etirerait l'affiche jusqu'a l'illisible.
+      for (const [index, poster] of posters.entries()) {
+        const d = offsets[index] ?? 0
+        // Far behind as long as it is rising; in front of the screen plane
+        // once it has crossed it, and half as far: passing too close would
+        // stretch the poster beyond legibility.
         const z = d >= 0 ? -d * depth : -d * depth * 0.45
-        const cote = index % 2 === 0 ? 1 : -1
-        const fondu = d >= 0 ? 0.5 : 0.75
+        const side = index % 2 === 0 ? 1 : -1
+        const fade = d >= 0 ? 0.5 : 0.75
 
-        affiche.style.transform = [
-          `translateX(${(d * drift * cote).toFixed(1)}px)`,
+        poster.style.transform = [
+          `translateX(${(d * drift * side).toFixed(1)}px)`,
           `translateZ(${z.toFixed(1)}px)`,
           `rotateX(${(-d * tilt).toFixed(2)}deg)`,
         ].join(' ')
-        affiche.style.opacity = Math.max(0, 1 - Math.abs(d) * fondu).toFixed(3)
+        poster.style.opacity = Math.max(0, 1 - Math.abs(d) * fade).toFixed(3)
       }
     }
 
-    const demander = (): void => {
-      if (image !== 0) return
-      image = requestAnimationFrame(peindre)
+    const request = (): void => {
+      if (frameId !== 0) return
+      frameId = requestAnimationFrame(paint)
     }
 
-    peindre()
-    // En capture : le defilement ne remonte pas, et l'on ne sait pas d'avance
-    // lequel des ancetres defile.
-    document.addEventListener('scroll', demander, { passive: true, capture: true })
-    window.addEventListener('resize', demander, { passive: true })
+    paint()
+    // In the capture phase: the scroll event does not bubble, and we do not
+    // know in advance which of the ancestors scrolls.
+    document.addEventListener('scroll', request, { passive: true, capture: true })
+    window.addEventListener('resize', request, { passive: true })
 
     return () => {
-      document.removeEventListener('scroll', demander, { capture: true })
-      window.removeEventListener('resize', demander)
-      if (image !== 0) cancelAnimationFrame(image)
+      document.removeEventListener('scroll', request, { capture: true })
+      window.removeEventListener('resize', request)
+      if (frameId !== 0) cancelAnimationFrame(frameId)
     }
   }, [reduced, depth, tilt, drift, items])
 
@@ -243,15 +241,15 @@ export function FlyingPosters({
   return (
     <ul
       {...rest}
-      ref={colonne}
+      ref={column}
       aria-label={label}
       data-o-fly=""
       className={className}
       style={
         {
           '--o-fly-gap': `${String(gap)}px`,
-          '--o-fly-largeur': `${String(width)}px`,
-          '--o-fly-vue': `${String(Math.max(600, depth * 2))}px`,
+          '--o-fly-width': `${String(width)}px`,
+          '--o-fly-view': `${String(Math.max(600, depth * 2))}px`,
           ...style,
         } as CSSProperties
       }

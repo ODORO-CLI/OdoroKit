@@ -1,13 +1,13 @@
 /**
- * Shaders de fond : la famille des ecoulements.
+ * Background shaders: the flow family.
  *
- * Quatre facons de faire couler de la couleur sans jamais deplacer de
- * geometrie. Le point commun : le fragment ne demande pas « qu'y a-t-il ici »
- * mais « ou serait ici si l'espace avait coule », et lit la couleur la-bas.
+ * Four ways to make colour flow without ever moving any geometry. The common
+ * point: the fragment does not ask "what is here" but "where would here be if
+ * space had flowed", and reads the colour over there.
  *
- * Aucun de ces shaders n'est repris d'ailleurs. La mathematique de chacun est
- * expliquee la ou il se trouve — c'est la seule facon de pouvoir le modifier
- * plus tard sans le reinventer.
+ * None of these shaders is taken from elsewhere. The mathematics of each is
+ * explained where it lives — that is the only way to be able to modify it
+ * later without reinventing it.
  *
  * @module
  */
@@ -15,26 +15,26 @@
 import { NOISE_FUNCTIONS } from './shaders.js'
 
 /**
- * Plasma : l'interference de quatre ondes.
+ * Plasma: the interference of four waves.
  *
- * ## La technique
+ * ## The technique
  *
- * C'est le plus ancien effet de l'histoire de la demo, et il tient en une
- * addition : quatre sinus d'orientations et de frequences differentes,
- * evalues au meme point. La ou ils se renforcent, la valeur monte ; la ou ils
- * s'opposent, elle descend. Le motif qui en resulte n'a aucune structure
- * propre — il n'est fait que de leurs battements.
+ * This is the oldest effect in the history of the demoscene, and it fits in
+ * one addition: four sines of different orientations and frequencies,
+ * evaluated at the same point. Where they reinforce each other, the value
+ * rises; where they oppose each other, it falls. The resulting pattern has no
+ * structure of its own — it is made only of their beats.
  *
- * Le quatrieme sinus est evalue sur la **distance** au centre plutot que sur
- * une combinaison lineaire de x et y. C'est ce qui empeche la figure de rester
- * une grille de losanges : sans lui, les trois premieres ondes formeraient un
- * reseau parfaitement periodique, et l'oeil le verrait immediatement.
+ * The fourth sine is evaluated on the **distance** to the centre rather than
+ * on a linear combination of x and y. That is what stops the figure from
+ * staying a grid of diamonds: without it, the first three waves would form a
+ * perfectly periodic lattice, and the eye would see it immediately.
  *
- * La somme est ramenee dans `[0,1]` puis passee dans un cosinus, ce qui replie
- * l'echelle sur elle-meme : les teintes se succedent en boucle au lieu de
- * saturer aux extremites.
+ * The sum is brought back into `[0,1]` then passed through a cosine, which
+ * folds the scale onto itself: the hues follow one another in a loop instead
+ * of saturating at the ends.
  *
- * Uniformes : `uColorA`, `uColorB`, `uColorC`, `uSpeed`, `uScale`.
+ * Uniforms: `uColorA`, `uColorB`, `uColorC`, `uSpeed`, `uScale`.
  */
 export const PLASMA_FRAGMENT = /* glsl */ `
 precision highp float;
@@ -54,18 +54,18 @@ void main() {
   vec2 p = (vUv - 0.5) * vec2(aspect, 1.0) * max(uScale, 0.1);
   float t = uTime * uSpeed;
 
-  // Trois ondes directionnelles : chacune est une grille de bandes, leur
-  // somme est un reseau. Les frequences ne sont pas multiples entre elles.
+  // Three directional waves: each is a grid of bands, their sum is a lattice.
+  // The frequencies are not multiples of one another.
   float v = sin(p.x * 3.0 + t);
   v += sin(p.y * 2.3 - t * 0.8);
   v += sin((p.x + p.y) * 1.7 + t * 0.6);
 
-  // La quatrieme est radiale : elle brise la periodicite du reseau, sans
-  // quoi la figure resterait une grille de losanges reconnaissable.
+  // The fourth is radial: it breaks the periodicity of the lattice, without
+  // which the figure would stay a recognisable grid of diamonds.
   v += sin(length(p) * 2.9 - t * 1.3);
 
-  // Repliement : le cosinus renvoie l'echelle sur elle-meme, donc les teintes
-  // bouclent au lieu de saturer aux extremites de la somme.
+  // Folding: the cosine sends the scale back onto itself, so the hues loop
+  // instead of saturating at the ends of the sum.
   float k = 0.5 + 0.5 * cos(v * 1.2);
 
   vec3 colour = mix(uColorA, uColorB, k);
@@ -76,24 +76,23 @@ void main() {
 `
 
 /**
- * Soie : un ecoulement obtenu en deplacant le domaine deux fois.
+ * Silk: a flow obtained by displacing the domain twice.
  *
- * ## Pourquoi deux passes et pas une
+ * ## Why two passes and not one
  *
- * Un bruit fractal seul donne des taches. Le meme bruit evalue en un point
- * **deja deplace** par un autre bruit donne des volutes : c'est le
- * deplacement de domaine, et l'aurore l'emploie deja une fois.
+ * A fractal noise on its own gives blotches. The same noise evaluated at a
+ * point **already displaced** by another noise gives swirls: that is domain
+ * displacement, and the aurora already uses it once.
  *
- * Ici il est applique **deux fois**. La premiere passe cree des courants, la
- * seconde les enroule sur eux-memes. La difference se voit immediatement :
- * une passe produit un tissu froisse, deux produisent un tissu qui coule.
- * C'est aussi ce qui double le cout, d'ou la retrogradation par octaves.
+ * Here it is applied **twice**. The first pass creates currents, the second
+ * coils them onto themselves. The difference is immediately visible: one pass
+ * produces a crumpled fabric, two produce a fabric that flows. It is also what
+ * doubles the cost, hence the downgrade by octaves.
  *
- * Le temps entre dans les deplacements, jamais dans la couleur finale : la
- * matiere se deforme au lieu de clignoter.
+ * Time enters into the displacements, never into the final colour: the
+ * material deforms instead of flickering.
  *
- * Uniformes : `uColorA`, `uColorB`, `uColorC`, `uSpeed`, `uScale`,
- * `uOctaves`.
+ * Uniforms: `uColorA`, `uColorB`, `uColorC`, `uSpeed`, `uScale`, `uOctaves`.
  */
 export const SILK_FRAGMENT = /* glsl */ `
 precision highp float;
@@ -117,52 +116,52 @@ void main() {
   float t = uTime * uSpeed;
   int octaves = int(clamp(uOctaves, 1.0, 6.0));
 
-  // Premiere passe : deux bruits decorreles par un decalage constant,
-  // formant un champ de vecteurs. Il donne les courants.
-  vec2 courant = vec2(
+  // First pass: two noises decorrelated by a constant offset, forming a vector
+  // field. It gives the currents.
+  vec2 current = vec2(
     odoroFbm(p + vec2(0.0, t), octaves),
     odoroFbm(p + vec2(5.2, 1.3 - t), octaves)
   );
 
-  // Seconde passe : le meme champ, evalue la ou la premiere l'a envoye. Ce
-  // sont ces courants appliques a eux-memes qui enroulent la matiere.
-  vec2 repli = vec2(
-    odoroFbm(p + 4.0 * courant + vec2(1.7, 9.2), octaves),
-    odoroFbm(p + 4.0 * courant + vec2(8.3, 2.8), octaves)
+  // Second pass: the same field, evaluated where the first one sent it. It is
+  // these currents applied to themselves that coil the material.
+  vec2 fold = vec2(
+    odoroFbm(p + 4.0 * current + vec2(1.7, 9.2), octaves),
+    odoroFbm(p + 4.0 * current + vec2(8.3, 2.8), octaves)
   );
 
-  float v = odoroFbm(p + 4.0 * repli, octaves);
+  float v = odoroFbm(p + 4.0 * fold, octaves);
 
   vec3 colour = mix(uColorA, uColorB, clamp(v * 1.6, 0.0, 1.0));
 
-  // La longueur du repli marque les zones ou l'ecoulement s'est le plus
-  // enroule : c'est la que la troisieme teinte apparait.
-  colour = mix(colour, uColorC, clamp(length(repli) * 0.7, 0.0, 1.0));
+  // The length of the fold marks the areas where the flow coiled the most:
+  // that is where the third hue appears.
+  colour = mix(colour, uColorC, clamp(length(fold) * 0.7, 0.0, 1.0));
 
   gl_FragColor = vec4(colour, 1.0);
 }
 `
 
 /**
- * Caustiques : la lumiere au fond d'un bassin.
+ * Caustics: the light at the bottom of a pool.
  *
- * ## La technique
+ * ## The technique
  *
- * Une caustique est le lieu ou des rayons refractes se concentrent. La
- * simuler correctement demanderait de tracer ces rayons ; l'imiter demande
- * seulement de reproduire ce qui la caracterise a l'oeil — un reseau de
- * filaments clairs, mobiles, qui se croisent sans jamais se refermer.
+ * A caustic is the place where refracted rays concentrate. Simulating it
+ * properly would require tracing those rays; imitating it only requires
+ * reproducing what characterises it to the eye — a lattice of bright, mobile
+ * filaments that cross without ever closing back.
  *
- * Le procede : on itere quelques fois un deplacement du point par le sinus de
- * ses propres coordonnees. Chaque passe replie l'espace un peu plus, et la
- * distance accumulee entre le point et son image forme naturellement des
- * lignes de concentration. C'est l'inverse d'un flou : au lieu de moyenner,
- * on accumule un minimum.
+ * The procedure: a displacement of the point by the sine of its own
+ * coordinates is iterated a few times. Each pass folds space a little more,
+ * and the accumulated distance between the point and its image naturally forms
+ * lines of concentration. It is the opposite of a blur: instead of averaging,
+ * a minimum is accumulated.
  *
- * L'exposant applique a la fin est ce qui separe un halo diffus d'un filament
- * net. En dessous de six, cela ressemble a du brouillard.
+ * The exponent applied at the end is what separates a diffuse halo from a
+ * crisp filament. Below six, it looks like fog.
  *
- * Uniformes : `uColorA`, `uColorB`, `uSpeed`, `uScale`, `uIntensity`.
+ * Uniforms: `uColorA`, `uColorB`, `uSpeed`, `uScale`, `uIntensity`.
  */
 export const CAUSTICS_FRAGMENT = /* glsl */ `
 precision highp float;
@@ -182,51 +181,51 @@ void main() {
   vec2 p = (vUv - 0.5) * vec2(aspect, 1.0) * max(uScale, 0.1);
   float t = uTime * uSpeed;
 
-  vec2 courant = p;
+  vec2 current = p;
   float accumulation = 1.0;
 
-  // Cinq replis : au-dela, les filaments se croisent trop pour rester
-  // lisibles ; en dessous de trois, le reseau reste une simple grille.
+  // Five folds: beyond that, the filaments cross too much to stay legible;
+  // below three, the lattice stays a plain grid.
   for (int i = 1; i < 6; i += 1) {
     float n = float(i);
-    courant += vec2(
-      sin(courant.y * n + t + 0.3 * n) / n,
-      cos(courant.x * n + t + 0.2 * n) / n
+    current += vec2(
+      sin(current.y * n + t + 0.3 * n) / n,
+      cos(current.x * n + t + 0.2 * n) / n
     );
 
-    // Le minimum accumule : la valeur ne retient que le passage le plus
-    // proche, ce qui dessine des lignes au lieu d'un degrade.
-    accumulation = min(accumulation, length(courant - p) * 0.5);
+    // The accumulated minimum: the value only keeps the closest pass, which
+    // draws lines instead of a gradient.
+    accumulation = min(accumulation, length(current - p) * 0.5);
   }
 
-  // L'exposant transforme un halo en filament. En dessous de six, l'effet
-  // ressemble a du brouillard plutot qu'a de la lumiere refractee.
-  float lumiere = pow(clamp(1.0 - accumulation, 0.0, 1.0), 6.0) * max(uIntensity, 0.0);
+  // The exponent turns a halo into a filament. Below six, the effect looks
+  // like fog rather than refracted light.
+  float light = pow(clamp(1.0 - accumulation, 0.0, 1.0), 6.0) * max(uIntensity, 0.0);
 
-  gl_FragColor = vec4(mix(uColorA, uColorB, clamp(lumiere, 0.0, 1.0)), 1.0);
+  gl_FragColor = vec4(mix(uColorA, uColorB, clamp(light, 0.0, 1.0)), 1.0);
 }
 `
 
 /**
- * Vortex : l'espace tourne d'autant plus qu'on approche du centre.
+ * Vortex: space rotates all the more as you approach the centre.
  *
- * ## La technique
+ * ## The technique
  *
- * En coordonnees polaires, un tourbillon n'est pas un mouvement mais une
- * addition : on ajoute a l'angle une quantite qui decroit avec le rayon.
- * Les points proches du centre tournent beaucoup, les points lointains
- * presque pas, et l'ensemble s'enroule en spirale.
+ * In polar coordinates, a whirl is not a movement but an addition: a quantity
+ * that decreases with the radius is added to the angle. Points close to the
+ * centre rotate a lot, distant points almost not at all, and the whole coils
+ * into a spiral.
  *
- * Le motif qu'on enroule est volontairement trivial — des secteurs
- * angulaires. Toute la richesse vient de la torsion, pas du motif : un motif
- * deja complexe deviendrait illisible une fois enroule.
+ * The pattern being coiled is deliberately trivial — angular sectors. All the
+ * richness comes from the twist, not from the pattern: an already complex
+ * pattern would become illegible once coiled.
  *
- * Le rayon est adouci par `1/(r+c)` plutot que par `1/r` : sans cette
- * constante, la torsion diverge au centre et le pixel central clignote a
- * chaque image.
+ * The radius is softened by `1/(r+c)` rather than by `1/r`: without that
+ * constant, the twist diverges at the centre and the central pixel flickers on
+ * every frame.
  *
- * Uniformes : `uColorA`, `uColorB`, `uColorC`, `uSpeed`, `uScale` (nombre de
- * bras), `uTwist`.
+ * Uniforms: `uColorA`, `uColorB`, `uColorC`, `uSpeed`, `uScale` (number of
+ * arms), `uTwist`.
  */
 export const VORTEX_FRAGMENT = /* glsl */ `
 precision highp float;
@@ -246,27 +245,27 @@ void main() {
   float aspect = uResolution.x / max(uResolution.y, 1.0);
   vec2 p = (vUv - 0.5) * vec2(aspect, 1.0);
 
-  float rayon = length(p);
+  float radius = length(p);
   float angle = atan(p.y, p.x);
   float t = uTime * uSpeed;
 
-  // La constante au denominateur borne la torsion au centre : avec 1/r seul,
-  // elle diverge et le pixel central clignote a chaque image.
-  float torsion = uTwist / (rayon + 0.25);
-  float enroule = angle + torsion + t;
+  // The constant in the denominator bounds the twist at the centre: with 1/r
+  // alone, it diverges and the central pixel flickers on every frame.
+  float twist = uTwist / (radius + 0.25);
+  float coiled = angle + twist + t;
 
-  float bras = max(uScale, 1.0);
-  float secteur = 0.5 + 0.5 * sin(enroule * bras);
+  float arms = max(uScale, 1.0);
+  float sector = 0.5 + 0.5 * sin(coiled * arms);
 
-  vec3 colour = mix(uColorA, uColorB, secteur);
+  vec3 colour = mix(uColorA, uColorB, sector);
 
-  // Le coeur recoit la troisieme teinte : sans elle, la convergence des bras
-  // produit une tache neutre au centre exact.
-  colour = mix(colour, uColorC, smoothstep(0.35, 0.0, rayon));
+  // The core receives the third hue: without it, the convergence of the arms
+  // produces a neutral blotch at the exact centre.
+  colour = mix(colour, uColorC, smoothstep(0.35, 0.0, radius));
 
-  // Attenuation vers les bords : le cadre n'est pas rond, et sans elle les
-  // coins montrent la limite du disque.
-  colour *= smoothstep(0.95, 0.35, rayon) * 0.6 + 0.4;
+  // Attenuation towards the edges: the frame is not round, and without it the
+  // corners show the limit of the disc.
+  colour *= smoothstep(0.95, 0.35, radius) * 0.6 + 0.4;
 
   gl_FragColor = vec4(colour, 1.0);
 }

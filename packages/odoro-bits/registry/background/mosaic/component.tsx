@@ -1,22 +1,22 @@
 /**
- * Mosaique : un bruit lu au centre de chaque cellule, donc quantifie en carreaux.
+ * Mosaic: a noise read at the centre of each cell, and therefore quantised into tiles.
  *
- * ## Le principe
+ * ## The principle
  *
- * Le carreau n existe nulle part dans le calcul : il apparait parce que le champ est echantillonne grossierement, exprès.
+ * The tile exists nowhere in the computation: it appears because the field is sampled coarsely, on purpose.
  *
- * Le joint entre carreaux n est pas decoratif — sans lui, deux valeurs voisines se fondent et la grille disparait.
+ * The grout between tiles is not decorative — without it, two neighbouring values blend and the grid disappears.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur — les recopier ici en ferait autant
- * de versions a maintenir qu'il y a de fonds.
+ * It carries only what sets it apart: its shader, its settings and its
+ * fallback. Reading the tokens, converting them to floats and re-reading them
+ * when the theme changes all come from the engine — copying that here would
+ * leave as many versions to maintain as there are backgrounds.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en
- * accorde qu'une par backend — et sous mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface — it grants only one
+ * per backend — and under reduced motion.
  *
  * @module
  */
@@ -32,46 +32,46 @@ import {
 } from '@odoro-cli/engine'
 import { type ReactElement } from 'react'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface MosaicControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to this component. */
 export interface MosaicOwnProps {
-  /** Vitesse du champ. @defaultValue 0.05 */
+  /** Speed of the field. @defaultValue 0.05 */
   speed?: number
-  /** Nombre de carreaux par cote. @defaultValue 16 */
+  /** Number of tiles per side. @defaultValue 16 */
   density?: number
-  /** Largeur du joint. @defaultValue 0.06 */
+  /** Width of the grout. @defaultValue 0.06 */
   gap?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<MosaicControls>
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type MosaicProps = Customisable<MosaicOwnProps>
 
-/** Tokens employes par defaut. */
+/** Tokens used by default. */
 const DEFAULT_TOKENS = [
   '--o-theme-surface',
   '--o-palette-brand-600',
   '--o-palette-fuchsia-500',
 ] as const
 
-/** Repli par defaut : une teinte figee, dans les memes tons. */
+/** Default fallback: a frozen tint, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-br o-from-zinc-100 dark:o-from-zinc-900 o-to-brand-900'
 
 /**
- * Mosaique.
+ * Mosaic.
  *
  * @example
  * <div className="o-relative o-min-h-screen">

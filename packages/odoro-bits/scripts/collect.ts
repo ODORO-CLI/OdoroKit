@@ -1,24 +1,24 @@
 /**
- * Lecture du registre depuis le disque.
+ * Reading the registry from disk.
  *
- * Le registre est une arborescence : `registry/<categorie>/<nom>/`, contenant
- * un `meta.json` et les fichiers que la CLI copiera. Ce module la parcourt et
- * en tire soit un catalogue valide, soit la liste complete de ce qui cloche.
+ * The registry is a tree: `registry/<category>/<name>/`, containing a
+ * `meta.json` and the files the CLI will copy. This module walks it and draws
+ * from it either a valid catalogue, or the complete list of what is wrong.
  *
- * ## Pourquoi tout collecter avant d'echouer
+ * ## Why everything is collected before failing
  *
- * S'arreter a la premiere erreur obligerait a relancer la validation une fois
- * par probleme. Sur un registre de quarante composants, apres un changement de
- * format, cela fait quarante allers-retours. Les problemes sont donc tous
- * rassembles, puis rendus d'un bloc.
+ * Stopping at the first error would force the validation to be run once per
+ * problem. On a registry of forty components, after a format change, that
+ * makes forty round trips. The problems are therefore all gathered, then
+ * returned in one block.
  *
- * ## Ce que le schema ne peut pas verifier
+ * ## What the schema cannot check
  *
- * Le schema valide la **forme** d'un `meta.json`, mais il ne connait ni le
- * disque ni les autres entrees. Trois verifications lui echappent et sont
- * faites ici : qu'un fichier declare existe reellement, que le nom et la
- * categorie correspondent au dossier qui les contient, et — dans le module de
- * resolution — qu'une dependance de registre pointe vers quelque chose.
+ * The schema validates the **shape** of a `meta.json`, but it knows neither
+ * the disk nor the other entries. Three checks escape it and are done here:
+ * that a declared file really exists, that the name and the category match
+ * the directory containing them, and — in the resolution module — that a
+ * registry dependency points to something.
  *
  * @module
  */
@@ -34,29 +34,29 @@ import {
   type RegistryMeta,
 } from 'odoro/registry'
 
-/** Une entree lue sur le disque. */
+/** An entry read from disk. */
 export interface CollectedEntry extends PublishedEntry {
-  /** Dossier du composant, relatif a la racine du registre. */
+  /** Component directory, relative to the registry root. */
   readonly directory: string
 }
 
-/** Resultat d'une collecte. */
+/** Result of a collection. */
 export type CollectResult =
   | { readonly ok: true; readonly entries: readonly CollectedEntry[] }
   | { readonly ok: false; readonly problems: readonly string[] }
 
 /**
- * Ecrit un chemin avec des barres obliques.
+ * Writes a path with forward slashes.
  *
- * Les identifiants et les messages du registre doivent se lire pareil quel que
- * soit le systeme : un `text\demo` dans une erreur ne correspondrait a rien de
- * ce que l'utilisateur ecrit dans sa ligne de commande.
+ * The registry identifiers and messages must read the same whatever the
+ * system: a `text\demo` in an error would match nothing of what the user
+ * types in their command line.
  */
 function posix(path: string): string {
   return path.split(sep).join('/')
 }
 
-/** Liste les sous-dossiers directs, en ignorant les fichiers. */
+/** Lists the direct subdirectories, ignoring the files. */
 async function subdirectories(directory: string): Promise<string[]> {
   const entries = await readdir(directory, { withFileTypes: true })
   return entries
@@ -66,57 +66,56 @@ async function subdirectories(directory: string): Promise<string[]> {
 }
 
 /**
- * Les paquets npm que les sources d'une entree importent vraiment.
+ * The npm packages that the sources of an entry really import.
  *
- * ## Pourquoi on les deduit au lieu de les croire
+ * ## Why they are deduced instead of being believed
  *
- * `meta.json` porte un champ `dependencies`, rempli a la main. Il l'etait
- * mal : 455 entrees sur 461 le laissaient vide tout en important
- * `@odoro-cli/engine`. Le registre annoncait donc des composants sans
- * dependance, `odoro add` n'avait rien a signaler, et le projet ne compilait
- * pas — avec une erreur de module introuvable que rien ne rattachait au
- * registre.
+ * `meta.json` carries a `dependencies` field, filled in by hand. It was
+ * filled in badly: 455 entries out of 461 left it empty while importing
+ * `@odoro-cli/engine`. The registry therefore announced components without a
+ * dependency, `odoro add` had nothing to report, and the project did not
+ * compile — with a module-not-found error that nothing tied back to the
+ * registry.
  *
- * Une liste tenue a la main a cote du code qu'elle decrit derive toujours.
- * Celle-ci se lit donc dans les imports, ou elle ne peut pas mentir.
+ * A list kept by hand next to the code it describes always drifts. This one
+ * is therefore read from the imports, where it cannot lie.
  *
- * ## Ce qui n'en est pas
+ * ## What is not one
  *
- * Les chemins relatifs restent dans l'entree. `@registre/…` designe une
- * autre entree, pas un paquet : ces liens-la sont deja declares par
- * `registryDependencies`, et la CLI les reecrit a l'installation vers
- * l'alias du projet.
+ * Relative paths stay in the entry. `@registre/…` designates another entry,
+ * not a package: those links are already declared by `registryDependencies`,
+ * and the CLI rewrites them at install time to the alias of the project.
  */
-function paquetsImportes(sources: Record<string, string>): string[] {
-  const trouves = new Set<string>()
+function importedPackages(sources: Record<string, string>): string[] {
+  const found = new Set<string>()
 
   for (const code of Object.values(sources)) {
-    // `from '…'` couvre l'import et le reexport ; `import '…'` couvre la
-    // feuille de style importee pour son effet, qui est un vrai besoin.
+    // `from '…'` covers the import and the reexport; `import '…'` covers the
+    // stylesheet imported for its effect, which is a real need.
     for (const m of code.matchAll(/(?:from|import)\s+'([^']+)'/g)) {
-      const specificateur = m[1]
-      if (specificateur === undefined) continue
-      if (specificateur.startsWith('.')) continue
-      if (specificateur.startsWith('@registre/')) continue
+      const specifier = m[1]
+      if (specifier === undefined) continue
+      if (specifier.startsWith('.')) continue
+      if (specifier.startsWith('@registre/')) continue
 
-      // Le nom du paquet, sans le sous-chemin : `@odoro-cli/libs/router`
-      // s'installe en installant `@odoro-cli/libs`.
-      const parts = specificateur.split('/')
-      const nom = specificateur.startsWith('@')
+      // The package name, without the subpath: `@odoro-cli/libs/router`
+      // installs by installing `@odoro-cli/libs`.
+      const parts = specifier.split('/')
+      const name = specifier.startsWith('@')
         ? parts.slice(0, 2).join('/')
         : (parts[0] ?? '')
-      if (nom !== '') trouves.add(nom)
+      if (name !== '') found.add(name)
     }
   }
 
-  return [...trouves].sort()
+  return [...found].sort()
 }
 /**
- * Lit une entree unique.
+ * Reads a single entry.
  *
- * @param root Racine du registre.
- * @param category Nom du dossier de categorie.
- * @param name Nom du dossier du composant.
+ * @param root Registry root.
+ * @param category Name of the category directory.
+ * @param name Name of the component directory.
  */
 async function collectEntry(
   root: string,
@@ -132,7 +131,7 @@ async function collectEntry(
   try {
     raw = await readFile(metaPath, 'utf8')
   } catch {
-    problems.push(`${origin} : aucun meta.json dans ce dossier.`)
+    problems.push(`${origin}: no meta.json in this directory.`)
     return null
   }
 
@@ -140,7 +139,7 @@ async function collectEntry(
   try {
     value = JSON.parse(raw)
   } catch (error) {
-    problems.push(`${origin}/meta.json : JSON illisible — ${(error as Error).message}`)
+    problems.push(`${origin}/meta.json: unreadable JSON — ${(error as Error).message}`)
     return null
   }
 
@@ -152,17 +151,17 @@ async function collectEntry(
 
   const meta: RegistryMeta = parsed.meta
 
-  // Le dossier est l'identifiant reel : la CLI et l'index s'y referent. Un
-  // ecart entre les deux donnerait une entree introuvable a l'adresse ou tout
-  // le monde la cherche.
+  // The directory is the real identifier: the CLI and the index refer to it.
+  // A gap between the two would give an entry not to be found at the address
+  // where everybody looks for it.
   if (meta.category !== category) {
     problems.push(
-      `${origin} : la categorie declaree (${meta.category}) ne correspond pas au dossier (${category}).`,
+      `${origin}: the declared category (${meta.category}) does not match the directory (${category}).`,
     )
   }
   if (meta.name !== name) {
     problems.push(
-      `${origin} : le nom declare (${meta.name}) ne correspond pas au dossier (${name}).`,
+      `${origin}: the declared name (${meta.name}) does not match the directory (${name}).`,
     )
   }
 
@@ -170,35 +169,36 @@ async function collectEntry(
   for (const file of meta.files) {
     try {
       const raw = await readFile(join(root, directory, file.path), 'utf8')
-      // Les fins de ligne sont normalisees : l'artefact est servi a toutes les
-      // plateformes, et il n'y a aucune raison qu'un composant publie depuis
-      // une machine Windows arrive different de la version publiee ailleurs.
+      // The line endings are normalised: the artefact is served to every
+      // platform, and there is no reason for a component published from a
+      // Windows machine to arrive different from the version published
+      // elsewhere.
       sources[file.path] = raw.replaceAll('\r\n', '\n')
     } catch {
-      problems.push(`${origin} : le fichier declare "${file.path}" est introuvable.`)
+      problems.push(`${origin}: the declared file "${file.path}" was not found.`)
     }
   }
 
   if (Object.keys(sources).length !== meta.files.length) return null
 
-  // Les deux sens sont reunis : ce que l'auteur a declare est conserve — il
-  // peut connaitre un besoin que les imports ne montrent pas — et ce que les
-  // imports revelent est ajoute, qu'il y ait pense ou non.
+  // Both directions are brought together: what the author declared is kept —
+  // they may know a need the imports do not show — and what the imports
+  // reveal is added, whether they thought of it or not.
   const dependencies = [
-    ...new Set([...(meta.dependencies ?? []), ...paquetsImportes(sources)]),
+    ...new Set([...(meta.dependencies ?? []), ...importedPackages(sources)]),
   ].sort()
 
   return { ...meta, dependencies, id: entryId(meta), directory: origin, sources }
 }
 
 /**
- * Parcourt un registre et en lit toutes les entrees.
+ * Walks a registry and reads all of its entries.
  *
- * Les dossiers de categorie inconnus sont signales plutot qu'ignores : un
- * dossier mal nomme deviendrait autrement un composant invisible, present dans
- * le depot mais absent de tout ce qui est publie.
+ * Unknown category directories are reported rather than ignored: a directory
+ * named wrong would otherwise become an invisible component, present in the
+ * repository but absent from everything that is published.
  *
- * @param root Racine du registre, contenant les dossiers de categorie.
+ * @param root Registry root, containing the category directories.
  *
  * @example
  * const result = await collectRegistry('registry')
@@ -212,7 +212,7 @@ export async function collectRegistry(root: string): Promise<CollectResult> {
   try {
     categories = await subdirectories(root)
   } catch {
-    return { ok: false, problems: [`Racine de registre introuvable : ${root}`] }
+    return { ok: false, problems: [`Registry root not found: ${root}`] }
   }
 
   for (const category of categories) {
@@ -222,12 +222,12 @@ export async function collectRegistry(root: string): Promise<CollectResult> {
     }
   }
 
-  // Deux dossiers ne peuvent pas produire le meme identifiant — mais un nom
-  // declare de travers, lui, le pourrait.
+  // Two directories cannot produce the same identifier — but a name declared
+  // crookedly could.
   const seen = new Set<string>()
   for (const entry of entries) {
     if (seen.has(entry.id)) {
-      problems.push(`${entry.directory} : identifiant deja pris — ${entry.id}.`)
+      problems.push(`${entry.directory}: identifier already taken — ${entry.id}.`)
     }
     seen.add(entry.id)
   }
@@ -236,18 +236,18 @@ export async function collectRegistry(root: string): Promise<CollectResult> {
   return { ok: true, entries }
 }
 
-/** Chemin du registre par rapport au dossier courant, pour l'affichage. */
+/** Registry path relative to the current directory, for display. */
 export function displayPath(root: string): string {
   const shown = relative(process.cwd(), root)
   return shown === '' ? '.' : posix(shown)
 }
 
 /**
- * Indique si le module courant est celui que Node a demarre.
+ * Tells whether the current module is the one Node started.
  *
- * Les scripts du registre sont a la fois des executables et des modules
- * importes par les tests. La comparaison passe par `fileURLToPath` : sous
- * Windows, l'URL et le chemin d'argument ne s'ecrivent pas pareil.
+ * The registry scripts are both executables and modules imported by the
+ * tests. The comparison goes through `fileURLToPath`: under Windows, the URL
+ * and the argument path are not written the same way.
  *
  * @example
  * if (isMainModule(import.meta.url)) await main()

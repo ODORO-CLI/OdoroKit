@@ -1,22 +1,25 @@
 /**
- * Tunnel : une perspective obtenue en posant z = 1/r, sans camera ni matrice.
+ * Tunnel: a perspective obtained by setting z = 1/r, with no camera and no
+ * matrix.
  *
- * ## Le principe
+ * ## The principle
  *
- * Dans un couloir cylindrique, la distance le long de l axe est inversement proportionnelle au rayon apparent. La division suffit.
+ * In a cylindrical corridor, the distance along the axis is inversely
+ * proportional to the apparent radius. The division is enough.
  *
- * L attenuation au loin n est pas decorative : elle eteint le point de fuite avant qu il ne batte avec la grille de pixels.
+ * The attenuation into the distance is not decorative: it puts out the
+ * vanishing point before it beats against the pixel grid.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur — les recopier ici en ferait autant
- * de versions a maintenir qu'il y a de fonds.
+ * It carries only what sets it apart: its shader, its settings and its
+ * fallback. Reading the tokens, converting them to floats and re-reading them
+ * when the theme changes all come from the engine — copying that here would
+ * leave as many versions to maintain as there are backgrounds.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en
- * accorde qu'une par backend — et sous mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface — it grants only one
+ * per backend — and under reduced motion.
  *
  * @module
  */
@@ -32,37 +35,37 @@ import {
 } from '@odoro-cli/engine'
 import { type ReactElement } from 'react'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface TunnelControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to this component. */
 export interface TunnelOwnProps {
-  /** Vitesse d avancee. @defaultValue 0.25 */
+  /** Speed of the advance. @defaultValue 0.25 */
   speed?: number
-  /** Espacement des anneaux. @defaultValue 0.6 */
+  /** Spacing of the rings. @defaultValue 0.6 */
   rings?: number
-  /** Nombre de secteurs. @defaultValue 12 */
+  /** Number of sectors. @defaultValue 12 */
   segments?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<TunnelControls>
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type TunnelProps = Customisable<TunnelOwnProps>
 
-/** Tokens employes par defaut. */
+/** Tokens used by default. */
 const DEFAULT_TOKENS = ['--o-theme-bg', '--o-palette-sky-400'] as const
 
-/** Repli par defaut : une teinte figee, dans les memes tons. */
+/** Default fallback: a frozen tint, in the same tones. */
 const DEFAULT_FALLBACK = 'o-bg-zinc-50 dark:o-bg-zinc-950'
 
 /**

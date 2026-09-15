@@ -4,11 +4,11 @@ import { describe, expect, it, vi } from 'vitest'
 import { disposeObject, disposeScene } from './dispose.js'
 
 /**
- * Doublure de texture.
+ * Texture stub.
  *
- * La reconnaissance se fait par signature — une methode de liberation, une
- * image, un mode d'enroulement — plutot que par nom de classe : les noms
- * changent d'une version a l'autre, la forme non.
+ * Recognition is done by signature — a release method, an image, a wrap mode —
+ * rather than by class name: the names change from one version to the next,
+ * the shape does not.
  */
 function fakeTexture(): Texture & { dispose: ReturnType<typeof vi.fn> } {
   return {
@@ -18,7 +18,7 @@ function fakeTexture(): Texture & { dispose: ReturnType<typeof vi.fn> } {
   } as unknown as Texture & { dispose: ReturnType<typeof vi.fn> }
 }
 
-/** Doublure de materiau, portant les textures qu'on lui donne. */
+/** Material stub, carrying the textures it is given. */
 function fakeMaterial(
   textures: Record<string, Texture> = {},
 ): Material & { dispose: ReturnType<typeof vi.fn> } {
@@ -28,7 +28,7 @@ function fakeMaterial(
   } as unknown as Material & { dispose: ReturnType<typeof vi.fn> }
 }
 
-/** Doublure d'objet 3D, avec un parcours d'arbre minimal. */
+/** 3D object stub, with a minimal tree walk. */
 function fakeObject(options: {
   geometry?: { dispose: ReturnType<typeof vi.fn> }
   material?: Material | Material[]
@@ -49,7 +49,7 @@ function fakeObject(options: {
 }
 
 describe('disposeObject', () => {
-  it('libere geometrie, materiau et textures', () => {
+  it('releases geometry, material and textures', () => {
     const geometry = { dispose: vi.fn() }
     const map = fakeTexture()
     const material = fakeMaterial({ map })
@@ -62,14 +62,14 @@ describe('disposeObject', () => {
     expect(report).toMatchObject({ geometries: 1, materials: 1, textures: 1 })
   })
 
-  it('trouve les textures quel que soit le nom de leur propriete', () => {
-    // Les noms varient d'un materiau a l'autre et d'une version a l'autre :
-    // en tenir la liste reviendrait a l'oublier a jour.
+  it('finds the textures whatever the name of their property', () => {
+    // The names vary from one material to the next and from one version to the
+    // next: keeping the list would amount to forgetting to keep it up to date.
     const textures = {
       map: fakeTexture(),
       normalMap: fakeTexture(),
       envMap: fakeTexture(),
-      uneTextureAuNomInattendu: fakeTexture(),
+      aTextureWithAnUnexpectedName: fakeTexture(),
     }
     const material = fakeMaterial(textures)
 
@@ -81,61 +81,60 @@ describe('disposeObject', () => {
     expect(report.textures).toBe(4)
   })
 
-  it('descend dans tout l arbre', () => {
-    const enfant = { dispose: vi.fn() }
-    const petitEnfant = { dispose: vi.fn() }
+  it('descends into the whole tree', () => {
+    const child = { dispose: vi.fn() }
+    const grandChild = { dispose: vi.fn() }
 
     const report = disposeObject(
       fakeObject({
         children: [
           fakeObject({
-            geometry: enfant,
-            children: [fakeObject({ geometry: petitEnfant })],
+            geometry: child,
+            children: [fakeObject({ geometry: grandChild })],
           }),
         ],
       }),
     )
 
-    expect(enfant.dispose).toHaveBeenCalled()
-    expect(petitEnfant.dispose).toHaveBeenCalled()
+    expect(child.dispose).toHaveBeenCalled()
+    expect(grandChild.dispose).toHaveBeenCalled()
     expect(report.geometries).toBe(2)
   })
 
-  it('libere un tableau de materiaux', () => {
-    const premier = fakeMaterial()
+  it('releases an array of materials', () => {
+    const first = fakeMaterial()
     const second = fakeMaterial()
 
-    const report = disposeObject(fakeObject({ material: [premier, second] }))
+    const report = disposeObject(fakeObject({ material: [first, second] }))
 
-    expect(premier.dispose).toHaveBeenCalled()
+    expect(first.dispose).toHaveBeenCalled()
     expect(second.dispose).toHaveBeenCalled()
     expect(report.materials).toBe(2)
   })
 
-  it('ne libere qu une fois une ressource partagee', () => {
-    // Un materiau reutilise par cinquante instances ne doit pas etre libere
-    // cinquante fois : les avertissements qui en resulteraient masqueraient de
-    // vraies anomalies.
-    const partage = fakeMaterial({ map: fakeTexture() })
-    const geometrie = { dispose: vi.fn() }
+  it('releases a shared resource only once', () => {
+    // A material reused by fifty instances must not be released fifty times:
+    // the warnings that would result would mask real anomalies.
+    const shared = fakeMaterial({ map: fakeTexture() })
+    const geometry = { dispose: vi.fn() }
 
     const report = disposeObject(
       fakeObject({
-        geometry: geometrie,
-        material: partage,
+        geometry,
+        material: shared,
         children: [
-          fakeObject({ geometry: geometrie, material: partage }),
-          fakeObject({ geometry: geometrie, material: partage }),
+          fakeObject({ geometry, material: shared }),
+          fakeObject({ geometry, material: shared }),
         ],
       }),
     )
 
-    expect(partage.dispose).toHaveBeenCalledTimes(1)
-    expect(geometrie.dispose).toHaveBeenCalledTimes(1)
+    expect(shared.dispose).toHaveBeenCalledTimes(1)
+    expect(geometry.dispose).toHaveBeenCalledTimes(1)
     expect(report).toMatchObject({ geometries: 1, materials: 1, textures: 1 })
   })
 
-  it('detache le contenu apres le parcours', () => {
+  it('detaches the content after the walk', () => {
     const root = fakeObject({})
     disposeObject(root)
     expect(
@@ -143,25 +142,25 @@ describe('disposeObject', () => {
     ).toHaveBeenCalled()
   })
 
-  it('tolere un objet sans ressource', () => {
+  it('tolerates an object without resources', () => {
     expect(() => disposeObject(fakeObject({}))).not.toThrow()
   })
 })
 
 describe('disposeScene', () => {
-  it('libere les cibles de rendu, invisibles au parcours de la scene', () => {
-    const cible = { dispose: vi.fn() } as unknown as WebGLRenderTarget
+  it('releases the render targets, invisible to the scene walk', () => {
+    const target = { dispose: vi.fn() } as unknown as WebGLRenderTarget
 
-    const report = disposeScene({ scene: fakeObject({}), targets: [cible] })
+    const report = disposeScene({ scene: fakeObject({}), targets: [target] })
 
-    expect(cible.dispose).toHaveBeenCalledTimes(1)
+    expect(target.dispose).toHaveBeenCalledTimes(1)
     expect(report.renderTargets).toBe(1)
   })
 
-  it('relache l emplacement de contexte aupres du navigateur', () => {
-    // Sans cela, l'emplacement reste occupe jusqu'au ramassage du canevas, et
-    // une page qui monte plusieurs scenes epuise le quota — le navigateur
-    // perdant alors silencieusement la plus ancienne.
+  it('gives the context slot back to the browser', () => {
+    // Without this, the slot stays occupied until the canvas is collected, and
+    // a page that mounts several scenes exhausts the quota — the browser then
+    // silently losing the oldest one.
     const renderer = {
       dispose: vi.fn(),
       forceContextLoss: vi.fn(),
@@ -173,18 +172,18 @@ describe('disposeScene', () => {
     expect(renderer.forceContextLoss).toHaveBeenCalledTimes(1)
   })
 
-  it('ne laisse rien vivre apres cent cycles', () => {
-    let liberees = 0
+  it('leaves nothing alive after a hundred cycles', () => {
+    let released = 0
 
     for (let i = 0; i < 100; i += 1) {
       const geometry = {
         dispose: vi.fn(() => {
-          liberees += 1
+          released += 1
         }),
       }
       disposeScene({ scene: fakeObject({ geometry, material: fakeMaterial() }) })
     }
 
-    expect(liberees).toBe(100)
+    expect(released).toBe(100)
   })
 })

@@ -1,43 +1,44 @@
 /**
- * Rideau en stores horizontaux qui basculent sur leur axe.
+ * Curtain of horizontal slats that tilt on their own axis.
  *
- * ## Basculer, pas glisser
+ * ## Tilt, not slide
  *
- * Tous les autres rideaux du registre translatent, percent ou effacent. Celui-ci
- * **pivote** : chaque lame tourne d'un quart de tour autour de son axe median,
- * et disparait en se mettant de chant. C'est le seul geste du lot qui donne une
- * epaisseur a la plaque — on comprend que le rideau etait un objet, pas une
- * couche de couleur.
+ * Every other curtain in the registry translates, pierces or wipes. This one
+ * **pivots**: each slat turns a quarter turn around its median axis, and
+ * vanishes by going edge-on. It is the only gesture of the lot that gives the
+ * plate a thickness — one understands the curtain was an object, not a layer
+ * of color.
  *
- * La rotation vit dans une perspective posee sur le conteneur, pas sur chaque
- * lame : une perspective par lame donnerait a chacune son propre point de fuite,
- * et les lames du haut ne s'inclineraient pas dans le meme sens que celles du
- * bas. Un seul point de fuite, donc, et un store qui a l'air d'un store.
+ * The rotation lives in a perspective set on the container, not on each slat:
+ * one perspective per slat would give each of them its own vanishing point,
+ * and the top slats would not lean the same way as the bottom ones. A single
+ * vanishing point, then, and a blind that looks like a blind.
  *
- * ## Le decalage fait la lecture
+ * ## The stagger is what makes it readable
  *
- * Les lames ne partent pas ensemble. Un decalage constant, de haut en bas,
- * transforme dix rotations simultanees — illisibles — en une vague qui descend.
- * C'est ce decalage qui coute : la sortie dure `exitMs` **plus** le decalage
- * total, et le composant en tient compte pour se retirer du DOM.
+ * The slats do not leave together. A constant stagger, from top to bottom,
+ * turns ten simultaneous rotations — unreadable — into a wave running down.
+ * That stagger is what costs: the exit lasts `exitMs` **plus** the total
+ * stagger, and the component accounts for it before pulling itself out of the
+ * DOM.
  *
- * ## Un pixel de recouvrement
+ * ## One pixel of overlap
  *
- * Chaque lame mesure un pixel de plus que sa part exacte. Sur une hauteur qui
- * ne se divise pas en un compte entier de pixels, des raies de fond
- * apparaitraient entre les lames avant meme le debut du geste.
+ * Each slat measures one pixel more than its exact share. On a height that
+ * does not divide into a whole count of pixels, stripes of background would
+ * appear between the slats before the gesture had even begun.
  *
- * ## La sortie part au DEBUT, pas apres
+ * ## The exit starts at the BEGINNING, not after
  *
- * `onDone` est appele quand la premiere lame **commence** a basculer. Le contenu
- * entre entre les lames pendant qu'elles s'ouvrent ; attendre la fin donnerait
- * un store, un temps mort, puis une page.
+ * `onDone` is called when the first slat **starts** to tilt. The content comes
+ * in between the slats while they open; waiting for the end would give a
+ * blind, a dead beat, then a page.
  *
- * ## Contenu ou plein ecran
+ * ## Contained or full screen
  *
- * Par defaut le rideau est `fixed`, couvre la fenetre et verrouille le
- * defilement du document. Avec `contained`, il devient `absolute`, se resout
- * contre le premier ancetre positionne et laisse le defilement tranquille.
+ * By default the curtain is `fixed`, covers the window and locks the document
+ * scroll. With `contained`, it becomes `absolute`, resolves against the first
+ * positioned ancestor and leaves the scroll alone.
  *
  * @module
  */
@@ -52,47 +53,46 @@ import {
   type ReactNode,
 } from 'react'
 
-/** Proprietes propres au composant. */
+/** The component's own props. */
 export interface BlindsOwnProps {
-  /** Le fond des lames. @defaultValue le fond du theme */
+  /** The background of the slats. @defaultValue the theme background */
   background?: string
-  /** L'encre du libelle. @defaultValue l'encre du theme */
+  /** The ink of the label. @defaultValue the theme ink */
   ink?: string
-  /** Ce qui s'affiche au centre pendant l'attente : un nom, une marque. */
+  /** What shows in the center during the wait: a name, a brand. */
   label?: ReactNode
   /**
-   * Ce que les lecteurs d'ecran annoncent. Chaine vide pour n'annoncer que le
-   * libelle.
+   * What screen readers announce. Empty string to announce the label only.
    *
-   * @defaultValue 'Chargement'
+   * @defaultValue 'Loading'
    */
   status?: string
-  /** Nombre de lames. @defaultValue 10 */
+  /** Number of slats. @defaultValue 10 */
   slats?: number
-  /** Decalage entre deux lames, en millisecondes. @defaultValue 55 */
+  /** Stagger between two slats, in milliseconds. @defaultValue 55 */
   stagger?: number
-  /** Combien de temps le store reste ferme, en millisecondes. @defaultValue 1200 */
+  /** How long the blind stays closed, in milliseconds. @defaultValue 1200 */
   holdMs?: number
-  /** Duree de la bascule d'une lame, en millisecondes. @defaultValue 700 */
+  /** Duration of one slat's tilt, in milliseconds. @defaultValue 700 */
   exitMs?: number
   /**
-   * Etat controle : le store couvre tant que c'est `true`, et s'ouvre au
-   * premier `false`. Renseigne, il remplace `holdMs`.
+   * Controlled state: the blind covers for as long as this is `true`, and
+   * opens on the first `false`. When given, it replaces `holdMs`.
    */
   open?: boolean
-  /** Couvre le parent positionne plutot que la fenetre. @defaultValue false */
+  /** Covers the positioned parent rather than the window. @defaultValue false */
   contained?: boolean
-  /** Appele au **debut** de la sortie. Voir l'en-tete du module. */
+  /** Called at the **start** of the exit. See the module header. */
   onDone?: () => void
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type BlindsProps = Customisable<BlindsOwnProps, 'div'>
 
-/** Identifiant de la feuille injectee. */
+/** Id of the injected stylesheet. */
 const STYLE_ID = 'o-blinds'
 
-/** Pose les regles du store, une fois par document. */
+/** Sets the blind rules, once per document. */
 function ensureBlindsRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -106,8 +106,8 @@ function ensureBlindsRule(): void {
     '}',
     '[data-o-blind][data-o-blind-contained]{position:absolute}',
     '[data-o-blind][data-o-blind-out]{pointer-events:none}',
-    // Une seule perspective, sur le rack : un point de fuite commun a toutes
-    // les lames. Voir l'en-tete.
+    // A single perspective, on the rack: one vanishing point shared by all
+    // the slats. See the header.
     '[data-o-blind-rack]{position:absolute;inset:0;perspective:1400px}',
     '[data-o-blind-slat]{',
     'position:absolute;left:0;right:0;',
@@ -116,9 +116,9 @@ function ensureBlindsRule(): void {
     'background:var(--o-blind-bg);',
     'transform-origin:50% 50%;transform:rotateX(0deg);',
     'transition:transform var(--o-blind-exit) cubic-bezier(0.65,0,0.35,1) var(--o-blind-d),',
-    // De chant, une lame ne fait pourtant pas zero pixel de haut : l'arrondi
-    // du rendu lui laisse une raie. Elle s'efface donc sur le dernier tiers de
-    // sa rotation, quand elle n'est deja plus qu'un trait.
+    // Edge-on, a slat is still not zero pixels tall: render rounding leaves it
+    // a hairline. So it fades out over the last third of its rotation, when it
+    // is already no more than a line.
     'opacity calc(var(--o-blind-exit) * 0.3) linear',
     'calc(var(--o-blind-d) + var(--o-blind-exit) * 0.7);',
     '}',
@@ -133,20 +133,20 @@ function ensureBlindsRule(): void {
 }
 
 /**
- * Couvre la page d'un store, puis en fait basculer les lames.
+ * Covers the page with a blind, then tilts its slats away.
  *
  * @example
- * <Blinds label="Odoro" onDone={ouvrir} />
+ * <Blinds label="Odoro" onDone={reveal} />
  *
  * @example
- * // Beaucoup de lames fines, une vague rapide.
- * <Blinds slats={18} stagger={30} exitMs={520} onDone={ouvrir} />
+ * // Many thin slats, a fast wave.
+ * <Blinds slats={18} stagger={30} exitMs={520} onDone={reveal} />
  */
 export function Blinds({
   background = 'var(--o-theme-bg)',
   ink = 'var(--o-theme-fg)',
   label,
-  status = 'Chargement',
+  status = 'Loading',
   slats = 10,
   stagger = 55,
   holdMs = 1200,
@@ -157,133 +157,133 @@ export function Blinds({
   ...rest
 }: BlindsProps): ReactElement | null {
   const { reduced } = useMotionState()
-  const [sortant, setSortant] = useState(false)
-  const [parti, setParti] = useState(false)
+  const [exiting, setExiting] = useState(false)
+  const [gone, setGone] = useState(false)
 
-  // Dans une ref : la sortie ne s'annonce qu'une fois, et un rendu de plus ne
-  // doit pas rejouer le rappel.
-  const annonce = useRef(false)
-  const rappel = useRef(onDone)
-  rappel.current = onDone
+  // In a ref: the exit announces itself only once, and one more render must
+  // not replay the callback.
+  const announced = useRef(false)
+  const callback = useRef(onDone)
+  callback.current = onDone
 
   ensureBlindsRule()
 
-  const nombre = Math.max(2, Math.round(slats))
+  const count = Math.max(2, Math.round(slats))
 
   useEffect(() => {
-    const annoncer = (): void => {
-      if (annonce.current) return
-      annonce.current = true
-      rappel.current?.()
+    const announce = (): void => {
+      if (announced.current) return
+      announced.current = true
+      callback.current?.()
     }
 
-    // Mouvement reduit : la sortie est immediate. Le store n'apportait qu'un
-    // geste, et le geste est ce qu'on nous demande d'omettre.
+    // Reduced motion: the exit is immediate. The blind only brought a gesture,
+    // and the gesture is what we are asked to leave out.
     if (reduced) {
-      annoncer()
-      setParti(true)
+      announce()
+      setGone(true)
       return
     }
 
     if (open !== undefined) {
       if (!open) {
-        setSortant(true)
-        annoncer()
+        setExiting(true)
+        announce()
       }
       return
     }
 
-    const minuteur = window.setTimeout(() => {
-      setSortant(true)
-      annoncer()
+    const timer = window.setTimeout(() => {
+      setExiting(true)
+      announce()
     }, holdMs)
 
     return () => {
-      window.clearTimeout(minuteur)
+      window.clearTimeout(timer)
     }
   }, [reduced, open, holdMs])
 
-  // Le retrait du DOM. Un minuteur, et non `transitionend` : dix lames decalees
-  // emettent dix evenements, et le premier arrive quand neuf lames couvrent
-  // encore l'ecran.
+  // Removal from the DOM. A timer, and not `transitionend`: ten staggered
+  // slats emit ten events, and the first one arrives while nine slats still
+  // cover the screen.
   useEffect(() => {
-    if (!sortant) return
+    if (!exiting) return
 
-    const minuteur = window.setTimeout(
+    const timer = window.setTimeout(
       () => {
-        setParti(true)
+        setGone(true)
       },
-      exitMs + (nombre - 1) * stagger + 40,
+      exitMs + (count - 1) * stagger + 40,
     )
 
     return () => {
-      window.clearTimeout(minuteur)
+      window.clearTimeout(timer)
     }
-  }, [sortant, exitMs, nombre, stagger])
+  }, [exiting, exitMs, count, stagger])
 
-  // Le verrou de defilement, seulement quand le store couvre la fenetre.
+  // The scroll lock, only when the blind covers the window.
   useEffect(() => {
-    if (contained || parti || reduced) return
+    if (contained || gone || reduced) return
 
-    // Un verrou COMPTE, et non memorise. Deux rideaux peuvent se chevaucher
-    // — rechargement a chaud, navigation, rendu concurrent — et le second
-    // memoriserait alors la valeur posee par le premier, « hidden », pour la
-    // restaurer en sortant : la page resterait bloquee sans erreur ni trace.
-    const racine = document.documentElement
-    const verrous = Number(racine.dataset['oPorteVerrous'] ?? '0')
-    if (verrous === 0) racine.dataset['oPorteAvant'] = racine.style.overflow
-    racine.dataset['oPorteVerrous'] = String(verrous + 1)
-    racine.style.overflow = 'hidden'
+    // A lock COUNTS, it does not memorize. Two curtains can overlap — hot
+    // reload, navigation, concurrent rendering — and the second would then
+    // memorize the value set by the first, "hidden", to restore it on the way
+    // out: the page would stay stuck with no error and no trace.
+    const root = document.documentElement
+    const locks = Number(root.dataset['oGateLocks'] ?? '0')
+    if (locks === 0) root.dataset['oGatePrevious'] = root.style.overflow
+    root.dataset['oGateLocks'] = String(locks + 1)
+    root.style.overflow = 'hidden'
 
-    let rendu = false
-    const rendreLaMain = (): void => {
-      if (rendu) return
-      rendu = true
-      const reste = Number(racine.dataset['oPorteVerrous'] ?? '1') - 1
-      if (reste > 0) {
-        racine.dataset['oPorteVerrous'] = String(reste)
+    let released = false
+    const release = (): void => {
+      if (released) return
+      released = true
+      const remaining = Number(root.dataset['oGateLocks'] ?? '1') - 1
+      if (remaining > 0) {
+        root.dataset['oGateLocks'] = String(remaining)
         return
       }
-      racine.style.overflow = racine.dataset['oPorteAvant'] ?? ''
-      delete racine.dataset['oPorteVerrous']
-      delete racine.dataset['oPorteAvant']
+      root.style.overflow = root.dataset['oGatePrevious'] ?? ''
+      delete root.dataset['oGateLocks']
+      delete root.dataset['oGatePrevious']
     }
 
-    // Le garde-fou. Plus long que le plafond de n importe quel rideau, donc
-    // invisible en marche normale : il n existe que pour qu un retard ne
-    // puisse jamais laisser la page sans defilement.
-    const secours = window.setTimeout(rendreLaMain, 8000)
+    // The guardrail. Longer than the ceiling of any curtain, so invisible in
+    // normal operation: it exists only so that a delay can never leave the
+    // page without scrolling.
+    const safety = window.setTimeout(release, 8000)
 
     return () => {
-      window.clearTimeout(secours)
-      rendreLaMain()
+      window.clearTimeout(safety)
+      release()
     }
-  }, [contained, parti, reduced])
+  }, [contained, gone, reduced])
 
-  if (parti) return null
+  if (gone) return null
 
   const { className, style } = mergePresentation({}, rest)
 
-  const styleStore = {
+  const blindStyle = {
     ...style,
     '--o-blind-bg': background,
     '--o-blind-ink': ink,
     '--o-blind-exit': `${String(exitMs)}ms`,
-    '--o-blind-n': String(nombre),
+    '--o-blind-n': String(count),
   } as CSSProperties
 
   return (
     <div
       {...rest}
       className={className}
-      style={styleStore}
+      style={blindStyle}
       data-o-blind=""
-      {...(sortant ? { 'data-o-blind-out': '' } : {})}
+      {...(exiting ? { 'data-o-blind-out': '' } : {})}
       {...(contained ? { 'data-o-blind-contained': '' } : {})}
     >
-      {/* Les lames sont du decor : elles ne doivent pas etre lues. */}
+      {/* The slats are decor: they must not be read out. */}
       <div data-o-blind-rack="" aria-hidden="true">
-        {Array.from({ length: nombre }, (_, index) => (
+        {Array.from({ length: count }, (_, index) => (
           <div
             key={index}
             data-o-blind-slat=""

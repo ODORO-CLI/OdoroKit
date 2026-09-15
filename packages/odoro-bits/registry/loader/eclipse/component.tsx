@@ -1,38 +1,38 @@
 /**
- * Eclipse : un disque plein se creuse jusqu'a ne plus laisser qu'un anneau
- * de lumiere, dont le halo s'embrase, puis se referme.
+ * Eclipse: a solid disc hollows itself out until nothing is left but a ring
+ * of light, whose halo flares up, then closes again.
  *
- * ## Un seul cercle, pas deux
+ * ## A single circle, not two
  *
- * L'occultation naive consiste a poser un second disque par-dessus le
- * premier — mais ce disque devrait etre de la couleur du fond, que le
- * composant ne connait pas et n'a pas a connaitre. La forme visible est
- * donc construite directement : un anneau est un cercle trace, dont le
- * rayon et l'epaisseur bougent ensemble de facon que le bord exterieur ne
- * change jamais. Epaisseur maximale, le trait se rejoint au centre et
- * l'anneau est un disque plein ; epaisseur minimale, il ne reste qu'un
- * filet. Rien n'est masque, rien n'est superpose, et le fond reste ce qu'il
- * est.
+ * The naive occultation consists in laying a second disc over the first —
+ * but that disc would have to be the color of the background, which the
+ * component does not know and has no business knowing. The visible shape is
+ * therefore built directly: a ring is a stroked circle, whose radius and
+ * thickness move together in such a way that the outer edge never changes.
+ * At maximum thickness, the stroke meets itself at the center and the ring
+ * is a solid disc; at minimum thickness, nothing is left but a thread.
+ * Nothing is masked, nothing is stacked, and the background stays what it
+ * is.
  *
- * C'est la seule figure du lot dont le mouvement va vers l'interieur : le
- * trou s'ouvre au centre au lieu que quelque chose s'en echappe.
+ * This is the only figure in the set whose movement goes inwards: the hole
+ * opens at the center instead of something escaping from it.
  *
- * ## Le halo dit le moment
+ * ## The halo states the moment
  *
- * Deux cercles flous entourent l'anneau, l'un serre et vif, l'autre large
- * et tenu. Leur opacite ne monte qu'au moment ou le filet est le plus fin :
- * c'est ce qui donne a l'instant un pic, au lieu d'une respiration egale.
- * Le flou est un filtre applique a chacun ; a cette taille il porte sur
- * quelques centaines de pixels.
+ * Two blurred circles surround the ring, one tight and sharp, the other
+ * wide and held. Their opacity only rises at the moment the thread is at
+ * its thinnest: that is what gives the instant a peak, instead of an even
+ * breathing. The blur is a filter applied to each; at this size it bears on
+ * a few hundred pixels.
  *
- * ## Un statut, pas un dessin
+ * ## A status, not a drawing
  *
- * L'element porte `role="status"` et un libelle pour les lecteurs d'ecran :
- * l'attente est une information, pas une decoration. Le dessin est retire
- * de l'arbre d'accessibilite.
+ * The element carries `role="status"` and a label for screen readers: the
+ * wait is information, not decoration. The drawing is removed from the
+ * accessibility tree.
  *
- * Sous mouvement reduit, l'anneau reste ouvert et le halo allume : c'est
- * l'instant que la figure raconte, fige.
+ * Under reduced motion, the ring stays open and the halo lit: that is the
+ * instant the figure is telling, frozen.
  *
  * @module
  */
@@ -40,16 +40,16 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-eclipse'
 
-/** Rayon exterieur de la figure, en unites de la vue. */
+/** Outer radius of the figure, in view box units. */
 const OUTER = 34
 
-/** Epaisseur du filet restant a l'ouverture maximale. */
+/** Thickness of the thread left at maximum opening. */
 const THIN = 4
 
-/** Pose l'anneau, son ouverture et son halo, une fois par document. */
+/** Applies the ring, its opening and its halo, once per document. */
 function ensureEclipseRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -65,8 +65,8 @@ function ensureEclipseRule(): void {
     '[data-o-eclipse-disc]{',
     'animation:o-eclipse-open var(--o-eclipse-speed) ease-in-out infinite;',
     '}',
-    // Rayon et epaisseur bougent ensemble : leur somme, le bord exterieur,
-    // reste constante d'un bout a l'autre.
+    // Radius and thickness move together: their sum, the outer edge, stays
+    // constant from one end to the other.
     '@keyframes o-eclipse-open{',
     `0%,6%{r:${disc};stroke-width:${String(OUTER)}px}`,
     `46%,54%{r:${ring};stroke-width:${String(THIN)}px}`,
@@ -89,36 +89,36 @@ function ensureEclipseRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface EclipseOwnProps {
-  /** Cote de la zone de dessin, en pixels. @defaultValue 64 */
+  /** Side of the drawing area, in pixels. @defaultValue 64 */
   size?: number
-  /** Duree d'une eclipse complete, en millisecondes. @defaultValue 3000 */
+  /** Duration of a complete eclipse, in milliseconds. @defaultValue 3000 */
   speed?: number
-  /** Couleur de l'anneau et du halo. @defaultValue la couleur du texte */
+  /** Color of the ring and of the halo. @defaultValue the text color */
   color?: string
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */
+  /** Label announced to screen readers. @defaultValue 'Loading' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All the properties. */
 export type EclipseProps = Customisable<EclipseOwnProps, 'span'>
 
 /**
- * Signale une attente par un disque qui se creuse en anneau de lumiere.
+ * Signals a wait with a disc that hollows itself into a ring of light.
  *
  * @example
  * <Eclipse />
  *
  * @example
- * // Plus grand, plus lent, dans la teinte de marque.
+ * // Bigger, slower, in the brand hue.
  * <Eclipse size={96} speed={4500} color="var(--o-palette-brand-500)" />
  */
 export function Eclipse({
   size = 64,
   speed = 3000,
   color = 'currentColor',
-  label = 'Chargement',
+  label = 'Loading',
   ...rest
 }: EclipseProps): ReactElement {
   ensureEclipseRule()

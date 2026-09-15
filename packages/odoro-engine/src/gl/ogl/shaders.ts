@@ -1,21 +1,20 @@
 /**
- * Fragments de shader ecrits depuis leurs principes.
+ * Shader fragments written from first principles.
  *
- * Chaque fonction porte l'explication de la technique employee et de ses
- * parametres. Rien n'est repris d'une implementation trouvee en ligne : les
- * shaders publies le sont souvent sous des licences restrictives, et la
- * mathematique sous-jacente est de toute facon plus courte a redemontrer qu'a
- * verifier juridiquement.
+ * Every function carries the explanation of the technique used and of its
+ * parameters. Nothing is taken from an implementation found online: published
+ * shaders often come under restrictive licences, and the underlying
+ * mathematics is in any case shorter to re-derive than to clear legally.
  *
  * @module
  */
 
 /**
- * Sommet d'un triangle couvrant l'ecran.
+ * Vertex of a triangle covering the screen.
  *
- * Un triangle unique plutot que deux : la diagonale d'un quadrilatere fait
- * traiter deux fois les fragments qui la bordent, et un triangle qui deborde
- * de l'ecran n'a pas cette couture.
+ * A single triangle rather than two: the diagonal of a quad makes the
+ * fragments along it be processed twice, and a triangle that overflows the
+ * screen has no such seam.
  */
 export const FULLSCREEN_VERTEX = /* glsl */ `
 attribute vec2 uv;
@@ -30,43 +29,43 @@ void main() {
 `
 
 /**
- * Bruit de valeur et somme d'octaves.
+ * Value noise and sum of octaves.
  *
- * ## Le principe
+ * ## The principle
  *
- * Un bruit de valeur associe un nombre pseudo-aleatoire a chaque point d'une
- * grille entiere, puis interpole entre les quatre coins de la cellule ou l'on
- * se trouve. L'interpolation n'est pas lineaire mais lissee par le polynome
- * `3t² - 2t³`, dont la derivee s'annule aux deux extremites : sans cela, les
- * aretes de la grille resteraient visibles sous forme de croisillons.
+ * Value noise associates a pseudo-random number with every point of an integer
+ * grid, then interpolates between the four corners of the cell you are in. The
+ * interpolation is not linear but smoothed by the polynomial `3t2 - 2t3`,
+ * whose derivative vanishes at both ends: without it, the edges of the grid
+ * would stay visible as a lattice.
  *
- * Le nombre pseudo-aleatoire vient d'une fonction de hachage : on projette le
- * point sur une direction arbitraire, on prend le sinus, on le multiplie par
- * un grand nombre et on n'en garde que la partie fractionnaire. Ce n'est pas
- * du hasard, mais c'est deterministe, continu par morceaux et sans motif
- * perceptible — ce qui suffit.
+ * The pseudo-random number comes from a hash function: the point is projected
+ * onto an arbitrary direction, the sine is taken, multiplied by a large number
+ * and only the fractional part is kept. This is not randomness, but it is
+ * deterministic, piecewise continuous and without a perceptible pattern —
+ * which is enough.
  *
- * ## La somme d'octaves
+ * ## The sum of octaves
  *
- * Un seul bruit est trop regulier. On en superpose plusieurs, chacun deux fois
- * plus fin et deux fois moins fort que le precedent. Le resultat presente le
- * meme aspect a toutes les echelles, ce qui est precisement l'aspect des
- * choses naturelles — nuages, relief, veines.
+ * A single noise is too regular. Several are superposed, each twice as fine
+ * and twice as weak as the previous one. The result looks the same at every
+ * scale, which is precisely the look of natural things — clouds, terrain,
+ * veins.
  *
- * Le nombre d'octaves est le levier de cout : chacune double le travail.
+ * The number of octaves is the cost lever: each one doubles the work.
  */
 export const NOISE_FUNCTIONS = /* glsl */ `
-// Nombre pseudo-aleatoire, deterministe et sans motif perceptible.
+// Pseudo-random number, deterministic and without a perceptible pattern.
 float odoroHash(vec2 p) {
   return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
 }
 
-// Bruit de valeur : interpolation lissee entre les quatre coins de la cellule.
+// Value noise: smoothed interpolation between the four corners of the cell.
 float odoroNoise(vec2 p) {
   vec2 cell = floor(p);
   vec2 local = fract(p);
 
-  // 3t2 - 2t3 : derivee nulle aux extremites, donc pas d'arete visible.
+  // 3t2 - 2t3: zero derivative at the ends, so no visible edge.
   vec2 smoothed = local * local * (3.0 - 2.0 * local);
 
   float a = odoroHash(cell);
@@ -77,7 +76,7 @@ float odoroNoise(vec2 p) {
   return mix(mix(a, b, smoothed.x), mix(c, d, smoothed.x), smoothed.y);
 }
 
-// Somme d'octaves : chaque passe deux fois plus fine et deux fois plus faible.
+// Sum of octaves: each pass twice as fine and twice as weak.
 float odoroFbm(vec2 p, int octaves) {
   float total = 0.0;
   float amplitude = 0.5;
@@ -96,27 +95,27 @@ float odoroFbm(vec2 p, int octaves) {
 `
 
 /**
- * Aurore : nappes de couleur lentement deformees.
+ * Aurora: sheets of colour slowly deformed.
  *
- * ## La technique
+ * ## The technique
  *
- * Le point echantillonne n'est pas la coordonnee du fragment, mais cette
- * coordonnee **deplacee par un premier bruit**. Deformer le domaine plutot que
- * la valeur produit des volutes et des replis, la ou une simple somme
- * d'octaves ne donnerait que des taches. C'est le meme principe qu'une carte
- * de distorsion, applique en amont plutot qu'en aval.
+ * The sampled point is not the fragment coordinate, but that coordinate
+ * **displaced by a first noise**. Deforming the domain rather than the value
+ * produces swirls and folds, where a plain sum of octaves would only give
+ * blotches. It is the same principle as a distortion map, applied upstream
+ * rather than downstream.
  *
- * Le temps entre dans le deplacement, pas dans la couleur : la nappe se
- * deforme au lieu de clignoter.
+ * Time enters into the displacement, not into the colour: the sheet deforms
+ * instead of flickering.
  *
  * ## Uniforms
  *
- * - `uTime` — temps en secondes.
- * - `uResolution` — taille en pixels, pour corriger le rapport de forme.
- * - `uColorA`, `uColorB`, `uColorC` — les trois teintes melangees.
- * - `uSpeed` — vitesse de deformation.
- * - `uScale` — echelle du motif ; plus grand, plus fin.
- * - `uOctaves` — detail, et donc cout.
+ * - `uTime` — time in seconds.
+ * - `uResolution` — size in pixels, to correct the aspect ratio.
+ * - `uColorA`, `uColorB`, `uColorC` — the three blended hues.
+ * - `uSpeed` — deformation speed.
+ * - `uScale` — scale of the pattern; larger means finer.
+ * - `uOctaves` — detail, and therefore cost.
  */
 export const AURORA_FRAGMENT = /* glsl */ `
 precision highp float;
@@ -135,8 +134,8 @@ uniform float uOctaves;
 ${NOISE_FUNCTIONS}
 
 void main() {
-  // Correction du rapport de forme : sans elle, le motif s'etire avec la
-  // fenetre au lieu de conserver ses proportions.
+  // Aspect ratio correction: without it, the pattern stretches with the window
+  // instead of keeping its proportions.
   vec2 p = vUv;
   p.x *= uResolution.x / max(uResolution.y, 1.0);
   p *= uScale;
@@ -144,7 +143,7 @@ void main() {
   float t = uTime * uSpeed;
   int octaves = int(uOctaves);
 
-  // Deplacement du domaine : c'est lui qui produit les replis.
+  // Domain displacement: this is what produces the folds.
   vec2 offset = vec2(
     odoroFbm(p + vec2(0.0, t), octaves),
     odoroFbm(p + vec2(t * 0.7, 5.2), octaves)
@@ -152,8 +151,8 @@ void main() {
 
   float field = odoroFbm(p + offset * 2.0, octaves);
 
-  // Deux melanges successifs plutot qu'un : la teinte centrale apparait au
-  // milieu de la plage au lieu d'etre ecrasee aux extremites.
+  // Two successive blends rather than one: the central hue appears in the
+  // middle of the range instead of being crushed at the ends.
   vec3 color = mix(uColorA, uColorB, smoothstep(0.25, 0.75, field));
   color = mix(color, uColorC, smoothstep(0.55, 1.0, field));
 
@@ -162,28 +161,28 @@ void main() {
 `
 
 /**
- * Grille en perspective, avec attenuation vers l'horizon.
+ * Grid in perspective, with attenuation towards the horizon.
  *
- * ## La technique
+ * ## The technique
  *
- * Les lignes ne sont pas dessinees : elles sont **deduites** de la position.
- * On prend la partie fractionnaire de la coordonnee mise a l'echelle, et l'on
- * regarde sa distance au bord de la cellule. Une ligne est simplement
- * l'endroit ou cette distance est faible.
+ * The lines are not drawn: they are **deduced** from the position. The
+ * fractional part of the scaled coordinate is taken, and its distance to the
+ * edge of the cell is examined. A line is simply the place where that distance
+ * is small.
  *
- * L'epaisseur est calculee a partir de la derivee de la coordonnee — `fwidth`
- * — plutot que fixee en unites du monde. C'est ce qui donne des lignes d'une
- * epaisseur constante a l'ecran quelle que soit la perspective, et sans
- * scintillement au loin : sans cette correction, les lignes lointaines
- * passeraient sous la taille d'un pixel et clignoteraient au moindre mouvement.
+ * The thickness is computed from the derivative of the coordinate — `fwidth` —
+ * rather than fixed in world units. This is what gives lines of constant
+ * thickness on screen whatever the perspective, and without shimmering in the
+ * distance: without that correction, far lines would drop below the size of a
+ * pixel and flicker at the slightest movement.
  *
  * ## Uniforms
  *
- * - `uTime` — temps en secondes.
- * - `uResolution` — taille en pixels.
- * - `uColorLine`, `uColorBackground` — teintes des lignes et du fond.
- * - `uSpeed` — vitesse de defilement vers l'observateur.
- * - `uDensity` — nombre de cellules visibles.
+ * - `uTime` — time in seconds.
+ * - `uResolution` — size in pixels.
+ * - `uColorLine`, `uColorBackground` — hues of the lines and of the background.
+ * - `uSpeed` — scrolling speed towards the observer.
+ * - `uDensity` — number of visible cells.
  */
 export const GRID_FRAGMENT = /* glsl */ `
 precision highp float;
@@ -198,31 +197,31 @@ uniform float uSpeed;
 uniform float uDensity;
 
 void main() {
-  // Origine au centre, axe vertical vers le haut.
+  // Origin at the centre, vertical axis pointing up.
   vec2 p = vUv * 2.0 - 1.0;
   p.x *= uResolution.x / max(uResolution.y, 1.0);
 
-  // Sous l'horizon uniquement : au-dessus, le fond seul.
+  // Below the horizon only: above it, the background alone.
   float horizon = 0.0;
   if (p.y >= horizon) {
     gl_FragColor = vec4(uColorBackground, 1.0);
     return;
   }
 
-  // Projection : plus on approche de l'horizon, plus le sol s'eloigne.
+  // Projection: the closer to the horizon, the further away the ground.
   float depth = 1.0 / max(horizon - p.y, 0.0001);
   vec2 plane = vec2(p.x * depth, depth + uTime * uSpeed) * uDensity;
 
-  // Distance au bord de cellule, dans les deux directions.
+  // Distance to the cell edge, in both directions.
   vec2 edge = abs(fract(plane) - 0.5);
 
-  // Epaisseur en pixels plutot qu'en unites du monde : sans cela, les lignes
-  // lointaines passeraient sous le pixel et scintilleraient.
+  // Thickness in pixels rather than in world units: without it, far lines would
+  // drop below the pixel and shimmer.
   vec2 width = fwidth(plane);
   vec2 line = smoothstep(width * 1.5, vec2(0.0), edge);
   float strength = max(line.x, line.y);
 
-  // Attenuation vers l'horizon : ce qui est loin doit s'effacer.
+  // Attenuation towards the horizon: what is far must fade away.
   strength *= smoothstep(0.0, 0.35, -p.y);
 
   gl_FragColor = vec4(mix(uColorBackground, uColorLine, strength), 1.0);

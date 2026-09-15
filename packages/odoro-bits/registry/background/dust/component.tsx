@@ -1,24 +1,23 @@
 /**
- * Poussiere : des grains en suspension, visibles dans un rai de lumiere
- * oblique.
+ * Dust: motes in suspension, visible inside a slanted shaft of light.
  *
- * ## Le principe
+ * ## The principle
  *
- * Un rai est une bande douce autour d'une droite oblique, qui s'evase et
- * s'affaiblit en s'eloignant de sa source. Les grains derivent sur une marche
- * brownienne approchee — des sinus, aucun etat — et ne se voient que dans le
- * rai : leur lumiere est celle du faisceau a leur position.
+ * A shaft is a soft band around an oblique line, which widens and weakens as
+ * it moves away from its source. The motes drift along an approximated
+ * Brownian walk — sines, no state — and are only visible inside the shaft:
+ * their light is that of the beam at their position.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur — les recopier ici en ferait autant
- * de versions a maintenir qu'il y a de fonds.
+ * It carries only what sets it apart: its shader, its settings and its fallback.
+ * Reading the tokens, converting them to floats and re-reading them when the
+ * theme changes all come from the engine — copying them here would leave as
+ * many versions to maintain as there are backgrounds.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en
- * accorde qu'une par backend — et sous mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface — it grants only one
+ * per backend — and under reduced motion.
  *
  * @module
  */
@@ -35,59 +34,59 @@ import { type ReactElement } from 'react'
 
 import { DUST_FRAGMENT } from './dust.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface DustControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to this component. */
 export interface DustOwnProps {
-  /** Vitesse de la derive des grains. @defaultValue 0.3 */
+  /** Drift speed of the motes. @defaultValue 0.3 */
   speed?: number
-  /** Densite du semis. @defaultValue 12 */
+  /** Density of the scatter. @defaultValue 12 */
   density?: number
-  /** Inclinaison du rai, en degres. @defaultValue -55 */
+  /** Tilt of the shaft, in degrees. @defaultValue -55 */
   angle?: number
-  /** Demi-largeur du rai, en hauteurs de cadre. @defaultValue 0.22 */
+  /** Half-width of the shaft, in frame heights. @defaultValue 0.22 */
   width?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<DustControls>
 }
 
-/** Toutes les proprietes. */
+/** Every property. */
 export type DustProps = Customisable<DustOwnProps>
 
-/** Tokens employes par defaut : l'ombre, le rai, les grains. */
+/** Tokens used by default: the shadow, the shaft, the motes. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-amber-300',
   '--o-palette-amber-100',
 ] as const
 
-/** Repli par defaut : le rai fige, dans les memes tons. */
+/** Default fallback: the frozen shaft, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-br o-from-zinc-50 dark:o-from-zinc-950 o-via-amber-100 dark:o-via-amber-950 o-to-zinc-50 dark:o-to-zinc-950'
 
 /**
- * Couches hors qualite basse.
+ * Layers outside low quality.
  *
- * Chaque couche parcourt neuf cellules par fragment, avec une lecture du rai
- * par cellule : c'est le seul levier de cout du shader.
+ * Every layer walks nine cells per fragment, with one read of the shaft per
+ * cell: it is the shader's only cost lever.
  */
 const LAYERS = 3
 
-/** Couches en qualite basse. */
+/** Layers at low quality. */
 const LOW_LAYERS = 2
 
 /**
- * Poussiere.
+ * Dust.
  *
  * @example
  * <div className="o-relative o-min-h-screen">

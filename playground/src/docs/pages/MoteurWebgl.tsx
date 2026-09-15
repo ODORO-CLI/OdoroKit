@@ -22,11 +22,11 @@ import { Callout, PageHeader, PropsTable, Section } from '../components/DocBlock
 
 /** Phrase expliquant un refus, du point de vue de qui le subit. */
 const REFUSAL_TEXT: Record<string, string> = {
-  'plafond-global': 'Le plafond de surfaces simultanees est atteint.',
-  'plafond-backend': 'Ce backend a deja sa surface.',
-  'webgl-indisponible': 'Ce navigateur ne fournit pas de contexte WebGL.',
-  'hors-navigateur': 'Aucun document : rendu cote serveur.',
-  'mouvement-reduit': 'Mouvement reduit : le fond anime n est pas rendu.',
+  'max-surfaces': 'Le plafond de surfaces simultanees est atteint.',
+  'max-per-backend': 'Ce backend a deja sa surface.',
+  'webgl-unavailable': 'Ce navigateur ne fournit pas de contexte WebGL.',
+  'outside-browser': 'Aucun document : rendu cote serveur.',
+  'reduced-motion': 'Mouvement reduit : le fond anime n est pas rendu.',
 }
 
 /** Les deux effets proposes, avec leur repli. */
@@ -81,7 +81,13 @@ function SurfaceDemo(): ReactElement {
         {ready && refused === undefined ? null : (
           <div className={`o-absolute o-inset-0 ${choix.fallback}`}>
             {refused === undefined ? null : (
-              <div className="o-absolute o-inset-x-0 o-bottom-0 o-bg-white dark:o-bg-zinc-950/80 o-backdrop-blur-sm o-p-3 o-text-xs o-text-zinc-500 dark:o-text-zinc-400">
+              <div
+                className="o-absolute o-inset-x-0 o-bottom-0 o-backdrop-blur-sm o-p-3 o-text-xs o-text-zinc-500 dark:o-text-zinc-400"
+                style={{
+                  backgroundColor:
+                    'color-mix(in oklab, var(--o-theme-surface) 80%, transparent)',
+                }}
+              >
                 {REFUSAL_TEXT[refused] ?? refused}{' '}
                 <span className="o-text-zinc-500 dark:o-text-zinc-400">
                   Le repli est ce que vous voyez.
@@ -250,23 +256,23 @@ function Aurore(): ReactElement {
         <PropsTable
           rows={[
             {
-              name: 'plafond-global',
+              name: 'max-surfaces',
               type: 'refus',
               description: 'Le nombre total de surfaces vivantes est atteint.',
             },
             {
-              name: 'plafond-backend',
+              name: 'max-per-backend',
               type: 'refus',
               description:
                 'Ce backend a déjà la sienne. Deux backends ne partagent jamais un contexte : leurs états se marcheraient dessus.',
             },
             {
-              name: 'webgl-indisponible',
+              name: 'webgl-unavailable',
               type: 'refus',
               description: 'Materiel ou réglage : le contexte n’a pas pu être crée.',
             },
             {
-              name: 'hors-navigateur',
+              name: 'outside-browser',
               type: 'refus',
               description: 'Rendu côté serveur : il n’y a pas de document.',
             },

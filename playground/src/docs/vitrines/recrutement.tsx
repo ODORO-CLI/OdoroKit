@@ -39,7 +39,7 @@ import {
   Minus,
   Plus,
   UserRoundSearch,
-} from '@odoro-cli/icons/filaire'
+} from '@odoro-cli/icons/outline'
 import { useId, useMemo, useState, type ReactElement, type ReactNode } from 'react'
 
 import { LogoBand } from '@/odoro/section/LogoBand.jsx'

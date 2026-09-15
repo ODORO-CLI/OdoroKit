@@ -1,5 +1,5 @@
 /**
- * Liste deroulante native habillee comme un champ de saisie.
+ * Native dropdown list styled like a text field.
  *
  * @module
  */
@@ -15,53 +15,53 @@ import {
 import { cx } from '../styles/cx.js'
 import { inputClasses } from './Input.jsx'
 
-/** Une option de {@link Select}. */
+/** One option of {@link Select}. */
 export interface SelectOption {
-  /** Valeur soumise. */
+  /** Submitted value. */
   readonly value: string
-  /** Libelle affiche. */
+  /** Displayed label. */
   readonly label: string
-  /** Rend l'option non selectionnable. */
+  /** Makes the option unselectable. */
   readonly disabled?: boolean
 }
 
-/** Proprietes de {@link Select}. */
+/** Properties of {@link Select}. */
 export interface SelectProps extends Omit<
   SelectHTMLAttributes<HTMLSelectElement>,
   'className' | 'size'
 > {
-  /** Libelle du champ. Obligatoire : un champ sans libelle est inutilisable. */
+  /** Field label. Required: a field without a label is unusable. */
   label: ReactNode
-  /** Masque visuellement le libelle sans le retirer de l'arbre d'accessibilite. */
+  /** Visually hides the label without removing it from the accessibility tree. */
   hideLabel?: boolean
-  /** Texte d'aide affiche sous le champ. */
+  /** Hint text displayed under the field. */
   hint?: ReactNode
   /**
-   * Message d'erreur. Sa presence met le champ en etat invalide et remplace
-   * l'aide dans la description annoncee.
+   * Error message. Its presence puts the field in an invalid state and
+   * replaces the hint in the announced description.
    */
   error?: ReactNode
-  /** Taille. @defaultValue 'md' */
+  /** Size. @defaultValue 'md' */
   size?: 'sm' | 'md' | 'lg'
   /**
-   * Options a afficher. En son absence, les `children` (`<option>`,
-   * `<optgroup>`) sont rendus tels quels.
+   * Options to display. In their absence, the `children` (`<option>`,
+   * `<optgroup>`) are rendered as they are.
    */
   options?: readonly SelectOption[]
   /**
-   * Texte affiche tant qu'aucune valeur n'est choisie, rendu comme une option
-   * vide et desactivee : elle ne peut pas etre re-selectionnee ensuite.
+   * Text displayed as long as no value is chosen, rendered as an empty and
+   * disabled option: it cannot be selected again afterwards.
    */
   placeholder?: string
-  /** Classes additionnelles appliquees a l'element `<select>`. */
+  /** Additional classes applied to the `<select>` element. */
   className?: string
-  /** Classes additionnelles appliquees au conteneur. */
+  /** Additional classes applied to the container. */
   wrapperClassName?: string
-  /** Ref vers l'element natif. */
+  /** Ref to the native element. */
   ref?: Ref<HTMLSelectElement>
 }
 
-/** Chevron decoratif. Le natif est masque par `o-appearance-none`. */
+/** Decorative chevron. The native one is hidden by `o-appearance-none`. */
 function Chevron(): ReactElement {
   return (
     <svg
@@ -84,19 +84,19 @@ function Chevron(): ReactElement {
 }
 
 /**
- * Liste deroulante.
+ * Dropdown list.
  *
- * S'appuie sur le `<select>` natif : le panneau d'options garde le
- * comportement du systeme (clavier, tactile, lecteurs d'ecran). Seule la boite
- * fermee est habillee, avec le chevron redessine par-dessus.
+ * Relies on the native `<select>`: the option panel keeps the behavior of the
+ * system (keyboard, touch, screen readers). Only the closed box is styled,
+ * with the chevron redrawn on top.
  *
  * @example
  * <Select
- *   label="Pays"
- *   placeholder="Choisir un pays"
+ *   label="Country"
+ *   placeholder="Choose a country"
  *   options={[
  *     { value: 'fr', label: 'France' },
- *     { value: 'be', label: 'Belgique' },
+ *     { value: 'be', label: 'Belgium' },
  *   ]}
  * />
  */
@@ -122,9 +122,9 @@ export function Select({
   const errorId = `${selectId}-error`
   const invalid = error !== undefined && error !== null && error !== false
 
-  // Sans valeur initiale, le natif retiendrait la premiere vraie option : le
-  // placeholder n'apparaitrait jamais. La valeur vide le rend effectif, sans
-  // toucher au mode controle ni a un defaultValue fourni.
+  // Without an initial value, the native element would keep the first real
+  // option: the placeholder would never appear. The empty value makes it
+  // effective, without touching the controlled mode nor a provided defaultValue.
   const defaultValue =
     placeholder !== undefined &&
     rest.value === undefined &&

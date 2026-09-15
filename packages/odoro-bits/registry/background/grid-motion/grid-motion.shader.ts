@@ -1,31 +1,30 @@
 /**
- * Shader des rangees glissantes.
+ * Shader for the sliding rows.
  *
- * ## L'idee mathematique
+ * ## The mathematical idea
  *
- * Le cadre est decoupe en rangees ; chaque rangee glisse d'un bloc, en sens
- * alterne avec sa voisine et a une vitesse qui lui est propre. Le glissement
- * n'est pas un deplacement de tuiles : c'est l'abscisse qui est decalee du
- * temps avant que la rangee soit lue en cellules. Deux rangees voisines ne
- * restent donc jamais alignees, et l'oeil ne trouve aucune colonne fixe a
- * quoi se raccrocher — c'est ce qui donne l'impression d'un convoyeur, pas
- * d'un damier qui tremble.
+ * The frame is cut into rows; each row slides as one block, in the direction
+ * opposite to its neighbour and at a speed of its own. The slide is not a
+ * displacement of tiles: it is the abscissa that is offset by time before
+ * the row is read in cells. Two neighbouring rows therefore never stay
+ * aligned, and the eye finds no fixed column to hold on to — that is what
+ * gives the impression of a conveyor, not of a chequerboard that trembles.
  *
- * Une tuile est un rectangle arrondi lu par sa distance signee ; sa largeur
- * depend de la rangee, sa clarte d'un tirage stable. Quelques tuiles portent
- * l'accent et respirent lentement, chacune a sa phase.
+ * A tile is a rounded rectangle read by its signed distance; its width
+ * depends on the row, its lightness on a stable draw. A few tiles carry the
+ * accent and breathe slowly, each on its own phase.
  *
  * ## Uniforms
  *
- * - `uTime` — temps en secondes, fourni par le moteur.
- * - `uResolution` — taille du canevas en pixels, fournie par le moteur.
- * - `uColorA` — le fond.
- * - `uColorB` — les tuiles.
- * - `uColorC` — les tuiles accentuees.
- * - `uRows` — nombre de rangees sur la hauteur.
- * - `uSpeed` — vitesse du glissement.
- * - `uGap` — espace entre les tuiles, en fraction de rangee.
- * - `uAccent` — part des tuiles accentuees, entre zero et un.
+ * - `uTime` — time in seconds, supplied by the engine.
+ * - `uResolution` — canvas size in pixels, supplied by the engine.
+ * - `uColorA` — the background.
+ * - `uColorB` — the tiles.
+ * - `uColorC` — the accented tiles.
+ * - `uRows` — number of rows across the height.
+ * - `uSpeed` — sliding speed.
+ * - `uGap` — space between tiles, as a fraction of a row.
+ * - `uAccent` — share of accented tiles, between zero and one.
  */
 export const GRID_MOTION_FRAGMENT = /* glsl */ `
 precision highp float;
@@ -42,12 +41,12 @@ uniform float uSpeed;
 uniform float uGap;
 uniform float uAccent;
 
-// Nombre pseudo-aleatoire, stable par cellule.
+// Pseudo-random number, stable per cell.
 float hash(vec2 cell) {
   return fract(sin(dot(cell, vec2(127.1, 311.7))) * 43758.5453);
 }
 
-// Distance signee a un rectangle arrondi centre sur l'origine.
+// Signed distance to a rounded rectangle centred on the origin.
 float roundedBox(vec2 point, vec2 extent, float radius) {
   vec2 d = abs(point) - extent + radius;
   return length(max(d, 0.0)) + min(max(d.x, d.y), 0.0) - radius;
@@ -58,17 +57,17 @@ void main() {
   float rows = clamp(uRows, 2.0, 40.0);
   vec2 p = vUv * vec2(aspect, 1.0) * rows;
 
-  // Un pixel, en unites de rangee.
+  // One pixel, in row units.
   float px = rows / max(uResolution.y, 1.0);
 
   float row = floor(p.y);
 
-  // Sens alterne d'une rangee a l'autre, et vitesse propre : deux rangees
-  // voisines ne restent jamais alignees.
+  // Direction alternates from one row to the next, and each has its own
+  // speed: two neighbouring rows never stay aligned.
   float direction = mod(row, 2.0) * 2.0 - 1.0;
   float rate = (0.5 + 0.5 * hash(vec2(row, 3.0))) * direction;
 
-  // Les tuiles n'ont pas toutes la meme largeur ; une rangee garde la sienne.
+  // The tiles do not all have the same width; a row keeps its own.
   float width = 1.4 + hash(vec2(row, 7.0)) * 1.4;
 
   float x = (p.x + uTime * uSpeed * rate) / width;
@@ -80,7 +79,7 @@ void main() {
   float dist = roundedBox(local - size * 0.5, size * 0.5 - gap * 0.5, 0.14);
   float tile = 1.0 - smoothstep(-px, px, dist);
 
-  // Chaque tuile a sa clarte ; quelques-unes portent l'accent, et respirent.
+  // Every tile has its own lightness; a few carry the accent, and breathe.
   float shade = 0.35 + 0.65 * hash(id);
   float accent = step(1.0 - clamp(uAccent, 0.0, 1.0), hash(id + 11.0));
   float breath = 0.6 + 0.4 * sin(uTime * 1.4 + hash(id + 5.0) * 6.2832);

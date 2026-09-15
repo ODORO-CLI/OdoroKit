@@ -9,29 +9,29 @@ const GENERATED = join(HERE, 'src', 'styles', 'generated')
 const DIST = join(HERE, 'dist')
 
 /**
- * Une entree par sous-module : le consommateur qui n'importe que les tokens ne
- * tire ni React ni le routeur.
+ * One entry per submodule: the consumer that imports only the tokens pulls in
+ * neither React nor the router.
  *
- * React et React DOM sont externes en plus d'etre des peerDependencies. Les
- * bundler dupliquerait l'instance de React chez le consommateur, ce qui casse
- * les hooks et les contextes de facon spectaculaire et difficile a diagnostiquer.
+ * React and React DOM are external on top of being peerDependencies. Bundling
+ * them would duplicate the React instance on the consumer side, which breaks
+ * hooks and contexts in a spectacular and hard to diagnose way.
  */
 export default defineConfig({
   entry: {
     index: 'src/index.ts',
     router: 'src/router/index.ts',
     motion: 'src/motion/index.ts',
-    // La politique de mouvement et les tokens sortent a part : ils sont
-    // consommes par le moteur et par le registre, qui n'ont aucune raison
-    // de tirer React ni la composition de classes pour lire une duree.
+    // The motion policy and the tokens ship apart: they are consumed by the
+    // engine and by the registry, which have no reason to pull in React nor
+    // class composition just to read a duration.
     'motion-policy': 'src/motion-policy/index.ts',
     tokens: 'src/styles/tokens.ts',
     ui: 'src/ui/index.ts',
     styles: 'src/styles/index.ts',
-    // Le generateur de feuille, consomme par le moteur au moment de la
-    // compilation. Il sort a part parce qu'il ne sert que la, et qu'il n'a
-    // aucune raison d'entrer dans un paquet expedie au navigateur.
-    generateur: 'src/styles/generateur.ts',
+    // The stylesheet generator, consumed by the engine at build time. It
+    // ships apart because it serves only there, and because it has no reason
+    // to enter a bundle shipped to the browser.
+    generator: 'src/styles/generator.ts',
   },
   format: ['esm'],
   target: 'es2022',
@@ -42,16 +42,17 @@ export default defineConfig({
   sourcemap: true,
   clean: true,
   external: ['react', 'react-dom', 'react/jsx-runtime'],
-  // Le paquet livre le **socle** seul : variables, preflight, images-cles.
-  // Les utilitaires sont produits a la construction de chaque application,
-  // pour les seules classes qu'elle emploie.
+  // The package ships the **base** alone: variables, preflight, keyframes.
+  // The utilities are produced when each application is built, for the sole
+  // classes it uses.
   //
-  // La feuille entiere pesait 1 724 Ko — 119 Ko compresses, soit un tiers du
-  // poids du paquet — et chaque projet en jetait plus de quatre-vingt-quinze
-  // pour cent. Le socle en pese 30.
+  // The whole stylesheet weighed 1 724 Ko — 119 Ko compressed, that is a
+  // third of the weight of the bundle — and every project threw more than
+  // ninety-five percent of it away. The base weighs 30.
   //
-  // Cela exige le moteur odoro 0.1.5 ou plus recent : sans lui, l'application
-  // recoit les variables sans les utilitaires, et arrive sans style.
+  // This requires the odoro engine 0.1.5 or newer: without it, the
+  // application gets the variables without the utilities, and comes up
+  // unstyled.
   async onSuccess() {
     await cp(join(GENERATED, 'odoro.base.css'), join(DIST, 'styles.css'))
   },

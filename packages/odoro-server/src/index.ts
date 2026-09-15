@@ -1,9 +1,9 @@
 /**
- * Socle back-end Odoro.
+ * Odoro back-end base.
  *
- * Le noyau seulement : conteneur, configuration, modules, erreurs, journal,
- * definition de route. Les modules fonctionnels — authentification, compte,
- * fichiers — vivent ailleurs et se montent sur ce noyau.
+ * The kernel only: container, configuration, modules, errors, logger,
+ * route definition. The feature modules — authentication, account,
+ * files — live elsewhere and mount onto this kernel.
  *
  * @module
  */
@@ -69,6 +69,8 @@ export {
   findOpenMutations,
   route,
   type AuthRequirement,
+  type Cookies,
+  type CookieOptions,
   type HandlerContext,
   type Identity,
   type Method,

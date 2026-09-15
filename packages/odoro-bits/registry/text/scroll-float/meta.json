@@ -44,7 +44,7 @@
       "step": 100
     },
     {
-      "name": "course",
+      "name": "travel",
       "type": "number",
       "default": 0.6,
       "description": "Course du reglage, en hauteurs de fenetre.",

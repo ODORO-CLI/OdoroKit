@@ -39,7 +39,7 @@
  */
 
 import { Icon } from '@odoro-cli/icons'
-import { Clapperboard, Download, Gauge, Play, Subtitles } from '@odoro-cli/icons/filaire'
+import { Clapperboard, Download, Gauge, Play, Subtitles } from '@odoro-cli/icons/outline'
 import {
   useMemo,
   useState,

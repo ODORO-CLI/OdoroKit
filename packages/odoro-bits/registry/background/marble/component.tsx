@@ -1,24 +1,23 @@
 /**
- * Marbre : des veines fines en bruit deforme trois fois, presque immobiles.
+ * Marble: fine veins in a thrice-warped noise, almost motionless.
  *
- * ## Le principe
+ * ## The principle
  *
- * Trois bruits enchaines, chacun deplacant le domaine du suivant : les plis
- * serres d'une pierre qui a coule avant de se figer. Les veines sont les
- * zeros d'un sinus du resultat, affines par une puissance — fines et
- * continues, pas des taches. Le temps n'entre que dans le premier etage,
- * tres lentement.
+ * Three chained noises, each displacing the domain of the next: the tight folds
+ * of a stone that flowed before it set. The veins are the zeros of a sine of
+ * the result, thinned by a power — fine and continuous, not blotches. Time
+ * enters only the first storey, very slowly.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur — les recopier ici en ferait autant
- * de versions a maintenir qu'il y a de fonds.
+ * It carries only what sets it apart: its shader, its settings and its
+ * fallback. Reading the tokens, converting them to floats and re-reading them
+ * when the theme changes all come from the engine — copying that here would
+ * leave as many versions to maintain as there are backgrounds.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en
- * accorde qu'une par backend — et sous mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface — it grants only one
+ * per backend — and under reduced motion.
  *
  * @module
  */
@@ -35,57 +34,57 @@ import { type ReactElement } from 'react'
 
 import { MARBLE_FRAGMENT } from './marble.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface MarbleControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to this component. */
 export interface MarbleOwnProps {
-  /** Vitesse de la deformation. @defaultValue 0.03 */
+  /** Speed of the warp. @defaultValue 0.03 */
   speed?: number
-  /** Echelle du motif. Plus haut, plus fin. @defaultValue 1.2 */
+  /** Scale of the pattern. Higher is finer. @defaultValue 1.2 */
   scale?: number
-  /** Finesse des veines. @defaultValue 0.6 */
+  /** Fineness of the veins. @defaultValue 0.6 */
   veins?: number
-  /** Octaves de chaque bruit. @defaultValue 4 */
+  /** Octaves of each noise. @defaultValue 4 */
   octaves?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<MarbleControls>
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type MarbleProps = Customisable<MarbleOwnProps>
 
-/** Tokens employes par defaut : la pierre, les veines, l'accent. */
+/** Tokens used by default: the stone, the veins, the accent. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-theme-muted',
   '--o-palette-amber-400',
 ] as const
 
-/** Repli par defaut : une teinte figee, dans les memes tons. */
+/** Default fallback: a frozen tint, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-br o-from-zinc-50 dark:o-from-zinc-950 o-via-zinc-200 dark:o-via-zinc-800 o-to-zinc-50 dark:o-to-zinc-950'
 
 /**
- * Octaves en qualite basse.
+ * Octaves at low quality.
  *
- * Cinq sommes d'octaves par fragment — deux par etage de deformation, une
- * pour la matiere — donc chaque octave se paie cinq fois. C'est le seul
- * levier de cout du shader.
+ * Five octave sums per fragment — two per warp storey, one for the matter — so
+ * every octave is paid five times over. It is the only cost lever of the
+ * shader.
  */
 const LOW_OCTAVES = 2
 
 /**
- * Marbre.
+ * Marble.
  *
  * @example
  * <div className="o-relative o-min-h-screen">

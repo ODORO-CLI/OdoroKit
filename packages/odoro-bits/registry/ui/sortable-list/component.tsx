@@ -1,35 +1,35 @@
 /**
- * Liste que l'on reordonne a la souris comme au clavier, sans dependance.
+ * A list reordered with the mouse as well as with the keyboard, no dependency.
  *
- * ## Le clavier n'est pas un rattrapage
+ * ## The keyboard is not a catch-up
  *
- * Un reordonnancement au glisser seul ferme la liste a qui n'a pas de souris,
- * et il n'existe aucune facon de simuler un glisser au clavier. La poignee
- * porte donc un second mode, explicite : Espace saisit, les fleches deplacent,
- * Espace depose, Echap remet en place. Chaque etape est ecrite dans une zone
- * `role="status"` — sans elle, l'ordre change sans que rien ne le dise.
+ * A reordering by drag alone closes the list to whoever has no mouse, and
+ * there is no way to simulate a drag on a keyboard. The handle therefore
+ * carries a second mode, explicit: Space grabs, the arrows move, Space drops,
+ * Escape puts back. Each step is written in a `role="status"` region — without
+ * it, the order changes with nothing saying so.
  *
- * ## Le glisser ne reordonne rien avant le lacher
+ * ## The drag reorders nothing before the drop
  *
- * Pendant le trajet, l'ordre reel ne bouge pas : seules des translations sont
- * ecrites sur les elements. La ligne saisie suit le pointeur, les lignes
- * franchies reculent d'un cran — d'un cran qui vaut la hauteur de la ligne
- * saisie, quelle que soit la leur. Reordonner a chaque franchissement
- * couterait un rendu React par pixel parcouru, et deplacerait le noeud sous le
- * pointeur au milieu de son propre geste.
+ * During the travel, the real order does not move: only translations are
+ * written on the elements. The grabbed row follows the pointer, the rows
+ * crossed step back by one notch — a notch worth the height of the grabbed
+ * row, whatever their own. Reordering on every crossing would cost a React
+ * render per pixel travelled, and would move the node under the pointer in the
+ * middle of its own gesture.
  *
- * ## Les hauteurs sont mesurees a la saisie
+ * ## The heights are measured on the grab
  *
- * Une liste dont les lignes ont des hauteurs differentes reste juste : la
- * cible se decide en comparant le trajet a la somme des hauteurs franchies,
- * pas a un multiple d'une hauteur supposee.
+ * A list whose rows have different heights stays right: the target is decided
+ * by comparing the travel with the sum of the heights crossed, not with a
+ * multiple of an assumed height.
  *
- * ## Le deplacement au clavier glisse quand meme
+ * ## The keyboard move slides all the same
  *
- * L'ordre change vraiment, donc les noeuds bougent : une transition CSS ne
- * verrait rien. Les positions d'avant sont relevees, et chaque ligne est
- * animee depuis son ecart — la technique FLIP, en quelques lignes. Sous
- * mouvement reduit, rien n'est anime : l'ordre est simplement le nouveau.
+ * The order really changes, so the nodes move: a CSS transition would see
+ * nothing. The positions from before are recorded, and each row is animated
+ * from its offset — the FLIP technique, in a few lines. Under reduced motion,
+ * nothing is animated: the order is simply the new one.
  *
  * @module
  */
@@ -45,39 +45,39 @@ import {
   type ReactElement,
 } from 'react'
 
-/** Une ligne de la liste. */
+/** One row of the list. */
 export interface SortableItem {
-  /** Identifiant, unique dans la liste. */
+  /** Identifier, unique in the list. */
   readonly id: string
-  /** Libelle affiche, et lu dans les annonces. */
+  /** Displayed label, and read out in the announcements. */
   readonly label: string
-  /** Precision affichee en sourdine. */
+  /** Detail displayed muted. */
   readonly hint?: string
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface SortableListOwnProps {
-  /** Les lignes, indexees par identifiant. */
+  /** The rows, indexed by identifier. */
   items: readonly SortableItem[]
-  /** Nom de la liste pour les lecteurs d'ecran. */
+  /** Name of the list for screen readers. */
   label: string
-  /** Ordre des identifiants, en mode controle. */
+  /** Order of the identifiers, in controlled mode. */
   value?: readonly string[]
-  /** Ordre au montage, en mode non controle. Par defaut, celui d'`items`. */
+  /** Order on mount, in uncontrolled mode. By default, that of `items`. */
   defaultValue?: readonly string[]
-  /** Appele avec le nouvel ordre, a chaque deplacement termine. */
+  /** Called with the new order, on every completed move. */
   onChange?: (order: readonly string[]) => void
-  /** Neutralise la liste. @defaultValue false */
+  /** Neutralises the list. @defaultValue false */
   disabled?: boolean
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type SortableListProps = Customisable<SortableListOwnProps>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-sortable-list'
 
-/** Pose les lignes, la poignee et l'etat souleve, une fois par document. */
+/** Applies the rows, the handle and the lifted state, once per document. */
 function ensureSortRules(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -93,7 +93,7 @@ function ensureSortRules(): void {
     'transition:transform var(--o-duration-base) var(--o-ease-standard),',
     'box-shadow var(--o-duration-base) linear,border-color var(--o-duration-base) linear;',
     '}',
-    // La ligne saisie est soulevee : elle suit le pointeur, donc sans transition.
+    // The grabbed row is lifted: it follows the pointer, hence no transition.
     '[data-o-sort-row][data-o-sort-lift]{',
     'transition:box-shadow var(--o-duration-base) linear;position:relative;z-index:1;',
     'border-color:var(--o-sort-accent);',
@@ -118,7 +118,7 @@ function ensureSortRules(): void {
   document.head.append(style)
 }
 
-/** Deplace un element d'une position a une autre, sans muter la source. */
+/** Moves an element from one position to another, without mutating the source. */
 function move(order: readonly string[], from: number, to: number): readonly string[] {
   const next = [...order]
   const [taken] = next.splice(from, 1)
@@ -128,21 +128,21 @@ function move(order: readonly string[], from: number, to: number): readonly stri
 }
 
 /**
- * Liste reordonnable, a la souris et au clavier.
+ * Reorderable list, with the mouse and with the keyboard.
  *
  * @example
  * <SortableList
- *   label="Ordre des etapes"
+ *   label="Order of the steps"
  *   items={[
  *     { id: 'brief', label: 'Brief' },
- *     { id: 'maquette', label: 'Maquette' },
- *     { id: 'recette', label: 'Recette' },
+ *     { id: 'mockup', label: 'Mockup' },
+ *     { id: 'testing', label: 'Testing' },
  *   ]}
  * />
  *
  * @example
- * // Mode controle : l'ordre vit dans la page.
- * <SortableList label="Colonnes" items={colonnes} value={ordre} onChange={setOrdre} />
+ * // Controlled mode: the order lives in the page.
+ * <SortableList label="Columns" items={columns} value={order} onChange={setOrder} />
  */
 export function SortableList({
   items,
@@ -164,8 +164,8 @@ export function SortableList({
   ensureSortRules()
 
   const order = value ?? internal
-  // Une ligne absente d'`items` a disparu de la page : on ne la rend pas, et
-  // une ligne nouvelle est posee a la fin plutot que perdue.
+  // A row absent from `items` has disappeared from the page: we do not render
+  // it, and a new row is placed at the end rather than lost.
   const known = new Map(items.map((item) => [item.id, item]))
   const rows = [
     ...order.filter((id) => known.has(id)),
@@ -173,20 +173,20 @@ export function SortableList({
   ]
 
   /**
-   * L'ordre des lignes, en une chaine.
+   * The order of the rows, as a single string.
    *
-   * C'est ce que l'animation compare : deux rendus dont les lignes sont dans le
-   * meme ordre ne doivent rien rejouer, meme si le tableau est neuf.
+   * This is what the animation compares: two renders whose rows are in the
+   * same order must replay nothing, even if the array is a new one.
    */
-  const ordre = rows.join(',')
+  const orderKey = rows.join(',')
 
-  /** Positions d'avant, pour l'animation FLIP ; nulles pendant un glisser. */
+  /** Positions from before, for the FLIP animation; null during a drag. */
   const before = useRef<Map<string, number> | null>(null)
   /**
-   * Poignee a refocaliser apres un deplacement.
+   * Handle to refocus after a move.
    *
-   * Deplacer un noeud dans le document lui retire le focus : sans ce relais,
-   * la premiere fleche ferait perdre la poignee que l'on tient.
+   * Moving a node in the document takes the focus away from it: without this
+   * relay, the first arrow would lose the handle being held.
    */
   const keepFocus = useRef<string | null>(null)
 
@@ -203,12 +203,12 @@ export function SortableList({
   const say = (id: string, at: number, verb: string): void => {
     const item = known.get(id)
     setMessage(
-      `${item?.label ?? id} ${verb} en position ${String(at + 1)} sur ${String(rows.length)}.`,
+      `${item?.label ?? id} ${verb}, position ${String(at + 1)} of ${String(rows.length)}.`,
     )
   }
 
-  // FLIP : les positions relevees avant le rendu servent de point de depart.
-  // C'est aussi ici que la poignee deplacee retrouve son focus.
+  // FLIP: the positions recorded before the render serve as a starting point.
+  // This is also where the moved handle finds its focus again.
   useLayoutEffect(() => {
     const back = keepFocus.current
     keepFocus.current = null
@@ -235,13 +235,13 @@ export function SortableList({
         { duration: 220, easing: 'cubic-bezier(0.2, 0, 0, 1)' },
       )
     }
-    // Nommee plutot qu'ecrite dans le tableau : une expression y est opaque
-    // au verificateur, qui ne peut alors plus dire si la liste est juste. La
-    // comparaison porte bien sur le contenu des lignes, pas sur l'identite du
-    // tableau — c'est ce qu'on veut, et c'est maintenant verifiable.
-  }, [ordre, reduced])
+    // Named rather than written in the array: an expression there is opaque to
+    // the checker, which can then no longer say whether the list is right. The
+    // comparison does bear on the content of the rows, not on the identity of
+    // the array — which is what we want, and it is now verifiable.
+  }, [orderKey, reduced])
 
-  /** Releve les positions courantes, pour que le prochain rendu les rejoue. */
+  /** Records the current positions, so that the next render replays them. */
   const snapshot = (): void => {
     before.current = new Map(
       rowElements().map((element) => [
@@ -251,7 +251,7 @@ export function SortableList({
     )
   }
 
-  // --- Glisser -------------------------------------------------------------
+  // --- Drag ------------------------------------------------------------------
 
   const onPointerDown = (
     id: string,
@@ -269,8 +269,8 @@ export function SortableList({
     setGrabbed(null)
     setDragging(id)
 
-    // Le pas d'une ligne, ecart compris : c'est de lui que reculent les lignes
-    // franchies, et il vaut celui de la ligne saisie, pas la leur.
+    // The step of a row, gap included: it is by that much that the crossed rows
+    // step back, and it is worth that of the grabbed row, not their own.
     const rects = elements.map((element) => element.getBoundingClientRect())
     const first = rects[0]
     const second = rects[1]
@@ -284,7 +284,7 @@ export function SortableList({
     let target = from
 
     const place = (dy: number): void => {
-      // Cible : la derniere ligne dont on a franchi la moitie.
+      // Target: the last row whose half we have crossed.
       let next = from
       let travelled = 0
       if (dy > 0) {
@@ -328,11 +328,11 @@ export function SortableList({
       for (const element of elements) element.style.transform = ''
       setDragging(null)
       if (target === from) return
-      // Les lignes sont deja a leur place a l'ecran : rejouer le FLIP les
-      // ferait revenir en arriere pour repartir.
+      // The rows are already in place on screen: replaying the FLIP would make
+      // them go back only to set off again.
       before.current = null
       commit(move(rows, from, target))
-      say(id, target, 'deplacee')
+      say(id, target, 'moved')
     }
 
     window.addEventListener('pointermove', onMove, { passive: true })
@@ -340,7 +340,7 @@ export function SortableList({
     window.addEventListener('pointercancel', finish)
   }
 
-  // --- Clavier -------------------------------------------------------------
+  // --- Keyboard --------------------------------------------------------------
 
   const restore = useRef<readonly string[] | null>(null)
 
@@ -353,12 +353,12 @@ export function SortableList({
       if (grabbed === id) {
         setGrabbed(null)
         restore.current = null
-        say(id, at, 'deposee')
+        say(id, at, 'dropped')
       } else {
         setGrabbed(id)
         restore.current = rows
         setMessage(
-          `${known.get(id)?.label ?? id} saisie, position ${String(at + 1)} sur ${String(rows.length)}. Les fleches deplacent, Espace depose.`,
+          `${known.get(id)?.label ?? id} grabbed, position ${String(at + 1)} of ${String(rows.length)}. The arrows move, Space drops.`,
         )
       }
       return
@@ -374,7 +374,7 @@ export function SortableList({
         keepFocus.current = id
         commit(initial)
       }
-      setMessage('Deplacement annule.')
+      setMessage('Move cancelled.')
       return
     }
 
@@ -387,7 +387,7 @@ export function SortableList({
     snapshot()
     keepFocus.current = id
     commit(move(rows, at, to))
-    say(id, to, 'deplacee')
+    say(id, to, 'moved')
   }
 
   const { className, style } = mergePresentation({}, rest)
@@ -419,7 +419,7 @@ export function SortableList({
               <button
                 type="button"
                 data-o-sort-handle=""
-                aria-label={`Deplacer ${item.label}`}
+                aria-label={`Move ${item.label}`}
                 aria-pressed={grabbed === id}
                 disabled={disabled}
                 onPointerDown={(event) => {
@@ -429,8 +429,8 @@ export function SortableList({
                   onHandleKeyDown(id, event)
                 }}
                 onBlur={() => {
-                  // Un deplacement retire le focus le temps d'un rendu : ce
-                  // n'est pas un abandon, et la poignee revient juste apres.
+                  // A move takes the focus away for the time of one render: it
+                  // is not a give-up, and the handle comes back just after.
                   if (keepFocus.current === null && grabbed === id) setGrabbed(null)
                 }}
               >

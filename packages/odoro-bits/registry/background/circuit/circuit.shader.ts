@@ -1,38 +1,38 @@
 /**
- * Shader du circuit imprime.
+ * Printed circuit shader.
  *
- * ## L'idee mathematique
+ * ## The mathematical idea
  *
- * Un circuit est une grille de tuiles. Chaque tuile tire son type — un
- * trait droit, horizontal ou vertical, ou l'un des quatre coudes — et le
- * trait est la distance signee au segment qui va du centre de la tuile au
- * milieu de chacun de ses bords ouverts. Aucun chemin n'est construit :
- * deux tuiles voisines qui s'ouvrent l'une vers l'autre se raccordent
- * d'elles-memes, et deux qui ne s'ouvrent pas l'une vers l'autre laissent
- * une extremite de piste.
+ * A circuit is a grid of tiles. Each tile draws its type — a straight
+ * stroke, horizontal or vertical, or one of the four elbows — and the
+ * stroke is the signed distance to the segment running from the tile's
+ * centre to the middle of each of its open edges. No path is built: two
+ * neighbouring tiles that open towards each other join up on their own,
+ * and two that do not open towards each other leave behind a trace
+ * end.
  *
- * Ces extremites sont les pastilles. Un bord est terminal si la tuile s'y
- * ouvre et pas sa voisine, ou l'inverse ; la pastille est un anneau au
- * milieu de ce bord, dessine par les deux tuiles depuis la meme condition
- * — chacune sa moitie, sans couture. C'est ce qui fait un circuit et non
- * un labyrinthe : les pistes finissent sur des pastilles.
+ * Those ends are the pads. An edge is terminal if the tile opens onto it
+ * and its neighbour does not, or the reverse; the pad is a ring at the
+ * middle of that edge, drawn by both tiles from the same condition — each
+ * its own half, seamlessly. That is what makes a circuit and not a maze:
+ * the traces end on pads.
  *
- * Les impulsions courent le long de l'axe de la tuile : une exponentielle
- * de la partie fractionnaire de la coordonnee le long de la piste, decalee
- * par le temps et par une graine propre a la rangee ou a la colonne, pour
- * que les pistes ne pulsent pas en choeur.
+ * The pulses run along the tile's axis: an exponential of the fractional
+ * part of the coordinate along the trace, shifted by time and by a seed
+ * belonging to the row or the column, so that the traces do not pulse in
+ * chorus.
  *
  * ## Uniforms
  *
- * - `uTime` — temps en secondes, fourni par le moteur.
- * - `uResolution` — taille du canevas en pixels, fournie par le moteur.
- * - `uColorA` — le substrat.
- * - `uColorB` — les pistes et les pastilles.
- * - `uColorC` — les impulsions.
- * - `uCells` — nombre de tuiles sur la hauteur.
- * - `uWidth` — epaisseur des pistes, en fraction de tuile.
- * - `uSpeed` — vitesse des impulsions.
- * - `uPulses` — part des pistes parcourues a un instant donne.
+ * - `uTime` — time in seconds, supplied by the engine.
+ * - `uResolution` — canvas size in pixels, supplied by the engine.
+ * - `uColorA` — the substrate.
+ * - `uColorB` — the traces and the pads.
+ * - `uColorC` — the pulses.
+ * - `uCells` — number of tiles across the height.
+ * - `uWidth` — trace thickness, as a fraction of a tile.
+ * - `uSpeed` — pulse speed.
+ * - `uPulses` — share of the traces lit at any given instant.
  */
 export const CIRCUIT_FRAGMENT = /* glsl */ `
 precision highp float;
@@ -49,13 +49,13 @@ uniform float uWidth;
 uniform float uSpeed;
 uniform float uPulses;
 
-// Nombre pseudo-aleatoire, stable par tuile.
+// Pseudo-random number, stable per tile.
 float circuitHash(vec2 cell) {
   return fract(sin(dot(cell, vec2(127.1, 311.7))) * 43758.5453);
 }
 
-// Les bords ouverts d'une tuile : gauche, droite, haut, bas. Six types,
-// deux traits droits et quatre coudes.
+// A tile's open edges: left, right, top, bottom. Six types, two straight
+// strokes and four elbows.
 vec4 circuitOpen(vec2 cell) {
   float kind = floor(circuitHash(cell) * 6.0);
   if (kind < 0.5) return vec4(1.0, 1.0, 0.0, 0.0);
@@ -71,7 +71,7 @@ void main() {
   float cells = clamp(uCells, 2.0, 40.0);
   vec2 p = vUv * vec2(aspect, 1.0) * cells;
 
-  // Un pixel, en unites de tuile.
+  // One pixel, in tile units.
   float px = cells / max(uResolution.y, 1.0);
 
   vec2 id = floor(p);
@@ -79,8 +79,8 @@ void main() {
 
   vec4 open = circuitOpen(id);
 
-  // La distance au trait : le minimum sur les bords ouverts de la distance
-  // au segment centre-bord. Un bord ferme est repousse a l'infini.
+  // The distance to the stroke: the minimum, over the open edges, of the
+  // distance to the centre-edge segment. A closed edge is pushed to infinity.
   float far = 10.0;
   float dLeft = mix(far, length(vec2(max(f.x, 0.0), f.y)), open.x);
   float dRight = mix(far, length(vec2(min(f.x, 0.0), f.y)), open.y);
@@ -88,7 +88,7 @@ void main() {
   float dDown = mix(far, length(vec2(f.x, max(f.y, 0.0))), open.w);
   float trace = min(min(dLeft, dRight), min(dUp, dDown));
 
-  // Les bords terminaux : ouverts d'un seul cote.
+  // The terminal edges: open on one side only.
   float tLeft = abs(open.x - circuitOpen(id - vec2(1.0, 0.0)).y);
   float tRight = abs(open.y - circuitOpen(id + vec2(1.0, 0.0)).x);
   float tUp = abs(open.z - circuitOpen(id + vec2(0.0, 1.0)).w);
@@ -104,7 +104,7 @@ void main() {
   float ring = 1.0 - smoothstep(px, px * 2.5, abs(pad - width * 1.6));
   float hole = 1.0 - smoothstep(width * 0.6 - px, width * 0.6 + px, pad);
 
-  // L'impulsion : le long de l'axe de la tuile, avec une graine par piste.
+  // The pulse: along the tile's axis, with one seed per trace.
   float horizontal = max(open.x, open.y);
   float along = mix(p.y, p.x, horizontal);
   float seed = mix(circuitHash(vec2(id.x, 41.0)), circuitHash(vec2(43.0, id.y)), horizontal);

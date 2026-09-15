@@ -1,5 +1,5 @@
 /**
- * Utilitaires de l'echafaudage.
+ * Scaffolding utilities.
  *
  * @module
  */
@@ -8,18 +8,18 @@ import { existsSync, readdirSync, statSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-/** Gestionnaires de paquets reconnus. */
+/** Recognised package managers. */
 export const PACKAGE_MANAGERS = ['pnpm', 'npm', 'yarn', 'bun'] as const
 
-/** Un gestionnaire de paquets reconnu. */
+/** A recognised package manager. */
 export type PackageManager = (typeof PACKAGE_MANAGERS)[number]
 
 /**
- * Deduit le gestionnaire de paquets employe par l'utilisateur.
+ * Infers the package manager the user works with.
  *
- * La variable `npm_config_user_agent` est renseignee par tous les
- * gestionnaires ; elle est plus fiable que l'inspection des fichiers de
- * verrouillage, qui n'existent pas encore lors d'une creation.
+ * The `npm_config_user_agent` variable is filled in by every manager; it is
+ * more reliable than inspecting the lockfiles, which do not exist yet during a
+ * creation.
  *
  * @example
  * detectPackageManager('pnpm/10.28.2 npm/? node/v22.14.0') // 'pnpm'
@@ -33,7 +33,7 @@ export function detectPackageManager(
 }
 
 /**
- * Commande d'installation des dependances pour un gestionnaire donne.
+ * Dependency install command for a given manager.
  *
  * @example
  * installCommand('yarn') // 'yarn'
@@ -43,7 +43,7 @@ export function installCommand(manager: PackageManager): string {
 }
 
 /**
- * Commande d'execution d'un script pour un gestionnaire donne.
+ * Script run command for a given manager.
  *
  * @example
  * runCommand('npm', 'dev') // 'npm run dev'
@@ -53,10 +53,10 @@ export function runCommand(manager: PackageManager, script: string): string {
 }
 
 /**
- * Transforme un nom de projet en nom de paquet npm valide.
+ * Turns a project name into a valid npm package name.
  *
  * @example
- * toPackageName('Mon Super Site !') // 'mon-super-site'
+ * toPackageName('My Great Site !') // 'my-great-site'
  */
 export function toPackageName(input: string): string {
   return (
@@ -71,47 +71,48 @@ export function toPackageName(input: string): string {
 }
 
 /**
- * Verifie qu'un nom est un nom de paquet npm acceptable.
+ * Checks that a name is an acceptable npm package name.
  *
- * @returns `undefined` si le nom convient, sinon le motif du refus.
+ * @returns `undefined` when the name is fine, otherwise the reason for the
+ *   refusal.
  *
  * @example
- * validatePackageName('Mon Site') // 'Le nom doit etre en minuscules...'
+ * validatePackageName('My Site') // 'The name must be lowercase...'
  */
 export function validatePackageName(name: string): string | undefined {
-  if (name.trim() === '') return 'Le nom du projet ne peut pas etre vide.'
-  if (name.length > 214) return 'Le nom du projet ne peut pas depasser 214 caracteres.'
-  if (/^[._]/.test(name)) return 'Le nom du projet ne peut pas commencer par "." ou "_".'
+  if (name.trim() === '') return 'The project name cannot be empty.'
+  if (name.length > 214) return 'The project name cannot exceed 214 characters.'
+  if (/^[._]/.test(name)) return 'The project name cannot start with "." or "_".'
   if (!/^[a-z0-9\-~][a-z0-9\-._~]*$/.test(name)) {
-    return 'Le nom doit etre en minuscules, sans espace ni caractere special.'
+    return 'The name must be lowercase, without spaces or special characters.'
   }
   return undefined
 }
 
-/** Etat d'un dossier cible avant echafaudage. */
-export type TargetState = 'absent' | 'vide' | 'occupe'
+/** State of a target directory before scaffolding. */
+export type TargetState = 'absent' | 'empty' | 'occupied'
 
 /**
- * Determine l'etat du dossier cible.
+ * Determines the state of the target directory.
  *
- * Un dossier ne contenant que `.git` est considere comme vide : c'est le cas
- * courant d'un depot cree avant le projet.
+ * A directory holding only `.git` is considered empty: that is the common case
+ * of a repository created before the project.
  *
  * @example
- * inspectTarget('/tmp/mon-site') // 'absent'
+ * inspectTarget('/tmp/my-site') // 'absent'
  */
 export function inspectTarget(directory: string): TargetState {
   if (!existsSync(directory)) return 'absent'
   const entries = readdirSync(directory).filter((entry) => entry !== '.git')
-  return entries.length === 0 ? 'vide' : 'occupe'
+  return entries.length === 0 ? 'empty' : 'occupied'
 }
 
 /**
- * Nom de fichier a ecrire pour un fichier de template.
+ * File name to write for a template file.
  *
- * npm renomme `.gitignore` en `.npmignore` a la publication : le fichier est
- * donc stocke sous le nom `_gitignore` dans les templates. La regle vaut pour
- * tout fichier commencant par un point.
+ * npm renames `.gitignore` to `.npmignore` at publication: the file is
+ * therefore stored under the name `_gitignore` in the templates. The rule
+ * applies to any file starting with a dot.
  *
  * @example
  * targetFileName('_gitignore') // '.gitignore'
@@ -122,12 +123,12 @@ export function targetFileName(name: string): string {
 }
 
 /**
- * Racine des templates, resolue depuis l'emplacement du module.
+ * Root of the templates, resolved from the location of the module.
  *
- * Jamais depuis `process.cwd()` : le scaffolder est execute depuis le dossier
- * de l'utilisateur, qui n'a aucun rapport avec l'endroit ou il est installe.
+ * Never from `process.cwd()`: the scaffolder runs from the user directory,
+ * which has nothing to do with where it is installed.
  *
- * @throws {Error} Si le dossier des templates est introuvable.
+ * @throws {Error} When the templates directory cannot be found.
  *
  * @example
  * const root = templatesRoot()
@@ -135,8 +136,8 @@ export function targetFileName(name: string): string {
 export function templatesRoot(from: string = fileURLToPath(import.meta.url)): string {
   let directory = dirname(from)
 
-  // Le module vit dans `dist/` une fois publie, et dans `src/scaffold/` en
-  // developpement : on remonte jusqu'a trouver le dossier des templates.
+  // The module lives in `dist/` once published, and in `src/scaffold/` during
+  // development: we climb until we find the templates directory.
   for (let depth = 0; depth < 6; depth += 1) {
     const candidate = join(directory, 'templates')
     if (existsSync(candidate) && statSync(candidate).isDirectory()) return candidate
@@ -145,12 +146,12 @@ export function templatesRoot(from: string = fileURLToPath(import.meta.url)): st
     directory = parent
   }
 
-  throw new Error('[odoro] Dossier des templates introuvable depuis ' + from)
+  throw new Error('[odoro] Templates directory not found from ' + from)
 }
 
 /**
- * Templates disponibles, lus depuis le disque plutot que codes en dur : en
- * ajouter un ne demande alors aucune modification du code.
+ * Available templates, read from disk rather than hard coded: adding one then
+ * requires no change to the code.
  *
  * @example
  * availableTemplates() // ['react-ts', 'react-ts-server']

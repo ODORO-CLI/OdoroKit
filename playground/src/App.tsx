@@ -139,7 +139,7 @@ export function App(): ReactElement {
               <Route path="docs/icons" element={<IconesOverview />} />
               <Route
                 path="docs/icons/outline"
-                lazy={() => import('./docs/pages/icones/filaire.jsx')}
+                lazy={() => import('./docs/pages/icones/outline.jsx')}
               />
               <Route
                 path="docs/icons/compact"
@@ -147,15 +147,15 @@ export function App(): ReactElement {
               />
               <Route
                 path="docs/icons/classic"
-                lazy={() => import('./docs/pages/icones/classique.jsx')}
+                lazy={() => import('./docs/pages/icones/classic.jsx')}
               />
               <Route
                 path="docs/icons/extended"
-                lazy={() => import('./docs/pages/icones/etendu.jsx')}
+                lazy={() => import('./docs/pages/icones/extended.jsx')}
               />
               <Route
                 path="docs/icons/brands"
-                lazy={() => import('./docs/pages/icones/marques.jsx')}
+                lazy={() => import('./docs/pages/icones/brands.jsx')}
               />
               <Route path="docs/backgrounds" element={<Backgrounds />} />
               <Route

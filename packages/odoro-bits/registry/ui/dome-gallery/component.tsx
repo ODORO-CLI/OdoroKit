@@ -1,45 +1,45 @@
 /**
- * Galerie en dome : les images sont collees sur une calotte que l'on fait
- * tourner au doigt ou aux fleches.
+ * Dome gallery: the images are stuck on a cap that one spins with the finger
+ * or with the arrow keys.
  *
- * ## La geometrie est ecrite une fois, la rotation est le seul mouvement
+ * ## The geometry is written once, the rotation is the only motion
  *
- * Chaque image occupe une case de la calotte : un angle de colonne, un angle
- * de rangee, puis un eloignement du centre — `rotateY`, `rotateX`,
- * `translateZ`. Cette transformation-la ne change jamais ; elle est posee au
- * rendu et le navigateur n'y revient plus.
+ * Every image takes a cell of the cap: a column angle, a row angle, then a
+ * distance from the center — `rotateY`, `rotateX`, `translateZ`. That
+ * transform never changes; it is placed at render time and the browser never
+ * comes back to it.
  *
- * Ce qui bouge, c'est le dome : **un seul** element porte la rotation que la
- * boucle ecrit. Faire tourner cinquante images revient donc a ecrire une
- * chaine de caracteres par image d'ecran, quel que soit leur nombre. Ecrire
- * une transformation par image couterait cinquante fois plus, pour le meme
- * resultat.
+ * What moves is the dome: **a single** element carries the rotation the loop
+ * writes. Spinning fifty images therefore amounts to writing one string per
+ * frame, whatever their number. Writing one transform per image would cost
+ * fifty times more, for the same result.
  *
- * ## Ce qui passe derriere disparait sans qu'on le calcule
+ * ## What goes behind disappears without being computed
  *
- * Une image de l'autre cote du dome est retournee face contre nous.
- * `backface-visibility: hidden` la retire du rendu — pas d'opacite a
- * calculer, pas de tri en profondeur, pas de liste a tenir a jour. La
- * geometrie fait le travail que du code ferait moins bien.
+ * An image on the other side of the dome is turned face away from us.
+ * `backface-visibility: hidden` takes it out of the render — no opacity to
+ * compute, no depth sorting, no list to keep up to date. The geometry does the
+ * work that code would do less well.
  *
- * ## Ce n'est pas le menu infini
+ * ## This is not the infinite menu
  *
- * Le menu infini est un cylindre de liens que l'on parcourt sur un seul axe,
- * et dont chaque cran est une cible a activer. Le dome est un volume : deux
- * axes, des images plutot que des liens, et rien a activer — on regarde. Le
- * clavier y tourne la vue, il n'y promene pas un focus.
+ * The infinite menu is a cylinder of links one travels along a single axis,
+ * and whose every step is a target to activate. The dome is a volume: two
+ * axes, images rather than links, and nothing to activate — one looks. The
+ * keyboard spins the view there, it does not walk a focus around.
  *
- * ## Ce que le pointeur ne doit pas emporter
+ * ## What the pointer must not carry away
  *
- * Le glisser est capte sur l'element, pas sur la fenetre : relacher le doigt
- * hors du cadre termine le geste proprement, grace a la capture de pointeur.
- * Sans elle, un geste rapide laisse le dome accroche au pointeur alors qu'on
- * a lache depuis longtemps.
+ * The drag is captured on the element, not on the window: releasing the finger
+ * outside the frame ends the gesture cleanly, thanks to pointer capture.
+ * Without it, a fast gesture leaves the dome hooked to the pointer long after
+ * the release.
  *
- * ## Mouvement reduit
+ * ## Reduced motion
  *
- * Plus d'amortissement : le dome est a sa position visee des qu'on la change.
- * Tourner reste possible — c'est le seul moyen de voir les images du fond.
+ * No damping any more: the dome is at its aimed position as soon as that
+ * position changes. Spinning stays possible — it is the only way to see the
+ * images at the back.
  *
  * @module
  */
@@ -55,42 +55,42 @@ import {
   type ReactElement,
 } from 'react'
 
-/** Une image du dome. */
+/** An image of the dome. */
 export interface DomeGalleryItem {
-  /** Source de l'image. */
+  /** Source of the image. */
   readonly src: string
-  /** Texte de remplacement, obligatoire : c'est le contenu, pas une decoration. */
+  /** Alternative text, mandatory: this is the content, not a decoration. */
   readonly alt: string
-  /** Legende affichee sous l'image. */
+  /** Caption shown under the image. */
   readonly caption?: string
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface DomeGalleryOwnProps {
-  /** Les images posees sur le dome, dans l'ordre. */
+  /** The images placed on the dome, in order. */
   items: readonly DomeGalleryItem[]
-  /** Nom de la galerie, annonce aux technologies d'assistance. */
+  /** Name of the gallery, announced to assistive technologies. */
   label: string
-  /** Rayon du dome, en pixels. @defaultValue 360 */
+  /** Radius of the dome, in pixels. @defaultValue 360 */
   radius?: number
-  /** Nombre d'images par rangee. @defaultValue 8 */
+  /** Number of images per row. @defaultValue 8 */
   columns?: number
-  /** Angle entre deux rangees, en degres. @defaultValue 34 */
+  /** Angle between two rows, in degrees. @defaultValue 34 */
   pitch?: number
-  /** Largeur d'une image sur le dome, en pixels. @defaultValue 180 */
+  /** Width of an image on the dome, in pixels. @defaultValue 180 */
   tile?: number
 }
 
-/** Toutes les proprietes. */
+/** All the properties. */
 export type DomeGalleryProps = Customisable<DomeGalleryOwnProps>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-dome-gallery'
 
-/** Degres parcourus pour cent pixels de glisser. */
-const SENSIBILITE = 0.28
+/** Degrees travelled per hundred pixels of drag. */
+const SENSITIVITY = 0.28
 
-/** Pose la scene, le dome et ses cases, une fois par document. */
+/** Places the scene, the dome and its cells, once per document. */
 function ensureDomeRules(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -100,13 +100,13 @@ function ensureDomeRules(): void {
   style.textContent = [
     '[data-o-dome]{',
     'position:relative;display:block;overflow:hidden;touch-action:none;cursor:grab;',
-    'perspective:var(--o-dome-vue);perspective-origin:50% 50%;',
+    'perspective:var(--o-dome-view);perspective-origin:50% 50%;',
     '}',
     '[data-o-dome][data-o-dome-tire]{cursor:grabbing}',
     '[data-o-dome]:focus-visible{outline:2px solid var(--o-dome-accent);outline-offset:-2px}',
-    // La scene recule le centre du dome d'un rayon : la case de devant se
-    // retrouve alors dans le plan de l'ecran, a son echelle exacte. Sans ce
-    // recul, elle arriverait sur l'oeil et s'etirerait a l'infini.
+    // The scene pushes the center of the dome back by one radius: the front
+    // cell then lands in the plane of the screen, at its exact scale. Without
+    // that setback, it would reach the eye and stretch to infinity.
     '[data-o-dome-scene]{',
     'position:absolute;inset:0;transform-style:preserve-3d;',
     'transform:translateZ(var(--o-dome-recul));',
@@ -118,7 +118,7 @@ function ensureDomeRules(): void {
     '[data-o-dome-case]{',
     'position:absolute;top:0;left:0;margin:0;',
     'width:var(--o-dome-tuile);translate:-50% -50%;',
-    // La face cachee retire d'elle-meme ce qui est passe derriere.
+    // The hidden face removes on its own whatever has gone behind.
     'backface-visibility:hidden;',
     '}',
     '[data-o-dome-case] img{',
@@ -134,21 +134,21 @@ function ensureDomeRules(): void {
 }
 
 /**
- * Dome d'images, au glisser comme au clavier.
+ * Dome of images, by drag as well as by keyboard.
  *
  * @example
  * <DomeGallery
- *   label="Panorama de l atelier"
+ *   label="Workshop panorama"
  *   items={[
- *     { src: '/dome/etabli.jpg', alt: 'Etabli couvert d outils' },
- *     { src: '/dome/four.jpg', alt: 'Four a ceramique ouvert' },
+ *     { src: '/dome/workbench.jpg', alt: 'Workbench covered with tools' },
+ *     { src: '/dome/kiln.jpg', alt: 'Open ceramic kiln' },
  *   ]}
  *   className="o-h-96"
  * />
  *
  * @example
- * // Un dome plus serre, en dix images par rangee.
- * <DomeGallery label="Mur d images" items={photos} radius={300} columns={10} tile={140} />
+ * // A tighter dome, ten images per row.
+ * <DomeGallery label="Wall of images" items={photos} radius={300} columns={10} tile={140} />
  */
 export function DomeGallery({
   items,
@@ -160,110 +160,108 @@ export function DomeGallery({
   ...rest
 }: DomeGalleryProps): ReactElement {
   const { reduced } = useMotionState()
-  const calotte = useRef<HTMLDivElement | null>(null)
-  /** Angle vise et angle affiche, en degres — lacet puis tangage. */
-  const vise = useRef({ lacet: 0, tangage: 0 })
-  const pose = useRef({ lacet: 0, tangage: 0 })
+  const cap = useRef<HTMLDivElement | null>(null)
+  /** Aimed angle and displayed angle, in degrees — yaw then tilt. */
+  const aim = useRef({ yaw: 0, tilt: 0 })
+  const shown = useRef({ yaw: 0, tilt: 0 })
   const frame = useRef(0)
-  const instant = useRef(0)
+  const stamp = useRef(0)
   ensureDomeRules()
 
-  const parRangee = Math.max(1, Math.round(columns))
-  const rangees = Math.max(1, Math.ceil(items.length / parRangee))
-  /** Au-dela, le dome basculerait sur le dos. */
-  const limite = ((rangees - 1) / 2) * pitch + 20
+  const perRow = Math.max(1, Math.round(columns))
+  const rows = Math.max(1, Math.ceil(items.length / perRow))
+  /** Beyond that, the dome would tip over onto its back. */
+  const limit = ((rows - 1) / 2) * pitch + 20
 
-  /** Rapproche l'angle affiche de l'angle vise, et ecrit le dome. */
-  const boucle = useCallback((): void => {
+  /** Brings the displayed angle closer to the aimed one, and writes the dome. */
+  const loop = useCallback((): void => {
     frame.current = 0
-    const cible = calotte.current
-    if (cible === null) return
+    const node = cap.current
+    if (node === null) return
 
-    const maintenant = typeof performance === 'undefined' ? 0 : performance.now()
-    const dt = Math.min(0.05, (maintenant - instant.current) / 1000)
-    instant.current = maintenant
+    const now = typeof performance === 'undefined' ? 0 : performance.now()
+    const dt = Math.min(0.05, (now - stamp.current) / 1000)
+    stamp.current = now
 
-    // Amortissement exponentiel : le meme mouvement quelle que soit la
-    // cadence d'affichage, contrairement a un pas fixe par image.
+    // Exponential damping: the same motion whatever the display refresh rate,
+    // unlike a fixed step per frame.
     const k = reduced ? 1 : 1 - Math.exp(-9 * dt)
-    pose.current.lacet += (vise.current.lacet - pose.current.lacet) * k
-    pose.current.tangage += (vise.current.tangage - pose.current.tangage) * k
+    shown.current.yaw += (aim.current.yaw - shown.current.yaw) * k
+    shown.current.tilt += (aim.current.tilt - shown.current.tilt) * k
 
-    cible.style.transform = `rotateX(${pose.current.tangage.toFixed(2)}deg) rotateY(${pose.current.lacet.toFixed(2)}deg)`
+    node.style.transform = `rotateX(${shown.current.tilt.toFixed(2)}deg) rotateY(${shown.current.yaw.toFixed(2)}deg)`
 
-    const reste =
-      Math.abs(vise.current.lacet - pose.current.lacet) +
-      Math.abs(vise.current.tangage - pose.current.tangage)
-    // Rien n'est ecrit quand rien ne bouge : la boucle s'arrete d'elle-meme.
-    if (reste > 0.02 && typeof requestAnimationFrame === 'function') {
-      frame.current = requestAnimationFrame(boucle)
+    const remaining =
+      Math.abs(aim.current.yaw - shown.current.yaw) +
+      Math.abs(aim.current.tilt - shown.current.tilt)
+    // Nothing is written when nothing moves: the loop stops on its own.
+    if (remaining > 0.02 && typeof requestAnimationFrame === 'function') {
+      frame.current = requestAnimationFrame(loop)
     }
   }, [reduced])
 
-  const relancer = useCallback((): void => {
+  const restart = useCallback((): void => {
     if (frame.current !== 0 || typeof requestAnimationFrame !== 'function') return
-    instant.current = typeof performance === 'undefined' ? 0 : performance.now()
-    frame.current = requestAnimationFrame(boucle)
-  }, [boucle])
+    stamp.current = typeof performance === 'undefined' ? 0 : performance.now()
+    frame.current = requestAnimationFrame(loop)
+  }, [loop])
 
   useEffect(() => {
-    relancer()
+    restart()
     return () => {
       if (frame.current !== 0) cancelAnimationFrame(frame.current)
       frame.current = 0
     }
-  }, [relancer, radius, pitch, columns, items])
+  }, [restart, radius, pitch, columns, items])
 
-  const tirer = useRef<{ x: number; y: number; id: number } | null>(null)
+  const drag = useRef<{ x: number; y: number; id: number } | null>(null)
 
   const onPointerDown = (event: ReactPointerEvent<HTMLDivElement>): void => {
     if (event.button !== 0 && event.pointerType === 'mouse') return
-    tirer.current = { x: event.clientX, y: event.clientY, id: event.pointerId }
+    drag.current = { x: event.clientX, y: event.clientY, id: event.pointerId }
     event.currentTarget.setPointerCapture(event.pointerId)
     event.currentTarget.setAttribute('data-o-dome-tire', '')
   }
 
   const onPointerMove = (event: ReactPointerEvent<HTMLDivElement>): void => {
-    const depart = tirer.current
-    if (depart === null || depart.id !== event.pointerId) return
-    vise.current.lacet += (event.clientX - depart.x) * SENSIBILITE
-    vise.current.tangage = Math.min(
-      limite,
-      Math.max(-limite, vise.current.tangage - (event.clientY - depart.y) * SENSIBILITE),
+    const start = drag.current
+    if (start === null || start.id !== event.pointerId) return
+    aim.current.yaw += (event.clientX - start.x) * SENSITIVITY
+    aim.current.tilt = Math.min(
+      limit,
+      Math.max(-limit, aim.current.tilt - (event.clientY - start.y) * SENSITIVITY),
     )
-    depart.x = event.clientX
-    depart.y = event.clientY
-    relancer()
+    start.x = event.clientX
+    start.y = event.clientY
+    restart()
   }
 
   const onPointerUp = (event: ReactPointerEvent<HTMLDivElement>): void => {
-    tirer.current = null
+    drag.current = null
     event.currentTarget.removeAttribute('data-o-dome-tire')
     if (event.currentTarget.hasPointerCapture(event.pointerId)) {
       event.currentTarget.releasePointerCapture(event.pointerId)
     }
   }
 
-  /** Les fleches tournent la vue d'une case ; Origine la remet de face. */
+  /** The arrow keys spin the view by one cell; Home brings it back to front. */
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>): void => {
-    const colonne = 360 / parRangee
-    const gestes: Readonly<Record<string, (() => void) | undefined>> = {
-      ArrowRight: () => (vise.current.lacet -= colonne),
-      ArrowLeft: () => (vise.current.lacet += colonne),
-      ArrowUp: () =>
-        (vise.current.tangage = Math.max(-limite, vise.current.tangage - pitch)),
-      ArrowDown: () =>
-        (vise.current.tangage = Math.min(limite, vise.current.tangage + pitch)),
+    const column = 360 / perRow
+    const moves: Readonly<Record<string, (() => void) | undefined>> = {
+      ArrowRight: () => (aim.current.yaw -= column),
+      ArrowLeft: () => (aim.current.yaw += column),
+      ArrowUp: () => (aim.current.tilt = Math.max(-limit, aim.current.tilt - pitch)),
+      ArrowDown: () => (aim.current.tilt = Math.min(limit, aim.current.tilt + pitch)),
       Home: () => {
-        vise.current.lacet = 0
-        vise.current.tangage = 0
+        aim.current.yaw = 0
+        aim.current.tilt = 0
       },
     }
-    const geste = gestes[event.key]
-    if (geste === undefined) return
+    const move = moves[event.key]
+    if (move === undefined) return
     event.preventDefault()
-    geste()
-    relancer()
+    move()
+    restart()
   }
 
   const { className, style } = mergePresentation({}, rest)
@@ -272,7 +270,7 @@ export function DomeGallery({
     <div
       {...rest}
       role="group"
-      aria-roledescription="galerie"
+      aria-roledescription="gallery"
       aria-label={label}
       tabIndex={0}
       data-o-dome=""
@@ -282,7 +280,7 @@ export function DomeGallery({
           '--o-dome-accent': 'var(--o-palette-brand-500)',
           '--o-dome-tuile': `${String(tile)}px`,
           '--o-dome-recul': `${String(-radius)}px`,
-          '--o-dome-vue': `${String(radius * 2)}px`,
+          '--o-dome-view': `${String(radius * 2)}px`,
           ...style,
         } as CSSProperties
       }
@@ -299,22 +297,22 @@ export function DomeGallery({
       }}
     >
       <div data-o-dome-scene="">
-        <div ref={calotte} data-o-dome-calotte="">
+        <div ref={cap} data-o-dome-calotte="">
           {items.map((item, index) => {
-            const rangee = Math.floor(index / parRangee)
-            const colonne = index % parRangee
-            // La derniere rangee est souvent incomplete : elle se repartit sur
-            // son propre compte plutot que de laisser un pan de dome vide.
-            const dansRangee = Math.min(parRangee, items.length - rangee * parRangee)
-            const lacet = colonne * (360 / Math.max(1, dansRangee))
-            const tangage = (rangee - (rangees - 1) / 2) * pitch
+            const row = Math.floor(index / perRow)
+            const column = index % perRow
+            // The last row is often incomplete: it spreads over its own count
+            // rather than leaving a stretch of dome empty.
+            const inRow = Math.min(perRow, items.length - row * perRow)
+            const yaw = column * (360 / Math.max(1, inRow))
+            const tilt = (row - (rows - 1) / 2) * pitch
 
             return (
               <figure
                 key={item.src}
                 data-o-dome-case=""
                 style={{
-                  transform: `rotateY(${String(lacet)}deg) rotateX(${String(-tangage)}deg) translateZ(${String(radius)}px)`,
+                  transform: `rotateY(${String(yaw)}deg) rotateX(${String(-tilt)}deg) translateZ(${String(radius)}px)`,
                 }}
               >
                 <img src={item.src} alt={item.alt} loading="lazy" decoding="async" />

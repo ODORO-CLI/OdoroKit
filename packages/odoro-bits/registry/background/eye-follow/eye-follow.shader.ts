@@ -1,35 +1,34 @@
 /**
- * Shader des yeux qui suivent.
+ * Shader for the eyes that follow.
  *
- * ## L'idee mathematique
+ * ## The mathematical idea
  *
- * Un oeil par cellule d'une grille. La forme de l'oeil n'est pas une ellipse
- * mais l'intersection de deux disques decales verticalement : c'est ce qui
- * lui donne ses deux coins pointus, qu'une ellipse n'a pas. En distance
- * signee, une intersection est un maximum — deux longueurs, un `max`, et la
- * forme est faite.
+ * One eye per cell of a grid. The shape of the eye is not an ellipse but the
+ * intersection of two vertically offset discs: that is what gives it its two
+ * pointed corners, which an ellipse does not have. In signed distance, an
+ * intersection is a maximum — two lengths, one `max`, and the shape is done.
  *
- * Le regard est la direction de la cellule vers le pointeur, ecrasee :
- * beaucoup en abscisse, peu en ordonnee. Un iris qui se deplacerait autant
- * dans les deux sens sortirait de l'oeil par le haut avant d'en atteindre le
- * coin.
+ * The gaze is the direction from the cell towards the pointer, squashed: a lot
+ * along the x axis, little along the y axis. An iris that moved as much in
+ * both directions would leave the eye through the top before reaching its
+ * corner.
  *
- * Le clignement est un ecrasement du repere local en ordonnee, pas un volet
- * pose par-dessus : l'oeil se referme donc sur lui-meme, et sa paupiere n'a
- * pas a etre dessinee. Chaque oeil cligne a son propre rythme, tire de ses
- * coordonnees de cellule.
+ * The blink is a squashing of the local frame along y, not a shutter laid over
+ * the top: the eye therefore closes on itself, and its eyelid does not have to
+ * be drawn. Every eye blinks at its own pace, drawn from its cell
+ * coordinates.
  *
  * ## Uniforms
  *
- * - `uTime` — temps en secondes, fourni par le moteur.
- * - `uResolution` — taille du canevas en pixels, fournie par le moteur.
- * - `uColorA` — le fond, et l eclat dans l iris.
- * - `uColorB` — le trait de l oeil et sa pupille.
- * - `uColorC` — l iris.
- * - `uPointer` — position amortie du pointeur, en coordonnees de texture.
- * - `uEyes` — nombre d yeux sur la hauteur.
- * - `uGaze` — amplitude du regard, entre zero et un.
- * - `uBlink` — frequence des clignements. Zero les coupe.
+ * - `uTime` — time in seconds, supplied by the engine.
+ * - `uResolution` — canvas size in pixels, supplied by the engine.
+ * - `uColorA` — the background, and the spark inside the iris.
+ * - `uColorB` — the line of the eye and its pupil.
+ * - `uColorC` — the iris.
+ * - `uPointer` — damped pointer position, in texture coordinates.
+ * - `uEyes` — number of eyes over the height.
+ * - `uGaze` — amplitude of the gaze, between zero and one.
+ * - `uBlink` — frequency of the blinks. Zero cuts them.
  */
 export const EYE_FOLLOW_FRAGMENT = /* glsl */ `
 precision highp float;
@@ -46,7 +45,7 @@ uniform float uEyes;
 uniform float uGaze;
 uniform float uBlink;
 
-// Rythme propre a un oeil, stable d'une image a l'autre.
+// Pace of its own for one eye, stable from one frame to the next.
 float eyeSeed(vec2 cell) {
   return fract(sin(dot(cell, vec2(12.9898, 78.233))) * 43758.5453123);
 }
@@ -63,24 +62,24 @@ void main() {
   vec2 centre = (cell + 0.5) / scale;
   vec2 m = uPointer * vec2(aspect, 1.0);
 
-  // Le regard : direction vers le pointeur, amplitude bornee et ecrasee.
+  // The gaze: direction towards the pointer, amplitude bounded and squashed.
   vec2 towards = m - centre;
   float span = length(towards);
   vec2 dir = span > 0.0001 ? towards / span : vec2(0.0, 0.0);
   float reach = min(span * 2.5, 1.0) * clamp(uGaze, 0.0, 1.0);
   vec2 look = vec2(dir.x * 0.20, dir.y * 0.07) * reach;
 
-  // Le clignement : une impulsion etroite dans le cycle propre a l'oeil.
+  // The blink: a narrow impulse inside the eye's own cycle.
   float seed = eyeSeed(cell);
   float beat = fract(uTime * (0.10 + 0.09 * seed) * max(uBlink, 0.0) + seed);
   float lid = (beat - 0.5) * 26.0;
   float shut = exp(-lid * lid) * step(0.0001, uBlink);
   float open = max(1.0 - shut, 0.07);
 
-  // Le repere de l'oeil, ecrase par la paupiere.
+  // The eye's frame of reference, squashed by the eyelid.
   vec2 q = vec2(local.x, local.y / open);
 
-  // L'intersection de deux disques : un max de deux distances signees.
+  // The intersection of two discs: a max of two signed distances.
   float upper = length(q - vec2(0.0, 0.36)) - 0.55;
   float lower = length(q - vec2(0.0, -0.36)) - 0.55;
   float shape = max(upper, lower);
@@ -89,7 +88,7 @@ void main() {
   float inside = 1.0 - smoothstep(0.0, px * 2.0, shape);
   float outline = 1.0 - smoothstep(px, px * 3.0, abs(shape));
 
-  // L'iris, la pupille, et l'eclat decale vers le haut a gauche.
+  // The iris, the pupil, and the spark offset up and to the left.
   float iris = 1.0 - smoothstep(0.0, px * 2.0, length(q - look) - 0.15);
   float pupil = 1.0 - smoothstep(0.0, px * 2.0, length(q - look) - 0.065);
   float spark =

@@ -1,22 +1,22 @@
 /**
- * Rubans : des bandes sinusoidales etagees, qui ondulent en se croisant.
+ * Ribbons: staged sinusoidal bands, undulating as they cross.
  *
- * ## Le principe
+ * ## The principle
  *
- * Chaque ruban est une sinusoide a sa propre phase ; sa lumiere est une exponentielle de la distance verticale a son axe.
+ * Each ribbon is a sinusoid with its own phase; its light is an exponential of the vertical distance to its axis.
  *
- * Les rubans se somment : leurs croisements s eclaircissent d eux-memes, sans aucun test.
+ * The ribbons sum together: their crossings brighten by themselves, with no test at all.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur — les recopier ici en ferait autant
- * de versions a maintenir qu'il y a de fonds.
+ * It carries only what sets it apart: its shader, its settings and its fallback.
+ * Reading the tokens, converting them to floats and re-reading them when the
+ * theme changes all come from the engine — copying that here would leave as many
+ * versions to maintain as there are backgrounds.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en
- * accorde qu'une par backend — et sous mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface — it grants only one per
+ * backend — and under reduced motion.
  *
  * @module
  */
@@ -33,46 +33,46 @@ import { type ReactElement } from 'react'
 
 import { RIBBONS_FRAGMENT } from './ribbons.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface RibbonsControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to this component. */
 export interface RibbonsOwnProps {
-  /** Vitesse de l'ondulation. @defaultValue 0.4 */
+  /** Speed of the undulation. @defaultValue 0.4 */
   speed?: number
-  /** Nombre de rubans. @defaultValue 5 */
+  /** Number of ribbons. @defaultValue 5 */
   count?: number
-  /** Hauteur de l'ondulation, en fraction du cadre. @defaultValue 0.08 */
+  /** Height of the undulation, as a fraction of the frame. @defaultValue 0.08 */
   amplitude?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<RibbonsControls>
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type RibbonsProps = Customisable<RibbonsOwnProps>
 
-/** Tokens employes par defaut : le fond, puis les deux teintes des rubans. */
+/** Tokens used by default: the background, then the two hues of the ribbons. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-teal-400',
   '--o-palette-sky-300',
 ] as const
 
-/** Repli par defaut : un degrade fige, dans les memes tons. */
+/** Default fallback: a frozen gradient, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-b o-from-zinc-50 dark:o-from-zinc-950 o-to-zinc-50 dark:o-to-sky-950'
 
 /**
- * Rubans.
+ * Ribbons.
  *
  * @example
  * <div className="o-relative o-min-h-screen">
@@ -94,8 +94,8 @@ export function Ribbons({
     colors,
     uniforms: { uSpeed: speed, uCount: count, uAmplitude: amplitude },
     name: 'ribbons',
-    // Chaque ruban ajoute trois sinus et deux exponentielles par fragment :
-    // c'est le reglage qui pese, donc celui qui est borne.
+    // Each ribbon adds three sines and two exponentials per fragment: it is
+    // the setting that weighs, so it is the one that is bounded.
     degrade: (quality) => ({
       uCount: quality === 'low' ? Math.min(count, 4) : count,
     }),

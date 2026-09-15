@@ -1,42 +1,42 @@
 /**
- * Curseur collant : une pastille qui epouse le bouton qu'elle survole.
+ * Sticky cursor: a pad that hugs the button it hovers.
  *
- * ## Coller, ce n'est pas encadrer
+ * ## Sticking is not framing
  *
- * Le viseur pose quatre crochets autour d'une cible : il la designe, de
- * l'exterieur. Celui-ci prend sa place — il devient le fond du bouton, avec sa
- * taille et son arrondi, et le libelle se lit par-dessus. C'est le curseur des
- * barres de navigation, celui qui donne l'impression qu'un seul jeton glisse
- * d'un onglet a l'autre.
+ * The sight lays four brackets around a target: it designates it, from the
+ * outside. This one takes its place — it becomes the background of the button,
+ * with its size and its corner radius, and the label reads over it. It is the
+ * cursor of navigation bars, the one that gives the impression that a single
+ * token slides from one tab to the next.
  *
- * ## L'arrondi est lu sur la cible, une fois
+ * ## The corner radius is read on the target, once
  *
- * Rien ne sert de deviner : au moment ou la pastille accroche, l'arrondi
- * calcule de l'element est recopie, et une transition CSS s'occupe du passage.
- * Le relire a chaque image demanderait un style calcule par image — la mesure
- * la plus chere du navigateur — pour une valeur qui ne change jamais pendant
- * le survol.
+ * There is no point guessing: at the moment the pad latches on, the computed
+ * radius of the element is copied, and a CSS transition takes care of the
+ * passage. Reading it again on every frame would require a computed style per
+ * frame — the most expensive measurement in the browser — for a value that
+ * never changes during a hover.
  *
- * ## Pourquoi la taille est ecrite, et non mise a l'echelle
+ * ## Why the size is written, and not scaled
  *
- * Une mise a l'echelle deformerait l'arrondi et l'epaisseur du filet : un
- * bouton large deviendrait une capsule ovale. La largeur et la hauteur sont
- * donc amorties puis ecrites telles quelles. C'est une mise en page par image,
- * mais sur un seul element hors flux, dans une couche qui porte `contain` —
- * le cout reste local, et c'est le prix d'une forme juste.
+ * A scale would distort the corner radius and the thickness of the hairline: a
+ * wide button would become an oval capsule. The width and the height are
+ * therefore damped then written as they are. It is one layout per frame, but
+ * on a single out-of-flow element, in a layer that carries `contain` — the
+ * cost stays local, and it is the price of a correct shape.
  *
- * ## L'etirement ne vit qu'entre deux cibles
+ * ## The stretch only lives between two targets
  *
- * En vol, la pastille s'allonge dans le sens du deplacement : c'est ce qui la
- * fait lire comme une matiere plutot qu'un rectangle telepote. Une fois
- * accrochee, l'etirement retombe a zero — un bouton mis en valeur par un fond
- * penche serait un defaut, pas un effet.
+ * In flight, the pad lengthens along the direction of travel: that is what
+ * makes it read as a substance rather than a teleported rectangle. Once
+ * latched on, the stretch falls back to zero — a button highlighted by a
+ * slanted background would be a fault, not an effect.
  *
- * ## Ou elle ne se montre pas
+ * ## Where it does not show itself
  *
- * Sans pointeur fin, aucun element n'est cree. Sous mouvement reduit non plus :
- * la pastille est un agrement continu, sans etat final a poser. Le curseur du
- * systeme reste visible.
+ * Without a fine pointer, no element is created. Nor under reduced motion: the
+ * pad is a continuous embellishment, with no final state to apply. The system
+ * cursor stays visible.
  *
  * @module
  */
@@ -56,50 +56,50 @@ import {
   type ReactNode,
 } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface StickyCursorOwnProps {
   /**
-   * Zone ou la pastille vit.
+   * Area where the pad lives.
    *
-   * Fournie, elle n'ecoute que cette zone et y est coupee. Absente, elle prend
-   * la page entiere, en couche fixe qui n'intercepte rien.
+   * Provided, it listens only to that area and is clipped to it. Absent, it
+   * takes the whole page, as a fixed layer that intercepts nothing.
    */
   children?: ReactNode
-  /** Diametre de la pastille au repos, en pixels. @defaultValue 20 */
+  /** Diameter of the pad at rest, in pixels. @defaultValue 20 */
   size?: number
   /**
-   * De combien la pastille suit encore le pointeur une fois accrochee, de zero
-   * a un. A zero elle se centre net sur la cible.
+   * How much the pad still follows the pointer once latched on, from zero to
+   * one. At zero it centres exactly on the target.
    *
    * @defaultValue 0.3
    */
   stick?: number
-  /** Marge ajoutee autour de la cible, en pixels. @defaultValue 6 */
+  /** Margin added around the target, in pixels. @defaultValue 6 */
   padding?: number
-  /** Vitesse de rattrapage. Plus haut, plus sec. @defaultValue 16 */
+  /** Catch-up speed. The higher, the snappier. @defaultValue 16 */
   speed?: number
-  /** Etirement en vol, de zero a un. @defaultValue 0.45 */
+  /** Stretch in flight, from zero to one. @defaultValue 0.45 */
   stretch?: number
   /**
-   * Ce a quoi la pastille colle.
+   * What the pad sticks to.
    *
    * @defaultValue 'a, button, [role="button"], [data-o-sticky]'
    */
   targets?: string
-  /** Couleur de la pastille. Une valeur, pas un role. @defaultValue la couleur du texte */
+  /** Colour of the pad. A value, not a role. @defaultValue the text colour */
   color?: string
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type StickyCursorProps = Customisable<StickyCursorOwnProps>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-sticky-cursor'
 
-/** Allongement maximal, en fraction de la taille. */
+/** Maximum lengthening, as a fraction of the size. */
 const MAX_STRETCH = 0.6
 
-/** Pose les regles de la pastille, une fois par document. */
+/** Sets the pad rules, once per document. */
 function ensureStickyCursorRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -107,15 +107,15 @@ function ensureStickyCursorRule(): void {
   const style = document.createElement('style')
   style.id = STYLE_ID
   style.textContent = [
-    // La position de la zone vit dans une regle sans specificite : une
-    // classe de l appelant — `o-absolute` pour la poser dans un cadre —
-    // doit pouvoir la remplacer, ce qu'un style en ligne interdirait.
+    // The positioning of the area lives in a rule with no specificity: a
+    // class from the caller — `o-absolute` to place it inside a frame —
+    // must be able to replace it, which an inline style would forbid.
     ':where([data-o-sticky-host="zone"]){position:relative;overflow:hidden}',
     ':where([data-o-sticky-host="page"]){position:fixed;inset:0;z-index:9998;pointer-events:none}',
     '[data-o-sticky-layer]{',
     'position:absolute;inset:0;overflow:hidden;pointer-events:none;',
-    // La mise en page de la pastille ne doit pas remonter dans la page : voir
-    // l'en-tete du module.
+    // The layout of the pad must not travel back up the page: see the module
+    // header.
     'contain:layout style;',
     'opacity:0;transition:opacity 160ms linear;',
     '}',
@@ -128,16 +128,16 @@ function ensureStickyCursorRule(): void {
 }
 
 /**
- * Fait coller une pastille aux elements survoles.
+ * Sticks a pad to the hovered elements.
  *
  * @example
- * // Une barre de navigation ou un seul jeton glisse d un onglet a l autre.
+ * // A navigation bar where a single token slides from one tab to the next.
  * <StickyCursor>
  *   <nav className="o-flex o-gap-2">…</nav>
  * </StickyCursor>
  *
  * @example
- * // Sur la page entiere, plus grosse et parfaitement centree sur ses cibles.
+ * // Over the whole page, bigger and perfectly centred on its targets.
  * <StickyCursor size={28} stick={0} padding={10} />
  */
 export function StickyCursor({
@@ -160,7 +160,7 @@ export function StickyCursor({
   useEffect(() => {
     if (host === null || reduced) return
     if (typeof window === 'undefined') return
-    // Pointeur grossier : rien a coller, rien n'est cree.
+    // Coarse pointer: nothing to stick to, nothing is created.
     if (!window.matchMedia('(pointer: fine)').matches) return
 
     const layer = document.createElement('div')
@@ -170,8 +170,8 @@ export function StickyCursor({
 
     const pad = document.createElement('span')
     pad.setAttribute('data-o-sticky-pad', '')
-    // Une teinte, pas un aplat : la pastille passe sous le libelle du bouton,
-    // qui doit rester lisible.
+    // A tint, not a flat fill: the pad passes under the label of the button,
+    // which must stay readable.
     pad.style.background = `color-mix(in oklab, ${color} 16%, transparent)`
     pad.style.border = `1px solid color-mix(in oklab, ${color} 45%, transparent)`
     pad.style.borderRadius = '9999px'
@@ -198,7 +198,7 @@ export function StickyCursor({
     let pointerX = wantX
     let pointerY = wantY
 
-    /** Recalcule la cible : la boite accrochee, ou la pastille au pointeur. */
+    /** Recomputes the target: the latched box, or the pad at the pointer. */
     const aim = (): void => {
       if (locked === null) {
         wantX = pointerX
@@ -210,8 +210,9 @@ export function StickyCursor({
       const rect = locked.getBoundingClientRect()
       const cx = rect.left - box.left + rect.width / 2
       const cy = rect.top - box.top + rect.height / 2
-      // `stick` est une fraction de trajet : a zero la pastille se centre, a un
-      // elle reste sous le doigt tout en ayant pris la forme de la cible.
+      // `stick` is a fraction of the journey: at zero the pad centres itself,
+      // at one it stays under the finger while having taken the shape of the
+      // target.
       wantX = cx + (pointerX - cx) * stick
       wantY = cy + (pointerY - cy) * stick
       wantW = rect.width + padding * 2
@@ -242,7 +243,7 @@ export function StickyCursor({
       const found = node instanceof Element ? node.closest(targets) : null
       if (found !== locked) {
         locked = found
-        // L'arrondi est lu au moment de l'accroche, jamais dans la boucle.
+        // The corner radius is read at latch time, never inside the loop.
         radius = found === null ? '9999px' : window.getComputedStyle(found).borderRadius
         pad.style.borderRadius = radius
       }
@@ -278,7 +279,7 @@ export function StickyCursor({
         pad.style.height = `${height.toFixed(1)}px`
 
         const travelled = Math.hypot(stepX, stepY)
-        // L'etirement s'eteint a mesure que la pastille accroche.
+        // The stretch dies out as the pad latches on.
         const pull =
           Math.min(MAX_STRETCH, (travelled / Math.max(size, 1)) * stretch) * (1 - grip)
         const angle = (Math.atan2(stepY, stepX) * 180) / Math.PI
@@ -290,7 +291,7 @@ export function StickyCursor({
           `rotate(${(-angle).toFixed(1)}deg)`,
         ].join(' ')
       },
-      { name: 'sticky-cursor : pastille', priority: CLOCK_PRIORITY.default },
+      { name: 'sticky-cursor : pad', priority: CLOCK_PRIORITY.default },
     )
 
     return () => {

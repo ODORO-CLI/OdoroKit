@@ -1,22 +1,22 @@
 /**
- * Halo qui pulse : un coeur qui respire et des anneaux emis a un rythme lent.
+ * Pulsing halo: a core that breathes and rings emitted at a slow rhythm.
  *
- * ## Le principe
+ * ## The principle
  *
- * Des anneaux gaussiens dont le rayon croit avec leur phase, repartis
- * uniformement sur la periode pour une emission reguliere ; ils s'elargissent
- * et palissent en s'eloignant. Le coeur grossit a chaque emission. Distinct
- * du sonar, aux fronts raides et au pointeur : ici tout est doux et pose.
+ * Gaussian rings whose radius grows with their phase, spread evenly over the
+ * period for a steady emission; they widen and pale as they move away. The
+ * core swells at every emission. Distinct from the sonar, with its steep
+ * fronts and its pointer: here everything is soft and unhurried.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur.
+ * It carries only what sets it apart: its shader, its settings and its fallback.
+ * Reading the tokens, converting them to floats and re-reading them when the
+ * theme changes all come from the engine.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface et sous
- * mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface and under reduced
+ * motion.
  *
  * @module
  */
@@ -33,50 +33,50 @@ import { type ReactElement } from 'react'
 
 import { HALO_PULSE_FRAGMENT } from './halo-pulse.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface HaloPulseControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to this component. */
 export interface HaloPulseOwnProps {
-  /** Periode du rythme, en millisecondes. @defaultValue 4000 */
+  /** Period of the rhythm, in milliseconds. @defaultValue 4000 */
   period?: number
-  /** Nombre d'anneaux en vol. @defaultValue 3 */
+  /** Number of rings in flight. @defaultValue 3 */
   rings?: number
-  /** Portee des anneaux, en hauteurs de cadre. @defaultValue 0.8 */
+  /** Reach of the rings, in frame heights. @defaultValue 0.8 */
   size?: number
-  /** Position horizontale du centre, en fraction du cadre. @defaultValue 0.5 */
+  /** Horizontal position of the centre, as a fraction of the frame. @defaultValue 0.5 */
   x?: number
-  /** Position verticale du centre, en fraction du cadre. @defaultValue 0.5 */
+  /** Vertical position of the centre, as a fraction of the frame. @defaultValue 0.5 */
   y?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<HaloPulseControls>
 }
 
-/** Toutes les proprietes. */
+/** Every property. */
 export type HaloPulseProps = Customisable<HaloPulseOwnProps>
 
-/** Tokens employes par defaut : le fond, les anneaux, le coeur. */
+/** Tokens used by default: the background, the rings, the core. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-teal-400',
   '--o-palette-brand-500',
 ] as const
 
-/** Repli par defaut : un degrade fige, dans les memes tons. */
+/** Default fallback: a frozen gradient, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-br o-from-zinc-50 dark:o-from-zinc-950 o-to-teal-100 dark:o-to-teal-950'
 
 /**
- * Halo qui pulse.
+ * Pulsing halo.
  *
  * @example
  * <div className="o-relative o-min-h-screen">
@@ -98,7 +98,7 @@ export function HaloPulse({
   const { ref, setHost, ready, refused, colours } = useTokenShader<HTMLDivElement>({
     fragment: HALO_PULSE_FRAGMENT,
     colors,
-    // Le registre parle en millisecondes, le shader en secondes.
+    // The registry speaks in milliseconds, the shader in seconds.
     uniforms: { uPeriod: period / 1000, uRings: rings, uSize: size, uX: x, uY: y },
     name: 'halo-pulse',
   })

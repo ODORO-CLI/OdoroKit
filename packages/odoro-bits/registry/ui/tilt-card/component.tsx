@@ -1,42 +1,41 @@
 /**
- * Carte inclinee : elle pivote vers le pointeur, avec un reflet qui le suit.
+ * Tilt card: it pivots towards the pointer, with a glare that follows it.
  *
- * ## La perspective est sur le parent, la rotation sur l'enfant
+ * ## The perspective is on the parent, the rotation on the child
  *
- * Les deux sur le meme element donnerait une inclinaison plate — la
- * transformation s'appliquerait sans point de fuite, et la carte aurait l'air
- * cisaillee plutot que tournee. Le parent pose la profondeur, l'enfant tourne
- * dedans.
+ * Both on the same element would give a flat tilt — the transform would apply
+ * with no vanishing point, and the card would look sheared rather than turned.
+ * The parent sets the depth, the child turns inside it.
  *
- * ## L'amortissement, pas le suivi direct
+ * ## Damping, not direct following
  *
- * Une carte collee au pointeur donne un objet sans masse : elle arrive avant
- * qu'on ait fini le geste. Le retard — un dixieme de seconde — est ce qui la
- * rend lourde.
+ * A card glued to the pointer gives an object with no mass: it arrives before
+ * the gesture is finished. The lag — a tenth of a second — is what makes it
+ * heavy.
  *
- *     k = 1 - exp(-vitesse * dt)
+ *     k = 1 - exp(-speed * dt)
  *
- * Independant de la frequence d'images : un coefficient fixe rendrait la carte
- * deux fois plus vive sur un ecran a 120 Hz, et le meme composant n'aurait pas
- * le meme poids selon la machine.
+ * Independent of the frame rate: a fixed coefficient would make the card twice
+ * as brisk on a 120 Hz screen, and the same component would not have the same
+ * weight from one machine to the next.
  *
- * ## Le reflet est un fond, pas un element
+ * ## The glare is a background, not an element
  *
- * Un calque superpose demanderait un empilement et intercepterait le pointeur.
- * Un degrade radial dont on deplace le centre ne coute qu'une variable, se
- * peint sous le contenu, et ne recoit jamais un clic.
+ * A stacked layer would call for a stacking context and would intercept the
+ * pointer. A radial gradient whose centre is moved costs only one variable,
+ * paints under the content, and never receives a click.
  *
- * ## Elle ne re-rend jamais
+ * ## It never re-renders
  *
- * Les angles et la position du reflet sont ecrits dans le style depuis la
- * boucle. Passer par l'etat de React relancerait un rendu de la carte et de
- * tout ce qu'elle contient a chaque pixel parcouru.
+ * The angles and the position of the glare are written into the style from the
+ * loop. Going through React state would restart a render of the card and of
+ * everything it holds on every pixel travelled.
  *
- * ## Ce qui reste sans mouvement, et au doigt
+ * ## What is left without motion, and for touch
  *
- * Une carte. L'inclinaison ne portait aucune information — elle n'etait qu'une
- * reponse au geste — donc la retirer ne retire rien. Sur un ecran tactile il
- * n'y a pas de survol : le composant ne s'abonne meme pas.
+ * A card. The tilt carried no information — it was only an answer to the
+ * gesture — so removing it removes nothing. On a touch screen there is no
+ * hover: the component does not even subscribe.
  *
  * @module
  */
@@ -50,57 +49,56 @@ import {
   type ReactNode,
 } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface TiltCardOwnProps {
-  /** Le contenu de la carte. */
+  /** The content of the card. */
   children: ReactNode
   /**
-   * Inclinaison maximale, en degres.
+   * Maximum tilt, in degrees.
    *
-   * Au-dela d'une dizaine, la carte cesse d'avoir l'air posee et se met a
-   * tanguer.
+   * Beyond ten or so, the card stops looking settled and starts to sway.
    *
    * @defaultValue 8
    */
   tilt?: number
   /**
-   * Profondeur de la perspective, en pixels.
+   * Depth of the perspective, in pixels.
    *
-   * Plus c'est petit, plus la deformation est marquee.
+   * The smaller it is, the more pronounced the deformation.
    *
    * @defaultValue 900
    */
   perspective?: number
   /**
-   * Vitesse a laquelle la carte rejoint l'angle vise.
+   * Speed at which the card reaches the target angle.
    *
    * @defaultValue 10
    */
   speed?: number
   /**
-   * Intensite du reflet, de 0 a 1. Zero le supprime.
+   * Strength of the glare, from 0 to 1. Zero removes it.
    *
    * @defaultValue 0.18
    */
   glare?: number
   /**
-   * Couleur du reflet.
+   * Colour of the glare.
    *
-   * Une valeur, pas une couleur en dur : ecrite en clair elle echapperait au
-   * theme, et une carte sombre garderait un reflet blanc de carte claire.
+   * A value, not a hard-coded colour: written out in the clear it would escape
+   * the theme, and a dark card would keep the white glare of a light one.
    *
-   * @defaultValue le plus clair de l'echelle neutre
+   * @defaultValue the lightest of the neutral scale
    */
   glareColour?: string
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type TiltCardProps = Customisable<TiltCardOwnProps, 'div'>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-tilt-card'
 
-/** Pose les regles de la carte, une fois par document. */
+/** Applies the rules of the card, once per document. */
 function ensureTiltRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -112,12 +110,13 @@ function ensureTiltRule(): void {
     '[data-o-tilt-inner]{',
     'position:relative;height:100%;',
     'transform-style:preserve-3d;will-change:transform;',
-    // La transition ne sert qu'au retour au repos : pendant le survol, c'est
-    // la boucle qui ecrit a chaque image.
+    // The transition only serves the return to rest: during hover, the loop is
+    // what writes on every frame.
     'transition:transform 420ms cubic-bezier(0.22,1,0.36,1);',
     '}',
-    '[data-o-tilt-actif] [data-o-tilt-inner]{transition:none}',
-    // Le reflet : un fond, donc sous le contenu et hors d'atteinte du pointeur.
+    '[data-o-tilt-active] [data-o-tilt-inner]{transition:none}',
+    // The glare: a background, therefore under the content and out of the
+    // pointer's reach.
     '[data-o-tilt-inner]::before{',
     'content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;',
     'background:radial-gradient(circle at var(--o-tilt-gx) var(--o-tilt-gy),',
@@ -125,22 +124,22 @@ function ensureTiltRule(): void {
     'transparent 60%);',
     'opacity:0;transition:opacity 260ms ease;',
     '}',
-    '[data-o-tilt-actif] [data-o-tilt-inner]::before{opacity:1}',
+    '[data-o-tilt-active] [data-o-tilt-inner]::before{opacity:1}',
   ].join('')
   document.head.append(style)
 }
 
 /**
- * Une carte qui s'incline vers le pointeur.
+ * A card that tilts towards the pointer.
  *
  * @example
  * <TiltCard className="o-rounded-xl o-border-w-1 o-p-6">
- *   <h3>Un titre</h3>
- *   <p>Et son texte.</p>
+ *   <h3>A title</h3>
+ *   <p>And its text.</p>
  * </TiltCard>
  *
  * @example
- * // Plus marquee, sans reflet.
+ * // More pronounced, with no glare.
  * <TiltCard tilt={14} perspective={600} glare={0}>…</TiltCard>
  */
 export function TiltCard({
@@ -153,8 +152,8 @@ export function TiltCard({
   ...rest
 }: TiltCardProps): ReactElement {
   const { reduced } = useMotionState()
-  const hote = useRef<HTMLDivElement | null>(null)
-  const carte = useRef<HTMLDivElement | null>(null)
+  const host = useRef<HTMLDivElement | null>(null)
+  const card = useRef<HTMLDivElement | null>(null)
 
   ensureTiltRule()
 
@@ -162,80 +161,80 @@ export function TiltCard({
     if (reduced || typeof window === 'undefined') return
     if (window.matchMedia('(pointer: coarse)').matches) return
 
-    const cadre = hote.current
-    const interieur = carte.current
-    if (cadre === null || interieur === null) return
+    const frame = host.current
+    const inner = card.current
+    if (frame === null || inner === null) return
 
-    // Vise et courant : l'ecart entre les deux est tout l'effet.
-    let viseX = 0
-    let viseY = 0
+    // Target and current: the gap between the two is the whole effect.
+    let targetX = 0
+    let targetY = 0
     let x = 0
     let y = 0
-    let dedans = false
-    let image = 0
-    let dernier = performance.now()
+    let inside = false
+    let raf = 0
+    let last = performance.now()
 
-    const surMouvement = (evenement: PointerEvent) => {
-      const boite = cadre.getBoundingClientRect()
+    const onMove = (event: PointerEvent) => {
+      const box = frame.getBoundingClientRect()
 
-      // Ramene a [-1, 1] depuis le centre : c'est ce qui rend l'inclinaison
-      // independante de la taille de la carte.
-      const nx = ((evenement.clientX - boite.left) / Math.max(boite.width, 1)) * 2 - 1
-      const ny = ((evenement.clientY - boite.top) / Math.max(boite.height, 1)) * 2 - 1
+      // Brought back to [-1, 1] from the centre: that is what makes the tilt
+      // independent of the size of the card.
+      const nx = ((event.clientX - box.left) / Math.max(box.width, 1)) * 2 - 1
+      const ny = ((event.clientY - box.top) / Math.max(box.height, 1)) * 2 - 1
 
-      viseX = nx
-      viseY = ny
+      targetX = nx
+      targetY = ny
 
-      interieur.style.setProperty('--o-tilt-gx', `${String(((nx + 1) / 2) * 100)}%`)
-      interieur.style.setProperty('--o-tilt-gy', `${String(((ny + 1) / 2) * 100)}%`)
+      inner.style.setProperty('--o-tilt-gx', `${String(((nx + 1) / 2) * 100)}%`)
+      inner.style.setProperty('--o-tilt-gy', `${String(((ny + 1) / 2) * 100)}%`)
 
-      if (!dedans) {
-        dedans = true
-        cadre.setAttribute('data-o-tilt-actif', '')
+      if (!inside) {
+        inside = true
+        frame.setAttribute('data-o-tilt-active', '')
       }
     }
 
-    const surSortie = () => {
-      dedans = false
-      viseX = 0
-      viseY = 0
-      cadre.removeAttribute('data-o-tilt-actif')
-      interieur.style.transform = ''
+    const onLeave = () => {
+      inside = false
+      targetX = 0
+      targetY = 0
+      frame.removeAttribute('data-o-tilt-active')
+      inner.style.transform = ''
     }
 
-    const pas = (maintenant: number) => {
-      const dt = Math.min((maintenant - dernier) / 1000, 0.1)
-      dernier = maintenant
+    const step = (now: number) => {
+      const dt = Math.min((now - last) / 1000, 0.1)
+      last = now
 
-      if (dedans) {
-        // Amortissement independant de la frequence d'images : voir l'en-tete.
+      if (inside) {
+        // Frame-rate independent damping: see the header.
         const k = 1 - Math.exp(-speed * dt)
-        x += (viseX - x) * k
-        y += (viseY - y) * k
+        x += (targetX - x) * k
+        y += (targetY - y) * k
 
-        // Le signe de X est inverse : pointer vers la droite doit faire pivoter
-        // le bord droit vers l'arriere, pas vers l'avant.
-        interieur.style.transform = `rotateX(${String(-y * tilt)}deg) rotateY(${String(x * tilt)}deg)`
+        // The sign of X is flipped: pointing to the right must pivot the right
+        // edge backwards, not forwards.
+        inner.style.transform = `rotateX(${String(-y * tilt)}deg) rotateY(${String(x * tilt)}deg)`
       }
 
-      image = requestAnimationFrame(pas)
+      raf = requestAnimationFrame(step)
     }
 
-    cadre.addEventListener('pointermove', surMouvement, { passive: true })
-    cadre.addEventListener('pointerleave', surSortie, { passive: true })
-    image = requestAnimationFrame(pas)
+    frame.addEventListener('pointermove', onMove, { passive: true })
+    frame.addEventListener('pointerleave', onLeave, { passive: true })
+    raf = requestAnimationFrame(step)
 
     return () => {
-      cadre.removeEventListener('pointermove', surMouvement)
-      cadre.removeEventListener('pointerleave', surSortie)
-      cancelAnimationFrame(image)
-      surSortie()
+      frame.removeEventListener('pointermove', onMove)
+      frame.removeEventListener('pointerleave', onLeave)
+      cancelAnimationFrame(raf)
+      onLeave()
     }
   }, [reduced, tilt, speed])
 
   const { className, style } = mergePresentation({}, rest)
 
-  const styleCadre = {
+  const frameStyle = {
     ...style,
     '--o-tilt-depth': `${String(perspective)}px`,
     '--o-tilt-glare': `${String(glare * 100)}%`,
@@ -245,8 +244,8 @@ export function TiltCard({
   } as CSSProperties
 
   return (
-    <div {...rest} ref={hote} className={className} style={styleCadre} data-o-tilt="">
-      <div ref={carte} data-o-tilt-inner="">
+    <div {...rest} ref={host} className={className} style={frameStyle} data-o-tilt="">
+      <div ref={card} data-o-tilt-inner="">
         {children}
       </div>
     </div>

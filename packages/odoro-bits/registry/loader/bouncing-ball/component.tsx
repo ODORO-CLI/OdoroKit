@@ -1,30 +1,30 @@
 /**
- * Balle qui rebondit : une balle tombe, s'ecrase au sol, repart, et son
- * ombre grandit a mesure qu'elle s'approche.
+ * Bouncing ball: a ball falls, squashes on the ground, leaves again, and
+ * its shadow grows as it comes closer.
  *
- * ## Une chute n'est pas une montee a l'envers
+ * ## A fall is not a rise in reverse
  *
- * Une balle qui tombe accelere ; une balle qui remonte ralentit. La meme
- * courbe dans les deux sens — l'`ease-in-out` que l'on pose par reflexe —
- * donne une balle qui flotte, sans poids. Ici la chute est en `ease-in`, la
- * remontee en `ease-out`, et entre les deux la balle s'aplatit au sol :
- * c'est l'ecrasement qui dit qu'il y a eu un choc, et la reprise de forme
- * qui dit qu'elle est elastique. L'origine de l'ecrasement est le bas de la
- * balle, pour qu'elle reste posee au sol pendant qu'elle se deforme.
+ * A falling ball speeds up; a rising ball slows down. The same curve in
+ * both directions — the `ease-in-out` one reaches for by reflex — gives a
+ * ball that floats, with no weight. Here the fall is in `ease-in`, the rise
+ * in `ease-out`, and between the two the ball flattens on the ground: it is
+ * the squash that says there has been an impact, and the recovery of shape
+ * that says the ball is elastic. The origin of the squash is the bottom of
+ * the ball, so that it stays resting on the ground while it deforms.
  *
- * L'ombre est ce qui donne la hauteur : sans elle, une balle qui monte et
- * descend est un point qui bouge. Elle se resserre et palit quand la balle
- * est loin, s'etale et fonce quand elle touche. Deux animations, tenues par
- * le compositeur, aucun JavaScript apres le premier rendu.
+ * The shadow is what gives the height: without it, a ball that goes up and
+ * down is a dot that moves. It tightens and pales when the ball is far,
+ * spreads and darkens when it touches. Two animations, held by the
+ * compositor, no JavaScript after the first render.
  *
- * ## Un statut, pas un dessin
+ * ## A status, not a drawing
  *
- * L'element porte `role="status"` et un libelle pour les lecteurs d'ecran :
- * l'attente est une information, pas une decoration. La balle et son ombre
- * sont retirees de l'arbre d'accessibilite.
+ * The element carries `role="status"` and a label for screen readers: the
+ * wait is information, not decoration. The ball and its shadow are removed
+ * from the accessibility tree.
  *
- * Sous mouvement reduit, la balle est posee au sol, sur son ombre pleine :
- * c'est la ou une balle finit toujours, et la figure se reconnait encore.
+ * Under reduced motion, the ball rests on the ground, on its full shadow:
+ * that is where a ball always ends up, and the figure is still recognised.
  *
  * @module
  */
@@ -32,13 +32,13 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-bouncing-ball'
 
-/** Hauteur du rebond, en diametres de balle. */
+/** Height of the bounce, in ball diameters. */
 const HEIGHT = 2.4
 
-/** Pose la balle, son ombre et le rebond, une fois par document. */
+/** Applies the ball, its shadow and the bounce, once per document. */
 function ensureBallRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -46,8 +46,8 @@ function ensureBallRule(): void {
   const style = document.createElement('style')
   style.id = STYLE_ID
   style.textContent = [
-    // La colonne reserve la hauteur du saut au-dessus de la balle : le
-    // chargeur ne change pas de taille selon l'image ou on le regarde.
+    // The column reserves the height of the jump above the ball: the loader
+    // does not change size depending on the frame you look at it in.
     '[data-o-bouncing-ball]{',
     'display:inline-flex;flex-direction:column;align-items:center;justify-content:flex-end;',
     `height:calc(var(--o-ball-size) * ${String(HEIGHT + 1.5)});`,
@@ -65,7 +65,7 @@ function ensureBallRule(): void {
     'border-radius:50%;background:var(--o-ball-color);opacity:0.4;',
     'animation:o-bouncing-ball-shade var(--o-ball-speed) infinite;',
     '}',
-    // Chute en accelerant, ecrasement au sol, remontee en ralentissant.
+    // Fall while speeding up, squash on the ground, rise while slowing down.
     '@keyframes o-bouncing-ball-jump{',
     `0%{transform:translateY(calc(var(--o-ball-size) * -${String(HEIGHT)})) scale(1);animation-timing-function:ease-in}`,
     '44%{transform:translateY(0) scale(1);animation-timing-function:ease-out}',
@@ -73,14 +73,14 @@ function ensureBallRule(): void {
     '56%{transform:translateY(0) scale(1);animation-timing-function:ease-out}',
     `100%{transform:translateY(calc(var(--o-ball-size) * -${String(HEIGHT)})) scale(1)}`,
     '}',
-    // L'ombre suit la hauteur : petite et pale au sommet, large et pleine
-    // au contact.
+    // The shadow follows the height: small and pale at the top, wide and
+    // full at the contact.
     '@keyframes o-bouncing-ball-shade{',
     '0%{transform:scaleX(0.45);opacity:0.12;animation-timing-function:ease-in}',
     '44%,56%{transform:scaleX(1);opacity:0.4;animation-timing-function:ease-out}',
     '100%{transform:scaleX(0.45);opacity:0.12}',
     '}',
-    // Une balle posee sur son ombre : la figure est dite, sans rebond.
+    // A ball resting on its shadow: the figure is stated, with no bounce.
     '@media (prefers-reduced-motion:reduce){',
     '[data-o-ball],[data-o-ball-shadow]{animation:none;transform:none}',
     '}',
@@ -88,36 +88,36 @@ function ensureBallRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface BouncingBallOwnProps {
-  /** Diametre de la balle, en pixels. @defaultValue 12 */
+  /** Diameter of the ball, in pixels. @defaultValue 12 */
   size?: number
-  /** Duree d'un rebond complet, en millisecondes. @defaultValue 800 */
+  /** Duration of a full bounce, in milliseconds. @defaultValue 800 */
   speed?: number
-  /** Couleur de la balle et de son ombre. @defaultValue la couleur du texte */
+  /** Color of the ball and of its shadow. @defaultValue the text color */
   color?: string
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */
+  /** Label announced to screen readers. @defaultValue 'Loading' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All the properties. */
 export type BouncingBallProps = Customisable<BouncingBallOwnProps, 'span'>
 
 /**
- * Signale une attente par une balle qui rebondit sur son ombre.
+ * Signals a wait with a ball bouncing on its shadow.
  *
  * @example
  * <BouncingBall />
  *
  * @example
- * // Plus grosse, plus lente, dans la teinte de marque.
+ * // Bigger, slower, in the brand hue.
  * <BouncingBall size={18} speed={1200} color="var(--o-palette-brand-500)" />
  */
 export function BouncingBall({
   size = 12,
   speed = 800,
   color = 'currentColor',
-  label = 'Chargement',
+  label = 'Loading',
   ...rest
 }: BouncingBallProps): ReactElement {
   ensureBallRule()

@@ -1,0 +1,9 @@
+# Variables prefixed with ODORO_ go into the published bundle: anyone who opens
+# the site can read them. Everything else — tokens, server-side API keys — stays
+# on the machine, readable by the commands and by the back end.
+#
+# Copy this file to `.env` (ignored by git) and fill in what you need.
+# `.env.production` only applies to `odoro build`, `.env.development` only to
+# `odoro dev`.
+
+ODORO_API=http://localhost:3001

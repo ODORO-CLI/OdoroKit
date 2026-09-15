@@ -36,7 +36,7 @@
 
 import { useMotionState } from '@odoro-cli/engine'
 import { Icon } from '@odoro-cli/icons'
-import { ArrowRight, BookOpenText, Check, TriangleAlert } from '@odoro-cli/icons/filaire'
+import { ArrowRight, BookOpenText, Check, TriangleAlert } from '@odoro-cli/icons/outline'
 import {
   useEffect,
   useId,

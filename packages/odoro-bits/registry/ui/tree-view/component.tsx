@@ -1,29 +1,29 @@
 /**
- * Arborescence pliable : un `tree` complet au clavier, dont les branches
- * ouvertes se deroulent en cascade.
+ * Collapsible tree: a complete keyboard `tree`, whose open branches unfold
+ * in a cascade.
  *
- * ## Une branche fermee n'est pas montee
+ * ## A closed branch is not mounted
  *
- * Il serait plus simple de garder tout l'arbre dans le document et de le
- * masquer pour pouvoir animer le repli. Ce serait aussi mentir : `aria-expanded`
- * annoncerait une branche fermee dont les enfants restent dans l'arbre
- * d'accessibilite, atteignables au clavier virtuel. Le repli est donc
- * immediat, et seule l'ouverture est animee — c'est le seul des deux gestes
- * ou il y a quelque chose a regarder.
+ * It would be simpler to keep the whole tree in the document and hide it in
+ * order to be able to animate the collapse. It would also be a lie:
+ * `aria-expanded` would announce a closed branch whose children stay in the
+ * accessibility tree, reachable with the virtual keyboard. The collapse is
+ * therefore immediate, and only the opening is animated — it is the only one
+ * of the two gestures where there is something to look at.
  *
- * ## Les fleches font quatre choses differentes
+ * ## The arrows do four different things
  *
- * Haut et bas parcourent les lignes visibles, en traversant les niveaux :
- * l'arbre se lit comme une liste. Droite ouvre une branche fermee, puis
- * descend dans son premier enfant. Gauche referme une branche ouverte, puis
- * remonte vers le parent. C'est le motif `tree` de l'ARIA, et l'inverse d'un
- * accordeon : rien ici ne se ferme parce qu'autre chose s'ouvre.
+ * Up and down walk the visible rows, crossing the levels: the tree reads
+ * like a list. Right opens a closed branch, then goes down into its first
+ * child. Left closes an open branch, then goes back up to the parent. It is
+ * the ARIA `tree` pattern, and the opposite of an accordion: nothing here
+ * closes because something else opens.
  *
- * ## Deux etats controlables, parce qu'ils repondent a deux questions
+ * ## Two controllable states, because they answer two questions
  *
- * Ce qui est ouvert et ce qui est choisi ne changent pas ensemble : on
- * parcourt une arborescence bien plus souvent qu'on n'y choisit. Chacun a donc
- * son couple controle / non controle.
+ * What is open and what is selected do not change together: a tree is walked
+ * far more often than it is selected in. Each one therefore has its own
+ * controlled / uncontrolled pair.
  *
  * @module
  */
@@ -37,50 +37,50 @@ import {
   type ReactElement,
 } from 'react'
 
-/** Un noeud de l'arborescence. */
+/** A node of the tree. */
 export interface TreeNode {
-  /** Identifiant, unique dans tout l'arbre. */
+  /** Identifier, unique across the whole tree. */
   readonly id: string
-  /** Libelle affiche. */
+  /** Displayed label. */
   readonly label: string
-  /** Precision affichee en sourdine, a droite du libelle. */
+  /** Detail shown muted, to the right of the label. */
   readonly hint?: string
-  /** Enfants. Un noeud sans enfants est une feuille. */
+  /** Children. A node without children is a leaf. */
   readonly children?: readonly TreeNode[]
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to this component. */
 export interface TreeViewOwnProps {
-  /** Les noeuds racines, dans l'ordre d'affichage. */
+  /** The root nodes, in display order. */
   nodes: readonly TreeNode[]
-  /** Nom de l'arborescence pour les lecteurs d'ecran. */
+  /** Name of the tree for screen readers. */
   label: string
-  /** Noeud choisi, en mode controle. */
+  /** Selected node, in controlled mode. */
   value?: string
-  /** Noeud choisi au montage, en mode non controle. */
+  /** Node selected at mount, in uncontrolled mode. */
   defaultValue?: string
-  /** Appele quand le choix change. */
+  /** Called when the selection changes. */
   onChange?: (id: string) => void
-  /** Branches ouvertes, en mode controle. */
+  /** Open branches, in controlled mode. */
   open?: readonly string[]
-  /** Branches ouvertes au montage, en mode non controle. @defaultValue [] */
+  /** Branches open at mount, in uncontrolled mode. @defaultValue [] */
   defaultOpen?: readonly string[]
-  /** Appele avec la liste des branches ouvertes. */
+  /** Called with the list of open branches. */
   onOpenChange?: (open: readonly string[]) => void
-  /** Retard ajoute par ligne dans le deroulement d'une branche. @defaultValue 30 */
+  /** Delay added per row in the unfolding of a branch. @defaultValue 30 */
   stagger?: number
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type TreeViewProps = Customisable<TreeViewOwnProps, 'ul'>
 
-/** Aucune branche ouverte. */
+/** No open branch. */
 const NONE: readonly string[] = []
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-tree-view'
 
-/** Pose les niveaux, le chevron et le deroulement, une fois par document. */
+/** Sets the levels, the chevron and the unfolding, once per document. */
 function ensureTreeRules(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -90,7 +90,7 @@ function ensureTreeRules(): void {
   style.textContent = [
     '[data-o-tree],[data-o-tree] ul{margin:0;padding:0;list-style:none}',
     '[data-o-tree] [role="group"]{',
-    // Le filet vertical dit d'un coup d'oeil jusqu'ou va la branche.
+    // The vertical rule says at a glance how far the branch goes.
     'margin-left:0.85em;padding-left:0.7em;border-left:1px solid var(--o-theme-line);',
     '}',
     '[data-o-tree] [role="treeitem"]{outline:none}',
@@ -110,7 +110,7 @@ function ensureTreeRules(): void {
     'transition:rotate var(--o-duration-base) var(--o-ease-standard);',
     '}',
     '[role="treeitem"][aria-expanded="true"] > [data-o-tree-row] [data-o-tree-chevron]{rotate:90deg}',
-    // Une feuille garde la gouttiere du chevron : les libelles restent alignes.
+    // A leaf keeps the gutter of the chevron: the labels stay aligned.
     '[data-o-tree-leaf]{flex:none;width:1em}',
     '[data-o-tree-label]{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}',
     '[data-o-tree-hint]{opacity:0.5;font-size:0.875em;white-space:nowrap}',
@@ -127,14 +127,14 @@ function ensureTreeRules(): void {
   document.head.append(style)
 }
 
-/** Une ligne visible : le noeud, sa profondeur, et le noeud qui la contient. */
+/** A visible row: the node, its depth, and the node that contains it. */
 interface Visible {
   readonly node: TreeNode
   readonly depth: number
   readonly parent: string | null
 }
 
-/** Deroule l'arbre en ne gardant que ce que les branches ouvertes laissent voir. */
+/** Unfolds the tree, keeping only what the open branches let one see. */
 function flatten(
   nodes: readonly TreeNode[],
   open: ReadonlySet<string>,
@@ -152,21 +152,21 @@ function flatten(
 }
 
 /**
- * Arborescence pliable, parcourue aux fleches.
+ * Collapsible tree, walked with the arrow keys.
  *
  * @example
  * <TreeView
- *   label="Fichiers"
+ *   label="Files"
  *   nodes={[
  *     { id: 'src', label: 'src', children: [{ id: 'app', label: 'App.tsx' }] },
- *     { id: 'lisez', label: 'lisez-moi.md' },
+ *     { id: 'readme', label: 'readme.md' },
  *   ]}
  *   defaultOpen={['src']}
  * />
  *
  * @example
- * // Mode controle des deux etats : la page decide de tout.
- * <TreeView label="Rayons" nodes={rayons} value={choix} onChange={setChoix} open={ouverts} onOpenChange={setOuverts} />
+ * // Controlled mode for both states: the page decides everything.
+ * <TreeView label="Shelves" nodes={shelves} value={choice} onChange={setChoice} open={opened} onOpenChange={setOpened} />
  */
 export function TreeView({
   nodes,
@@ -190,8 +190,8 @@ export function TreeView({
   const opened = open ?? internalOpen
   const openSet = new Set(opened)
   const rows = flatten(nodes, openSet)
-  // La ligne dans l'ordre de tabulation : celle que l'on vient de parcourir,
-  // sinon celle qui est choisie, sinon la premiere. Un arbre n'a qu'une entree.
+  // The row in the tab order: the one just walked to, otherwise the one that
+  // is selected, otherwise the first. A tree has only one entry.
   const focused =
     rows.find((row) => row.node.id === active)?.node.id ??
     rows.find((row) => row.node.id === selected)?.node.id ??
@@ -214,7 +214,7 @@ export function TreeView({
     setOpen(target ? [...opened, id] : opened.filter((entry) => entry !== id))
   }
 
-  /** Donne le focus a une ligne, et la retient comme point d'entree. */
+  /** Gives the focus to a row, and retains it as the entry point. */
   const goTo = (id: string | undefined): void => {
     if (id === undefined) return
     setActive(id)
@@ -247,13 +247,13 @@ export function TreeView({
       case 'ArrowRight':
         event.preventDefault()
         if (!branch) return
-        // Fermee, elle s'ouvre ; ouverte, on entre dedans.
+        // Closed, it opens; open, one steps inside it.
         if (openSet.has(row.node.id)) goTo(rows[at + 1]?.node.id)
         else toggle(row.node.id, true)
         return
       case 'ArrowLeft':
         event.preventDefault()
-        // Ouverte, elle se ferme ; sinon on remonte d'un niveau.
+        // Open, it closes; otherwise one goes back up one level.
         if (branch && openSet.has(row.node.id)) toggle(row.node.id, false)
         else goTo(row.parent ?? undefined)
         return
@@ -270,7 +270,7 @@ export function TreeView({
 
   const { className, style } = mergePresentation({}, rest)
 
-  /** Rend un niveau. L'index sert au retard de la cascade, pas a l'identite. */
+  /** Renders one level. The index serves the cascade delay, not the identity. */
   const level = (list: readonly TreeNode[], depth: number): ReactElement[] =>
     list.map((node, index) => {
       const branch = node.children !== undefined && node.children.length > 0

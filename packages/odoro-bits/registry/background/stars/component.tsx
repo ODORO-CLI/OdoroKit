@@ -1,22 +1,22 @@
 /**
- * Etoiles : un semis a trois profondeurs, qui derive en parallaxe.
+ * Stars: a scattering at three depths, drifting in parallax.
  *
- * ## Le principe
+ * ## The principle
  *
- * Une etoile par cellule d une grille, sa position tiree de l identifiant de la cellule : aucune liste n est parcourue.
+ * One star per cell of a grid, its position drawn from the cell identifier: no list is ever walked.
  *
- * Le scintillement est un sinus de phase propre a chaque etoile, jamais un tirage par image — ce dernier ne produirait que du bruit.
+ * The twinkle is a sine whose phase belongs to each star, never a draw per frame — that would produce nothing but noise.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur — les recopier ici en ferait autant
- * de versions a maintenir qu'il y a de fonds.
+ * It carries only what sets it apart: its shader, its settings and its fallback.
+ * Reading the tokens, converting them to floats and re-reading them when the
+ * theme changes all come from the engine — copying that here would leave as many
+ * versions to maintain as there are backgrounds.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en
- * accorde qu'une par backend — et sous mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface — it grants only one per
+ * backend — and under reduced motion.
  *
  * @module
  */
@@ -32,41 +32,41 @@ import {
 } from '@odoro-cli/engine'
 import { type ReactElement } from 'react'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface StarsControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to this component. */
 export interface StarsOwnProps {
-  /** Vitesse de la derive. @defaultValue 0.5 */
+  /** Speed of the drift. @defaultValue 0.5 */
   speed?: number
-  /** Densite du semis. @defaultValue 24 */
+  /** Density of the scattering. @defaultValue 24 */
   density?: number
-  /** Force du scintillement. @defaultValue 0.6 */
+  /** Strength of the twinkle. @defaultValue 0.6 */
   twinkle?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<StarsControls>
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type StarsProps = Customisable<StarsOwnProps>
 
-/** Tokens employes par defaut. */
+/** Tokens used by default. */
 const DEFAULT_TOKENS = ['--o-theme-bg', '--o-theme-fg'] as const
 
-/** Repli par defaut : une teinte figee, dans les memes tons. */
+/** Default fallback: a frozen tint, in the same tones. */
 const DEFAULT_FALLBACK = 'o-bg-zinc-50 dark:o-bg-zinc-950'
 
 /**
- * Etoiles.
+ * Stars.
  *
  * @example
  * <div className="o-relative o-min-h-screen">

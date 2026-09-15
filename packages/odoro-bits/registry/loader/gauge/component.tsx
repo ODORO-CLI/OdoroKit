@@ -1,30 +1,29 @@
 /**
- * Jauge : un arc de trois quarts de tour, gradue, qui se remplit jusqu'a la
- * valeur.
+ * Gauge: a three-quarter-turn arc, graduated, that fills up to the value.
  *
- * ## Un cadran, pas un anneau
+ * ## A dial, not a ring
  *
- * L'arc est ouvert en bas, comme un compteur de vitesse : l'ouverture donne
- * un debut et une fin a la course, et les cinq graduations la rendent
- * lisible sans le chiffre — on voit d'un coup d'oeil si la jauge est au
- * quart ou aux trois quarts. Le chiffre, dessous, confirme.
+ * The arc is open at the bottom, like a speedometer: the opening gives the
+ * travel a beginning and an end, and the five tick marks make it legible
+ * without the figure — one can tell at a glance whether the gauge is at a
+ * quarter or at three quarters. The figure, below, confirms it.
  *
- * L'arc de remplissage est le meme cercle que la piste, dont le tirete est
- * decale : la longueur visible est proportionnelle a la valeur, et changer
- * de valeur ne fait que deplacer le decalage. C'est une propriete que le
- * navigateur sait faire glisser sans recalculer la mise en page.
+ * The filling arc is the same circle as the track, with its dash offset:
+ * the visible length is proportional to the value, and changing value only
+ * moves the offset. That is a property the browser can slide without
+ * recomputing layout.
  *
- * ## Deux modes, deux honnetetes
+ * ## Two modes, two kinds of honesty
  *
- * Le mode determine recoit `value` et le montre tel quel : la jauge est un
- * `role="progressbar"` complet, valeur comprise. Le mode `indeterminate` ne
- * pretend rien mesurer : un court segment balaye l'arc d'un bout a l'autre,
- * le chiffre disparait, et le `progressbar` est declare **sans** valeur —
- * c'est ainsi que la specification decrit une progression inconnue.
+ * The determinate mode receives `value` and shows it as is: the gauge is a
+ * complete `role="progressbar"`, value included. The `indeterminate` mode
+ * claims to measure nothing: a short segment sweeps the arc from end to end,
+ * the figure disappears, and the `progressbar` is declared **without** a
+ * value — that is how the specification describes unknown progress.
  *
- * Sous mouvement reduit, la valeur saute sans transition, et le balayage
- * indetermine s'arrete a mi-course : la jauge se lit encore, seul le
- * mouvement s'arrete.
+ * Under reduced motion, the value jumps without transition, and the
+ * indeterminate sweep stops halfway: the gauge still reads, only the
+ * movement stops.
  *
  * @module
  */
@@ -32,16 +31,16 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Id of the injected stylesheet. */
 const STYLE_ID = 'o-gauge'
 
-/** Part du tour couverte par l'arc. */
+/** Share of the turn covered by the arc. */
 const SWEEP = 0.75
 
-/** Angle, en degres depuis trois heures, ou l'arc commence. */
+/** Angle, in degrees from three o'clock, where the arc starts. */
 const START = 135
 
-/** Pose la jauge, sa transition et son balayage, une fois par document. */
+/** Sets the gauge, its transition and its sweep, once per document. */
 function ensureGaugeRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -54,7 +53,7 @@ function ensureGaugeRule(): void {
     '[data-o-gauge-fill]{',
     'transition:stroke-dashoffset var(--o-duration-base) var(--o-ease-standard);',
     '}',
-    // Le balayage : un segment court fait l'aller-retour sur l'arc.
+    // The sweep: a short segment travels back and forth along the arc.
     '[data-o-gauge-indeterminate] [data-o-gauge-fill]{',
     'transition:none;',
     'animation:o-gauge-sweep var(--o-gauge-speed) ease-in-out infinite alternate;',
@@ -78,36 +77,36 @@ function ensureGaugeRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to the component. */
 export interface GaugeOwnProps {
-  /** Valeur, de 0 a 100. Ignoree en mode indetermine. @defaultValue 64 */
+  /** Value, from 0 to 100. Ignored in indeterminate mode. @defaultValue 64 */
   value?: number
-  /** Balayage sans valeur, quand rien n'est mesurable. @defaultValue false */
+  /** Sweep without a value, when nothing is measurable. @defaultValue false */
   indeterminate?: boolean
-  /** Largeur de la jauge, en pixels. @defaultValue 96 */
+  /** Width of the gauge, in pixels. @defaultValue 96 */
   size?: number
-  /** Epaisseur de l'arc, en pixels. @defaultValue 8 */
+  /** Thickness of the arc, in pixels. @defaultValue 8 */
   thickness?: number
-  /** Duree d'un aller du balayage indetermine, en millisecondes. @defaultValue 1600 */
+  /** Duration of one pass of the indeterminate sweep, in milliseconds. @defaultValue 1600 */
   speed?: number
-  /** Couleur du remplissage. @defaultValue la couleur du texte */
+  /** Colour of the fill. @defaultValue the text colour */
   color?: string
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */
+  /** Label announced to screen readers. @defaultValue 'Loading' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type GaugeProps = Customisable<GaugeOwnProps, 'span'>
 
 /**
- * Jauge en arc, determinee ou balayee.
+ * Arc gauge, determinate or sweeping.
  *
  * @example
- * // Progression reelle.
+ * // Real progress.
  * <Gauge value={sent / total * 100} />
  *
  * @example
- * // Attente sans mesure, dans la teinte de marque.
+ * // A wait without measure, in the brand hue.
  * <Gauge indeterminate color="var(--o-palette-brand-500)" />
  */
 export function Gauge({
@@ -117,22 +116,22 @@ export function Gauge({
   thickness = 8,
   speed = 1600,
   color = 'currentColor',
-  label = 'Chargement',
+  label = 'Loading',
   ...rest
 }: GaugeProps): ReactElement {
   ensureGaugeRule()
 
   const clamped = Math.min(100, Math.max(0, value))
 
-  // Le dessin vit dans une vue de 100 unites. Les graduations debordent de
-  // l'arc : le rayon leur laisse la place.
+  // The drawing lives in a 100-unit view. The tick marks sit outside the
+  // arc: the radius leaves them the room.
   const stroke = Math.min((thickness / size) * 100, 20)
   const radius = 50 - stroke / 2 - 7
   const circumference = 2 * Math.PI * radius
   const arc = circumference * SWEEP
 
-  // En mode indetermine le segment fait un cinquieme de l'arc ; sa course
-  // va du debut de l'arc a sa fin, moins sa propre longueur.
+  // In indeterminate mode the segment is a fifth of the arc; its travel runs
+  // from the start of the arc to its end, minus its own length.
   const sweep = arc * 0.2
   const far = -(arc - sweep)
 
@@ -161,8 +160,9 @@ export function Gauge({
       data-o-gauge-indeterminate={indeterminate ? '' : undefined}
       role="progressbar"
       aria-label={label}
-      // Un progressbar sans aria-valuenow est indetermine : c'est la maniere
-      // normative de dire « j'avance, mais je ne sais pas de combien ».
+      // A progressbar without aria-valuenow is indeterminate: it is the
+      // normative way of saying "I am advancing, but I do not know by how
+      // much".
       aria-valuemin={indeterminate ? undefined : 0}
       aria-valuemax={indeterminate ? undefined : 100}
       aria-valuenow={indeterminate ? undefined : Math.round(clamped)}
@@ -179,8 +179,8 @@ export function Gauge({
             strokeWidth={1.5}
             strokeLinecap="round"
             opacity={0.4}
-            // Une graduation posee en haut, puis tournee jusqu'a sa place
-            // sur l'arc : le quart de tour ramene le haut a trois heures.
+            // A tick mark placed at the top, then turned to its place on the
+            // arc: the quarter turn brings the top back to three o'clock.
             transform={`rotate(${String(START + 90 + (tick * (SWEEP * 360)) / 4)} 50 50)`}
           />
         ))}
@@ -204,7 +204,7 @@ export function Gauge({
           fill="none"
           stroke="currentColor"
           strokeWidth={stroke}
-          // A zero, un bout rond dessinerait encore un point.
+          // At zero, a round cap would still draw a dot.
           strokeLinecap={indeterminate || clamped > 0 ? 'round' : 'butt'}
           strokeDasharray={
             indeterminate

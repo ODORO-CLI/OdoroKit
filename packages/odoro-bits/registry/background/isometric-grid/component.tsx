@@ -1,23 +1,23 @@
 /**
- * Pave isometrique : des cubes vus en isometrie, dont les cellules
- * s'allument chacune a son rythme.
+ * Isometric tile: cubes seen in isometry, whose cells each light up at
+ * their own rhythm.
  *
- * ## Ce qui le distingue des alveoles
+ * ## What sets it apart from the honeycomb
  *
- * Meme grille hexagonale, mais l'hexagone est coupe en trois faces a trois
- * ombres : le pavage a du relief, et l'allumage eclaire un cube entier, faces
- * comprises. Les alveoles pulsent ; ici, rien ne bouge, des cubes s'allument
- * et s'eteignent.
+ * The same hexagonal grid, but the hexagon is cut into three faces with
+ * three shades: the tiling gains relief, and the lighting lights a whole
+ * cube, faces included. The cells pulse; here, nothing moves, cubes light up
+ * and go out.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur.
+ * It carries only what sets it apart: its shader, its settings and its fallback.
+ * Reading the tokens, converting them to floats and re-reading them when the
+ * theme changes all come from the engine.
  *
- * Le repli n'est pas une precaution : il est affiche pendant le chargement du
- * backend, quand WebGL manque, quand l'arbitre refuse la surface et sous
- * mouvement reduit.
+ * The fallback is not a precaution: it is shown while the backend loads, when
+ * WebGL is missing, when the arbiter refuses the surface and under reduced
+ * motion.
  *
  * @module
  */
@@ -34,41 +34,41 @@ import { type ReactElement } from 'react'
 
 import { ISOMETRIC_GRID_FRAGMENT } from './isometric-grid.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface IsometricGridControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to this component. */
 export interface IsometricGridOwnProps {
-  /** Vitesse de l'allumage. @defaultValue 0.5 */
+  /** Speed of the lighting. @defaultValue 0.5 */
   speed?: number
-  /** Nombre de cubes sur la hauteur. @defaultValue 7 */
+  /** Number of cubes over the height. @defaultValue 7 */
   density?: number
-  /** Part des cubes allumes a un instant donne. @defaultValue 0.25 */
+  /** Share of the cubes lit at any given moment. @defaultValue 0.25 */
   lit?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<IsometricGridControls>
 }
 
-/** Toutes les proprietes. */
+/** Every property. */
 export type IsometricGridProps = Customisable<IsometricGridOwnProps>
 
-/** Tokens employes par defaut : le fond, l'ombre des faces, l'allumage. */
+/** Tokens used by default: the background, the face shading, the lighting. */
 const DEFAULT_TOKENS = ['--o-theme-bg', '--o-theme-fg', '--o-palette-brand-500'] as const
 
-/** Repli par defaut : une teinte figee, dans les memes tons. */
+/** Default fallback: a frozen hue, in the same tones. */
 const DEFAULT_FALLBACK = 'o-bg-zinc-50 dark:o-bg-zinc-950'
 
 /**
- * Pave isometrique.
+ * Isometric tile.
  *
  * @example
  * <div className="o-relative o-min-h-screen">

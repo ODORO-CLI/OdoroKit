@@ -1,52 +1,54 @@
 /**
- * Lecture d'une couleur de token pour un shader.
+ * Reading a token colour for a shader.
  *
- * ## Le chainon manquant
+ * ## The missing link
  *
- * La palette est en OKLCH, et c'est un bon choix : la clarte y est perceptuelle,
- * ce qui rend une echelle de nuances reguliere a l'oeil plutot qu'aux nombres.
- * Un shader, lui, veut trois flottants entre zero et un.
+ * The palette is in OKLCH, and that is a good choice: lightness there is
+ * perceptual, which makes a scale of shades regular to the eye rather than to
+ * the numbers. A shader, on the other hand, wants three floats between zero
+ * and one.
  *
- * Sans conversion, tout fond anime finit avec ses couleurs ecrites en dur — et
- * reste alors seul de son espece dans une page qui a change de theme. C'est
- * exactement ce que le niveau 1 du contrat existe pour empecher, et ce que la
- * validation du registre refuse.
+ * Without conversion, every animated background ends up with its colours
+ * hard-coded — and then stands alone of its kind on a page that has changed
+ * theme. That is exactly what level 1 of the contract exists to prevent, and
+ * what the registry validation refuses.
  *
- * ## Pourquoi la conversion est faite ici plutot que par le navigateur
+ * ## Why the conversion is done here rather than by the browser
  *
- * Le navigateur sait resoudre `var(--o-palette-brand-600)` en une couleur, mais il
- * la rend sous la forme ou elle a ete ecrite : `getComputedStyle` d'une valeur
- * OKLCH rend une chaine OKLCH. Il n'existe pas d'API qui rende trois flottants.
+ * The browser knows how to resolve `var(--o-palette-brand-600)` into a colour,
+ * but it returns it in the form in which it was written: `getComputedStyle` of
+ * an OKLCH value returns an OKLCH string. There is no API that returns three
+ * floats.
  *
- * Le detour par un canevas — poser la couleur en `fillStyle` et relire — donne
- * un resultat qui depend de la version du navigateur : certains normalisent en
- * `rgb()`, d'autres conservent la notation d'origine. La mathematique, elle, ne
- * change pas.
+ * The detour through a canvas — setting the colour as `fillStyle` and reading
+ * it back — gives a result that depends on the browser version: some normalise
+ * to `rgb()`, others keep the original notation. The mathematics, on the other
+ * hand, does not change.
  *
  * @module
  */
 
-/** Une couleur pour un shader : trois composantes sRGB entre 0 et 1. */
+/** A colour for a shader: three sRGB components between 0 and 1. */
 export type ShaderColour = readonly [number, number, number]
 
-/** Noir, employe quand une couleur ne peut pas etre lue. */
+/** Black, used when a colour cannot be read. */
 const BLACK: ShaderColour = [0, 0, 0]
 
 /**
- * Convertit une couleur OKLCH en sRGB.
+ * Converts an OKLCH colour to sRGB.
  *
- * La chaine de transformation est celle de la specification : OKLCH vers
- * OKLab par coordonnees polaires, OKLab vers un espace de cones, cet espace
- * vers le sRGB lineaire, puis l'encodage gamma.
+ * The transformation chain is the one from the specification: OKLCH to OKLab
+ * by polar coordinates, OKLab to a cone space, that space to linear sRGB, then
+ * the gamma encoding.
  *
- * Le resultat est borne a [0, 1]. Une couleur OKLCH peut designer un point
- * hors du gamut sRGB — c'est meme l'un de ses interets — et le shader recevrait
- * sinon des composantes negatives, dont l'effet visuel n'a rien a voir avec la
- * couleur demandee.
+ * The result is clamped to [0, 1]. An OKLCH colour can designate a point
+ * outside the sRGB gamut — that is even one of its points — and the shader
+ * would otherwise receive negative components, whose visual effect has nothing
+ * to do with the requested colour.
  *
- * @param l Clarte perceptuelle, de 0 a 1.
- * @param c Chroma. Zero donne un gris.
- * @param h Teinte, en degres.
+ * @param l Perceptual lightness, from 0 to 1.
+ * @param c Chroma. Zero gives a grey.
+ * @param h Hue, in degrees.
  *
  * @example
  * oklchToRgb(1, 0, 0) // [1, 1, 1]
@@ -56,8 +58,8 @@ export function oklchToRgb(l: number, c: number, h: number): ShaderColour {
   const a = c * Math.cos(radians)
   const b = c * Math.sin(radians)
 
-  // OKLab vers l'espace des cones. Les coefficients viennent de la definition
-  // de l'espace ; les racines cubiques inverses sont les cubes.
+  // OKLab to the cone space. The coefficients come from the definition of the
+  // space; the inverse cube roots are the cubes.
   const lCone = (l + 0.3963377774 * a + 0.2158037573 * b) ** 3
   const mCone = (l - 0.1055613458 * a - 0.0638541728 * b) ** 3
   const sCone = (l - 0.0894841775 * a - 1.291485548 * b) ** 3
@@ -71,17 +73,17 @@ export function oklchToRgb(l: number, c: number, h: number): ShaderColour {
   return linear.map(gammaEncode) as unknown as ShaderColour
 }
 
-/** Encodage gamma du sRGB, avec la portion lineaire des valeurs sombres. */
+/** sRGB gamma encoding, with the linear portion for dark values. */
 function gammaEncode(value: number): number {
   const clamped = Math.min(1, Math.max(0, value))
   return clamped <= 0.0031308 ? clamped * 12.92 : 1.055 * clamped ** (1 / 2.4) - 0.055
 }
 
-/** Nombres d'une notation fonctionnelle, pourcentages resolus. */
+/** Numbers of a functional notation, percentages resolved. */
 function numbers(source: string): number[] {
   const inside = source.slice(source.indexOf('(') + 1, source.lastIndexOf(')'))
-  // La composante alpha suit une barre oblique : elle ne nous interesse pas,
-  // un shader recevant une couleur opaque.
+  // The alpha component follows a slash: it does not interest us, since a
+  // shader receives an opaque colour.
   const [components] = inside.split('/')
 
   return (components ?? '')
@@ -95,20 +97,20 @@ function numbers(source: string): number[] {
 }
 
 /**
- * Lit une couleur, quelle que soit la notation employee.
+ * Reads a colour, whatever notation is used.
  *
- * `oklch()` et `rgb()` sont acceptees : un projet peut avoir surcharge un token
- * avec une couleur ecrite autrement, et refuser sa notation reviendrait a
- * rendre le token inutilisable pour un fond anime.
+ * `oklch()` and `rgb()` are accepted: a project may have overridden a token
+ * with a colour written differently, and refusing its notation would amount to
+ * making the token unusable for an animated background.
  *
- * @returns La couleur, ou `null` si la notation n'est pas reconnue.
+ * @returns The colour, or `null` if the notation is not recognised.
  *
  * @example
  * parseColour('oklch(0.62 0.21 259)')
  */
 export function parseColour(value: string): ShaderColour | null {
-  // Un gris n'a pas de teinte : le navigateur serialise alors la composante en
-  // `none` — `oklch(98.5% 0 none)`. Elle vaut zero pour le calcul.
+  // A grey has no hue: the browser then serialises the component as `none` —
+  // `oklch(98.5% 0 none)`. It counts as zero for the computation.
   const trimmed = value
     .trim()
     .toLowerCase()
@@ -132,8 +134,8 @@ export function parseColour(value: string): ShaderColour | null {
   if (trimmed.startsWith('rgb(') || trimmed.startsWith('rgba(')) {
     const [r, g, b] = numbers(trimmed)
     if (r === undefined || g === undefined || b === undefined) return null
-    // Les composantes sont donnees sur 255, sauf ecrites en pourcentage —
-    // auquel cas `numbers` les a deja ramenees a l'unite.
+    // The components are given out of 255, unless written as percentages — in
+    // which case `numbers` has already brought them back to unity.
     const scale = (component: number): number =>
       Math.min(1, Math.max(0, component > 1 ? component / 255 : component))
     return [scale(r), scale(g), scale(b)]
@@ -143,18 +145,19 @@ export function parseColour(value: string): ShaderColour | null {
 }
 
 /**
- * Lit la valeur d'un token CSS et la convertit pour un shader.
+ * Reads the value of a CSS token and converts it for a shader.
  *
- * La lecture se fait sur l'element hote plutot que sur la racine : un token
- * redefini dans un conteneur — une section en theme sombre au milieu d'une page
- * claire — doit valoir pour ce qui s'y trouve.
+ * The reading is done on the host element rather than on the root: a token
+ * redefined inside a container — a dark-theme section in the middle of a light
+ * page — must hold for what is inside it.
  *
- * @param token Nom de la variable, avec ses deux tirets.
- * @param host Element ou lire. Par defaut, la racine du document.
- * @param fallback Couleur rendue si le token n'existe pas ou n'est pas lisible.
+ * @param token Name of the variable, with its two dashes.
+ * @param host Element to read from. Defaults to the root of the document.
+ * @param fallback Colour returned if the token does not exist or is not
+ * readable.
  *
  * @example
- * const primaire = readTokenColour('--o-palette-brand-600', host)
+ * const primary = readTokenColour('--o-palette-brand-600', host)
  */
 export function readTokenColour(
   token: string,

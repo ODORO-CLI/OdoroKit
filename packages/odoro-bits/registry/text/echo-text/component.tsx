@@ -1,21 +1,21 @@
 /**
- * Echos : des copies attenuees du texte suivent le pointeur, chacune avec un
- * temps de retard de plus en plus long. L'original ne bouge pas.
+ * Echoes: faded copies of the text follow the pointer, each with a longer and
+ * longer lag. The original does not move.
  *
- * ## Le retard est une duree de transition, pas une boucle
+ * ## The lag is a transition duration, not a loop
  *
- * Toutes les copies visent la meme cible — deux variables CSS que le
- * pointeur ecrit. Ce qui les distingue, c'est le temps qu'elles mettent a la
- * rejoindre : la premiere est vive, la derniere traine. Pendant un mouvement,
- * chacune est donc a un point different du trajet, et le texte laisse une
- * trainee — sans une seule image calculee en JavaScript, sans un seul rendu
- * React par evenement.
+ * All the copies aim at the same target — two CSS variables that the pointer
+ * writes. What tells them apart is the time they take to reach it: the first
+ * is quick, the last drags. During a movement, each is therefore at a
+ * different point along the path, and the text leaves a trail — without a
+ * single frame computed in JavaScript, without a single React render per
+ * event.
  *
- * ## L'original reste net, et reste le seul texte
+ * ## The original stays crisp, and stays the only text
  *
- * Les echos sont des ornements : opacite decroissante, flou croissant, et
- * `aria-hidden` — pour un lecteur d'ecran il n'y a qu'un texte. Sous
- * mouvement reduit, les copies ne sont pas rendues du tout.
+ * The echoes are ornaments: decreasing opacity, increasing blur, and
+ * `aria-hidden` — for a screen reader there is only one text. Under reduced
+ * motion, the copies are not rendered at all.
  *
  * @module
  */
@@ -29,30 +29,30 @@ import {
   type ReactElement,
 } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface EchoTextOwnProps {
-  /** Texte a repeter. */
+  /** Text to repeat. */
   children: string
-  /** Balise rendue. @defaultValue 'span' */
+  /** Rendered tag. @defaultValue 'span' */
   as?: ElementType
-  /** Nombre de copies. @defaultValue 3 */
+  /** Number of copies. @defaultValue 3 */
   copies?: number
-  /** Retard de la premiere copie, en millisecondes ; chaque copie suivante double la mise. @defaultValue 220 */
+  /** Lag of the first copy, in milliseconds; each following copy doubles it. @defaultValue 220 */
   lag?: number
-  /** Flou ajoute a chaque copie, en pixels. @defaultValue 1 */
+  /** Blur added to each copy, in pixels. @defaultValue 1 */
   spread?: number
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type EchoTextProps = Customisable<EchoTextOwnProps, 'span'>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-echo-text'
 
-/** Part du chemin vers le pointeur que les echos parcourent. */
+/** Share of the path towards the pointer that the echoes travel. */
 const FOLLOW = 0.3
 
-/** Pose les regles des echos, une fois par document. */
+/** Sets the echo rules, once per document. */
 function ensureEchoRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -70,16 +70,16 @@ function ensureEchoRule(): void {
 }
 
 /**
- * Fait suivre le pointeur par des echos du texte, l'original restant net.
+ * Has echoes of the text follow the pointer, the original staying crisp.
  *
  * @example
  * <EchoText as="h1" className="o-text-5xl o-font-extrabold">
- *   Remanence
+ *   Afterglow
  * </EchoText>
  *
  * @example
- * // Deux echos seulement, tres traineurs.
- * <EchoText copies={2} lag={400}>Lent</EchoText>
+ * // Two echoes only, heavily trailing.
+ * <EchoText copies={2} lag={400}>Slow</EchoText>
  */
 export function EchoText({
   children,
@@ -105,8 +105,8 @@ export function EchoText({
       element.style.setProperty('--o-echo-y', `${String(y)}px`)
     }
     const onLeave = (): void => {
-      // Retour au repos : les echos se rangent sous l'original, chacun a son
-      // rythme — c'est la meme transition qui les ramene.
+      // Back to rest: the echoes line up under the original, each at its own
+      // pace — it is the same transition that brings them back.
       element.style.setProperty('--o-echo-x', '0px')
       element.style.setProperty('--o-echo-y', '0px')
     }
@@ -121,7 +121,7 @@ export function EchoText({
 
   const { className, style } = mergePresentation({}, rest)
 
-  // Mouvement reduit : l'original, seul.
+  // Reduced motion: the original, alone.
   if (reduced) {
     return (
       <Tag {...rest} className={className} style={style}>
@@ -149,7 +149,7 @@ export function EchoText({
             aria-hidden
             data-o-echo-copy=""
             style={{
-              // Plus l'echo est lointain, plus il est lent, pale et flou.
+              // The further the echo, the slower, paler and blurrier it is.
               transition: `transform ${String(lag * rank)}ms ease-out`,
               opacity: 0.3 * Math.pow(0.65, index),
               filter: `blur(${String(rank * spread)}px)`,

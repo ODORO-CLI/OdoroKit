@@ -1,32 +1,31 @@
 /**
- * Grille chromatique : des cartes teintees, rendues en gris, dont le pointeur
- * revele les couleurs dans un cercle amorti.
+ * Chroma grid: tinted cards, rendered in grey, whose colours the pointer
+ * reveals inside a damped circle.
  *
- * ## Le gris est un voile, pas un etat des cartes
+ * ## The grey is a veil, not a state of the cards
  *
- * Chaque carte a sa teinte, posee une fois, et ne change jamais. C'est un
- * voile au-dessus de la grille qui desature ce qu'il couvre — un filtre
- * d'arriere-plan — et un masque radial y perce un trou autour du pointeur.
- * Deplacer le trou ne touche aucune carte : deux variables sur le voile, et
- * toute la grille repond. Retirer le voile rend la grille en couleurs, ce
- * qui est exactement l'etat voulu la ou il n'y a pas de pointeur.
+ * Each card has its hue, set once, and never changes. It is a veil above the
+ * grid that desaturates what it covers — a backdrop filter — and a radial mask
+ * punches a hole in it around the pointer. Moving the hole touches no card:
+ * two variables on the veil, and the whole grid answers. Removing the veil
+ * renders the grid in colour, which is exactly the state wanted wherever there
+ * is no pointer.
  *
- * ## Le trou s'ouvre et se ferme, il n'apparait pas
+ * ## The hole opens and closes, it does not pop in
  *
- * Un masque ne se transitionne pas proprement. Le rayon du trou est donc
- * amorti comme la position, dans la meme boucle : a l'entree il grandit
- * depuis zero, a la sortie il se referme sur place. Le voile ne clignote
- * jamais.
+ * A mask does not transition cleanly. The radius of the hole is therefore
+ * damped like the position, in the same loop: on entry it grows from zero, on
+ * exit it closes on the spot. The veil never flickers.
  *
- * ## Les teintes se distribuent
+ * ## The hues are handed out
  *
- * Les couleurs sont une liste de tokens, attribues aux cartes dans l'ordre et
- * en boucle. Quatre teintes suffisent a une grille de douze ; en donner une
- * par carte reste possible.
+ * The colours are a list of tokens, given to the cards in order and in a loop.
+ * Four hues are enough for a grid of twelve; giving one per card stays
+ * possible.
  *
- * ## Ce qui reste au doigt et sous mouvement reduit
+ * ## What is left for touch and under reduced motion
  *
- * La grille en couleurs, sans voile. L'etat final, pas le gris.
+ * The grid in colour, with no veil. The final state, not the grey.
  *
  * @module
  */
@@ -49,7 +48,7 @@ import {
 
 import { usePointerDamped } from '@registre/hooks/usePointerDamped'
 
-/** Teintes par defaut, distribuees en boucle. */
+/** Default hues, handed out in a loop. */
 const DEFAULT_TOKENS: readonly string[] = [
   '--o-palette-brand-500',
   '--o-palette-fuchsia-500',
@@ -57,27 +56,27 @@ const DEFAULT_TOKENS: readonly string[] = [
   '--o-palette-emerald-500',
 ]
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface ChromaGridOwnProps {
-  /** Les cartes. */
+  /** The cards. */
   children: ReactNode
-  /** Nombre de colonnes. @defaultValue 3 */
+  /** Number of columns. @defaultValue 3 */
   columns?: number
-  /** Tokens des teintes, attribues aux cartes dans l'ordre et en boucle. */
+  /** Hue tokens, given to the cards in order and in a loop. */
   colors?: readonly string[]
-  /** Rayon du cercle revele, en pixels. @defaultValue 220 */
+  /** Radius of the revealed circle, in pixels. @defaultValue 220 */
   radius?: number
-  /** Vitesse a laquelle le cercle suit le pointeur. @defaultValue 6 */
+  /** Speed at which the circle follows the pointer. @defaultValue 6 */
   speed?: number
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type ChromaGridProps = Customisable<ChromaGridOwnProps>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-chroma-grid'
 
-/** Pose la grille, les cartes et le voile, une fois par document. */
+/** Applies the grid, the cards and the veil, once per document. */
 function ensureChromaRules(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -95,7 +94,7 @@ function ensureChromaRules(): void {
     'background:var(--o-theme-surface);',
     'border:1px solid color-mix(in oklab,var(--o-chroma-tint) 40%,var(--o-theme-line));',
     '}',
-    // La teinte : un degrade du coin superieur, sous le contenu.
+    // The hue: a gradient from the top corner, under the content.
     '[data-o-chroma-item]::before{',
     'content:"";position:absolute;inset:0;pointer-events:none;',
     'background:linear-gradient(160deg,',
@@ -104,7 +103,7 @@ function ensureChromaRules(): void {
     'transparent 75%);',
     '}',
     '[data-o-chroma-item]>*{position:relative}',
-    // Le voile : desature ce qu'il couvre, perce autour du pointeur.
+    // The veil: desaturates what it covers, punched around the pointer.
     '[data-o-chroma-veil]{',
     'position:absolute;inset:0;pointer-events:none;',
     '-webkit-backdrop-filter:grayscale(1);backdrop-filter:grayscale(1);',
@@ -118,19 +117,19 @@ function ensureChromaRules(): void {
 }
 
 /**
- * Une grille de cartes teintees, revelees par le pointeur.
+ * A grid of tinted cards, revealed by the pointer.
  *
  * @example
  * <ChromaGrid columns={3} className="o-gap-4">
- *   <article className="o-p-5">Une</article>
- *   <article className="o-p-5">Deux</article>
- *   <article className="o-p-5">Trois</article>
+ *   <article className="o-p-5">One</article>
+ *   <article className="o-p-5">Two</article>
+ *   <article className="o-p-5">Three</article>
  * </ChromaGrid>
  *
  * @example
- * // Deux teintes seulement, cercle plus large.
+ * // Two hues only, wider circle.
  * <ChromaGrid colors={['--o-palette-amber-500', '--o-palette-rose-500']} radius={320}>
- *   {cartes}
+ *   {cards}
  * </ChromaGrid>
  */
 export function ChromaGrid({
@@ -144,15 +143,15 @@ export function ChromaGrid({
   const { reduced } = useMotionState()
   const [host, setHost] = useState<HTMLElement | null>(null)
   const [veiled, setVeiled] = useState(false)
-  const pointer = usePointerDamped({ host, speed, name: 'chroma : pointeur' })
+  const pointer = usePointerDamped({ host, speed, name: 'chroma: pointer' })
   ensureChromaRules()
 
   useEffect(() => {
     if (host === null || reduced) return
-    if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return
+    if (!window.matchMedia('(hover) and (pointer: fine)').matches) return
 
-    // Le voile n'est pose qu'une fois sur d'avoir un pointeur fin : avant, la
-    // grille est en couleurs, et elle le reste partout ailleurs.
+    // The veil is only put up once a fine pointer is certain: before that, the
+    // grid is in colour, and it stays so everywhere else.
     setVeiled(true)
 
     let on = false
@@ -172,7 +171,7 @@ export function ChromaGrid({
       ({ delta }) => {
         const x = ((pointer.current.x + 1) / 2) * 100
         const y = ((pointer.current.y + 1) / 2) * 100
-        // Le rayon suit la meme loi que la position : voir l'en-tete.
+        // The radius follows the same law as the position: see the header.
         hole += ((on ? radius : 0) - hole) * (1 - Math.exp(-speed * delta))
 
         if (

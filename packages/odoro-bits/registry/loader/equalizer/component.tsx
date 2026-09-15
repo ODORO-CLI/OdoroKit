@@ -1,32 +1,31 @@
 /**
- * Egaliseur : six barres ancrees au sol montent et descendent chacune a son
- * rythme, comme les vumetres d'un egaliseur.
+ * Equalizer: six bars anchored to the floor rise and fall, each at its own
+ * rate, like the meters of an equalizer.
  *
- * ## Six partitions, six durees
+ * ## Six scores, six durations
  *
- * Une seule animation dephasee par des delais donnerait une vague — c'est
- * `wave-bars`. Un egaliseur ne fait pas de vague : chaque barre suit sa
- * propre suite de niveaux, ecrite dans une table, et joue a une duree
- * legerement differente de ses voisines. Les cycles ne retombent en phase
- * qu'au bout de plusieurs dizaines de secondes : l'oeil n'y voit jamais de
- * motif, ce qui est exactement l'impression d'un signal.
+ * A single animation phase-shifted by delays would give a wave — that is
+ * `wave-bars`. An equalizer does not make a wave: each bar follows its own
+ * sequence of levels, written in a table, and plays at a duration slightly
+ * different from its neighbours. The cycles only fall back into phase after
+ * several tens of seconds: the eye never sees a pattern in it, which is
+ * exactly the impression of a signal.
  *
- * Les niveaux sont fixes, pas tires au sort : le rendu est identique d'un
- * chargement a l'autre, et le premier niveau de chaque suite est aussi le
- * dernier, pour que la boucle ne saute pas.
+ * The levels are fixed, not drawn at random: the output is identical from one
+ * load to the next, and the first level of each sequence is also the last, so
+ * that the loop does not jump.
  *
- * Les barres sont etirees par une echelle verticale depuis le sol, jamais
- * par une hauteur : rien ne recalcule la mise en page.
+ * The bars are stretched by a vertical scale from the floor, never by a
+ * height: nothing recomputes the layout.
  *
- * ## Un statut, pas un dessin
+ * ## A status, not a drawing
  *
- * L'element porte `role="status"` et un libelle pour les lecteurs d'ecran :
- * l'attente est une information, pas une decoration. Les barres sont
- * retirees de l'arbre d'accessibilite.
+ * The element carries `role="status"` and a label for screen readers: the
+ * wait is information, not decoration. The bars are removed from the
+ * accessibility tree.
  *
- * Sous mouvement reduit, chaque barre se fige a son premier niveau : le
- * spectre inegal se lit encore comme un egaliseur, seul le mouvement
- * s'arrete.
+ * Under reduced motion, each bar freezes at its first level: the uneven
+ * spectrum still reads as an equalizer, only the movement stops.
  *
  * @module
  */
@@ -34,15 +33,15 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-equalizer'
 
 /**
- * Suites de niveaux, une par barre, en fraction de la hauteur maximale.
+ * Sequences of levels, one per bar, as a fraction of the maximum height.
  *
- * Le premier et le dernier niveau sont egaux : la boucle se referme sans
- * saut. Les suites sont decalees entre elles pour qu'aucune paire de barres
- * voisines ne monte au meme moment.
+ * The first and the last level are equal: the loop closes with no jump. The
+ * sequences are offset from one another so that no pair of neighbouring bars
+ * rises at the same moment.
  */
 const LEVELS: readonly (readonly number[])[] = [
   [0.3, 0.9, 0.5, 1, 0.4, 0.7, 0.3],
@@ -54,17 +53,17 @@ const LEVELS: readonly (readonly number[])[] = [
 ]
 
 /**
- * Facteur de duree de chaque barre.
+ * Duration factor of each bar.
  *
- * Des durees toutes differentes et sans rapport simple entre elles : les
- * cycles ne se realignent pas a l'echelle d'une attente.
+ * Durations all different and with no simple ratio between them: the cycles
+ * do not realign on the scale of a wait.
  */
 const TEMPO: readonly number[] = [1, 1.17, 0.89, 1.31, 1.07, 0.83]
 
-/** Nombre de barres, deduit de la table. */
+/** Number of bars, deduced from the table. */
 const BARS = LEVELS.length
 
-/** Pose les barres et leurs six partitions, une fois par document. */
+/** Applies the bars and their six scores, once per document. */
 function ensureEqualizerRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -83,8 +82,8 @@ function ensureEqualizerRule(): void {
     'animation-timing-function:ease-in-out;animation-iteration-count:infinite;',
     'animation-duration:var(--o-eq-duration);animation-delay:var(--o-eq-delay);',
     '}',
-    // Une partition par barre : les images cles sont reparties a egale
-    // distance sur le cycle, le dernier niveau rejoignant le premier.
+    // One score per bar: the keyframes are spread at equal distance over the
+    // cycle, the last level rejoining the first.
     ...LEVELS.flatMap((levels, bar) => [
       `[data-o-equalizer-bar="${String(bar)}"]{animation-name:o-equalizer-${String(bar)}}`,
       `@keyframes o-equalizer-${String(bar)}{`,
@@ -94,7 +93,7 @@ function ensureEqualizerRule(): void {
       ),
       '}',
     ]),
-    // Un spectre fige : les barres gardent leur premier niveau, inegal.
+    // A frozen spectrum: the bars keep their first level, uneven.
     '@media (prefers-reduced-motion:reduce){',
     '[data-o-equalizer-bar]{animation:none;transform:scaleY(var(--o-eq-rest))}',
     '}',
@@ -102,36 +101,36 @@ function ensureEqualizerRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface EqualizerOwnProps {
-  /** Largeur d'une barre, en pixels. @defaultValue 5 */
+  /** Width of one bar, in pixels. @defaultValue 5 */
   size?: number
-  /** Duree de reference d'un cycle, en millisecondes. @defaultValue 1200 */
+  /** Reference duration of a cycle, in milliseconds. @defaultValue 1200 */
   speed?: number
-  /** Couleur des barres. @defaultValue la couleur du texte */
+  /** Colour of the bars. @defaultValue the text colour */
   color?: string
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */
+  /** Label announced to screen readers. @defaultValue 'Loading' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All the properties. */
 export type EqualizerProps = Customisable<EqualizerOwnProps, 'span'>
 
 /**
- * Signale une attente par six barres de vumetre qui dansent.
+ * Signals a wait with six meter bars dancing.
  *
  * @example
  * <Equalizer />
  *
  * @example
- * // Plus large, plus lent, dans la teinte de marque.
+ * // Wider, slower, in the brand hue.
  * <Equalizer size={8} speed={1800} color="var(--o-palette-brand-500)" />
  */
 export function Equalizer({
   size = 5,
   speed = 1200,
   color = 'currentColor',
-  label = 'Chargement',
+  label = 'Loading',
   ...rest
 }: EqualizerProps): ReactElement {
   ensureEqualizerRule()
@@ -161,8 +160,8 @@ export function Equalizer({
           style={
             {
               '--o-eq-duration': `${String(Math.round(speed * (TEMPO[bar] ?? 1)))}ms`,
-              // Chaque barre demarre a un point different de sa partition,
-              // en negatif : le spectre est complet des la premiere image.
+              // Each bar starts at a different point of its score, negatively:
+              // the spectrum is complete from the very first frame.
               '--o-eq-delay': `${String(Math.round((-speed * bar) / BARS))}ms`,
               '--o-eq-rest': String(levels[0] ?? 0.5),
             } as CSSProperties

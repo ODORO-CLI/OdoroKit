@@ -1,27 +1,26 @@
 /**
- * Champ de vent : des traits courts orientes par le vent, que des rafales
- * traversent.
+ * Wind field: short strokes oriented by the wind, crossed by gusts.
  *
- * ## Le principe
+ * ## The principle
  *
- * Une grille de cellules, un trait par cellule : sa direction est celle du
- * vent, sa longueur la force du vent. Le vent est un cap dominant devie par
- * un bruit lent, et des rafales — des bandes qui avancent dans le sens du
- * cap — allongent les traits et changent leur teinte au passage. C'est le
- * releve d'une station meteo, mis en mouvement.
+ * A grid of cells, one stroke per cell: its direction is that of the wind,
+ * its length the strength of the wind. The wind is a prevailing bearing
+ * deflected by a slow noise, and gusts — bands advancing along the bearing —
+ * lengthen the strokes and change their hue as they pass. It is a weather
+ * station reading, set in motion.
  *
- * Ce qui distingue cette entree de `flow-field` : la-bas des particules
- * courent le long du champ ; ici rien ne se deplace, les traits restent a
- * leur place et ne font que tourner et s'allonger.
+ * What sets this entry apart from `flow-field`: over there particles run
+ * along the field; here nothing travels, the strokes stay where they are and
+ * only turn and lengthen.
  *
- * ## Ce que ce composant delegue
+ * ## What this component delegates
  *
- * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.
- * La lecture des tokens, leur conversion en flottants et leur relecture au
- * changement de theme viennent du moteur.
+ * It carries only what sets it apart: its shader, its settings and its
+ * fallback. Reading the tokens, converting them to floats and re-reading them
+ * when the theme changes all come from the engine.
  *
- * Le repli est affiche pendant le chargement du backend, quand WebGL manque,
- * quand l'arbitre refuse la surface et sous mouvement reduit.
+ * The fallback is shown while the backend loads, when WebGL is missing, when
+ * the arbiter refuses the surface and under reduced motion.
  *
  * @module
  */
@@ -38,47 +37,47 @@ import { type ReactElement } from 'react'
 
 import { WIND_FIELD_FRAGMENT } from './wind-field.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface WindFieldControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to this component. */
 export interface WindFieldOwnProps {
-  /** Nombre de cellules par hauteur de cadre. @defaultValue 22 */
+  /** Number of cells per frame height. @defaultValue 22 */
   cells?: number
-  /** Frequence du bruit, donc la taille des tourbillons. @defaultValue 1.6 */
+  /** Frequency of the noise, hence the size of the eddies. @defaultValue 1.6 */
   scale?: number
-  /** Vitesse d'evolution du vent et de passage des rafales. @defaultValue 1 */
+  /** How fast the wind evolves and the gusts sweep past. @defaultValue 1 */
   speed?: number
-  /** Force des rafales. @defaultValue 0.7 */
+  /** Strength of the gusts. @defaultValue 0.7 */
   gusts?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<WindFieldControls>
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type WindFieldProps = Customisable<WindFieldOwnProps>
 
-/** Tokens employes par defaut : le fond, les traits au calme, la rafale. */
+/** Tokens used by default: the background, the calm strokes, the gust. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-theme-muted',
   '--o-palette-emerald-400',
 ] as const
 
-/** Repli par defaut : une teinte figee, dans les memes tons. */
+/** Default fallback: a frozen tint, in the same tones. */
 const DEFAULT_FALLBACK = 'o-bg-zinc-50 dark:o-bg-zinc-950'
 
 /**
- * Champ de vent.
+ * Wind field.
  *
  * @example
  * <div className="o-relative o-min-h-screen">
@@ -101,9 +100,9 @@ export function WindField({
     colors,
     uniforms: { uCells: cells, uScale: scale, uSpeed: speed, uGusts: gusts },
     name: 'wind-field',
-    // Neuf cellules par pixel quel que soit le reglage : ce n'est pas la
-    // boucle qui pese mais les traits fins, qui scintillent a densite de
-    // pixels reduite. En qualite basse, les cellules s'elargissent.
+    // Nine cells per pixel whatever the setting: it is not the loop that
+    // weighs but the thin strokes, which shimmer at a reduced pixel density.
+    // At low quality, the cells widen.
     degrade: (quality) => ({
       uCells: quality === 'low' ? Math.min(cells, 14) : cells,
     }),

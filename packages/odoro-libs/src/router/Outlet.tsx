@@ -1,5 +1,5 @@
 /**
- * Point d'insertion des routes filles.
+ * Insertion point of the child routes.
  *
  * @module
  */
@@ -10,9 +10,9 @@ import { RouteContext } from './context.js'
 import { RenderMatches } from './render.jsx'
 
 /**
- * Rend la route fille correspondant au chemin courant.
+ * Renders the child route matching the current path.
  *
- * @returns `null` lorsque la route courante est une feuille.
+ * @returns `null` when the current route is a leaf.
  *
  * @example
  * function Layout() {

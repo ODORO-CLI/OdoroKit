@@ -1,33 +1,32 @@
 /**
- * Blocs empiles : quatre blocs tombent l'un sur l'autre en colonne, la pile
- * tient un instant, puis bascule et s'effondre.
+ * Stacked blocks: four blocks fall onto one another in a column, the stack
+ * holds for an instant, then tips over and collapses.
  *
- * ## Deux animations qui ne se connaissent pas
+ * ## Two animations that know nothing of each other
  *
- * La chute est propre a chaque bloc : il part du haut du conteneur, en
- * `ease-in` — la gravite accelere — et s'arrete net sur le bloc precedent.
- * L'effondrement, lui, est porte par la colonne entiere, qui pivote autour
- * de son coin inferieur droit et s'efface. Les blocs ne savent rien de la
- * bascule, la colonne ne sait rien des chutes : deux animations simples au
- * lieu d'une seule qui devrait tout coordonner, et une figure lisible — on
- * construit, puis tout tombe.
+ * The fall belongs to each block: it starts from the top of the container, in
+ * `ease-in` — gravity accelerates — and stops dead on the previous block. The
+ * collapse, for its part, is carried by the whole column, which pivots around
+ * its bottom right corner and fades out. The blocks know nothing of the tip,
+ * the column knows nothing of the falls: two simple animations instead of a
+ * single one that would have to coordinate everything, and a legible figure —
+ * one builds, then everything falls.
  *
- * Chaque bloc connait sa fenetre dans le cycle, par une animation propre
- * ecrite une fois dans la feuille ; c'est ce qui permet a la pile de tenir
- * entiere avant de tomber, la ou un simple dephasage donnerait une chute
- * perpetuelle.
+ * Each block knows its window in the cycle, through an animation of its own
+ * written once into the stylesheet; that is what lets the stack stand whole
+ * before falling, where a plain phase shift would give a perpetual fall.
  *
- * Le conteneur ne mesure qu'un bloc de large : la colonne renversee deborde
- * a droite le temps de s'effacer, sans toucher a la mise en page.
+ * The container is only one block wide: the toppled column overflows to the
+ * right for the time it takes to fade, without touching the layout.
  *
- * ## Un statut, pas un dessin
+ * ## A status, not a drawing
  *
- * L'element porte `role="status"` et un libelle pour les lecteurs d'ecran :
- * l'attente est une information, pas une decoration. Les blocs sont retires
- * de l'arbre d'accessibilite.
+ * The element carries `role="status"` and a label for screen readers: the
+ * wait is information, not decoration. The blocks are removed from the
+ * accessibility tree.
  *
- * Sous mouvement reduit, la pile reste complete et debout : la figure se
- * lit encore, seules la chute et la bascule s'arretent.
+ * Under reduced motion, the stack stays complete and upright: the figure
+ * still reads, only the fall and the tip stop.
  *
  * @module
  */
@@ -35,25 +34,25 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-blocks-stack'
 
-/** Nombre de blocs. */
+/** Number of blocks. */
 const BLOCKS = 4
 
-/** Hauteur du conteneur, en blocs : la pile plus la marge d'ou ils tombent. */
+/** Height of the container, in blocks: the stack plus the margin they fall from. */
 const HEIGHT = BLOCKS + 2
 
-/** Part du cycle entre deux departs de chute, en pour cent. */
+/** Share of the cycle between two starts of a fall, in per cent. */
 const STEP = 13
 
-/** Duree d'une chute, en pour cent du cycle. */
+/** Duration of one fall, in per cent of the cycle. */
 const DROP = 11
 
-/** Instant ou la pile complete commence a basculer, en pour cent. */
+/** Moment when the complete stack starts to tip, in per cent. */
 const TOPPLE_AT = 66
 
-/** Pose la colonne, les chutes et la bascule, une fois par document. */
+/** Applies the column, the falls and the tip, once per document. */
 function ensureBlocksStackRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -75,8 +74,8 @@ function ensureBlocksStackRule(): void {
     'border-radius:calc(var(--o-bstack-size) / 5);background:var(--o-bstack-color);',
     'animation-duration:var(--o-bstack-speed);animation-iteration-count:infinite;',
     '}',
-    // Une chute par bloc : il part du haut du conteneur, invisible, et
-    // apparait en route pour ne pas surgir d'un coup.
+    // One fall per block: it starts from the top of the container, invisible,
+    // and appears on the way so as not to pop in all at once.
     ...Array.from({ length: BLOCKS }, (_, block) => {
       const start = block * STEP
       const end = start + DROP
@@ -90,13 +89,13 @@ function ensureBlocksStackRule(): void {
         '}',
       ].join('')
     }),
-    // La colonne pivote sur son coin inferieur droit et s'efface au sol.
+    // The column pivots on its bottom right corner and fades out on the floor.
     '@keyframes o-blocks-stack-topple{',
     `0%,${String(TOPPLE_AT)}%{transform:none;opacity:1;animation-timing-function:ease-in}`,
     `${String(TOPPLE_AT + 14)}%{transform:rotate(90deg);opacity:1}`,
     `${String(TOPPLE_AT + 20)}%,100%{transform:rotate(90deg);opacity:0}`,
     '}',
-    // Une pile debout : la figure est dite, sans chute ni bascule.
+    // An upright stack: the figure is stated, with no fall and no tip.
     '@media (prefers-reduced-motion:reduce){',
     '[data-o-blocks-stack-column]{animation:none;transform:none;opacity:1}',
     '[data-o-blocks-stack-block]{animation:none;transform:none;opacity:1}',
@@ -105,36 +104,36 @@ function ensureBlocksStackRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface BlocksStackOwnProps {
-  /** Cote d'un bloc, en pixels. @defaultValue 10 */
+  /** Side of a block, in pixels. @defaultValue 10 */
   size?: number
-  /** Duree d'un cycle complet, en millisecondes. @defaultValue 2200 */
+  /** Duration of one complete cycle, in milliseconds. @defaultValue 2200 */
   speed?: number
-  /** Couleur des blocs. @defaultValue la couleur du texte */
+  /** Colour of the blocks. @defaultValue the text colour */
   color?: string
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */
+  /** Label announced to screen readers. @defaultValue 'Loading' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All the properties. */
 export type BlocksStackProps = Customisable<BlocksStackOwnProps, 'span'>
 
 /**
- * Signale une attente par des blocs qui s'empilent puis s'effondrent.
+ * Signals a wait with blocks that stack up then collapse.
  *
  * @example
  * <BlocksStack />
  *
  * @example
- * // Plus grand, plus lent, dans la teinte de marque.
+ * // Bigger, slower, in the brand hue.
  * <BlocksStack size={14} speed={3000} color="var(--o-palette-brand-500)" />
  */
 export function BlocksStack({
   size = 10,
   speed = 2200,
   color = 'currentColor',
-  label = 'Chargement',
+  label = 'Loading',
   ...rest
 }: BlocksStackProps): ReactElement {
   ensureBlocksStackRule()

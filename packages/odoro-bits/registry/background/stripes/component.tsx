@@ -1,19 +1,18 @@
 /**
- * Rayures : des bandes diagonales, en un seul degrade repete.
+ * Stripes: diagonal bands, from a single repeated gradient.
  *
- * ## Pourquoi un seul degrade suffit
+ * ## Why a single gradient is enough
  *
- * Une rayure est une alternance de deux etats le long d'un axe. C'est la
- * definition meme d'un `repeating-linear-gradient` : une bande de couleur, un
- * vide, et la repetition est gratuite. Dessiner cela avec un script ou une
- * surface graphique reviendrait a payer pour ce que le compositeur fait deja.
+ * A stripe is an alternation between two states along an axis. That is the
+ * very definition of a `repeating-linear-gradient`: a band of colour, a gap,
+ * and the repetition comes for free. Drawing this with a script or a graphics
+ * surface would mean paying for what the compositor already does.
  *
- * ## Pourquoi la largeur et l'ecart sont deux reglages
+ * ## Why the width and the gap are two settings
  *
- * Une seule densite ne dit rien : des bandes larges et serrees font un store,
- * des bandes fines et espacees font un filigrane. Separer la largeur de la
- * bande et celle du vide couvre les deux, la ou un unique « pas » les
- * confondrait.
+ * A single density says nothing: wide, tight bands make a blind, thin, widely
+ * spaced ones make a watermark. Separating the width of the band from that of
+ * the gap covers both, where a single "pitch" would conflate them.
  *
  * @module
  */
@@ -21,25 +20,25 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import { type CSSProperties, type ReactElement } from 'react'
 
-/** Proprietes propres au composant. */
+/** Props specific to this component. */
 export interface StripesOwnProps {
-  /** Largeur d'une bande, en pixels. @defaultValue 10 */
+  /** Width of a band, in pixels. @defaultValue 10 */
   width?: number
-  /** Ecart entre deux bandes, en pixels. @defaultValue 22 */
+  /** Gap between two bands, in pixels. @defaultValue 22 */
   gap?: number
-  /** Inclinaison des bandes, en degres. @defaultValue 45 */
+  /** Tilt of the bands, in degrees. @defaultValue 45 */
   angle?: number
-  /** Couleur des bandes. */
+  /** Colour of the bands. */
   color?: string
-  /** Couleur du fond. */
+  /** Colour of the background. */
   background?: string
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type StripesProps = Customisable<StripesOwnProps>
 
 /**
- * Rayures de fond.
+ * Background stripes.
  *
  * @example
  * <div className="o-relative o-min-h-screen">

@@ -1,32 +1,32 @@
 /**
- * Chargement, puis des points : le mot reste, trois points s'ajoutent l'un
- * apres l'autre, puis disparaissent ensemble.
+ * A word, then dots: the word stays, three dots are added one after the
+ * other, then disappear together.
  *
- * ## Les points s'ajoutent, ils ne clignotent pas
+ * ## The dots are added, they do not blink
  *
- * La version naive fait clignoter chaque point a sa cadence : trois lueurs
- * independantes, qui ne racontent rien. Ici la sequence est celle qu'on
- * ecrirait a la main — « Chargement », « Chargement. », « Chargement.. »,
- * « Chargement... » — puis la ligne revient au mot seul. C'est une phrase
- * qui se complete, pas un signal qui bat.
+ * The naive version blinks each dot at its own rate: three independent
+ * glimmers, which tell nothing. Here the sequence is the one you would write
+ * by hand — "Loading", "Chargement.", "Chargement..", "Chargement..." —
+ * then the line comes back to the word alone. It is a sentence completing
+ * itself, not a signal beating.
  *
- * Chaque point porte sa propre animation par paliers : le premier s'allume
- * au quart du cycle, le deuxieme a la moitie, le troisieme aux trois quarts,
- * et tous s'eteignent a la fin. Trois jeux d'images-cles plutot qu'un seul
- * decale : un delai ne suffirait pas, parce que la duree d'allumage differe
- * d'un point a l'autre.
+ * Each dot carries its own step animation: the first lights up at a quarter
+ * of the cycle, the second at half, the third at three quarters, and they all
+ * go out at the end. Three sets of keyframes rather than a single offset one:
+ * a delay would not do, because the lit duration differs from one dot to the
+ * next.
  *
- * Les points sont dans le flux, a leur largeur reelle, meme invisibles : la
- * ligne ne change pas de longueur, et ce qui suit ne bouge pas.
+ * The dots are in the flow, at their real width, even when invisible: the
+ * line does not change length, and what follows does not move.
  *
- * ## Un statut, pas un dessin
+ * ## A status, not a drawing
  *
- * L'element porte `role="status"` et un libelle pour les lecteurs d'ecran.
- * Le texte peint est retire de l'arbre d'accessibilite : un lecteur d'ecran
- * qui suivrait les points annoncerait la ligne a chaque changement.
+ * The element carries `role="status"` and a label for screen readers. The
+ * painted text is removed from the accessibility tree: a screen reader
+ * following the dots would announce the line on every change.
  *
- * Sous mouvement reduit, les trois points restent affiches : « Chargement... »
- * se lit encore comme une attente, seul le rythme s'arrete.
+ * Under reduced motion, the three dots stay shown: "Chargement..." still
+ * reads as a wait, only the rhythm stops.
  *
  * @module
  */
@@ -34,10 +34,10 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-loading-dots-text'
 
-/** Pose la ligne et ses trois paliers, une fois par document. */
+/** Applies the line and its three steps, once per document. */
 function ensureLoadingDotsTextRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -55,9 +55,9 @@ function ensureLoadingDotsTextRule(): void {
     'animation-timing-function:steps(1,end);',
     'animation-iteration-count:infinite;',
     '}',
-    // Trois jeux d'images-cles : chaque point s'allume a son quart et reste
-    // allume jusqu'a la fin du cycle. Un seul jeu decale ne convient pas,
-    // la duree d'allumage n'est pas la meme pour les trois.
+    // Three sets of keyframes: each dot lights up at its quarter and stays lit
+    // until the end of the cycle. A single offset set will not do, the lit
+    // duration is not the same for all three.
     '[data-o-ldt-dot="1"]{animation-name:o-ldt-dot-1}',
     '[data-o-ldt-dot="2"]{animation-name:o-ldt-dot-2}',
     '[data-o-ldt-dot="3"]{animation-name:o-ldt-dot-3}',
@@ -71,39 +71,39 @@ function ensureLoadingDotsTextRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface LoadingDotsTextOwnProps {
-  /** Le mot affiche, avant les points. @defaultValue 'Chargement' */
+  /** The word shown, before the dots. @defaultValue 'Loading' */
   text?: string
-  /** Corps du texte, en pixels. @defaultValue 16 */
+  /** Text body size, in pixels. @defaultValue 16 */
   size?: number
-  /** Duree d'un cycle, en millisecondes. @defaultValue 1600 */
+  /** Duration of one cycle, in milliseconds. @defaultValue 1600 */
   speed?: number
-  /** Couleur du texte. @defaultValue la couleur du texte */
+  /** Colour of the text. @defaultValue the text colour */
   color?: string
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */
+  /** Label announced to screen readers. @defaultValue 'Loading' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All the properties. */
 export type LoadingDotsTextProps = Customisable<LoadingDotsTextOwnProps, 'span'>
 
 /**
- * Signale une attente par un mot que des points viennent completer.
+ * Signals a wait with a word that dots come to complete.
  *
  * @example
  * <LoadingDotsText />
  *
  * @example
- * // Un autre mot, plus lent, dans la teinte de marque.
+ * // Another word, slower, in the brand hue.
  * <LoadingDotsText text="Envoi" speed={2400} color="var(--o-palette-brand-500)" />
  */
 export function LoadingDotsText({
-  text = 'Chargement',
+  text = 'Loading',
   size = 16,
   speed = 1600,
   color = 'currentColor',
-  label = 'Chargement',
+  label = 'Loading',
   ...rest
 }: LoadingDotsTextProps): ReactElement {
   ensureLoadingDotsTextRule()

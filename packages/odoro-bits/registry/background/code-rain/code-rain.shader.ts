@@ -1,36 +1,36 @@
 /**
- * Shader de la pluie de code.
+ * Code rain shader.
  *
- * ## L'idee mathematique
+ * ## The mathematical idea
  *
- * L'ecran est decoupe en cellules de caracteres. Chaque colonne porte une
- * goutte : une tete qui descend a sa propre vitesse, suivie d'une trainee
- * dont l'intensite decroit exponentiellement avec l'age — le nombre de
- * lignes qui la separent de la tete. La descente boucle sur la hauteur plus
- * la longueur de la trainee, si bien qu'une goutte sort entierement par le
- * bas avant de repartir du haut.
+ * The screen is cut into character cells. Each column carries one drop: a
+ * head falling at its own speed, followed by a trail whose intensity decays
+ * exponentially with age — the number of rows separating it from the head.
+ * The fall wraps over the height plus the length of the trail, so that a
+ * drop leaves the bottom entirely before setting off again from the
+ * top.
  *
- * ## Les glyphes
+ * ## The glyphs
  *
- * Aucune police, aucune texture : chaque glyphe est un masque de quinze bits
- * sur une grille de trois par cinq, ecrit en clair comme un entier. Le bit
- * d'une position se lit par division par une puissance de deux et parite —
- * le langage employe ici n'a pas d'operations sur les bits, mais un
- * flottant tient quinze bits sans perte. Une cellule change de glyphe a son
- * propre rythme, tire de sa position : une pluie ou tous les caracteres
- * mutent ensemble se lit comme un stroboscope.
+ * No font, no texture: each glyph is a fifteen-bit mask on a three by five
+ * grid, written out in the clear as an integer. The bit at a position is
+ * read by division by a power of two and parity — the language used here
+ * has no bitwise operations, but a float holds fifteen bits without loss.
+ * A cell changes glyph at its own rhythm, drawn from its position: a rain
+ * in which every character mutates together reads as a
+ * stroboscope.
  *
  * ## Uniforms
  *
- * - `uTime` — temps en secondes, fourni par le moteur.
- * - `uResolution` — taille du canevas en pixels, fournie par le moteur.
- * - `uColorA` — le fond.
- * - `uColorB` — la trainee.
- * - `uColorC` — la tete.
- * - `uColumns` — nombre de colonnes sur la largeur.
- * - `uSpeed` — vitesse de chute.
- * - `uTrail` — longueur de la trainee, en lignes.
- * - `uMutate` — cadence des changements de glyphe, par seconde.
+ * - `uTime` — time in seconds, supplied by the engine.
+ * - `uResolution` — canvas size in pixels, supplied by the engine.
+ * - `uColorA` — the background.
+ * - `uColorB` — the trail.
+ * - `uColorC` — the head.
+ * - `uColumns` — number of columns across the width.
+ * - `uSpeed` — falling speed.
+ * - `uTrail` — length of the trail, in rows.
+ * - `uMutate` — rate of glyph changes, per second.
  */
 export const CODE_RAIN_FRAGMENT = /* glsl */ `
 precision highp float;
@@ -47,19 +47,19 @@ uniform float uSpeed;
 uniform float uTrail;
 uniform float uMutate;
 
-// Nombre pseudo-aleatoire : projection sur une direction arbitraire, sinus
-// amplifie, partie fractionnaire.
+// Pseudo-random number: projection onto an arbitrary direction, amplified
+// sine, fractional part.
 float rainHash(vec2 p) {
   return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
 }
 
-// Le bit de rang donne d'un masque : division par une puissance de deux,
-// puis parite. Exact tant que le masque tient dans la mantisse.
+// The bit of a given rank in a mask: division by a power of two, then
+// parity. Exact as long as the mask fits in the mantissa.
 float rainBit(float mask, float index) {
   return mod(floor(mask / exp2(index)), 2.0);
 }
 
-// Seize glyphes sur trois par cinq, le bit de poids fort en haut a gauche.
+// Sixteen glyphs on three by five, the most significant bit top left.
 float rainGlyph(float id) {
   if (id < 0.5) return 31599.0;
   if (id < 1.5) return 11415.0;
@@ -83,8 +83,8 @@ void main() {
   float aspect = uResolution.x / max(uResolution.y, 1.0);
   float columns = clamp(uColumns, 8.0, 120.0);
 
-  // Une cellule : trois par cinq de glyphe, plus un interligne de chaque
-  // cote. Quatre unites de large, six de haut.
+  // One cell: three by five of glyph, plus one leading on each side. Four
+  // units wide, six high.
   float cellW = aspect / columns;
   float cellH = cellW * 1.5;
   float rows = floor(1.0 / cellH) + 1.0;
@@ -93,26 +93,26 @@ void main() {
   vec2 id = floor(p);
   vec2 local = fract(p);
 
-  // La goutte de cette colonne : sa vitesse, son depart, sa position.
+  // This column's drop: its speed, its start, its position.
   float seed = rainHash(vec2(id.x, 7.0));
   float cycle = rows + uTrail;
   float head = mod(uTime * uSpeed * (3.0 + 5.0 * seed) + seed * cycle, cycle);
 
-  // L'age de la ligne : zero a la tete, croissant derriere elle, et
-  // enroule sur le cycle pour que la queue de la goutte precedente subsiste.
+  // The row's age: zero at the head, growing behind it, and wrapped over
+  // the cycle so the tail of the previous drop survives.
   float age = mod(head - id.y, cycle);
   float trail = exp(-age / max(uTrail, 0.5)) * step(age, uTrail * 2.5);
   float tip = 1.0 - smoothstep(0.0, 1.0, age);
 
-  // Le glyphe de la cellule, retire a son propre rythme.
+  // The cell's glyph, redrawn at its own rhythm.
   float epoch = floor(uTime * uMutate + rainHash(id) * 11.0);
   float glyph = floor(rainHash(vec2(id.x * 3.1 + id.y, epoch)) * 16.0);
   vec2 g = vec2(floor(local.x * 4.0), floor(local.y * 6.0));
   float inside = step(g.x, 2.5) * step(g.y, 4.5);
   float bit = rainBit(rainGlyph(glyph), (4.0 - g.y) * 3.0 + (2.0 - g.x)) * inside;
 
-  // Chaque cellule a sa luminance : une trainee uniforme se lirait comme
-  // une barre, pas comme des caracteres.
+  // Each cell has its own luminance: a uniform trail would read as a bar,
+  // not as characters.
   float shade = 0.6 + 0.4 * rainHash(id + epoch);
 
   vec3 colour = mix(uColorA, uColorB, bit * trail * shade);

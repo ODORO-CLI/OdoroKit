@@ -1,24 +1,24 @@
 /**
- * Glitch : un texte traverse par des rafales de decoupage et d'aberration.
+ * Glitch: a text crossed by bursts of clipping and aberration.
  *
- * ## Des rafales, pas un tremblement continu
+ * ## Bursts, not a continuous shiver
  *
- * Un glitch permanent fatigue l'oeil et perd son sens : ce qui casse tout le
- * temps n'est plus une casse, c'est une texture. L'effet vit donc en rafales
- * courtes, espacees d'un intervalle legerement irregulier — un minuteur, pas
- * la boucle : entre deux rafales il ne se passe rien, et une boucle qui tourne
- * pour ne rien faire serait exactement ce que le moteur interdit.
+ * A permanent glitch tires the eye and loses its meaning: what breaks all the
+ * time is no longer a break, it is a texture. The effect therefore lives in
+ * short bursts, spaced by a slightly irregular interval — a timer, not the
+ * loop: between two bursts nothing happens, and a loop running to do nothing
+ * would be exactly what the engine forbids.
  *
- * ## Deux copies, un original intact
+ * ## Two copies, an intact original
  *
- * L'original reste en place, net. Deux copies posees dessus portent chacune un
- * decalage et une ombre coloree — rouge d'un cote, cyan de l'autre, comme les
- * canaux d'un signal mal synchronise — et un `clip-path` anime qui n'en montre
- * que des tranches changeantes. Les copies sont `aria-hidden` : pour un
- * lecteur d'ecran, il n'y a qu'un texte, jamais trois.
+ * The original stays in place, crisp. Two copies laid over it each carry an
+ * offset and a coloured shadow — red on one side, cyan on the other, like the
+ * channels of a badly synchronised signal — and an animated `clip-path` that
+ * shows only changing slices of them. The copies are `aria-hidden`: for a
+ * screen reader, there is only one text, never three.
  *
- * Sous mouvement reduit, les copies ne sont pas rendues du tout : le texte
- * est simplement la.
+ * Under reduced motion, the copies are not rendered at all: the text is simply
+ * there.
  *
  * @module
  */
@@ -32,41 +32,41 @@ import {
   type ReactElement,
 } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface GlitchTextOwnProps {
-  /** Texte a casser. */
+  /** Text to break. */
   children: string
-  /** Balise rendue. @defaultValue 'span' */
+  /** Rendered tag. @defaultValue 'span' */
   as?: ElementType
-  /** Amplitude du decalage des copies, en pixels. @defaultValue 3 */
+  /** Amplitude of the offset of the copies, in pixels. @defaultValue 3 */
   intensity?: number
   /**
-   * Temps moyen entre deux rafales, en millisecondes. L'intervalle reel varie
-   * autour de cette valeur, pour que la casse ne devienne pas un metronome.
+   * Average time between two bursts, in milliseconds. The real interval varies
+   * around this value, so that the breaking does not become a metronome.
    *
    * @defaultValue 2600
    */
   interval?: number
-  /** Couleur du premier canal. @defaultValue rouge de la palette */
+  /** Colour of the first channel. @defaultValue red from the palette */
   channelA?: string
-  /** Couleur du second canal. @defaultValue cyan de la palette */
+  /** Colour of the second channel. @defaultValue cyan from the palette */
   channelB?: string
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type GlitchTextProps = Customisable<GlitchTextOwnProps, 'span'>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-glitch-text'
 
-/** Duree d'une rafale, en millisecondes. */
+/** Duration of one burst, in milliseconds. */
 const BURST_MS = 380
 
 /**
- * Pose les regles du glitch, une fois par document.
+ * Sets the glitch rules, once per document.
  *
- * Les copies n'existent visuellement que pendant une rafale : au repos elles
- * sont en opacite nulle, et le compositeur n'a rien a peindre.
+ * The copies only exist visually during a burst: at rest they are at zero
+ * opacity, and the compositor has nothing to paint.
  */
 function ensureGlitchRule(): void {
   if (typeof document === 'undefined') return
@@ -79,8 +79,8 @@ function ensureGlitchRule(): void {
     '[data-o-glitch-copy]{',
     'position:absolute;inset:0;opacity:0;pointer-events:none;user-select:none;',
     '}',
-    // Les tranches montrees par le clip-path changent par paliers : un glitch
-    // qui glisse en douceur n'est pas un glitch, c'est un rideau.
+    // The slices shown by the clip-path change in steps: a glitch that slides
+    // smoothly is not a glitch, it is a curtain.
     '@keyframes o-glitch-a{',
     '0%{clip-path:inset(12% 0 61% 0)}25%{clip-path:inset(48% 0 20% 0)}',
     '50%{clip-path:inset(80% 0 4% 0)}75%{clip-path:inset(4% 0 78% 0)}',
@@ -108,15 +108,15 @@ function ensureGlitchRule(): void {
 }
 
 /**
- * Casse un texte par rafales, entre lesquelles il reste parfaitement net.
+ * Breaks a text in bursts, between which it stays perfectly crisp.
  *
  * @example
  * <GlitchText as="h1" className="o-text-5xl o-font-extrabold">
- *   SIGNAL PERDU
+ *   SIGNAL LOST
  * </GlitchText>
  *
  * @example
- * // Rafales plus rares et plus discretes.
+ * // Rarer and more discreet bursts.
  * <GlitchText intensity={2} interval={5000}>Odoro</GlitchText>
  */
 export function GlitchText({
@@ -138,9 +138,9 @@ export function GlitchText({
     let timer: ReturnType<typeof setTimeout>
 
     const schedule = (): void => {
-      // L'intervalle varie de moitie autour de la consigne : assez pour que
-      // l'oreille interne n'y trouve pas de rythme, pas assez pour que deux
-      // rafales se collent.
+      // The interval varies by half around the setting: enough for the inner
+      // ear to find no rhythm in it, not enough for two bursts to stick
+      // together.
       const wait = interval * (0.75 + Math.random() * 0.5)
       timer = setTimeout(() => {
         setBurst(true)
@@ -157,8 +157,8 @@ export function GlitchText({
 
   const { className, style } = mergePresentation({}, rest)
 
-  // Mouvement reduit : le texte, rien d'autre. Les copies n'apportaient que
-  // le geste, et le geste est ce qu'on nous demande d'omettre.
+  // Reduced motion: the text, nothing else. The copies brought nothing but the
+  // gesture, and the gesture is what we are asked to leave out.
   if (reduced) {
     return (
       <Tag {...rest} className={className} style={style}>

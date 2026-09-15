@@ -1,49 +1,49 @@
 /**
- * Mise au point : un cadre d'angles saute de mot en mot, et le mot vise
- * redevient net pendant que les autres restent flous.
+ * Focus pull: a frame of corner brackets jumps from word to word, and the
+ * targeted word becomes crisp again while the others stay blurred.
  *
- * ## Un viseur, pas une revelation
+ * ## A sight, not a reveal
  *
- * `blur-reveal` va du flou vers le net une fois pour toutes ; ici le flou est
- * l'etat normal du texte, et un seul mot en sort a la fois. L'effet ne raconte
- * pas une arrivee, il raconte une lecture : quelque chose regarde le texte, et
- * on voit ou il regarde.
+ * `blur-reveal` goes from blurred to crisp once and for all; here the blur is
+ * the normal state of the text, and only one word comes out of it at a time.
+ * The effect does not tell of an arrival, it tells of a reading: something is
+ * looking at the text, and one sees where it is looking.
  *
- * Le cadre est fait de quatre angles ouverts, pas d'un rectangle plein : un
- * rectangle enfermerait le mot, quatre angles le designent.
+ * The frame is made of four open corners, not of a full rectangle: a rectangle
+ * would shut the word in, four corners designate it.
  *
- * ## Le flou n'est pose que si le viseur existe
+ * ## The blur is only applied if the sight exists
  *
- * Le piege de tous les effets qui cachent : si le JavaScript ne vient jamais,
- * le texte reste dans son etat initial. Un paragraphe entierement flou serait
- * pire qu'un paragraphe absent — il a l'air d'un bug.
+ * The trap of every effect that hides: if the JavaScript never comes, the text
+ * stays in its initial state. An entirely blurred paragraph would be worse
+ * than an absent paragraph — it looks like a bug.
  *
- * Le flou est donc porte par un attribut pose depuis un effet. Sans lui, tout
- * le texte est net et le cadre n'existe pas.
+ * The blur is therefore carried by an attribute set from an effect. Without
+ * it, the whole text is crisp and the frame does not exist.
  *
- * ## Le cadre est place, pas dessine
+ * ## The frame is placed, not drawn
  *
- * Sa position et sa taille sont relevees sur le mot vise, en coordonnees de
- * l'element — `offsetLeft` et compagnie, qui n'obligent a aucune conversion.
- * Le deplacement lui-meme est une transition CSS : rien n'est anime en
- * JavaScript, et le cadre traverse la ligne, voire change de ligne, sans un
- * seul calcul de trajectoire.
+ * Its position and its size are read off the targeted word, in coordinates of
+ * the element — `offsetLeft` and company, which require no conversion. The
+ * movement itself is a CSS transition: nothing is animated in JavaScript, and
+ * the frame crosses the line, or even changes line, without a single
+ * trajectory computation.
  *
- * ## Le survol prend la main
+ * ## The hover takes over
  *
- * Pointer un mot le met au point et suspend le cycle. C'est la seule reponse
- * juste : sans elle, le mot qu'on vient de designer se ferait voler la mise
- * au point une seconde plus tard.
+ * Pointing at a word focuses it and suspends the cycle. It is the only right
+ * answer: without it, the word one has just designated would have the focus
+ * stolen from it a second later.
  *
- * ## Le decoupage est un artifice d'affichage
+ * ## The split is a display device
  *
- * Le texte complet figure une fois, d'un seul tenant ; les mots sont retires
- * de l'arbre d'accessibilite.
+ * The complete text appears once, in one piece; the words are removed from the
+ * accessibility tree.
  *
- * ## Mouvement reduit
+ * ## Reduced motion
  *
- * Aucun flou, aucun cadre : tout le texte est net. C'est l'etat ou tout se
- * lit, et c'est bien l'etat d'arrivee de chaque passage du viseur.
+ * No blur, no frame: the whole text is crisp. It is the state where everything
+ * reads, and it really is the arrival state of every pass of the sight.
  *
  * @module
  */
@@ -58,40 +58,40 @@ import {
   type ReactElement,
 } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface TrueFocusOwnProps {
-  /** Texte a mettre au point. Une chaine : elle est decoupee en mots. */
+  /** Text to focus. A string: it is split into words. */
   children: string
-  /** Balise rendue. @defaultValue 'p' */
+  /** Rendered tag. @defaultValue 'p' */
   as?: ElementType
-  /** Flou d'un mot hors mise au point, en pixels. @defaultValue 5 */
+  /** Blur of a word out of focus, in pixels. @defaultValue 5 */
   blur?: number
-  /** Opacite d'un mot hors mise au point, de 0 a 1. @defaultValue 0.55 */
-  attenue?: number
-  /** Temps passe sur un mot, en millisecondes. @defaultValue 1400 */
+  /** Opacity of a word out of focus, from 0 to 1. @defaultValue 0.55 */
+  dimmed?: number
+  /** Time spent on a word, in milliseconds. @defaultValue 1400 */
   hold?: number
-  /** Duree du deplacement du cadre, en millisecondes. @defaultValue 600 */
-  course?: number
-  /** Couleur du cadre. @defaultValue la teinte de marque */
-  couleur?: string
+  /** Duration of the movement of the frame, in milliseconds. @defaultValue 600 */
+  travel?: number
+  /** Colour of the frame. @defaultValue the brand hue */
+  color?: string
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type TrueFocusProps = Customisable<TrueFocusOwnProps, 'p'>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-true-focus'
 
-/** Jeu laisse entre le mot et son cadre, en pixels. */
-const MARGE = 6
+/** Play left between the word and its frame, in pixels. */
+const MARGIN = 6
 
-/** Longueur d'un angle du cadre, en pixels. */
-const ANGLE = 10
+/** Length of one corner of the frame, in pixels. */
+const CORNER_LEN = 10
 
-/** Epaisseur du trait du cadre, en pixels. */
-const TRAIT = 2
+/** Thickness of the stroke of the frame, in pixels. */
+const STROKE = 2
 
-/** Pose le viseur et le flou, une fois par document. */
+/** Sets the sight and the blur, once per document. */
 function ensureFocusRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -101,25 +101,26 @@ function ensureFocusRule(): void {
   style.textContent = [
     '[data-o-focus]{position:relative}',
     '[data-o-focus-word]{display:inline-block}',
-    // Le flou n'existe que sous l'attribut pose par l'effet : voir l'en-tete.
-    '[data-o-focus="pret"] [data-o-focus-word]{',
-    'filter:blur(var(--o-focus-flou));opacity:var(--o-focus-attenue);',
-    'transition:filter var(--o-focus-course) ease,opacity var(--o-focus-course) ease;',
+    // The blur only exists under the attribute set by the effect: see the
+    // header.
+    '[data-o-focus="ready"] [data-o-focus-word]{',
+    'filter:blur(var(--o-focus-blur));opacity:var(--o-focus-dim);',
+    'transition:filter var(--o-focus-travel) ease,opacity var(--o-focus-travel) ease;',
     '}',
-    '[data-o-focus="pret"] [data-o-focus-word][data-o-focus-vise]{',
+    '[data-o-focus="ready"] [data-o-focus-word][data-o-focus-aimed]{',
     'filter:blur(0);opacity:1;',
     '}',
     '[data-o-focus-frame]{',
     'position:absolute;left:0;top:0;opacity:0;pointer-events:none;',
-    'transition:transform var(--o-focus-course) cubic-bezier(0.22,1,0.36,1),',
-    'width var(--o-focus-course) cubic-bezier(0.22,1,0.36,1),',
-    'height var(--o-focus-course) cubic-bezier(0.22,1,0.36,1),',
-    'opacity var(--o-focus-course) ease;',
+    'transition:transform var(--o-focus-travel) cubic-bezier(0.22,1,0.36,1),',
+    'width var(--o-focus-travel) cubic-bezier(0.22,1,0.36,1),',
+    'height var(--o-focus-travel) cubic-bezier(0.22,1,0.36,1),',
+    'opacity var(--o-focus-travel) ease;',
     '}',
-    '[data-o-focus="pret"] [data-o-focus-frame]{opacity:1}',
+    '[data-o-focus="ready"] [data-o-focus-frame]{opacity:1}',
     '[data-o-focus-corner]{',
     'position:absolute;width:var(--o-focus-angle);height:var(--o-focus-angle);',
-    'border:var(--o-focus-trait) solid var(--o-focus-couleur);',
+    'border:var(--o-focus-trait) solid var(--o-focus-color);',
     '}',
     '[data-o-focus-corner="hg"]{top:0;left:0;border-right:0;border-bottom:0}',
     '[data-o-focus-corner="hd"]{top:0;right:0;border-left:0;border-bottom:0}',
@@ -130,117 +131,117 @@ function ensureFocusRule(): void {
 }
 
 /**
- * Fait sauter une mise au point de mot en mot.
+ * Jumps a focus pull from word to word.
  *
  * @example
  * <TrueFocus as="h2" className="o-text-4xl o-font-bold">
- *   Chaque mot a son tour
+ *   Every word in turn
  * </TrueFocus>
  *
  * @example
- * // Viseur lent, flou marque, cadre dans la couleur du texte.
- * <TrueFocus hold={2600} blur={9} couleur="currentColor">Lentement</TrueFocus>
+ * // Slow sight, pronounced blur, frame in the text colour.
+ * <TrueFocus hold={2600} blur={9} color="currentColor">Slowly</TrueFocus>
  */
 export function TrueFocus({
   children,
   as: Tag = 'p',
   blur = 5,
-  attenue = 0.55,
+  dimmed = 0.55,
   hold = 1400,
-  course = 600,
-  couleur = 'var(--o-palette-brand-500)',
+  travel = 600,
+  color = 'var(--o-palette-brand-500)',
   ...rest
 }: TrueFocusProps): ReactElement {
   const { reduced } = useMotionState()
-  const hote = useRef<HTMLElement | null>(null)
+  const host = useRef<HTMLElement | null>(null)
   const [index, setIndex] = useState(0)
-  const [pret, setPret] = useState(false)
-  const [fige, setFige] = useState(false)
+  const [ready, setReady] = useState(false)
+  const [frozen, setFrozen] = useState(false)
 
   ensureFocusRule()
 
-  const mots = children.split(' ').filter((mot) => mot.length > 0)
-  const total = mots.length
+  const words = children.split(' ').filter((word) => word.length > 0)
+  const total = words.length
 
-  // Le flou arrive apres le premier rendu, et jamais sous mouvement reduit.
+  // The blur arrives after the first render, and never under reduced motion.
   useEffect(() => {
-    setPret(!reduced)
+    setReady(!reduced)
   }, [reduced])
 
   useEffect(() => {
-    if (reduced || fige || total < 2) return
+    if (reduced || frozen || total < 2) return
 
-    // Une horloge, pas la boucle du moteur : un mot toutes les secondes et
-    // demie, c'est un changement toutes les quatre-vingt-dix images.
-    const minuteur = setTimeout(() => {
-      setIndex((precedent) => (precedent + 1) % total)
+    // A clock, not the engine loop: one word every second and a half is a
+    // change every ninety frames.
+    const timer = setTimeout(() => {
+      setIndex((previous) => (previous + 1) % total)
     }, hold)
 
-    return () => clearTimeout(minuteur)
-  }, [reduced, fige, index, hold, total])
+    return () => clearTimeout(timer)
+  }, [reduced, frozen, index, hold, total])
 
   useEffect(() => {
-    const element = hote.current
+    const element = host.current
     if (element === null || reduced) return
 
-    const cadre = element.querySelector<HTMLElement>('[data-o-focus-frame]')
-    if (cadre === null) return
+    const frame = element.querySelector<HTMLElement>('[data-o-focus-frame]')
+    if (frame === null) return
 
-    const placer = (): void => {
-      const vise = element.querySelectorAll<HTMLElement>('[data-o-focus-word]')[index]
-      if (vise === undefined) return
-      // `offset*` est deja exprime dans le repere de l'element positionne :
-      // aucune boite a convertir, aucune position de defilement a retrancher.
-      cadre.style.width = `${String(vise.offsetWidth + MARGE * 2)}px`
-      cadre.style.height = `${String(vise.offsetHeight + MARGE * 2)}px`
-      cadre.style.transform = `translate(${String(vise.offsetLeft - MARGE)}px, ${String(vise.offsetTop - MARGE)}px)`
+    const place = (): void => {
+      const target = element.querySelectorAll<HTMLElement>('[data-o-focus-word]')[index]
+      if (target === undefined) return
+      // `offset*` is already expressed in the frame of reference of the
+      // positioned element: no box to convert, no scroll position to subtract.
+      frame.style.width = `${String(target.offsetWidth + MARGIN * 2)}px`
+      frame.style.height = `${String(target.offsetHeight + MARGIN * 2)}px`
+      frame.style.transform = `translate(${String(target.offsetLeft - MARGIN)}px, ${String(target.offsetTop - MARGIN)}px)`
     }
-    placer()
+    place()
 
-    // La ligne se recompose, le cadre suit : sans cela, il resterait sur la
-    // place que le mot occupait avant le changement de largeur.
-    const observateur = new ResizeObserver(placer)
-    observateur.observe(element)
-    return () => observateur.disconnect()
+    // The line recomposes, the frame follows: without that, it would stay at
+    // the place the word occupied before the width change.
+    const observer = new ResizeObserver(place)
+    observer.observe(element)
+    return () => observer.disconnect()
   }, [reduced, index, children])
 
   const { className, style } = mergePresentation({}, rest)
 
-  const styleRacine = {
+  const rootStyle = {
     ...style,
-    '--o-focus-flou': `${String(blur)}px`,
-    '--o-focus-attenue': Math.min(1, Math.max(0, attenue)),
-    '--o-focus-course': `${String(course)}ms`,
-    '--o-focus-couleur': couleur,
-    '--o-focus-angle': `${String(ANGLE)}px`,
-    '--o-focus-trait': `${String(TRAIT)}px`,
+    '--o-focus-blur': `${String(blur)}px`,
+    '--o-focus-dim': Math.min(1, Math.max(0, dimmed)),
+    '--o-focus-travel': `${String(travel)}ms`,
+    '--o-focus-color': color,
+    '--o-focus-angle': `${String(CORNER_LEN)}px`,
+    '--o-focus-trait': `${String(STROKE)}px`,
   } as CSSProperties
 
   return (
     <Tag
       {...rest}
-      ref={hote}
+      ref={host}
       className={className}
-      style={styleRacine}
-      data-o-focus={pret ? 'pret' : ''}
+      style={rootStyle}
+      data-o-focus={ready ? 'ready' : ''}
       onPointerLeave={() => {
-        setFige(false)
+        setFrozen(false)
       }}
     >
-      {/* Le texte complet, d'un seul tenant, pour les lecteurs d'ecran. */}
+      {/* The complete text, in one piece, for screen readers. */}
       <span className="o-sr-only">{children}</span>
       <span aria-hidden>
-        {mots.map((mot, position) => (
-          <span key={`${mot}-${String(position)}`}>
+        {words.map((word, position) => (
+          <span key={`${word}-${String(position)}`}>
             <span
               data-o-focus-word=""
-              data-o-focus-vise={position === index ? '' : undefined}
+              data-o-focus-aimed={position === index ? '' : undefined}
               onPointerEnter={() => {
                 setIndex(position)
-                setFige(true)
+                setFrozen(true)
               }}
             >
-              {mot}
+              {word}
             </span>
             {position < total - 1 ? ' ' : null}
           </span>

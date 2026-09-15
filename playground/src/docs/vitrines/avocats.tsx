@@ -35,7 +35,7 @@
  */
 
 import { Icon } from '@odoro-cli/icons'
-import { ArrowRight, ArrowUpRight, Scale } from '@odoro-cli/icons/filaire'
+import { ArrowRight, ArrowUpRight, Scale } from '@odoro-cli/icons/outline'
 import {
   Fragment,
   useId,

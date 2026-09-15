@@ -25,7 +25,7 @@
       "description": "Requete, dans la grammaire du CSS."
     },
     {
-      "name": "serveur",
+      "name": "serverValue",
       "type": "boolean",
       "default": false,
       "description": "Reponse rendue la ou matchMedia n existe pas : rendu serveur, test."

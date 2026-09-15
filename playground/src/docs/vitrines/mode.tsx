@@ -66,7 +66,7 @@ import {
   RotateCcw,
   Ruler,
   Scissors,
-} from '@odoro-cli/icons/filaire'
+} from '@odoro-cli/icons/outline'
 import { Input } from '@odoro-cli/libs/ui'
 import { Reveal, Stagger } from '@odoro-cli/libs/motion'
 import { useMemo, useState, type CSSProperties, type ReactElement } from 'react'

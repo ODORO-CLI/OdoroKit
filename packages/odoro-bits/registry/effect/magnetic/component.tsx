@@ -1,23 +1,23 @@
 /**
- * Attraction : un element attire par le pointeur.
+ * Attraction: an element pulled by the pointer.
  *
- * ## Pourquoi la boucle plutot que l'evenement
+ * ## Why the loop rather than the event
  *
- * Reagir directement aux evenements de pointeur donnerait un mouvement dur :
- * l'element sauterait d'une position a l'autre au rythme irregulier ou le
- * systeme les livre. L'evenement ne fait donc que deplacer une **cible**, et
- * la boucle rapproche la position courante de cette cible a chaque image.
+ * Reacting directly to pointer events would give a harsh movement: the element
+ * would jump from one position to the next at the irregular rhythm at which
+ * the system delivers them. The event therefore only moves a **target**, and
+ * the loop brings the current position closer to that target on every frame.
  *
- * Le rattrapage est exponentiel et exprime en fonction du temps ecoule :
- * `1 - exp(-vitesse x dt)`. Une fraction constante ferait varier la vitesse du
- * mouvement avec la cadence de l'ecran — deux fois plus rapide a cent vingt
- * images par seconde qu'a soixante — et le meme reglage ne donnerait pas le
- * meme resultat chez deux personnes.
+ * The catch-up is exponential and expressed in terms of the elapsed time:
+ * `1 - exp(-speed x dt)`. A constant fraction would make the speed of the
+ * movement vary with the refresh rate of the screen — twice as fast at a
+ * hundred and twenty frames per second as at sixty — and the same setting
+ * would not give the same result for two different people.
  *
- * ## Le rayon
+ * ## The radius
  *
- * Sans lui, tout element magnetique de la page reagirait a un pointeur situe a
- * l'autre bout. Au-dela du rayon, la cible revient au repos.
+ * Without it, every magnetic element on the page would react to a pointer at
+ * the other end of it. Beyond the radius, the target comes back to rest.
  *
  * @module
  */
@@ -31,27 +31,27 @@ import {
 } from '@odoro-cli/engine'
 import { useEffect, useRef, useState, type ReactElement, type ReactNode } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface MagneticOwnProps {
-  /** Ce qui est attire. */
+  /** What is attracted. */
   children: ReactNode
-  /** Fraction de la distance parcourue vers le pointeur. @defaultValue 0.35 */
+  /** Fraction of the distance travelled towards the pointer. @defaultValue 0.35 */
   strength?: number
-  /** Distance au-dela de laquelle l'attraction cesse, en pixels. @defaultValue 120 */
+  /** Distance beyond which the attraction stops, in pixels. @defaultValue 120 */
   radius?: number
-  /** Vitesse de rattrapage. Plus haut, plus sec. @defaultValue 8 */
+  /** Catch-up speed. The higher, the snappier. @defaultValue 8 */
   ease?: number
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type MagneticProps = Customisable<MagneticOwnProps>
 
 /**
- * Rend un element magnetique.
+ * Makes an element magnetic.
  *
  * @example
  * <Magnetic strength={0.4}>
- *   <button className="o-rounded-full o-px-6 o-py-3">Nous ecrire</button>
+ *   <button className="o-rounded-full o-px-6 o-py-3">Contact us</button>
  * </Magnetic>
  */
 export function Magnetic({
@@ -67,7 +67,7 @@ export function Magnetic({
 
   useEffect(() => {
     if (host === null) return
-    // L'attraction est un agrement : elle n'a pas d'etat final a preserver.
+    // The attraction is an embellishment: it has no final state to preserve.
     if (motionPolicy.state.reduced) return
 
     const onMove = (event: PointerEvent): void => {
@@ -85,8 +85,8 @@ export function Magnetic({
       target.current = { x: 0, y: 0 }
     }
 
-    // L'ecoute est posee sur la fenetre : l'attraction doit commencer avant
-    // que le pointeur n'atteigne l'element, sans quoi elle ne se voit pas.
+    // The listener sits on the window: the attraction must begin before the
+    // pointer reaches the element, otherwise it does not show.
     window.addEventListener('pointermove', onMove, { passive: true })
     window.addEventListener('pointerleave', onLeave)
 
@@ -97,7 +97,7 @@ export function Magnetic({
         current.current.y += (target.current.y - current.current.y) * factor
         host.style.transform = `translate3d(${current.current.x.toFixed(2)}px,${current.current.y.toFixed(2)}px,0)`
       },
-      { name: 'attraction', priority: CLOCK_PRIORITY.default },
+      { name: 'magnetic', priority: CLOCK_PRIORITY.default },
     )
 
     return () => {

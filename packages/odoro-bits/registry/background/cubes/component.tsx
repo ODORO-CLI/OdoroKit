@@ -1,28 +1,28 @@
 /**
- * Cubes : un champ de cubes qui montent et descendent en vague.
+ * Cubes: a field of cubes rising and falling in a wave.
  *
- * ## Pourquoi une scene, et pourquoi instanciee
+ * ## Why a scene, and why instanced
  *
- * Des cubes vus de biais, avec des faces eclairees differemment, c'est de la
- * geometrie et une camera : le backend leger ne sait pas le faire sans
- * reconstruire un lancer de rayons par fragment. Une scene le fait pour rien.
+ * Cubes seen at an angle, with faces lit differently, is geometry and a
+ * camera: the light backend cannot do it without rebuilding a ray cast per
+ * fragment. A scene does it for nothing.
  *
- * Mais un maillage par cube, c'est un appel de dessin par cube — plusieurs
- * centaines par image. Une seule geometrie instanciee les rend en un appel :
- * chaque cube n'est qu'une matrice dans un tampon ecrit au montage.
+ * But one mesh per cube is one draw call per cube — several hundred per
+ * frame. A single instanced geometry renders them in one call: each cube is
+ * no more than a matrix in a buffer written at mount.
  *
- * ## La vague vit dans le shader de sommets
+ * ## The wave lives in the vertex shader
  *
- * La hauteur de chaque cube est une somme de sinus de sa position et du
- * temps. La calculer sur le processeur obligerait a reecrire toutes les
- * matrices a chaque image ; le shader de sommets, lui, lit la translation de
- * l'instance et decale les sommets. La boucle n'ecrit qu'un temps.
+ * Each cube's height is a sum of sines of its position and of time.
+ * Computing it on the processor would mean rewriting every matrix on every
+ * frame; the vertex shader instead reads the instance's translation and
+ * shifts the vertices. The loop writes nothing but a time.
  *
- * ## Ce que ce composant ne fait pas
+ * ## What this component does not do
  *
- * Il n'ouvre ni boucle, ni observateur : `useScene` les porte. Il n'ecrit
- * aucune couleur : fond, creux et cretes sont lus dans les tokens, et
- * repeints en place quand le theme bascule.
+ * It opens neither a loop nor an observer: `useScene` carries them. It
+ * writes no colour: background, troughs and crests are read from the tokens,
+ * and repainted in place when the theme flips.
  *
  * @module
  */
@@ -38,57 +38,57 @@ import { useEffect, useRef, useState, type ReactElement } from 'react'
 
 import { usePoster } from '@registre/hooks/usePoster'
 
-/** Proprietes propres au composant. */
+/** Properties specific to this component. */
 export interface CubesOwnProps {
-  /** Cubes par cote. @defaultValue 18 */
+  /** Cubes per side. @defaultValue 18 */
   grid?: number
-  /** Hauteur de la vague, en cotes de cube. @defaultValue 0.8 */
+  /** Height of the wave, in cube sides. @defaultValue 0.8 */
   amplitude?: number
-  /** Vitesse de la vague. @defaultValue 0.8 */
+  /** Speed of the wave. @defaultValue 0.8 */
   speed?: number
-  /** Frequence spatiale de la vague. @defaultValue 0.9 */
+  /** Spatial frequency of the wave. @defaultValue 0.9 */
   frequency?: number
-  /** Espace entre deux cubes, en fraction du pas. @defaultValue 0.2 */
+  /** Gap between two cubes, as a fraction of the step. @defaultValue 0.2 */
   gap?: number
-  /** Tokens : le fond, les creux, les cretes. */
+  /** Tokens: the background, the troughs, the crests. */
   colors?: readonly [string, string, string]
-  /** Classes du repli. */
+  /** Fallback classes. */
   poster?: string
 }
 
-/** Toutes les proprietes. */
+/** Every property. */
 export type CubesProps = Customisable<CubesOwnProps>
 
-/** Tokens employes par defaut. */
+/** Tokens used by default. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-violet-500',
   '--o-palette-brand-500',
 ] as const
 
-/** Repli par defaut : un degrade fige, dans les memes tons. */
+/** Default fallback: a frozen gradient, in the same tones. */
 const DEFAULT_POSTER =
   'o-bg-gradient-to-br o-from-zinc-50 dark:o-from-zinc-950 o-via-violet-100 dark:o-via-violet-950 o-to-zinc-50 dark:o-to-zinc-950'
 
-/** Cubes par cote en qualite basse. */
+/** Cubes per side at low quality. */
 const LOW_GRID = 10
 
 /**
- * Cubes par cote au maximum.
+ * Cubes per side at most.
  *
- * Le tampon d'instances est alloue une fois a cette taille : changer la
- * grille reecrit des matrices, jamais la geometrie ni le materiau.
+ * The instance buffer is allocated once at this size: changing the grid
+ * rewrites matrices, never the geometry nor the material.
  */
 const MAX_GRID = 36
 
 /**
- * Shader de sommets : la vague.
+ * Vertex shader: the wave.
  *
- * `instanceMatrix` est declare par le moteur de scene quand le maillage est
- * instancie ; sa translation est la position du cube dans le champ, et c'est
- * elle qui donne la phase de la vague. La hauteur est une somme de trois
- * sinus de frequences non multiples : une seule onde se lirait comme un
- * tapis qui glisse.
+ * `instanceMatrix` is declared by the scene engine when the mesh is
+ * instanced; its translation is the cube's position in the field, and that
+ * is what gives the phase of the wave. The height is a sum of three sines
+ * of non-multiple frequencies: a single wave would read as a sliding
+ * carpet.
  */
 const CUBES_VERTEX = /* glsl */ `
 uniform float uTime;
@@ -125,7 +125,7 @@ void main() {
 
   vHeight = h * 0.5 + 0.5;
   vNormal = normalize(normalMatrix * normal);
-  // Les cubes du bord se fondent dans le fond : le champ n'a pas de lisiere.
+  // The edge cubes fade into the background: the field has no rim.
   vFade = smoothstep(uExtent, uExtent * 0.55, length(origin.xz));
 
   gl_Position = projectionMatrix * modelViewMatrix * world;
@@ -133,10 +133,10 @@ void main() {
 `
 
 /**
- * Shader de fragments : une lumiere fixe, la teinte par hauteur.
+ * Fragment shader: a fixed light, the hue by height.
  *
- * Les couleurs arrivent deja en sRGB, telles que lues dans les tokens ; elles
- * sont ecrites sans conversion, ce qui est exactement ce que la page attend.
+ * The colours arrive already in sRGB, as read from the tokens; they are
+ * written without conversion, which is exactly what the page expects.
  */
 const CUBES_FRAGMENT = /* glsl */ `
 precision highp float;
@@ -161,17 +161,17 @@ void main() {
 type Three = SceneContext['three']
 type InstancedMesh = InstanceType<Three['InstancedMesh']>
 
-/** Ce que la scene garde entre le montage et les images. */
+/** What the scene keeps between the mount and the frames. */
 interface Field {
   readonly mesh: InstancedMesh
   readonly uniforms: Record<string, { value: unknown }>
 }
 
 /**
- * Ecrit les matrices d'instances pour une grille donnee.
+ * Writes the instance matrices for a given grid.
  *
- * Le champ est centre sur l'origine et son pas vaut un : la position d'un
- * cube est directement sa phase dans la vague. Rend le demi-cote du champ.
+ * The field is centred on the origin and its step is one: a cube's position
+ * is directly its phase in the wave. Returns the field's half-side.
  */
 function layout(three: Three, mesh: InstancedMesh, side: number, gap: number): number {
   const matrix = new three.Matrix4()
@@ -191,10 +191,10 @@ function layout(three: Three, mesh: InstancedMesh, side: number, gap: number): n
   return half + 0.5
 }
 
-/** Place la camera de biais, a une distance qui cadre le champ entier. */
+/** Places the camera at an angle, at a distance that frames the whole field. */
 function frameCamera(camera: SceneContext['camera'], side: number): void {
-  // Vue de biais, comme une maquette : de face, la vague ne se lirait que
-  // par la couleur.
+  // Seen at an angle, like a model: head on, the wave would read only
+  // through colour.
   camera.position.set(side * 0.45, side * 0.6, side * 0.7)
   camera.lookAt(0, -0.3, 0)
 }
@@ -224,8 +224,8 @@ export function Cubes({
   const field = useRef<Field | null>(null)
   const context = useRef<SceneContext | null>(null)
 
-  // Les reglages sont lus par ref dans la boucle : un curseur qui bouge ne
-  // remonte pas la scene, il change une valeur d'uniforme a l'image suivante.
+  // The settings are read by ref inside the loop: a slider that moves does
+  // not remount the scene, it changes a uniform value on the next frame.
   const live = useRef({ amplitude, speed, frequency })
   live.current = { amplitude, speed, frequency }
 
@@ -246,9 +246,9 @@ export function Cubes({
       ): InstanceType<Three['Color']> =>
         new three.Color(value?.[0] ?? 0, value?.[1] ?? 0, value?.[2] ?? 0)
 
-      // Le token est en sRGB et le moteur encode sa couleur d'effacement du
-      // lineaire vers le sRGB : sans la conversion inverse, le fond ressort
-      // un cran plus clair que la page.
+      // The token is in sRGB and the engine encodes its clear colour from linear
+      // to sRGB: without the inverse conversion, the background comes out a
+      // shade lighter than the page.
       renderer.setClearColor(toColour(bg).convertSRGBToLinear(), 1)
 
       const uniforms: Record<string, { value: unknown }> = {
@@ -300,8 +300,8 @@ export function Cubes({
     },
   })
 
-  // La grille ou l'espacement changent : les matrices sont reecrites dans le
-  // tampon existant, et la camera recule d'autant. Rien n'est reconstruit.
+  // The grid or the spacing changed: the matrices are rewritten into the
+  // existing buffer, and the camera pulls back accordingly. Nothing is rebuilt.
   useEffect(() => {
     const scene = context.current
     const current = field.current
@@ -312,8 +312,8 @@ export function Cubes({
     frameCamera(scene.camera, side)
   }, [side, gap])
 
-  // Le theme a bascule : les tokens sont relus et les couleurs repeintes en
-  // place. La scene n'est pas reconstruite.
+  // The theme has flipped: the tokens are re-read and the colours repainted in
+  // place. The scene is not rebuilt.
   useEffect(() => {
     const scene = context.current
     const current = field.current

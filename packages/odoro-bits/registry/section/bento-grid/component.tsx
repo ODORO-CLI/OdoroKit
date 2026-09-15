@@ -1,33 +1,33 @@
 /**
- * Grille bento : des tuiles de tailles inegales, revelees a l'entree.
+ * Bento grid: tiles of unequal sizes, revealed on entry.
  *
- * ## Ce qu'une grille bento resout, et ce qu'elle casse
+ * ## What a bento grid solves, and what it breaks
  *
- * Une grille reguliere donne le meme poids a tout : douze arguments valent
- * douze fois rien. Des tuiles inegales retablissent une hierarchie — ce qui
- * compte occupe deux colonnes, le reste s'aligne autour.
+ * A regular grid gives the same weight to everything: twelve arguments are
+ * worth twelve times nothing. Unequal tiles restore a hierarchy — what counts
+ * takes two columns, the rest lines up around it.
  *
- * Le prix est un piege classique : une largeur choisie tuile par tuile finit
- * par produire une rangee incomplete des qu'on en ajoute une. La largeur est
- * donc bornee par le nombre de colonnes disponibles, et une tuile trop large
- * est ramenee a la grille plutot que de la deborder.
+ * The price is a classic trap: a width picked tile by tile ends up producing
+ * an incomplete row as soon as one more is added. The width is therefore
+ * bounded by the number of available columns, and a tile that is too wide is
+ * pulled back into the grid rather than allowed to overflow it.
  *
- * ## Une seule colonne avant le palier moyen
+ * ## A single column below the medium breakpoint
  *
- * Toutes les tailles sont neutralisees sur petit ecran. Une tuile « deux
- * colonnes sur quatre » posee dans une grille a une colonne ne veut plus rien
- * dire, et la faire survivre au palier produit soit un debordement horizontal,
- * soit une tuile ecrasee.
+ * Every size is neutralized on a small screen. A "two columns out of four"
+ * tile placed in a one-column grid no longer means anything, and keeping it
+ * alive past the breakpoint produces either a horizontal overflow or a
+ * crushed tile.
  *
- * ## La cascade est une transition, pas une animation
+ * ## The cascade is a transition, not an animation
  *
- * Chaque tuile fait le meme trajet, decale par un delai. C'est exactement ce
- * qu'une transition CSS sait faire, et le compositeur s'en charge seul : rien
- * ne s'execute en JavaScript pendant la revelation.
+ * Every tile travels the same path, offset by a delay. That is exactly what a
+ * CSS transition knows how to do, and the compositor handles it alone: nothing
+ * runs in JavaScript during the reveal.
  *
- * Sous mouvement reduit, l'attribut de depart n'est jamais pose : les tuiles
- * sont simplement la. Une cascade neutralisee qui laisserait la grille
- * invisible serait un defaut, pas un respect de la preference.
+ * Under reduced motion the starting attribute is never set: the tiles are
+ * simply there. A neutralized cascade that left the grid invisible would be a
+ * defect, not respect for the preference.
  *
  * @module
  */
@@ -37,47 +37,47 @@ import { type CSSProperties, type ReactElement, type ReactNode } from 'react'
 
 import { useInView } from '@registre/hooks/useInView'
 
-/** Une tuile de la grille. */
+/** One tile of the grid. */
 export interface BentoItem {
-  /** Identifiant, unique dans la grille. */
+  /** Identifier, unique within the grid. */
   readonly id: string
-  /** Intitule de la tuile. */
+  /** Heading of the tile. */
   readonly title: string
-  /** Ce que la tuile raconte. */
+  /** What the tile tells. */
   readonly body?: ReactNode
-  /** Colonnes occupees. Bornee au nombre de colonnes de la grille. @defaultValue 1 */
+  /** Columns taken. Bounded to the column count of the grid. @defaultValue 1 */
   readonly cols?: number
-  /** Rangees occupees. @defaultValue 1 */
+  /** Rows taken. @defaultValue 1 */
   readonly rows?: number
-  /** Visuel pose sous le texte : illustration, capture, pictogramme. */
+  /** Visual placed under the text: illustration, screenshot, glyph. */
   readonly media?: ReactNode
-  /** Adresse : la tuile devient alors un lien, et non un bloc inerte. */
+  /** Address: the tile then becomes a link, and not an inert block. */
   readonly href?: string
-  /** Met la tuile en avant : fond plein, bordure de marque. */
+  /** Puts the tile forward: solid background, brand border. */
   readonly featured?: boolean
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to the component. */
 export interface BentoGridOwnProps {
-  /** Les tuiles, dans l'ordre de lecture. */
+  /** The tiles, in reading order. */
   items: readonly BentoItem[]
-  /** Colonnes au-dela du palier moyen. @defaultValue 4 */
+  /** Columns beyond the medium breakpoint. @defaultValue 4 */
   columns?: number
-  /** Hauteur d'une rangee, en pixels. @defaultValue 180 */
+  /** Height of a row, in pixels. @defaultValue 180 */
   rowHeight?: number
-  /** Decalage entre deux tuiles a la revelation, en millisecondes. @defaultValue 60 */
+  /** Offset between two tiles at reveal time, in milliseconds. @defaultValue 60 */
   stagger?: number
-  /** Nom de la section, annonce aux technologies d'assistance. */
+  /** Name of the section, announced to assistive technologies. */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All the props. */
 export type BentoGridProps = Customisable<BentoGridOwnProps, 'section'>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-bento-grid'
 
-/** Pose les regles de la grille, une fois par document. */
+/** Sets the grid rules, once per document. */
 function ensureBentoRules(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -86,11 +86,11 @@ function ensureBentoRules(): void {
   style.id = STYLE_ID
   style.textContent = [
     '[data-o-bento]{display:grid;gap:0.75rem;grid-template-columns:1fr;list-style:none;margin:0;padding:0}',
-    // Les tailles n'existent qu'au-dela du palier : en dessous, la grille a une
-    // colonne et « deux colonnes sur quatre » ne veut plus rien dire.
+    // The sizes only exist beyond the breakpoint: below it, the grid has one
+    // column and "two columns out of four" no longer means anything.
     '@media (min-width:48rem){[data-o-bento]{',
-    'grid-template-columns:repeat(var(--o-bento-colonnes),minmax(0,1fr));',
-    'grid-auto-rows:var(--o-bento-rangee)}',
+    'grid-template-columns:repeat(var(--o-bento-columns),minmax(0,1fr));',
+    'grid-auto-rows:var(--o-bento-row)}',
     '[data-o-bento]>li{grid-column:span var(--o-bento-cols);grid-row:span var(--o-bento-rows)}}',
 
     '[data-o-bento-tuile]{display:flex;flex-direction:column;height:100%;overflow:hidden}',
@@ -100,8 +100,8 @@ function ensureBentoRules(): void {
     'opacity:0;transform:translateY(14px) scale(0.98);',
     'transition:opacity var(--o-duration-slower) var(--o-ease-entrance),',
     'transform var(--o-duration-slower) var(--o-ease-entrance);',
-    'transition-delay:var(--o-bento-delai)}',
-    '[data-o-bento-vu]>li{opacity:1;transform:none}',
+    'transition-delay:var(--o-bento-delay)}',
+    '[data-o-bento-seen]>li{opacity:1;transform:none}',
 
     '@media (prefers-reduced-motion:reduce){',
     '[data-o-bento-cache]>li{opacity:1;transform:none;transition:none}}',
@@ -110,13 +110,13 @@ function ensureBentoRules(): void {
 }
 
 /**
- * Le corps d'une tuile, sans son enveloppe.
+ * The body of a tile, without its wrapper.
  *
- * Il est separe pour que la tuile puisse etre un lien ou un bloc sans que le
- * contenu soit ecrit deux fois — et sans l'element dynamique qui obligerait a
- * mentir sur le type des attributs.
+ * It is kept apart so that the tile can be a link or a block without the
+ * content being written twice — and without the dynamic element that would
+ * force lying about the type of the attributes.
  */
-function Corps({ item }: { item: BentoItem }): ReactElement {
+function Body({ item }: { item: BentoItem }): ReactElement {
   return (
     <>
       <h3 className="o-text-base o-font-semibold o-tracking-tight">{item.title}</h3>
@@ -129,8 +129,8 @@ function Corps({ item }: { item: BentoItem }): ReactElement {
         </div>
       )}
       {item.media !== undefined && (
-        // Le visuel est decoratif : le texte de la tuile dit deja ce qu'elle
-        // raconte, et le faire lire ajouterait du bruit.
+        // The visual is decorative: the text of the tile already says what it
+        // tells, and having it read out would add noise.
         <div data-o-bento-media="" aria-hidden>
           {item.media}
         </div>
@@ -139,8 +139,8 @@ function Corps({ item }: { item: BentoItem }): ReactElement {
   )
 }
 
-/** Habillage d'une tuile, selon qu'elle est mise en avant ou non. */
-function habillage(item: BentoItem): CSSProperties {
+/** Dressing of a tile, depending on whether it is featured or not. */
+function tileStyle(item: BentoItem): CSSProperties {
   return {
     backgroundColor:
       item.featured === true
@@ -154,18 +154,18 @@ function habillage(item: BentoItem): CSSProperties {
   }
 }
 
-/** Classes communes aux deux enveloppes de tuile. */
-const TUILE = 'o-rounded-xl o-p-5 focus:o-ring'
+/** Classes common to both tile wrappers. */
+const TILE = 'o-rounded-xl o-p-5 focus:o-ring'
 
 /**
- * Une grille bento revelee en cascade.
+ * A bento grid revealed as a cascade.
  *
  * @example
  * <BentoGrid
- *   label="Ce que le registre garantit"
+ *   label="What the registry guarantees"
  *   items={[
- *     { id: 'copie', title: 'Le code vous appartient', cols: 2, body: <p>Copie, jamais lie.</p> },
- *     { id: 'repli', title: 'Un repli toujours prevu' },
+ *     { id: 'copy', title: 'The code is yours', cols: 2, body: <p>Copied, never linked.</p> },
+ *     { id: 'fallback', title: 'A fallback always planned' },
  *   ]}
  * />
  */
@@ -178,10 +178,10 @@ export function BentoGrid({
   ...rest
 }: BentoGridProps): ReactElement {
   const { reduced } = useMotionState()
-  const { ref, vu } = useInView<HTMLElement>({ amount: 0.15 })
+  const { ref, inView } = useInView<HTMLElement>({ amount: 0.15 })
   ensureBentoRules()
 
-  const colonnes = Math.max(1, Math.round(columns))
+  const columnCount = Math.max(1, Math.round(columns))
 
   const { className, style } = mergePresentation({}, rest)
 
@@ -196,18 +196,18 @@ export function BentoGrid({
       <ul
         data-o-bento=""
         data-o-bento-cache={reduced ? undefined : ''}
-        data-o-bento-vu={vu && !reduced ? '' : undefined}
+        data-o-bento-seen={inView && !reduced ? '' : undefined}
         style={
           {
-            '--o-bento-colonnes': String(colonnes),
-            '--o-bento-rangee': `${String(rowHeight)}px`,
+            '--o-bento-columns': String(columnCount),
+            '--o-bento-row': `${String(rowHeight)}px`,
           } as CSSProperties
         }
       >
         {items.map((item, index) => {
-          // Une tuile plus large que la grille produirait une rangee que rien
-          // ne remplit : elle est ramenee plutot que laissee deborder.
-          const cols = Math.min(colonnes, Math.max(1, Math.round(item.cols ?? 1)))
+          // A tile wider than the grid would produce a row that nothing fills:
+          // it is pulled back rather than left to overflow.
+          const cols = Math.min(columnCount, Math.max(1, Math.round(item.cols ?? 1)))
           const rows = Math.max(1, Math.round(item.rows ?? 1))
 
           return (
@@ -217,22 +217,22 @@ export function BentoGrid({
                 {
                   '--o-bento-cols': String(cols),
                   '--o-bento-rows': String(rows),
-                  '--o-bento-delai': `${String(index * stagger)}ms`,
+                  '--o-bento-delay': `${String(index * stagger)}ms`,
                 } as CSSProperties
               }
             >
               {item.href === undefined ? (
-                <div data-o-bento-tuile="" className={TUILE} style={habillage(item)}>
-                  <Corps item={item} />
+                <div data-o-bento-tuile="" className={TILE} style={tileStyle(item)}>
+                  <Body item={item} />
                 </div>
               ) : (
                 <a
                   href={item.href}
                   data-o-bento-tuile=""
-                  className={TUILE}
-                  style={habillage(item)}
+                  className={TILE}
+                  style={tileStyle(item)}
                 >
-                  <Corps item={item} />
+                  <Body item={item} />
                 </a>
               )}
             </li>

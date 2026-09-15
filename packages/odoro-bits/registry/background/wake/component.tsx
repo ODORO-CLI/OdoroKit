@@ -1,27 +1,27 @@
 /**
- * Sillage : le curseur laisse une trainee lumineuse qui s'eteint.
+ * Wake: the cursor leaves a bright trail that dies out.
  *
- * ## A quoi ce fond reagit
+ * ## What this background reacts to
  *
- * Au deplacement du pointeur : la boucle du moteur echantillonne sa position
- * — une toutes les 40 ms environ, et seulement s'il a bouge d'un seuil — dans
- * un tampon circulaire de seize depots dates. Chaque depot est un halo qui
- * s'eteint avec l'age : la trainee suit le geste et s'efface derriere lui.
+ * To the pointer moving: the engine loop samples its position — one sample
+ * every 40 ms or so, and only if it has moved past a threshold — into a
+ * circular buffer of sixteen dated deposits. Each deposit is a glow that dies
+ * out with age: the trail follows the gesture and fades behind it.
  *
- * L'amortissement du pointeur est volontairement sec (vitesse 9) : trop
- * amorti, le sillage tracerait la version lissee du geste, pas le geste.
+ * The pointer damping is deliberately dry (speed 9): too damped, the wake
+ * would draw the smoothed version of the gesture, not the gesture.
  *
- * ## Le pont pointeur → shader
+ * ## The pointer → shader bridge
  *
- * Aucun rendu React par image : le tampon est un tableau stable de quarante-
- * huit flottants (seize fois x, y, temps de depot), mute en place dans la
- * souscription d'horloge. La surface relit ses uniforms a chaque image — la
- * mutation suffit. Les depots sont dates avec le temps de l'horloge du moteur,
- * le meme que `uTime` du shader.
+ * No React render per frame: the buffer is a stable array of forty-eight
+ * floats (sixteen times x, y, deposit time), mutated in place in the clock
+ * subscription. The surface re-reads its uniforms every frame — the mutation
+ * is enough. The deposits are dated with the engine clock's time, the same as
+ * the shader's `uTime`.
  *
- * ## Sous mouvement reduit
+ * ## Under reduced motion
  *
- * La surface est refusee par le moteur et le repli statique s'affiche.
+ * The surface is refused by the engine and the static fallback is shown.
  *
  * @module
  */
@@ -42,53 +42,53 @@ import { usePointerDamped } from '@registre/hooks/usePointerDamped'
 
 import { WAKE_FRAGMENT } from './wake.shader.js'
 
-/** Ce que l'echappatoire recoit. */
+/** What the escape hatch receives. */
 export interface WakeControls {
-  /** Couleurs effectivement transmises au shader. */
+  /** Colours actually handed to the shader. */
   readonly colours: readonly ShaderColour[]
-  /** Motif du refus, s'il y en a un. */
+  /** Reason for the refusal, if there is one. */
   readonly refused: string | undefined
 }
 
-/** Proprietes propres au composant. */
+/** Props specific to this component. */
 export interface WakeOwnProps {
-  /** Duree de vie d'un depot, en secondes. @defaultValue 1.2 */
+  /** Lifetime of a deposit, in seconds. @defaultValue 1.2 */
   life?: number
-  /** Rayon des halos de la trainee. @defaultValue 0.08 */
+  /** Radius of the trail glows. @defaultValue 0.08 */
   size?: number
-  /** Tokens dont les couleurs sont lues. */
+  /** Tokens whose colours are read. */
   colors?: readonly string[]
-  /** Classes du repli. */
+  /** Fallback classes. */
   fallback?: string
-  /** Echappatoire. */
+  /** Escape hatch. */
   onReady?: ReadyCallback<WakeControls>
 }
 
-/** Toutes les proprietes. */
+/** All props. */
 export type WakeProps = Customisable<WakeOwnProps>
 
-/** Tokens employes par defaut : le fond, la trainee, son coeur frais. */
+/** Tokens used by default: the background, the trail, its fresh core. */
 const DEFAULT_TOKENS = [
   '--o-theme-bg',
   '--o-palette-teal-400',
   '--o-palette-emerald-200',
 ] as const
 
-/** Repli par defaut : un degrade fige, dans les memes tons. */
+/** Default fallback: a frozen gradient, in the same tones. */
 const DEFAULT_FALLBACK =
   'o-bg-gradient-to-b o-from-zinc-50 dark:o-from-zinc-950 o-to-teal-950'
 
-/** Nombre de depots vivants a la fois. */
+/** Number of deposits alive at any one time. */
 const SLOTS = 16
 
-/** Intervalle minimal entre deux depots, en secondes. */
+/** Minimum interval between two deposits, in seconds. */
 const DEPOSIT_EVERY = 0.04
 
-/** Deplacement minimal entre deux depots, en coordonnees de texture. */
+/** Minimum travel between two deposits, in texture coordinates. */
 const DEPOSIT_THRESHOLD = 0.012
 
 /**
- * Sillage.
+ * Wake.
  *
  * @example
  * <div className="o-relative o-min-h-screen">
@@ -106,13 +106,13 @@ export function Wake({
 }: WakeProps): ReactElement {
   const [host, setHost] = useState<HTMLDivElement | null>(null)
 
-  // Tampon stable, mute en place : seize fois (x, y, temps de depot). Un
-  // depot a -1000 donne un age enorme, donc un halo inerte d'office.
+  // Stable buffer, mutated in place: sixteen times (x, y, deposit time). A
+  // deposit at -1000 gives an enormous age, hence a glow inert from the start.
   const uTrail = useRef<number[]>(Array.from({ length: SLOTS * 3 }, () => -1000)).current
 
-  // Vitesse 9 : presque le pointeur brut. Un amortissement lent tracerait la
-  // version lissee du geste, et le sillage ne suivrait pas vraiment.
-  const pointer = usePointerDamped({ host, speed: 9, name: 'wake : pointeur' })
+  // Speed 9: almost the raw pointer. Slow damping would draw the smoothed
+  // version of the gesture, and the wake would not really follow.
+  const pointer = usePointerDamped({ host, speed: 9, name: 'wake : pointer' })
 
   useEffect(() => {
     let lastDeposit = -1000
@@ -124,8 +124,8 @@ export function Wake({
         const x = (pointer.current.x + 1) / 2
         const y = 1 - (pointer.current.y + 1) / 2
 
-        // Un depot par intervalle, et seulement si le pointeur a bouge : au
-        // repos, la trainee s'eteint au lieu de s'entasser sur place.
+        // One deposit per interval, and only if the pointer has moved: at
+        // rest, the trail dies out instead of piling up in place.
         if (time - lastDeposit < DEPOSIT_EVERY) return
         const moved = Math.hypot(x - lastX, y - lastY)
         if (moved < DEPOSIT_THRESHOLD) return
@@ -143,7 +143,7 @@ export function Wake({
         lastX = x
         lastY = y
       },
-      { priority: CLOCK_PRIORITY.input, name: 'wake : depots' },
+      { priority: CLOCK_PRIORITY.input, name: 'wake : deposits' },
     )
     return () => subscription.unsubscribe()
   }, [pointer, uTrail])

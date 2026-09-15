@@ -1,28 +1,28 @@
 /**
- * Etoiles de notation : cascade a l'arrivee, apercu au survol, fleches au
- * clavier.
+ * Rating stars: cascade on arrival, preview on hover, arrow keys on the
+ * keyboard.
  *
- * ## Une etoile est un bouton radio, pas un bouton
+ * ## A star is a radio button, not a button
  *
- * Une note est un choix parmi n : c'est exactement ce que decrit un
- * `radiogroup`, et les lecteurs d'ecran annoncent « 3 sur 5, coche » sans
- * qu'on invente quoi que ce soit. Un rang de boutons obligerait a
- * reconstruire cette semantique a la main — etat coche, position, total —
- * et le clavier standard des radios (les fleches) viendrait en prime s'il
- * n'etait pas deja la.
+ * A rating is a choice among n: that is exactly what a `radiogroup`
+ * describes, and screen readers announce "3 of 5, checked" without us
+ * inventing anything. A row of buttons would force us to rebuild that
+ * semantics by hand — checked state, position, total — and the standard
+ * radio keyboard handling (the arrows) would come as a bonus if it were
+ * not already there.
  *
- * ## Le survol previsualise, le clic decide
+ * ## Hover previews, the click decides
  *
- * L'apercu est un etat local qui ne sort jamais du composant : les etoiles
- * s'allument sous le pointeur, mais `onValueChange` n'est appele qu'au
- * clic. Quitter sans cliquer rend la note affichee a sa valeur reelle —
- * previsualiser n'est pas choisir.
+ * The preview is a local state that never leaves the component: the stars
+ * light up under the pointer, but `onValueChange` is only called on
+ * click. Leaving without clicking returns the displayed rating to its real
+ * value — previewing is not choosing.
  *
- * ## La cascade est une arrivee, pas un etat
+ * ## The cascade is an arrival, not a state
  *
- * Chaque etoile monte en echelle avec un retard proportionnel a son rang,
- * une seule fois, au montage. Sous mouvement reduit, elles sont simplement
- * la : la cascade est un plaisir, pas une information.
+ * Each star scales up with a delay proportional to its rank, once only, on
+ * mount. Under reduced motion, they are simply there: the cascade is a
+ * pleasure, not information.
  *
  * @module
  */
@@ -35,29 +35,29 @@ import {
   type ReactElement,
 } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface RatingStarsOwnProps {
-  /** Nombre d'etoiles. @defaultValue 5 */
+  /** Number of stars. @defaultValue 5 */
   count?: number
-  /** Taille d'une etoile, en pixels. @defaultValue 24 */
+  /** Size of one star, in pixels. @defaultValue 24 */
   size?: number
-  /** Note courante, en mode controle. Valeurs entieres. */
+  /** Current rating, in controlled mode. Integer values. */
   value?: number
-  /** Note au montage, en mode non controle. @defaultValue 0 */
+  /** Rating on mount, in uncontrolled mode. @defaultValue 0 */
   defaultValue?: number
-  /** Appele quand la note change. */
+  /** Called when the rating changes. */
   onValueChange?: (value: number) => void
-  /** Nom du groupe pour les lecteurs d'ecran. @defaultValue 'Note' */
+  /** Group name for screen readers. @defaultValue 'Rating' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type RatingStarsProps = Customisable<RatingStarsOwnProps>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-rating-stars'
 
-/** Pose la cascade et les etats de remplissage, une fois par document. */
+/** Applies the cascade and the fill states, once per document. */
 function ensureRatingRules(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -87,7 +87,7 @@ function ensureRatingRules(): void {
     'from{opacity:0;transform:scale(0.4)}',
     'to{opacity:1;transform:scale(1)}',
     '}',
-    // Mouvement reduit : pas de cascade, les etoiles sont simplement la.
+    // Reduced motion: no cascade, the stars are simply there.
     '@media (prefers-reduced-motion:reduce){',
     '[data-o-rating] [role="radio"]{animation:none}',
     '[data-o-rating] svg{transition:none;transform:none}',
@@ -97,14 +97,14 @@ function ensureRatingRules(): void {
 }
 
 /**
- * Groupe d'etoiles accessible : une etoile est un bouton radio.
+ * Accessible star group: a star is a radio button.
  *
  * @example
  * <RatingStars defaultValue={3} />
  *
  * @example
- * // Mode controle, sur dix, en plus grand.
- * <RatingStars count={10} size={32} value={note} onValueChange={setNote} />
+ * // Controlled mode, out of ten, larger.
+ * <RatingStars count={10} size={32} value={rating} onValueChange={setRating} />
  */
 export function RatingStars({
   count = 5,
@@ -112,7 +112,7 @@ export function RatingStars({
   value,
   defaultValue = 0,
   onValueChange,
-  label = 'Note',
+  label = 'Rating',
   ...rest
 }: RatingStarsProps): ReactElement {
   const { reduced } = useMotionState()
@@ -175,7 +175,7 @@ export function RatingStars({
             type="button"
             role="radio"
             aria-checked={checked}
-            aria-label={`${String(star)} sur ${String(count)}`}
+            aria-label={`${String(star)} of ${String(count)}`}
             tabIndex={checked || (current === 0 && star === 1) ? 0 : -1}
             data-o-rating-lit={star <= shown}
             style={{ '--o-rating-i': String(index) } as CSSProperties}

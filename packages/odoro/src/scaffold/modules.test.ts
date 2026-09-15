@@ -2,146 +2,149 @@ import { describe, expect, it } from 'vitest'
 
 import {
   MODULES,
-  MODULES_PAR_DEFAUT,
+  DEFAULT_MODULES,
   MODULE_IDS,
-  gardeLesRoutes,
-  lireModules,
-  paquetsDe,
-  resoudre,
-  variantesDe,
+  keepsRoutes,
+  readModules,
+  packagesFor,
+  resolveModules,
+  variantsFor,
 } from './modules.js'
 
-describe('le catalogue dit ce que chaque case fait', () => {
-  it('coche les bibliotheques, le routeur et les icones', () => {
-    expect(MODULES_PAR_DEFAUT).toEqual(['libs', 'router', 'icons'])
+describe('the catalogue says what each box does', () => {
+  it('ticks the libraries, the router and the icons', () => {
+    expect(DEFAULT_MODULES).toEqual(['libs', 'router', 'icons'])
   })
 
-  it('ne promet un paquet que pour ce qui en est un', () => {
-    // Le routeur est un sous-chemin des bibliotheques, le registre se copie
-    // par `odoro add` : ni l'un ni l'autre n'est une dependance.
-    const avecPaquet = MODULES.filter((m) => m.paquet !== undefined).map((m) => m.id)
-    expect(avecPaquet).toEqual(['libs', 'icons', 'engine'])
+  it('only promises a package for what is one', () => {
+    // The router is a subpath of the libraries, the registry is copied by
+    // `odoro add`: neither of them is a dependency.
+    const withPackage = MODULES.filter((m) => m.packageName !== undefined).map(
+      (m) => m.id,
+    )
+    expect(withPackage).toEqual(['libs', 'icons', 'engine'])
   })
 
-  it('n annonce que des paquets de la famille', () => {
+  it('only announces packages of the family', () => {
     for (const module of MODULES) {
-      if (module.paquet === undefined) continue
-      expect(module.paquet.startsWith('@odoro-cli/')).toBe(true)
+      if (module.packageName === undefined) continue
+      expect(module.packageName.startsWith('@odoro-cli/')).toBe(true)
     }
   })
 })
 
-describe('la resolution rend la selection coherente', () => {
-  it('laisse passer une selection complete', () => {
-    const { modules, avertissements } = resoudre(['libs', 'router', 'icons'])
+describe('the resolution makes the selection coherent', () => {
+  it('lets a complete selection through', () => {
+    const { modules, warnings } = resolveModules(['libs', 'router', 'icons'])
     expect(modules).toEqual(['libs', 'router', 'icons'])
-    expect(avertissements).toEqual([])
+    expect(warnings).toEqual([])
   })
 
-  it('retire le routeur quand les bibliotheques partent, et le dit', () => {
-    const { modules, avertissements } = resoudre(['router', 'icons'])
+  it('removes the router when the libraries go, and says so', () => {
+    const { modules, warnings } = resolveModules(['router', 'icons'])
     expect(modules).toEqual(['icons'])
-    expect(avertissements).toHaveLength(1)
-    expect(avertissements[0]).toContain('@odoro-cli/libs/router')
+    expect(warnings).toHaveLength(1)
+    expect(warnings[0]).toContain('@odoro-cli/libs/router')
   })
 
-  it('rend toujours l ordre du catalogue, quelle que soit la saisie', () => {
-    // Deux selections identiques doivent produire le meme manifeste : sans
-    // ordre stable, l ordre de frappe se retrouverait dans le fichier.
-    expect(resoudre(['icons', 'libs']).modules).toEqual(
-      resoudre(['libs', 'icons']).modules,
+  it('always returns the catalogue order, whatever the input', () => {
+    // Two identical selections must produce the same manifest: without a stable
+    // order, the typing order would end up in the file.
+    expect(resolveModules(['icons', 'libs']).modules).toEqual(
+      resolveModules(['libs', 'icons']).modules,
     )
   })
 
-  it('accepte une selection vide', () => {
-    expect(resoudre([]).modules).toEqual([])
+  it('accepts an empty selection', () => {
+    expect(resolveModules([]).modules).toEqual([])
   })
 })
 
-describe('les paquets suivent la selection', () => {
-  it('n ajoute rien pour le routeur, qui vient des bibliotheques', () => {
-    expect(paquetsDe(['libs', 'router'])).toEqual(['@odoro-cli/libs'])
+describe('the packages follow the selection', () => {
+  it('adds nothing for the router, which comes with the libraries', () => {
+    expect(packagesFor(['libs', 'router'])).toEqual(['@odoro-cli/libs'])
   })
 
-  it('n ajoute rien pour le registre, qui se copie', () => {
-    expect(paquetsDe(['registre'])).toEqual([])
+  it('adds nothing for the registry, which is copied', () => {
+    expect(packagesFor(['registre'])).toEqual([])
   })
 
-  it('ajoute le moteur quand il est retenu', () => {
-    expect(paquetsDe(['libs', 'engine'])).toEqual([
+  it('adds the engine when it is kept', () => {
+    expect(packagesFor(['libs', 'engine'])).toEqual([
       '@odoro-cli/libs',
       '@odoro-cli/engine',
     ])
   })
 })
 
-describe('les variantes decoulent des trois choix qui touchent les fichiers', () => {
-  it('garde le gabarit tel quel avec bibliotheques et routeur', () => {
-    expect(variantesDe(['libs', 'router', 'icons'])).toEqual([])
+describe('the variants follow from the three choices that touch the files', () => {
+  it('keeps the template as it is with libraries and router', () => {
+    expect(variantsFor(['libs', 'router', 'icons'])).toEqual([])
   })
 
-  it('pose la variante sans routeur', () => {
-    expect(variantesDe(['libs', 'icons'])).toEqual(['sans-routeur'])
+  it('lays the variant without the router', () => {
+    expect(variantsFor(['libs', 'icons'])).toEqual(['without-router'])
   })
 
-  it('pose la variante sans bibliotheques, routeur ou non', () => {
-    expect(variantesDe(['icons'])).toEqual(['sans-libs'])
-    expect(variantesDe([])).toEqual(['sans-libs'])
+  it('lays the variant without the libraries, router or not', () => {
+    expect(variantsFor(['icons'])).toEqual(['without-libs'])
+    expect(variantsFor([])).toEqual(['without-libs'])
   })
 
-  it('ajoute le fond du moteur quand il est retenu', () => {
-    expect(variantesDe(['libs', 'router', 'engine'])).toEqual(['avec-moteur'])
+  it('adds the engine background when it is kept', () => {
+    expect(variantsFor(['libs', 'router', 'engine'])).toEqual(['with-engine'])
   })
 
-  it('pose le fond du moteur en dernier, pour qu il gagne', () => {
-    // Une variante posee plus tard ecrase ce qu une precedente a ecrit au
-    // meme chemin : le fond du moteur doit donc venir apres.
-    expect(variantesDe(['libs', 'engine'])).toEqual(['sans-routeur', 'avec-moteur'])
-    expect(variantesDe(['engine'])).toEqual(['sans-libs', 'avec-moteur'])
+  it('lays the engine background last, so that it wins', () => {
+    // A variant laid later overwrites what a previous one wrote at the same
+    // path: the engine background must therefore come afterwards.
+    expect(variantsFor(['libs', 'engine'])).toEqual(['without-router', 'with-engine'])
+    expect(variantsFor(['engine'])).toEqual(['without-libs', 'with-engine'])
   })
 
-  it('ne garde les routes que si le routeur est la', () => {
-    expect(gardeLesRoutes(['libs', 'router'])).toBe(true)
-    expect(gardeLesRoutes(['libs'])).toBe(false)
-  })
-})
-
-describe('la lecture de --modules', () => {
-  it('lit une liste separee par des virgules', () => {
-    expect(lireModules('libs,router')).toEqual({ modules: ['libs', 'router'] })
-  })
-
-  it('tolere les espaces et les entrees vides', () => {
-    expect(lireModules(' libs , , icons ')).toEqual({ modules: ['libs', 'icons'] })
-  })
-
-  it('comprend "aucun" comme un choix, et non comme une saisie vide', () => {
-    expect(lireModules('aucun')).toEqual({ modules: [] })
-  })
-
-  it('refuse un nom inconnu en disant lesquels existent', () => {
-    const lu = lireModules('libs,bits')
-    expect(lu.erreur).toContain('"bits"')
-    expect(lu.erreur).toContain(MODULE_IDS.join(', '))
+  it('only keeps the routes when the router is there', () => {
+    expect(keepsRoutes(['libs', 'router'])).toBe(true)
+    expect(keepsRoutes(['libs'])).toBe(false)
   })
 })
 
-describe('le registre entraine le moteur', () => {
-  it('ajoute le moteur, et le dit', () => {
-    // 455 des 461 entrees l importent : sans lui, `odoro add` ecrirait des
-    // fichiers que le projet ne saurait pas compiler.
-    const { modules, avertissements } = resoudre(['libs', 'router', 'registre'])
-    expect(modules).toContain('engine')
-    expect(avertissements.some((a) => a.includes('@odoro-cli/engine'))).toBe(true)
+describe('the reading of --modules', () => {
+  it('reads a comma-separated list', () => {
+    expect(readModules('libs,router')).toEqual({ modules: ['libs', 'router'] })
   })
 
-  it('ne dit rien quand le moteur etait deja coche', () => {
-    const { modules, avertissements } = resoudre(['libs', 'engine', 'registre'])
-    expect(modules).toContain('engine')
-    expect(avertissements).toEqual([])
+  it('tolerates spaces and empty entries', () => {
+    expect(readModules(' libs , , icons ')).toEqual({ modules: ['libs', 'icons'] })
   })
 
-  it('laisse le moteur seul quand le registre n est pas retenu', () => {
-    expect(resoudre(['libs', 'router']).modules).not.toContain('engine')
+  it('understands "none" as a choice, and not as an empty input', () => {
+    expect(readModules('none')).toEqual({ modules: [] })
+    expect(readModules('aucun')).toEqual({ modules: [] })
+  })
+
+  it('refuses an unknown name while saying which ones exist', () => {
+    const read = readModules('libs,bits')
+    expect(read.error).toContain('"bits"')
+    expect(read.error).toContain(MODULE_IDS.join(', '))
+  })
+})
+
+describe('the registry pulls in the engine', () => {
+  it('adds the engine, and says so', () => {
+    // 455 of the 461 entries import it: without it, `odoro add` would write
+    // files the project would not know how to build.
+    const { modules, warnings } = resolveModules(['libs', 'router', 'registre'])
+    expect(modules).toContain('engine')
+    expect(warnings.some((warning) => warning.includes('@odoro-cli/engine'))).toBe(true)
+  })
+
+  it('says nothing when the engine was already ticked', () => {
+    const { modules, warnings } = resolveModules(['libs', 'engine', 'registre'])
+    expect(modules).toContain('engine')
+    expect(warnings).toEqual([])
+  })
+
+  it('leaves the engine alone when the registry is not kept', () => {
+    expect(resolveModules(['libs', 'router']).modules).not.toContain('engine')
   })
 })

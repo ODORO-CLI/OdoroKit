@@ -1,29 +1,29 @@
 /**
- * Decoupage de texte pour animation.
+ * Text splitting for animation.
  *
- * ## Le piege d'accessibilite, et il est serieux
+ * ## The accessibility trap, and it is a serious one
  *
- * Decouper un paragraphe en une balise par caractere detruit trois choses a la
- * fois : certaines combinaisons de lecteur d'ecran et de navigateur annoncent
- * alors le texte **lettre par lettre**, la selection a la souris se fragmente,
- * et le copier-coller rend une suite de morceaux.
+ * Splitting a paragraph into one tag per character destroys three things at
+ * once: some screen reader and browser combinations then announce the text
+ * **letter by letter**, mouse selection fragments, and copy-paste returns a
+ * string of pieces.
  *
- * La parade tient en deux attributs, et elle appartient au moteur, pas a
- * l'appelant : le conteneur porte le texte d'origine en `aria-label`, et les
- * fragments sont marques `aria-hidden`. Le lecteur d'ecran lit alors une
- * phrase, pas un alphabet.
+ * The remedy fits in two attributes, and it belongs to the engine, not to the
+ * caller: the container carries the original text in `aria-label`, and the
+ * fragments are marked `aria-hidden`. The screen reader then reads a sentence,
+ * not an alphabet.
  *
- * ## Sous mouvement reduit, on ne decoupe pas du tout
+ * ## Under reduced motion, nothing is split at all
  *
- * Decouper pour ne rien animer reviendrait a payer l'integralite du cout
- * d'accessibilite sans aucun benefice. Le texte reste donc intact.
+ * Splitting in order to animate nothing would amount to paying the whole
+ * accessibility cost for no benefit. The text therefore stays intact.
  *
- * ## Redecoupage au redimensionnement
+ * ## Re-splitting on resize
  *
- * Un decoupage par ligne depend de la largeur disponible. Sans redecoupage,
- * les « lignes » animees cessent de correspondre aux lignes affichees des que
- * la fenetre change — et le resultat est plus etrange qu'une absence
- * d'animation. Le redecoupage n'a donc lieu que pour ce mode.
+ * A per-line split depends on the available width. Without re-splitting, the
+ * animated "lines" stop matching the displayed lines as soon as the window
+ * changes — and the result is stranger than no animation at all. Re-splitting
+ * therefore only happens for that mode.
  *
  * @module
  */
@@ -33,45 +33,45 @@ import { type RefObject, useEffect, useRef, useState } from 'react'
 import { motionPolicy } from '../core/motion-policy.js'
 import { loadSplitText } from './setup.js'
 
-/** Granularite du decoupage. */
+/** Granularity of the split. */
 export type SplitBy = 'chars' | 'words' | 'lines'
 
-/** Options de {@link useSplitText}. */
+/** Options of {@link useSplitText}. */
 export interface SplitTextOptions {
-  /** Granularite. @defaultValue 'chars' */
+  /** Granularity. @defaultValue 'chars' */
   by?: SplitBy | readonly SplitBy[]
   /**
-   * Redecoupe au redimensionnement. Sans effet hors du mode `lines`, ou le
-   * decoupage ne depend pas de la largeur.
+   * Re-splits on resize. No effect outside the `lines` mode, where the split
+   * does not depend on the width.
    *
    * @defaultValue true
    */
   resplitOnResize?: boolean
-  /** Delai d'anti-rebond du redimensionnement, en millisecondes. @defaultValue 150 */
+  /** Debounce delay of the resize, in milliseconds. @defaultValue 150 */
   debounce?: number
 }
 
-/** Ce que rend {@link useSplitText}. */
+/** What {@link useSplitText} returns. */
 export interface SplitTextHandle<T extends Element> {
-  /** Ref a poser sur l'element contenant le texte. */
+  /** Ref to set on the element containing the text. */
   readonly ref: RefObject<T | null>
-  /** Fragments produits, vides tant que le decoupage n'a pas eu lieu. */
+  /** Fragments produced, empty as long as the split has not happened. */
   readonly parts: readonly Element[]
-  /** `true` une fois le decoupage effectue. */
+  /** `true` once the split has been performed. */
   readonly ready: boolean
 }
 
-/** Normalise la granularite demandee vers la forme attendue par le plugin. */
+/** Normalises the requested granularity to the shape the plugin expects. */
 function toTypes(by: SplitBy | readonly SplitBy[]): string {
   return (Array.isArray(by) ? by : [by]).join(',')
 }
 
 /**
- * Decoupe le texte d'un element en fragments animables.
+ * Splits the text of an element into animatable fragments.
  *
- * Le DOM d'origine est integralement restaure au demontage : un texte laisse
- * decoupe casserait la selection et le copier-coller bien apres la disparition
- * de l'animation qui l'avait justifie.
+ * The original DOM is entirely restored on unmount: a text left split would
+ * break selection and copy-paste long after the disappearance of the animation
+ * that justified it.
  *
  * @example
  * const { ref, parts, ready } = useSplitText<HTMLHeadingElement>({ by: 'chars' })
@@ -81,7 +81,7 @@ function toTypes(by: SplitBy | readonly SplitBy[]): string {
  *   gsap.from(parts, { y: 20, opacity: 0, stagger: 0.02 })
  * }, [ready, parts])
  *
- * return <h1 ref={ref}>Un titre revele</h1>
+ * return <h1 ref={ref}>A revealed heading</h1>
  */
 export function useSplitText<T extends Element = HTMLElement>(
   options: SplitTextOptions = {},
@@ -99,8 +99,8 @@ export function useSplitText<T extends Element = HTMLElement>(
     const element = ref.current
     if (element === null) return
 
-    // Neutralise : le texte reste tel qu'il est, et l'appelant verra `ready`
-    // rester faux — donc n'animera rien.
+    // Neutralised: the text stays as it is, and the caller will see `ready`
+    // stay false — and will therefore animate nothing.
     if (motionPolicy.state.reduced) return
 
     let split: SplitText | undefined
@@ -108,14 +108,14 @@ export function useSplitText<T extends Element = HTMLElement>(
     let timer: ReturnType<typeof setTimeout> | undefined
     let observer: ResizeObserver | undefined
 
-    /** Texte d'origine, relu avant chaque decoupage. */
+    /** Original text, read again before every split. */
     const label = element.textContent ?? ''
     const hadLabel = element.hasAttribute('aria-label')
 
     const apply = (SplitTextClass: typeof SplitText): void => {
       split?.revert()
-      // Le decoupage n'a de sens que sur un element HTML ; la contrainte
-      // generique reste `Element` pour ne pas gener l'appelant.
+      // The split only makes sense on an HTML element; the generic constraint
+      // stays `Element` so as not to hinder the caller.
       split = new SplitTextClass(element as unknown as HTMLElement, { type: types })
 
       const produced: Element[] = [
@@ -126,7 +126,7 @@ export function useSplitText<T extends Element = HTMLElement>(
           : (split.lines ?? [])),
       ]
 
-      // Le lecteur d'ecran doit lire une phrase, pas un alphabet.
+      // The screen reader must read a sentence, not an alphabet.
       element.setAttribute('aria-label', label)
       for (const part of produced) part.setAttribute('aria-hidden', 'true')
 
@@ -144,8 +144,8 @@ export function useSplitText<T extends Element = HTMLElement>(
       let width = element.getBoundingClientRect().width
       observer = new ResizeObserver((entries) => {
         const next = entries[0]?.contentRect.width
-        // Seule la largeur change le decoupage en lignes : ignorer les
-        // variations de hauteur evite un redecoupage a chaque animation.
+        // Only the width changes the split into lines: ignoring height
+        // variations avoids a re-split on every animation.
         if (next === undefined || Math.abs(next - width) < 1) return
         width = next
 
@@ -161,8 +161,8 @@ export function useSplitText<T extends Element = HTMLElement>(
       cancelled = true
       clearTimeout(timer)
       observer?.disconnect()
-      // La restauration doit avoir lieu meme si le composant est demonte avant
-      // la fin du chargement du plugin.
+      // The restoration must happen even if the component is unmounted before
+      // the plugin has finished loading.
       split?.revert()
       if (!hadLabel) element.removeAttribute('aria-label')
       setParts([])

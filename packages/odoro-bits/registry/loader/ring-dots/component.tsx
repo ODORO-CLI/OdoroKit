@@ -1,33 +1,32 @@
 /**
- * Points en couronne : des points fixes en cercle, l'eclat tourne de l'un a
- * l'autre.
+ * Ring of dots: fixed dots in a circle, the highlight turns from one to the
+ * next.
  *
- * ## Les points ne bougent pas, l'eclat si
+ * ## The dots do not move, the highlight does
  *
- * Chaque point est pose a sa place sur la couronne et n'en bouge plus : sa
- * seule vie est son opacite, qui tombe lineairement du plein au pale sur un
- * cycle. Un delai negatif par point, proportionnel a sa place, decale les
- * cycles : le point le plus vif est toujours suivi d'une trainee de points
- * de plus en plus pales, et cette trainee tourne. C'est le chargeur des
- * systemes d'exploitation depuis vingt ans, et il est reconnu avant meme
- * d'avoir tourne.
+ * Each dot is placed at its spot on the ring and never moves again: its only
+ * life is its opacity, which falls linearly from full to pale over one cycle.
+ * A negative delay per dot, proportional to its spot, offsets the cycles: the
+ * brightest dot is always followed by a trail of ever paler dots, and that
+ * trail turns. It is the loader of operating systems for twenty years, and it
+ * is recognised before it has even turned.
  *
- * Le placement se fait par une rotation autour du centre de la couronne,
- * pas par des coordonnees calculees : l'origine de la transformation est
- * deplacee au centre, et chaque point n'a qu'un angle. Aucune
- * trigonometrie, et la couronne reste exacte a toute taille.
+ * The placement is done by a rotation around the centre of the ring, not by
+ * computed coordinates: the origin of the transform is moved to the centre,
+ * and each dot has nothing but an angle. No trigonometry, and the ring stays
+ * exact at every size.
  *
- * Aucun JavaScript apres le premier rendu : une animation d'opacite par
- * point, tenue par le compositeur.
+ * No JavaScript after the first render: one opacity animation per dot, held
+ * by the compositor.
  *
- * ## Un statut, pas un dessin
+ * ## A status, not a drawing
  *
- * L'element porte `role="status"` et un libelle pour les lecteurs d'ecran :
- * l'attente est une information, pas une decoration. Les points, eux, sont
- * retires de l'arbre d'accessibilite.
+ * The element carries `role="status"` and a label for screen readers: the
+ * wait is information, not decoration. The dots themselves are removed from
+ * the accessibility tree.
  *
- * Sous mouvement reduit, tous les points restent pleins : une couronne de
- * points se lit encore comme un chargeur, seul le mouvement s'arrete.
+ * Under reduced motion, all the dots stay full: a ring of dots still reads as
+ * a loader, only the movement stops.
  *
  * @module
  */
@@ -35,10 +34,10 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-ring-dots'
 
-/** Pose les points et leur fondu, une fois par document. */
+/** Applies the dots and their fade, once per document. */
 function ensureRingDotsRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -47,8 +46,8 @@ function ensureRingDotsRule(): void {
   style.id = STYLE_ID
   style.textContent = [
     '[data-o-ring-dots]{position:relative;display:inline-block;line-height:0}',
-    // Le point est pose au sommet, puis tourne autour du centre de la
-    // couronne : l'origine de sa transformation est ramenee a ce centre.
+    // The dot is placed at the top, then turns around the centre of the ring:
+    // the origin of its transform is brought back to that centre.
     '[data-o-ring-dot]{',
     'position:absolute;top:0;left:50%;',
     'width:var(--o-rd-dot);height:var(--o-rd-dot);',
@@ -67,33 +66,33 @@ function ensureRingDotsRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface RingDotsOwnProps {
-  /** Diametre de la couronne, en pixels. @defaultValue 40 */
+  /** Diameter of the ring, in pixels. @defaultValue 40 */
   size?: number
-  /** Diametre d'un point, en pixels. @defaultValue 6 */
+  /** Diameter of one dot, in pixels. @defaultValue 6 */
   dot?: number
-  /** Nombre de points sur la couronne. @defaultValue 8 */
+  /** Number of dots on the ring. @defaultValue 8 */
   count?: number
-  /** Duree pour que l'eclat fasse le tour, en millisecondes. @defaultValue 1000 */
+  /** Time for the highlight to go around, in milliseconds. @defaultValue 1000 */
   speed?: number
-  /** Couleur des points. @defaultValue la couleur du texte */
+  /** Colour of the dots. @defaultValue the text colour */
   color?: string
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */
+  /** Label announced to screen readers. @defaultValue 'Loading' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All the properties. */
 export type RingDotsProps = Customisable<RingDotsOwnProps, 'span'>
 
 /**
- * Signale une attente par un eclat qui tourne sur une couronne de points.
+ * Signals a wait with a highlight turning on a ring of dots.
  *
  * @example
  * <RingDots />
  *
  * @example
- * // Douze points fins, dans la teinte de marque.
+ * // Twelve fine dots, in the brand hue.
  * <RingDots count={12} dot={4} color="var(--o-palette-brand-500)" />
  */
 export function RingDots({
@@ -102,7 +101,7 @@ export function RingDots({
   count = 8,
   speed = 1000,
   color = 'currentColor',
-  label = 'Chargement',
+  label = 'Loading',
   ...rest
 }: RingDotsProps): ReactElement {
   ensureRingDotsRule()
@@ -138,9 +137,9 @@ export function RingDots({
           style={
             {
               '--o-rd-angle': `${String((index * 360) / total)}deg`,
-              // Le delai remonte le long du tour, en negatif : l'eclat
-              // avance dans le sens horaire et la trainee est complete des
-              // la premiere image.
+              // The delay climbs back along the turn, negatively: the
+              // highlight moves clockwise and the trail is complete from the
+              // very first frame.
               '--o-rd-delay': `${String(Math.round((-speed * (total - index)) / total))}ms`,
             } as CSSProperties
           }

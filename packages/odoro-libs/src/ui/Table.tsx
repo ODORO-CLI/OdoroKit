@@ -1,5 +1,5 @@
 /**
- * Tableau de donnees generique.
+ * Generic data table.
  *
  * @module
  */
@@ -8,55 +8,55 @@ import { type ReactElement, type ReactNode } from 'react'
 
 import { cx } from '../styles/cx.js'
 
-/** Une colonne du tableau. */
+/** One column of the table. */
 export interface TableColumn<T> {
   /**
-   * Cle de la colonne. Sans `render`, elle sert aussi a lire la valeur de la
-   * ligne : `row[key]` doit alors etre affichable tel quel.
+   * Key of the column. Without `render`, it is also used to read the value of
+   * the row: `row[key]` must then be displayable as is.
    */
   readonly key: string
-  /** En-tete affiche. */
+  /** Displayed header. */
   readonly header: ReactNode
-  /** Alignement du contenu de la colonne. @defaultValue 'left' */
+  /** Alignment of the column content. @defaultValue 'left' */
   readonly align?: 'left' | 'center' | 'right'
-  /** Rendu personnalise d'une cellule, a partir de la ligne entiere. */
+  /** Custom rendering of a cell, from the whole row. */
   readonly render?: (row: T) => ReactNode
 }
 
-/** Proprietes de {@link Table}. */
+/** Properties of {@link Table}. */
 export interface TableProps<T> {
-  /** Colonnes, dans l'ordre d'affichage. */
+  /** Columns, in display order. */
   columns: readonly TableColumn<T>[]
-  /** Lignes de donnees. */
+  /** Data rows. */
   rows: readonly T[]
-  /** Cle stable d'une ligne, pour la reconciliation. */
+  /** Stable key of a row, for reconciliation. */
   rowKey: (row: T) => string
   /**
-   * Legende du tableau. Masquee visuellement par defaut, elle reste le titre
-   * que les lecteurs d'ecran annoncent.
+   * Caption of the table. Visually hidden by default, it stays the title that
+   * screen readers announce.
    */
   caption?: ReactNode
-  /** Rend la legende visible. @defaultValue false */
+  /** Makes the caption visible. @defaultValue false */
   showCaption?: boolean
-  /** Alterne le fond des lignes. @defaultValue false */
+  /** Alternates the background of the rows. @defaultValue false */
   striped?: boolean
-  /** Surligne la ligne survolee. @defaultValue false */
+  /** Highlights the hovered row. @defaultValue false */
   hoverable?: boolean
-  /** Resserre l'espacement vertical. @defaultValue false */
+  /** Tightens the vertical spacing. @defaultValue false */
   dense?: boolean
   /**
-   * Garde l'en-tete visible pendant le defilement vertical du conteneur.
+   * Keeps the header visible during the vertical scrolling of the container.
    *
    * @defaultValue false
    */
   stickyHeader?: boolean
-  /** Message affiche, centre, quand il n'y a aucune ligne. */
+  /** Message displayed, centered, when there is no row. */
   empty?: ReactNode
-  /** Classes additionnelles pour le conteneur defilant. */
+  /** Additional classes for the scrolling container. */
   className?: string
 }
 
-/** Classes d'alignement, par valeur de `align`. */
+/** Alignment classes, per `align` value. */
 const ALIGN_CLASSES: Readonly<Record<'left' | 'center' | 'right', string>> = {
   left: 'o-text-left',
   center: 'o-text-center',
@@ -64,21 +64,21 @@ const ALIGN_CLASSES: Readonly<Record<'left' | 'center' | 'right', string>> = {
 }
 
 /**
- * Tableau de donnees accessible.
+ * Accessible data table.
  *
- * Le tableau vit dans un conteneur `o-overflow-x-auto` : sur un ecran etroit,
- * c'est lui qui defile, jamais la page.
+ * The table lives in an `o-overflow-x-auto` container: on a narrow screen, it
+ * is the container that scrolls, never the page.
  *
  * @example
  * <Table
- *   caption="Factures du trimestre"
+ *   caption="Invoices for the quarter"
  *   columns={[
  *     { key: 'ref', header: 'Reference' },
  *     { key: 'total', header: 'Total', align: 'right', render: (f) => euros(f.total) },
  *   ]}
  *   rows={invoices}
  *   rowKey={(f) => f.ref}
- *   empty="Aucune facture."
+ *   empty="No invoice."
  * />
  */
 export function Table<T>({
@@ -162,8 +162,8 @@ export function Table<T>({
                     )}
                   >
                     {column.render === undefined
-                      ? // Sans rendu personnalise, la cle designe la propriete de
-                        // la ligne. Le contrat est documente sur `TableColumn.key`.
+                      ? // Without custom rendering, the key names the property of
+                        // the row. The contract is documented on `TableColumn.key`.
                         ((row as Record<string, unknown>)[column.key] as ReactNode)
                       : column.render(row)}
                   </td>

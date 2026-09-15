@@ -1,27 +1,26 @@
 /**
- * Comparaison entre ce qui a ete livre, ce qui est sur le disque, et ce que le
- * registre sert aujourd'hui.
+ * Comparison between what was delivered, what is on disk, and what the registry
+ * serves today.
  *
- * ## Trois versions, pas deux
+ * ## Three versions, not two
  *
- * Comparer le fichier local au fichier du registre ne dit presque rien : s'ils
- * different, on ne sait pas si c'est parce que l'utilisateur a retouche le
- * sien ou parce que la version amont a evolue. Ce sont pourtant deux
- * situations opposees — la premiere se garde, la seconde se recupere.
+ * Comparing the local file to the registry file says almost nothing: when they
+ * differ, we do not know whether it is because the user edited theirs or
+ * because the upstream version moved on. Yet these are opposite situations —
+ * the first is kept, the second is picked up.
  *
- * L'empreinte notee a l'installation fournit le troisieme point de reference.
- * Avec elle, les quatre cas se distinguent sans ambiguite :
+ * The hash recorded at install time provides the third reference point. With
+ * it, the four cases are told apart unambiguously:
  *
- * | local vs livre | amont vs livre | verdict           |
- * | -------------- | -------------- | ----------------- |
- * | identique      | identique      | a jour            |
- * | different      | identique      | retouche localement |
- * | identique      | different      | une mise a jour existe |
- * | different      | different      | divergence        |
+ * | local vs delivered | upstream vs delivered | verdict            |
+ * | ------------------ | --------------------- | ------------------ |
+ * | identical          | identical             | up to date         |
+ * | different          | identical             | edited locally     |
+ * | identical          | different             | an update exists   |
+ * | different          | different             | diverged           |
  *
- * Le dernier cas est le seul qui demande une decision humaine, et c'est
- * exactement celui qu'une comparaison a deux termes aurait noye dans les
- * autres.
+ * The last case is the only one that needs a human decision, and it is exactly
+ * the one a two-way comparison would have drowned among the others.
  *
  * @module
  */
@@ -34,72 +33,72 @@ import { fingerprint, type ProjectConfig } from './project.js'
 import { rewriteImports } from './rewrite.js'
 import type { RegistrySource } from './source.js'
 
-/** Etat d'un fichier installe. */
+/** State of an installed file. */
 export type FileState =
-  'a-jour' | 'retouche' | 'mise-a-jour' | 'divergence' | 'absent' | 'inconnu'
+  'up-to-date' | 'edited' | 'update-available' | 'diverged' | 'missing' | 'unknown'
 
-/** Ce qu'on a appris d'un fichier. */
+/** What we learned about a file. */
 export interface FileReport {
-  /** Chemin dans le projet. */
+  /** Path in the project. */
   readonly path: string
   /** Verdict. */
   readonly state: FileState
-  /** Contenu local, si le fichier existe. */
+  /** Local content, when the file exists. */
   readonly local: string | null
-  /** Contenu servi par le registre, apres reecriture des imports. */
+  /** Content served by the registry, after rewriting the imports. */
   readonly upstream: string | null
 }
 
-/** Ce qu'on a appris d'une entree installee. */
+/** What we learned about an installed entry. */
 export interface EntryReport {
-  /** Identifiant de registre. */
+  /** Registry identifier. */
   readonly id: string
-  /** Etat de chacun de ses fichiers. */
+  /** State of each of its files. */
   readonly files: readonly FileReport[]
-  /** Le registre ne sert plus cette entree. */
+  /** The registry no longer serves this entry. */
   readonly orphan: boolean
   /**
-   * Entree telle que le registre la sert, ou `null` s'il ne la sert plus.
+   * Entry as the registry serves it, or `null` when it no longer serves it.
    *
-   * Elle est conservee pour le diagnostic : le `meta` porte les paquets que
-   * l'entree reclame, et l'index n'en garde pas assez pour les deduire.
+   * It is kept for the diagnostics: the `meta` carries the packages the entry
+   * requires, and the index does not keep enough to infer them.
    */
   readonly upstream: PublishedEntry | null
 }
 
-/** Phrase decrivant un etat, a la premiere personne du registre. */
+/** Sentence describing a state, from the point of view of the registry. */
 export const STATE_LABEL: Record<FileState, string> = {
-  'a-jour': 'a jour',
-  retouche: 'retouche localement',
-  'mise-a-jour': 'une mise a jour existe',
-  divergence: 'retouche localement, et le registre a change',
-  absent: 'absent du projet',
-  inconnu: 'inconnu du registre',
+  'up-to-date': 'up to date',
+  edited: 'edited locally',
+  'update-available': 'an update exists',
+  diverged: 'edited locally, and the registry has changed',
+  missing: 'missing from the project',
+  unknown: 'unknown to the registry',
 }
 
-/** Croise les trois versions d'un fichier. */
+/** Crosses the three versions of a file. */
 function verdict(
   local: string | null,
   deliveredHash: string,
   upstream: string | null,
 ): FileState {
-  if (local === null) return 'absent'
-  if (upstream === null) return 'inconnu'
+  if (local === null) return 'missing'
+  if (upstream === null) return 'unknown'
 
   const localChanged = fingerprint(local) !== deliveredHash
   const upstreamChanged = fingerprint(upstream) !== deliveredHash
 
-  if (!localChanged && !upstreamChanged) return 'a-jour'
-  if (localChanged && !upstreamChanged) return 'retouche'
-  if (!localChanged && upstreamChanged) return 'mise-a-jour'
-  return 'divergence'
+  if (!localChanged && !upstreamChanged) return 'up-to-date'
+  if (localChanged && !upstreamChanged) return 'edited'
+  if (!localChanged && upstreamChanged) return 'update-available'
+  return 'diverged'
 }
 
 /**
- * Compare une entree installee a ce que le registre sert.
+ * Compares an installed entry to what the registry serves.
  *
- * @param upstream Entree telle qu'elle vient du registre, ou `null` si le
- * registre ne la sert plus.
+ * @param upstream Entry as it comes from the registry, or `null` when the
+ * registry no longer serves it.
  *
  * @example
  * const report = await inspectEntry(root, config, 'hooks/use-poster', entry)
@@ -115,8 +114,8 @@ export async function inspectEntry(
     return { id, files: [], orphan: upstream === null, upstream }
   }
 
-  // Ce que le registre sert aujourd'hui, indexe par destination : c'est la
-  // destination, pas le chemin d'origine, qui relie les deux cotes.
+  // What the registry serves today, indexed by destination: it is the
+  // destination, not the original path, that links the two sides.
   const served = new Map<string, string>()
   if (upstream !== null) {
     for (const file of upstream.files) {
@@ -153,11 +152,11 @@ export async function inspectEntry(
 }
 
 /**
- * Compare tout ce qui est installe.
+ * Compares everything that is installed.
  *
- * Une entree que le registre ne sert plus n'est pas une erreur : elle a pu
- * etre renommee, ou le projet peut pointer vers un registre local partiel. Elle
- * est signalee, pas condamnee.
+ * An entry the registry no longer serves is not an error: it may have been
+ * renamed, or the project may point at a partial local registry. It is
+ * reported, not condemned.
  *
  * @example
  * const reports = await inspectAll(root, config, registry)
@@ -178,12 +177,12 @@ export async function inspectAll(
 }
 
 /**
- * Rend un apercu des lignes qui different entre deux versions.
+ * Returns a preview of the lines that differ between two versions.
  *
- * Ce n'est pas un algorithme de difference : c'est une liste des lignes
- * presentes d'un cote et pas de l'autre, bornee. Un vrai diff appartient a
- * `git diff`, que l'utilisateur a deja ; ce qu'il n'a pas, c'est la version du
- * registre — et cet apercu suffit a decider s'il vaut la peine de la recuperer.
+ * This is not a difference algorithm: it is a bounded list of the lines present
+ * on one side and not on the other. A real diff belongs to `git diff`, which
+ * the user already has; what they do not have is the registry version — and
+ * this preview is enough to decide whether it is worth picking up.
  *
  * @example
  * previewChanges(local, upstream, 6)

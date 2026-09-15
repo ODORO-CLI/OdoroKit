@@ -1,27 +1,26 @@
 /**
- * Shader de la grille de formes.
+ * Shader of the shape grid.
  *
- * ## L'idee mathematique
+ * ## The mathematical idea
  *
- * Une forme par cellule, choisie parmi trois par un hachage de la cellule :
- * un disque, un carre, un triangle equilateral. Chacune est un champ de
- * distance signe, ce qui donne un bord net a n'importe quelle taille et un
- * anti-crenelage d'un seul `smoothstep`.
+ * One shape per cell, chosen among three by a hash of the cell: a disc, a
+ * square, an equilateral triangle. Each is a signed distance field, which gives
+ * a crisp edge at any size and an anti-aliasing of a single `smoothstep`.
  *
- * Chaque forme tourne a sa propre vitesse, dans son propre sens, et respire
- * d'un sinus de phase propre : deux formes voisines ne sont jamais en
- * phase, et la grille ne se lit pas comme une texture qui tourne d'un bloc.
- * La teinte se place entre les deux couleurs selon un second hachage.
+ * Each shape turns at its own speed, in its own direction, and breathes to a
+ * sine of its own phase: two neighbouring shapes are never in phase, and the
+ * grid does not read as a texture turning as one block. The hue is placed
+ * between the two colours according to a second hash.
  *
  * ## Uniforms
  *
- * - `uTime` — temps en secondes, fourni par le moteur.
- * - `uResolution` — taille du canevas en pixels, fournie par le moteur.
- * - `uColorA` — le fond.
- * - `uColorB`, `uColorC` — les deux teintes entre lesquelles chaque forme se place.
- * - `uSpeed` — vitesse de rotation moyenne.
- * - `uDensity` — nombre de cellules sur la hauteur.
- * - `uSize` — rayon des formes, en fraction de la cellule.
+ * - `uTime` — time in seconds, supplied by the engine.
+ * - `uResolution` — canvas size in pixels, supplied by the engine.
+ * - `uColorA` — the background.
+ * - `uColorB`, `uColorC` — the two hues between which each shape is placed.
+ * - `uSpeed` — average rotation speed.
+ * - `uDensity` — number of cells across the height.
+ * - `uSize` — radius of the shapes, as a fraction of the cell.
  */
 export const SHAPE_GRID_FRAGMENT = /* glsl */ `
 precision highp float;
@@ -37,8 +36,8 @@ uniform float uSpeed;
 uniform float uDensity;
 uniform float uSize;
 
-// Nombre pseudo-aleatoire : projection sur une direction arbitraire, sinus
-// amplifie, partie fractionnaire.
+// Pseudo-random number: projection onto an arbitrary direction, amplified sine,
+// fractional part.
 float shapeHash(vec2 p) {
   return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
 }
@@ -49,7 +48,7 @@ vec2 shapeRotate(vec2 p, float angle) {
   return vec2(c * p.x - s * p.y, s * p.x + c * p.y);
 }
 
-// Triangle equilateral centre, de rayon r.
+// Centred equilateral triangle, of radius r.
 float shapeTriangle(vec2 p, float r) {
   const float k = 1.7320508;
   p.x = abs(p.x) - r;
@@ -70,7 +69,7 @@ void main() {
   float h2 = shapeHash(cell + vec2(37.3, 17.7));
   float h3 = shapeHash(cell + vec2(91.1, 53.9));
 
-  // Sens et vitesse propres, phase propre : rien ne tourne d'un bloc.
+  // Its own direction and speed, its own phase: nothing turns as one block.
   float direction = h2 < 0.5 ? -1.0 : 1.0;
   float angle = uTime * uSpeed * direction * (0.6 + 0.8 * h3) + h1 * 6.2831853;
   float breath = 0.85 + 0.15 * sin(uTime * 1.3 + h2 * 6.2831853);

@@ -1,33 +1,31 @@
 /**
- * Ecriture transactionnelle des fichiers d'un composant.
+ * Transactional writing of the files of a component.
  *
- * ## Pourquoi tout ou rien
+ * ## Why all or nothing
  *
- * Une installation ecrit plusieurs fichiers, parfois pour plusieurs entrees a
- * la fois. Si la troisieme ecriture echoue — disque plein, permission refusee,
- * interruption — une ecriture naive laisse un projet a moitie servi : deux
- * fichiers presents, un manquant, et rien pour dire lesquels. L'utilisateur ne
- * peut ni continuer ni revenir en arriere, parce qu'il ne sait pas ce qui a ete
- * touche.
+ * An install writes several files, sometimes for several entries at once. When
+ * the third write fails — disk full, permission denied, interruption — a naive
+ * write leaves a half-served project: two files present, one missing, and
+ * nothing to say which. The user can neither carry on nor go back, because they
+ * do not know what was touched.
  *
- * L'ecriture se fait donc en deux temps. D'abord chaque fichier est ecrit a
- * cote de sa destination, sous un nom temporaire ; a ce stade, rien
- * d'observable n'a change. Ensuite seulement les fichiers sont mis en place,
- * par renommage. Si quoi que ce soit echoue avant la mise en place, les
- * temporaires sont effaces et le projet est exactement dans l'etat ou on l'a
- * trouve.
+ * The writing therefore happens in two phases. First each file is written next
+ * to its destination, under a temporary name; at that stage, nothing observable
+ * has changed. Only then are the files put in place, by renaming. If anything
+ * fails before that, the temporaries are erased and the project is exactly in
+ * the state it was found.
  *
- * ## Ce que cette garantie ne couvre pas
+ * ## What this guarantee does not cover
  *
- * Le renommage lui-meme n'est pas atomique **entre plusieurs fichiers** : le
- * systeme n'offre rien de tel. Si le second renommage echoue, le premier a
- * deja eu lieu. Les contenus precedents sont donc gardes en memoire et remis en
- * place — ce qui reste une reparation, pas une transaction.
+ * The renaming itself is not atomic **across several files**: the system offers
+ * nothing of the kind. If the second rename fails, the first has already
+ * happened. The previous contents are therefore kept in memory and put back —
+ * which remains a repair, not a transaction.
  *
- * C'est acceptable ici : le renommage d'un fichier deja ecrit sur le meme
- * volume echoue tres rarement, alors que l'ecriture elle-meme — celle qui
- * remplit le disque et rencontre les permissions — est integralement couverte.
- * Le compromis est nomme plutot que sous-entendu.
+ * That is acceptable here: renaming a file already written on the same volume
+ * fails very rarely, while the writing itself — the one that fills the disk and
+ * meets the permissions — is fully covered. The trade-off is named rather than
+ * implied.
  *
  * @module
  */
@@ -35,27 +33,27 @@
 import { mkdir, readFile, rename, rm, writeFile } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 
-/** Ce qu'il adviendra d'un fichier. */
-export type FileAction = 'creation' | 'remplacement' | 'inchange'
+/** What will become of a file. */
+export type FileAction = 'create' | 'replace' | 'unchanged'
 
-/** Une ecriture prevue. */
+/** A planned write. */
 export interface PlannedWrite {
-  /** Chemin dans le projet, relatif a sa racine, en barres obliques. */
+  /** Path in the project, relative to its root, in forward slashes. */
   readonly path: string
-  /** Contenu a ecrire. */
+  /** Content to write. */
   readonly content: string
-  /** Ce que l'ecriture va faire. */
+  /** What the write will do. */
   readonly action: FileAction
-  /** Identifiant de l'entree de registre a l'origine de ce fichier. */
+  /** Identifier of the registry entry this file comes from. */
   readonly owner: string
 }
 
 /**
- * Prepare une ecriture en la comparant a ce qui est deja sur le disque.
+ * Prepares a write by comparing it to what is already on disk.
  *
- * Un fichier dont le contenu est identique est marque `inchange` plutot que
- * `remplacement` : le reecrire changerait sa date de modification, ce que les
- * outils de compilation surveillent, pour un resultat rigoureusement identique.
+ * A file whose content is identical is marked `unchanged` rather than
+ * `replace`: rewriting it would change its modification date, which build tools
+ * watch, for a strictly identical result.
  *
  * @example
  * const write = await planWrite(root, 'src/odoro/hooks/usePoster.ts', source, 'hooks/use-poster')
@@ -75,34 +73,34 @@ export async function planWrite(
 
   const action: FileAction =
     existing === null
-      ? 'creation'
+      ? 'create'
       : existing.replaceAll('\r\n', '\n') === content.replaceAll('\r\n', '\n')
-        ? 'inchange'
-        : 'remplacement'
+        ? 'unchanged'
+        : 'replace'
 
   return { path, content, action, owner }
 }
 
-/** Ce qu'a fait une application de plan. */
+/** What applying a plan did. */
 export interface ApplyReport {
-  /** Fichiers reellement ecrits. */
+  /** Files actually written. */
   readonly written: readonly string[]
-  /** Fichiers laisses tels quels parce qu'identiques. */
+  /** Files left as they were because identical. */
   readonly skipped: readonly string[]
 }
 
-/** Suffixe des fichiers temporaires. */
-const PENDING = '.odoro-en-cours'
+/** Suffix of the temporary files. */
+const PENDING = '.odoro-pending'
 
 /**
- * Applique un plan d'ecriture, entierement ou pas du tout.
+ * Applies a write plan, entirely or not at all.
  *
- * @param root Racine du projet.
- * @param plan Ecritures prevues. Celles marquees `inchange` sont ignorees.
+ * @param root Project root.
+ * @param plan Planned writes. Those marked `unchanged` are skipped.
  *
- * @throws Si l'ecriture echoue. Le projet est alors laisse dans son etat
- * initial, et l'erreur d'origine est propagee telle quelle : la masquer
- * derriere un message generique retirerait la seule information utile.
+ * @throws When the write fails. The project is then left in its initial state,
+ * and the original error is propagated as it is: hiding it behind a generic
+ * message would remove the only useful information.
  *
  * @example
  * const report = await applyPlan(root, plan)
@@ -111,21 +109,23 @@ export async function applyPlan(
   root: string,
   plan: readonly PlannedWrite[],
 ): Promise<ApplyReport> {
-  const todo = plan.filter((entry) => entry.action !== 'inchange')
-  const skipped = plan.filter((entry) => entry.action === 'inchange').map((e) => e.path)
+  const todo = plan.filter((entry) => entry.action !== 'unchanged')
+  const skipped = plan
+    .filter((entry) => entry.action === 'unchanged')
+    .map((entry) => entry.path)
 
-  /** Temporaires ecrits, a effacer si la premiere phase echoue. */
+  /** Temporaries written, to erase when the first phase fails. */
   const pending: string[] = []
-  /** Contenus precedents, pour reparer si la mise en place echoue. */
+  /** Previous contents, to repair when putting in place fails. */
   const previous = new Map<string, string | null>()
 
   try {
-    // Premiere phase : tout ecrire a cote. Rien d'observable ne change.
+    // First phase: write everything alongside. Nothing observable changes.
     for (const entry of todo) {
       const target = join(root, entry.path)
       await mkdir(dirname(target), { recursive: true })
 
-      if (entry.action === 'remplacement') {
+      if (entry.action === 'replace') {
         previous.set(entry.path, await readFile(target, 'utf8'))
       } else {
         previous.set(entry.path, null)
@@ -142,7 +142,7 @@ export async function applyPlan(
 
   const placed: string[] = []
   try {
-    // Seconde phase : mise en place.
+    // Second phase: putting in place.
     for (const entry of todo) {
       const target = join(root, entry.path)
       await rename(`${target}${PENDING}`, target)
@@ -158,11 +158,11 @@ export async function applyPlan(
 }
 
 /**
- * Remet les fichiers deja places dans leur etat precedent.
+ * Puts the already placed files back in their previous state.
  *
- * Les echecs de reparation sont ignores volontairement : on est deja dans le
- * chemin d'erreur, et masquer la cause initiale derriere une erreur de
- * nettoyage rendrait le probleme reel introuvable.
+ * Repair failures are deliberately ignored: we are already on the error path,
+ * and hiding the initial cause behind a cleanup error would make the real
+ * problem impossible to find.
  */
 async function restore(
   root: string,
@@ -179,7 +179,7 @@ async function restore(
         await writeFile(target, before, 'utf8')
       }
     } catch {
-      // Voir la note ci-dessus.
+      // See the note above.
     }
   }
 }

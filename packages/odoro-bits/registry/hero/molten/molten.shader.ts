@@ -1,30 +1,30 @@
 /**
- * Shaders de Molten.
+ * Shaders of Molten.
  *
- * ## Ce que la scene calcule
+ * ## What the scene computes
  *
- * Une sphere subdivisee, deplacee le long de ses normales par une somme
- * d'octaves de bruit tridimensionnel. Le champ de bruit se translate dans le
- * temps plutot que de tourner : la masse semble alors respirer sur place, au
- * lieu de defiler.
+ * A subdivided sphere, displaced along its normals by a sum of octaves of
+ * three-dimensional noise. The noise field translates through time rather than
+ * rotating: the mass then seems to breathe in place, instead of drifting past.
  *
- * ## Pourquoi la normale est recalculee
+ * ## Why the normal is recomputed
  *
- * Deplacer les sommets change la forme, mais pas les normales fournies avec la
- * geometrie : l'eclairage resterait celui d'une sphere lisse, ce qui annule
- * visuellement toute la deformation. Les recalculer exactement demanderait la
- * derivee du champ de bruit.
+ * Displacing the vertices changes the shape, but not the normals shipped with
+ * the geometry: the lighting would stay that of a smooth sphere, which
+ * visually cancels the whole deformation. Recomputing them exactly would
+ * require the derivative of the noise field.
  *
- * On l'approche par differences finies — trois evaluations de plus autour du
- * point, dont on tire deux tangentes. C'est plus cher, et c'est la depense qui
- * fait la difference entre une sphere bosselee et une masse qui a du relief.
+ * We approximate it by finite differences — three extra evaluations around the
+ * point, from which two tangents are drawn. It costs more, and it is that
+ * spending which makes the difference between a bumpy sphere and a mass that
+ * has relief.
  *
- * ## Ce que le fragment fait
+ * ## What the fragment does
  *
- * Deux couleurs, prises dans la palette : le coeur pour les creux, la croute
- * pour les reliefs. Un terme de Fresnel — la lumiere rase les bords — ajoute
- * le halo qui donne l'impression de matiere chaude. Aucune texture, aucun
- * fichier : tout est calcule.
+ * Two colours, taken from the palette: the core for the hollows, the crust for
+ * the ridges. A Fresnel term — light grazes the edges — adds the halo that
+ * gives the impression of hot matter. No texture, no file: everything is
+ * computed.
  *
  * @module
  */
@@ -32,8 +32,8 @@
 /**
  * Vertex shader.
  *
- * Le bruit est prefixe a la compilation : les fonctions viennent du moteur, et
- * les recopier ici en ferait une seconde version a maintenir.
+ * The noise is prefixed at compile time: the functions come from the engine,
+ * and copying them here would make a second version to maintain.
  */
 export const MOLTEN_VERTEX = /* glsl */ `
 uniform float uTime;
@@ -47,11 +47,11 @@ varying vec3 vViewPosition;
 varying float vRelief;
 
 /**
- * Champ de deplacement en un point de la sphere unite.
+ * Displacement field at a point of the unit sphere.
  *
- * Le nom de la variable evite le mot reserve du langage qui designe un
- * echantillon : la compilation du shader echouerait, sans que rien, cote
- * TypeScript, ne le signale.
+ * The variable name avoids the language keyword that denotes a sample: shader
+ * compilation would fail, without anything on the TypeScript side reporting
+ * it.
  */
 float molten(vec3 direction) {
   vec3 field = direction * uFrequency + vec3(0.0, 0.0, uTime * uSpeed);
@@ -63,14 +63,14 @@ void main() {
   float relief = molten(direction);
   vec3 displaced = position + direction * relief * uAmplitude;
 
-  // Normale approchee par differences finies. Deux tangentes suffisent : la
-  // normale est leur produit vectoriel.
+  // Normal approximated by finite differences. Two tangents are enough: the
+  // normal is their cross product.
   vec3 up = abs(direction.y) < 0.99 ? vec3(0.0, 1.0, 0.0) : vec3(1.0, 0.0, 0.0);
   vec3 tangent = normalize(cross(up, direction));
   vec3 bitangent = cross(direction, tangent);
 
-  // Nomme epsilon plutot que step : ce dernier masquerait la fonction native
-  // du meme nom, ce qui est legal et deroutant.
+  // Named epsilon rather than step: the latter would shadow the native
+  // function of the same name, which is legal and confusing.
   float epsilon = 0.02;
   vec3 nearTangent = normalize(direction + tangent * epsilon);
   vec3 nearBitangent = normalize(direction + bitangent * epsilon);
@@ -84,8 +84,9 @@ void main() {
   vec3 normal = normalize(
     cross(pointTangent - pointHere, pointBitangent - pointHere)
   );
-  // Le produit vectoriel peut sortir retourne selon l'ordre des tangentes :
-  // on le realigne sur la direction sortante plutot que d'esperer le bon sens.
+  // The cross product can come out flipped depending on the order of the
+  // tangents: we realign it on the outgoing direction rather than hope for the
+  // right one.
   normal *= sign(dot(normal, direction));
 
   vRelief = relief;
@@ -113,13 +114,13 @@ void main() {
   vec3 normal = normalize(vNormal);
   vec3 toEye = normalize(-vViewPosition);
 
-  // Fresnel : la lumiere rase les bords vus de profil. L'exposant trois est
-  // une approximation courante de la loi de Schlick, assez juste pour un halo.
+  // Fresnel: light grazes the edges seen side-on. The exponent three is a
+  // common approximation of Schlick's law, close enough for a halo.
   float facing = max(dot(normal, toEye), 0.0);
   float rim = pow(1.0 - facing, 3.0);
 
-  // Un eclairage diffus minimal suffit a lire le relief : la matiere est
-  // emissive, elle n'a pas de source a refleter.
+  // A minimal diffuse lighting is enough to read the relief: the matter is
+  // emissive, it has no source to reflect.
   float diffuse = 0.35 + 0.65 * facing;
 
   vec3 base = mix(uCore, uCrust, smoothstep(-0.25, 0.3, vRelief));

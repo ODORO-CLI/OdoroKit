@@ -1,11 +1,11 @@
 /**
- * Accordeon a sections repliables.
+ * Accordion with collapsible sections.
  *
- * Suit le motif APG : chaque en-tete est un `<button>` dans un titre `<h3>`,
- * relie a sa region par `aria-controls` et `aria-expanded`. L'ouverture est
- * animee en hauteur a partir de la valeur mesuree — `height: auto` n'est pas
- * animable, il faut passer par `scrollHeight` comme le fait l'indicateur de
- * `Tabs`.
+ * Follows the APG pattern: each header is a `<button>` inside an `<h3>`
+ * title, tied to its region by `aria-controls` and `aria-expanded`. The
+ * opening is animated in height from the measured value — `height: auto` is
+ * not animatable, it has to go through `scrollHeight` as the indicator of
+ * `Tabs` does.
  *
  * @module
  */
@@ -24,57 +24,57 @@ import { motionDuration, motionEasing } from '../motion/tokens.js'
 import { usePrefersReducedMotion } from '../shared/motionPreference.js'
 import { cx } from '../styles/cx.js'
 
-/** Une section de l'accordeon. */
+/** One section of the accordion. */
 export interface AccordionItem {
-  /** Identifiant unique de la section. */
+  /** Unique identifier of the section. */
   readonly id: string
-  /** Titre affiche dans l'en-tete cliquable. */
+  /** Title displayed in the clickable header. */
   readonly title: ReactNode
-  /** Contenu de la region depliee. */
+  /** Content of the unfolded region. */
   readonly content: ReactNode
-  /** Rend la section inactivable. */
+  /** Makes the section impossible to activate. */
   readonly disabled?: boolean
 }
 
-/** Proprietes de {@link Accordion}. */
+/** Properties of {@link Accordion}. */
 export interface AccordionProps {
-  /** Sections, dans l'ordre d'affichage. */
+  /** Sections, in display order. */
   items: readonly AccordionItem[]
   /**
-   * `'single'` n'autorise qu'une section ouverte a la fois ; `'multiple'`
-   * laisse chaque section independante.
+   * `'single'` only allows one open section at a time; `'multiple'` leaves
+   * every section independent.
    *
    * @defaultValue 'single'
    */
   type?: 'single' | 'multiple'
-  /** Sections ouvertes initialement, en mode non controle. */
+  /** Sections open initially, in uncontrolled mode. */
   defaultValue?: string | readonly string[]
   /**
-   * Sections ouvertes en mode controle. Toujours exprimees en tableau
-   * d'identifiants, meme en mode `single`, pour que le type ne depende pas du
-   * mode.
+   * Open sections in controlled mode. Always expressed as an array of
+   * identifiers, even in `single` mode, so that the type does not depend on
+   * the mode.
    */
   value?: string | readonly string[]
-  /** Appele a chaque changement, avec la liste des sections ouvertes. */
+  /** Called on every change, with the list of open sections. */
   onValueChange?: (value: readonly string[]) => void
   /**
-   * En mode `single`, autorise a refermer la section ouverte pour que tout
-   * soit clos.
+   * In `single` mode, allows the open section to be closed again so that
+   * everything is shut.
    *
    * @defaultValue true
    */
   collapsible?: boolean
-  /** Classes additionnelles pour le conteneur. */
+  /** Additional classes for the container. */
   className?: string
 }
 
-/** Normalise une valeur simple ou multiple en tableau d'identifiants. */
+/** Normalizes a single or multiple value into an array of identifiers. */
 function toIds(value: string | readonly string[] | undefined): readonly string[] {
   if (value === undefined) return []
   return typeof value === 'string' ? [value] : value
 }
 
-/** Chevron d'en-tete. Purement decoratif : l'etat est porte par `aria-expanded`. */
+/** Header chevron. Purely decorative: the state is carried by `aria-expanded`. */
 function Chevron({ open }: { open: boolean }): ReactElement {
   return (
     <svg
@@ -97,7 +97,7 @@ function Chevron({ open }: { open: boolean }): ReactElement {
   )
 }
 
-/** Proprietes de {@link Region}. */
+/** Properties of {@link Region}. */
 interface RegionProps {
   open: boolean
   id: string
@@ -106,11 +106,11 @@ interface RegionProps {
 }
 
 /**
- * Region depliable d'une section.
+ * Unfoldable region of a section.
  *
- * Le contenu reste monte pendant l'animation de fermeture : le demontage n'a
- * lieu qu'une fois la hauteur revenue a zero, sinon il n'y aurait plus rien a
- * animer.
+ * The content stays mounted during the closing animation: the unmount only
+ * happens once the height is back to zero, otherwise there would be nothing
+ * left to animate.
  */
 function Region({ open, id, labelId, children }: RegionProps): ReactElement | null {
   const ref = useRef<HTMLDivElement | null>(null)
@@ -119,7 +119,7 @@ function Region({ open, id, labelId, children }: RegionProps): ReactElement | nu
   const reduced = usePrefersReducedMotion()
   const [isMounted, setIsMounted] = useState(open)
 
-  // Le montage doit preceder l'animation d'entree, comme dans `usePresence`.
+  // The mount must precede the entrance animation, as in `usePresence`.
   useLayoutEffect(() => {
     if (open) setIsMounted(true)
   }, [open])
@@ -130,8 +130,8 @@ function Region({ open, id, labelId, children }: RegionProps): ReactElement | nu
     isFirstRun.current = false
 
     if (element === null || !isMounted) return
-    // L'etat initial est rendu tel quel : animer au premier rendu ferait
-    // clignoter les sections ouvertes par defaut.
+    // The initial state is rendered as is: animating on the first render
+    // would make the sections open by default flicker.
     if (first) return
 
     animationRef.current?.cancel()
@@ -156,8 +156,8 @@ function Region({ open, id, labelId, children }: RegionProps): ReactElement | nu
     void animation.finished.then(
       () => {
         if (animationRef.current !== animation) return
-        // La hauteur naturelle reprend la main : on relache l'animation
-        // plutot que de la laisser figer une hauteur mesuree.
+        // The natural height takes over again: we release the animation
+        // rather than letting it freeze a measured height.
         animation.cancel()
         animationRef.current = null
         if (!open) setIsMounted(false)
@@ -184,15 +184,15 @@ function Region({ open, id, labelId, children }: RegionProps): ReactElement | nu
 }
 
 /**
- * Accordeon accessible a une ou plusieurs sections ouvertes.
+ * Accessible accordion with one or several open sections.
  *
  * @example
  * <Accordion
  *   items={[
- *     { id: 'compte', title: 'Compte', content: <AccountForm /> },
- *     { id: 'facturation', title: 'Facturation', content: <BillingForm /> },
+ *     { id: 'account', title: 'Account', content: <AccountForm /> },
+ *     { id: 'billing', title: 'Billing', content: <BillingForm /> },
  *   ]}
- *   defaultValue="compte"
+ *   defaultValue="account"
  * />
  */
 export function Accordion({
@@ -211,8 +211,8 @@ export function Accordion({
   const toggle = useCallback(
     (id: string) => {
       const isOpen = openIds.includes(id)
-      // En mode single non repliable, refermer la seule section ouverte
-      // laisserait tout clos : on ignore la demande.
+      // In single non-collapsible mode, closing the only open section would
+      // leave everything shut: we ignore the request.
       if (type === 'single' && isOpen && !collapsible) return
 
       const next: readonly string[] =

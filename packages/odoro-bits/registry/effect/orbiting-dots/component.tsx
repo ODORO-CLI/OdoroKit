@@ -1,27 +1,25 @@
 /**
- * Points en orbite : des satellites tournent autour du contenu.
+ * Orbiting dots: satellites turn around the content.
  *
- * ## Un pivot par point, et le compositeur pour seul horloger
+ * ## One pivot per dot, and the compositor as the only clockmaker
  *
- * Chaque point est pose au bout d'un bras invisible — un element centre sur
- * le contenu, que la rotation CSS fait tourner. Le point lui-meme ne bouge
- * pas dans son repere : c'est le bras qui tourne, et le compositeur tient
- * autant de rotations qu'il y a de points sans qu'aucun JavaScript ne
- * s'execute.
+ * Each dot sits at the end of an invisible arm — an element centred on the
+ * content, which the CSS rotation turns. The dot itself does not move in its
+ * own frame of reference: it is the arm that turns, and the compositor holds
+ * as many rotations as there are dots without a line of JavaScript running.
  *
- * La phase de depart de chaque bras est portee par un delai negatif : les
- * points sont repartis sur le cercle des le premier rendu, au lieu de
- * partir tous du meme meridien.
+ * The starting phase of each arm is carried by a negative delay: the dots are
+ * spread around the circle from the first render, instead of all leaving from
+ * the same meridian.
  *
- * ## Deux anneaux plutot qu'un
+ * ## Two rings rather than one
  *
- * Les points pairs et impairs ne tournent ni a la meme vitesse ni dans le
- * meme sens. Un seul anneau qui tourne se lit comme un chargeur ; deux
- * anneaux croises se lisent comme une aura — c'est cette difference qui
- * fait l'ornement.
+ * The even and odd dots turn neither at the same speed nor in the same
+ * direction. A single turning ring reads as a spinner; two crossed rings read
+ * as an aura — and that difference is what makes the ornament.
  *
- * Sous mouvement reduit, les points restent en place sur leur cercle : la
- * composition demeure, seul le mouvement s'arrete.
+ * Under reduced motion, the dots stay in place on their circle: the
+ * composition remains, only the movement stops.
  *
  * @module
  */
@@ -29,27 +27,27 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import { type CSSProperties, type ReactElement, type ReactNode } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface OrbitingDotsOwnProps {
-  /** Contenu autour duquel les points tournent. */
+  /** Content around which the dots turn. */
   children: ReactNode
-  /** Nombre de points. @defaultValue 6 */
+  /** Number of dots. @defaultValue 6 */
   count?: number
-  /** Rayon de l'orbite, en pixels. @defaultValue 48 */
+  /** Radius of the orbit, in pixels. @defaultValue 48 */
   radius?: number
-  /** Duree d'une revolution, en millisecondes. @defaultValue 6000 */
+  /** Duration of one revolution, in milliseconds. @defaultValue 6000 */
   speed?: number
-  /** Couleur des points. @defaultValue la couleur du texte */
+  /** Colour of the dots. @defaultValue the text colour */
   color?: string
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type OrbitingDotsProps = Customisable<OrbitingDotsOwnProps>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-orbiting-dots'
 
-/** Pose la rotation, une fois par document. */
+/** Sets the rotation, once per document. */
 function ensureOrbitRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -58,8 +56,8 @@ function ensureOrbitRule(): void {
   style.id = STYLE_ID
   style.textContent = [
     '[data-o-orbits]{position:relative;display:inline-flex;align-items:center;justify-content:center}',
-    // Le bras : un point de pivot au centre du contenu. Sa taille est nulle,
-    // seul son repere compte.
+    // The arm: a pivot point at the centre of the content. Its size is zero,
+    // only its frame of reference matters.
     '[data-o-orbit-arm]{',
     'position:absolute;left:50%;top:50%;width:0;height:0;',
     'animation:o-orbit-spin var(--o-orbit-speed) linear infinite;',
@@ -79,7 +77,7 @@ function ensureOrbitRule(): void {
 }
 
 /**
- * Met des points en orbite autour d'un badge, d'un avatar, d'une icone.
+ * Puts dots in orbit around a badge, an avatar, an icon.
  *
  * @example
  * <OrbitingDots radius={40}>
@@ -87,9 +85,9 @@ function ensureOrbitRule(): void {
  * </OrbitingDots>
  *
  * @example
- * // Une aura dense et lente.
+ * // A dense and slow aura.
  * <OrbitingDots count={10} radius={64} speed={12000}>
- *   <span className="o-text-2xl">Nouveau</span>
+ *   <span className="o-text-2xl">New</span>
  * </OrbitingDots>
  */
 export function OrbitingDots({
@@ -114,8 +112,8 @@ export function OrbitingDots({
     <div {...rest} className={className} style={hostStyle} data-o-orbits="">
       {children}
       {Array.from({ length: count }, (_, index) => {
-        // Anneaux alternes : les impairs tournent a rebours, plus vite et
-        // plus pres. Voir l'en-tete du module.
+        // Alternating rings: the odd ones turn backwards, faster and closer.
+        // See the module header.
         const inverse = index % 2 === 1
         const duration = inverse ? speed * 0.7 : speed
         return (
@@ -127,8 +125,8 @@ export function OrbitingDots({
               {
                 '--o-orbit-radius': `${String(Math.round(inverse ? radius * 0.72 : radius))}px`,
                 '--o-orbit-speed': `${String(Math.round(duration))}ms`,
-                // Delai negatif : chaque bras demarre a sa place sur le
-                // cercle, pas sur le meridien commun.
+                // Negative delay: each arm starts at its own place on the
+                // circle, not on the common meridian.
                 '--o-orbit-phase': `${String(Math.round((-index / count) * duration))}ms`,
                 '--o-orbit-direction': inverse ? 'reverse' : 'normal',
               } as CSSProperties

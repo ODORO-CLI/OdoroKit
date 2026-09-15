@@ -1,5 +1,5 @@
 /**
- * Declaration des routes en JSX et resolution du chemin courant.
+ * Declaration of the routes in JSX and resolution of the current path.
  *
  * @module
  */
@@ -24,11 +24,10 @@ import type { RouteObject } from './types.js'
 import { useLocation } from './hooks.js'
 
 /**
- * Convertit un arbre d'elements `<Route>` en objets de route.
+ * Converts a tree of `<Route>` elements into route objects.
  *
- * Les enfants qui ne sont pas des `<Route>` sont ignores : cela permet
- * d'inserer des commentaires JSX ou des fragments conditionnels sans casser la
- * declaration.
+ * Children that are not `<Route>` are ignored: this allows inserting JSX
+ * comments or conditional fragments without breaking the declaration.
  *
  * @example
  * createRoutesFromChildren(
@@ -41,7 +40,7 @@ export function createRoutesFromChildren(children: ReactNode): RouteObject[] {
   Children.forEach(children, (child) => {
     if (!isValidElement(child)) return
 
-    // Un fragment est traverse de facon transparente.
+    // A fragment is traversed transparently.
     if (child.type === Fragment) {
       const props = child.props as { children?: ReactNode }
       routes.push(...createRoutesFromChildren(props.children))
@@ -66,32 +65,32 @@ export function createRoutesFromChildren(children: ReactNode): RouteObject[] {
   return routes
 }
 
-/** Page 404 minimale, utilisee quand aucune route ne correspond. */
+/** Minimal 404 page, used when no route matches. */
 function DefaultNotFound(): ReactElement {
   return (
     <main role="alert" style={{ padding: '2rem', fontFamily: 'system-ui, sans-serif' }}>
       <h1 style={{ margin: 0, fontSize: '1.5rem' }}>404</h1>
-      <p style={{ marginTop: '0.5rem' }}>Cette page n&rsquo;existe pas.</p>
+      <p style={{ marginTop: '0.5rem' }}>This page does not exist.</p>
     </main>
   )
 }
 
-/** Proprietes de {@link Routes}. */
+/** Props of {@link Routes}. */
 export interface RoutesProps {
-  /** Elements `<Route>` decrivant l'arbre. */
+  /** `<Route>` elements describing the tree. */
   children: ReactNode
   /**
-   * Contenu rendu lorsqu'aucune route ne correspond. Une route `path="*"`
-   * declaree explicitement a la priorite sur cette valeur.
+   * Content rendered when no route matches. A `path="*"` route declared
+   * explicitly takes priority over this value.
    */
   notFound?: ReactNode
-  /** Fallback de Suspense pendant le chargement d'une route paresseuse. */
+  /** Suspense fallback while a lazy route is loading. */
   fallback?: ReactNode
 }
 
 /**
- * Resout le chemin courant contre l'arbre de routes declare et rend la chaine
- * correspondante.
+ * Resolves the current path against the declared route tree and renders the
+ * matching chain.
  *
  * @example
  * <Routes fallback={<Spinner />}>
@@ -110,8 +109,8 @@ export function Routes({
   const navigation = useContext(NavigationContext)
   const routes = useMemo(() => createRoutesFromChildren(children), [children])
 
-  // Publie l'arbre pour que `navigate` puisse precharger les routes
-  // paresseuses avant de declencher une View Transition.
+  // Publishes the tree so that `navigate` can preload the lazy routes before
+  // starting a View Transition.
   const routesRef = navigation?.routesRef
   useLayoutEffect(() => {
     if (routesRef === undefined) return

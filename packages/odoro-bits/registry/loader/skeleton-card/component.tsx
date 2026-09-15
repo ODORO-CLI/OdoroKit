@@ -1,32 +1,31 @@
 /**
- * Carte en attente : la carte est deja la — sa surface, son filet, ses
- * marges — et seul son contenu manque.
+ * Card in waiting: the card is already there — its surface, its rule, its
+ * margins — and only its content is missing.
  *
- * ## Ce que la carte garde, et ce qu'elle perd
+ * ## What the card keeps, and what it loses
  *
- * `skeleton-lines` remplace un paragraphe : il n'y a rien autour de lui. Une
- * carte, elle, a un contenant, et ce contenant n'attend pas — il est deja
- * dessine, avec sa surface (`--o-theme-surface`) et son filet
- * (`--o-theme-line`). Ne dessiner que des blocs gris, sans carte autour,
- * ferait sauter la mise en page a l'arrivee du contenu : c'est le defaut
- * classique du squelette, promettre une hauteur et en livrer une autre.
+ * `skeleton-lines` stands in for a paragraph: there is nothing around it. A
+ * card, on the other hand, has a container, and that container is not
+ * waiting — it is already drawn, with its surface (`--o-theme-surface`) and
+ * its rule (`--o-theme-line`). Drawing only grey blocks, with no card around
+ * them, would make the layout jump when the content arrives: that is the
+ * classic flaw of the skeleton, promising one height and delivering another.
  *
- * A l'interieur, la hierarchie est conservee : une image, un titre plus
- * epais, des lignes de texte, et un pied avec sa pastille. Un squelette qui
- * empile des barres identiques annonce « du contenu » ; celui-ci annonce
- * **ce** contenu-la.
+ * Inside, the hierarchy is preserved: an image, a thicker title, lines of
+ * text, and a footer with its dot. A skeleton that stacks identical bars
+ * announces "some content"; this one announces **that** content.
  *
- * ## Reflet ou pulsation, sur les blocs seuls
+ * ## Shimmer or pulse, on the blocks alone
  *
- * L'animation ne porte jamais sur la carte : un contenant qui clignote se
- * lit comme une erreur. Seuls les blocs vides bougent, en cascade avec le
- * reflet, ensemble avec la pulsation.
+ * The animation never touches the card: a container that blinks reads as an
+ * error. Only the empty blocks move, in cascade with the shimmer, all
+ * together with the pulse.
  *
- * ## Un statut, pas un dessin
+ * ## A status, not a drawing
  *
- * L'element porte `role="status"` et un libelle ; les blocs sont retires de
- * l'arbre d'accessibilite. Sous mouvement reduit, ils restent pleins et
- * immobiles : la carte vide reste visible, elle ne s'efface pas.
+ * The element carries `role="status"` and a label; the blocks are removed
+ * from the accessibility tree. Under reduced motion, they stay full and
+ * still: the empty card stays visible, it does not fade away.
  *
  * @module
  */
@@ -34,13 +33,13 @@
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import type { CSSProperties, ReactElement } from 'react'
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-skeleton-card'
 
-/** Largeur de la derniere ligne de texte, en pourcentage. */
+/** Width of the last line of text, as a percentage. */
 const LAST_WIDTH = 58
 
-/** Pose la carte, ses blocs et leur animation, une fois par document. */
+/** Sets the card, its blocks and their animation, once per document. */
 function ensureSkeletonCardRule(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -48,8 +47,8 @@ function ensureSkeletonCardRule(): void {
   const style = document.createElement('style')
   style.id = STYLE_ID
   style.textContent = [
-    // La carte est un contenant reel : elle occupe deja la place que le
-    // contenu prendra, filet compris.
+    // The card is a real container: it already takes up the room the content
+    // will take, rule included.
     '[data-o-skcard]{',
     'display:block;width:100%;box-sizing:border-box;',
     'padding:1rem;border-radius:var(--o-skcard-radius);',
@@ -64,7 +63,7 @@ function ensureSkeletonCardRule(): void {
     'border-radius:calc(var(--o-skcard-radius) * 0.6);',
     'background:color-mix(in oklab,var(--o-theme-line) 72%,var(--o-theme-surface));',
     '}',
-    // L'image garde son rapport : c'est elle qui fixe la hauteur de la carte.
+    // The image keeps its ratio: it is what fixes the height of the card.
     '[data-o-skcard-media]{aspect-ratio:16/9;width:100%}',
     '[data-o-skcard-title]{height:1.1rem;width:70%}',
     '[data-o-skcard-line]{height:0.6rem}',
@@ -82,7 +81,7 @@ function ensureSkeletonCardRule(): void {
     'animation:o-skcard-pulse var(--o-skcard-speed) ease-in-out infinite;',
     '}',
     '@keyframes o-skcard-pulse{0%,100%{opacity:1}50%{opacity:0.45}}',
-    // La carte vide reste lisible, sans mouvement.
+    // The empty card stays readable, with no motion.
     '@media (prefers-reduced-motion:reduce){',
     '[data-o-skcard-fill]{animation:none;opacity:1}',
     '[data-o-skcard-shimmer] [data-o-skcard-fill]::after{animation:none;opacity:0}',
@@ -91,35 +90,35 @@ function ensureSkeletonCardRule(): void {
   document.head.append(style)
 }
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface SkeletonCardOwnProps {
-  /** Nombre de lignes de texte sous le titre. @defaultValue 2 */
+  /** Number of lines of text under the title. @defaultValue 2 */
   lines?: number
-  /** Reserver la place d'une image en haut de la carte. @defaultValue true */
+  /** Reserve the room for an image at the top of the card. @defaultValue true */
   media?: boolean
-  /** Reserver la place d'un pied : pastille et legende. @defaultValue true */
+  /** Reserve the room for a footer: dot and caption. @defaultValue true */
   footer?: boolean
-  /** Rayon des angles de la carte, en pixels. @defaultValue 14 */
+  /** Corner radius of the card, in pixels. @defaultValue 14 */
   radius?: number
-  /** Reflet qui traverse plutot qu'une pulsation d'ensemble. @defaultValue true */
+  /** A shimmer going across rather than an overall pulse. @defaultValue true */
   shimmer?: boolean
-  /** Duree d'un passage du reflet ou d'une pulsation, en millisecondes. @defaultValue 1600 */
+  /** Duration of one shimmer pass or one pulse, in milliseconds. @defaultValue 1600 */
   speed?: number
-  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement de la carte' */
+  /** Label announced to screen readers. @defaultValue 'Loading card' */
   label?: string
 }
 
-/** Toutes les proprietes. */
+/** All the properties. */
 export type SkeletonCardProps = Customisable<SkeletonCardOwnProps, 'div'>
 
 /**
- * Reserve la place d'une carte entiere pendant son chargement.
+ * Reserves the room for a whole card while it loads.
  *
  * @example
  * <SkeletonCard />
  *
  * @example
- * // Une carte de texte seul, pulsee.
+ * // A text-only card, pulsed.
  * <SkeletonCard media={false} lines={4} shimmer={false} />
  */
 export function SkeletonCard({
@@ -129,7 +128,7 @@ export function SkeletonCard({
   radius = 14,
   shimmer = true,
   speed = 1600,
-  label = 'Chargement de la carte',
+  label = 'Loading card',
   ...rest
 }: SkeletonCardProps): ReactElement {
   ensureSkeletonCardRule()
@@ -144,7 +143,7 @@ export function SkeletonCard({
     '--o-skcard-speed': `${String(speed)}ms`,
   } as CSSProperties
 
-  /** Retard du reflet, du haut de la carte vers son pied. */
+  /** Shimmer delay, from the top of the card down to its footer. */
   const delay = (rank: number): CSSProperties =>
     ({
       '--o-skcard-delay': `${String(Math.round((speed / 10) * rank))}ms`,
@@ -176,8 +175,8 @@ export function SkeletonCard({
                 style={
                   {
                     ...delay(2 + index),
-                    // La derniere ligne s'arrete avant le bord : c'est ce
-                    // qui fait lire un paragraphe et non un tableau.
+                    // The last line stops short of the edge: that is what
+                    // makes it read as a paragraph and not as a table.
                     width:
                       index === count - 1 && count > 1
                         ? `${String(LAST_WIDTH)}%`

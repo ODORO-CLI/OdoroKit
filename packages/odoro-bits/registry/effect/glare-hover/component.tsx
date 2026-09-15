@@ -1,29 +1,29 @@
 /**
- * Reflet qui traverse le contenu au survol.
+ * Glare that crosses the content on hover.
  *
- * ## Une bande, pas un halo
+ * ## A band, not a halo
  *
- * Le halo de pointeur eclaire l'endroit ou se trouve la main ; ce reflet-ci
- * ne suit rien. Il traverse d'un bord a l'autre a vitesse constante, comme la
- * lumiere d'une vitrine sur une carte plastifiee : c'est un accuse de reception
- * du survol, pas une lampe. Les deux se posent d'ailleurs ensemble sans se
- * gener, l'un radial et sous le contenu, l'autre lineaire et par-dessus.
+ * The pointer halo lights up the place where the hand is; this glare follows
+ * nothing. It crosses from edge to edge at constant speed, like the light of a
+ * shop window on a laminated card: it is an acknowledgement of the hover, not
+ * a lamp. The two can in fact be laid together without getting in each other's
+ * way, one radial and under the content, the other linear and over it.
  *
- * ## Pourquoi le survol declenche depuis la feuille
+ * ## Why hover triggers from the stylesheet
  *
- * Le declenchement pourrait passer par un etat React sur `pointerenter`. Ce
- * serait deux rendus par carte survolee, pour une animation que `:hover`
- * lance seul. La regle est donc dans la feuille, et `:focus-within` s'y ajoute :
- * une carte qui contient un lien doit se signaler aussi au clavier.
+ * The trigger could go through React state on `pointerenter`. That would be
+ * two renders per hovered card, for an animation that `:hover` launches on its
+ * own. The rule therefore lives in the stylesheet, and `:focus-within` joins
+ * it: a card that contains a link must announce itself to the keyboard too.
  *
- * ## Ce que la bande traverse
+ * ## What the band crosses
  *
- * Le pseudo-element fait deux fois la taille de l'hote et deborde de moitie
- * dans chaque direction : quel que soit l'angle demande, la bande entre et
- * sort hors du cadre, sans jamais laisser voir son extremite.
+ * The pseudo-element is twice the size of the host and overflows by half in
+ * each direction: whatever angle is asked for, the band enters and leaves
+ * outside the frame, never showing its end.
  *
- * Sous mouvement reduit, aucune traversee : un reflet n'a pas d'etat final a
- * preserver, il n'apporte que son passage.
+ * Under reduced motion, no crossing: a glare has no final state to preserve,
+ * it brings nothing but its passage.
  *
  * @module
  */
@@ -31,29 +31,29 @@
 import { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'
 import { type CSSProperties, type ReactElement, type ReactNode } from 'react'
 
-/** Proprietes propres au composant. */
+/** Properties specific to the component. */
 export interface GlareHoverOwnProps {
-  /** Contenu traverse par le reflet. */
+  /** Content crossed by the glare. */
   children: ReactNode
-  /** Duree de la traversee, en millisecondes. @defaultValue 700 */
+  /** Duration of the crossing, in milliseconds. @defaultValue 700 */
   duration?: number
-  /** Inclinaison de la bande, en degres. @defaultValue 115 */
+  /** Tilt of the band, in degrees. @defaultValue 115 */
   angle?: number
-  /** Demi-largeur de la bande, en pourcentage de la diagonale. @defaultValue 14 */
+  /** Half-width of the band, as a percentage of the diagonal. @defaultValue 14 */
   width?: number
-  /** Couleur du reflet. @defaultValue une encre tres diluee */
+  /** Colour of the glare. @defaultValue a very diluted ink */
   color?: string
-  /** Balaie en boucle, sans attendre le survol. @defaultValue false */
+  /** Sweeps on a loop, without waiting for a hover. @defaultValue false */
   loop?: boolean
 }
 
-/** Toutes les proprietes. */
+/** All properties. */
 export type GlareHoverProps = Customisable<GlareHoverOwnProps>
 
-/** Identifiant de la feuille injectee. */
+/** Identifier of the injected stylesheet. */
 const STYLE_ID = 'o-glare-hover'
 
-/** Pose les regles du reflet, une fois par document. */
+/** Sets the glare rules, once per document. */
 function ensureGlareRules(): void {
   if (typeof document === 'undefined') return
   if (document.getElementById(STYLE_ID) !== null) return
@@ -62,8 +62,8 @@ function ensureGlareRules(): void {
   style.id = STYLE_ID
   style.textContent = [
     '[data-o-glare]{position:relative;isolation:isolate;overflow:hidden}',
-    // Deux fois la taille de l'hote, decale de moitie : la bande reste hors
-    // cadre a ses deux extremites, quel que soit l'angle.
+    // Twice the size of the host, offset by half: the band stays outside the
+    // frame at both its ends, whatever the angle.
     '[data-o-glare]::after{',
     'content:"";position:absolute;top:-50%;left:-50%;width:200%;height:200%;',
     'pointer-events:none;opacity:0;transform:translate3d(-60%,0,0);',
@@ -84,25 +84,25 @@ function ensureGlareRules(): void {
     '[data-o-glare-loop]::after{',
     'animation:o-glare var(--o-glare-duration) var(--o-ease-standard,ease-out) infinite',
     '}',
-    // Le composant retire deja l'attribut sous mouvement reduit ; la regle
-    // couvre le cas ou la preference change apres le montage.
+    // The component already removes the attribute under reduced motion; the
+    // rule covers the case where the preference changes after mount.
     '@media (prefers-reduced-motion:reduce){[data-o-glare]::after{animation:none;opacity:0}}',
   ].join('')
   document.head.append(style)
 }
 
 /**
- * Fait passer un reflet sur son contenu.
+ * Sends a glare across its content.
  *
  * @example
  * <GlareHover className="o-rounded-xl o-border-w-1 o-p-6">
- *   <h3>Une carte</h3>
+ *   <h3>A card</h3>
  * </GlareHover>
  *
  * @example
- * // Une bande large et lente, en boucle, dans la teinte de marque.
+ * // A wide and slow band, on a loop, in the brand hue.
  * <GlareHover loop duration={2400} width={26} color="var(--o-palette-brand-500)">
- *   <img src="/couverture.jpg" alt="" />
+ *   <img src="/cover.jpg" alt="" />
  * </GlareHover>
  */
 export function GlareHover({
