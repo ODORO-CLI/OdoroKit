@@ -1,6 +1,6 @@
 {
   "name": "@odoro-cli/engine",
-  "version": "1.0.2",
+  "version": "2.0.0",
   "type": "module",
   "license": "UNLICENSED",
   "author": "BouBouw",
@@ -32,7 +32,7 @@
   "peerDependencies": {
     "react": ">=18",
     "react-dom": ">=18",
-    "@odoro-cli/libs": "^1.0.2"
+    "@odoro-cli/libs": "^2.0.0"
   },
   "dependencies": {
     "gsap": "^3.15.0",
