@@ -3654,7 +3654,10 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
             <button
               key={mot}
               type="button"
-              className="o-rounded-lg o-border-w-1 o-border-current/20 o-px-4 o-py-3 o-text-sm o-font-medium"
+              className="o-rounded-lg o-border-w-1 o-px-4 o-py-3 o-text-sm o-font-medium"
+              style={{
+                borderColor: 'color-mix(in oklab, currentColor 20%, transparent)',
+              }}
             >
               {mot}
             </button>
@@ -3675,7 +3678,14 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
           glare={num(v, 'glare', 0.18)}
           className="o-w-72"
         >
-          <div className="o-rounded-xl o-border-w-1 o-border-current/20 o-bg-white/60 dark:o-bg-zinc-900/60 o-p-6 o-text-left">
+          <div
+            className="o-rounded-xl o-border-w-1 o-p-6 o-text-left"
+            style={{
+              borderColor: 'color-mix(in oklab, currentColor 20%, transparent)',
+              backgroundColor:
+                'color-mix(in oklab, var(--o-theme-surface) 60%, transparent)',
+            }}
+          >
             <p className="o-text-xs o-uppercase o-tracking-wider o-opacity-60">
               Registre
             </p>
@@ -4007,8 +4017,11 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
     render: (v, frame) => (
       <Stage>
         <div
-          className="o-flex o-flex-col o-gap-4 o-border-w-1 o-border-current/20 o-p-6 o-text-left"
-          style={{ borderRadius: `${String(frame.radius)}px` }}
+          className="o-flex o-flex-col o-gap-4 o-border-w-1 o-p-6 o-text-left"
+          style={{
+            borderRadius: `${String(frame.radius)}px`,
+            borderColor: 'color-mix(in oklab, currentColor 20%, transparent)',
+          }}
         >
           <div>
             <p className="o-font-semibold">Équipe aperçu</p>
@@ -4053,8 +4066,13 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
           ].map(([titre, corps]) => (
             <article
               key={titre}
-              className="o-w-52 o-border-w-1 o-border-current/20 o-bg-white/80 dark:o-bg-zinc-900/80 o-p-6 o-text-left"
-              style={{ borderRadius: `${String(frame.radius)}px` }}
+              className="o-w-52 o-border-w-1 o-p-6 o-text-left"
+              style={{
+                borderRadius: `${String(frame.radius)}px`,
+                borderColor: 'color-mix(in oklab, currentColor 20%, transparent)',
+                backgroundColor:
+                  'color-mix(in oklab, var(--o-theme-surface) 80%, transparent)',
+              }}
             >
               <p className="o-text-xs o-uppercase o-tracking-wider o-opacity-60">
                 {titre}

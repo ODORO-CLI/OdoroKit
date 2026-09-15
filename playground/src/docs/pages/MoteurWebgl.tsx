@@ -81,7 +81,13 @@ function SurfaceDemo(): ReactElement {
         {ready && refused === undefined ? null : (
           <div className={`o-absolute o-inset-0 ${choix.fallback}`}>
             {refused === undefined ? null : (
-              <div className="o-absolute o-inset-x-0 o-bottom-0 o-bg-white dark:o-bg-zinc-950/80 o-backdrop-blur-sm o-p-3 o-text-xs o-text-zinc-500 dark:o-text-zinc-400">
+              <div
+                className="o-absolute o-inset-x-0 o-bottom-0 o-backdrop-blur-sm o-p-3 o-text-xs o-text-zinc-500 dark:o-text-zinc-400"
+                style={{
+                  backgroundColor:
+                    'color-mix(in oklab, var(--o-theme-surface) 80%, transparent)',
+                }}
+              >
                 {REFUSAL_TEXT[refused] ?? refused}{' '}
                 <span className="o-text-zinc-500 dark:o-text-zinc-400">
                   Le repli est ce que vous voyez.

@@ -217,8 +217,16 @@ export function InViewDemo({ amount }: { readonly amount: number }): ReactElemen
           className={[
             'o-flex o-h-32 o-items-center o-justify-center o-rounded-lg o-border-w-2',
             'o-transition-colors',
-            vu ? 'o-border-brand-500 o-bg-brand-500/10' : 'o-border-current/20',
+            vu ? 'o-border-brand-500' : '',
           ].join(' ')}
+          style={
+            vu
+              ? {
+                  backgroundColor:
+                    'color-mix(in oklab, var(--o-palette-brand-500) 10%, transparent)',
+                }
+              : { borderColor: 'color-mix(in oklab, currentColor 20%, transparent)' }
+          }
         >
           <span className="o-text-sm o-font-medium">{vu ? 'vue' : 'pas encore'}</span>
         </div>
