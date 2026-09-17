@@ -34,7 +34,8 @@
     "try:create": "node scripts/try-create.mjs",
     "typecheck": "pnpm -r run typecheck",
     "version-packages": "changeset version && pnpm install --lockfile-only",
-    "deploy": "node scripts/deploy.mjs"
+    "deploy": "node scripts/deploy.mjs",
+    "exports": "node scripts/build-vitrine-exports.mjs"
   },
   "devDependencies": {
     "@changesets/cli": "^2.29.7",

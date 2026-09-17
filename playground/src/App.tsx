@@ -4,8 +4,8 @@
  * @module
  */
 
-import { type ReactElement } from 'react'
-import { Route, Router, Routes } from '@odoro-cli/libs/router'
+import { type ReactElement, type ReactNode } from 'react'
+import { Route, Router, Routes, useLocation } from '@odoro-cli/libs/router'
 import { ToastProvider } from '@odoro-cli/libs/ui'
 import { Link } from '@odoro-cli/libs/router'
 import { OdoroDebugPanel, OdoroEngine, isDebugRequested } from '@odoro-cli/engine'
@@ -75,6 +75,21 @@ import { BreadcrumbDoc } from './docs/pages/composants/BreadcrumbDoc.jsx'
 import { PaginationDoc } from './docs/pages/composants/PaginationDoc.jsx'
 import { TableDoc } from './docs/pages/composants/TableDoc.jsx'
 
+/**
+ * La coquille du site, sauf en integration.
+ *
+ * Une vitrine posee dans un cadre sur le site de quelqu un d autre ne porte ni
+ * en-tete, ni colonne de navigation, ni pied de page : elle est le contenu, et
+ * rien d autre. La coquille est donc retiree **avant** le rendu plutot que
+ * masquee apres — masquee, elle continuerait a poser son decalage haut, a
+ * capter le clavier et a charger sa recherche.
+ */
+function Cadre({ children }: { children?: ReactNode }): ReactElement {
+  const { pathname } = useLocation()
+  if (pathname.startsWith('/embed/')) return <>{children}</>
+  return <Shell>{children}</Shell>
+}
+
 /** Page introuvable. */
 function Introuvable(): ReactElement {
   return (
@@ -101,7 +116,7 @@ export function App(): ReactElement {
     <OdoroEngine quality="auto" reducedMotion="respect" maxSurfaces={2}>
       <Router>
         <ToastProvider>
-          <Shell>
+          <Cadre>
             <Routes
               fallback={
                 <p className="o-text-zinc-500 dark:o-text-zinc-400">Chargement...</p>
@@ -114,6 +129,13 @@ export function App(): ReactElement {
               <Route path="docs" element={<Accueil />} />
               <Route path="templates" element={<Templates />} />
               <Route path="templates/:slug" element={<VitrineRoute />} />
+              {/* La meme vitrine, nue : c est ce que sert un cadre pose
+                  ailleurs. Voir EmbedRoute pour ce que l adresse accepte, et
+                  pourquoi elle doit rester paresseuse. */}
+              <Route
+                path="embed/:slug"
+                lazy={() => import('./docs/pages/EmbedRoute.jsx')}
+              />
               <Route path="docs/installation" element={<Installation />} />
               <Route path="docs/templates" element={<Templates />} />
               <Route path="docs/styles" element={<StylesOverview />} />
@@ -230,7 +252,7 @@ export function App(): ReactElement {
               <Route path="docs/components/table" element={<TableDoc />} />
               <Route path="*" element={<Introuvable />} />
             </Routes>
-          </Shell>
+          </Cadre>
           {isDebugRequested() ? <OdoroDebugPanel /> : null}
         </ToastProvider>
       </Router>

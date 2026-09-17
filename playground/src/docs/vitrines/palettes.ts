@@ -345,3 +345,54 @@ export function accentDoux(
 ): string {
   return `color-mix(in oklab, var(--o-vitrine-${String(nuance)}) ${String(part)}%, var(--o-theme-bg))`
 }
+
+/**
+ * Une couleur du systeme, resolue en hexadecimal.
+ *
+ * Les jetons de la palette sont ecrits en `oklch`, et tout ce qui precede
+ * attend `#rrggbb` : un selecteur de couleur natif n accepte que cela, et
+ * {@link variablesDePalette} calcule ses nuances sur des octets.
+ *
+ * La conversion passe par un canevas d un pixel, parce que c est le navigateur
+ * qui sait la faire. Lire `fillStyle` ne convertit rien — il rend la chaine
+ * telle qu on l a donnee quand elle n est pas hexadecimale. Peindre le pixel,
+ * puis le relire, oui.
+ */
+function hexadecimalDeCouleur(couleur: string): string {
+  if (/^#[0-9a-f]{6}$/i.test(couleur)) return couleur
+  if (typeof document === 'undefined') return '#888888'
+
+  const toile = document.createElement('canvas')
+  toile.width = 1
+  toile.height = 1
+  const pot = toile.getContext('2d', { willReadFrequently: true })
+  if (pot === null) return '#888888'
+
+  pot.fillStyle = '#000000'
+  pot.fillStyle = couleur
+  pot.fillRect(0, 0, 1, 1)
+  const [r, v, b] = pot.getImageData(0, 0, 1, 1).data
+  const deux = (n: number): string => n.toString(16).padStart(2, '0')
+  return `#${deux(r ?? 0)}${deux(v ?? 0)}${deux(b ?? 0)}`
+}
+
+/**
+ * Les trois couleurs de depart d une vitrine, lues dans le document.
+ *
+ * Une vitrine annonce sa palette sous forme de jetons du systeme. Il faut le
+ * document pour les resoudre : appeler ceci hors d un effet, au premier rendu
+ * d une page pre-calculee, ne donnerait que des gris.
+ *
+ * @param jetons Les trois noms de variables, dans l ordre accent, seconde,
+ *   tierce.
+ * @returns Les trois couleurs en `#rrggbb`.
+ */
+export function couleursDeJetons(jetons: readonly string[]): Couleurs {
+  const racine = getComputedStyle(document.documentElement)
+  const lues = jetons.map((jeton) =>
+    hexadecimalDeCouleur(
+      jeton.startsWith('--') ? racine.getPropertyValue(jeton).trim() : jeton,
+    ),
+  )
+  return [lues[0] ?? '#888888', lues[1] ?? '#888888', lues[2] ?? '#888888']
+}

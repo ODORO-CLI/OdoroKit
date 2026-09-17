@@ -4,10 +4,10 @@
  * ## Pourquoi un chargeur maison plutot que la route paresseuse du routeur
  *
  * `<Route lazy>` associe un module a un chemin fixe. Ici le chemin porte un
- * parametre : vingt-quatre modules derriere une seule route. Le composant
- * `React.lazy` est donc construit ici, une fois par vitrine, et conserve dans
- * une table — en reconstruire un a chaque rendu remonterait la page entiere a
- * chaque image de transition.
+ * parametre : cent modules derriere une seule route. Le composant `React.lazy`
+ * est donc construit ici, une fois par vitrine, et conserve dans une table — en
+ * reconstruire un a chaque rendu remonterait la page entiere a chaque image de
+ * transition.
  *
  * ## Le bandeau
  *
@@ -16,18 +16,27 @@
  * reteinter le modele. Il se cale **sous** la barre de la documentation, qui
  * est fixe : colle a zero, il passerait dessous et disparaitrait.
  *
+ * ## Les trois vues, et pourquoi elles vivent dans l adresse
+ *
+ * Le bandeau porte un interrupteur : **apercu**, **code**, **integrer**. La vue
+ * est ecrite dans la barre d adresse plutot que dans un etat local, parce que
+ * « regarde le code de celle-la » est un lien qu on envoie — et parce que le
+ * retour arriere du navigateur doit ramener la vitrine, pas quitter la page.
+ *
  * ## Pourquoi la palette vit ici
  *
  * Une vitrine n ecrit jamais sa couleur en dur : elle lit `--o-vitrine-*`. Ces
  * variables sont posees sur le conteneur, ici, ce qui fait de la reteinture une
- * affaire d un seul element — et permet de la changer sans rien remonter.
+ * affaire d un seul element — et permet de la changer sans rien remonter. Les
+ * trois couleurs servent aussi au panneau d integration : la balise qu il
+ * fabrique reprend ce qu on voit, pas ce qui etait la au depart.
  *
  * @module
  */
 
 import { Icon } from '@odoro-cli/icons'
 import { ArrowLeft, Palette as IconePalette } from '@odoro-cli/icons/outline'
-import { Link, useParams } from '@odoro-cli/libs/router'
+import { Link, useParams, useSearchParams } from '@odoro-cli/libs/router'
 import {
   lazy,
   Suspense,
@@ -39,8 +48,17 @@ import {
 } from 'react'
 
 import { HEADER_OFFSET } from '../components/Shell.jsx'
+import {
+  CopierAdresse,
+  PanneauCode,
+  PanneauIntegration,
+} from '../components/VitrineExport.jsx'
 import { VITRINES, vitrineBySlug, type Vitrine } from '../vitrines/index.js'
-import { variablesDePalette, type Couleurs } from '../vitrines/palettes.js'
+import {
+  couleursDeJetons,
+  variablesDePalette,
+  type Couleurs,
+} from '../vitrines/palettes.js'
 
 /** Composants deja construits, indexes par segment. */
 const CHARGES = new Map<string, LazyExoticComponent<ComponentType>>()
@@ -55,32 +73,15 @@ function composant(vitrine: Vitrine): LazyExoticComponent<ComponentType> {
   return fait
 }
 
-/**
- * Resout une couleur du systeme en hexadecimal.
- *
- * Un selecteur de couleur natif n accepte que `#rrggbb` : les jetons de la
- * palette, eux, sont ecrits en `oklch`. Le navigateur fait la conversion, par
- * un canevas d un pixel — une expression reguliere ne saurait pas la faire.
- */
-function versHexadecimal(couleur: string): string {
-  if (/^#[0-9a-f]{6}$/i.test(couleur)) return couleur
-  if (typeof document === 'undefined') return '#888888'
-  const toile = document.createElement('canvas')
-  toile.width = 1
-  toile.height = 1
-  const pot = toile.getContext('2d', { willReadFrequently: true })
-  if (pot === null) return '#888888'
+/** Les trois vues d une vitrine. */
+const VUES = [
+  { cle: '', etiquette: 'Aperçu' },
+  { cle: 'code', etiquette: 'Code' },
+  { cle: 'integrer', etiquette: 'Intégrer' },
+] as const
 
-  // `fillStyle` rend la chaine telle qu on l a donnee quand elle n est pas
-  // hexadecimale : lire `fillStyle` ne convertit donc rien. Peindre le pixel,
-  // puis le relire, oui — c est le navigateur qui fait la conversion.
-  pot.fillStyle = '#000000'
-  pot.fillStyle = couleur
-  pot.fillRect(0, 0, 1, 1)
-  const [r, v, b] = pot.getImageData(0, 0, 1, 1).data
-  const deux = (n: number): string => n.toString(16).padStart(2, '0')
-  return `#${deux(r ?? 0)}${deux(v ?? 0)}${deux(b ?? 0)}`
-}
+/** La vue demandee par l adresse. */
+type Vue = (typeof VUES)[number]['cle']
 
 /**
  * Les trois couleurs de la vitrine, modifiables.
@@ -136,15 +137,56 @@ function ChoixCouleurs({
   )
 }
 
+/** L interrupteur des trois vues. */
+function ChoixVue({
+  vue,
+  onChange,
+}: {
+  readonly vue: Vue
+  readonly onChange: (vue: Vue) => void
+}): ReactElement {
+  return (
+    <div
+      role="group"
+      aria-label="Ce qu’on regarde du modèle"
+      className="o-inline-flex o-rounded-lg o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-p-0.5"
+    >
+      {VUES.map((option) => {
+        const actif = option.cle === vue
+        return (
+          <button
+            key={option.cle}
+            type="button"
+            aria-pressed={actif}
+            onClick={() => onChange(option.cle)}
+            className={[
+              'o-rounded-md o-px-2.5 o-py-1 o-text-sm o-cursor-pointer o-transition-colors',
+              actif
+                ? 'o-bg-zinc-900 dark:o-bg-zinc-100 o-text-white dark:o-text-zinc-900'
+                : 'o-text-zinc-600 dark:o-text-zinc-400 hover:o-text-zinc-900 dark:hover:o-text-zinc-100',
+            ].join(' ')}
+          >
+            {option.etiquette}
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
 /** Le bandeau de retour, pose sous la barre de la documentation. */
 function Bandeau({
   vitrine,
   couleurs,
   onCouleurs,
+  vue,
+  onVue,
 }: {
   readonly vitrine: Vitrine
   readonly couleurs: Couleurs
   readonly onCouleurs: (couleurs: Couleurs) => void
+  readonly vue: Vue
+  readonly onVue: (vue: Vue) => void
 }): ReactElement {
   return (
     <div
@@ -165,12 +207,17 @@ function Bandeau({
         /
       </span>
       <span className="o-font-semibold o-tracking-tight">{vitrine.titre}</span>
-      <span className="max-md:o-hidden o-text-xs o-uppercase o-tracking-wider o-text-zinc-500 dark:o-text-zinc-400">
+      <span className="max-lg:o-hidden o-text-xs o-uppercase o-tracking-wider o-text-zinc-500 dark:o-text-zinc-400">
         {vitrine.metier}
       </span>
 
-      <span className="o-ml-auto">
-        <ChoixCouleurs couleurs={couleurs} onChange={onCouleurs} />
+      <span className="o-ml-auto o-flex o-items-center o-gap-3">
+        <ChoixVue vue={vue} onChange={onVue} />
+        {/* La palette n a de sens que sur ce qui se regarde : devant une liste
+            de fichiers, elle ne repeint rien. Elle reste devant l integration,
+            ou elle decide de ce que la balise emporte. */}
+        {vue !== 'code' && <ChoixCouleurs couleurs={couleurs} onChange={onCouleurs} />}
+        {vue === 'integrer' && <CopierAdresse slug={vitrine.slug} />}
       </span>
     </div>
   )
@@ -179,8 +226,12 @@ function Bandeau({
 /** La route d une vitrine. */
 export function VitrineRoute(): ReactElement {
   const params = useParams()
+  const [recherche, setRecherche] = useSearchParams()
   const vitrine = vitrineBySlug(String(params['slug'] ?? ''))
   const [couleurs, setCouleurs] = useState<Couleurs>(['#888888', '#888888', '#888888'])
+
+  const demandee = recherche.get('vue')
+  const vue: Vue = demandee === 'code' || demandee === 'integrer' ? demandee : ''
 
   // Les trois couleurs de depart sont celles de la fiche. Elles y sont ecrites
   // en jetons du systeme : il faut le document pour les resoudre, donc un effet
@@ -188,11 +239,7 @@ export function VitrineRoute(): ReactElement {
   // palette appartient au modele qu on regarde, pas a la session.
   useEffect(() => {
     if (vitrine === undefined) return
-    const racine = getComputedStyle(document.documentElement)
-    const lues = vitrine.palette.map((jeton) =>
-      versHexadecimal(racine.getPropertyValue(jeton).trim()),
-    )
-    setCouleurs([lues[0] ?? '#888888', lues[1] ?? '#888888', lues[2] ?? '#888888'])
+    setCouleurs(couleursDeJetons(vitrine.palette))
   }, [vitrine])
 
   if (vitrine === undefined) {
@@ -213,21 +260,39 @@ export function VitrineRoute(): ReactElement {
 
   return (
     <div className="o-min-h-screen">
-      <Bandeau vitrine={vitrine} couleurs={couleurs} onCouleurs={setCouleurs} />
-      <Suspense
-        fallback={
-          <div className="o-flex o-min-h-96 o-items-center o-justify-center o-text-sm o-text-zinc-500 dark:o-text-zinc-400">
-            Chargement de la vitrine...
+      <Bandeau
+        vitrine={vitrine}
+        couleurs={couleurs}
+        onCouleurs={setCouleurs}
+        vue={vue}
+        onVue={(suivante) => {
+          setRecherche((courant) => {
+            if (suivante === '') courant.delete('vue')
+            else courant.set('vue', suivante)
+            return courant
+          })
+        }}
+      />
+
+      {vue === 'code' && <PanneauCode vitrine={vitrine} />}
+      {vue === 'integrer' && <PanneauIntegration vitrine={vitrine} couleurs={couleurs} />}
+
+      {vue === '' && (
+        <Suspense
+          fallback={
+            <div className="o-flex o-min-h-96 o-items-center o-justify-center o-text-sm o-text-zinc-500 dark:o-text-zinc-400">
+              Chargement de la vitrine...
+            </div>
+          }
+        >
+          {/* Repere de cadrage : ce qui suit est le site, et rien de la
+              documentation. Les apercus de la galerie sont pris sur cet
+              element, qui porte aussi la palette du modele. */}
+          <div data-o-vitrine="" style={variablesDePalette(couleurs)}>
+            <Page />
           </div>
-        }
-      >
-        {/* Repere de cadrage : ce qui suit est le site, et rien de la
-            documentation. Les apercus de la galerie sont pris sur cet element,
-            qui porte aussi la palette du modele. */}
-        <div data-o-vitrine="" style={variablesDePalette(couleurs)}>
-          <Page />
-        </div>
-      </Suspense>
+        </Suspense>
+      )}
     </div>
   )
 }

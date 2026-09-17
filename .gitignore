@@ -64,3 +64,12 @@ playground/src/docs/versions.generated.ts
 # `packages/odoro/scripts/family-versions.mjs` avant chaque compilation.
 # Les versionner ferait exister deux verites pour un meme numero.
 packages/odoro/src/scaffold/family-versions.generated.ts
+
+# Les exports des vitrines, produits par `scripts/build-vitrine-exports.mjs`
+# avant chaque `dev` et chaque `build` du playground.
+#
+# Soixante megaoctets d archives et de code recopie, deduits de la source a
+# chaque generation. Les versionner ferait entrer dans le depot une seconde
+# copie de tout ce qu il contient deja, libre de diverger de la premiere.
+playground/public/exports/
+playground/src/docs/exports.generated.ts

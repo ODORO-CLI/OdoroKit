@@ -48,6 +48,7 @@ import { IrisOpen } from '@/odoro/loader/IrisOpen.jsx'
 import { LettersGate } from '@/odoro/loader/LettersGate.jsx'
 import { ZoomGate } from '@/odoro/loader/ZoomGate.jsx'
 
+import { CHROME } from './chrome.js'
 import { aplat, encre, encreSurSombre } from './palettes.js'
 
 /* ============================ Les voix ================================= */
@@ -560,13 +561,18 @@ export function TitreVague({
 /* ============================ Les barres =============================== */
 
 /**
- * Hauteur des barres de la documentation au-dessus d une vitrine, en pixels.
+ * Hauteur des barres de l hote au-dessus d une vitrine, en pixels.
  *
- * Quatre-vingts pour la barre du site (`HEADER_OFFSET`, cinq rem) et
- * trente-sept pour le bandeau de retour. Tout ce qui colle sous ces deux-la
- * part d ici : une barre collee a zero passerait dessous et disparaitrait.
+ * Dans la documentation : quatre-vingts pour la barre du site
+ * (`HEADER_OFFSET`, cinq rem) et trente-sept pour le bandeau de retour. Tout
+ * ce qui colle sous ces deux-la part d ici — une barre collee a zero passerait
+ * dessous et disparaitrait.
+ *
+ * Ailleurs — dans un cadre pose sur un autre site, dans un projet exporte — il
+ * n y a pas de barres, et la valeur est zero. C est l hote qui la declare, par
+ * {@link poserChrome}. Voir `chrome.ts` pour pourquoi elle vit la-bas.
  */
-export const CHROME = 117
+export { CHROME, poserChrome } from './chrome.js'
 
 /** Un lien de barre. */
 export type Lien = readonly [href: string, mot: string]
