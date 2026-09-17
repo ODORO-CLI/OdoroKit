@@ -188,7 +188,16 @@ export const IGNORED = new Set(['left', 'right', 'center'])
  * aussi la vraie classe du meme nom — ce qui est arrive une fois, et se voyait
  * seulement a la capture.
  */
-export const FAUX_AMIS = new Set(['hidden', 'resize', 'inline-block', 'glass', 'pastel', 'light', 'medium', 'deep'])
+export const FAUX_AMIS = new Set([
+  'hidden',
+  'resize',
+  'inline-block',
+  'glass',
+  'pastel',
+  'light',
+  'medium',
+  'deep',
+])
 
 /** Utilities whose name differs between the two engines. */
 export const RESPELLED = {
