@@ -30,6 +30,20 @@
  * template chunk inside is rewritten. What sits in `${…}` is code, and is left
  * alone.
  *
+ * ## Et les listes tenues en variable
+ *
+ * `const cls = "group relative inline-flex h-12 …"`, employee plus loin par
+ * `className={cls}`, n est pas dans un attribut : suivre `className=` ne la
+ * voit pas davantage. Un bouton y a perdu sa hauteur, et dix-huit pixels sont
+ * apparus.
+ *
+ * Toute chaine du fichier est donc examinee. Une chaine est tenue pour une
+ * liste de classes quand elle porte au moins trois mots, que chacun a la forme
+ * d un nom de classe, et qu au moins un se traduit. Le seuil de trois mots est
+ * ce qui distingue `"grid"` — la valeur d un `display` — d une liste. Ce qui
+ * passe au travers reste attrape par `check-template-classes.mjs`, qui, lui,
+ * ne traduit rien et signale tout.
+ *
  * ## Why it refuses rather than guesses
  *
  * A class our generator does not produce raises no error at run time: it does
@@ -88,6 +102,9 @@ function sources(directory, found = []) {
   return found
 }
 
+/** Les noms que la table produit : ils sont deja a leur place. */
+const PRODUITS = new Set(Object.values(RENAMED))
+
 const unknown = new Map()
 let rewritten = 0
 
@@ -97,6 +114,12 @@ let rewritten = 0
  * @returns The new name, or `null` when nothing in the table covers it.
  */
 function translate(original) {
+  // Un nom que cette passe vient elle-meme de produire : la seconde passe
+  // repasse sur le resultat de la premiere, et signalerait sinon son propre
+  // travail comme introuvable.
+  const dejaFait = original.slice(original.lastIndexOf(':') + 1)
+  if (dejaFait.startsWith('o-')) return original
+  if (PRODUITS.has(dejaFait)) return original
   // Une valeur que l expression compare, pas une classe. Voir IGNORED.
   if (IGNORED?.has(original) === true) return original
   if (UNCHANGED.has(original)) return original
@@ -213,6 +236,24 @@ function rewriteExpression(code, where) {
   return out
 }
 
+/** La forme d un mot qui pourrait etre un nom de classe. */
+const SHAPE = /^!?[a-z][a-z0-9:/[\]().,%_-]*$/
+
+/**
+ * Une chaine hors attribut est-elle une liste de classes ?
+ *
+ * Trois mots au moins, tous de la forme voulue, et au moins un que la table ou
+ * la feuille sait traduire. En dessous de trois, l ambiguite l emporte :
+ * `"grid"` est aussi bien une classe que la valeur d un `display`, et se
+ * tromper la corromprait du code.
+ */
+function looksLikeClassList(text) {
+  const tokens = text.split(/\s+/).filter((piece) => piece !== '')
+  if (tokens.length < 3) return false
+  if (!tokens.every((piece) => SHAPE.test(piece))) return false
+  return tokens.some((piece) => translate(piece) !== null)
+}
+
 let touched = 0
 
 for (const file of sources(folder)) {
@@ -246,6 +287,14 @@ for (const file of sources(folder)) {
       index = start
     }
   }
+
+  // Seconde passe : les listes qui ne sont pas dans un attribut. Elle vient
+  // apres, sur le resultat de la premiere, pour ne pas repasser sur ce qui
+  // vient d etre traduit — `o-flex` n a plus la forme d un nom a traduire.
+  after = after.replace(/(["'`])([^"'`\n]{8,800})\1/g, (whole, quote, text) => {
+    if (!looksLikeClassList(text)) return whole
+    return quote + rewriteList(text, where) + quote
+  })
 
   if (after !== before) {
     if (!dry) writeFileSync(file, after, 'utf8')

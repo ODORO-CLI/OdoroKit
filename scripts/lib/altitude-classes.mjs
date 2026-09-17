@@ -158,7 +158,7 @@ export const UNCHANGED = new Set([
  * all unknown — would also skip `max-w-[30rem]`, silently, which is exactly
  * the class that went missing the first time.
  */
-export const IGNORED = new Set(['left', 'right', 'center'])
+export const IGNORED = new Set(['left', 'right', 'center', 'hidden'])
 
 /**
  * Utilities whose name differs between the two engines.

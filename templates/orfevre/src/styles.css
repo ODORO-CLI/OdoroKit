@@ -1,0 +1,370 @@
+/* `source("../")` limits class detection to `src/` (this file lives in src/app).
+   Without it Tailwind v4 scans the whole repo and documented class *patterns*
+   parse as real candidates. */
+/* ===========================================================================
+   La feuille du projet.
+
+   Les deux premiers etages — les primitives et les roles — sont ceux de
+   l original, mot pour mot. Le troisieme ne lie plus des jetons a un
+   generateur d utilitaires : il declare en CSS ordinaire les classes que le
+   balisage emploie deja, et les mesures que l original ecrivait en valeurs
+   arbitraires deviennent des classes `or-*` avec la meme declaration.
+
+   Les utilitaires de structure — `o-flex`, `o-absolute`, `o-grid` — viennent
+   d `@odoro-cli/libs`, importe avant cette feuille.
+   =========================================================================== */
+
+/* ---------------------------------------------------------------------------
+   LES POLICES
+   Libre Caslon Display et Inter, toutes deux sous licence SIL OFL, servies
+   depuis notre propre origine : une page qui depend d un service tiers pour sa
+   premiere ligne de texte depend de son temps de reponse.
+   --------------------------------------------------------------------------- */
+@font-face {
+  font-family: 'Libre Caslon Display';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./fonts/libre-caslon-display-400.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('./fonts/inter-variable.woff2') format('woff2');
+}
+
+/* ---------------------------------------------------------------------------
+   TIER 1 — PRIMITIVES  (`--raw-*`)
+   Raw literal values. The only tier allowed to hold a hex/px/ms literal.
+   Never referenced in markup, never bound into @theme. Rename freely.
+
+   The palette is the committed GetLayers Style `aerra-style` (getlayers.json),
+   re-typed to Libre Caslon Display. Its premise, and the whole discipline of
+   this page: THE GROUND IS WHITE AND STAYS WHITE. Every dark area on screen is
+   a photograph. The interface owns no colour at all — the only pixels with a
+   hue on this entire site are the metal and the one red stone, and they are
+   inside the film. Put a colour in the DOM and the jewellery stops being the
+   brightest thing on the page.
+   --------------------------------------------------------------------------- */
+:root {
+  --raw-color-white: #ffffff;
+  --raw-color-black: #000000;
+  /* One material, two densities — the nav and the cards share a look on
+     purpose, and stay separate roles so either can be re-themed alone. */
+  --raw-color-glass: #f3f3f3;
+  --raw-color-tile: #f4f4f4;
+
+  --raw-blur-glass: 10px;
+  --raw-blur-panel: 37.5px;
+
+  --raw-duration-fast: 150ms;
+  --raw-duration: 250ms;
+  --raw-duration-slow: 700ms;
+  --raw-ease: cubic-bezier(0.2, 0, 0, 1);
+
+  --raw-radius-sm: 0.375rem;
+  --raw-radius: 0.5rem;
+  --raw-radius-lg: 0.625rem;
+}
+
+/* ---------------------------------------------------------------------------
+   TIER 2 — SEMANTIC  (role names, no namespace prefix)
+   Purpose, not appearance. Always `var(--raw-*)` or an alpha of one.
+
+   Tailwind v4 has no `--duration-*` namespace, so the durations live here only
+   and are consumed as `duration-[var(--duration-fast)]`.
+   --------------------------------------------------------------------------- */
+:root {
+  --ground: var(--raw-color-white);
+  --ground-alt: var(--raw-color-tile);
+
+  --ink: var(--raw-color-black);
+  /* A headline over a photograph dims its own first clause to 50% so the
+     second half lands. That is the Style's signature move. */
+  --ink-muted: color-mix(in srgb, var(--raw-color-black) 50%, transparent);
+  --ink-faint: color-mix(in srgb, var(--raw-color-black) 30%, transparent);
+  --line: color-mix(in srgb, var(--raw-color-black) 10%, transparent);
+
+  /* Type ON a photograph is white, with the same 50% variant. */
+  --on-media: var(--raw-color-white);
+  --on-media-muted: color-mix(in srgb, var(--raw-color-white) 50%, transparent);
+
+  --surface-glass: color-mix(in srgb, var(--raw-color-glass) 80%, transparent);
+  --surface-nav: color-mix(in srgb, var(--raw-color-glass) 80%, transparent);
+  --surface-panel: color-mix(in srgb, var(--raw-color-white) 85%, transparent);
+
+  /* The one action in the system: a black pill with a white arrow tile. */
+  --action: var(--raw-color-black);
+  --action-ink: var(--raw-color-white);
+
+  --duration-fast: var(--raw-duration-fast);
+  --duration: var(--raw-duration);
+  --duration-slow: var(--raw-duration-slow);
+}
+
+/* ---------------------------------------------------------------------------
+   POURQUOI CHAQUE SELECTEUR CI-DESSOUS REPETE SA CLASSE
+
+   `.bg-ground.bg-ground` n est pas une coquille. Les utilitaires du systeme
+   sont produits a la construction et ecrits **apres** cette feuille dans le
+   paquet final : a specificite egale, c est le dernier qui gagne, donc eux.
+   Repeter la classe monte la specificite d un cran et rend l ordre sans effet.
+   --------------------------------------------------------------------------- */
+
+/* ---------------------------------------------------------------------------
+   TIER 3 — LES CLASSES DU DESIGN
+   --------------------------------------------------------------------------- */
+:root {
+  /* Les deux familles que la charte demande.
+
+     Dans l original, elles ne s appliquaient jamais : `@theme inline` liait
+     `--font-display` a une variable posee sur `body` en l ecrivant sur
+     `:root`, ou elle n existe pas. La valeur y etait vide, la declaration
+     invalide, et toute la page tombait sur la pile systeme — alors que le
+     commentaire de `.display` dit exactement le contraire : « Libre Caslon
+     Display is HEADLINE-ONLY ».
+
+     Pour retrouver exactement ce que l original affichait, remplacer les deux
+     valeurs par la pile systeme. */
+  --font-display: 'Libre Caslon Display', Georgia, 'Times New Roman', serif;
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+}
+
+.bg-ground.bg-ground { background-color: var(--ground); }
+.bg-ground-alt.bg-ground-alt { background-color: var(--ground-alt); }
+.bg-ink.bg-ink { background-color: var(--ink); }
+.bg-line.bg-line { background-color: var(--line); }
+
+.text-ink.text-ink { color: var(--ink); }
+.text-ink-muted.text-ink-muted { color: var(--ink-muted); }
+.text-ink-faint.text-ink-faint { color: var(--ink-faint); }
+.hover\:text-ink.hover\:text-ink:hover { color: var(--ink); }
+.placeholder\:text-ink-faint.placeholder\:text-ink-faint::placeholder { color: var(--ink-faint); }
+
+.border-line.border-line { border-color: var(--line); }
+.focus\:border-ink.focus\:border-ink:focus { border-color: var(--ink); }
+.border-y.border-y { border-block-width: 1px; border-block-style: solid; }
+
+/* Deux mesures que le systeme ne decline pas. */
+.h-dvh.h-dvh { height: 100dvh; }
+.leading-none.leading-none { line-height: 1; }
+
+/* Les deplacements passent par la propriete `translate`, et non par
+   `transform` : plusieurs de ces elements sont deja deplaces au defilement par
+   un `transform` pose en ligne, qui ecraserait le calage. Les deux proprietes
+   sont independantes et se composent. */
+.-translate-x-1\/2.-translate-x-1\/2 { --or-tx: -50%; translate: var(--or-tx, 0) var(--or-ty, 0); }
+.-translate-y-1\/2.-translate-y-1\/2 { --or-ty: -50%; translate: var(--or-tx, 0) var(--or-ty, 0); }
+.or-tx-neg-5.or-tx-neg-5 { --or-tx: -1.25rem; translate: var(--or-tx, 0) var(--or-ty, 0); }
+.or-ty-5.or-ty-5 { --or-ty: 1.25rem; translate: var(--or-tx, 0) var(--or-ty, 0); }
+.or-tx-neg-plein.or-tx-neg-plein { --or-tx: -100%; translate: var(--or-tx, 0) var(--or-ty, 0); }
+.hover\:-translate-y-px.hover\:-translate-y-px:hover { --or-ty: -1px; translate: var(--or-tx, 0) var(--or-ty, 0); }
+
+/* ---------------------------------------------------------------------------
+   LES MESURES DE L ORIGINAL
+   Chacune portait une valeur arbitraire, que notre generateur ne produit pas.
+   La declaration est identique ; seul le nom a change.
+   --------------------------------------------------------------------------- */
+.or-gouttiere.or-gouttiere { padding-inline: max(1.5rem, 3vw); }
+.or-gouttiere-film.or-gouttiere-film { padding-inline: max(1.5rem, 5vw); }
+.or-inset-gouttiere.or-inset-gouttiere { left: max(1.5rem, 3vw); right: max(1.5rem, 3vw); }
+.or-gauche-gouttiere.or-gauche-gouttiere { left: max(1.5rem, 3vw); }
+.or-cadre.or-cadre { max-width: 110rem; }
+
+.or-duree.or-duree { transition-duration: var(--duration); }
+.or-duree-vive.or-duree-vive { transition-duration: var(--duration-fast); }
+.or-duree-lente.or-duree-lente { transition-duration: var(--duration-slow); }
+.or-duree-1200.or-duree-1200 { transition-duration: 1200ms; }
+.or-ease.or-ease { transition-timing-function: var(--raw-ease); }
+.or-track-30.or-track-30 { letter-spacing: 0.3em; }
+
+.or-fs-85.or-fs-85 { font-size: 0.85rem; }
+.or-fs-875.or-fs-875 { font-size: 0.875rem; }
+.or-fs-95.or-fs-95 { font-size: 0.95rem; }
+.or-fs-100.or-fs-100 { font-size: 1rem; }
+.or-fs-105.or-fs-105 { font-size: 1.05rem; }
+.or-fs-115.or-fs-115 { font-size: 1.15rem; }
+.or-fs-140.or-fs-140 { font-size: 1.4rem; }
+.or-fs-160.or-fs-160 { font-size: 1.6rem; }
+.or-fs-175.or-fs-175 { font-size: 1.75rem; }
+.or-fs-27vw.or-fs-27vw { font-size: 27vw; }
+
+.or-fs-t1.or-fs-t1 { font-size: clamp(2.6rem, 6.4vw, 6rem); }
+.or-fs-t2.or-fs-t2 { font-size: clamp(2rem, 3.6vw, 3.5rem); }
+.or-fs-t2b.or-fs-t2b { font-size: clamp(2.2rem, 4vw, 3.6rem); }
+.or-fs-t2c.or-fs-t2c { font-size: clamp(2.2rem, 4.2vw, 3.8rem); }
+.or-fs-t3.or-fs-t3 { font-size: clamp(1.7rem, 2.6vw, 2.4rem); }
+.or-fs-t4.or-fs-t4 { font-size: clamp(1.5rem, 2.3vw, 2.1rem); }
+.or-fs-t4b.or-fs-t4b { font-size: clamp(1.6rem, 2.4vw, 2.2rem); }
+
+.or-mw-18ch.or-mw-18ch { max-width: 18ch; }
+.or-mw-38ch.or-mw-38ch { max-width: 38ch; }
+.or-mw-44ch.or-mw-44ch { max-width: 44ch; }
+.or-mw-46ch.or-mw-46ch { max-width: 46ch; }
+.or-mw-52ch.or-mw-52ch { max-width: 52ch; }
+.or-mw-30.or-mw-30 { max-width: 30rem; }
+.or-mw-38.or-mw-38 { max-width: 38rem; }
+.or-mw-46.or-mw-46 { max-width: 46rem; }
+
+.or-py-section.or-py-section { padding-block: clamp(5rem, 12vh, 9rem); }
+.or-pt-section.or-pt-section { padding-top: clamp(5rem, 12vh, 9rem); }
+.or-mt-bloc.or-mt-bloc { margin-top: clamp(3rem, 7vh, 5rem); }
+.or-mt-grand.or-mt-grand { margin-top: clamp(4rem, 10vh, 7rem); }
+.or-gap-grand.or-gap-grand { gap: clamp(3rem, 6vw, 6rem); }
+.or-pb-bas.or-pb-bas { padding-bottom: max(2rem, 5vh); }
+
+.or-gauche-5.or-gauche-5 { left: 1.25rem; }
+.or-haut-5.or-haut-5 { top: 1.25rem; }
+.or-haut-7.or-haut-7 { top: 1.75rem; }
+.or-h-ligne.or-h-ligne { height: 1.2em; }
+.or-oblique.or-oblique { transform: skewX(-18deg); }
+.or-fond-action.or-fond-action { background-color: var(--action); }
+.or-encre-action.or-encre-action { color: var(--action-ink); }
+
+/* La lueur oblique qui traverse le bouton au survol. */
+.or-lueur.or-lueur {
+  background-image: linear-gradient(
+    90deg,
+    transparent,
+    rgb(255 255 255 / 0.22),
+    transparent
+  );
+}
+
+/* Le survol d un parent : notre systeme n a pas de variante de groupe, et une
+   classe absente ne peint rien. Les regles sont donc ecrites ici. */
+.group:hover .or-zoom-cible { scale: 1.03; }
+.group:hover .or-monte-cible { --or-ty: -1.25rem; translate: var(--or-tx, 0) var(--or-ty, 0); }
+.group:hover .or-pose-cible { --or-ty: 0; translate: var(--or-tx, 0) var(--or-ty, 0); }
+.group:hover .or-entre-cible { --or-tx: 0; translate: var(--or-tx, 0) var(--or-ty, 0); }
+.group:hover .or-sort-cible { --or-tx: 1.25rem; translate: var(--or-tx, 0) var(--or-ty, 0); }
+.group:hover .or-traverse-cible { --or-tx: 100%; translate: var(--or-tx, 0) var(--or-ty, 0); }
+
+/* Les grilles nommees, chacune au-dessus de sa rupture. */
+@media (min-width: 768px) {
+  .or-cols-quatre.or-cols-quatre { grid-template-columns: 1.4fr repeat(3, 1fr); }
+  .or-cols-service.or-cols-service { grid-template-columns: 5rem 1fr 1.1fr; }
+  .or-w-54.or-w-54 { width: 54%; }
+  .md\:border-line.md\:border-line { border-color: var(--line); }
+  .md\:border-t-0.md\:border-t-0 { border-top-width: 0; }
+}
+
+@media (min-width: 1024px) {
+  .or-cols-contact.or-cols-contact { grid-template-columns: 1.1fr 1fr; }
+}
+
+
+/* --------------------------------------------------------------------------- */
+
+html {
+  background: var(--ground);
+}
+
+body {
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  /* Hierarchy is size, never weight: 300 carries every heading and all body
+     copy, 500 is reserved for buttons and the one filled nav label. */
+  font-weight: 300;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+}
+
+/* Libre Caslon Display is HEADLINE-ONLY — its thick-thins fall apart as body
+   text. Leading 1 for display, per the Style. */
+.display {
+  font-family: var(--font-display);
+  font-weight: 400;
+  line-height: 1;
+}
+
+.label {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+/* GLASS IS FRAGILE: an `opacity` or a `filter` on ANY ancestor establishes a
+   backdrop root — the blur then samples an empty backdrop, costs full GPU work
+   and renders nothing. Never animate opacity on a parent of one of these. */
+.glass {
+  background: var(--surface-glass);
+  backdrop-filter: blur(var(--raw-blur-glass));
+  -webkit-backdrop-filter: blur(var(--raw-blur-glass));
+}
+
+.panel {
+  background: var(--surface-panel);
+  backdrop-filter: blur(var(--raw-blur-panel));
+  -webkit-backdrop-filter: blur(var(--raw-blur-panel));
+}
+
+::selection {
+  background: var(--ink);
+  color: var(--ground);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── word reveal ───────────────────────────────────────────────────────────
+   Blur is part of the arrival, not a decoration: the word resolves out of
+   0.75rem of it, and opacity finishes early so the type is solid while it is
+   still sharpening. Nothing here is clipped — `overflow` shears the halo. */
+.reveal-word {
+  display: inline-block;
+  opacity: 0;
+  filter: blur(0.75rem);
+  transition:
+    opacity 240ms linear,
+    filter 820ms var(--raw-ease);
+  transition-delay: inherit;
+  will-change: opacity, filter;
+}
+
+[data-in] .reveal-word {
+  opacity: 1;
+  /* Forced to 0rem rather than left to settle: a spring approaches its target
+     asymptotically and would leave blur(0.02px) on the element for ever. Both
+     ends are written the same way, or the value type changes mid-flight. */
+  filter: blur(0rem);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal-word {
+    filter: none;
+    transition: opacity 200ms linear;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+/* The films' tracks, shortened for a thumb (see components/film.tsx). */
+:root {
+  --film-track-scale: 1;
+}
+
+@media (max-width: 900px) {
+  :root {
+    --film-track-scale: 0.62;
+  }
+}

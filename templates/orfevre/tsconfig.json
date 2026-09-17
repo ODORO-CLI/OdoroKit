@@ -1,0 +1,30 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "moduleDetection": "force",
+    "jsx": "react-jsx",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+
+    /* `noUncheckedIndexedAccess` est absent, et c'est deliberé.
+
+       Le gabarit n'a jamais ete ecrit contre ce drapeau : l'ajouter reveille
+       treize acces indexes parfaitement surs — une boucle sur les elements
+       qu'on vient de mesurer, un tableau de quatre coins construit deux lignes
+       plus haut. Les satisfaire demanderait de retoucher le code du gabarit
+       pour la commodite de son portage, alors que la consigne etait de ne
+       changer que le moteur. */
+    "noFallthroughCasesInSwitch": true,
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "include": ["src", "odoro.config.ts"]
+}

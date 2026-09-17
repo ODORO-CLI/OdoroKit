@@ -1,0 +1,14 @@
+{
+  "name": "orfevre",
+  "title": "Orfevre",
+  "order": 8,
+  "kind": "site",
+  "description": "Marque de bijoux : blanc sur blanc, deux films scrubes au defilement, une main detouree en WebGL. Une seule encre, baissee a l alpha, pour toute la hierarchie.",
+  "stack": ["Odoro", "React", "three.js", "Lenis", "WebGL"],
+  "tags": ["vitrine", "video", "defilement", "joaillerie"],
+  "source": "Template ODORO d origine, portee de Next 16 vers le moteur Odoro sans toucher au design.",
+  "licence": "Unlicense",
+  "install": "npm install",
+  "dev": "npm run dev",
+  "preview": "preview.jpg"
+}
