@@ -9,7 +9,7 @@
  * @module
  */
 
-import { createReadStream, existsSync, readFileSync, statSync, watch } from 'node:fs'
+import { existsSync, readFileSync, statSync, watch } from 'node:fs'
 import { readFile } from 'node:fs/promises'
 import {
   type IncomingMessage,
@@ -25,6 +25,7 @@ import { cssProviderFor } from '../build/css-provider.js'
 import type { ResolvedConfig } from '../config.js'
 import { type Middleware, transformHtmlWith } from '../plugins.js'
 import { listen } from '../shared/listen.js'
+import { MIME, sendFile } from '../shared/static-file.js'
 import * as log from '../shared/logger.js'
 import { openBrowser } from '../shared/open-browser.js'
 import { urlModule, textModule, workerModule } from '../shared/suffixes.js'
@@ -83,30 +84,6 @@ import {
  * paint without a restart, and the weight does not matter on a local machine.
  */
 const UTILITIES_PATH = `${INTERNAL_PREFIX}utilities.css`
-
-/** MIME types served. */
-const MIME: Readonly<Record<string, string>> = {
-  '.html': 'text/html; charset=utf-8',
-  '.js': 'text/javascript; charset=utf-8',
-  '.mjs': 'text/javascript; charset=utf-8',
-  '.json': 'application/json; charset=utf-8',
-  '.css': 'text/css; charset=utf-8',
-  '.svg': 'image/svg+xml',
-  '.png': 'image/png',
-  '.jpg': 'image/jpeg',
-  '.jpeg': 'image/jpeg',
-  '.gif': 'image/gif',
-  '.webp': 'image/webp',
-  '.avif': 'image/avif',
-  '.ico': 'image/x-icon',
-  '.woff': 'font/woff',
-  '.woff2': 'font/woff2',
-  '.mp4': 'video/mp4',
-  '.webm': 'video/webm',
-  '.txt': 'text/plain; charset=utf-8',
-  '.md': 'text/markdown; charset=utf-8',
-  '.markdown': 'text/markdown; charset=utf-8',
-}
 
 /** Extensions compiled as JavaScript modules. */
 const SCRIPT_EXTENSIONS = ['.ts', '.tsx', '.js', '.jsx', '.mjs'] as const
@@ -387,11 +364,19 @@ export async function startDevServer(config: ResolvedConfig): Promise<DevServer>
     return undefined
   }
 
-  /** Serves a static file. */
-  const serveFile = (response: ServerResponse, file: string): void => {
-    const type = MIME[extname(file).toLowerCase()] ?? 'application/octet-stream'
-    response.writeHead(200, { 'Content-Type': type, 'Cache-Control': 'no-cache' })
-    createReadStream(file).pipe(response)
+  /**
+   * Serves a static file, byte ranges included.
+   *
+   * The range is what makes a `<video>` seekable. Without it a player holds
+   * the first frame and stays there, silently — and a page whose film is
+   * scrubbed by scroll then looks broken while the server looks fine.
+   */
+  const serveFile = (
+    response: ServerResponse,
+    file: string,
+    incoming?: IncomingMessage,
+  ): void => {
+    sendFile(response, file, { range: incoming?.headers.range })
   }
 
   /** Serves the HTML document, with the reload client injected. */
@@ -488,7 +473,7 @@ export async function startDevServer(config: ResolvedConfig): Promise<DevServer>
           const name = last.endsWith('.js') ? last : depFileName(last)
           const file = join(deps.directory, name)
           if (existsSync(file)) {
-            serveFile(response, file)
+            serveFile(response, file, incoming)
             return
           }
           send(
@@ -529,7 +514,7 @@ export async function startDevServer(config: ResolvedConfig): Promise<DevServer>
             if (url.includes('?import')) {
               send(response, wrapAsset(path), MIME['.js'] ?? 'text/javascript')
             } else {
-              serveFile(response, file)
+              serveFile(response, file, incoming)
             }
             return
           }
@@ -546,17 +531,17 @@ export async function startDevServer(config: ResolvedConfig): Promise<DevServer>
               const json = await readFile(file, 'utf8')
               send(response, wrapJson(json), MIME['.js'] ?? 'text/javascript')
             } else {
-              serveFile(response, file)
+              serveFile(response, file, incoming)
             }
             return
           }
-          serveFile(response, file)
+          serveFile(response, file, incoming)
           return
         }
 
         const publicFile = join(config.publicDir, path.replace(/^\//, ''))
         if (existsSync(publicFile) && statSync(publicFile).isFile()) {
-          serveFile(response, publicFile)
+          serveFile(response, publicFile, incoming)
           return
         }
 
@@ -569,7 +554,7 @@ export async function startDevServer(config: ResolvedConfig): Promise<DevServer>
         // documentation tree has no reason to be HTML.
         const index = directoryIndex(publicFile)
         if (index !== undefined) {
-          serveFile(response, index)
+          serveFile(response, index, incoming)
           return
         }
 

@@ -8,33 +8,16 @@
  * @module
  */
 
-import { createReadStream, existsSync, statSync } from 'node:fs'
+import { existsSync, statSync } from 'node:fs'
 import { createServer } from 'node:http'
 import { extname, join, normalize } from 'node:path'
 
 import type { ResolvedConfig } from '../config.js'
 import { isAssetRequest } from '../dev/transform.js'
 import { listen } from '../shared/listen.js'
+import { sendFile } from '../shared/static-file.js'
 import * as log from '../shared/logger.js'
 import { openBrowser } from '../shared/open-browser.js'
-
-/** MIME types served. */
-const MIME: Readonly<Record<string, string>> = {
-  '.html': 'text/html; charset=utf-8',
-  '.js': 'text/javascript; charset=utf-8',
-  '.css': 'text/css; charset=utf-8',
-  '.json': 'application/json; charset=utf-8',
-  '.svg': 'image/svg+xml',
-  '.png': 'image/png',
-  '.jpg': 'image/jpeg',
-  '.webp': 'image/webp',
-  '.ico': 'image/x-icon',
-  '.woff2': 'font/woff2',
-  '.map': 'application/json; charset=utf-8',
-  '.txt': 'text/plain; charset=utf-8',
-  '.md': 'text/markdown; charset=utf-8',
-  '.markdown': 'text/markdown; charset=utf-8',
-}
 
 /** Running preview server. */
 export interface PreviewServer {
@@ -111,13 +94,15 @@ export async function startPreviewServer(
       return
     }
 
-    const type = MIME[extname(file).toLowerCase()] ?? 'application/octet-stream'
+    // L apercu est le dernier filet avant un deploiement : il doit repondre
+    // comme un hebergement statique, donc aux plages d octets aussi. Une
+    // video scrubee au defilement les demande avant tout le reste.
     const immutable = relativePath.startsWith('assets/')
-    response.writeHead(200, {
-      'Content-Type': type,
-      'Cache-Control': immutable ? 'public, max-age=31536000, immutable' : 'no-cache',
+    sendFile(response, file, {
+      cacheControl: immutable ? 'public, max-age=31536000, immutable' : 'no-cache',
+      range: incoming.headers.range,
+      headOnly: incoming.method === 'HEAD',
     })
-    createReadStream(file).pipe(response)
   })
 
   const { port: obtained, requested } = await listen(
