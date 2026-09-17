@@ -1,7 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&family=Raleway:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap');
-@import "tailwindcss";
 
-@theme {
+/* Les familles du gabarit. Elles ne sont plus liees a un generateur
+   d utilitaires : ce sont des variables, et la regle `.font-raleway` plus bas
+   est ce que le balisage emploie. */
+:root {
   --font-sans: "Raleway", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Raleway", sans-serif;
   --font-serif: "Instrument Serif", Georgia, serif;
@@ -44,43 +46,132 @@
   --accent-ink: #b45309;
 }
 
-@layer base {
-  html, body {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    background-color: #fff7f0;
-    color: var(--ink);
-    font-family: var(--font-sans);
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-rendering: optimizeLegibility;
-  }
+/* ============================================================================
+   CE QUE LA REMISE A ZERO DE L AUTRE MOTEUR FOURNISSAIT
 
-  body {
-    overflow-x: hidden;
-  }
+   Le gabarit a ete ecrit au-dessus d une remise a zero qui n est pas la notre,
+   et il comptait dessus sans le dire — c est la nature meme d une remise a
+   zero. Les regles ci-dessous sont la difference exacte entre les deux,
+   relevee en comparant les styles calcules d un jeu d elements dans les deux
+   pages, et non devinee.
 
-  /* Masquer le curseur natif sur pointeur fin — le curseur maison prend la main */
-  @media (hover: hover) and (pointer: fine) {
-    body { cursor: none; }
-    a, button, [role="button"], .cursor-pointer { cursor: none; }
-  }
+   Sans elles, la premiere chose qu on voit est que **tous les liens
+   redeviennent bleus et soulignes** : le navigateur reprend la main sur une
+   ancre dont personne ne dit plus rien.
 
-  ::selection {
-    background: var(--accent);
-    color: #fff;
-  }
+   Ce bloc appartient au gabarit, pas au systeme. Ajouter ces regles a la
+   remise a zero d `@odoro-cli/libs` changerait le rendu de tout projet deja
+   livre, pour le confort d un portage.
+   ========================================================================== */
 
-  /* Styles recommandés pour le scroll lissé de Lenis */
-  html.lenis, html.lenis body { height: auto; }
-  .lenis.lenis-smooth { scroll-behavior: auto !important; }
-  .lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
-  .lenis.lenis-stopped { overflow: hidden; }
-  .lenis.lenis-smooth iframe { pointer-events: none; }
-
-  ::-webkit-scrollbar { width: 0; height: 0; }
+a {
+  color: inherit;
+  text-decoration: inherit;
 }
+
+button,
+input,
+optgroup,
+select,
+textarea {
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  letter-spacing: inherit;
+  background-color: transparent;
+  border-radius: 0;
+}
+
+button,
+[type='button'],
+[type='reset'],
+[type='submit'] {
+  appearance: button;
+}
+
+/* La couleur de filet par defaut suit l encre, au lieu d un gris fixe : c est
+   ce qui rend `border` seul utilisable sans dire de quelle couleur. */
+*,
+::before,
+::after {
+  border-color: currentColor;
+}
+
+/* Une image posee dans une ligne de texte s aligne sur le milieu, pas sur la
+   ligne de base : sans cela elle laisse sous elle le jambage d une lettre. */
+img,
+svg,
+video,
+canvas,
+audio,
+iframe,
+embed,
+object {
+  vertical-align: middle;
+}
+
+/* Notre socle borne les `svg` a la largeur de leur parent ; celui d origine
+   non. Un sigle dessine plus large que sa boite s en trouvait retreci. */
+svg {
+  max-width: none;
+}
+
+hr {
+  height: 0;
+  margin: 0;
+  color: inherit;
+  border-top-width: 1px;
+}
+
+/* ----------------------------------------------------------------------------
+   LE SOCLE DU GABARIT
+
+   Ces regles etaient dans `@layer base`. Elles n y sont plus, et ce n est pas
+   cosmetique : une regle en couche perd contre une regle hors couche, quelle
+   que soit sa specificite. La remise a zero d `@odoro-cli/libs` est hors
+   couche — laissee dans sa couche, la mise en page du gabarit lui cederait le
+   pas, et le fond creme deviendrait blanc.
+---------------------------------------------------------------------------- */
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  background-color: #fff7f0;
+  color: var(--ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+/* `cursor-pointer` venait de la remise a zero de l autre moteur ; la regle qui
+   suit la cible, donc elle doit exister quelque part. */
+.cursor-pointer { cursor: pointer; }
+
+/* Masquer le curseur natif sur pointeur fin — le curseur maison prend la main */
+@media (hover: hover) and (pointer: fine) {
+  body { cursor: none; }
+  a, button, [role="button"], .cursor-pointer { cursor: none; }
+}
+
+::selection {
+  background: var(--accent);
+  color: #fff;
+}
+
+/* Styles recommandés pour le scroll lissé de Lenis */
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+.lenis.lenis-stopped { overflow: hidden; }
+.lenis.lenis-smooth iframe { pointer-events: none; }
+
+::-webkit-scrollbar { width: 0; height: 0; }
+
 
 /* ----------------------------------------------------------------------------
    UTILITAIRES TYPOGRAPHIQUES
@@ -363,3 +454,165 @@
   .loader-word .ch { animation: none; }
   html { scroll-behavior: auto; }
 }
+
+
+/* ============================================================================
+   LES CLASSES QUE LE GENERATEUR NE PRODUIT PAS
+
+   Chacune portait, dans l original, soit une valeur arbitraire, soit un
+   modificateur d opacite, soit une valeur negative, soit une reaction au
+   survol d un parent. Le systeme n en produit aucune : ecrites telles quelles
+   elles ne peindraient rien du tout, en silence. Les declarations ci-dessous
+   sont exactement celles de l original.
+
+   POURQUOI CHAQUE SELECTEUR REPETE SA CLASSE
+
+   Les utilitaires du systeme sont produits a la construction et ecrits
+   **apres** cette feuille dans le paquet final : a specificite egale, c est le
+   dernier qui gagne, donc eux. Repeter la classe monte la specificite d un
+   cran et rend l ordre sans effet.
+   ========================================================================== */
+
+/* ---- Les translucidites.
+   Le systeme ne decline pas d opacite sur une couleur, et n a pas de classe a
+   valeur arbitraire : `color-mix` est ce qui l exprime. */
+.gv-fond-blanc-5.gv-fond-blanc-5 { background-color: color-mix(in srgb, #fff 5%, transparent); }
+.gv-fond-blanc-85.gv-fond-blanc-85 { background-color: color-mix(in srgb, #fff 85%, transparent); }
+.gv-survol-fond-blanc-5.gv-survol-fond-blanc-5:hover { background-color: color-mix(in srgb, #fff 5%, transparent); }
+.gv-survol-fond-blanc-10.gv-survol-fond-blanc-10:hover { background-color: color-mix(in srgb, #fff 10%, transparent); }
+.gv-survol-fond-blanc-30.gv-survol-fond-blanc-30:hover { background-color: color-mix(in srgb, #fff 30%, transparent); }
+.gv-survol-fond-blanc-40.gv-survol-fond-blanc-40:hover { background-color: color-mix(in srgb, #fff 40%, transparent); }
+
+.gv-filet-blanc-10.gv-filet-blanc-10 { border-color: color-mix(in srgb, #fff 10%, transparent); }
+.gv-filet-blanc-15.gv-filet-blanc-15 { border-color: color-mix(in srgb, #fff 15%, transparent); }
+.gv-filet-blanc-60.gv-filet-blanc-60 { border-color: color-mix(in srgb, #fff 60%, transparent); }
+.gv-survol-filet-blanc-30.gv-survol-filet-blanc-30:hover { border-color: color-mix(in srgb, #fff 30%, transparent); }
+.gv-survol-filet-blanc-40.gv-survol-filet-blanc-40:hover { border-color: color-mix(in srgb, #fff 40%, transparent); }
+
+.gv-encre-blanc-40.gv-encre-blanc-40 { color: color-mix(in srgb, #fff 40%, transparent); }
+.gv-encre-blanc-70.gv-encre-blanc-70 { color: color-mix(in srgb, #fff 70%, transparent); }
+.gv-encre-blanc-75.gv-encre-blanc-75 { color: color-mix(in srgb, #fff 75%, transparent); }
+.gv-encre-blanc-90.gv-encre-blanc-90 { color: color-mix(in srgb, #fff 90%, transparent); }
+
+.gv-fond-encre-10.gv-fond-encre-10 { background-color: color-mix(in srgb, var(--ink) 10%, transparent); }
+.gv-fond-nuit.gv-fond-nuit { background-color: #0a0a12; }
+.gv-encre.gv-encre { color: var(--ink); }
+.gv-encre-douce.gv-encre-douce { color: var(--ink-soft); }
+.gv-encre-faible.gv-encre-faible { color: var(--ink-faint); }
+
+/* Le degrade du bouton plein : trois arrets, poses ensemble parce qu un arret
+   seul n a pas de sens hors du degrade qui le contient. */
+.gv-degrade-de.gv-degrade-de { --gv-de: color-mix(in srgb, #fff 75%, transparent); }
+.gv-degrade-par.gv-degrade-par { --gv-par: color-mix(in srgb, #fff 55%, transparent); }
+.gv-degrade-vers.gv-degrade-vers { --gv-vers: color-mix(in srgb, #fff 25%, transparent); }
+.gv-degrade-de.gv-degrade-par.gv-degrade-vers {
+  background-image: linear-gradient(
+    to right,
+    var(--gv-de) 0%,
+    var(--gv-par) 50%,
+    var(--gv-vers) 100%
+  );
+}
+
+.gv-fond-sur-texte.gv-fond-sur-texte {
+  background-clip: text;
+  -webkit-background-clip: text;
+}
+
+/* ---- L echelle de corps, ecrite en pixels par l original. */
+.gv-fs-9.gv-fs-9 { font-size: 9px; }
+.gv-fs-10.gv-fs-10 { font-size: 10px; }
+.gv-fs-11.gv-fs-11 { font-size: 11px; }
+.gv-fs-12.gv-fs-12 { font-size: 12px; }
+.gv-fs-13.gv-fs-13 { font-size: 13px; }
+.gv-fs-135.gv-fs-135 { font-size: 13.5px; }
+.gv-fs-14.gv-fs-14 { font-size: 14px; }
+.gv-fs-15.gv-fs-15 { font-size: 15px; }
+.gv-fs-16.gv-fs-16 { font-size: 16px; }
+.gv-fs-21.gv-fs-21 { font-size: 21px; }
+.gv-fs-44.gv-fs-44 { font-size: 44px; }
+.gv-fs-26r.gv-fs-26r { font-size: 2.6rem; }
+.gv-fs-28r.gv-fs-28r { font-size: 2.8rem; }
+.gv-fs-30r.gv-fs-30r { font-size: 3rem; }
+.gv-fs-325r.gv-fs-325r { font-size: 3.25rem; }
+.gv-fs-geant.gv-fs-geant { font-size: clamp(28px, 6vw, 64px); }
+
+/* ---- Les interlignes et les approches. */
+.gv-lh-1.gv-lh-1 { line-height: 1; }
+.gv-lh-095.gv-lh-095 { line-height: 0.95; }
+.gv-lh-105.gv-lh-105 { line-height: 1.05; }
+.gv-lh-145.gv-lh-145 { line-height: 1.45; }
+.gv-lh-155.gv-lh-155 { line-height: 1.55; }
+.gv-tr-neg-02.gv-tr-neg-02 { letter-spacing: -0.02em; }
+.gv-tr-neg-03.gv-tr-neg-03 { letter-spacing: -0.03em; }
+.gv-tr-10.gv-tr-10 { letter-spacing: 0.1em; }
+.gv-tr-18.gv-tr-18 { letter-spacing: 0.18em; }
+.gv-tr-20.gv-tr-20 { letter-spacing: 0.2em; }
+.gv-tr-22.gv-tr-22 { letter-spacing: 0.22em; }
+.gv-tr-25.gv-tr-25 { letter-spacing: 0.25em; }
+
+/* ---- Les mesures. */
+.gv-h-18.gv-h-18 { height: 18px; }
+.gv-h-22.gv-h-22 { height: 22px; }
+.gv-h-24.gv-h-24 { height: 24px; }
+.gv-h-28r.gv-h-28r { height: 28rem; }
+.gv-h-32r.gv-h-32r { height: 32rem; }
+.gv-w-18.gv-w-18 { width: 18px; }
+.gv-w-22.gv-w-22 { width: 22px; }
+.gv-w-24.gv-w-24 { width: 24px; }
+.gv-w-28r.gv-w-28r { width: 28rem; }
+.gv-w-32r.gv-w-32r { width: 32rem; }
+.gv-gap-14.gv-gap-14 { gap: 14px; }
+.gv-pb-1.gv-pb-1 { padding-bottom: 1px; }
+.gv-min-h-ecran.gv-min-h-ecran { min-height: 100svh; }
+.gv-coin-haut.gv-coin-haut { border-top-left-radius: 2.5rem; border-top-right-radius: 2.5rem; }
+.gv-ombre-interne.gv-ombre-interne { box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.5); }
+.gv-trait-25.gv-trait-25 { stroke-width: 2.5; }
+.gv-duree-200.gv-duree-200 { transition-duration: 200ms; }
+.gv-duree-300.gv-duree-300 { transition-duration: 300ms; }
+.gv-duree-500.gv-duree-500 { transition-duration: 500ms; }
+.gv-duree-1100.gv-duree-1100 { transition-duration: 1100ms; }
+
+/* ---- Les valeurs negatives : le systeme n en produit aucune. */
+.gv-haut-neg-32.gv-haut-neg-32 { top: -8rem; }
+.gv-bas-neg-40.gv-bas-neg-40 { bottom: -10rem; }
+.gv-gauche-neg-32.gv-gauche-neg-32 { left: -8rem; }
+.gv-droite-neg-24.gv-droite-neg-24 { right: -6rem; }
+.gv-z-neg-10.gv-z-neg-10 { z-index: -10; }
+
+/* ---- Les deplacements.
+
+   Ils passent par la propriete `translate`, et non par `transform` : le
+   gabarit anime `transform` en ligne au defilement, et les deux proprietes se
+   composent au lieu de s ecraser. */
+.gv-tx-neg-1.gv-tx-neg-1 { --gv-tx: -0.25rem; translate: var(--gv-tx, 0) var(--gv-ty, 0); }
+.gv-tx-neg-140.gv-tx-neg-140 { --gv-tx: -140%; translate: var(--gv-tx, 0) var(--gv-ty, 0); }
+.gv-survol-monte.gv-survol-monte:hover { --gv-ty: -0.25rem; translate: var(--gv-tx, 0) var(--gv-ty, 0); }
+
+/* ---- L appui, et le survol d un parent.
+   Le systeme n a pas de variante de groupe : la regle est ecrite ici. */
+.gv-appui-95.gv-appui-95:active { scale: 0.95; }
+.gv-appui-97.gv-appui-97:active { scale: 0.97; }
+.group:hover .gv-parent-opaque { opacity: 1; }
+.group:hover .gv-parent-tourne { rotate: 45deg; }
+.group:hover .gv-parent-grossit { scale: 1.05; }
+.group:hover .gv-parent-entre { --gv-tx: 0; translate: var(--gv-tx, 0) var(--gv-ty, 0); }
+.group:hover .gv-parent-traverse { --gv-tx: 140%; translate: var(--gv-tx, 0) var(--gv-ty, 0); }
+
+/* ---- Ce qui ne vaut qu au-dessus de la rupture moyenne. */
+@media (min-width: 768px) {
+  .gv-md-fs-16.gv-md-fs-16 { font-size: 16px; }
+  .gv-md-fs-19.gv-md-fs-19 { font-size: 19px; }
+  .gv-md-fs-23.gv-md-fs-23 { font-size: 23px; }
+  .gv-md-fs-54.gv-md-fs-54 { font-size: 54px; }
+  .gv-md-fs-80.gv-md-fs-80 { font-size: 80px; }
+  .gv-md-fs-96.gv-md-fs-96 { font-size: 96px; }
+  .gv-md-fs-112.gv-md-fs-112 { font-size: 112px; }
+  .gv-md-h-27.gv-md-h-27 { height: 27px; }
+  .gv-md-w-27.gv-md-w-27 { width: 27px; }
+  .gv-md-w-280.gv-md-w-280 { width: 280px; }
+  .gv-md-coin-haut.gv-md-coin-haut { border-top-left-radius: 4rem; border-top-right-radius: 4rem; }
+}
+
+/* ---- La famille du balisage, liee a la variable plus haut. */
+.font-raleway.font-raleway { font-family: var(--font-raleway); }

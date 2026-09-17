@@ -1,17 +1,17 @@
 {
   "name": "odoro-gravity",
   "private": true,
-  "version": "0.1.0",
+  "version": "1.0.0",
   "type": "module",
+  "description": "Studio numerique — quatre-vingt-seize spheres tombent sous une gravite reelle et se reassemblent en sigle.",
   "scripts": {
-    "dev": "vite --port=3000 --host=0.0.0.0",
-    "build": "vite build",
-    "preview": "vite preview",
-    "clean": "rm -rf dist",
-    "lint": "tsc --noEmit"
+    "dev": "odoro dev",
+    "build": "odoro build",
+    "preview": "odoro preview",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@tailwindcss/vite": "^4.1.14",
+    "@odoro-cli/libs": "^2.0.0",
     "lenis": "^1.3.23",
     "lucide-react": "^0.546.0",
     "motion": "^12.23.24",
@@ -20,11 +20,10 @@
     "three": "^0.184.0"
   },
   "devDependencies": {
-    "@types/node": "^22.14.0",
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.1",
     "@types/three": "^0.184.1",
-    "@vitejs/plugin-react": "^5.0.4",
-    "tailwindcss": "^4.1.14",
-    "typescript": "~5.8.2",
-    "vite": "^6.2.3"
+    "odoro": "^2.0.0",
+    "typescript": "~5.8.2"
   }
 }

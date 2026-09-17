@@ -662,8 +662,8 @@ export default function FestivityCanvas({
   }, []);
 
   return (
-    <div ref={containerRef} className="fixed inset-0 w-full h-full z-0 pointer-events-none select-none">
-      <canvas ref={canvasRef} className="w-full h-full block" />
+    <div ref={containerRef} className="o-fixed o-inset-0 o-w-full o-h-full o-z-0 o-pointer-events-none o-select-none">
+      <canvas ref={canvasRef} className="o-w-full o-h-full o-block" />
     </div>
   );
 }

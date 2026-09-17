@@ -20,12 +20,19 @@ const glyph = {
   hidden: { y: '110%' },
   show: {
     y: '0%',
-    transition: { type: 'spring', stiffness: 120, damping: 18, mass: 0.9 },
+    transition: { type: 'spring', stiffness: 120, damping: 18, mass: 0.9 } as const,
   },
 };
 const meta = {
   hidden: { opacity: 0, y: 10 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.7, delay: 0.5, ease: [0.16, 1, 0.3, 1] } },
+  show: {
+    opacity: 1,
+    y: 0,
+    // `as const` : sans lui la courbe s elargit en `number[]`, qu aucun type de
+    // `motion` n accepte. Footer.tsx le faisait deja ; celle-ci avait ete
+    // oubliee. Aucun effet a l execution.
+    transition: { duration: 0.7, delay: 0.5, ease: [0.16, 1, 0.3, 1] as const },
+  },
 };
 
 /**

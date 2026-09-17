@@ -56,11 +56,12 @@
     "kind": "site",
     "description": "Quatre-vingt-seize spheres tombent sous une gravite reelle, se reassemblent en sigle, puis depassent l objectif. Quatre sections en fondu sur une seule horloge.",
     "stack": [
-      "Vite",
+      "Odoro",
       "React",
       "WebGL",
-      "Motion",
-      "Tailwind v4"
+      "three.js",
+      "Lenis",
+      "Motion"
     ],
     "tags": [
       "landing",
@@ -68,7 +69,7 @@
       "physique",
       "defilement"
     ],
-    "source": "Template Gravity de GetLayers, traduite et re-habillee.",
+    "source": "Template Gravity de GetLayers, traduite, re-habillee, puis portee sur le moteur Odoro.",
     "licence": "Unlicense",
     "install": "npm install",
     "dev": "npm run dev",

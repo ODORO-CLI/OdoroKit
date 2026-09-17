@@ -97,9 +97,9 @@ function Reveal({
 // Eyebrow — le libellé d'index, précédé d'une pastille à l'accent vivant.
 function Eyebrow({ children }: { children: React.ReactNode }) {
   return (
-    <span className="eyebrow inline-flex items-center gap-2.5" style={{ color: 'var(--accent-ink)' }}>
+    <span className="eyebrow o-inline-flex o-items-center o-gap-2.5" style={{ color: 'var(--accent-ink)' }}>
       <span
-        className="inline-block w-1.5 h-1.5 rounded-full"
+        className="o-inline-block o-w-1.5 o-h-1.5 o-rounded-full"
         style={{ background: 'var(--accent)', boxShadow: '0 0 10px var(--accent)' }}
       />
       {children}
@@ -218,7 +218,7 @@ export default function App() {
 
   return (
     <div
-      className="relative w-full"
+      className="o-relative o-w-full"
       style={{
         ['--accent' as string]: accent.vivid,
         ['--accent-ink' as string]: accent.ink,
@@ -227,7 +227,7 @@ export default function App() {
     >
       {/* Dégradé de fond fixe, derrière tout — il fond d’une palette à l’autre */}
       <div
-        className="fixed inset-0 -z-10"
+        className="o-fixed o-inset-0 gv-z-neg-10"
         style={{ background, transition: 'background 1.2s cubic-bezier(0.65,0,0.35,1)' }}
       />
 
@@ -251,7 +251,7 @@ export default function App() {
       {/* RAIL D'AVANCEMENT DU SCROLL */}
       {revealed && (
         <motion.div
-          className="rail hidden md:block"
+          className="rail o-hidden md:o-block"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1, delay: 0.6 }}
@@ -265,28 +265,28 @@ export default function App() {
         initial={{ opacity: 0, y: -16 }}
         animate={revealed ? { opacity: 1, y: 0 } : {}}
         transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-        className="fixed top-0 inset-x-0 h-20 md:h-24 z-30 px-6 md:px-12 flex items-center justify-between pointer-events-none"
+        className="o-fixed o-top-0 o-inset-x-0 o-h-20 md:o-h-24 o-z-30 o-px-6 md:o-px-12 o-flex o-items-center o-justify-between o-pointer-events-none"
       >
-        <Magnetic className="pointer-events-auto" strength={0.25}>
-          <a href="#top" className="flex items-center gap-2.5 select-none" aria-label="odoro">
+        <Magnetic className="o-pointer-events-auto" strength={0.25}>
+          <a href="#top" className="o-flex o-items-center o-gap-2.5 o-select-none" aria-label="odoro">
             <BrandMark
-              className="w-[24px] h-[24px] md:w-[27px] md:h-[27px] shrink-0"
+              className="gv-w-24 gv-h-24 gv-md-w-27 gv-md-h-27 o-shrink-0"
               style={{ color: 'var(--accent)', filter: 'drop-shadow(0 0 10px var(--accent))' }}
             />
-            <span className="font-raleway font-semibold text-xl md:text-2xl tracking-[-0.02em] text-[var(--ink)] lowercase">
+            <span className="font-raleway o-font-semibold o-text-xl md:o-text-2xl gv-tr-neg-02 gv-encre o-lowercase">
               odoro
             </span>
           </a>
         </Magnetic>
 
         {/* Groupe de droite — liens de nav et CTA partagent une ligne en desktop */}
-        <div className="flex items-center gap-2 md:gap-3 pointer-events-auto">
-          <nav className="hidden md:flex items-center gap-1 font-raleway text-[13.5px] font-medium text-[var(--ink)] glass rounded-full px-2 py-1.5">
+        <div className="o-flex o-items-center o-gap-2 md:o-gap-3 o-pointer-events-auto">
+          <nav className="o-hidden md:o-flex o-items-center o-gap-1 font-raleway gv-fs-135 o-font-medium gv-encre glass o-rounded-full o-px-2 o-py-1.5">
             {['Réalisations', 'Services', 'Équipe', 'Histoire'].map((l) => (
               <a
                 key={l}
                 href="#"
-                className="px-4 py-1.5 rounded-full hover:bg-white/40 transition-colors duration-300"
+                className="o-px-4 o-py-1.5 o-rounded-full gv-survol-fond-blanc-40 o-transition-colors gv-duree-300"
               >
                 {l}
               </a>
@@ -295,16 +295,16 @@ export default function App() {
 
           {/* CTA — pilule complète en desktop, orbe compact en mobile */}
           <Magnetic strength={0.35}>
-            <button className="group flex items-center gap-[14px] pl-6 pr-1.5 py-1.5 rounded-full glass hover:bg-white/30 transition-colors duration-300 active:scale-[0.97]"
+            <button className="group o-flex o-items-center gv-gap-14 o-pl-6 o-pr-1.5 o-py-1.5 o-rounded-full glass gv-survol-fond-blanc-30 o-transition-colors gv-duree-300 gv-appui-97"
               style={{ transition: 'transform 0.16s var(--ease-out), background 0.3s' }}>
-              <span className="font-raleway font-medium text-[14px] text-[var(--ink)] select-none pb-[1px]">
+              <span className="font-raleway o-font-medium gv-fs-14 gv-encre o-select-none gv-pb-1">
                 Parlons-en
               </span>
               <span
-                className="w-8 h-8 rounded-full flex items-center justify-center text-white shadow-[inset_0_2px_4px_rgba(255,255,255,0.5)] group-hover:scale-105 transition-transform duration-300"
+                className="o-w-8 o-h-8 o-rounded-full o-flex o-items-center o-justify-center o-text-white gv-ombre-interne gv-parent-grossit o-transition-transform gv-duree-300"
                 style={{ background: orb }}
               >
-                <ArrowUpRight className="w-4 h-4 stroke-[2.5] group-hover:rotate-45 transition-transform duration-300" />
+                <ArrowUpRight className="o-w-4 o-h-4 gv-trait-25 gv-parent-tourne o-transition-transform gv-duree-300" />
               </span>
             </button>
           </Magnetic>
@@ -313,24 +313,24 @@ export default function App() {
           <button
             onClick={() => setIsMenuOpen(true)}
             aria-label="Ouvrir le menu"
-            className="md:hidden w-11 h-11 rounded-full glass hover:bg-white/30 flex items-center justify-center text-[var(--ink)] active:scale-95"
+            className="md:o-hidden o-w-11 o-h-11 o-rounded-full glass gv-survol-fond-blanc-30 o-flex o-items-center o-justify-center gv-encre gv-appui-95"
             style={{ transition: 'transform 0.16s var(--ease-out), background 0.3s' }}
           >
-            <MenuIcon className="w-5 h-5" />
+            <MenuIcon className="o-w-5 o-h-5" />
           </button>
         </div>
       </motion.header>
 
       {/* ===================== SECTION 01 — HERO ===================== */}
-      <section id="top" className="relative z-10 min-h-[100svh] w-full flex items-end pointer-events-none">
+      <section id="top" className="o-relative o-z-10 gv-min-h-ecran o-w-full o-flex o-items-end o-pointer-events-none">
         <motion.div
           initial={{ opacity: 0 }}
           animate={revealed ? { opacity: 1 } : {}}
           transition={{ duration: 0.6 }}
-          className="w-full px-6 md:px-12 pb-12 md:pb-16"
+          className="o-w-full o-px-6 md:o-px-12 o-pb-12 md:o-pb-16"
         >
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
-            <div className="flex flex-col gap-5 md:gap-6 items-start">
+          <div className="o-flex o-flex-col md:o-flex-row md:o-items-end o-justify-between o-gap-8">
+            <div className="o-flex o-flex-col o-gap-5 md:o-gap-6 o-items-start">
               <motion.div
                 initial={{ opacity: 0, y: 14 }}
                 animate={revealed ? { opacity: 1, y: 0 } : {}}
@@ -338,10 +338,10 @@ export default function App() {
               >
                 <Eyebrow>Studio numérique indépendant</Eyebrow>
               </motion.div>
-              <h1 className="display text-[3rem] sm:text-7xl md:text-[112px] text-[var(--ink)] select-none">
-                <span className="block overflow-hidden" style={{ paddingBottom: '0.12em', marginBottom: '-0.12em' }}>
+              <h1 className="display gv-fs-30r sm:o-text-7xl gv-md-fs-112 gv-encre o-select-none">
+                <span className="o-block o-overflow-hidden" style={{ paddingBottom: '0.12em', marginBottom: '-0.12em' }}>
                   <motion.span
-                    className="block"
+                    className="o-block"
                     initial={{ y: '110%' }}
                     animate={revealed ? { y: '0%' } : {}}
                     transition={{ duration: 1, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
@@ -349,9 +349,9 @@ export default function App() {
                     Moins de bruit.
                   </motion.span>
                 </span>
-                <span className="block overflow-hidden" style={{ paddingBottom: '0.12em', marginBottom: '-0.12em' }}>
+                <span className="o-block o-overflow-hidden" style={{ paddingBottom: '0.12em', marginBottom: '-0.12em' }}>
                   <motion.span
-                    className="block"
+                    className="o-block"
                     initial={{ y: '110%' }}
                     animate={revealed ? { y: '0%' } : {}}
                     transition={{ duration: 1, delay: 0.38, ease: [0.16, 1, 0.3, 1] }}
@@ -366,18 +366,18 @@ export default function App() {
               initial={{ opacity: 0, y: 18 }}
               animate={revealed ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8, delay: 0.55, ease: [0.16, 1, 0.3, 1] }}
-              className="md:w-[280px] pb-1 md:pb-3 flex-shrink-0 text-left pointer-events-auto"
+              className="gv-md-w-280 o-pb-1 md:o-pb-3 o-shrink-0 o-text-left o-pointer-events-auto"
             >
-              <p className="font-raleway text-[15px] md:text-[16px] leading-[1.45] text-[var(--ink)]">
+              <p className="font-raleway gv-fs-15 gv-md-fs-16 gv-lh-145 gv-encre">
                 Nous concevons des expériences numériques qui écartent la
                 distraction et mettent l'attention en orbite.
               </p>
-              <p className="font-mono text-[10px] tracking-[0.18em] uppercase text-[var(--ink-faint)] mt-6">
+              <p className="o-font-mono gv-fs-10 gv-tr-18 o-uppercase gv-encre-faible o-mt-6">
                 © 2026 — Studio ODORO
               </p>
-              <div className="hidden md:flex items-center gap-2 mt-5 text-[var(--ink-soft)]">
-                <ArrowDown className="w-3.5 h-3.5 animate-bounce" />
-                <span className="font-mono text-[10px] tracking-[0.2em] uppercase">Faites défiler pour entrer</span>
+              <div className="o-hidden md:o-flex o-items-center o-gap-2 o-mt-5 gv-encre-douce">
+                <ArrowDown className="o-w-3.5 o-h-3.5 o-animate-bounce" />
+                <span className="o-font-mono gv-fs-10 gv-tr-20 o-uppercase">Faites défiler pour entrer</span>
               </div>
             </motion.div>
           </div>
@@ -385,19 +385,19 @@ export default function App() {
       </section>
 
       {/* ===================== SECTION 02 — LA CHUTE ===================== */}
-      <section className="relative z-10 min-h-[100svh] w-full flex items-center pt-32 md:pt-40 pb-40 px-6 md:px-12 pointer-events-none">
-        <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-start pointer-events-auto">
-          <div className="lg:col-span-7">
+      <section className="o-relative o-z-10 gv-min-h-ecran o-w-full o-flex o-items-center o-pt-32 md:o-pt-40 o-pb-40 o-px-6 md:o-px-12 o-pointer-events-none">
+        <div className="o-w-full o-grid o-grid-cols-1 lg:o-grid-cols-12 o-gap-10 lg:o-gap-16 o-items-start o-pointer-events-auto">
+          <div className="lg:o-col-span-7">
             <Reveal>
               <Eyebrow>02 — Physique</Eyebrow>
             </Reveal>
             <Reveal delay={0.1}>
-              <h2 className="mt-7 display text-[2.6rem] sm:text-6xl md:text-[80px] text-[var(--ink)]">
-                Quand la structure<br className="hidden sm:block" /> <span className="font-serif-italic" style={{ color: 'var(--accent-ink)' }}>lâche.</span>
+              <h2 className="o-mt-7 display gv-fs-26r sm:o-text-6xl gv-md-fs-80 gv-encre">
+                Quand la structure<br className="o-hidden sm:o-block" /> <span className="font-serif-italic" style={{ color: 'var(--accent-ink)' }}>lâche.</span>
               </h2>
             </Reveal>
             <Reveal delay={0.2}>
-              <p className="mt-8 max-w-lg font-raleway text-[16px] md:text-[19px] leading-[1.55] text-[var(--ink-soft)]">
+              <p className="o-mt-8 o-max-w-lg font-raleway gv-fs-16 gv-md-fs-19 gv-lh-155 gv-encre-douce">
                 Continuez à faire défiler et le champ cède à la gravité. Chaque sphère
                 obéit à une physique réellement simulée — masse, quantité de mouvement,
                 restitution — dégringole et rebondit sur le sol jusqu'à ce que l'énergie
@@ -406,8 +406,8 @@ export default function App() {
             </Reveal>
           </div>
 
-          <div className="lg:col-span-5 lg:pt-3">
-            <Reveal delay={0.25} className="relative flex flex-col gap-4">
+          <div className="lg:o-col-span-5 lg:o-pt-3">
+            <Reveal delay={0.25} className="o-relative o-flex o-flex-col o-gap-4">
               {[
                 { n: '01', k: 'Solveur', v: 'Verlet', u: '· 4 sous-pas', d: 'Empilement stable à 60 fps' },
                 { n: '02', k: 'Restitution', v: '0,65', u: 'rebond', d: "De l'énergie perdue à chaque contact" },
@@ -415,36 +415,36 @@ export default function App() {
               ].map((s) => (
                 <div
                   key={s.k}
-                  className="group relative overflow-hidden flex items-center gap-5 md:gap-7 px-6 md:px-8 py-5 md:py-6 border border-white/60 bg-gradient-to-br from-white/75 to-white/25 backdrop-blur-2xl transition-transform duration-500 hover:-translate-y-1"
+                  className="group o-relative o-overflow-hidden o-flex o-items-center o-gap-5 md:o-gap-7 o-px-6 md:o-px-8 o-py-5 md:o-py-6 o-border-w-1 gv-filet-blanc-60 o-bg-gradient-to-br gv-degrade-de gv-degrade-vers o-backdrop-blur-2xl o-transition-transform gv-duree-500 gv-survol-monte"
                 >
                   {/* balayage de lustre en diagonale au survol */}
-                  <div className="pointer-events-none absolute inset-0 -translate-x-[140%] skew-x-12 bg-gradient-to-r from-transparent via-white/55 to-transparent transition-transform duration-[1100ms] ease-out group-hover:translate-x-[140%]" />
+                  <div className="o-pointer-events-none o-absolute o-inset-0 gv-tx-neg-140 o-skew-x-12 o-bg-gradient-to-r o-from-transparent gv-degrade-par o-to-transparent o-transition-transform gv-duree-1100 o-ease-out gv-parent-traverse" />
 
                   {/* numéro d'index surdimensionné — rempli en dégradé, accroché à l'accent vivant */}
                   <span
-                    className="font-raleway font-light text-[44px] md:text-[54px] leading-none tracking-tight bg-clip-text text-transparent select-none shrink-0"
+                    className="font-raleway o-font-light gv-fs-44 gv-md-fs-54 gv-lh-1 o-tracking-tight gv-fond-sur-texte o-text-transparent o-select-none o-shrink-0"
                     style={{ backgroundImage: 'linear-gradient(140deg, var(--accent) 0%, var(--accent-ink) 100%)' }}
                   >
                     {s.n}
                   </span>
 
-                  <span className="w-px self-stretch my-1.5 bg-[var(--ink)]/10 shrink-0" />
+                  <span className="o-w-px o-self-stretch o-my-1.5 gv-fond-encre-10 o-shrink-0" />
 
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="font-mono text-[10px] tracking-[0.22em] uppercase text-[var(--ink-faint)]">{s.k}</span>
-                      <span className="ml-auto flex items-center gap-1.5">
-                        <span className="relative flex h-1.5 w-1.5">
-                          <span className="absolute inline-flex h-full w-full rounded-full opacity-60 animate-ping" style={{ background: 'var(--accent)' }} />
-                          <span className="relative inline-flex h-1.5 w-1.5 rounded-full" style={{ background: 'var(--accent)' }} />
+                  <div className="o-flex-1 o-min-w-0">
+                    <div className="o-flex o-items-center o-gap-2">
+                      <span className="o-font-mono gv-fs-10 gv-tr-22 o-uppercase gv-encre-faible">{s.k}</span>
+                      <span className="o-ml-auto o-flex o-items-center o-gap-1.5">
+                        <span className="o-relative o-flex o-h-1.5 o-w-1.5">
+                          <span className="o-absolute o-inline-flex o-h-full o-w-full o-rounded-full o-opacity-60 o-animate-ping" style={{ background: 'var(--accent)' }} />
+                          <span className="o-relative o-inline-flex o-h-1.5 o-w-1.5 o-rounded-full" style={{ background: 'var(--accent)' }} />
                         </span>
-                        <span className="font-mono text-[9px] tracking-[0.2em] uppercase text-[var(--ink-faint)]">direct</span>
+                        <span className="o-font-mono gv-fs-9 gv-tr-20 o-uppercase gv-encre-faible">direct</span>
                       </span>
                     </div>
-                    <div className="mt-1.5 font-raleway font-semibold text-[21px] md:text-[23px] leading-tight text-[var(--ink)]">
-                      {s.v} <span className="font-normal text-[15px] text-[var(--ink-faint)]">{s.u}</span>
+                    <div className="o-mt-1.5 font-raleway o-font-semibold gv-fs-21 gv-md-fs-23 o-leading-tight gv-encre">
+                      {s.v} <span className="o-font-normal gv-fs-15 gv-encre-faible">{s.u}</span>
                     </div>
-                    <p className="mt-0.5 font-raleway text-[13px] text-[var(--ink-faint)]">{s.d}</p>
+                    <p className="o-mt-0.5 font-raleway gv-fs-13 gv-encre-faible">{s.d}</p>
                   </div>
                 </div>
               ))}
@@ -454,48 +454,48 @@ export default function App() {
       </section>
 
       {/* ===================== SECTION 03 — LA FORME (le sigle) ===================== */}
-      <section className="relative z-10 min-h-[100svh] w-full flex flex-col justify-between py-36 md:py-44 px-6 md:px-12 pointer-events-none">
-        <div className="pointer-events-auto">
+      <section className="o-relative o-z-10 gv-min-h-ecran o-w-full o-flex o-flex-col o-justify-between o-py-36 md:o-py-44 o-px-6 md:o-px-12 o-pointer-events-none">
+        <div className="o-pointer-events-auto">
           <Reveal>
             <Eyebrow>03 — Forme</Eyebrow>
           </Reveal>
           <Reveal delay={0.1}>
-            <h2 className="mt-7 max-w-2xl display text-[2.6rem] sm:text-6xl md:text-[80px] text-[var(--ink)]">
+            <h2 className="o-mt-7 o-max-w-2xl display gv-fs-26r sm:o-text-6xl gv-md-fs-80 gv-encre">
               Le chaos, puis la <span className="font-serif-italic" style={{ color: 'var(--accent-ink)' }}>forme.</span>
             </h2>
           </Reveal>
         </div>
 
-        <div className="self-end max-w-sm text-left md:text-right pointer-events-auto">
+        <div className="o-self-end o-max-w-sm o-text-left md:o-text-right o-pointer-events-auto">
           <Reveal delay={0.15}>
-            <p className="font-raleway text-[16px] md:text-[19px] leading-[1.55] text-[var(--ink-soft)]">
+            <p className="font-raleway gv-fs-16 gv-md-fs-19 gv-lh-155 gv-encre-douce">
               Sortie de la chute libre, le champ se réassemble — chaque sphère
               trouve sa place dans le sigle ODORO. Promenez le curseur au travers,
               et regardez l'ordre onduler, se disperser, puis se reprendre.
             </p>
           </Reveal>
           <Reveal delay={0.28}>
-            <div className="mt-7 inline-flex items-center gap-2 px-4 py-2.5 rounded-full glass text-[var(--ink-soft)]">
-              <MousePointer2 className="w-3.5 h-3.5" />
-              <span className="font-mono text-[10px] tracking-[0.2em] uppercase">Balayez au travers</span>
+            <div className="o-mt-7 o-inline-flex o-items-center o-gap-2 o-px-4 o-py-2.5 o-rounded-full glass gv-encre-douce">
+              <MousePointer2 className="o-w-3.5 o-h-3.5" />
+              <span className="o-font-mono gv-fs-10 gv-tr-20 o-uppercase">Balayez au travers</span>
             </div>
           </Reveal>
         </div>
       </section>
 
       {/* ============ SECTION 04 — LIBÉRATION (envol dans l'objectif) ============ */}
-      <section className="relative z-10 min-h-[100svh] w-full flex flex-col items-center justify-center text-center py-36 md:py-44 px-6 md:px-12 pointer-events-none">
-        <div className="pointer-events-auto max-w-3xl">
+      <section className="o-relative o-z-10 gv-min-h-ecran o-w-full o-flex o-flex-col o-items-center o-justify-center o-text-center o-py-36 md:o-py-44 o-px-6 md:o-px-12 o-pointer-events-none">
+        <div className="o-pointer-events-auto o-max-w-3xl">
           <Reveal>
             <Eyebrow>04 — Libération</Eyebrow>
           </Reveal>
           <Reveal delay={0.12}>
-            <h2 className="mt-8 display text-[2.8rem] sm:text-7xl md:text-[96px] text-[var(--ink)]">
+            <h2 className="o-mt-8 display gv-fs-28r sm:o-text-7xl gv-md-fs-96 gv-encre">
               Et puis,<br /> <span className="font-serif-italic" style={{ color: 'var(--accent-ink)' }}>l'apesanteur.</span>
             </h2>
           </Reveal>
           <Reveal delay={0.24}>
-            <p className="mt-8 mx-auto max-w-md font-raleway text-[16px] md:text-[19px] leading-[1.55] text-[var(--ink-soft)]">
+            <p className="o-mt-8 o-mx-auto o-max-w-md font-raleway gv-fs-16 gv-md-fs-19 gv-lh-155 gv-encre-douce">
               Le champ tout entier décolle de l'écran et vous dépasse — chaque sphère
               accélère dans l'objectif jusqu'à ce qu'il ne reste que la lumière.
               Moins de bruit.
@@ -515,26 +515,26 @@ export default function App() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-            className="fixed inset-0 z-50 md:hidden"
+            className="o-fixed o-inset-0 o-z-50 md:o-hidden"
           >
-            <div className="absolute inset-0 bg-white/85 backdrop-blur-2xl" onClick={() => setIsMenuOpen(false)} />
-            <div className="relative flex flex-col h-full px-6 pt-6 pb-10">
-              <div className="flex items-center justify-between">
-                <span className="inline-flex items-center gap-2.5 select-none" aria-label="odoro">
-                  <BrandMark className="w-[22px] h-[22px] shrink-0" style={{ color: 'var(--accent)' }} />
-                  <span className="font-raleway font-semibold text-xl tracking-[-0.02em] text-[var(--ink)] lowercase">odoro</span>
+            <div className="o-absolute o-inset-0 gv-fond-blanc-85 o-backdrop-blur-2xl" onClick={() => setIsMenuOpen(false)} />
+            <div className="o-relative o-flex o-flex-col o-h-full o-px-6 o-pt-6 o-pb-10">
+              <div className="o-flex o-items-center o-justify-between">
+                <span className="o-inline-flex o-items-center o-gap-2.5 o-select-none" aria-label="odoro">
+                  <BrandMark className="gv-w-22 gv-h-22 o-shrink-0" style={{ color: 'var(--accent)' }} />
+                  <span className="font-raleway o-font-semibold o-text-xl gv-tr-neg-02 gv-encre o-lowercase">odoro</span>
                 </span>
                 <button
                   onClick={() => setIsMenuOpen(false)}
                   aria-label="Fermer le menu"
-                  className="w-11 h-11 rounded-full glass flex items-center justify-center text-[var(--ink)] active:scale-95"
+                  className="o-w-11 o-h-11 o-rounded-full glass o-flex o-items-center o-justify-center gv-encre gv-appui-95"
                   style={{ transition: 'transform 0.16s var(--ease-out), background 0.3s' }}
                 >
-                  <CloseIcon className="w-5 h-5" />
+                  <CloseIcon className="o-w-5 o-h-5" />
                 </button>
               </div>
 
-              <nav className="mt-auto mb-auto flex flex-col gap-1">
+              <nav className="o-mt-auto o-mb-auto o-flex o-flex-col o-gap-1">
                 {['Réalisations', 'Services', 'Équipe', 'Histoire', 'Contact'].map((l, i) => (
                   <motion.a
                     key={l}
@@ -543,9 +543,9 @@ export default function App() {
                     initial={{ opacity: 0, y: 24 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.12 + i * 0.06, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-                    className="display text-[3.25rem] leading-[1.05] text-[var(--ink)] flex items-center gap-3"
+                    className="display gv-fs-325r gv-lh-105 gv-encre o-flex o-items-center o-gap-3"
                   >
-                    <span className="font-mono text-[12px] font-normal tracking-[0.1em]" style={{ color: 'var(--accent-ink)' }}>
+                    <span className="o-font-mono gv-fs-12 o-font-normal gv-tr-10" style={{ color: 'var(--accent-ink)' }}>
                       0{i + 1}
                     </span>
                     <span>{l}</span>
@@ -556,15 +556,15 @@ export default function App() {
               <a
                 href="mailto:bonjour@odoro.studio"
                 onClick={() => setIsMenuOpen(false)}
-                className="group flex items-center justify-between gap-4 pl-7 pr-2 py-2 rounded-full glass active:scale-[0.97]"
+                className="group o-flex o-items-center o-justify-between o-gap-4 o-pl-7 o-pr-2 o-py-2 o-rounded-full glass gv-appui-97"
                 style={{ transition: 'transform 0.16s var(--ease-out), background 0.3s' }}
               >
-                <span className="font-raleway font-medium text-[15px] text-[var(--ink)]">bonjour@odoro.studio</span>
+                <span className="font-raleway o-font-medium gv-fs-15 gv-encre">bonjour@odoro.studio</span>
                 <span
-                  className="w-10 h-10 rounded-full flex items-center justify-center text-white group-hover:rotate-45 transition-transform duration-300"
+                  className="o-w-10 o-h-10 o-rounded-full o-flex o-items-center o-justify-center o-text-white gv-parent-tourne o-transition-transform gv-duree-300"
                   style={{ background: orb }}
                 >
-                  <ArrowUpRight className="w-4 h-4" />
+                  <ArrowUpRight className="o-w-4 o-h-4" />
                 </span>
               </a>
             </div>

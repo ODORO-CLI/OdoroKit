@@ -128,7 +128,17 @@ export const UNCHANGED = new Set([
 ])
 
 /** Strings inside a `className` expression that are not class lists. */
-export const IGNORED = new Set(['left', 'right', 'center', 'hidden'])
+export const IGNORED = new Set(['left', 'right', 'center'])
+
+/**
+ * Des mots croises ailleurs dans le fichier, qui ressemblent a une classe sans
+ * en etre : une valeur de `display`, un role de palette, le nom d un evenement.
+ *
+ * Ils ne concernent que le controle. Les mettre dans {@link IGNORED} epargnerait
+ * aussi la vraie classe du meme nom — ce qui est arrive une fois, et se voyait
+ * seulement a la capture.
+ */
+export const FAUX_AMIS = new Set(['hidden'])
 
 /** Utilities whose name differs between the two engines. */
 export const RESPELLED = {

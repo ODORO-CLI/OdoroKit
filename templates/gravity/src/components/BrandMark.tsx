@@ -60,7 +60,7 @@ export function BrandLockup({
   wordClassName?: string;
 }) {
   return (
-    <span className={`inline-flex items-center ${className}`} aria-label="odoro" role="img">
+    <span className={`o-inline-flex o-items-center ${className}`} aria-label="odoro" role="img">
       <BrandMark className={markClassName} />
       <span className={wordClassName} aria-hidden="true">
         odoro

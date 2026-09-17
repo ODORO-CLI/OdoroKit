@@ -23,6 +23,18 @@
  * missed, or a word that merely looks like one; either way a human should see
  * it.
  *
+ * ## La seconde question : une classe du gabarit prefixee a tort
+ *
+ * L erreur symetrique existe, et elle est plus sournoise. `glass`,
+ * `cursor-pointer`, `animate-fade-in` sont declarees dans la feuille du
+ * gabarit — ce sont les siennes. Notre systeme connait par hasard les memes
+ * noms sous `o-`, et la passe les a donc prefixees : le balisage porte
+ * `o-glass`, qui existe et ne ressemble pas a ce que la feuille dessinait.
+ *
+ * Rien ne casse. La surface de verre prend simplement l apparence d une autre.
+ * Le controle lit donc les selecteurs de la feuille du gabarit et verifie
+ * qu aucun n a ete traduit.
+ *
  * ## Why it can be answered, and why it errs towards noise
  *
  * A bare `grid` in a string may be a class or the value of `display`. The
@@ -63,7 +75,13 @@ const KNOWN = new Set(
 )
 
 /** What the template declares as its own, which must stay unprefixed. */
-let table = { RENAMED: {}, UNCHANGED: new Set(), IGNORED: new Set(), RESPELLED: {} }
+let table = {
+  RENAMED: {},
+  UNCHANGED: new Set(),
+  IGNORED: new Set(),
+  FAUX_AMIS: new Set(),
+  RESPELLED: {},
+}
 try {
   table = await import(`./lib/${name}-classes.mjs`)
 } catch {
@@ -103,6 +121,7 @@ for (const file of sources(folder)) {
       if (bare.startsWith('o-')) continue
       if (table.UNCHANGED?.has(token) === true) continue
       if (table.IGNORED?.has(token) === true) continue
+      if (table.FAUX_AMIS?.has(token) === true) continue
       if (table.RENAMED !== undefined && Object.values(table.RENAMED).includes(token))
         continue
 
@@ -118,9 +137,53 @@ for (const file of sources(folder)) {
   }
 }
 
-if (found.size === 0) {
-  console.log(`${name} : aucune classe restee sans prefixe.`)
-} else {
+/* ---- Seconde question : les classes que le gabarit declare lui-meme. ---- */
+
+/** Les feuilles du gabarit. */
+function stylesheets(directory, out = []) {
+  for (const entry of readdirSync(directory, { withFileTypes: true })) {
+    if (['node_modules', '.next', 'dist'].includes(entry.name)) continue
+    const path = join(directory, entry.name)
+    if (entry.isDirectory()) stylesheets(path, out)
+    else if (entry.name.endsWith('.css')) out.push(path)
+  }
+  return out
+}
+
+const propres = new Set()
+for (const file of stylesheets(folder)) {
+  for (const match of readFileSync(file, 'utf8').matchAll(/\.([a-zA-Z][\w-]*)/g)) {
+    propres.add(match[1])
+  }
+}
+
+const revendiquees = new Set([
+  ...(table.UNCHANGED ?? []),
+  ...Object.values(table.RENAMED ?? {}),
+])
+
+/** Une classe de la feuille que la passe prefixerait, et qui n est pas declaree. */
+const usurpees = [...propres].filter(
+  (nom) => !revendiquees.has(nom) && KNOWN.has(`o-${nom}`),
+)
+
+if (usurpees.length > 0) {
+  console.error(
+    `\n${name} : ${String(usurpees.length)} classe(s) declaree(s) par la feuille ` +
+      `du gabarit que la passe prendrait pour les notres :\n`,
+  )
+  for (const nom of usurpees.sort()) console.error(`  · ${nom}`)
+  console.error(
+    '\nLes ajouter a UNCHANGED. Sans cela le balisage porte `o-' +
+      (usurpees[0] ?? 'x') +
+      '`, qui existe et ne dessine pas la meme chose.\n',
+  )
+  process.exitCode = 1
+}
+
+if (found.size === 0 && usurpees.length === 0) {
+  console.log(`${name} : aucune classe egaree, dans un sens ni dans l autre.`)
+} else if (found.size > 0) {
   console.error(
     `\n${name} : ${String(found.size)} nom(s) que la feuille connait sous \`o-\`, ` +
       `ecrits sans leur prefixe :\n`,

@@ -81,6 +81,18 @@ const { RENAMED, UNCHANGED, RESPELLED, IGNORED } = await import(
   `./lib/${name}-classes.mjs`
 )
 
+/*
+ * `IGNORED` et `FAUX_AMIS` ne servent pas la meme chose, et les confondre coute
+ * cher. `IGNORED` nomme les valeurs qu une expression de `className` compare —
+ * `side === "left"` — et que cette passe rencontre donc au milieu de vraies
+ * listes. `FAUX_AMIS`, lui, ne concerne que le controle : des mots croises
+ * ailleurs dans le fichier, qui ressemblent a des classes sans en etre.
+ *
+ * Les avoir melanges a laisse passer `hidden` : mis en exception pour taire le
+ * `overflow: hidden` d un module, il a aussi epargne la vraie classe `hidden`
+ * du bandeau, qui montrait alors sa navigation de bureau sur un telephone.
+ */
+
 /** The classes our generator actually produces. */
 const KNOWN = new Set(
   [

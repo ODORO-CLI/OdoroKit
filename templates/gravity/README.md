@@ -147,3 +147,45 @@ La couleur, la typographie, l'espacement et la copie sont à vous.
 
 [Unlicense](LICENSE.md) — domaine public, comme les templates GetLayers dont ce
 projet est issu.
+
+## Le portage sur le moteur Odoro
+
+Ce gabarit tournait sur un autre moteur de construction et un autre générateur
+d'utilitaires. Le design n'a pas bougé ; ce qui a changé tient en quatre points.
+
+| Avant | Après |
+| --- | --- |
+| Un moteur de construction tiers | `odoro dev`, `odoro build`, `odoro preview` |
+| Utilitaires d'un générateur tiers | Utilitaires `o-` du système, plus les classes du projet |
+| `@theme` | Des variables CSS ordinaires |
+| `@layer base` | Les mêmes règles, hors couche |
+
+La table de correspondance est dans `scripts/lib/gravity-classes.mjs`, à la
+racine du dépôt. Six cent quarante classes sont passées par elle.
+
+### Trois choses qui ne se voient pas dans un diff
+
+**`@layer base` a été déroulé.** Une règle en couche perd contre une règle hors
+couche, quelle que soit sa spécificité. La remise à zéro d'`@odoro-cli/libs`
+est hors couche : laissé dans sa couche, le socle du gabarit lui cédait le pas
+et le fond crème devenait blanc.
+
+**Un bloc de compatibilité a été ajouté.** Le gabarit s'appuyait sans le dire
+sur la remise à zéro de l'autre moteur. La différence exacte entre les deux a
+été relevée en comparant les styles calculés de quinze balises sur vingt
+propriétés — pas devinée — et le bloc en tête de `src/index.css` la comble.
+Sans lui, tous les liens redeviennent bleus et soulignés.
+
+**Les sélecteurs des classes ajoutées répètent leur classe.** Les utilitaires du
+système sont écrits après cette feuille dans le paquet final : à spécificité
+égale, c'est le dernier qui gagne.
+
+### Ce que la comparaison peut et ne peut pas dire
+
+La scène est une simulation physique : quatre-vingt-seize sphères qui tombent,
+jamais deux fois de la même façon. Comparer les captures de la page d'origine à
+elle-même donne déjà jusqu'à quatre-vingts pour cent de pixels différents — le
+rendu de la scène n'est pas jugeable ainsi.
+
+Ce qui l'est : la hauteur du document, identique au pixel dans les deux
+largeurs, et les captures où la scène est au repos, qui coïncident.
