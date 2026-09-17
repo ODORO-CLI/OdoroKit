@@ -25,6 +25,7 @@ import { aliasPlugin } from './alias-plugin.js'
 import { assetUrls, buildManifest, chunksFor } from './manifest.js'
 import { prerender } from './prerender.js'
 import { assetsPlugin } from './assets.js'
+import { ASSET_EXTENSIONS } from '../dev/transform.js'
 
 /** Normalises a path to URL separators. */
 function toPosix(path: string): string {
@@ -237,20 +238,14 @@ export async function buildProject(config: ResolvedConfig): Promise<BuildOutput>
       'process.env.NODE_ENV': JSON.stringify('production'),
       ...config.define,
     },
-    loader: {
-      '.svg': 'file',
-      '.png': 'file',
-      '.jpg': 'file',
-      '.jpeg': 'file',
-      '.gif': 'file',
-      '.webp': 'file',
-      '.avif': 'file',
-      '.ico': 'file',
-      '.woff': 'file',
-      '.woff2': 'file',
-      '.mp4': 'file',
-      '.webm': 'file',
-    },
+    /*
+     * La meme liste que celle du serveur de developpement, et non une copie.
+     *
+     * Les deux ont diverge : le `.ttf` manquait aux deux, et rien ne l aurait
+     * dit tant qu un gabarit n en embarquerait pas. Une seule liste ne peut
+     * plus se desaccorder d elle-meme.
+     */
+    loader: Object.fromEntries(ASSET_EXTENSIONS.map((suffixe) => [suffixe, 'file'])),
     plugins: [
       // The order is that of resolution: the suffixes first, because they
       // change the target; the aliases next; the pass over the sources last, it

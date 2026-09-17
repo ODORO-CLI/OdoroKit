@@ -248,8 +248,15 @@ function rewriteExpression(code, where) {
   return out
 }
 
-/** La forme d un mot qui pourrait etre un nom de classe. */
-const SHAPE = /^!?[a-z][a-z0-9:/[\]().,%_-]*$/
+/** La forme d un mot qui pourrait etre un nom de classe.
+ *
+ * Le tiret de tete compte. Sans lui, `-inset-y-[10%]` etait refuse, et comme
+ * la regle exige que **tous** les mots d une chaine aient cette forme, la
+ * liste entiere passait a la trappe — sans rien signaler. Une carte de trois
+ * dispositions n en a vu qu une traduite, la photographie du hero a perdu son
+ * bloc englobant, et la page s est affichee blanche.
+ */
+const SHAPE = /^-?!?[a-z][a-z0-9:/[\]().,%_-]*$/
 
 /**
  * Une chaine hors attribut est-elle une liste de classes ?

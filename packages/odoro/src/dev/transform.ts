@@ -43,6 +43,7 @@ export const STYLE_EXTENSIONS = ['.css'] as const
 
 /** Extensions handled as importable static assets. */
 export const ASSET_EXTENSIONS = [
+  // Images
   '.svg',
   '.png',
   '.jpg',
@@ -51,10 +52,38 @@ export const ASSET_EXTENSIONS = [
   '.webp',
   '.avif',
   '.ico',
+
+  /*
+   * Polices — les quatre formats, pas seulement le moderne.
+   *
+   * Un gabarit qui embarque ses coupes statiques les livre souvent en `.ttf` :
+   * la version variable est en `woff2`, les instances ne le sont pas toujours.
+   * Sans le `.ttf` ici, la construction s arrete sur « No loader is configured
+   * for ".ttf" files » — ce qui au moins se voit, contrairement a la plupart
+   * des lacunes de ce fichier.
+   */
   '.woff',
   '.woff2',
+  '.ttf',
+  '.otf',
+  '.eot',
+
+  // Video et audio
   '.mp4',
+  '.m4v',
   '.webm',
+  '.mov',
+  '.ogv',
+  '.mp3',
+  '.m4a',
+  '.wav',
+  '.oga',
+
+  // Ce qu une scene demande
+  '.glb',
+  '.gltf',
+  '.hdr',
+  '.pdf',
 ] as const
 
 /**

@@ -1,0 +1,24 @@
+{
+  "name": "socle",
+  "title": "Socle",
+  "order": 4,
+  "kind": "starter",
+  "description": "Le socle dont les autres derivent : ressorts partout, texte anime, defilement lisse, grille adaptative en rem, composition posee au pixel depuis une maquette.",
+  "stack": [
+    "Odoro",
+    "React",
+    "react-spring",
+    "Lenis",
+    "three.js"
+  ],
+  "tags": [
+    "socle",
+    "marketing",
+    "animation"
+  ],
+  "source": "Socle ODORO d origine, porte de Next 16 vers le moteur Odoro sans toucher au design.",
+  "licence": "Unlicense",
+  "install": "npm install",
+  "dev": "npm run dev",
+  "preview": "preview.jpg"
+}

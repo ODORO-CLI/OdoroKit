@@ -35,6 +35,18 @@
  * Le controle lit donc les selecteurs de la feuille du gabarit et verifie
  * qu aucun n a ete traduit.
  *
+ * ## La troisieme question : le meme nom, une autre valeur
+ *
+ * La plus sournoise des trois. Le gabarit declare `--ease-entrance:
+ * cubic-bezier(0.2, 0, 0, 1)` dans son theme ; notre systeme connait, par
+ * hasard, un `o-ease-entrance` qui vaut `cubic-bezier(0, 0, 0, 1)`. La passe a
+ * donc prefixe la classe — elle existe chez nous — et la courbe a change sans
+ * qu un seul nom bouge.
+ *
+ * Rien dans le balisage ne le montre : `o-ease-entrance` a l air juste. Le
+ * controle lit donc le bloc `@theme` du gabarit et exige que tout jeton dont
+ * notre systeme connait l utilitaire homonyme soit revendique par la table.
+ *
  * ## Why it can be answered, and why it errs towards noise
  *
  * A bare `grid` in a string may be a class or the value of `display`. The
@@ -100,8 +112,15 @@ function sources(directory, found = []) {
   return found
 }
 
-/** A token that could be a class name of the other engine. */
-const SHAPE = /^!?[a-z][a-z0-9:/[\]().,%_-]*$/
+/** A token that could be a class name of the other engine.
+ *
+ * Le tiret de tete compte. Sans lui, `-inset-y-[10%]` etait refuse, et comme
+ * la regle exige que **tous** les mots d une chaine aient cette forme, la
+ * liste entiere passait a la trappe — sans rien signaler. Une carte de trois
+ * dispositions n en a vu qu une traduite, la photographie du hero a perdu son
+ * bloc englobant, et la page s est affichee blanche.
+ */
+const SHAPE = /^-?!?[a-z][a-z0-9:/[\]().,%_-]*$/
 
 const found = new Map()
 
@@ -181,7 +200,65 @@ if (usurpees.length > 0) {
   process.exitCode = 1
 }
 
-if (found.size === 0 && usurpees.length === 0) {
+/* ---- Troisieme question : les jetons homonymes. ---- */
+
+/** Les familles d utilitaires qu un jeton de theme engendre. */
+const FAMILLES = {
+  '--color-': ['bg', 'text', 'border'],
+  '--text-': ['text'],
+  '--radius-': ['rounded'],
+  '--leading-': ['leading'],
+  '--font-': ['font'],
+  '--blur-': ['backdrop-blur'],
+  '--ease-': ['ease'],
+  '--duration-': ['duration'],
+}
+
+const homonymes = []
+{
+  const feuille = stylesheets(folder)
+    .map((f) => readFileSync(f, 'utf8'))
+    .join('\n')
+  const ouverture = /@theme(?:\s+inline)?\s*\{/.exec(feuille)
+  if (ouverture !== null) {
+    const open = ouverture.index + ouverture[0].length - 1
+    let depth = 1
+    let index = open + 1
+    while (depth > 0 && index < feuille.length) {
+      if (feuille[index] === '{') depth += 1
+      else if (feuille[index] === '}') depth -= 1
+      index += 1
+    }
+    for (const match of feuille.slice(open + 1, index - 1).matchAll(/(--[\w-]+)\s*:/g)) {
+      for (const [espace, roots] of Object.entries(FAMILLES)) {
+        if (!match[1].startsWith(espace)) continue
+        const jeton = match[1].slice(espace.length)
+        for (const root of roots) {
+          const nom = `${root}-${jeton}`
+          if (!KNOWN.has(`o-${nom}`)) continue
+          if (revendiquees.has(nom)) continue
+          if (table.RENAMED?.[nom] !== undefined) continue
+          homonymes.push(nom)
+        }
+      }
+    }
+  }
+}
+
+if (homonymes.length > 0) {
+  console.error(
+    `\n${name} : ${String(homonymes.length)} jeton(s) du gabarit dont notre systeme ` +
+      `connait l homonyme :\n`,
+  )
+  for (const nom of [...new Set(homonymes)].sort()) console.error(`  · ${nom}`)
+  console.error(
+    '\nLa passe les prefixe, et la valeur devient la notre au lieu de la leur.\n' +
+      'Les mettre dans RENAMED, avec la declaration du gabarit.\n',
+  )
+  process.exitCode = 1
+}
+
+if (found.size === 0 && usurpees.length === 0 && homonymes.length === 0) {
   console.log(`${name} : aucune classe egaree, dans un sens ni dans l autre.`)
 } else if (found.size > 0) {
   console.error(

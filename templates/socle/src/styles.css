@@ -1,0 +1,692 @@
+/* ===========================================================================
+   La feuille du projet.
+
+   Les deux premiers etages — les primitives et les roles — sont ceux de
+   l original, mot pour mot. Le troisieme ne lie plus des jetons a un
+   generateur d utilitaires : il declare en CSS ordinaire ce que le balisage
+   emploie, et les mesures ecrites en valeurs arbitraires deviennent des
+   classes `sn-*` avec la meme declaration.
+
+   Ces regles-la n ont pas ete ecrites a la main : elles sont derivees du bloc
+   `@theme` ci-dessous par `scripts/derive-template-classes.mjs`. Soixante-dix
+   d entre elles sont des positions absolues tirees de la maquette, au quart de
+   rem pres, et une main qui recopie deux cents fois de l arithmetique en
+   manque une sans que personne sache laquelle.
+   =========================================================================== */
+
+/* ---------------------------------------------------------------------------
+   LES POLICES
+
+   Google Sans Flex, telle que la maquette la pose. Quatre coupes statiques
+   pour le corps, et la version variable pour ce qui est assez grand pour que
+   la taille optique se voie — une coupe 24 pt epaissit ses traits pour tenir a
+   24 pt, ce qui est juste pour du texte courant et faux pour un sigle de 801
+   pixels.
+   --------------------------------------------------------------------------- */
+@font-face {
+  font-family: 'Google Sans Flex';
+  font-style: normal;
+  font-weight: 100;
+  font-display: swap;
+  src: url('./fonts/GoogleSansFlex_24pt-Thin.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Google Sans Flex';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url('./fonts/GoogleSansFlex_24pt-Light.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Google Sans Flex';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./fonts/GoogleSansFlex_24pt-Regular.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Google Sans Flex';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('./fonts/GoogleSansFlex_24pt-Medium.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Google Sans Flex Display';
+  font-style: normal;
+  font-weight: 1 1000;
+  font-display: swap;
+  src: url('./fonts/GoogleSansFlex-Variable-latin.woff2') format('woff2');
+}
+
+:root {
+  --font-google-sans-flex: 'Google Sans Flex';
+  --font-google-sans-flex-display: 'Google Sans Flex Display';
+}
+
+/* ---------------------------------------------------------------------------
+   TIER 1 — PRIMITIVES  (`--raw-*`)
+   Raw literal values. The only tier allowed to contain a hex/px/ms literal.
+   Never referenced in markup, never bound into @theme. Rename freely.
+   Grammar: --raw-<category>-<name>[-<shade>]
+   See obsidian/frontend/design-system.md → "Token naming convention".
+
+   Every value below is read from the Figma frame "Concept 3" (1469:1302),
+   laid out at a 1440 px base width. Sizes are stored in rem at 16 px = 1 rem,
+   so they stay proportional under the adaptive grid.
+   --------------------------------------------------------------------------- */
+:root {
+  /* Neutrals — Figma uses pure black/white plus two greys */
+  --raw-color-white: #ffffff;
+  --raw-color-white-85: rgba(255, 255, 255, 0.85); /* contact form panel */
+  --raw-color-white-50: rgba(255, 255, 255, 0.5); /* dimmed display heading */
+  --raw-color-white-0: rgba(255, 255, 255, 0); /* wordmark gradient end */
+  --raw-color-black: #000000;
+  --raw-color-black-50: rgba(0, 0, 0, 0.5); /* card index numerals */
+  --raw-color-black-10: rgba(0, 0, 0, 0.1); /* hairline divider */
+  --raw-color-grey-100: #f4f4f4; /* icon tiles, media placeholder */
+  --raw-color-grey-150-80: rgba(243, 243, 243, 0.8); /* nav bar + glass cards */
+
+  /* Marque ODORO — l'orange du logo fourni par l'agence */
+  --raw-color-orange-500: #f97316;
+
+  /* Hero sky — Figma "image 643" (1469:1300), a top-to-bottom ramp */
+  --raw-gradient-sky: linear-gradient(
+    to bottom,
+    rgb(26, 80, 109) 0%,
+    rgb(50, 109, 143) 21.154%,
+    rgb(84, 136, 161) 49.529%,
+    rgb(111, 159, 181) 59.513%,
+    rgb(138, 182, 200) 69.496%,
+    rgb(192, 227, 239) 89.464%
+  );
+
+  /* Wordmark fill — Figma "aerra" (1476:1511), white fading out at 82.23% */
+  --raw-gradient-wordmark: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 1) 0%,
+    rgba(255, 255, 255, 0) 82.23%
+  );
+
+  /* Type scale — 16 / 20 / 36 / 80 / 801.395 px in the Figma frame */
+  --raw-font-size-100: 1rem;
+  --raw-font-size-200: 1.25rem;
+  --raw-font-size-300: 2.25rem;
+  --raw-font-size-400: 5rem;
+  --raw-font-size-500: 50.0872rem;
+
+  --raw-leading-flat: 1; /* display headings */
+  --raw-leading-tight: 1.1; /* clip floor for TextEngine overflow */
+  --raw-leading-normal: 1.2; /* every other text node in the frame */
+
+  /* Corner radii — 6 / 8 / 10 px */
+  --raw-radius-100: 0.375rem;
+  --raw-radius-200: 0.5rem;
+  --raw-radius-300: 0.625rem;
+
+  /* Backdrop blur — 10 px nav and glass cards, 37.5 px contact panel */
+  --raw-blur-100: 0.625rem;
+  --raw-blur-200: 2.34375rem;
+
+  --raw-duration-fast: 150ms;
+  --raw-duration-normal: 250ms;
+  --raw-duration-slow: 700ms;
+}
+
+/* ---------------------------------------------------------------------------
+   TIER 2 — SEMANTIC  (role names, no namespace prefix)
+   Purpose, not appearance. Always `var(--raw-*)` — never a literal.
+   This is the themeable layer: any re-theme overrides HERE, which is why these
+   are separate from the @theme bindings below (see the note there).
+   Grammar: --<role>[-<variant>][-<state>]
+   --------------------------------------------------------------------------- */
+:root {
+  --background: var(--raw-color-white);
+  --foreground: var(--raw-color-black);
+  --foreground-muted: var(--raw-color-black-50);
+
+  --surface-muted: var(--raw-color-grey-100);
+  /* Card face — the same glass recipe as the nav bar, so the two read as one
+     material. Kept as its own role: they are different surfaces that happen to
+     share a look, and either may be re-themed without the other. */
+  --surface-glass: var(--raw-color-grey-150-80);
+  --surface-nav: var(--raw-color-grey-150-80);
+  --surface-panel: var(--raw-color-white-85);
+
+  /* Text sitting on top of a photograph */
+  --on-media: var(--raw-color-white);
+  --on-media-muted: var(--raw-color-white-50);
+
+  --action-primary: var(--raw-color-black);
+  --action-primary-foreground: var(--raw-color-white);
+  --action-secondary: var(--raw-color-white);
+
+  --border-subtle: var(--raw-color-black-10);
+  --border-field: var(--raw-color-black);
+
+  --brand-mark: var(--raw-color-orange-500);
+  --backdrop-hero: var(--raw-gradient-sky);
+  --wordmark-fill: var(--raw-gradient-wordmark);
+
+  --font-size-body: var(--raw-font-size-100);
+  --font-size-lead: var(--raw-font-size-200);
+  --font-size-title: var(--raw-font-size-300);
+  --font-size-display: var(--raw-font-size-400);
+  --font-size-wordmark: var(--raw-font-size-500);
+
+  --line-height-flat: var(--raw-leading-flat);
+  --line-height-display: var(--raw-leading-tight);
+  --line-height-body: var(--raw-leading-normal);
+
+  --corner-control: var(--raw-radius-100);
+  --corner-button: var(--raw-radius-200);
+  --corner-card: var(--raw-radius-300);
+
+  --backdrop-nav: var(--raw-blur-100);
+  --backdrop-glass: var(--raw-blur-100);
+  --backdrop-panel: var(--raw-blur-200);
+
+  --duration-fast: var(--raw-duration-fast);
+  --duration-normal: var(--raw-duration-normal);
+  /* Long enough for the CTA sheen to read as a sweep rather than a flash. */
+  --duration-slow: var(--raw-duration-slow);
+}
+
+/* ---------------------------------------------------------------------------
+   THEME BINDINGS — map semantic tokens into Tailwind namespaces.
+   Every entry is exactly `--<tw-namespace>-<role>: var(--<role>)`.
+   `inline` is required: it inlines the var() into each utility, so overrides on
+   the Tier 2 tokens above cascade. Binding a literal here instead would freeze
+   the value and break theming.
+
+   Only these namespaces generate utilities (verified against tailwindcss
+   v4.3.3): --color-* --spacing-* --radius-* --leading-* --tracking-* --text-*
+   --font-* --ease-* --breakpoint-* --container-* --shadow-* --blur-* --animate-*
+   NOTE: there is NO --duration-* namespace in v4 — `duration-fast` compiles to
+   nothing. Durations stay Tier 2 only and are used as duration-[var(--duration-fast)].
+   --------------------------------------------------------------------------- */
+/* ---------------------------------------------------------------------------
+   TIER 3 — LES JETONS, EN VARIABLES
+
+   Ils ne sont plus lies a un generateur d utilitaires. Les classes que le
+   balisage emploie sont declarees plus bas, derivees de ce meme bloc — dont
+   les ruptures, qui ne sont pas les habituelles : `lg:` vaut ici 1280 px et
+   `tablet:` 540 px.
+   --------------------------------------------------------------------------- */
+:root {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-foreground-muted: var(--foreground-muted);
+  --color-surface-muted: var(--surface-muted);
+  --color-surface-glass: var(--surface-glass);
+  --color-surface-nav: var(--surface-nav);
+  --color-surface-panel: var(--surface-panel);
+  --color-on-media: var(--on-media);
+  --color-on-media-muted: var(--on-media-muted);
+  --color-action-primary: var(--action-primary);
+  --color-action-primary-foreground: var(--action-primary-foreground);
+  --color-action-secondary: var(--action-secondary);
+  --color-border-subtle: var(--border-subtle);
+  --color-border-field: var(--border-field);
+  --color-brand-mark: var(--brand-mark);
+
+  --font-sans: var(--font-google-sans-flex);
+  /* Variable cut, for type large enough that optical size matters. */
+  --font-display: var(--font-google-sans-flex-display);
+
+  --text-body: var(--font-size-body);
+  --text-lead: var(--font-size-lead);
+  --text-title: var(--font-size-title);
+  --text-display: var(--font-size-display);
+  --text-wordmark: var(--font-size-wordmark);
+
+  --leading-flat: var(--line-height-flat);
+  /* Leading floor for clipped TextEngine reveals — see
+     obsidian/frontend/text-engine.md → "Alignment & line-height". */
+  --leading-display: var(--line-height-display);
+  --leading-body: var(--line-height-body);
+
+  --radius-control: var(--corner-control);
+  --radius-button: var(--corner-button);
+  --radius-card: var(--corner-card);
+
+  --blur-nav: var(--backdrop-nav);
+  --blur-glass: var(--backdrop-glass);
+  --blur-panel: var(--backdrop-panel);
+
+  --ease-entrance: cubic-bezier(0.2, 0, 0, 1);
+
+  /* Breakpoints exist to name the three designs, so they line up exactly with
+     GRID_BREAKPOINTS in grid.config.ts:
+       (default) phone   < 540
+       tablet:           540 – 1279   — the stacked layout, fixed 16 px root
+       lg:               ≥ 1280       — the Figma 1440 composition
+     `md:` is left at Tailwind's 768 and deliberately unused for layout, so a
+     stray `md:` can never half-apply the desktop composition to a tablet.
+     Media-query rem always resolves against 16 px, never the adaptive root. */
+  --breakpoint-tablet: 33.75rem; /* 540px */
+  --breakpoint-lg: 80rem; /* 1280px — the Figma composition starts here */
+}
+
+
+/* Adaptive scaling grid — scales the root font-size with the viewport so the
+   rem-based layout stays proportional. The breakpoint divides FONT_BASE
+   (16px) by the design base width its range was laid out at:
+     font-size: 16 * 100 / baseWidth  (vw)
+
+   There is a single breakpoint because there is a single design: the whole
+   page is laid out at 1440 and must keep those proportions everywhere, so it
+   scales from 1440 down here and from 1440 up via <AdaptiveGrid coef={1} />.
+   Keep in sync with src/components/common/grid/grid.config.ts. */
+html {
+  font-size: 16px;
+}
+
+@media (max-width: 1440px) {
+  html {
+    font-size: 1.111111vw; /* 16 * 100 / 1440 */
+  }
+}
+
+/* The tablet range does **not** scale: a fixed 16 px root with a fluid
+   stacked layout. Scaling it would put one end of a 2.4× width range wrong
+   whichever base was chosen — the 1440 composition at 834 px measured 9.3 px
+   body copy, and a tablet base of 834 ran from 10.7 px to 24.5 px across the
+   same range. See grid.config.ts. */
+@media (max-width: 1279px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+/* Phones re-base to the 430 design they are laid out at. */
+@media (max-width: 539px) {
+  html {
+    font-size: 3.72093vw; /* 16 * 100 / 430 */
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+}
+
+
+
+
+
+/* Figma trims every text box to the cap/alphabetic edges, so its y-positions
+   measure ink, not the line box. Porting the layout 1:1 means reproducing that
+   trim.
+
+   `text-box: trim-both cap alphabetic` would say this directly, but it is
+   Chromium-only and — decisively — has no effect on a flex container, which is
+   exactly what TextEngine renders. So the trim is done geometrically instead,
+   with negative block margins that pull the box onto the ink. Measured from
+   Google Sans Flex (ascent .9625em, descent .2875em, cap height .725em):
+
+     block-start = (line-height − 1.25em) / 2 + .2375em
+     block-end   = (line-height − 1.25em) / 2 + .2875em
+
+   One utility per leading the design uses; pick the one matching the element's
+   `leading-*` class. */
+.text-trim-flat {
+  /* pairs with leading-flat (1) */
+  margin-block: -0.1125em -0.1625em;
+}
+
+.text-trim-body {
+  /* pairs with leading-body (1.2) */
+  margin-block: -0.2125em -0.2625em;
+}
+
+/* `spring-text-engine` writes `display:flex; flex-wrap:wrap` as an inline style
+   on its container, so only `!important` can unwrap it. The numbers heading is
+   a single nowrap line in Figma (1476:1527).
+
+   Declared as an `@utility`, not a `@layer components` class, because it is
+   applied **responsively** (`md:text-engine-nowrap`) — variants only generate
+   for real utilities, and as a plain class the `md:` form silently produced
+   nothing and the heading wrapped at desktop. */
+.text-engine-nowrap {
+  flex-wrap: nowrap !important;
+}
+
+/* ============================================================================
+   CE QUE LA REMISE A ZERO DE L AUTRE MOTEUR FOURNISSAIT
+
+   Le gabarit a ete ecrit au-dessus d une remise a zero qui n est pas la notre,
+   et il comptait dessus sans le dire — c est la nature meme d une remise a
+   zero. Les regles ci-dessous sont la difference exacte entre les deux,
+   relevee en comparant les styles calcules d un jeu d elements dans les deux
+   pages, et non devinee.
+
+   Sans elles, la premiere chose qu on voit est que **tous les liens
+   redeviennent bleus et soulignes** : le navigateur reprend la main sur une
+   ancre dont personne ne dit plus rien.
+
+   Ce bloc appartient au gabarit, pas au systeme. Ajouter ces regles a la
+   remise a zero d `@odoro-cli/libs` changerait le rendu de tout projet deja
+   livre, pour le confort d un portage.
+   ========================================================================== */
+
+a {
+  color: inherit;
+  text-decoration: inherit;
+}
+
+button,
+input,
+optgroup,
+select,
+textarea {
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  letter-spacing: inherit;
+  background-color: transparent;
+  border-radius: 0;
+}
+
+button,
+[type='button'],
+[type='reset'],
+[type='submit'] {
+  appearance: button;
+  /* La remise a zero d origine laisse le curseur par defaut sur un bouton ;
+     la notre le met en main. C est un choix, pas un oubli, et il se voit. */
+  cursor: default;
+}
+
+/* La couleur de filet par defaut suit l encre, au lieu d un gris fixe : c est
+   ce qui rend `border` seul utilisable sans dire de quelle couleur. */
+*,
+::before,
+::after {
+  border-color: currentColor;
+}
+
+/* Une image posee dans une ligne de texte s aligne sur le milieu, pas sur la
+   ligne de base : sans cela elle laisse sous elle le jambage d une lettre. */
+img,
+svg,
+video,
+canvas,
+audio,
+iframe,
+embed,
+object {
+  vertical-align: middle;
+}
+
+/* Notre socle borne les `svg` a la largeur de leur parent ; celui d origine
+   non. Un sigle dessine plus large que sa boite s en trouvait retreci. */
+svg {
+  max-width: none;
+}
+
+hr {
+  height: 0;
+  margin: 0;
+  color: inherit;
+  border-top-width: 1px;
+}
+
+
+/* ============================================================================
+   LES CLASSES QUE LE GENERATEUR NE PRODUIT PAS
+
+   Derivees du bloc `@theme` ci-dessus et de l echelle d espacement de l autre
+   moteur. Chaque selecteur repete sa classe : les utilitaires du systeme sont
+   ecrits **apres** cette feuille dans le paquet final, et a specificite egale
+   c est le dernier qui gagne.
+   ========================================================================== */
+
+.sn-left-1-3.sn-left-1-3 { left: -33.3333%; }
+.sn-rotate-45.sn-rotate-45 { rotate: -45deg; }
+.sn-skew-x-12.sn-skew-x-12 { transform: skewX(-12deg); }
+.sn-translate-x-1-2.sn-translate-x-1-2 { --sn-tx: -50%; translate: var(--sn-tx, 0) var(--sn-ty, 0); }
+.sn-translate-x-220.sn-translate-x-220 { --sn-tx: -220%; translate: var(--sn-tx, 0) var(--sn-ty, 0); }
+.sn-translate-y-1-2.sn-translate-y-1-2 { --sn-ty: -50%; translate: var(--sn-tx, 0) var(--sn-ty, 0); }
+.sn-translate-y-3-5px.sn-translate-y-3-5px { --sn-ty: -3.5px; translate: var(--sn-tx, 0) var(--sn-ty, 0); }
+.sn-active-cursor-grabbing.sn-active-cursor-grabbing:active { cursor: grabbing; }
+.sn-aspect-561-683.sn-aspect-561-683 { aspect-ratio: 561 / 683; }
+.sn-aspect-789-683.sn-aspect-789-683 { aspect-ratio: 789 / 683; }
+.sn-backdrop-blur-glass.sn-backdrop-blur-glass { backdrop-filter: blur(var(--backdrop-glass)); -webkit-backdrop-filter: blur(var(--backdrop-glass)); }
+.sn-backdrop-blur-nav.sn-backdrop-blur-nav { backdrop-filter: blur(var(--backdrop-nav)); -webkit-backdrop-filter: blur(var(--backdrop-nav)); }
+.sn-backdrop-blur-panel.sn-backdrop-blur-panel { backdrop-filter: blur(var(--backdrop-panel)); -webkit-backdrop-filter: blur(var(--backdrop-panel)); }
+.sn-bg-image-var-backdrop-hero.sn-bg-image-var-backdrop-hero { background-image: var(--backdrop-hero); }
+.sn-bg-image-var-wordmark-fill.sn-bg-image-var-wordmark-fill { background-image: var(--wordmark-fill); }
+.sn-bg-action-primary.sn-bg-action-primary { background-color: var(--action-primary); }
+.sn-bg-action-secondary.sn-bg-action-secondary { background-color: var(--action-secondary); }
+.sn-bg-action-secondary-20.sn-bg-action-secondary-20 { background-color: color-mix(in srgb, var(--action-secondary) 20%, transparent); }
+.sn-bg-background.sn-bg-background { background-color: var(--background); }
+.sn-bg-background-95.sn-bg-background-95 { background-color: color-mix(in srgb, var(--background) 95%, transparent); }
+.sn-bg-black-40.sn-bg-black-40 { background-color: color-mix(in srgb, #000 40%, transparent); }
+.sn-bg-border-subtle.sn-bg-border-subtle { background-color: var(--border-subtle); }
+.sn-bg-clip-text.sn-bg-clip-text { background-clip: text; -webkit-background-clip: text; }
+.sn-bg-foreground.sn-bg-foreground { background-color: var(--foreground); }
+.sn-bg-foreground-15.sn-bg-foreground-15 { background-color: color-mix(in srgb, var(--foreground) 15%, transparent); }
+.sn-bg-on-media.sn-bg-on-media { background-color: var(--on-media); }
+.sn-bg-surface-glass.sn-bg-surface-glass { background-color: var(--surface-glass); }
+.sn-bg-surface-muted.sn-bg-surface-muted { background-color: var(--surface-muted); }
+.sn-bg-surface-nav.sn-bg-surface-nav { background-color: var(--surface-nav); }
+.sn-bg-surface-panel.sn-bg-surface-panel { background-color: var(--surface-panel); }
+.sn-border-border-field.sn-border-border-field { border-color: var(--border-field); }
+.sn-border-foreground-10.sn-border-foreground-10 { border-color: color-mix(in srgb, var(--foreground) 10%, transparent); }
+.sn-border-foreground-15.sn-border-foreground-15 { border-color: color-mix(in srgb, var(--foreground) 15%, transparent); }
+.sn-border-on-media.sn-border-on-media { border-color: var(--on-media); }
+.sn-bottom-7-5.sn-bottom-7-5 { bottom: 1.875rem; }
+.sn-duration-var-duration-fast.sn-duration-var-duration-fast { transition-duration: var(--duration-fast); }
+.sn-duration-var-duration-normal.sn-duration-var-duration-normal { transition-duration: var(--duration-normal); }
+.sn-duration-var-duration-slow.sn-duration-var-duration-slow { transition-duration: var(--duration-slow); }
+.sn-focus-visible-outline-2.sn-focus-visible-outline-2:focus-visible { outline-width: 2px; outline-style: solid; }
+.sn-focus-visible-outline-foreground.sn-focus-visible-outline-foreground:focus-visible { outline-color: var(--foreground); }
+.sn-focus-visible-outline-offset-2.sn-focus-visible-outline-offset-2:focus-visible { outline-offset: 2px; }
+.sn-focus-visible-outline-on-media.sn-focus-visible-outline-on-media:focus-visible { outline-color: var(--on-media); }
+.sn-focus-visible-placeholder-text-foreground-muted.sn-focus-visible-placeholder-text-foreground-muted { color: var(--foreground-muted); }
+.sn-focus-fixed.sn-focus-fixed:focus { position: fixed; }
+.sn-focus-left-3.sn-focus-left-3:focus { left: 0.75rem; }
+.sn-focus-top-3.sn-focus-top-3:focus { top: 0.75rem; }
+.sn-font-display.sn-font-display { font-family: var(--font-google-sans-flex-display); }
+.sn-gap-7-5.sn-gap-7-5 { gap: 1.875rem; }
+.group:hover .sn-group-hover-translate-x-0 { --sn-tx: 0rem; translate: var(--sn-tx, 0) var(--sn-ty, 0); }
+.group:hover .sn-group-hover-translate-x-220 { --sn-tx: 220%; translate: var(--sn-tx, 0) var(--sn-ty, 0); }
+.group:hover .sn-group-hover-translate-x-400 { --sn-tx: 400%; translate: var(--sn-tx, 0) var(--sn-ty, 0); }
+.sn-h-2-75.sn-h-2-75 { height: 0.6875rem; }
+.sn-h-8-75.sn-h-8-75 { height: 2.1875rem; }
+.sn-h-18px.sn-h-18px { height: 18px; }
+.sn-hover-bg-foreground-5.sn-hover-bg-foreground-5:hover { background-color: color-mix(in srgb, var(--foreground) 5%, transparent); }
+.sn-hover-scale-1-03.sn-hover-scale-1-03:hover { scale: 1.03; }
+.sn-hover-text-foreground-70.sn-hover-text-foreground-70:hover { color: color-mix(in srgb, var(--foreground) 70%, transparent); }
+.sn-inset-x-10.sn-inset-x-10 { left: 2.5rem; right: 2.5rem; }
+.sn-inset-x-4.sn-inset-x-4 { left: 1rem; right: 1rem; }
+.sn-inset-x-5.sn-inset-x-5 { left: 1.25rem; right: 1.25rem; }
+.sn-inset-x-6-75.sn-inset-x-6-75 { left: 1.6875rem; right: 1.6875rem; }
+.sn-leading-body.sn-leading-body { line-height: var(--line-height-body); }
+.sn-leading-flat.sn-leading-flat { line-height: var(--line-height-flat); }
+.sn-leading-none.sn-leading-none { line-height: 1; }
+.sn-left-3px.sn-left-3px { left: 3px; }
+.sn-max-h-calc-100dvh-1-5rem.sn-max-h-calc-100dvh-1-5rem { max-height: calc(100dvh-1.5rem); }
+.sn-max-w-152.sn-max-w-152 { max-width: 38rem; }
+.sn-max-w-160.sn-max-w-160 { max-width: 40rem; }
+.sn-max-w-560px.sn-max-w-560px { max-width: 560px; }
+.sn-min-h-100svh.sn-min-h-100svh { min-height: 100svh; }
+.sn-min-h-15rem.sn-min-h-15rem { min-height: 15rem; }
+.sn-mt-9-25.sn-mt-9-25 { margin-top: 2.3125rem; }
+.sn-overflow-x-clip.sn-overflow-x-clip { overflow-x: clip; }
+.sn-placeholder-text-foreground.sn-placeholder-text-foreground::placeholder { color: var(--foreground); }
+.sn-px-6-25.sn-px-6-25 { padding-inline: 1.5625rem; }
+.sn-right-7-5.sn-right-7-5 { right: 1.875rem; }
+.sn-rounded-10px.sn-rounded-10px { border-radius: 10px; }
+.sn-rounded-button.sn-rounded-button { border-radius: var(--corner-button); }
+.sn-rounded-card.sn-rounded-card { border-radius: var(--corner-card); }
+.sn-rounded-control.sn-rounded-control { border-radius: var(--corner-control); }
+.sn-shadow.sn-shadow { box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1); }
+.sn-size-16-75.sn-size-16-75 { width: 4.1875rem; height: 4.1875rem; }
+.sn-size-18.sn-size-18 { width: 4.5rem; height: 4.5rem; }
+.sn-text-action-primary.sn-text-action-primary { color: var(--action-primary); }
+.sn-text-action-primary-foreground.sn-text-action-primary-foreground { color: var(--action-primary-foreground); }
+.sn-text-background.sn-text-background { color: var(--background); }
+.sn-text-body.sn-text-body { font-size: var(--font-size-body); }
+.sn-text-brand-mark.sn-text-brand-mark { color: var(--brand-mark); }
+.sn-text-display.sn-text-display { font-size: var(--font-size-display); }
+.sn-text-foreground.sn-text-foreground { color: var(--foreground); }
+.sn-text-foreground-muted.sn-text-foreground-muted { color: var(--foreground-muted); }
+.sn-text-foreground-60.sn-text-foreground-60 { color: color-mix(in srgb, var(--foreground) 60%, transparent); }
+.sn-text-foreground-70.sn-text-foreground-70 { color: color-mix(in srgb, var(--foreground) 70%, transparent); }
+.sn-text-lead.sn-text-lead { font-size: var(--font-size-lead); }
+.sn-text-on-media.sn-text-on-media { color: var(--on-media); }
+.sn-text-on-media-muted.sn-text-on-media-muted { color: var(--on-media-muted); }
+.sn-text-title.sn-text-title { font-size: var(--font-size-title); }
+.sn-text-wordmark.sn-text-wordmark { font-size: var(--font-size-wordmark); }
+.sn-top-7-5.sn-top-7-5 { top: 1.875rem; }
+.sn-top-3px.sn-top-3px { top: 3px; }
+.sn-translate-y-3-5px.sn-translate-y-3-5px { --sn-ty: 3.5px; translate: var(--sn-tx, 0) var(--sn-ty, 0); }
+.sn-w-10-75.sn-w-10-75 { width: 2.6875rem; }
+.sn-w-4-5.sn-w-4-5 { width: 1.125rem; }
+.sn-w-4-75.sn-w-4-75 { width: 1.1875rem; }
+.sn-w-9-5.sn-w-9-5 { width: 2.375rem; }
+.sn-w-18px.sn-w-18px { width: 18px; }
+.sn-w-calc-100-1-5rem.sn-w-calc-100-1-5rem { width: calc(100%-1.5rem); }
+.sn-w-calc-100vw-1-5rem.sn-w-calc-100vw-1-5rem { width: calc(100vw-1.5rem); }
+.sn-z-100.sn-z-100 { z-index: 100; }
+
+@media (min-width: 540px) {
+  .sn-tablet-flex-row.sn-tablet-flex-row { flex-direction: row; }
+  .sn-tablet-gap-6.sn-tablet-gap-6 { gap: 1.5rem; }
+  .sn-tablet-grid-cols-2.sn-tablet-grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .sn-tablet-items-center.sn-tablet-items-center { align-items: center; }
+  .sn-tablet-items-start.sn-tablet-items-start { align-items: flex-start; }
+  .sn-tablet-justify-center.sn-tablet-justify-center { justify-content: center; }
+}
+
+@media (min-width: 640px) {
+  .sn-sm-w-420px.sn-sm-w-420px { width: 420px; }
+}
+
+@media (min-width: 1280px) {
+  .sn-lg--left-28-5.sn-lg--left-28-5 { left: -7.125rem; }
+  .sn-lg-aspect-auto.sn-lg-aspect-auto { aspect-ratio: auto; }
+  .sn-lg-bottom-7-5.sn-lg-bottom-7-5 { bottom: 1.875rem; }
+  .sn-lg-gap-25.sn-lg-gap-25 { gap: 6.25rem; }
+  .sn-lg-gap-7-5.sn-lg-gap-7-5 { gap: 1.875rem; }
+  .sn-lg-h-143.sn-lg-h-143 { height: 35.75rem; }
+  .sn-lg-h-170-75.sn-lg-h-170-75 { height: 42.6875rem; }
+  .sn-lg-h-239-5.sn-lg-h-239-5 { height: 59.875rem; }
+  .sn-lg-h-281-5.sn-lg-h-281-5 { height: 70.375rem; }
+  .sn-lg-h-32-5.sn-lg-h-32-5 { height: 8.125rem; }
+  .sn-lg-h-333-75.sn-lg-h-333-75 { height: 83.4375rem; }
+  .sn-lg-h-341-5.sn-lg-h-341-5 { height: 85.375rem; }
+  .sn-lg-h-378-5.sn-lg-h-378-5 { height: 94.625rem; }
+  .sn-lg-h-423-5.sn-lg-h-423-5 { height: 105.875rem; }
+  .sn-lg-h-86.sn-lg-h-86 { height: 21.5rem; }
+  .sn-lg-inset-x-auto.sn-lg-inset-x-auto { left: auto; right: auto; }
+  .sn-lg-left-113-75.sn-lg-left-113-75 { left: 28.4375rem; }
+  .sn-lg-left-126-5.sn-lg-left-126-5 { left: 31.625rem; }
+  .sn-lg-left-132-75.sn-lg-left-132-75 { left: 33.1875rem; }
+  .sn-lg-left-152.sn-lg-left-152 { left: 38rem; }
+  .sn-lg-left-152-75.sn-lg-left-152-75 { left: 38.1875rem; }
+  .sn-lg-left-154-25.sn-lg-left-154-25 { left: 38.5625rem; }
+  .sn-lg-left-20-5.sn-lg-left-20-5 { left: 5.125rem; }
+  .sn-lg-left-238.sn-lg-left-238 { left: 59.5rem; }
+  .sn-lg-left-267.sn-lg-left-267 { left: 66.75rem; }
+  .sn-lg-left-27-5.sn-lg-left-27-5 { left: 6.875rem; }
+  .sn-lg-left-64-5.sn-lg-left-64-5 { left: 16.125rem; }
+  .sn-lg-left-7-5.sn-lg-left-7-5 { left: 1.875rem; }
+  .sn-lg-left-78-75.sn-lg-left-78-75 { left: 19.6875rem; }
+  .sn-lg-left-92-5.sn-lg-left-92-5 { left: 23.125rem; }
+  .sn-lg-p-7-5.sn-lg-p-7-5 { padding: 1.875rem; }
+  .sn-lg-text-display.sn-lg-text-display { font-size: var(--font-size-display); }
+  .sn-lg-text-lead.sn-lg-text-lead { font-size: var(--font-size-lead); }
+  .sn-lg-text-title.sn-lg-text-title { font-size: var(--font-size-title); }
+  .sn-lg-top-104-5.sn-lg-top-104-5 { top: 26.125rem; }
+  .sn-lg-top-106-75.sn-lg-top-106-75 { top: 26.6875rem; }
+  .sn-lg-top-111-75.sn-lg-top-111-75 { top: 27.9375rem; }
+  .sn-lg-top-135-5.sn-lg-top-135-5 { top: 33.875rem; }
+  .sn-lg-top-163.sn-lg-top-163 { top: 40.75rem; }
+  .sn-lg-top-187-5.sn-lg-top-187-5 { top: 46.875rem; }
+  .sn-lg-top-202-5.sn-lg-top-202-5 { top: 50.625rem; }
+  .sn-lg-top-22-5.sn-lg-top-22-5 { top: 5.625rem; }
+  .sn-lg-top-25.sn-lg-top-25 { top: 6.25rem; }
+  .sn-lg-top-34-5.sn-lg-top-34-5 { top: 8.625rem; }
+  .sn-lg-top-341-5.sn-lg-top-341-5 { top: 85.375rem; }
+  .sn-lg-top-38-5.sn-lg-top-38-5 { top: 9.625rem; }
+  .sn-lg-top-39.sn-lg-top-39 { top: 9.75rem; }
+  .sn-lg-top-57.sn-lg-top-57 { top: 14.25rem; }
+  .sn-lg-top-57-5.sn-lg-top-57-5 { top: 14.375rem; }
+  .sn-lg-top-81.sn-lg-top-81 { top: 20.25rem; }
+  .sn-lg-top-84-75.sn-lg-top-84-75 { top: 21.1875rem; }
+  .sn-lg-top-89-5.sn-lg-top-89-5 { top: 22.375rem; }
+  .sn-lg-w-100.sn-lg-w-100 { width: 25rem; }
+  .sn-lg-w-107.sn-lg-w-107 { width: 26.75rem; }
+  .sn-lg-w-111-75.sn-lg-w-111-75 { width: 27.9375rem; }
+  .sn-lg-w-120.sn-lg-w-120 { width: 30rem; }
+  .sn-lg-w-125-5.sn-lg-w-125-5 { width: 31.375rem; }
+  .sn-lg-w-132-5.sn-lg-w-132-5 { width: 33.125rem; }
+  .sn-lg-w-140-25.sn-lg-w-140-25 { width: 35.0625rem; }
+  .sn-lg-w-175-25.sn-lg-w-175-25 { width: 43.8125rem; }
+  .sn-lg-w-197-25.sn-lg-w-197-25 { width: 49.3125rem; }
+  .sn-lg-w-202-5.sn-lg-w-202-5 { width: 50.625rem; }
+  .sn-lg-w-231.sn-lg-w-231 { width: 57.75rem; }
+  .sn-lg-w-254-25.sn-lg-w-254-25 { width: 63.5625rem; }
+  .sn-lg-w-305.sn-lg-w-305 { width: 76.25rem; }
+  .sn-lg-w-319-25.sn-lg-w-319-25 { width: 79.8125rem; }
+  .sn-lg-w-325.sn-lg-w-325 { width: 81.25rem; }
+  .sn-lg-w-340.sn-lg-w-340 { width: 85rem; }
+  .sn-lg-w-36-25.sn-lg-w-36-25 { width: 9.0625rem; }
+  .sn-lg-w-41-5.sn-lg-w-41-5 { width: 10.375rem; }
+  .sn-lg-w-417-25.sn-lg-w-417-25 { width: 104.3125rem; }
+  .sn-lg-w-51-5.sn-lg-w-51-5 { width: 12.875rem; }
+  .sn-lg-w-58-75.sn-lg-w-58-75 { width: 14.6875rem; }
+  .sn-lg-w-70-5.sn-lg-w-70-5 { width: 17.625rem; }
+  .sn-lg-w-83.sn-lg-w-83 { width: 20.75rem; }
+  .sn-lg-w-90.sn-lg-w-90 { width: 22.5rem; }
+  .sn-lg-w-94-75.sn-lg-w-94-75 { width: 23.6875rem; }
+}
+.sn-focus-visible-outline-action-primary.sn-focus-visible-outline-action-primary:focus-visible { outline-color: var(--action-primary); }
+.sn-focus-visible-outline-offset-4.sn-focus-visible-outline-offset-4:focus-visible { outline-offset: 4px; }
+
+/* Les trois homonymes : la valeur du gabarit, sous un nom qui n est qu a lui. */
+.sn-ease-entrance.sn-ease-entrance { transition-timing-function: var(--ease-entrance); }
+.sn-font-sans.sn-font-sans { font-family: var(--font-google-sans-flex), ui-sans-serif, system-ui, sans-serif; }
+.sn-font-display.sn-font-display { font-family: var(--font-google-sans-flex-display), var(--font-google-sans-flex), ui-sans-serif, sans-serif; }
+
+.sn-hover--translate-y-0-25.sn-hover--translate-y-0-25:hover { --sn-ty: -0.0625rem; translate: var(--sn-tx, 0) var(--sn-ty, 0); }
+.sn-inset-y-10.sn-inset-y-10 { top: -10%; bottom: -10%; }
+.sn-top-20.sn-top-20 { top: -20%; }
+
+/* Les ruptures du gabarit, qui ne sont pas les notres. */
+@media (min-width: 1024px) {
+  .sn-lg-absolute.sn-lg-absolute { position: absolute; }
+  .sn-lg-block.sn-lg-block { display: block; }
+  .sn-lg-bottom-auto.sn-lg-bottom-auto { bottom: auto; }
+  .sn-lg-contents.sn-lg-contents { display: contents; }
+  .sn-lg-flex.sn-lg-flex { display: flex; }
+  .sn-lg-flex-row.sn-lg-flex-row { flex-direction: row; }
+  .sn-lg-gap-10.sn-lg-gap-10 { gap: 2.5rem; }
+  .sn-lg-gap-2-5.sn-lg-gap-2-5 { gap: 0.625rem; }
+  .sn-lg-gap-6.sn-lg-gap-6 { gap: 1.5rem; }
+  .sn-lg-grid-cols-3.sn-lg-grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .sn-lg-grid-rows-3.sn-lg-grid-rows-3 { grid-template-rows: repeat(3, minmax(0, 1fr)); }
+  .sn-lg-h-full.sn-lg-h-full { height: 100%; }
+  .sn-lg-hidden.sn-lg-hidden { display: none; }
+  .sn-lg-inset-x-0.sn-lg-inset-x-0 { left: 0rem; right: 0rem; }
+  .sn-lg-items-center.sn-lg-items-center { align-items: center; }
+  .sn-lg-justify-start.sn-lg-justify-start { justify-content: flex-start; }
+  .sn-lg-left-10.sn-lg-left-10 { left: 2.5rem; }
+  .sn-lg-max-w-none.sn-lg-max-w-none { max-width: none; }
+  .sn-lg-min-h-0.sn-lg-min-h-0 { min-height: 0rem; }
+  .sn-lg-mt-0.sn-lg-mt-0 { margin-top: 0; }
+  .sn-lg-pb-0.sn-lg-pb-0 { padding-bottom: 0rem; }
+  .sn-lg-pt-0.sn-lg-pt-0 { padding-top: 0rem; }
+  .sn-lg-px-0.sn-lg-px-0 { padding-inline: 0rem; }
+  .sn-lg-py-0.sn-lg-py-0 { padding-block: 0rem; }
+  .sn-lg-w-56.sn-lg-w-56 { width: 14rem; }
+  .sn-lg-w-auto.sn-lg-w-auto { width: auto; }
+  .sn-lg-whitespace-nowrap.sn-lg-whitespace-nowrap { white-space: nowrap; }
+}
