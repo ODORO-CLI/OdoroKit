@@ -1,0 +1,152 @@
+{
+  "version": 1,
+  "brief": {
+    "dimensionality": [
+      "depth"
+    ],
+    "mood": [
+      "luxe",
+      "calm"
+    ],
+    "tone": [
+      "dark"
+    ],
+    "motionEnergy": [
+      "subtle",
+      "lively"
+    ],
+    "density": [
+      "sparse"
+    ]
+  },
+  "styleId": "obsidian-luxe",
+  "tokens": {
+    "gl-bg": "#0a0a0c",
+    "gl-bg-alt": "#101014",
+    "gl-surface": "#141419",
+    "gl-surface-raised": "#1c1c22",
+    "gl-ink": "#f4f1ea",
+    "gl-ink-muted": "#a8a49b",
+    "gl-ink-subtle": "#6b6862",
+    "gl-accent": "#c9a227",
+    "gl-accent-ink": "#0a0a0c",
+    "gl-line": "#26262c",
+    "gl-glow": "#e8c766",
+    "gl-font-display": "'Cormorant', ui-serif, Georgia, 'Times New Roman', serif",
+    "gl-font-body": "'General Sans', ui-sans-serif, system-ui, -apple-system, sans-serif",
+    "gl-font-mono": "ui-monospace, 'SF Mono', Menlo, monospace",
+    "gl-tracking-display": "-0.02em",
+    "gl-weight-display": "400",
+    "gl-weight-body": "400",
+    "gl-radius": "0.25rem",
+    "gl-radius-lg": "0.75rem",
+    "gl-border": "1px",
+    "gl-duration-fast": "150ms",
+    "gl-duration": "320ms",
+    "gl-duration-slow": "900ms",
+    "gl-ease": "cubic-bezier(0.22, 1, 0.36, 1)"
+  },
+  "fonts": {
+    "display": "cormorant",
+    "body": "general-sans"
+  },
+  "activeTemplateId": "house",
+  "referenceTemplateNote": "house = reference for the scroll-scrubbed fly-through with statement text pinned to corners, hairline grid, frosted panels, curtain loader. Re-dressed to obsidian-luxe + Cormorant display.",
+  "media": {
+    "heroVideo": {
+      "source": "higgsfield seedance_2_5 t2v 1080p 16:9 20s",
+      "jobId": "7a59d376-2e29-4c17-b118-0a1a1451af6a",
+      "file": "public/video/odoro-visite.mp4 (H.264 1080p, GOP 4 for scrubbing, 16.7MB)",
+      "master": "public/video/odoro-visite-master.mp4 (HEVC 1920x1080 24fps 20.04s, 46.7MB — keep, not served)",
+      "mobile": "public/video/odoro-visite-720.mp4 (H.264 720p, GOP 4, 6.7MB — auto-selected < 900px or data-saver)",
+      "poster": "public/img/poster.jpg",
+      "stills": [
+        "public/img/still-01.jpg @4.5s",
+        "public/img/still-02.jpg @9.4s",
+        "public/img/still-03.jpg @13.9s",
+        "public/img/still-04.jpg @19.6s"
+      ],
+      "timeline": {
+        "arrivee": "0–4.7s (hold 3.2–4.7)",
+        "hall": "4.75–9.7s (slow 8.0–9.7)",
+        "salon": "9.75–14.4s (slow 12.2–14.4)",
+        "terrasse": "14.5–20s (hold 17.2–20)"
+      }
+    }
+  },
+  "placed": [
+    {
+      "sectionId": "loader-curtain",
+      "slot": 0,
+      "role": "loader",
+      "composition": "house/preloader (rolling % walking the rule, 92 ceiling, four-column wipe)",
+      "file": "index.html #loader"
+    },
+    {
+      "sectionId": "masthead",
+      "slot": 1,
+      "role": "nav",
+      "composition": "altitude-hero masthead rail (hairline, brand / links / one quiet CTA)"
+    },
+    {
+      "sectionId": "film-visite",
+      "slot": 2,
+      "role": "hero+scroll-scene",
+      "composition": "negantropy-void (hero beat) → negantropy-entropy / negantropy-choice alternating (rooms), over house-style scrubbed media with five hairlines",
+      "mediaFile": "public/video/odoro-visite.mp4",
+      "recomposeOptions": [
+        "clair-hero",
+        "stackside-hero",
+        "lumen-hero",
+        "laocoon-editorial"
+      ],
+      "notes": "Chapter copy sits on a frosted aside (rgba(10,10,12,.34) + 18px backdrop blur — house echo-panel technique) so it stays legible over bright frames; hero beat keeps bare copy with a text-shadow."
+    },
+    {
+      "sectionId": "stats-plaque",
+      "slot": 3,
+      "role": "stat-band",
+      "composition": "altitude-stats",
+      "recomposeOptions": [
+        "clarix-stats",
+        "lumora-stats"
+      ]
+    },
+    {
+      "sectionId": "manifesto",
+      "slot": 4,
+      "role": "editorial",
+      "composition": "artist-statement",
+      "recomposeOptions": [
+        "stride-about",
+        "clarix-outro"
+      ]
+    },
+    {
+      "sectionId": "espaces",
+      "slot": 5,
+      "role": "gallery",
+      "composition": "marcus-vane-ventures",
+      "recomposeOptions": [
+        "artist-works",
+        "baseline-facilities"
+      ]
+    },
+    {
+      "sectionId": "contact-footer",
+      "slot": 6,
+      "role": "footer+cta",
+      "composition": "marcus-vane-contact-footer (fixed behind the page, uncovered by a spacer — house technique)",
+      "recomposeOptions": [
+        "artist-footer",
+        "lumora-footer",
+        "vesper-footer"
+      ]
+    }
+  ],
+  "notes": "Stack: static HTML/CSS/JS (starter clone was denied by the sandbox; nothing else lost). Language FR. Brand Odoro. Reveal choreography: honest loader (MIN_VISIBLE 1300 / CAP 7000 / ceiling 92), gate flips at start of exit, per-word blur reveals (75ms title / 22ms body / 52ms blocks), chapters leave 2.5rem into .75rem blur, one damped scroll clock (DAMP 4.2) scrubs the video; holds get extra scroll weight so the camera parks in each room. Tune CHAPTERS[] in src/main.js.",
+  "qa": {
+    "headlessChrome": "?fast=1&sim=<0..1> drives the clock without scrolling; ?fast=1&y=<px> shifts the page (headless screenshots ignore scroll). Chrome clamps windows to ~500px wide, so phone widths cannot be captured headlessly.",
+    "devServer": "node serve.js <port> (HTTP Range support required for video seeking)"
+  }
+}

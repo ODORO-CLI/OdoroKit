@@ -1,0 +1,15 @@
+{
+  "name": "odoro-manoir",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Maison d architecte — visite cinematique, video 1080p scrubee au defilement, chapitres par piece.",
+  "scripts": {
+    "dev": "odoro dev",
+    "build": "odoro build",
+    "preview": "odoro preview"
+  },
+  "devDependencies": {
+    "odoro": "^2.0.0"
+  }
+}

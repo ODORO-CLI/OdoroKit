@@ -33,10 +33,13 @@
  */
 
 import { Icon } from '@odoro-cli/icons'
+import { Github } from '@odoro-cli/icons/brands'
 import {
   ArrowRight,
   ArrowUpRight,
   ChevronLeft,
+  Download,
+  ExternalLink,
   LayoutGrid,
   Search,
   Server,
@@ -56,6 +59,7 @@ import {
 } from 'react'
 
 import { CodeBlock } from '../components/CodeBlock.jsx'
+import { DEPOT, EXPORTS_PROJETS } from '../exports.generated.js'
 import { TEMPLATES, scaffoldCommand, type Template } from '../templates.js'
 import { TEMPLATES as PROJETS, type TemplateEntry } from '../templates.generated.js'
 import {
@@ -333,9 +337,56 @@ function CarteProjet({ projet }: { readonly projet: TemplateEntry }): ReactEleme
             <CodeBlock lang="sh" code={projet.install} />
           </div>
         )}
-        <p className="o-m-0 o-text-xs o-text-zinc-400">Licence {projet.licence}</p>
+        <SortiesProjet projet={projet} />
       </div>
     </article>
+  )
+}
+
+/** Un poids en octets, tel qu on l annonce. */
+function poids(octets: number): string {
+  if (octets < 1024 * 1024) return `${(octets / 1024).toFixed(0)} ko`
+  return `${(octets / (1024 * 1024)).toFixed(1)} Mo`
+}
+
+/**
+ * Les deux sorties d un projet livre : l archive, et le depot.
+ *
+ * Pas de panneau de code ici, contrairement aux vitrines. Une vitrine est un
+ * fichier qu on lit ; un projet livre en compte jusqu a deux cent soixante-dix,
+ * repartis sur sa propre chaine — cela se parcourt sur le depot, pas dans une
+ * colonne de trois cents pixels.
+ */
+function SortiesProjet({ projet }: { readonly projet: TemplateEntry }): ReactElement {
+  const mesures = EXPORTS_PROJETS[projet.name]
+
+  return (
+    <div className="o-mt-auto o-flex o-flex-wrap o-items-center o-gap-2 o-pt-1">
+      {mesures !== undefined && (
+        <a
+          href={`/exports/projets/${projet.name}.zip`}
+          download={`${projet.name}.zip`}
+          className="o-inline-flex o-items-center o-gap-1.5 o-rounded-lg o-border-w-1 o-border-zinc-300 dark:o-border-zinc-700 o-px-2.5 o-py-1.5 o-text-xs o-font-medium o-no-underline o-text-zinc-700 dark:o-text-zinc-200 hover:o-border-zinc-400 dark:hover:o-border-zinc-600 o-transition-colors"
+        >
+          <Icon icon={Download} size={13} aria-hidden="true" />
+          ZIP
+          <span className="o-font-mono o-opacity-70">{poids(mesures.zip)}</span>
+        </a>
+      )}
+      <a
+        href={`${DEPOT}/tree/main/templates/${projet.name}`}
+        target="_blank"
+        rel="noreferrer"
+        className="o-inline-flex o-items-center o-gap-1.5 o-rounded-lg o-border-w-1 o-border-zinc-300 dark:o-border-zinc-700 o-px-2.5 o-py-1.5 o-text-xs o-font-medium o-no-underline o-text-zinc-700 dark:o-text-zinc-200 hover:o-border-zinc-400 dark:hover:o-border-zinc-600 o-transition-colors"
+      >
+        <Icon icon={Github} size={13} aria-hidden="true" />
+        GitHub
+        <Icon icon={ExternalLink} size={11} aria-hidden="true" className="o-opacity-60" />
+      </a>
+      <span className="o-ml-auto o-text-xs o-text-zinc-400">
+        Licence {projet.licence}
+      </span>
+    </div>
   )
 }
 

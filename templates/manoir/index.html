@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Odoro — Maison d'architecte</title>
+  <meta name="description" content="Odoro, une maison d'architecte pensée comme un manoir contemporain. Visite cinématique au fil du défilement : la façade, le hall d'honneur, le grand salon, la terrasse.">
+  <meta name="theme-color" content="#0a0a0c">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300..700;1,300..700&display=swap">
+  <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=general-sans@300,400,500&display=swap">
+</head>
+<body class="is-loading">
+
+  <!-- ───────────────────────── LOADER (Section role: loader) ───────────────────────── -->
+  <div class="loader" id="loader" aria-hidden="true">
+    <div class="loader__cols">
+      <span class="loader__col"></span><span class="loader__col"></span><span class="loader__col"></span><span class="loader__col"></span>
+    </div>
+    <div class="loader__inner">
+      <div class="loader__brand">Odoro <span class="loader__brand-sub">— Maison d'architecte</span></div>
+      <div class="loader__rule"><span class="loader__rule-fill" id="loaderFill"></span></div>
+      <div class="loader__count" id="loaderCount"><span class="loader__num" id="loaderNum">0</span><span class="loader__pct">%</span></div>
+      <div class="loader__hint">Chargement de la visite</div>
+    </div>
+  </div>
+
+  <!-- ───────────────────────── MASTHEAD ───────────────────────── -->
+  <header class="masthead" id="masthead">
+    <a class="masthead__brand" href="#top" data-reveal="words">Odoro</a>
+    <nav class="masthead__nav" aria-label="Navigation principale">
+      <a href="#film">La visite</a>
+      <a href="#maison">La maison</a>
+      <a href="#espaces">Les espaces</a>
+    </nav>
+    <a class="masthead__cta" href="#contact">Visites privées <span aria-hidden="true">↗</span></a>
+  </header>
+
+  <!-- Chapter rail (right edge) -->
+  <aside class="rail" id="rail" aria-hidden="true">
+    <ol class="rail__list">
+      <li class="rail__item" data-chapter="0"><span class="rail__tick"></span><span class="rail__label">L'arrivée</span></li>
+      <li class="rail__item" data-chapter="1"><span class="rail__tick"></span><span class="rail__label">Le hall</span></li>
+      <li class="rail__item" data-chapter="2"><span class="rail__tick"></span><span class="rail__label">Le salon</span></li>
+      <li class="rail__item" data-chapter="3"><span class="rail__tick"></span><span class="rail__label">La terrasse</span></li>
+    </ol>
+  </aside>
+
+  <main id="top">
+
+    <!-- ───────────────────────── FILM — scroll-scrubbed visit ─────────────────────────
+         Composition: corner-loaded editorial split over a persistent full-bleed scene
+         (negantropy-void for the hero beat, negantropy-entropy / negantropy-choice alternating
+         for the rooms). Video scrubbed by ONE damped scroll clock; text pinned to the stage. -->
+    <section class="film" id="film" aria-label="Visite de la maison">
+      <div class="film__track" id="filmTrack">
+        <div class="film__stage" id="filmStage">
+
+          <div class="film__media" id="filmMedia">
+            <video class="film__video" id="filmVideo"
+                   muted playsinline preload="auto"
+                   poster="/img/poster.jpg"
+                   aria-label="Visite cinématique de la maison Odoro">
+              <source src="/video/odoro-visite.mp4" type="video/mp4">
+            </video>
+            <div class="film__grain" aria-hidden="true"></div>
+            <div class="film__scrim" aria-hidden="true"></div>
+          </div>
+
+          <!-- five hairlines rule the frame (four-column grid inset) -->
+          <div class="film__lines" id="filmLines" aria-hidden="true">
+            <span></span><span></span><span></span><span></span><span></span>
+          </div>
+
+          <!-- ── Chapter 0 · L'arrivée (hero beat, corner-loaded) ── -->
+          <article class="chapter chapter--hero" data-chapter="0" id="chapter0">
+            <div class="chapter__eyebrow" data-reveal="words">
+              <span class="idx">[ 01 / 04 ]</span><span class="idx-rule"></span><span>L'arrivée</span>
+            </div>
+            <h1 class="chapter__title chapter__title--hero" data-reveal="words">
+              <span class="line">Une maison</span>
+              <span class="line">qui se visite</span>
+              <span class="line"><em>en silence.</em></span>
+            </h1>
+            <div class="chapter__aside chapter__aside--hero">
+              <p class="chapter__body" data-reveal="words">Passé l'allée de cyprès, le bassin tient la façade en miroir. Pierre de taille, fenêtres cintrées, lumière d'ambre au soir.</p>
+              <p class="chapter__cue" data-reveal="words"><span class="cue-dot"></span>Faire défiler pour entrer</p>
+            </div>
+          </article>
+
+          <!-- ── Chapter 1 · Le hall d'honneur (heading bottom-left, meta top-right) ── -->
+          <article class="chapter chapter--left" data-chapter="1" id="chapter1">
+            <div class="chapter__aside">
+              <div class="chapter__eyebrow" data-reveal="words"><span class="idx">[ 02 / 04 ]</span><span class="idx-rule"></span><span>Rez-de-chaussée</span></div>
+              <p class="chapter__body" data-reveal="words">Un escalier de pierre suspendu s'enroule sous une lanterne de bronze. Ferronnerie noire rehaussée d'or, damier de marbre, six mètres sous plafond.</p>
+              <ul class="chapter__metrics" data-reveal="words">
+                <li><span class="val">6,20 m</span><span class="lbl">Hauteur sous plafond</span></li>
+                <li><span class="val">Monolithe</span><span class="lbl">Escalier en pierre de Bourgogne</span></li>
+              </ul>
+            </div>
+            <h2 class="chapter__title" data-reveal="words"><span class="line">Le hall</span><span class="line"><em>d'honneur</em></span></h2>
+          </article>
+
+          <!-- ── Chapter 2 · Le grand salon (flipped: heading bottom-right, meta top-left) ── -->
+          <article class="chapter chapter--right" data-chapter="2" id="chapter2">
+            <div class="chapter__aside">
+              <div class="chapter__eyebrow" data-reveal="words"><span class="idx">[ 03 / 04 ]</span><span class="idx-rule"></span><span>Rez-de-jardin</span></div>
+              <p class="chapter__body" data-reveal="words">Double hauteur ouverte sur les collines par une paroi de verre de onze mètres. Cheminée en marbre noir, parquet de chêne massif, lumière rasante du matin au soir.</p>
+              <ul class="chapter__metrics" data-reveal="words">
+                <li><span class="val">11 m</span><span class="lbl">Baie vitrée d'un seul tenant</span></li>
+                <li><span class="val">Nero Marquina</span><span class="lbl">Cheminée en marbre</span></li>
+              </ul>
+            </div>
+            <h2 class="chapter__title" data-reveal="words"><span class="line">Le grand</span><span class="line"><em>salon</em></span></h2>
+          </article>
+
+          <!-- ── Chapter 3 · La terrasse (heading bottom-left, meta top-right, CTA) ── -->
+          <article class="chapter chapter--left" data-chapter="3" id="chapter3">
+            <div class="chapter__aside">
+              <div class="chapter__eyebrow" data-reveal="words"><span class="idx">[ 04 / 04 ]</span><span class="idx-rule"></span><span>Le domaine</span></div>
+              <p class="chapter__body" data-reveal="words">Bassin à débordement, pelouse jusqu'aux prés où paissent les chevaux, montagne en toile de fond. Le soir, la pierre garde la chaleur du jour.</p>
+              <a class="chapter__cta" href="#contact" data-reveal="words">Organiser une visite <span aria-hidden="true">↗</span></a>
+            </div>
+            <h2 class="chapter__title" data-reveal="words"><span class="line">La terrasse</span><span class="line"><em>et le domaine</em></span></h2>
+          </article>
+
+          <!-- stage foot: chapter readout -->
+          <div class="film__foot" aria-hidden="true">
+            <span class="film__foot-idx" id="footIdx">01</span>
+            <span class="film__foot-rule"><span id="footFill"></span></span>
+            <span class="film__foot-label" id="footLabel">L'arrivée</span>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────────────────────── STAT BAND (composition: altitude-stats) ───────────────────────── -->
+    <section class="stats" id="maison" aria-label="La maison en chiffres">
+      <div class="stats__rail" data-reveal="rise">
+        <div class="stats__flank stats__flank--l">
+          <span class="stats__figure" data-count="1240" data-suffix=" m²">0 m²</span>
+          <span class="stats__label">Surface habitable</span>
+        </div>
+        <div class="stats__centre">
+          <span class="stats__title">Odoro</span>
+          <span class="stats__dot" aria-hidden="true">·</span>
+          <p class="stats__pitch">Une maison d'architecte pensée comme un manoir contemporain : la pierre, le verre, et le silence entre les deux.</p>
+        </div>
+        <div class="stats__flank stats__flank--r">
+          <span class="stats__figure" data-count="4.2" data-decimals="1" data-suffix=" ha">0 ha</span>
+          <span class="stats__label">De domaine clos</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────────────────────── MANIFESTO (composition: artist-statement) ───────────────────────── -->
+    <section class="manifesto" aria-label="Intention">
+      <div class="manifesto__inner">
+        <div class="eyebrow" data-reveal="rise"><span class="eyebrow__rule"></span>La maison</div>
+        <p class="manifesto__passage" data-reveal="words">Nous n'avons pas voulu restaurer un manoir. Nous avons voulu en écrire un nouveau&nbsp;: la masse de la pierre et l'ordre des façades, puis le verre, le vide et la lumière partout où l'on vit.</p>
+        <p class="manifesto__sig" data-reveal="rise">— Atelier Odoro</p>
+      </div>
+    </section>
+
+    <!-- ───────────────────────── GALLERY (composition: marcus-vane-ventures) ───────────────────────── -->
+    <section class="spaces" id="espaces" aria-label="Les espaces">
+      <header class="spaces__head">
+        <div>
+          <div class="eyebrow" data-reveal="rise"><span class="eyebrow__dot"></span>Les espaces</div>
+          <h2 class="spaces__title" data-reveal="words"><span class="line">Quatre pièces,</span><span class="line"><em>une seule lumière.</em></span></h2>
+        </div>
+        <span class="spaces__count" data-reveal="rise">04 / 04</span>
+      </header>
+      <div class="spaces__grid">
+        <a class="card" href="#film" data-seek="0" data-reveal="rise">
+          <figure class="card__media"><img src="/img/still-01.jpg" alt="La façade et le bassin miroir au crépuscule" loading="lazy"></figure>
+          <div class="card__rule"></div>
+          <div class="card__caption">
+            <div><span class="card__name">L'arrivée</span><p class="card__blurb">Le bassin miroir et la façade de pierre à l'heure bleue.</p></div>
+            <div class="card__meta"><span>Extérieur</span><span class="accent">Bassin miroir</span></div>
+          </div>
+          <span class="card__foot">01 — Revoir la séquence</span>
+        </a>
+        <a class="card card--drop" href="#film" data-seek="1" data-reveal="rise">
+          <figure class="card__media"><img src="/img/still-02.jpg" alt="Le hall d'honneur et son escalier de pierre" loading="lazy"></figure>
+          <div class="card__rule"></div>
+          <div class="card__caption">
+            <div><span class="card__name">Le hall d'honneur</span><p class="card__blurb">Escalier monolithe, ferronnerie dorée, damier de marbre.</p></div>
+            <div class="card__meta"><span>Rez-de-chaussée</span><span class="accent">Pierre de taille</span></div>
+          </div>
+          <span class="card__foot">02 — Revoir la séquence</span>
+        </a>
+        <a class="card" href="#film" data-seek="2" data-reveal="rise">
+          <figure class="card__media"><img src="/img/still-03.jpg" alt="Le grand salon en double hauteur ouvert sur les collines" loading="lazy"></figure>
+          <div class="card__rule"></div>
+          <div class="card__caption">
+            <div><span class="card__name">Le grand salon</span><p class="card__blurb">Double hauteur, cheminée de marbre noir, chêne massif.</p></div>
+            <div class="card__meta"><span>Rez-de-jardin</span><span class="accent">Double hauteur</span></div>
+          </div>
+          <span class="card__foot">03 — Revoir la séquence</span>
+        </a>
+        <a class="card card--drop" href="#film" data-seek="3" data-reveal="rise">
+          <figure class="card__media"><img src="/img/still-04.jpg" alt="La terrasse, le bassin à débordement et le domaine" loading="lazy"></figure>
+          <div class="card__rule"></div>
+          <div class="card__caption">
+            <div><span class="card__name">La terrasse</span><p class="card__blurb">Bassin à débordement, prés, chevaux, montagne.</p></div>
+            <div class="card__meta"><span>Extérieur</span><span class="accent">Le domaine</span></div>
+          </div>
+          <span class="card__foot">04 — Revoir la séquence</span>
+        </a>
+      </div>
+    </section>
+
+    <div class="footer-spacer" id="footerSpacer" aria-hidden="true"></div>
+  </main>
+
+  <!-- ───────────────────────── CONTACT FOOTER (composition: marcus-vane-contact-footer, fixed & uncovered) ───────────────────────── -->
+  <footer class="contact" id="contact" aria-label="Contact">
+    <div class="contact__inner">
+      <div class="eyebrow" data-reveal="rise"><span class="eyebrow__dot"></span>Visites privées</div>
+      <h2 class="contact__title" data-reveal="words"><span class="line">Et si votre prochaine</span><span class="line">adresse était</span><span class="line"><em>un domaine&nbsp;?</em></span></h2>
+      <p class="contact__lead" data-reveal="rise">Les visites se font sur rendez-vous, à la lumière du matin ou au couchant. Une seule famille par jour.</p>
+      <a class="contact__link" href="mailto:visites@odoro.fr" data-reveal="rise">visites@odoro.fr <span aria-hidden="true">↗</span></a>
+      <div class="contact__band">
+        <div class="contact__sig">
+          <span class="contact__wordmark">Odoro</span>
+          <span class="contact__caption">Maison d'architecte · 2026</span>
+        </div>
+        <ul class="contact__links">
+          <li><a href="#film">La visite</a></li>
+          <li><a href="#maison">La maison</a></li>
+          <li><a href="#espaces">Les espaces</a></li>
+          <li><a href="#top">Retour en haut</a></li>
+        </ul>
+        <span class="contact__copy">© 2026 Odoro — Tous droits réservés</span>
+      </div>
+    </div>
+  </footer>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

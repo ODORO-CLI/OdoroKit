@@ -1,0 +1,27 @@
+{
+  "name": "odoro-altitude",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Agence immobiliere — plan-sequence de 40 s scrube au defilement, tour detouree en WebGL.",
+  "scripts": {
+    "dev": "odoro dev",
+    "build": "odoro build",
+    "preview": "odoro preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@odoro-cli/libs": "^2.0.0",
+    "lenis": "^1.3.26",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "three": "^0.186.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.1",
+    "@types/three": "^0.186.0",
+    "odoro": "^2.0.0",
+    "typescript": "^5.9.3"
+  }
+}
