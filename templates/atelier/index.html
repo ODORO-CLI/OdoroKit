@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0051ff" />
+
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-icon-180x180.png" />
+    <link rel="manifest" href="/manifest.json" />
+
+    <title>ODORO</title>
+    <meta
+      name="description"
+      content="ODORO — le vêtement comme une présence. Blazers, chemises, pantalons et cuirs coupés à Paris en petites séries. Collection 01."
+    />
+    <meta name="author" content="ODORO" />
+
+    <meta property="og:title" content="ODORO" />
+    <meta
+      property="og:description"
+      content="ODORO — le vêtement comme une présence. Blazers, chemises, pantalons et cuirs coupés à Paris en petites séries. Collection 01."
+    />
+    <meta property="og:image" content="/open-graph.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="fr_FR" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="ODORO" />
+    <meta name="twitter:image" content="/open-graph.png" />
+
+    <!-- En ligne et en premier, avant qu une ligne de la page ne soit analysee :
+         le navigateur restaure la position d un rechargement pendant que le
+         document arrive encore, bien avant qu un script puisse dire le
+         contraire. La page s ouvre derriere un rideau et commence toujours en
+         haut ; une position restauree n a jamais fait que deposer le lecteur au
+         milieu. -->
+    <script>
+      history.scrollRestoration = 'manual'
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

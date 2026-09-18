@@ -297,6 +297,11 @@ const SIMPLES = {
   'backface-hidden': ['backface-visibility: hidden'],
   'self-auto': ['align-self: auto'],
   'object-contain': ['object-fit: contain'],
+  'transform-3d': ['transform-style: preserve-3d'],
+  'order-first': ['order: -9999'],
+  'order-last': ['order: 9999'],
+  'order-none': ['order: 0'],
+  'transform-flat': ['transform-style: flat'],
   'max-w-none': ['max-width: none'],
   'max-h-none': ['max-height: none'],
   'min-w-0': ['min-width: 0'],
@@ -419,6 +424,31 @@ function espacerCalc(valeur) {
   )
 }
 
+/**
+ * La couleur que designe un jeton, avec ou sans son alpha.
+ *
+ * `background`, `foreground/85`, `white`, `black`. Retourne `null` quand le
+ * gabarit ne connait pas le nom — ce qui laisse la suite essayer autre chose.
+ */
+function couleurDeJeton(mot) {
+  const coupe = mot.lastIndexOf('/')
+  const nom = coupe < 0 ? mot : mot.slice(0, coupe)
+  const part = coupe < 0 ? null : mot.slice(coupe + 1)
+
+  const base =
+    nom === 'white' ? '#fff'
+      : nom === 'black' ? '#000'
+        : THEME.has(`--color-${nom}`) ? THEME.get(`--color-${nom}`) : null
+  if (base === null) return null
+  if (part === null) return base
+
+  const pourcent = part.startsWith('[')
+    ? String(Number(part.slice(1, -1)) * 100)
+    : part
+  if (!/^[\d.]+$/.test(pourcent)) return null
+  return `color-mix(in srgb, ${base} ${pourcent}%, transparent)`
+}
+
 /** The declarations a bare class name produces, or `null`. */
 function declarationsFor(name) {
   // La table peut nommer le negatif en toutes lettres. `-scale-y-100` retourne
@@ -446,6 +476,93 @@ function declarationsFor(name) {
     return [`scale: ${String(valeur)}`]
   }
 
+  /*
+   * Les degrades.
+   *
+   * `bg-linear-to-b from-background/85 via-30% to-55%` : quatre classes qui ne
+   * se voient pas, et qui se parlent par des variables. `from-*` ne sait pas
+   * s il y a un `via-*` ; c est `--PREFIXE-via-stops` qui le lui dit, en
+   * restant indefinie quand il n y en a pas.
+   */
+  const direction = /^bg-(linear|radial|conic)-to-(t|b|l|r|tl|tr|bl|br)$/.exec(bare)
+  if (direction !== null) {
+    const VERS = {
+      t: 'to top', b: 'to bottom', l: 'to left', r: 'to right',
+      tl: 'to top left', tr: 'to top right',
+      bl: 'to bottom left', br: 'to bottom right',
+    }
+    return [
+      `background-image: ${direction[1]}-gradient(${VERS[direction[2]]}, var(--${prefix}-stops))`,
+    ]
+  }
+
+  const arret = /^(from|via|to)-(.+)$/.exec(bare)
+  if (arret !== null) {
+    const [, role, valeur] = arret
+
+    // Une position, ecrite en pourcentage : `via-30%`, `to-55%`.
+    const position = /^(\d+)%$/.exec(valeur)
+    if (position !== null) {
+      return [`--${prefix}-${role}-pos: ${position[1]}%`]
+    }
+
+    // Une couleur du gabarit, avec ou sans son alpha.
+    const couleur = couleurDeJeton(valeur)
+    if (couleur !== null) {
+      /*
+       * L extremite qu on ne nomme pas s efface : c est la meme couleur a zero
+       * pour cent, et non un `transparent` nu, qui laisserait un liseré gris
+       * en s interpolant. Chaque regle ecrit ce repli en fonction de
+       * **l autre** extremite, jamais de la sienne — un `var()` qui se cite
+       * lui-meme dans son propre repli forme un cycle, et la declaration
+       * entiere est jetee.
+       */
+      const efface = (autre) => `color-mix(in oklab, var(--${prefix}-${autre}) 0%, transparent)`
+
+      if (role === 'via') {
+        return [
+          `--${prefix}-via: ${couleur}`,
+          `--${prefix}-via-stops: ` +
+            `var(--${prefix}-from, ${efface('via')}) var(--${prefix}-from-pos, 0%), ` +
+            `var(--${prefix}-via) var(--${prefix}-via-pos, 50%), ` +
+            `var(--${prefix}-to, ${efface('via')}) var(--${prefix}-to-pos, 100%)`,
+          `--${prefix}-stops: var(--${prefix}-via-stops)`,
+        ]
+      }
+
+      const bout = role === 'from' ? 'to' : 'from'
+      const liste =
+        role === 'from'
+          ? `var(--${prefix}-from) var(--${prefix}-from-pos, 0%), ` +
+            `var(--${prefix}-to, ${efface('from')}) var(--${prefix}-to-pos, 100%)`
+          : `var(--${prefix}-from, ${efface('to')}) var(--${prefix}-from-pos, 0%), ` +
+            `var(--${prefix}-to) var(--${prefix}-to-pos, 100%)`
+      void bout
+
+      return [
+        `--${prefix}-${role}: ${couleur}`,
+        `--${prefix}-stops: var(--${prefix}-via-stops, ${liste})`,
+      ]
+    }
+  }
+
+  const rang = /^order-(\d+)$/.exec(bare)
+  if (rang !== null) return [`order: ${negative ? '-' : ''}${rang[1]}`]
+
+  /*
+   * La couleur d une ombre.
+   *
+   * L autre moteur la range dans une variable que ses propres ombres lisent.
+   * On garde le mecanisme et on change le nom : l arborescence ne doit pas
+   * porter la marque d un autre moteur, et les valeurs arbitraires qui la
+   * citent sont reecrites de meme.
+   */
+  const ombreCouleur = /^shadow-(.+)$/.exec(bare)
+  if (ombreCouleur !== null && !THEME.has(`--shadow-${ombreCouleur[1]}`)) {
+    const teinte = couleurDeJeton(ombreCouleur[1])
+    if (teinte !== null) return [`--${prefix}-shadow-color: ${teinte}`]
+  }
+
   const travee = /^(col|row)-span-(\d+)$/.exec(bare)
   if (travee !== null) {
     const axe = travee[1] === 'col' ? 'grid-column' : 'grid-row'
@@ -468,7 +585,9 @@ function declarationsFor(name) {
   const arbitrary = /^([a-z-]+)-\[([^\]]+)\]$/.exec(bare)
   if (arbitrary !== null) {
     const [, root, value] = arbitrary
-    const literal = espacerCalc(value.replace(/_/g, ' ').replace(/^image:/, ''))
+    const literal = espacerCalc(
+      value.replace(/_/g, ' ').replace(/^image:/, '').replace(/--tw-/g, `--${prefix}-`),
+    )
     const props = SPACING[root]
     if (props !== undefined)
       return props.map((p) => `${p}: ${negative ? '-' : ''}${literal}`)
@@ -911,7 +1030,28 @@ for (const original of entree) {
     else if (part === 'placeholder') selecteur += '::placeholder'
     else if (part === 'before') selecteur += '::before'
     else if (part === 'after') selecteur += '::after'
-    else if (part.startsWith('group-')) {
+    /*
+     * Les variantes qui lisent un attribut de donnee.
+     *
+     *   `data-[on=true]:bg-accent`   ->  `[data-on="true"]`
+     *   `data-drag:cursor-grabbing`  ->  `[data-drag]`
+     *   `in-data-front:shadow-…`     ->  `[data-front] &` — un ancetre, pas
+     *                                     l element lui-meme.
+     */
+    else if (part.startsWith('data-[') && part.endsWith(']')) {
+      const corps = part.slice('data-['.length, -1)
+      const egal = corps.indexOf('=')
+      selecteur +=
+        egal < 0
+          ? `[data-${corps}]`
+          : `[data-${corps.slice(0, egal)}="${corps.slice(egal + 1).replace(/^["']|["']$/g, '')}"]`
+    } else if (part.startsWith('in-data-')) {
+      selecteur = `[data-${part.slice('in-data-'.length)}] ${selecteur}`
+    } else if (part.startsWith('group-data-')) {
+      selecteur = `.group[data-${part.slice('group-data-'.length)}] ${selecteur}`
+    } else if (/^data-[\w-]+$/.test(part)) {
+      selecteur += `[${part}]`
+    } else if (part.startsWith('group-')) {
       const etat = part.slice('group-'.length)
       selecteur = `.group:${etat} ${selecteur}`
     } else if (part.startsWith('[&') && part.endsWith(']')) {
@@ -973,8 +1113,26 @@ console.log('\n/* ---- feuille ---- */')
  * reste — une requete de preference ou de pointeur ne concurrence pas une
  * largeur, et vient en dernier.
  */
+/**
+ * Une variante que le gabarit s est donnee a un nom qui n est pas une rupture
+ * connue : `stacked`, `max-h-717`. L autre moteur les ajoute **apres** les
+ * siennes, quelle que soit la largeur qu elles decrivent — `stacked:grid-cols-2`
+ * bat donc `max-sm:grid-cols-1` sur un telephone, et c est voulu.
+ *
+ * Une variante qui **redeclare** un nom connu, comme le `lg` de `parfum`, garde
+ * la place de ce nom : elle le remplace, elle ne s ajoute pas.
+ */
+const PROPRES = new Set(
+  [...VARIANTES.keys()].filter((nom) => !BREAKPOINTS.has(nom)),
+)
+
+const requetesPropres = new Set(
+  [...PROPRES].map((nom) => VARIANTES.get(nom)),
+)
+
 function rang(requete) {
   if (requete === '') return [0, 0]
+  if (requetesPropres.has(requete)) return [4, 0]
   const min = /min-width:\s*([\d.]+)px/.exec(requete)
   if (min !== null) return [1, Number(min[1])]
   const max = /max-width:\s*([\d.]+)px/.exec(requete)

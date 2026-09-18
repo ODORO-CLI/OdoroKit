@@ -1,0 +1,102 @@
+{
+  "version": 1,
+  "brief": {
+    "dimensionality": ["depth", "3d"],
+    "mood": ["luxe"],
+    "tone": ["light"],
+    "motionEnergy": ["lively"],
+    "density": ["sparse", "balanced"]
+  },
+  "styleId": "ai-creator-style",
+  "tokens": {
+    "gl-bg": "#f0f0f0",
+    "gl-bg-alt": "#010b24",
+    "gl-surface": "#f0f0f0",
+    "gl-surface-raised": "#ededed",
+    "gl-ink": "#000000",
+    "gl-ink-muted": "#171717",
+    "gl-ink-subtle": "rgba(0, 0, 0, 0.3)",
+    "gl-accent": "#0051ff",
+    "gl-accent-ink": "#ffffff",
+    "gl-line": "rgba(0, 0, 0, 0.1)",
+    "gl-glow": "#9fc2ff",
+    "gl-font-display": "'Melodrama', Georgia, serif",
+    "gl-font-body": "'Mulish', system-ui, sans-serif",
+    "gl-font-serif": "'Instrument Serif', Georgia, serif",
+    "gl-radius": "9999px",
+    "gl-radius-lg": "1.1rem",
+    "gl-duration-fast": "150ms",
+    "gl-duration": "250ms",
+    "gl-ease": "cubic-bezier(0.2, 0, 0, 1)"
+  },
+  "activeTemplateId": "ai-creator",
+  "placed": [
+    {
+      "sectionId": "loader-odoro",
+      "slot": 0,
+      "composition": "curtain (ai-creator preloader, adapted)",
+      "file": "src/components/common/preloader/preloader.tsx",
+      "notes": "Accent curtain, wordmark resolving letter by letter, honest counter parked at 92 until the film's first frame; floor 1600ms, cap 7000ms; release at 50% of the exit."
+    },
+    {
+      "sectionId": "hero-film",
+      "slot": 1,
+      "composition": "loopstack-hero",
+      "backgroundId": "higgsfield:seedance_2_5:75977b2a-8be5-4af7-a5d2-5792cfee3136",
+      "file": "src/components/common/hero/hero-film.tsx + hero-stage.tsx",
+      "notes": "Sticky 1080p film (H.264 + WebM, poster JPG) pinned for 3 viewports; scroll parallax (scale 1→1.16, drift −10%, porcelain scrim to 0.62); entrance scale 1.08→1 on release. Wordmark ODORO at 27vw bleeding past the gutters."
+    },
+    {
+      "sectionId": "chapter-i",
+      "slot": 2,
+      "composition": "negantropy-entropy",
+      "file": "src/components/common/hero/chapter.tsx",
+      "notes": "Heading bottom-left (Melodrama 5.6vw, letter reveal), index + body top-right (word reveal), over the pinned film."
+    },
+    {
+      "sectionId": "chapter-ii",
+      "slot": 3,
+      "composition": "negantropy-choice",
+      "file": "src/components/common/hero/chapter.tsx",
+      "notes": "Mirrored chapter — heading bottom-right, cluster top-left."
+    },
+    {
+      "sectionId": "manifesto",
+      "slot": 4,
+      "composition": "artist-statement",
+      "file": "src/components/common/manifesto/manifesto.tsx"
+    },
+    {
+      "sectionId": "collection",
+      "slot": 5,
+      "composition": "vexon-showcase",
+      "file": "src/components/common/collection/collection.tsx + product-card.tsx",
+      "notes": "4|8 heading row over a 3-column grid of six 4:5 plates. Product images: Higgsfield Soul 2.0."
+    },
+    {
+      "sectionId": "carousel-spotlight",
+      "slot": 6,
+      "composition": "carousel-spotlight (GetLayers section, ported)",
+      "file": "src/components/common/lookbook/spotlight-carousel.tsx",
+      "sceneParams": { "slots": 14, "cardRatio": 1.36, "radiusK": 3, "arcDepth": 0.7, "accent": "#0051ff", "bgTop": "#f0f0f0", "bgBottom": "#ededed" },
+      "notes": "Engine preserved verbatim; skin re-tokened. Seven lookbook images: Higgsfield Soul 2.0."
+    },
+    {
+      "sectionId": "closing-stage",
+      "slot": 7,
+      "composition": "ai-studio-cta",
+      "sceneId": "onyx-cubes",
+      "file": "src/components/common/closing/closing-stage.tsx + src/lib/scene/onyx-cubes.ts",
+      "sceneParams": { "cubeColor": "#000000 (--foreground)", "envTint": "#0051ff (--accent) × 0.42", "background": "transparent canvas over the page's porcelain→surface-raised wash", "centerX": 2.4 },
+      "notes": "Tint applied through CONFIG per the contract; the ground moved to the DOM so the copy beside the swarm keeps its ink."
+    },
+    {
+      "sectionId": "site-footer",
+      "slot": 8,
+      "composition": "artist-footer",
+      "file": "src/components/common/footer/site-footer.tsx",
+      "notes": "On the accent plane: 5|2|2|3 columns, ODORO at 18.5vw at 10% ink, hairline legal bar."
+    }
+  ],
+  "notes": "ODORO — clothing brand template. Brief in user's words: video background scrolling with parallax, aesthetic, text reveals, good copywriting, feel 3D and depth, light. Reference photos: editorial studio (grey/white seamless, C-stands, softbox, director's chairs, oversized tailoring + streetwear, magazines on floor). Hero video generated on Higgsfield Seedance 2.5 1080p; HEVC master kept out of the repo, H.264 + WebM shipped. Template ai-creator is a REFERENCE for rhythm and the reveal engine only; the page is composed section by section. Accent stays electric blue, rationed to curtain / primary pills / footer plane. Chrome (header + floating pill) reads the scroll once per frame on the shared ticker."
+}

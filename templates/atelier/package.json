@@ -1,0 +1,34 @@
+{
+  "name": "odoro-atelier",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Un label de mode parisien : un film de studio epingle, un manifeste, six pieces, un carrousel de lookbook en 3D et un ecran de cloture en WebGL.",
+  "scripts": {
+    "dev": "odoro dev",
+    "build": "odoro build",
+    "preview": "odoro preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@odoro-cli/libs": "^2.0.0",
+    "@react-spring/web": "^10.1.2",
+    "cannon-es": "^0.20.0",
+    "lenis": "^1.3.26",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "resize-observer-polyfill": "^1.5.1",
+    "spring-text-engine": "^0.1.5",
+    "three": "^0.186.0",
+    "zod": "^4.4.3",
+    "zustand": "^5.0.15"
+  },
+  "devDependencies": {
+    "@types/node": "^24",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "@types/three": "^0.186.0",
+    "odoro": "^2.0.0",
+    "typescript": "^5.9.3"
+  }
+}

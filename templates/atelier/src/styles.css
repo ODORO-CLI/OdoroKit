@@ -1,0 +1,588 @@
+/* ===========================================================================
+   La feuille du projet.
+
+   Les etages de jetons sont ceux de l original, mot pour mot : c est la le
+   design, et il ne bouge pas. Ce qui a change : le bloc qui les liait a un
+   generateur d utilitaires devient des variables ordinaires, les couches
+   sortent de leur couche, et les mesures que l original ecrivait en valeurs
+   arbitraires deviennent des classes `at-*` portant la meme declaration.
+
+   Ces dernieres sont derivees — pas ecrites a la main — par
+   `scripts/derive-template-classes.mjs`, a partir du bloc de jetons ci-dessous.
+   =========================================================================== */
+
+/* ---------------------------------------------------------------------------
+   LES POLICES
+
+   Trois voix : la Melodrama pour le titrage, l Instrument Serif pour les
+   citations, la Mulish pour la copie.
+
+   L original les liait depuis son `layout`. Le lien est ici, ou la feuille peut
+   le tenir seule. La Melodrama vient d une fonderie que le fournisseur ne sert
+   pas : son fichier voyage avec le projet, et sa licence est dans
+   `src/assets/fonts/LICENCES.md`. Les deux autres viennent de Google Fonts,
+   sous licence SIL OFL 1.1.
+   --------------------------------------------------------------------------- */
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Mulish:wght@200..1000&display=swap');
+
+@font-face {
+  font-family: 'Melodrama';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url('./assets/fonts/melodrama-light.woff2') format('woff2');
+}
+
+:root {
+  --font-melodrama: 'Melodrama', Georgia, serif;
+  --font-instrument-serif: 'Instrument Serif', Georgia, 'Times New Roman', serif;
+  --font-mulish: 'Mulish', ui-sans-serif, system-ui, sans-serif;
+}
+
+/* ---------------------------------------------------------------------------
+   TIER 1 — PRIMITIVES  (`--raw-*`)
+   Raw literal values. The only tier allowed to contain a hex/px/ms literal.
+   Never referenced in markup, never bound into @theme. Rename freely.
+   Grammar: --raw-<category>-<name>[-<shade>]
+   See obsidian/frontend/design-system.md → "Token naming convention".
+
+   The palette is the committed GetLayers Style `ai-creator-style` (see
+   getlayers.json): porcelain rather than white, black ink, ONE accent —
+   electric blue — rationed to the curtain, the primary control and the
+   closing plane. There is no grey scale: hierarchy is size and face, and
+   quieter ink is the same black at a lower alpha.
+   --------------------------------------------------------------------------- */
+:root {
+  --raw-color-white: #ffffff;
+  --raw-color-black: #000000;
+  /* Porcelain, a shade below paper, so the video's own white light and the
+     product plates read as light rather than as the page. */
+  --raw-color-porcelain: #f0f0f0;
+  --raw-color-porcelain-deep: #ededed;
+  --raw-color-electric-500: #0051ff;
+  --raw-color-electric-200: #9fc2ff;
+  --raw-color-neutral-900: #171717;
+
+  --raw-duration-fast: 150ms;
+  --raw-duration-normal: 250ms;
+  --raw-duration-slow: 700ms;
+
+  /* How far a block of copy rises into place. `rem`, so it re-bases with the
+     grid: the same nudge relative to the type at every width. */
+  --raw-size-lift: 1.5rem;
+}
+
+/* ---------------------------------------------------------------------------
+   TIER 2 — SEMANTIC  (role names, no namespace prefix)
+   Purpose, not appearance. Always `var(--raw-*)` — never a literal.
+   Grammar: --<role>[-<variant>][-<state>]
+
+   No `prefers-color-scheme` override on purpose: the Style is light-only. The
+   film is graded for a pale studio and the scene's cubes are lit against a
+   porcelain wash, so a dark ground would turn both to mud.
+   --------------------------------------------------------------------------- */
+:root {
+  --background: var(--raw-color-porcelain);
+  --foreground: var(--raw-color-black);
+  --foreground-muted: var(--raw-color-neutral-900);
+  --surface-raised: var(--raw-color-porcelain-deep);
+  --line: var(--raw-color-black);
+
+  --accent: var(--raw-color-electric-500);
+  --accent-foreground: var(--raw-color-white);
+  --glow: var(--raw-color-electric-200);
+
+  --duration-fast: var(--raw-duration-fast);
+  --duration-normal: var(--raw-duration-normal);
+  --duration-slow: var(--raw-duration-slow);
+
+  /* ---------------------------------------------------------------------------
+     The frame's scale — type and touch targets with px floors.
+
+     The composition is measured in `vw` so it scales with the window's width
+     as one drawing; type and controls cannot, because at 390px a `1.1111vw`
+     sentence is 4px. Each of these is `max(floor, design)`: the design's own
+     `vw` wherever there is room, a readable size when there is not.
+
+     The floors are in `px` deliberately: this app re-bases the root font-size
+     per breakpoint, so a `rem` floor shrinks with the very grid it is meant to
+     hold against. `px` is the only unit here that means what it says. */
+  --frame-lead: max(24px, 2.7778vw);
+  --frame-body: max(14px, 1.1111vw);
+  --frame-figure: max(30px, 2.7778vw);
+  --frame-nav: max(16px, 1.25vw);
+  --frame-caption: max(11px, 0.8333vw);
+  /* 46px, comfortably past the 44 a thumb reliably hits. */
+  --frame-control: max(46px, 3.4722vw);
+  --frame-gutter: max(22px, 2.0833vw);
+
+  /* The lift a block's copy arrives with — see `stageRise`. */
+  --stage-rise: var(--raw-size-lift);
+}
+
+/* ---------------------------------------------------------------------------
+   THEME BINDINGS — map semantic tokens into Tailwind namespaces.
+   Every entry is exactly `--<tw-namespace>-<role>: var(--<role>)`.
+   `inline` is required: it inlines the var() into each utility, so any Tier 2
+   override cascades. Binding a literal here instead would freeze the value.
+
+   Only these namespaces generate utilities (verified against tailwindcss
+   v4.3.3): --color-* --spacing-* --radius-* --leading-* --tracking-* --text-*
+   --font-* --ease-* --breakpoint-* --container-* --shadow-* --blur-* --animate-*
+   NOTE: there is NO --duration-* namespace in v4 — `duration-fast` compiles to
+   nothing. Durations stay Tier 2 only and are used as duration-[var(--duration-fast)].
+   --------------------------------------------------------------------------- */
+/* ---------------------------------------------------------------------------
+   LES JETONS, EN VARIABLES
+
+   Ils ne sont plus lies a un generateur d utilitaires. Les classes que le
+   balisage emploie sont declarees plus bas, derivees de ce meme bloc.
+   --------------------------------------------------------------------------- */
+:root {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-foreground-muted: var(--foreground-muted);
+  --color-surface-raised: var(--surface-raised);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-glow: var(--glow);
+
+  /* Three faces, three jobs: the display serif carries the name and the
+     headings, the text serif the lines that speak, the sans the small print. */
+  --font-display: var(--font-melodrama);
+  --font-serif: var(--font-instrument-serif);
+  --font-sans: var(--font-mulish);
+
+  /* Leading floor for clipped TextEngine reveals — see
+     obsidian/frontend/text-engine.md → "Alignment & line-height". */
+  --leading-display: 1.1;
+
+  --ease-entrance: cubic-bezier(0.2, 0, 0, 1);
+
+  /* Tier 3 — the one card corner the Style allows. Controls are full pills. */
+  --radius-card: 1.1rem;
+
+  --text-frame-lead: var(--frame-lead);
+  --text-frame-body: var(--frame-body);
+  --text-frame-figure: var(--frame-figure);
+  --text-frame-nav: var(--frame-nav);
+  --text-frame-caption: var(--frame-caption);
+  --spacing-frame-gutter: var(--frame-gutter);
+  --spacing-frame-control: var(--frame-control);
+}
+
+/* The starter centred an empty page on a fixed 100vh/100vw box. With full-bleed
+   content that box shrink-wraps `main` and 100vw adds a horizontal scrollbar
+   past one screen. Size to content instead; sections declare their own height. */
+body {
+  background: var(--background);
+  color: var(--foreground);
+  min-height: 100vh;
+  min-height: 100lvh;
+  width: 100%;
+}
+
+
+/* Adaptive scaling grid — scales the root font-size with the viewport so a
+   rem-based layout stays proportional. Each breakpoint divides FONT_BASE
+   (16px) by the design base width its range was laid out at:
+     font-size: 16 * 100 / baseWidth  (vw)
+   Above 1920px the AdaptiveGrid component takes over (scale-up).
+   Keep in sync with src/components/common/grid/grid.config.ts. */
+html {
+  font-size: 16px;
+}
+
+@media (max-width: 1920px) {
+  html {
+    font-size: 0.833333vw; /* 16 * 100 / 1920 */
+  }
+}
+
+@media (max-width: 1440px) {
+  html {
+    font-size: 1.111111vw; /* 16 * 100 / 1440 */
+  }
+}
+
+@media (max-width: 1024px) {
+  html {
+    font-size: 1.5625vw; /* 16 * 100 / 1024 */
+  }
+}
+
+@media (max-width: 640px) {
+  html {
+    font-size: 4.444444vw; /* 16 * 100 / 360 */
+  }
+}
+
+
+/* ---------------------------------------------------------------------------
+   `stacked:` — the windows a side-by-side band cannot be laid out in.
+
+   A shape question, not a width one: a chapter's heading beside its body, the
+   closing screen's copy beside the swarm, the footer's four columns — these
+   are *landscape* arrangements. A portrait tablet is far closer to a phone
+   than to the design, and a landscape phone is almost exactly the design's own
+   aspect. 1179px is the ceiling because past it the design's `vw` type has
+   caught up with the px floors and nothing is being stretched any more.
+   --------------------------------------------------------------------------- */
+
+/* ============================================================================
+   CE QUE LA REMISE A ZERO DE L AUTRE MOTEUR FOURNISSAIT
+
+   Le gabarit a ete ecrit au-dessus d une remise a zero qui n est pas la notre,
+   et il comptait dessus sans le dire — c est la nature meme d une remise a
+   zero. Les regles ci-dessous sont la difference exacte entre les deux,
+   relevee en comparant les styles calcules d un jeu d elements dans les deux
+   pages, et non devinee.
+
+   Sans elles, la premiere chose qu on voit est que **tous les liens
+   redeviennent bleus et soulignes** : le navigateur reprend la main sur une
+   ancre dont personne ne dit plus rien.
+
+   Ce bloc appartient au gabarit, pas au systeme. Ajouter ces regles a la
+   remise a zero d `@odoro-cli/libs` changerait le rendu de tout projet deja
+   livre, pour le confort d un portage.
+   ========================================================================== */
+
+a {
+  color: inherit;
+  text-decoration: inherit;
+}
+
+button,
+input,
+optgroup,
+select,
+textarea {
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  letter-spacing: inherit;
+  background-color: transparent;
+  border-radius: 0;
+}
+
+button,
+[type='button'],
+[type='reset'],
+[type='submit'] {
+  appearance: button;
+}
+
+/* La couleur de filet par defaut suit l encre, au lieu d un gris fixe : c est
+   ce qui rend `border` seul utilisable sans dire de quelle couleur. */
+*,
+::before,
+::after {
+  border-color: currentColor;
+}
+
+/* Une image posee dans une ligne de texte s aligne sur le milieu, pas sur la
+   ligne de base : sans cela elle laisse sous elle le jambage d une lettre. */
+img,
+svg,
+video,
+canvas,
+audio,
+iframe,
+embed,
+object {
+  vertical-align: middle;
+}
+
+/* Notre socle borne les `svg` a la largeur de leur parent ; celui d origine
+   non. Un sigle dessine plus large que sa boite s en trouvait retreci. */
+svg {
+  max-width: none;
+}
+
+hr {
+  height: 0;
+  margin: 0;
+  color: inherit;
+  border-top-width: 1px;
+}
+
+/* Notre socle donne la main au survol d un bouton ; celui d origine laissait la
+   fleche, comme le fait le navigateur seul. C est visible a chaque survol. */
+button,
+[role='button'] {
+  cursor: default;
+}
+
+/* Une image qui porte ses dimensions en attributs — `width="11" height="11"` —
+   et dont le CSS ne contraint que la largeur gardait chez nous sa hauteur
+   declaree, au lieu de la deduire du rapport. Les quatre crochets du hero de
+   `parfum` faisaient 8x11 au lieu de 8x8.
+
+   Le socle d origine posait `height: auto` ; le notre s en tient a la largeur.
+   Les utilitaires de hauteur sont ecrits apres cette feuille et l emportent
+   toujours. */
+img,
+video {
+  max-width: 100%;
+  height: auto;
+}
+
+
+/* ============================================================================
+   LES CLASSES QUE LE GENERATEUR NE PRODUIT PAS
+
+   Chaque selecteur repete sa classe : les utilitaires du systeme sont ecrits
+   **apres** cette feuille dans le paquet final, et a specificite egale c est le
+   dernier qui gagne.
+   ========================================================================== */
+
+.at-font-sans.at-font-sans { font-family: var(--font-mulish); }
+.at-font-serif.at-font-serif { font-family: var(--font-instrument-serif); }
+.at-ease-entrance.at-ease-entrance { transition-timing-function: cubic-bezier(0.2, 0, 0, 1); }
+.at-bg-linear-to-b.at-bg-linear-to-b { background-image: linear-gradient(to bottom, var(--at-stops)); }
+.at-bg-linear-to-t.at-bg-linear-to-t { background-image: linear-gradient(to top, var(--at-stops)); }
+.at-data-on-true-bg-accent.at-data-on-true-bg-accent[data-on="true"] { background-color: var(--accent); }
+.at-data-on-true-w-6.at-data-on-true-w-6[data-on="true"] { width: 1.5rem; }
+.at-data-drag-cursor-grabbing.at-data-drag-cursor-grabbing[data-drag] { cursor: grabbing; }
+.at-from-background.at-from-background { --at-from: var(--background); --at-stops: var(--at-via-stops, var(--at-from) var(--at-from-pos, 0%), var(--at-to, color-mix(in oklab, var(--at-from) 0%, transparent)) var(--at-to-pos, 100%)); }
+.at-from-background-85.at-from-background-85 { --at-from: color-mix(in srgb, var(--background) 85%, transparent); --at-stops: var(--at-via-stops, var(--at-from) var(--at-from-pos, 0%), var(--at-to, color-mix(in oklab, var(--at-from) 0%, transparent)) var(--at-to-pos, 100%)); }
+.at-from-foreground-85.at-from-foreground-85 { --at-from: color-mix(in srgb, var(--foreground) 85%, transparent); --at-stops: var(--at-via-stops, var(--at-from) var(--at-from-pos, 0%), var(--at-to, color-mix(in oklab, var(--at-from) 0%, transparent)) var(--at-to-pos, 100%)); }
+[data-front] .at-in-data-front-shadow-0-40px-90px-20px-var-tw-shadow-color.at-in-data-front-shadow-0-40px-90px-20px-var-tw-shadow-color { box-shadow: 0 40px 90px -20px var(--at-shadow-color); }
+.at-shadow-foreground-40.at-shadow-foreground-40 { --at-shadow-color: color-mix(in srgb, var(--foreground) 40%, transparent); }
+.at-to-55.at-to-55 { --at-to-pos: 55%; }
+.at-to-surface-raised.at-to-surface-raised { --at-to: var(--surface-raised); --at-stops: var(--at-via-stops, var(--at-from, color-mix(in oklab, var(--at-to) 0%, transparent)) var(--at-from-pos, 0%), var(--at-to) var(--at-to-pos, 100%)); }
+.at-transform-3d.at-transform-3d { transform-style: preserve-3d; }
+.at-via-30.at-via-30 { --at-via-pos: 30%; }
+.at-via-background-30.at-via-background-30 { --at-via: color-mix(in srgb, var(--background) 30%, transparent); --at-via-stops: var(--at-from, color-mix(in oklab, var(--at-via) 0%, transparent)) var(--at-from-pos, 0%), var(--at-via) var(--at-via-pos, 50%), var(--at-to, color-mix(in oklab, var(--at-via) 0%, transparent)) var(--at-to-pos, 100%); --at-stops: var(--at-via-stops); }
+.at-via-foreground-25.at-via-foreground-25 { --at-via: color-mix(in srgb, var(--foreground) 25%, transparent); --at-via-stops: var(--at-from, color-mix(in oklab, var(--at-via) 0%, transparent)) var(--at-from-pos, 0%), var(--at-via) var(--at-via-pos, 50%), var(--at-to, color-mix(in oklab, var(--at-via) 0%, transparent)) var(--at-to-pos, 100%); --at-stops: var(--at-via-stops); }
+.at--mb-0-16em.at--mb-0-16em { margin-bottom: -0.16em; }
+.at--mb-0-18em.at--mb-0-18em { margin-bottom: -0.18em; }
+.at--mx-frame-gutter.at--mx-frame-gutter { margin-inline: calc(-1 * var(--spacing-frame-gutter)); }
+.at--my-0-15em.at--my-0-15em { margin-block: -0.15em; }
+.at--rotate-90.at--rotate-90 { rotate: -90deg; }
+.at--translate-x-1-2.at--translate-x-1-2 { --at-tx: -50%; translate: var(--at-tx, 0) var(--at-ty, 0); }
+.at--translate-y-1-2.at--translate-y-1-2 { --at-ty: -50%; translate: var(--at-tx, 0) var(--at-ty, 0); }
+.at-after-bg-line-20.at-after-bg-line-20::after { background-color: color-mix(in srgb, var(--line) 20%, transparent); }
+.at-after-h-px.at-after-h-px::after { height: 1px; }
+.at-after-w-6.at-after-w-6::after { width: 1.5rem; }
+.at-aspect-4-5.at-aspect-4-5 { aspect-ratio: 4 / 5; }
+.at-backface-hidden.at-backface-hidden { backface-visibility: hidden; }
+.at-before-bg-line-20.at-before-bg-line-20::before { background-color: color-mix(in srgb, var(--line) 20%, transparent); }
+.at-before-h-px.at-before-h-px::before { height: 1px; }
+.at-before-w-6.at-before-w-6::before { width: 1.5rem; }
+.at-bg-accent.at-bg-accent { background-color: var(--accent); }
+.at-bg-background.at-bg-background { background-color: var(--background); }
+.at-bg-background-60.at-bg-background-60 { background-color: color-mix(in srgb, var(--background) 60%, transparent); }
+.at-bg-background-95.at-bg-background-95 { background-color: color-mix(in srgb, var(--background) 95%, transparent); }
+.at-bg-black-40.at-bg-black-40 { background-color: color-mix(in srgb, #000 40%, transparent); }
+.at-bg-foreground.at-bg-foreground { background-color: var(--foreground); }
+.at-bg-foreground-10.at-bg-foreground-10 { background-color: color-mix(in srgb, var(--foreground) 10%, transparent); }
+.at-bg-foreground-15.at-bg-foreground-15 { background-color: color-mix(in srgb, var(--foreground) 15%, transparent); }
+.at-bg-line-30.at-bg-line-30 { background-color: color-mix(in srgb, var(--line) 30%, transparent); }
+.at-bg-surface-raised.at-bg-surface-raised { background-color: var(--surface-raised); }
+.at-border-accent-foreground-20.at-border-accent-foreground-20 { border-color: color-mix(in srgb, var(--accent-foreground) 20%, transparent); }
+.at-border-foreground-10.at-border-foreground-10 { border-color: color-mix(in srgb, var(--foreground) 10%, transparent); }
+.at-border-foreground-15.at-border-foreground-15 { border-color: color-mix(in srgb, var(--foreground) 15%, transparent); }
+.at-border-line-10.at-border-line-10 { border-color: color-mix(in srgb, var(--line) 10%, transparent); }
+.at-border-line-15.at-border-line-15 { border-color: color-mix(in srgb, var(--line) 15%, transparent); }
+.at-bottom-calc-100-0-75rem.at-bottom-calc-100-0-75rem { bottom: calc(100% + 0.75rem); }
+.at-bottom-clamp-124px-17vh-156px.at-bottom-clamp-124px-17vh-156px { bottom: clamp(124px,17vh,156px); }
+.at-bottom-frame-gutter.at-bottom-frame-gutter { bottom: var(--spacing-frame-gutter); }
+.at-col-start-9.at-col-start-9 { grid-column-start: 9; }
+.at-duration-var-duration-fast.at-duration-var-duration-fast { transition-duration: var(--duration-fast); }
+.at-duration-var-duration-normal.at-duration-var-duration-normal { transition-duration: var(--duration-normal); }
+.at-duration-var-duration-slow.at-duration-var-duration-slow { transition-duration: var(--duration-slow); }
+.at-focus-visible-outline-2.at-focus-visible-outline-2:focus-visible { outline-width: 2px; outline-style: solid; }
+.at-focus-visible-outline-foreground.at-focus-visible-outline-foreground:focus-visible { outline-color: var(--foreground); }
+.at-focus-visible-outline-offset-2.at-focus-visible-outline-offset-2:focus-visible { outline-offset: 2px; }
+.at-font-display.at-font-display { font-family: var(--font-melodrama); }
+.at-gap-0-1389vw.at-gap-0-1389vw { gap: 0.1389vw; }
+.at-gap-0-22rem.at-gap-0-22rem { gap: 0.22rem; }
+.at-gap-1-2vw.at-gap-1-2vw { gap: 1.2vw; }
+.at-gap-1vw.at-gap-1vw { gap: 1vw; }
+.at-gap-7px.at-gap-7px { gap: 7px; }
+.at-gap-max-12px-2-2222vw.at-gap-max-12px-2-2222vw { gap: max(12px,2.2222vw); }
+.at-gap-max-18px-2-2vw.at-gap-max-18px-2-2vw { gap: max(18px,2.2vw); }
+.at-gap-x-2vw.at-gap-x-2vw { column-gap: 2vw; }
+.at-gap-y-4vw.at-gap-y-4vw { row-gap: 4vw; }
+.at-grid-cols-1fr-auto-1fr.at-grid-cols-1fr-auto-1fr { grid-template-columns: 1fr auto 1fr; }
+.group:hover .at-group-hover-opacity-100.at-group-hover-opacity-100 { opacity: 1; }
+.at-h-18px.at-h-18px { height: 18px; }
+.at-h-26vh.at-h-26vh { height: 26vh; }
+.at-h-46.at-h-46 { height: 46%; }
+.at-h-max-40px-2-6vw.at-h-max-40px-2-6vw { height: max(40px,2.6vw); }
+.at-h-frame-control.at-h-frame-control { height: var(--spacing-frame-control); }
+.at-h-lvh.at-h-lvh { height: 100lvh; }
+.at-hover-bg-foreground.at-hover-bg-foreground:hover { background-color: var(--foreground); }
+.at-hover-bg-foreground-5.at-hover-bg-foreground-5:hover { background-color: color-mix(in srgb, var(--foreground) 5%, transparent); }
+.at-hover-border-foreground.at-hover-border-foreground:hover { border-color: var(--foreground); }
+.at-hover-scale-1-05.at-hover-scale-1-05:hover { scale: 1.05; }
+.at-hover-text-background.at-hover-text-background:hover { color: var(--background); }
+.at-hover-text-foreground-70.at-hover-text-foreground-70:hover { color: color-mix(in srgb, var(--foreground) 70%, transparent); }
+.at-inset-x-3-5.at-inset-x-3-5 { left: 0.875rem; right: 0.875rem; }
+.at-leading-0-82.at-leading-0-82 { line-height: 0.82; }
+.at-leading-0-8.at-leading-0-8 { line-height: 0.8; }
+.at-leading-0-95.at-leading-0-95 { line-height: 0.95; }
+.at-leading-0-9.at-leading-0-9 { line-height: 0.9; }
+.at-leading-1-05.at-leading-1-05 { line-height: 1.05; }
+.at-leading-1-15.at-leading-1-15 { line-height: 1.15; }
+.at-leading-1-22.at-leading-1-22 { line-height: 1.22; }
+.at-leading-1-5.at-leading-1-5 { line-height: 1.5; }
+.at-leading-display.at-leading-display { line-height: 1.1; }
+.at-leading-none.at-leading-none { line-height: 1; }
+.at-left-3px.at-left-3px { left: 3px; }
+.at-left-clamp-22px-3-4vw-40px.at-left-clamp-22px-3-4vw-40px { left: clamp(22px,3.4vw,40px); }
+.at-max-h-calc-100dvh-1-5rem.at-max-h-calc-100dvh-1-5rem { max-height: calc(100dvh - 1.5rem); }
+.at-max-w-26ch.at-max-w-26ch { max-width: 26ch; }
+.at-max-w-28ch.at-max-w-28ch { max-width: 28ch; }
+.at-max-w-30ch.at-max-w-30ch { max-width: 30ch; }
+.at-max-w-34ch.at-max-w-34ch { max-width: 34ch; }
+.at-max-w-38rem.at-max-w-38rem { max-width: 38rem; }
+.at-max-w-560px.at-max-w-560px { max-width: 560px; }
+.at-max-w-64vw.at-max-w-64vw { max-width: 64vw; }
+.at-ml-8-3vw.at-ml-8-3vw { margin-left: 8.3vw; }
+.at-mt-0-8vw.at-mt-0-8vw { margin-top: 0.8vw; }
+.at-mt-1-4vw.at-mt-1-4vw { margin-top: 1.4vw; }
+.at-mt-1-6vw.at-mt-1-6vw { margin-top: 1.6vw; }
+.at-mt-2-4vw.at-mt-2-4vw { margin-top: 2.4vw; }
+.at-mt-2vw.at-mt-2vw { margin-top: 2vw; }
+.at-mt-3vw.at-mt-3vw { margin-top: 3vw; }
+.at-mt-5vw.at-mt-5vw { margin-top: 5vw; }
+.at-mt-6vw.at-mt-6vw { margin-top: 6vw; }
+.at-overflow-x-clip.at-overflow-x-clip { overflow-x: clip; }
+.at-pb-9vw.at-pb-9vw { padding-bottom: 9vw; }
+.at-pb-calc-var-frame-gutter-var-frame-control-4lvh.at-pb-calc-var-frame-gutter-var-frame-control-4lvh { padding-bottom: calc(var(--frame-gutter) + var(--frame-control) + 4lvh); }
+.at-pb-clamp-22px-4vh-40px.at-pb-clamp-22px-4vh-40px { padding-bottom: clamp(22px,4vh,40px); }
+.at-pt-8vw.at-pt-8vw { padding-top: 8vw; }
+.at-pt-max-96px-8vw.at-pt-max-96px-8vw { padding-top: max(96px,8vw); }
+.at-px-max-16px-3-3333vw.at-px-max-16px-3-3333vw { padding-inline: max(16px,3.3333vw); }
+.at-px-max-24px-2-8vw.at-px-max-24px-2-8vw { padding-inline: max(24px,2.8vw); }
+.at-px-max-24px-3-3333vw.at-px-max-24px-3-3333vw { padding-inline: max(24px,3.3333vw); }
+.at-px-frame-gutter.at-px-frame-gutter { padding-inline: var(--spacing-frame-gutter); }
+.at-py-0-15em.at-py-0-15em { padding-block: 0.15em; }
+.at-py-12lvh.at-py-12lvh { padding-block: 12lvh; }
+.at-py-16lvh.at-py-16lvh { padding-block: 16lvh; }
+.at-py-max-18px-1-4vw.at-py-max-18px-1-4vw { padding-block: max(18px,1.4vw); }
+.at-py-frame-gutter.at-py-frame-gutter { padding-block: var(--spacing-frame-gutter); }
+.at-right-clamp-22px-3-4vw-40px.at-right-clamp-22px-3-4vw-40px { right: clamp(22px,3.4vw,40px); }
+.at-rounded-10px.at-rounded-10px { border-radius: 10px; }
+.at-rounded-50.at-rounded-50 { border-radius: 50%; }
+.at-rounded-card.at-rounded-card { border-radius: 1.1rem; }
+.at-shadow.at-shadow { box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1); }
+.at-shadow-0-26px-60px-18px-var-tw-shadow-color.at-shadow-0-26px-60px-18px-var-tw-shadow-color { box-shadow: 0 26px 60px -18px var(--at-shadow-color); }
+.at-size-frame-control.at-size-frame-control { width: var(--spacing-frame-control); height: var(--spacing-frame-control); }
+.at-text-1-75rem.at-text-1-75rem { font-size: 1.75rem; }
+.at-text-18-5vw.at-text-18-5vw { font-size: 18.5vw; }
+.at-text-19px.at-text-19px { font-size: 19px; }
+.at-text-2-1rem.at-text-2-1rem { font-size: 2.1rem; }
+.at-text-2-2rem.at-text-2-2rem { font-size: 2.2rem; }
+.at-text-22vw.at-text-22vw { font-size: 22vw; }
+.at-text-27vw.at-text-27vw { font-size: 27vw; }
+.at-text-3-4vw.at-text-3-4vw { font-size: 3.4vw; }
+.at-text-4-6vw.at-text-4-6vw { font-size: 4.6vw; }
+.at-text-42vh.at-text-42vh { font-size: 42vh; }
+.at-text-5-6vw.at-text-5-6vw { font-size: 5.6vw; }
+.at-text-7vw.at-text-7vw { font-size: 7vw; }
+.at-text-clamp-22px-2-8vw-34px.at-text-clamp-22px-2-8vw-34px { font-size: clamp(22px,2.8vw,34px); }
+.at-text-max-15px-1-2vw.at-text-max-15px-1-2vw { font-size: max(15px,1.2vw); }
+.at-text-accent-foreground.at-text-accent-foreground { color: var(--accent-foreground); }
+.at-text-accent-foreground-10.at-text-accent-foreground-10 { color: color-mix(in srgb, var(--accent-foreground) 10%, transparent); }
+.at-text-accent-foreground-70.at-text-accent-foreground-70 { color: color-mix(in srgb, var(--accent-foreground) 70%, transparent); }
+.at-text-accent-foreground-80.at-text-accent-foreground-80 { color: color-mix(in srgb, var(--accent-foreground) 80%, transparent); }
+.at-text-background.at-text-background { color: var(--background); }
+.at-text-background-90.at-text-background-90 { color: color-mix(in srgb, var(--background) 90%, transparent); }
+.at-text-foreground.at-text-foreground { color: var(--foreground); }
+.at-text-foreground-muted.at-text-foreground-muted { color: var(--foreground-muted); }
+.at-text-foreground-muted-60.at-text-foreground-muted-60 { color: color-mix(in srgb, var(--foreground-muted) 60%, transparent); }
+.at-text-foreground-muted-70.at-text-foreground-muted-70 { color: color-mix(in srgb, var(--foreground-muted) 70%, transparent); }
+.at-text-foreground-muted-80.at-text-foreground-muted-80 { color: color-mix(in srgb, var(--foreground-muted) 80%, transparent); }
+.at-text-foreground-40.at-text-foreground-40 { color: color-mix(in srgb, var(--foreground) 40%, transparent); }
+.at-text-foreground-60.at-text-foreground-60 { color: color-mix(in srgb, var(--foreground) 60%, transparent); }
+.at-text-foreground-70.at-text-foreground-70 { color: color-mix(in srgb, var(--foreground) 70%, transparent); }
+.at-text-foreground-0-045.at-text-foreground-0-045 { color: color-mix(in srgb, var(--foreground) 4.5%, transparent); }
+.at-text-frame-body.at-text-frame-body { font-size: var(--frame-body); }
+.at-text-frame-caption.at-text-frame-caption { font-size: var(--frame-caption); }
+.at-text-frame-figure.at-text-frame-figure { font-size: var(--frame-figure); }
+.at-text-frame-lead.at-text-frame-lead { font-size: var(--frame-lead); }
+.at-text-frame-nav.at-text-frame-nav { font-size: var(--frame-nav); }
+.at-top-3px.at-top-3px { top: 3px; }
+.at-top-51.at-top-51 { top: 51%; }
+.at-top-68.at-top-68 { top: 68%; }
+.at-top-max-80px-13vh.at-top-max-80px-13vh { top: max(80px,13vh); }
+.at-tracking-0-018em.at-tracking-0-018em { letter-spacing: -0.018em; }
+.at-tracking-0-01em.at-tracking-0-01em { letter-spacing: -0.01em; }
+.at-tracking-0-025em.at-tracking-0-025em { letter-spacing: -0.025em; }
+.at-tracking-0-02em.at-tracking-0-02em { letter-spacing: -0.02em; }
+.at-tracking-0-035em.at-tracking-0-035em { letter-spacing: -0.035em; }
+.at-tracking-0-03em.at-tracking-0-03em { letter-spacing: -0.03em; }
+.at-tracking-0-04em.at-tracking-0-04em { letter-spacing: 0.04em; }
+.at-tracking-0-12em.at-tracking-0-12em { letter-spacing: 0.12em; }
+.at-tracking-0-16em.at-tracking-0-16em { letter-spacing: 0.16em; }
+.at-tracking-0-24em.at-tracking-0-24em { letter-spacing: 0.24em; }
+.at-tracking-0-26em.at-tracking-0-26em { letter-spacing: 0.26em; }
+.at-tracking-0-28em.at-tracking-0-28em { letter-spacing: 0.28em; }
+.at-tracking-0-2em.at-tracking-0-2em { letter-spacing: 0.2em; }
+.at-tracking-0-3em.at-tracking-0-3em { letter-spacing: 0.3em; }
+.at-transition-width-background-color.at-transition-width-background-color { transition-property: width, background-color; transition-timing-function: var(--default-transition-timing-function, cubic-bezier(0.4, 0, 0.2, 1)); transition-duration: var(--default-transition-duration, 150ms); }
+.at-w-18px.at-w-18px { width: 18px; }
+.at-w-3vw.at-w-3vw { width: 3vw; }
+.at-w-62vw.at-w-62vw { width: 62vw; }
+.at-w-calc-100vw-1-5rem.at-w-calc-100vw-1-5rem { width: calc(100vw - 1.5rem); }
+.at-z-1.at-z-1 { z-index: 1; }
+.at-z-2.at-z-2 { z-index: 2; }
+.at-z-60.at-z-60 { z-index: 60; }
+.at-z-100.at-z-100 { z-index: 100; }
+
+@media (min-width: 640px) {
+  .at-sm-w-420px.at-sm-w-420px { width: 420px; }
+}
+
+@media (max-width: 1179px) and (max-aspect-ratio: 1/1) {
+  .at-stacked-order-1.at-stacked-order-1 { order: 1; }
+  .at-stacked-order-2.at-stacked-order-2 { order: 2; }
+  .at-stacked-block.at-stacked-block { display: block; }
+  .at-stacked-col-span-1.at-stacked-col-span-1 { grid-column: span 1 / span 1; }
+  .at-stacked-col-span-2.at-stacked-col-span-2 { grid-column: span 2 / span 2; }
+  .at-stacked-flex.at-stacked-flex { display: flex; }
+  .at-stacked-flex-1.at-stacked-flex-1 { flex: 1 1 0%; }
+  .at-stacked-flex-col.at-stacked-flex-col { flex-direction: column; }
+  .at-stacked-gap-2.at-stacked-gap-2 { gap: 0.5rem; }
+  .at-stacked-gap-3.at-stacked-gap-3 { gap: 0.75rem; }
+  .at-stacked-gap-4.at-stacked-gap-4 { gap: 1rem; }
+  .at-stacked-gap-6.at-stacked-gap-6 { gap: 1.5rem; }
+  .at-stacked-gap-x-6.at-stacked-gap-x-6 { column-gap: 1.5rem; }
+  .at-stacked-gap-y-10.at-stacked-gap-y-10 { row-gap: 2.5rem; }
+  .at-stacked-grid-cols-2.at-stacked-grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .at-stacked-grid-cols-auto-1fr-auto.at-stacked-grid-cols-auto-1fr-auto { grid-template-columns: auto 1fr auto; }
+  .at-stacked-hidden.at-stacked-hidden { display: none; }
+  .at-stacked-items-center.at-stacked-items-center { align-items: center; }
+  .at-stacked-items-start.at-stacked-items-start { align-items: flex-start; }
+  .at-stacked-justify-end.at-stacked-justify-end { justify-content: flex-end; }
+  .at-stacked-justify-start.at-stacked-justify-start { justify-content: flex-start; }
+  .at-stacked-max-w-none.at-stacked-max-w-none { max-width: none; }
+  .at-stacked-ml-0.at-stacked-ml-0 { margin-left: 0rem; }
+  .at-stacked-mt-12.at-stacked-mt-12 { margin-top: 3rem; }
+  .at-stacked-mt-14.at-stacked-mt-14 { margin-top: 3.5rem; }
+  .at-stacked-mt-2.at-stacked-mt-2 { margin-top: 0.5rem; }
+  .at-stacked-mt-4.at-stacked-mt-4 { margin-top: 1rem; }
+  .at-stacked-mt-5.at-stacked-mt-5 { margin-top: 1.25rem; }
+  .at-stacked-mt-6.at-stacked-mt-6 { margin-top: 1.5rem; }
+  .at-stacked-mt-8.at-stacked-mt-8 { margin-top: 2rem; }
+  .at-stacked-pb-0.at-stacked-pb-0 { padding-bottom: 0rem; }
+  .at-stacked-pb-10lvh.at-stacked-pb-10lvh { padding-bottom: 10lvh; }
+  .at-stacked-pt-16.at-stacked-pt-16 { padding-top: 4rem; }
+  .at-stacked-pt-max-112px-24lvh.at-stacked-pt-max-112px-24lvh { padding-top: max(112px,24lvh); }
+  .at-stacked-py-14lvh.at-stacked-py-14lvh { padding-block: 14lvh; }
+  .at-stacked-self-start.at-stacked-self-start { align-self: flex-start; }
+  .at-stacked-size-11.at-stacked-size-11 { width: 2.75rem; height: 2.75rem; }
+  .at-stacked-text-1-5rem.at-stacked-text-1-5rem { font-size: 1.5rem; }
+  .at-stacked-text-10vw.at-stacked-text-10vw { font-size: 10vw; }
+  .at-stacked-text-11vw.at-stacked-text-11vw { font-size: 11vw; }
+  .at-stacked-text-13vw.at-stacked-text-13vw { font-size: 13vw; }
+  .at-stacked-text-26vw.at-stacked-text-26vw { font-size: 26vw; }
+  .at-stacked-text-30vh.at-stacked-text-30vh { font-size: 30vh; }
+  .at-stacked-text-7-6vw.at-stacked-text-7-6vw { font-size: 7.6vw; }
+  .at-stacked-text-9vw.at-stacked-text-9vw { font-size: 9vw; }
+  .at-stacked-text-left.at-stacked-text-left { text-align: left; }
+}
