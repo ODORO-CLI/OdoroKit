@@ -32,6 +32,16 @@ sont devenues des classes `al-*` déclarées dans la feuille, avec exactement la
 même déclaration. La table de correspondance est dans
 `scripts/lib/altitude-classes.mjs`, à la racine du dépôt.
 
+**La préséance du gabarit.** Les huit règles que le gabarit se donne —
+`.display`, `.label`, `.glass`, `.mask-line`, `.reveal-word`, `.sr-only` —
+répètent leur nom trois fois. Chez l'autre moteur le CSS de l'auteur n'est pas
+en couche et bat les utilitaires quelle que soit la spécificité ; ici c'est la
+spécificité qui doit le dire.
+
+Vérification : à 390, 768 et 1440 px, les 418 nœuds du `main` ont exactement la
+même boîte que l'original, et les deux socles concordent sur quinze balises et
+vingt propriétés.
+
 ## Trois choses à savoir avant d'y toucher
 
 **Les sélecteurs de la feuille répètent leur classe.** `.bg-ground.bg-ground`

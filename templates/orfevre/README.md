@@ -46,6 +46,25 @@ liait `--font-display` à une variable posée sur `body` en l'écrivant sur
 alors que le commentaire de `.display` dit le contraire. Elle est rétablie ici ;
 la note en tête du troisième étage dit quoi changer pour revenir en arrière.
 
+**Deux corrections mesurées après coup.** La remise à zéro du gabarit d'origine
+apportait des règles que la nôtre n'a pas — un lien sans couleur ni
+soulignement, un bouton sans rembourrage, `border-color: currentColor`,
+`vertical-align: middle` sur une image. Elles manquaient : 42 propriétés
+différaient sur quinze balises. Elles sont rétablies dans la section
+« compatibilité » de `src/styles.css`.
+
+Et les huit règles que le gabarit se donne — `.display`, `.label`, `.glass`,
+`.panel`, `.sr-only`, `.reveal-word` — répètent maintenant leur nom trois fois.
+Chez l'autre moteur le CSS de l'auteur n'est pas en couche et bat les
+utilitaires quelle que soit la spécificité ; ici c'est la spécificité qui doit
+le dire.
+
+Vérification : à 390, 768 et 1440 px, les 372 nœuds du `main` ont exactement la
+même boîte que l'original, et les deux socles concordent sur quinze balises et
+vingt propriétés. La comparaison se fait avec la même police des deux côtés,
+pour que la mesure porte sur la mise en page et non sur les métriques de la
+fonte.
+
 ## Le verre est fragile
 
 Le commentaire de `.glass` le dit déjà, et il faut le lire avant d'animer quoi

@@ -314,28 +314,28 @@ body {
 }
 
 /* Gilda is a high-contrast serif: below 1.1 the leading shaves the ascenders. */
-.display {
+.display.display.display {
   font-family: var(--font-display);
   line-height: 1.1;
   font-weight: 400;
 }
 
 /* Tracked-out caps carry every label on the page. */
-.label {
+.label.label.label {
   font-size: 0.6875rem;
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--ink-subtle);
 }
 
-.glass {
+.glass.glass.glass {
   background: var(--glass);
   backdrop-filter: blur(var(--glass-blur));
   -webkit-backdrop-filter: blur(var(--glass-blur));
 }
 
 /* A line mask clips descenders unless it is padded back out. */
-.mask-line {
+.mask-line.mask-line.mask-line {
   overflow: hidden;
   padding-bottom: 0.14em;
   margin-bottom: -0.14em;
@@ -359,7 +359,7 @@ body {
 /* ── word reveal (see components/reveal.tsx) ───────────────────────────────
    Opacity runs on a short curve that finishes at 30% of the blur's, so the
    word is solid while it is still resolving. */
-.reveal-word {
+.reveal-word.reveal-word.reveal-word {
   display: inline-block;
   opacity: 0;
   filter: blur(12px);
@@ -370,14 +370,14 @@ body {
   will-change: opacity, filter;
 }
 
-[data-in] .reveal-word {
+[data-in] .reveal-word.reveal-word.reveal-word {
   opacity: 1;
   filter: blur(0px);
 }
 
 @media (prefers-reduced-motion: reduce) {
   /* Reduce, don't delete: the page still resolves rather than snapping. */
-  .reveal-word {
+  .reveal-word.reveal-word.reveal-word {
     filter: none;
     transition: opacity 200ms linear;
   }
@@ -385,7 +385,7 @@ body {
 
 /* The intact sentence behind every split line: in the document and in the
    accessibility tree, out of the picture. */
-.sr-only {
+.sr-only.sr-only.sr-only {
   position: absolute;
   width: 1px;
   height: 1px;

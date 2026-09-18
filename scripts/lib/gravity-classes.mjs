@@ -17,6 +17,15 @@
 
 /** Arbitrary values, and the class of the template that replaces each. */
 export const RENAMED = {
+  /*
+   * Deux homonymes. Notre systeme connait `o-font-mono` et `o-ease-out`, et
+   * n entend pas la meme chose : ici la monospace est la JetBrains Mono, et la
+   * courbe part de `0.23, 1`. La passe les prefixait, et la valeur devenait la
+   * notre au lieu de la leur — sans qu aucune classe ne manque.
+   */
+  'font-mono': 'gv-font-mono',
+  'ease-out': 'gv-ease-out',
+
   // ---- Les translucidites. Le systeme ne decline pas d opacite sur une
   // couleur : `color-mix` est ce qui l exprime, et ce que la maison emploie.
   'bg-white/5': 'gv-fond-blanc-5',

@@ -372,12 +372,12 @@ export default function App() {
                 Nous concevons des expériences numériques qui écartent la
                 distraction et mettent l'attention en orbite.
               </p>
-              <p className="o-font-mono gv-fs-10 gv-tr-18 o-uppercase gv-encre-faible o-mt-6">
+              <p className="gv-font-mono gv-fs-10 gv-tr-18 o-uppercase gv-encre-faible o-mt-6">
                 © 2026 — Studio ODORO
               </p>
               <div className="o-hidden md:o-flex o-items-center o-gap-2 o-mt-5 gv-encre-douce">
                 <ArrowDown className="o-w-3.5 o-h-3.5 o-animate-bounce" />
-                <span className="o-font-mono gv-fs-10 gv-tr-20 o-uppercase">Faites défiler pour entrer</span>
+                <span className="gv-font-mono gv-fs-10 gv-tr-20 o-uppercase">Faites défiler pour entrer</span>
               </div>
             </motion.div>
           </div>
@@ -418,7 +418,7 @@ export default function App() {
                   className="group o-relative o-overflow-hidden o-flex o-items-center o-gap-5 md:o-gap-7 o-px-6 md:o-px-8 o-py-5 md:o-py-6 o-border-w-1 gv-filet-blanc-60 o-bg-gradient-to-br gv-degrade-de gv-degrade-vers o-backdrop-blur-2xl o-transition-transform gv-duree-500 gv-survol-monte"
                 >
                   {/* balayage de lustre en diagonale au survol */}
-                  <div className="o-pointer-events-none o-absolute o-inset-0 gv-tx-neg-140 o-skew-x-12 o-bg-gradient-to-r o-from-transparent gv-degrade-par o-to-transparent o-transition-transform gv-duree-1100 o-ease-out gv-parent-traverse" />
+                  <div className="o-pointer-events-none o-absolute o-inset-0 gv-tx-neg-140 o-skew-x-12 o-bg-gradient-to-r o-from-transparent gv-degrade-par o-to-transparent o-transition-transform gv-duree-1100 gv-ease-out gv-parent-traverse" />
 
                   {/* numéro d'index surdimensionné — rempli en dégradé, accroché à l'accent vivant */}
                   <span
@@ -432,13 +432,13 @@ export default function App() {
 
                   <div className="o-flex-1 o-min-w-0">
                     <div className="o-flex o-items-center o-gap-2">
-                      <span className="o-font-mono gv-fs-10 gv-tr-22 o-uppercase gv-encre-faible">{s.k}</span>
+                      <span className="gv-font-mono gv-fs-10 gv-tr-22 o-uppercase gv-encre-faible">{s.k}</span>
                       <span className="o-ml-auto o-flex o-items-center o-gap-1.5">
                         <span className="o-relative o-flex o-h-1.5 o-w-1.5">
                           <span className="o-absolute o-inline-flex o-h-full o-w-full o-rounded-full o-opacity-60 o-animate-ping" style={{ background: 'var(--accent)' }} />
                           <span className="o-relative o-inline-flex o-h-1.5 o-w-1.5 o-rounded-full" style={{ background: 'var(--accent)' }} />
                         </span>
-                        <span className="o-font-mono gv-fs-9 gv-tr-20 o-uppercase gv-encre-faible">direct</span>
+                        <span className="gv-font-mono gv-fs-9 gv-tr-20 o-uppercase gv-encre-faible">direct</span>
                       </span>
                     </div>
                     <div className="o-mt-1.5 font-raleway o-font-semibold gv-fs-21 gv-md-fs-23 o-leading-tight gv-encre">
@@ -477,7 +477,7 @@ export default function App() {
           <Reveal delay={0.28}>
             <div className="o-mt-7 o-inline-flex o-items-center o-gap-2 o-px-4 o-py-2.5 o-rounded-full glass gv-encre-douce">
               <MousePointer2 className="o-w-3.5 o-h-3.5" />
-              <span className="o-font-mono gv-fs-10 gv-tr-20 o-uppercase">Balayez au travers</span>
+              <span className="gv-font-mono gv-fs-10 gv-tr-20 o-uppercase">Balayez au travers</span>
             </div>
           </Reveal>
         </div>
@@ -545,7 +545,7 @@ export default function App() {
                     transition={{ delay: 0.12 + i * 0.06, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
                     className="display gv-fs-325r gv-lh-105 gv-encre o-flex o-items-center o-gap-3"
                   >
-                    <span className="o-font-mono gv-fs-12 o-font-normal gv-tr-10" style={{ color: 'var(--accent-ink)' }}>
+                    <span className="gv-font-mono gv-fs-12 o-font-normal gv-tr-10" style={{ color: 'var(--accent-ink)' }}>
                       0{i + 1}
                     </span>
                     <span>{l}</span>

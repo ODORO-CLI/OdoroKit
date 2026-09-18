@@ -297,6 +297,8 @@ const SIMPLES = {
   'backface-hidden': ['backface-visibility: hidden'],
   'self-auto': ['align-self: auto'],
   'object-contain': ['object-fit: contain'],
+  outline: ['outline-style: solid'],
+  'outline-hidden': ['outline: 2px solid transparent', 'outline-offset: 2px'],
   'flex-1': ['flex: 1 1 0%'],
   'flex-auto': ['flex: 1 1 auto'],
   'flex-initial': ['flex: 0 1 auto'],
@@ -418,6 +420,21 @@ function declarationsFor(name) {
   // Le `!` de tete forcait la priorite dans l autre moteur ; ici la
   // specificite doublee du selecteur fait le meme travail.
   const bare = (negative ? name.slice(1) : name).replace(/^!/, '')
+
+  // `scale-x-0`, `scale-y-110` : un pourcentage ecrit en centiemes, sur un axe.
+  const echelle = /^scale-(x|y)-(\d+)$/.exec(bare)
+  if (echelle !== null) {
+    const valeur = (negative ? -1 : 1) * Number(echelle[2]) / 100
+    return echelle[1] === 'x'
+      ? [`scale: ${String(valeur)} 1`]
+      : [`scale: 1 ${String(valeur)}`]
+  }
+
+  const uniforme = /^scale-(\d+)$/.exec(bare)
+  if (uniforme !== null) {
+    const valeur = (negative ? -1 : 1) * Number(uniforme[1]) / 100
+    return [`scale: ${String(valeur)}`]
+  }
 
   const travee = /^(col|row)-span-(\d+)$/.exec(bare)
   if (travee !== null) {

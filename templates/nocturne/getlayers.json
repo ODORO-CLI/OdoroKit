@@ -1,0 +1,56 @@
+{
+  "version": 1,
+  "brief": {
+    "purpose": "Landing page pour ODORO, agence de location de voitures d'exception",
+    "dimensionality": ["depth", "3d"],
+    "mood": ["brutal", "technical"],
+    "tone": ["dark"],
+    "motionEnergy": ["lively"],
+    "density": ["balanced"]
+  },
+  "styleId": "stride-nine-style",
+  "tokens": {
+    "gl-bg": "#171717",
+    "gl-bg-alt": "#0a0a0a",
+    "gl-surface": "#edebe808",
+    "gl-ink": "#ffffff",
+    "gl-ink-muted": "#ffffff80",
+    "gl-ink-subtle": "#ffffff40",
+    "gl-accent": "#ffffff",
+    "gl-accent-ink": "#000000",
+    "gl-line": "#ffffff40",
+    "gl-glow": "#ff9500",
+    "gl-font-display": "'Geist', ui-sans-serif, system-ui, sans-serif",
+    "gl-tracking-display": "-0.04em",
+    "gl-weight-display": "700",
+    "gl-radius": "0",
+    "gl-ease": "cubic-bezier(0.2, 0, 0, 1)"
+  },
+  "notes": [
+    "L'accent #ff9500 est NOMMÉ et volontairement ÉTEINT. Les seuls pixels saturés de la page sont les phares, la ville et la peinture. Donner une teinte à l'interface casse la prémisse du Style.",
+    "Il n'y a pas de surface de page : le fond EST le film, et #171717 n'est que ce qui s'affiche avant qu'il ne peigne. La lisibilité vient d'un dégradé, jamais d'une carte.",
+    "Le voile existe en deux versions, toutes deux porteuses : la rampe pleine puissance transforme le haut d'un écran de téléphone en rectangle noir, donc la version compacte baisse la densité du haut et étale la chute sur la moitié de l'écran.",
+    "Les filets ne prennent aucune place : un span de hauteur zéro avec un enfant d'1px en absolu. Ajouter un filet ne décale jamais la mise en page. 1px littéral, jamais un rem, parce que --grid-scale fait bouger les rem avec le viewport.",
+    "Le bouton primaire : la surface d'action et l'encre sur média sont TOUTES DEUX blanches, donc le hover est un balayage en scaleX et non un changement de couleur, et le label s'inverse en mix-blend-difference avec isolation sur le bouton.",
+    "Une seule famille, Geist, et aucune voix de readout : le Style ne définit pas de rôle mono, donc il n'y en a pas."
+  ],
+  "adaptations": [
+    "AJOUT ASSUMÉ : le voile du Style est une rampe VERTICALE, volontairement légère au centre — exactement là où un bloc de texte centré se pose, et exactement là où ce film met une skyline illuminée. Chaque chapitre apporte donc son propre voile latéral. L'instrument du Style est conservé (un dégradé, jamais une carte) ; seule sa direction est complétée, parce que le sujet est une ville de nuit et non une piste."
+  ],
+  "placed": [
+    { "section": "loader", "composition": "cover sombre, compteur honnête, sortie EN DIAGONALE sur l'axe −18°", "notes": "plafond 92, MIN_VISIBLE 1200ms, cap 7000ms, streaks sur le même axe" },
+    { "section": "hero", "composition": "stride-hero — plein cadre, display en bas à gauche, rangée d'assurances, carte de statut givrée", "asset": "film de la flotte, frame 0" },
+    { "section": "flotte", "composition": "card-grid 3-up, fiches techniques réglées", "asset": "6 voitures générées en studio, cadrage et lumière identiques" },
+    { "section": "details", "composition": "second film pinné, deux chapitres, copie à DROITE (la voiture occupe la gauche)" },
+    { "section": "garage", "composition": "cut-out 3D — le mot passe DERRIÈRE la voiture, dérive sur l'axe −18°", "asset": "car-cutout.png (détourage Higgsfield, alpha vérifié)" },
+    { "section": "services", "composition": "liste réglée, quatre lignes" },
+    { "section": "contact", "composition": "invitation + champs soulignés, une seule surface pleine : l'action" }
+  ],
+  "media": {
+    "source": "Higgsfield Seedance 2.5, 1080p 24 fps",
+    "flotte": "10 s — travelling latéral bas, parallaxe réel entre les voitures et la skyline, rien ne roule",
+    "details": "8 s — macro le long du flanc mouillé, la lumière court sur l'arête",
+    "images": "gpt-image-2.5 — 6 voitures studio, la disposition du hero, le détail macro, la voiture à détourer",
+    "inspection": "Chaque voiture contrôlée au recadrage x2 : emblèmes, signatures lumineuses, jantes, étriers. Une première série a été REJETÉE (double emblème et signature erronée sur la Ferrari). Défaut résiduel connu : un faux lettrage illisible dans le bloc optique de la Lamborghini, visible seulement au-delà de 150 % de zoom."
+  }
+}

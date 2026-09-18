@@ -214,13 +214,30 @@ const FAMILLES = {
   '--duration-': ['duration'],
 }
 
+/** Les noms de classe que le balisage ecrit vraiment. */
+const emploi = new Set()
+for (const file of sources(folder)) {
+  for (const mot of readFileSync(file, 'utf8').matchAll(/[\w:/[\]().%-]+/g)) {
+    emploi.add(mot[0])
+  }
+}
+
 const homonymes = []
 {
   const feuille = stylesheets(folder)
     .map((f) => readFileSync(f, 'utf8'))
     .join('\n')
-  const ouverture = /@theme(?:\s+inline)?\s*\{/.exec(feuille)
-  if (ouverture !== null) {
+  /*
+   * Les jetons ne sont pas tous dans un `@theme`.
+   *
+   * `gravity` vient d un autre outillage et declare les siens dans `:root` —
+   * dont `--font-mono: "JetBrains Mono", …` et `--ease-out: cubic-bezier(0.23,
+   * 1, 0.32, 1)`. Ne lire que `@theme` laissait la passe emprunter nos
+   * `o-font-mono` et `o-ease-out`, qui ne designent ni la meme pile ni la meme
+   * courbe. Rien ne manquait : la classe existait, elle disait autre chose.
+   */
+  const blocs = []
+  for (const ouverture of feuille.matchAll(/(?:@theme(?:\s+inline)?|:root)\s*\{/g)) {
     const open = ouverture.index + ouverture[0].length - 1
     let depth = 1
     let index = open + 1
@@ -229,7 +246,11 @@ const homonymes = []
       else if (feuille[index] === '}') depth -= 1
       index += 1
     }
-    for (const match of feuille.slice(open + 1, index - 1).matchAll(/(--[\w-]+)\s*:/g)) {
+    blocs.push(feuille.slice(open + 1, index - 1))
+  }
+
+  {
+    for (const match of blocs.join(String.fromCharCode(10)).matchAll(/(--[\w-]+)\s*:/g)) {
       for (const [espace, roots] of Object.entries(FAMILLES)) {
         if (!match[1].startsWith(espace)) continue
         const jeton = match[1].slice(espace.length)
@@ -238,6 +259,13 @@ const homonymes = []
           if (!KNOWN.has(`o-${nom}`)) continue
           if (revendiquees.has(nom)) continue
           if (table.RENAMED?.[nom] !== undefined) continue
+          /*
+           * Un jeton dont nous connaissons le nom n est un probleme que si la
+           * classe est **ecrite** quelque part. `nocturne` declare
+           * `--duration-fast` sans jamais poser `duration-fast` sur un
+           * element : le signaler ne dit rien et apprend a ne plus lire.
+           */
+          if (!emploi.has(`o-${nom}`) && !emploi.has(nom)) continue
           homonymes.push(nom)
         }
       }

@@ -67,7 +67,7 @@ export default function Footer() {
             variants={fadeUp}
             custom={0}
           >
-            <p className="o-font-mono gv-fs-11 gv-tr-25 o-uppercase gv-encre-blanc-40 o-mb-5">
+            <p className="gv-font-mono gv-fs-11 gv-tr-25 o-uppercase gv-encre-blanc-40 o-mb-5">
               [ Collaborons ]
             </p>
             <h2 className="font-raleway o-font-medium o-text-4xl md:o-text-6xl gv-lh-095 gv-tr-neg-03">
@@ -102,7 +102,7 @@ export default function Footer() {
                 variants={fadeUp}
                 custom={ci + 1}
               >
-                <h3 className="o-font-mono gv-fs-10 gv-tr-25 o-uppercase gv-encre-blanc-40 o-mb-5">
+                <h3 className="gv-font-mono gv-fs-10 gv-tr-25 o-uppercase gv-encre-blanc-40 o-mb-5">
                   {col.title}
                 </h3>
                 <ul className="o-space-y-3">
@@ -131,7 +131,7 @@ export default function Footer() {
               <span className="font-raleway o-font-semibold o-text-base gv-tr-neg-02 o-text-white o-lowercase">odoro</span>
             </span>
             <span className="o-w-1.5 o-h-1.5 o-rounded-full" style={{ background: 'var(--accent)' }} />
-            <p className="o-font-mono gv-fs-11 gv-encre-blanc-40">
+            <p className="gv-font-mono gv-fs-11 gv-encre-blanc-40">
               © 2026 Studio ODORO — Tous droits réservés.
             </p>
           </div>

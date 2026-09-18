@@ -276,13 +276,13 @@ body {
 
 /* Libre Caslon Display is HEADLINE-ONLY — its thick-thins fall apart as body
    text. Leading 1 for display, per the Style. */
-.display {
+.display.display.display {
   font-family: var(--font-display);
   font-weight: 400;
   line-height: 1;
 }
 
-.label {
+.label.label.label {
   font-size: 0.6875rem;
   font-weight: 500;
   letter-spacing: 0.16em;
@@ -292,13 +292,13 @@ body {
 /* GLASS IS FRAGILE: an `opacity` or a `filter` on ANY ancestor establishes a
    backdrop root — the blur then samples an empty backdrop, costs full GPU work
    and renders nothing. Never animate opacity on a parent of one of these. */
-.glass {
+.glass.glass.glass {
   background: var(--surface-glass);
   backdrop-filter: blur(var(--raw-blur-glass));
   -webkit-backdrop-filter: blur(var(--raw-blur-glass));
 }
 
-.panel {
+.panel.panel.panel {
   background: var(--surface-panel);
   backdrop-filter: blur(var(--raw-blur-panel));
   -webkit-backdrop-filter: blur(var(--raw-blur-panel));
@@ -309,7 +309,7 @@ body {
   color: var(--ground);
 }
 
-.sr-only {
+.sr-only.sr-only.sr-only {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -325,7 +325,7 @@ body {
    Blur is part of the arrival, not a decoration: the word resolves out of
    0.75rem of it, and opacity finishes early so the type is solid while it is
    still sharpening. Nothing here is clipped — `overflow` shears the halo. */
-.reveal-word {
+.reveal-word.reveal-word.reveal-word {
   display: inline-block;
   opacity: 0;
   filter: blur(0.75rem);
@@ -336,7 +336,7 @@ body {
   will-change: opacity, filter;
 }
 
-[data-in] .reveal-word {
+[data-in] .reveal-word.reveal-word.reveal-word {
   opacity: 1;
   /* Forced to 0rem rather than left to settle: a spring approaches its target
      asymptotically and would leave blur(0.02px) on the element for ever. Both
@@ -345,7 +345,7 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .reveal-word {
+  .reveal-word.reveal-word.reveal-word {
     filter: none;
     transition: opacity 200ms linear;
   }
@@ -367,4 +367,102 @@ body {
   :root {
     --film-track-scale: 0.62;
   }
+}
+
+/* ============================================================================
+   CE QUE LA REMISE A ZERO DE L AUTRE MOTEUR FOURNISSAIT
+
+   Le gabarit a ete ecrit au-dessus d une remise a zero qui n est pas la notre,
+   et il comptait dessus sans le dire — c est la nature meme d une remise a
+   zero. Les regles ci-dessous sont la difference exacte entre les deux,
+   relevee en comparant les styles calcules d un jeu d elements dans les deux
+   pages, et non devinee.
+
+   Sans elles, la premiere chose qu on voit est que **tous les liens
+   redeviennent bleus et soulignes** : le navigateur reprend la main sur une
+   ancre dont personne ne dit plus rien.
+
+   Ce bloc appartient au gabarit, pas au systeme. Ajouter ces regles a la
+   remise a zero d `@odoro-cli/libs` changerait le rendu de tout projet deja
+   livre, pour le confort d un portage.
+   ========================================================================== */
+
+a {
+  color: inherit;
+  text-decoration: inherit;
+}
+
+button,
+input,
+optgroup,
+select,
+textarea {
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  letter-spacing: inherit;
+  background-color: transparent;
+  border-radius: 0;
+}
+
+button,
+[type='button'],
+[type='reset'],
+[type='submit'] {
+  appearance: button;
+}
+
+/* La couleur de filet par defaut suit l encre, au lieu d un gris fixe : c est
+   ce qui rend `border` seul utilisable sans dire de quelle couleur. */
+*,
+::before,
+::after {
+  border-color: currentColor;
+}
+
+/* Une image posee dans une ligne de texte s aligne sur le milieu, pas sur la
+   ligne de base : sans cela elle laisse sous elle le jambage d une lettre. */
+img,
+svg,
+video,
+canvas,
+audio,
+iframe,
+embed,
+object {
+  vertical-align: middle;
+}
+
+/* Notre socle borne les `svg` a la largeur de leur parent ; celui d origine
+   non. Un sigle dessine plus large que sa boite s en trouvait retreci. */
+svg {
+  max-width: none;
+}
+
+hr {
+  height: 0;
+  margin: 0;
+  color: inherit;
+  border-top-width: 1px;
+}
+
+/* Notre socle donne la main au survol d un bouton ; celui d origine laissait la
+   fleche, comme le fait le navigateur seul. C est visible a chaque survol. */
+button,
+[role='button'] {
+  cursor: default;
+}
+
+/* Une image qui porte ses dimensions en attributs — `width="11" height="11"` —
+   et dont le CSS ne contraint que la largeur gardait chez nous sa hauteur
+   declaree, au lieu de la deduire du rapport. Les quatre crochets du hero de
+   `parfum` faisaient 8x11 au lieu de 8x8.
+
+   Le socle d origine posait `height: auto` ; le notre s en tient a la largeur.
+   Les utilitaires de hauteur sont ecrits apres cette feuille et l emportent
+   toujours. */
+img,
+video {
+  max-width: 100%;
+  height: auto;
 }

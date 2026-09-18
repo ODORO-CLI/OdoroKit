@@ -196,7 +196,7 @@ html.lenis, html.lenis body { height: auto; }
 /* ----------------------------------------------------------------------------
    UTILITAIRES TYPOGRAPHIQUES
 ---------------------------------------------------------------------------- */
-.font-serif-italic {
+.font-serif-italic.font-serif-italic.font-serif-italic {
   font-family: var(--font-serif);
   font-style: italic;
   font-weight: 400;
@@ -204,7 +204,7 @@ html.lenis, html.lenis body { height: auto; }
 }
 
 /* Le titre d'affichage éditorial — serré, assuré */
-.display {
+.display.display.display {
   font-family: var(--font-raleway);
   font-weight: 500;
   letter-spacing: -0.035em;
@@ -212,7 +212,7 @@ html.lenis, html.lenis body { height: auto; }
 }
 
 /* Le libellé d'index (surtitre) */
-.eyebrow {
+.eyebrow.eyebrow.eyebrow {
   font-family: var(--font-mono);
   font-size: 11px;
   letter-spacing: 0.28em;
@@ -220,10 +220,10 @@ html.lenis, html.lenis body { height: auto; }
 }
 
 /* Soulignement animé pour les liens de texte et de navigation */
-.link-underline {
+.link-underline.link-underline.link-underline {
   position: relative;
 }
-.link-underline::after {
+.link-underline.link-underline.link-underline::after {
   content: "";
   position: absolute;
   left: 0;
@@ -235,7 +235,7 @@ html.lenis, html.lenis body { height: auto; }
   transform-origin: right;
   transition: transform 0.45s var(--ease-out);
 }
-.link-underline:hover::after {
+.link-underline.link-underline.link-underline:hover::after {
   transform: scaleX(1);
   transform-origin: left;
 }
@@ -243,7 +243,7 @@ html.lenis, html.lenis body { height: auto; }
 /* ----------------------------------------------------------------------------
    GRAIN — un grain argentique discret sur toute l'expérience, pour le toucher
 ---------------------------------------------------------------------------- */
-.grain {
+.grain.grain.grain {
   position: fixed;
   inset: -150%;
   z-index: 60;
@@ -265,7 +265,7 @@ html.lenis, html.lenis body { height: auto; }
    CURSEUR MAISON — un anneau et un point, en fusion, qui semblent vivants
 ---------------------------------------------------------------------------- */
 .cursor-dot,
-.cursor-ring {
+.cursor-ring.cursor-ring.cursor-ring {
   position: fixed;
   top: 0;
   left: 0;
@@ -275,13 +275,13 @@ html.lenis, html.lenis body { height: auto; }
   mix-blend-mode: difference;
   will-change: transform;
 }
-.cursor-dot {
+.cursor-dot.cursor-dot.cursor-dot {
   width: 6px;
   height: 6px;
   margin: -3px 0 0 -3px;
   background: #fff;
 }
-.cursor-ring {
+.cursor-ring.cursor-ring.cursor-ring {
   width: 38px;
   height: 38px;
   margin: -19px 0 0 -19px;
@@ -290,20 +290,20 @@ html.lenis, html.lenis body { height: auto; }
     margin 0.3s var(--ease-out), opacity 0.3s var(--ease-out),
     background 0.3s var(--ease-out);
 }
-.cursor-ring[data-hover="true"] {
+.cursor-ring.cursor-ring.cursor-ring[data-hover="true"] {
   width: 64px;
   height: 64px;
   margin: -32px 0 0 -32px;
   background: rgba(255, 255, 255, 0.12);
 }
 @media (hover: none), (pointer: coarse) {
-  .cursor-dot, .cursor-ring { display: none; }
+  .cursor-dot.cursor-dot.cursor-dot, .cursor-ring.cursor-ring.cursor-ring { display: none; }
 }
 
 /* ----------------------------------------------------------------------------
    RAIL D'AVANCEMENT — un indicateur vertical minimal, sur le bord droit
 ---------------------------------------------------------------------------- */
-.rail {
+.rail.rail.rail {
   position: fixed;
   right: 22px;
   top: 50%;
@@ -314,7 +314,7 @@ html.lenis, html.lenis body { height: auto; }
   z-index: 25;
   border-radius: 99px;
 }
-.rail-fill {
+.rail-fill.rail-fill.rail-fill {
   position: absolute;
   left: 0;
   top: 0;
@@ -328,7 +328,7 @@ html.lenis, html.lenis body { height: auto; }
 /* ----------------------------------------------------------------------------
    CARTE DE VERRE — la surface de verre liquide, partagée par les sections
 ---------------------------------------------------------------------------- */
-.glass {
+.glass.glass.glass {
   position: relative;
   background: rgba(255, 255, 255, 0.16);
   backdrop-filter: blur(20px) saturate(140%);
@@ -347,11 +347,11 @@ html.lenis, html.lenis body { height: auto; }
   from { opacity: 0; transform: translateY(12px); }
   to   { opacity: 1; transform: translateY(0); }
 }
-.animate-fade-in {
+.animate-fade-in.animate-fade-in.animate-fade-in {
   animation: fadeIn 0.8s var(--ease-out) forwards;
 }
 
-.vertical-text {
+.vertical-text.vertical-text.vertical-text {
   writing-mode: vertical-rl;
   text-orientation: mixed;
 }
@@ -359,7 +359,7 @@ html.lenis, html.lenis body { height: auto; }
 /* ----------------------------------------------------------------------------
    LOADER
 ---------------------------------------------------------------------------- */
-.loader-root {
+.loader-root.loader-root.loader-root {
   position: fixed;
   inset: 0;
   z-index: 100;
@@ -370,12 +370,12 @@ html.lenis, html.lenis body { height: auto; }
   overflow: hidden;
   transition: opacity 0.6s var(--ease-in-out);
 }
-.loader-root.is-leaving {
+.loader-root.loader-root.loader-root.is-leaving.is-leaving.is-leaving {
   opacity: 0;
   pointer-events: none;
 }
 
-.loader-content {
+.loader-content.loader-content.loader-content {
   position: relative;
   z-index: 2;
   display: flex;
@@ -385,7 +385,7 @@ html.lenis, html.lenis body { height: auto; }
   width: clamp(220px, 36vw, 320px);
 }
 
-.loader-word {
+.loader-word.loader-word.loader-word {
   font-family: var(--font-raleway);
   font-weight: 500;
   letter-spacing: -0.04em;
@@ -395,7 +395,7 @@ html.lenis, html.lenis body { height: auto; }
   display: flex;
   overflow: hidden;
 }
-.loader-word .ch {
+.loader-word.loader-word.loader-word .ch.ch.ch {
   display: inline-block;
 }
 
@@ -404,7 +404,7 @@ html.lenis, html.lenis body { height: auto; }
    ne peuvent pas se desolidariser aux tailles intermediaires. La marge droite
    est l'espace du lockup ; le leger decalage vertical pose le sigle sur la
    ligne de base optique du mot en bas de casse plutot que sur sa boite. */
-.loader-mark {
+.loader-mark.loader-mark.loader-mark {
   display: inline-block;
   width: 0.78em;
   height: 0.78em;
@@ -412,20 +412,20 @@ html.lenis, html.lenis body { height: auto; }
   transform: translateY(0.04em);
 }
 
-.loader-meta {
+.loader-meta.loader-meta.loader-meta {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   width: 100%;
 }
-.loader-status {
+.loader-status.loader-status.loader-status {
   font-family: var(--font-mono);
   font-size: 10px;
   letter-spacing: 0.24em;
   text-transform: uppercase;
   color: #b58a6b;
 }
-.loader-pct {
+.loader-pct.loader-pct.loader-pct {
   font-family: var(--font-mono);
   font-size: 11px;
   letter-spacing: 0.06em;
@@ -434,7 +434,7 @@ html.lenis, html.lenis body { height: auto; }
   font-variant-numeric: tabular-nums;
 }
 
-.loader-bar {
+.loader-bar.loader-bar.loader-bar {
   width: 100%;
   height: 2px;
   background: rgba(194, 84, 10, 0.14);
@@ -442,7 +442,7 @@ html.lenis, html.lenis body { height: auto; }
   overflow: hidden;
   position: relative;
 }
-.loader-bar-fill {
+.loader-bar-fill.loader-bar-fill.loader-bar-fill {
   position: absolute;
   inset: 0 auto 0 0;
   width: 0%;
@@ -459,7 +459,7 @@ html.lenis, html.lenis body { height: auto; }
   from { transform: translateX(0); }
   to   { transform: translateX(-50%); }
 }
-.marquee-track {
+.marquee-track.marquee-track.marquee-track {
   display: inline-flex;
   white-space: nowrap;
   animation: marquee 28s linear infinite;
@@ -471,7 +471,7 @@ html.lenis, html.lenis body { height: auto; }
 @media (prefers-reduced-motion: reduce) {
   .marquee-track,
   .grain,
-  .loader-word .ch { animation: none; }
+  .loader-word.loader-word.loader-word .ch.ch.ch { animation: none; }
   html { scroll-behavior: auto; }
 }
 
@@ -636,3 +636,8 @@ html.lenis, html.lenis body { height: auto; }
 
 /* ---- La famille du balisage, liee a la variable plus haut. */
 .font-raleway.font-raleway { font-family: var(--font-raleway); }
+
+/* Deux homonymes rendus au gabarit : notre systeme connait ces deux noms et
+   n entend pas la meme chose. Les valeurs sont celles de son bloc de jetons. */
+.gv-font-mono.gv-font-mono { font-family: var(--font-mono); }
+.gv-ease-out.gv-ease-out { transition-timing-function: var(--ease-out); }

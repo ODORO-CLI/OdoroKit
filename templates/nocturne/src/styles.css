@@ -1,0 +1,464 @@
+/* ===========================================================================
+   La feuille du projet.
+
+   Les etages de jetons sont ceux de l original, mot pour mot : c est la le
+   design, et il ne bouge pas. Ce qui a change : le bloc qui les liait a un
+   generateur d utilitaires devient des variables ordinaires, et les mesures
+   que l original ecrivait en valeurs arbitraires deviennent des classes `nc-*`
+   portant exactement la meme declaration.
+
+   Ces dernieres sont derivees — pas ecrites a la main — par
+   `scripts/derive-template-classes.mjs`, a partir du bloc de jetons ci-dessous.
+   =========================================================================== */
+
+/* ---------------------------------------------------------------------------
+   LA POLICE
+
+   Une seule famille, et c est deliberé : le style ne definit pas de role
+   monospace, donc il n y a pas de seconde voix a aller chercher. La hierarchie
+   se fait a la taille, a la casse et a la graisse.
+
+   L original la liait depuis son `layout`. Le lien est ici, ou la feuille peut
+   le tenir seule.
+
+   Geist vient de Google Fonts, sous licence SIL OFL 1.1.
+   --------------------------------------------------------------------------- */
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;700&display=swap');
+
+:root {
+  --font-geist: 'Geist', ui-sans-serif, system-ui, sans-serif;
+}
+
+/* ---------------------------------------------------------------------------
+   TIER 1 — PRIMITIVES  (`--raw-*`)
+   Raw literal values. The only tier allowed to hold a hex/px/ms literal.
+   Never referenced in markup. Rename freely.
+
+   The palette is the committed GetLayers Style `stride-nine-style`
+   (getlayers.json). Its premise, and the discipline of this whole page:
+   THERE IS NO PAGE SURFACE. The ground is the footage. `--raw-color-cover` is
+   only what shows before the film paints and behind it where it does not
+   reach, and legibility comes from a gradient scrim, never from a card.
+
+   The accent is a discipline, not a colour. #ff9500 is the system's named warm
+   axis and it is switched OFF: the only saturated pixels on screen are the
+   headlights, the city and the paintwork. Giving the interface a hue breaks
+   the premise.
+   --------------------------------------------------------------------------- */
+:root {
+  --raw-color-cover: #171717;
+  --raw-color-deep: #0a0a0a;
+  --raw-color-white: #ffffff;
+  --raw-color-black: #000000;
+  /* Named, and never used. Do not switch it on. */
+  --raw-color-warm-axis: #ff9500;
+
+  --raw-duration-fast: 150ms;
+  --raw-duration: 250ms;
+  --raw-duration-slow: 900ms;
+  --raw-ease: cubic-bezier(0.2, 0, 0, 1);
+
+  /* The one axis. Every gesture in the system travels on it: the curtain
+     lifts along it, the streaks cross on it, the menu bars lie on it. */
+  --raw-axis: -18deg;
+}
+
+/* ---------------------------------------------------------------------------
+   TIER 2 — SEMANTIC  (role names, no namespace prefix)
+   Purpose, not appearance.
+
+   Tailwind v4 has no `--duration-*` namespace, so durations live here only and
+   are consumed as `duration-[var(--duration-fast)]`.
+   --------------------------------------------------------------------------- */
+:root {
+  /* NOT `--foreground`: that role inverts under prefers-color-scheme and this
+     cover carries white type, so it stays dark in both themes. */
+  --surface-cover: var(--raw-color-cover);
+  --surface-deep: var(--raw-color-deep);
+
+  /* One ink, three strengths. Hierarchy is size, case and weight — never a
+     grey step. */
+  --ink: var(--raw-color-white);
+  --ink-muted: color-mix(in srgb, var(--raw-color-white) 50%, transparent);
+  --ink-subtle: color-mix(in srgb, var(--raw-color-white) 25%, transparent);
+  --rule: color-mix(in srgb, var(--raw-color-white) 25%, transparent);
+
+  /* The only surface is frosted, and its edge is an OUTLINE, never a border:
+     the design measures the stroke with its width inside. */
+  --surface-glass: color-mix(in srgb, #edebe8 3%, transparent);
+  --surface-glass-edge: color-mix(in srgb, var(--raw-color-white) 5%, transparent);
+
+  /* The action and the ink over media are BOTH white, which is why the primary
+     button's hover is a wipe rather than a colour swap — a colour swap here is
+     a provable no-op. */
+  --surface-action: var(--raw-color-white);
+  --surface-action-hover: color-mix(in srgb, var(--raw-color-white) 82%, transparent);
+  --on-action: var(--raw-color-black);
+
+  --duration-fast: var(--raw-duration-fast);
+  --duration: var(--raw-duration);
+  --duration-slow: var(--raw-duration-slow);
+}
+
+/* ---------------------------------------------------------------------------
+   TIER 3 — THEME  (bound to Tailwind utilities)
+   `inline` is what lets the Tier-2 overrides cascade — binding a literal here
+   would freeze the value and break theming.
+   --------------------------------------------------------------------------- */
+/* ---------------------------------------------------------------------------
+   LES JETONS, EN VARIABLES
+
+   Ils ne sont plus lies a un generateur d utilitaires. Les classes que le
+   balisage emploie sont declarees plus bas, derivees de ce meme bloc.
+   --------------------------------------------------------------------------- */
+:root {
+  --color-cover: var(--surface-cover);
+  --color-deep: var(--surface-deep);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-ink-subtle: var(--ink-subtle);
+  --color-rule: var(--rule);
+  --color-glass: var(--surface-glass);
+
+  --font-sans: var(--font-geist);
+
+  --radius-DEFAULT: 0;
+  --ease-house: var(--raw-ease);
+}
+
+/* --------------------------------------------------------------------------- */
+
+html {
+  background: var(--surface-cover);
+  /* --grid-scale multiplies the whole composition through the root font size:
+     it moves everything measured in rem and nothing measured against the
+     viewport, which is why full-bleed media keeps its own framing. */
+  font-size: calc(100% * 1.075);
+}
+
+body {
+  background: var(--surface-cover);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+}
+
+/* The one display moment: uppercase, tracking pulled tight, leading below one.
+   Line-heights are absolute lengths, not multipliers — Figma resolves
+   percentage leading against font metrics and the browser does not. */
+.display.display.display {
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: -0.04em;
+  line-height: 0.9;
+}
+
+.label.label.label {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* The only surface in the system. The edge is an outline so it takes no space,
+   and the blur is what separates it — there are no shadows anywhere. */
+.glass.glass.glass {
+  background: var(--surface-glass);
+  outline: 1px solid var(--surface-glass-edge);
+  outline-offset: -1px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* A hairline that takes up NO space: a zero-height span with an absolutely
+   positioned 1px child, so adding one never shifts the layout. It is a literal
+   pixel and never a rem, because --grid-scale moves rem with the viewport. */
+.hairline.hairline.hairline {
+  position: relative;
+  display: block;
+  height: 0;
+}
+
+.hairline.hairline.hairline::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: 1px;
+  background: var(--rule);
+}
+
+::selection {
+  background: var(--ink);
+  color: var(--raw-color-black);
+}
+
+.sr-only.sr-only.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── word reveal ───────────────────────────────────────────────────────────
+   Opacity + blur, no translate: there is footage moving behind every line on
+   this page, and a word that also slides reads as a second, competing motion.
+   Opacity lands early so the word is solid while it is still resolving. */
+.reveal-word.reveal-word.reveal-word {
+  display: inline-block;
+  opacity: 0;
+  filter: blur(10px);
+  transition:
+    opacity 240ms linear,
+    filter 860ms var(--raw-ease);
+  transition-delay: inherit;
+  will-change: opacity, filter;
+}
+
+[data-in] .reveal-word.reveal-word.reveal-word {
+  opacity: 1;
+  filter: blur(0px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal-word.reveal-word.reveal-word {
+    filter: none;
+    transition: opacity 200ms linear;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+/* The streaks that cross the cover while it waits — on the house axis. */
+@keyframes streak {
+  from {
+    transform: translate3d(0, 0, 0) rotate(-18deg);
+    opacity: 0;
+  }
+  12% {
+    opacity: 1;
+  }
+  88% {
+    opacity: 1;
+  }
+  to {
+    transform: translate3d(190vw, -61vw, 0) rotate(-18deg);
+    opacity: 0;
+  }
+}
+
+/* The films' tracks, shortened for a thumb (see components/film.tsx). */
+:root {
+  --film-track-scale: 1;
+}
+
+@media (max-width: 900px) {
+  :root {
+    --film-track-scale: 0.62;
+  }
+}
+
+/* ============================================================================
+   CE QUE LA REMISE A ZERO DE L AUTRE MOTEUR FOURNISSAIT
+
+   Le gabarit a ete ecrit au-dessus d une remise a zero qui n est pas la notre,
+   et il comptait dessus sans le dire — c est la nature meme d une remise a
+   zero. Les regles ci-dessous sont la difference exacte entre les deux,
+   relevee en comparant les styles calcules d un jeu d elements dans les deux
+   pages, et non devinee.
+
+   Sans elles, la premiere chose qu on voit est que **tous les liens
+   redeviennent bleus et soulignes** : le navigateur reprend la main sur une
+   ancre dont personne ne dit plus rien.
+
+   Ce bloc appartient au gabarit, pas au systeme. Ajouter ces regles a la
+   remise a zero d `@odoro-cli/libs` changerait le rendu de tout projet deja
+   livre, pour le confort d un portage.
+   ========================================================================== */
+
+a {
+  color: inherit;
+  text-decoration: inherit;
+}
+
+button,
+input,
+optgroup,
+select,
+textarea {
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  letter-spacing: inherit;
+  background-color: transparent;
+  border-radius: 0;
+}
+
+button,
+[type='button'],
+[type='reset'],
+[type='submit'] {
+  appearance: button;
+}
+
+/* La couleur de filet par defaut suit l encre, au lieu d un gris fixe : c est
+   ce qui rend `border` seul utilisable sans dire de quelle couleur. */
+*,
+::before,
+::after {
+  border-color: currentColor;
+}
+
+/* Une image posee dans une ligne de texte s aligne sur le milieu, pas sur la
+   ligne de base : sans cela elle laisse sous elle le jambage d une lettre. */
+img,
+svg,
+video,
+canvas,
+audio,
+iframe,
+embed,
+object {
+  vertical-align: middle;
+}
+
+/* Notre socle borne les `svg` a la largeur de leur parent ; celui d origine
+   non. Un sigle dessine plus large que sa boite s en trouvait retreci. */
+svg {
+  max-width: none;
+}
+
+hr {
+  height: 0;
+  margin: 0;
+  color: inherit;
+  border-top-width: 1px;
+}
+
+/* Notre socle donne la main au survol d un bouton ; celui d origine laissait la
+   fleche, comme le fait le navigateur seul. C est visible a chaque survol. */
+button,
+[role='button'] {
+  cursor: default;
+}
+
+/* Une image qui porte ses dimensions en attributs — `width="11" height="11"` —
+   et dont le CSS ne contraint que la largeur gardait chez nous sa hauteur
+   declaree, au lieu de la deduire du rapport. Les quatre crochets du hero de
+   `parfum` faisaient 8x11 au lieu de 8x8.
+
+   Le socle d origine posait `height: auto` ; le notre s en tient a la largeur.
+   Les utilitaires de hauteur sont ecrits apres cette feuille et l emportent
+   toujours. */
+img,
+video {
+  max-width: 100%;
+  height: auto;
+}
+
+
+/* ============================================================================
+   LES CLASSES QUE LE GENERATEUR NE PRODUIT PAS
+
+   Chaque selecteur repete sa classe : les utilitaires du systeme sont ecrits
+   **apres** cette feuille dans le paquet final, et a specificite egale c est le
+   dernier qui gagne.
+   ========================================================================== */
+
+
+.nc--outline-offset-1.nc--outline-offset-1 { outline-offset: -1px; }
+.nc--translate-x-1-2.nc--translate-x-1-2 { --nc-tx: -50%; translate: var(--nc-tx, 0) var(--nc-ty, 0); }
+.nc--translate-y-1-2.nc--translate-y-1-2 { --nc-ty: -50%; translate: var(--nc-tx, 0) var(--nc-ty, 0); }
+.nc-aspect-3-2.nc-aspect-3-2 { aspect-ratio: 3 / 2; }
+.nc-bg-var-surface-action.nc-bg-var-surface-action { background-image: var(--surface-action); }
+.nc-bg-var-surface-action-hover.nc-bg-var-surface-action-hover { background-image: var(--surface-action-hover); }
+.nc-bg-cover.nc-bg-cover { background-color: var(--surface-cover); }
+.nc-bg-deep.nc-bg-deep { background-color: var(--surface-deep); }
+.nc-bg-ink.nc-bg-ink { background-color: var(--ink); }
+.nc-bg-ink-subtle.nc-bg-ink-subtle { background-color: var(--ink-subtle); }
+.nc-duration-1200ms.nc-duration-1200ms { transition-duration: 1200ms; }
+.nc-duration-var-duration.nc-duration-var-duration { transition-duration: var(--duration); }
+.nc-duration-var-duration-fast.nc-duration-var-duration-fast { transition-duration: var(--duration-fast); }
+.nc-ease-var-raw-ease.nc-ease-var-raw-ease { transition-timing-function: var(--raw-ease); }
+.nc-gap-clamp-3rem-6vw-6rem.nc-gap-clamp-3rem-6vw-6rem { gap: clamp(3rem,6vw,6rem); }
+.group:hover .nc-group-hover-scale-1-03.nc-group-hover-scale-1-03 { scale: 1.03; }
+.nc-h-70.nc-h-70 { height: 70%; }
+.nc-h-dvh.nc-h-dvh { height: 100dvh; }
+.nc-hover-text-ink.nc-hover-text-ink:hover { color: var(--ink); }
+.nc-inset-x-max-1-25rem-3vw.nc-inset-x-max-1-25rem-3vw { left: max(1.25rem,3vw); right: max(1.25rem,3vw); }
+.nc-leading-none.nc-leading-none { line-height: 1; }
+.nc-left-5.nc-left-5 { left: 1.25rem; }
+.nc-max-w-110rem.nc-max-w-110rem { max-width: 110rem; }
+.nc-max-w-18ch.nc-max-w-18ch { max-width: 18ch; }
+.nc-max-w-32rem.nc-max-w-32rem { max-width: 32rem; }
+.nc-max-w-38rem.nc-max-w-38rem { max-width: 38rem; }
+.nc-max-w-40ch.nc-max-w-40ch { max-width: 40ch; }
+.nc-max-w-44ch.nc-max-w-44ch { max-width: 44ch; }
+.nc-max-w-46ch.nc-max-w-46ch { max-width: 46ch; }
+.nc-max-w-46rem.nc-max-w-46rem { max-width: 46rem; }
+.nc-max-w-48ch.nc-max-w-48ch { max-width: 48ch; }
+.nc-max-w-52ch.nc-max-w-52ch { max-width: 52ch; }
+.nc-max-w-54ch.nc-max-w-54ch { max-width: 54ch; }
+.nc-mt-clamp-3rem-7vh-5rem.nc-mt-clamp-3rem-7vh-5rem { margin-top: clamp(3rem,7vh,5rem); }
+.nc-mt-clamp-4rem-10vh-7rem.nc-mt-clamp-4rem-10vh-7rem { margin-top: clamp(4rem,10vh,7rem); }
+.nc-outline-1.nc-outline-1 { outline-width: 1px; outline-style: solid; }
+.nc-outline-rule.nc-outline-rule { outline-color: var(--rule); }
+.nc-pb-max-1-5rem-4vh.nc-pb-max-1-5rem-4vh { padding-bottom: max(1.5rem,4vh); }
+.nc-pb-max-2rem-5vh.nc-pb-max-2rem-5vh { padding-bottom: max(2rem,5vh); }
+.nc-placeholder-text-ink-subtle.nc-placeholder-text-ink-subtle::placeholder { color: var(--ink-subtle); }
+.nc-pt-clamp-3rem-7vh-5rem.nc-pt-clamp-3rem-7vh-5rem { padding-top: clamp(3rem,7vh,5rem); }
+.nc-pt-clamp-5rem-12vh-9rem.nc-pt-clamp-5rem-12vh-9rem { padding-top: clamp(5rem,12vh,9rem); }
+.nc-px-max-1-25rem-3vw.nc-px-max-1-25rem-3vw { padding-inline: max(1.25rem,3vw); }
+.nc-px-max-1-25rem-4vw.nc-px-max-1-25rem-4vw { padding-inline: max(1.25rem,4vw); }
+.nc-py-clamp-5rem-12vh-9rem.nc-py-clamp-5rem-12vh-9rem { padding-block: clamp(5rem,12vh,9rem); }
+.nc-text-0-78rem.nc-text-0-78rem { font-size: 0.78rem; }
+.nc-text-0-85rem.nc-text-0-85rem { font-size: 0.85rem; }
+.nc-text-0-8rem.nc-text-0-8rem { font-size: 0.8rem; }
+.nc-text-0-95rem.nc-text-0-95rem { font-size: 0.95rem; }
+.nc-text-1-05rem.nc-text-1-05rem { font-size: 1.05rem; }
+.nc-text-1-3rem.nc-text-1-3rem { font-size: 1.3rem; }
+.nc-text-1-6rem.nc-text-1-6rem { font-size: 1.6rem; }
+.nc-text-1-7rem.nc-text-1-7rem { font-size: 1.7rem; }
+.nc-text-1rem.nc-text-1rem { font-size: 1rem; }
+.nc-text-26vw.nc-text-26vw { font-size: 26vw; }
+.nc-text-3rem.nc-text-3rem { font-size: 3rem; }
+.nc-text-clamp-1-4rem-2-2vw-2rem.nc-text-clamp-1-4rem-2-2vw-2rem { font-size: clamp(1.4rem,2.2vw,2rem); }
+.nc-text-clamp-1-8rem-3vw-2-8rem.nc-text-clamp-1-8rem-3vw-2-8rem { font-size: clamp(1.8rem,3vw,2.8rem); }
+.nc-text-clamp-1-9rem-3-6vw-3-4rem.nc-text-clamp-1-9rem-3-6vw-3-4rem { font-size: clamp(1.9rem,3.6vw,3.4rem); }
+.nc-text-clamp-2-4rem-6-6vw-5-6rem.nc-text-clamp-2-4rem-6-6vw-5-6rem { font-size: clamp(2.4rem,6.6vw,5.6rem); }
+.nc-text-clamp-2rem-4-2vw-3-8rem.nc-text-clamp-2rem-4-2vw-3-8rem { font-size: clamp(2rem,4.2vw,3.8rem); }
+.nc-text-clamp-2rem-4vw-3-6rem.nc-text-clamp-2rem-4vw-3-6rem { font-size: clamp(2rem,4vw,3.6rem); }
+.nc-text-clamp-3rem-10vw-7rem.nc-text-clamp-3rem-10vw-7rem { font-size: clamp(3rem,10vw,7rem); }
+.nc-text-ink.nc-text-ink { color: var(--ink); }
+.nc-text-ink-muted.nc-text-ink-muted { color: var(--ink-muted); }
+.nc-text-ink-subtle.nc-text-ink-subtle { color: var(--ink-subtle); }
+.nc-top-5.nc-top-5 { top: 1.25rem; }
+.nc-tracking-0-08em.nc-tracking-0-08em { letter-spacing: 0.08em; }
+.nc-w-15rem.nc-w-15rem { width: 15rem; }
+.nc-w-42vw.nc-w-42vw { width: 42vw; }
+
+@media (min-width: 768px) {
+  .nc-md-grid-cols-1-4fr-repeat-3-1fr.nc-md-grid-cols-1-4fr-repeat-3-1fr { grid-template-columns: 1.4fr repeat(3, 1fr); }
+  .nc-md-grid-cols-5rem-1fr-1-1fr.nc-md-grid-cols-5rem-1fr-1-1fr { grid-template-columns: 5rem 1fr 1.1fr; }
+  .nc-md-w-56.nc-md-w-56 { width: 56%; }
+}
+
+@media (min-width: 1024px) {
+  .nc-lg-grid-cols-1-1fr-1fr.nc-lg-grid-cols-1-1fr-1fr { grid-template-columns: 1.1fr 1fr; }
+}
+
+.group:hover .nc-group-hover-scale-x-100.nc-group-hover-scale-x-100 { scale: 1 1; }
+.nc-outline.nc-outline { outline-style: solid; }
+.nc-scale-x-0.nc-scale-x-0 { scale: 0 1; }

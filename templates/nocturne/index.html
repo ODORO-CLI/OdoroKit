@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#171717" />
+
+    <title>ODORO — Location de voitures d'exception</title>
+    <meta
+      name="description"
+      content="Lamborghini, Ferrari, Mercedes-AMG. Livraison en 2 heures à Paris, caution bloquée sans débit, 250 km inclus par jour."
+    />
+
+    <meta property="og:title" content="ODORO — Location de voitures d'exception" />
+    <meta
+      property="og:description"
+      content="Livraison en 2 heures à Paris. 250 km inclus. Caution bloquée, jamais débitée."
+    />
+    <meta property="og:locale" content="fr_FR" />
+    <meta property="og:type" content="website" />
+
+    <!-- En ligne et en premier, avant qu une ligne de la page ne soit analysee :
+         les films sont epingles, donc une position de defilement restauree
+         depose le lecteur au milieu d une sequence, sans hero derriere lui. -->
+    <script>
+      history.scrollRestoration = 'manual'
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
