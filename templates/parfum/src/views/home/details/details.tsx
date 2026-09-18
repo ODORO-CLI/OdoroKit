@@ -40,7 +40,7 @@ const HEADING_ID = "details-heading";
 export const Details = ({ content }: DetailsProps) => (
   <section
     aria-labelledby={HEADING_ID}
-    className="relative flex w-full flex-col gap-10 px-5 py-16 font-mono text-hero-content lg:block lg:h-200 lg:gap-0 lg:px-0 lg:py-0"
+    className="o-relative o-flex o-w-full o-flex-col o-gap-10 o-px-5 o-py-16 pf-font-mono pf-text-hero-content pf-lg-block pf-lg-h-200 pf-lg-gap-0 pf-lg-px-0 pf-lg-py-0"
   >
     {/* **The frame's own 800-unit box, centred in the screen.** The section is a
         viewport tall; the composition is not, and the two are only equal on a
@@ -51,13 +51,13 @@ export const Details = ({ content }: DetailsProps) => (
         keeps every frame coordinate exact and leaves the slack where it belongs:
         half above, half below.
 
-        `-mt-100` rather than `-translate-y-1/2` — a transform would make this a
+        `pf--mt-100` rather than `pf--translate-y-1-2` — a transform would make this a
         containing block for `background-attachment: fixed`, and the lattice
         panels inside would fall out of step with the page behind them.
 
-        `max-lg:contents` so that below the frame this box is not in the layout
+        `max-lg:o-contents` so that below the frame this box is not in the layout
         at all and the flow column is exactly what it was. */}
-    <div className="max-lg:contents lg:absolute lg:inset-x-0 lg:top-1/2 lg:-mt-100 lg:h-200">
+    <div className="max-lg:o-contents pf-lg-absolute pf-lg-inset-x-0 pf-lg-top-1-2 pf-lg-mt-100 pf-lg-h-200">
       <DetailsIntro
         id={HEADING_ID}
         heading={content.heading}
@@ -68,10 +68,10 @@ export const Details = ({ content }: DetailsProps) => (
           single column ran the block twice as long as it needed to be, and the
           copy in each is short enough to take half the width. At `lg` the grid
           dissolves back into the frame's own column. */}
-      {/* `right-10` rather than the frame's x of 983: 983 + 417 = 1400, which
+      {/* `o-right-10` rather than the frame's x of 983: 983 + 417 = 1400, which
           is the 40-unit margin, and the margin is the part that holds once the
           canvas is wider than 1440 units. */}
-      <ol className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:[&>li:last-child]:col-span-2 lg:absolute lg:top-30.5 lg:right-10 lg:z-10 lg:flex lg:w-104.25 lg:flex-col">
+      <ol className="o-grid o-grid-cols-1 o-gap-3 sm:o-grid-cols-2 pf-sm-li-last-child-col-span-2 pf-lg-absolute pf-lg-top-30-5 pf-lg-right-10 pf-lg-z-10 pf-lg-flex pf-lg-w-104-25 pf-lg-flex-col">
         {content.features.map((feature, index) => (
           <DetailsFeature key={feature.index} order={index} {...feature} />
         ))}
@@ -83,7 +83,7 @@ export const Details = ({ content }: DetailsProps) => (
         from={{ opacity: 0, y: 12 }}
         to={{ opacity: 1, y: 0 }}
         delayIn={DETAILS_REVEAL.cta}
-        className="flex justify-center lg:absolute lg:bottom-10 lg:left-10 lg:z-10 lg:justify-start"
+        className="o-flex o-justify-center pf-lg-absolute pf-lg-bottom-10 pf-lg-left-10 pf-lg-z-10 pf-lg-justify-start"
       >
         <FrameButton
           label={content.cta.label}

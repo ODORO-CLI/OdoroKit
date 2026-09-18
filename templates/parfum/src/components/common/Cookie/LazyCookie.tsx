@@ -1,6 +1,4 @@
 // 📖 Docs: obsidian/frontend/components/common.md
-"use client";
-
 /**
  * Lazy client wrapper for the Cookie banner + preferences modal.
  *
@@ -11,13 +9,20 @@
  * so they never load the chunk at all (~3.7 KB gz off the bot bundle).
  */
 
-import dynamic from "next/dynamic";
+import { lazy, Suspense } from "react";
 
-const Cookie = dynamic(
-  () => import("./Cookie").then((m) => ({ default: m.Cookie })),
-  { ssr: false, loading: () => null },
+/*
+ * `lazy` tient le role de l import dynamique de l autre cadre : le paquet du
+ * bandeau et de sa modale ne part qu au montage de ce composant.
+ */
+const Cookie = lazy(() =>
+  import("./Cookie").then((m) => ({ default: m.Cookie })),
 );
 
 export function LazyCookie() {
-  return <Cookie />;
+  return (
+    <Suspense fallback={null}>
+      <Cookie />
+    </Suspense>
+  );
 }

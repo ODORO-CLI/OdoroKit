@@ -1,5 +1,3 @@
-"use client";
-
 import { useEffect, useRef, useState } from "react";
 
 import { observeReveal } from "@/lib/animation/reveal";
@@ -7,7 +5,7 @@ import { tie } from "@/lib/text/tie";
 
 /**
  * The width from which a column is wide enough to carry a bound pair without
- * leaving the line above it short. Tailwind's `sm`, written once here because
+ * leaving the line above it short. The `sm` breakpoint, written once here because
  * CSS cannot hand a breakpoint to a string.
  */
 const WIDE_QUERY = "(min-width: 640px)";
@@ -145,7 +143,7 @@ export const ScrambleText = ({
       onFocus={scramble}
     >
       <span aria-hidden>{display}</span>
-      <span className="sr-only">{text}</span>
+      <span className="o-sr-only">{text}</span>
     </span>
   );
 };

@@ -122,6 +122,26 @@ hr {
   color: inherit;
   border-top-width: 1px;
 }
+/* Notre socle donne la main au survol d un bouton ; celui d origine laissait la
+   fleche, comme le fait le navigateur seul. C est visible a chaque survol. */
+button,
+[role='button'] {
+  cursor: default;
+}
+
+/* Une image qui porte ses dimensions en attributs — `width="11" height="11"` —
+   et dont le CSS ne contraint que la largeur gardait chez nous sa hauteur
+   declaree, au lieu de la deduire du rapport : 8x11 au lieu de 8x8.
+
+   Le socle d origine posait `height: auto` ; le notre s en tient a la largeur.
+   Les utilitaires de hauteur sont ecrits apres cette feuille et l emportent
+   toujours. */
+img,
+video {
+  max-width: 100%;
+  height: auto;
+}
+
 
 /* ----------------------------------------------------------------------------
    LE SOCLE DU GABARIT

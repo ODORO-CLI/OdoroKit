@@ -1,5 +1,3 @@
-import Image from "next/image";
-import Link from "next/link";
 import { Fragment } from "react";
 
 import { Inview } from "@/components/animation/springs/in-view";
@@ -13,7 +11,7 @@ export interface FooterProps {
 }
 
 const FOCUS_RING =
-  "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-hero-content";
+  "pf-focus-visible-outline-2 pf-focus-visible-outline-offset-2 pf-focus-visible-outline-hero-content";
 
 /**
  * Footer — Figma file WINXFW2nTM7zYwd5dGgm1T, node 1748:1161, the concept's
@@ -34,7 +32,7 @@ const FOCUS_RING =
  * header's 75×30.
  */
 export const Footer = ({ content }: FooterProps) => (
-  <footer className="relative w-full font-mono text-hero-content lg:h-87.5">
+  <footer className="o-relative o-w-full pf-font-mono pf-text-hero-content pf-lg-h-87-5">
     {/* **Shorter below the frame, and the notice sits on the edge.** The
           column's own rhythm was 40 between every part and 64 of padding at
           both ends, which on a phone left the closing line floating in the
@@ -42,55 +40,55 @@ export const Footer = ({ content }: FooterProps) => (
           it the same 20 the block already holds at its sides — so the notice
           closes the page against the block's own margin rather than hovering
           above it. */}
-    <div className="flex flex-col gap-10 px-5 py-16 max-lg:gap-8 max-lg:pt-12 max-lg:pb-5 lg:block lg:gap-0 lg:px-0 lg:py-0">
-      <Link
+    <div className="o-flex o-flex-col o-gap-10 o-px-5 o-py-16 max-lg:o-gap-8 max-lg:o-pt-12 max-lg:o-pb-5 pf-lg-block pf-lg-gap-0 pf-lg-px-0 pf-lg-py-0">
+      <a
         href="/"
-        className={`block h-6.25 w-32.5 lg:absolute lg:top-6 lg:left-10 lg:h-4.75 lg:w-24.75 ${FOCUS_RING}`}
+        className={`o-block pf-h-6-25 pf-w-32-5 pf-lg-absolute pf-lg-top-6 pf-lg-left-10 pf-lg-h-4-75 pf-lg-w-24-75 ${FOCUS_RING}`}
       >
-        <Image
+        <img
           src={content.logo.src}
           alt={content.logo.alt}
           width={content.logo.width}
           height={content.logo.height}
-          className="h-full w-full object-contain"
+          className="o-h-full o-w-full o-object-contain"
         />
-      </Link>
+      </a>
 
       <nav
         aria-label="Footer"
-        className="lg:absolute lg:top-6 lg:left-74.25 lg:z-10"
+        className="pf-lg-absolute pf-lg-top-6 pf-lg-left-74-25 pf-lg-z-10"
       >
-        <ul className="grid grid-cols-2 gap-8 md:grid-cols-4 lg:flex lg:gap-12">
+        <ul className="o-grid o-grid-cols-2 o-gap-8 md:o-grid-cols-4 pf-lg-flex pf-lg-gap-12">
           {content.columns.map((column) => (
-            <li key={column.heading.label} className="lg:w-30 lg:last:w-auto">
+            <li key={column.heading.label} className="pf-lg-w-30 pf-lg-last-w-auto">
               <Inview
                 tag="div"
                 mode="once"
                 from={{ opacity: 0, y: 12 }}
                 to={{ opacity: 1, y: 0 }}
-                className="flex flex-col gap-5"
+                className="o-flex o-flex-col o-gap-5"
               >
-                <Link
+                <a
                   href={column.heading.href}
-                  className={`block text-hero-body leading-hero-display text-hero-content max-lg:tap-area max-lg:[--tap-y:0.5rem] ${FOCUS_RING}`}
+                  className={`o-block pf-text-hero-body pf-leading-hero-display pf-text-hero-content pf-max-lg-tap-area pf-max-lg-tap-y-0-5rem ${FOCUS_RING}`}
                 >
                   <ScrambleText revealInView tieProse>
                     {column.heading.label}
                   </ScrambleText>
-                </Link>
+                </a>
 
                 {column.links ? (
-                  <ul className="flex flex-col gap-3 max-lg:gap-4">
+                  <ul className="o-flex o-flex-col o-gap-3 max-lg:o-gap-4">
                     {column.links.map((link) => (
                       <li key={link.label}>
-                        <Link
+                        <a
                           href={link.href}
-                          className={`block text-hero-body leading-hero-display text-hero-content-muted uppercase transition-colors duration-[var(--duration-fast)] ease-entrance hover:text-hero-content max-lg:tap-area max-lg:[--tap-y:0.5rem] lg:whitespace-nowrap ${FOCUS_RING}`}
+                          className={`o-block pf-text-hero-body pf-leading-hero-display pf-text-hero-content-muted o-uppercase o-transition-colors pf-duration-var-duration-fast pf-ease-entrance pf-hover-text-hero-content pf-max-lg-tap-area pf-max-lg-tap-y-0-5rem pf-lg-whitespace-nowrap ${FOCUS_RING}`}
                         >
                           <ScrambleText tieProse revealInView revealDelay={80}>
                             {link.label}
                           </ScrambleText>
-                        </Link>
+                        </a>
                       </li>
                     ))}
                   </ul>
@@ -114,7 +112,7 @@ export const Footer = ({ content }: FooterProps) => (
         from={{ opacity: 0, y: 12 }}
         to={{ opacity: 1, y: 0 }}
         delayIn={120}
-        className="w-full max-lg:mt-6 lg:absolute lg:top-6 lg:right-10 lg:z-10 lg:w-[max(15.3125rem,245px)]"
+        className="o-w-full max-lg:o-mt-6 pf-lg-absolute pf-lg-top-6 pf-lg-right-10 pf-lg-z-10 pf-lg-w-max-15-3125rem-245px"
       >
         <FooterNewsletterForm content={content.newsletter} />
       </Inview>
@@ -122,7 +120,7 @@ export const Footer = ({ content }: FooterProps) => (
       {/* The frame's rule, drawn rather than exported — a 1px line at 25%. */}
       <div
         aria-hidden
-        className="h-px w-full bg-hero-rule lg:absolute lg:top-71.5 lg:inset-x-10 lg:w-auto"
+        className="o-h-px o-w-full pf-bg-hero-rule pf-lg-absolute pf-lg-top-71-5 pf-lg-inset-x-10 pf-lg-w-auto"
       />
 
       {/* **On a phone the order is inverted, and the legal line is quieter.**
@@ -139,16 +137,16 @@ export const Footer = ({ content }: FooterProps) => (
           the social links in the bottom-left corner, underneath the cookie
           control that lives there. The frame already draws them as one line
           ending against opposite margins; this is that line, allowed to wrap
-          onto two only where there is genuinely no room. `lg:contents` hands
+          onto two only where there is genuinely no room. `pf-lg-contents` hands
           both back to their frame coordinates. */}
-      <div className="flex flex-col-reverse gap-5 max-lg:-mt-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4 lg:contents">
+      <div className="o-flex o-flex-col-reverse o-gap-5 pf-max-lg-mt-3 sm:o-flex-row sm:o-items-center sm:o-justify-between sm:o-gap-4 pf-lg-contents">
         <Inview
           tag="p"
           mode="once"
           from={{ opacity: 0 }}
           to={{ opacity: 1 }}
           delayIn={200}
-          className="text-hero-chip leading-hero-display text-hero-content-faint sm:text-hero-body lg:absolute lg:top-77.5 lg:left-10 lg:whitespace-nowrap"
+          className="pf-text-hero-chip pf-leading-hero-display pf-text-hero-content-faint pf-sm-text-hero-body pf-lg-absolute pf-lg-top-77-5 pf-lg-left-10 pf-lg-whitespace-nowrap"
         >
           <ScrambleText tieProse revealInView revealDelay={200}>
             {content.copyright}
@@ -166,7 +164,7 @@ export const Footer = ({ content }: FooterProps) => (
           from={{ opacity: 0 }}
           to={{ opacity: 1 }}
           delayIn={240}
-          className="flex flex-wrap items-center gap-3 text-hero-body leading-hero-display text-hero-content-faint lg:absolute lg:top-77.5 lg:right-10 lg:flex-nowrap lg:whitespace-nowrap"
+          className="o-flex o-flex-wrap o-items-center o-gap-3 pf-text-hero-body pf-leading-hero-display pf-text-hero-content-faint pf-lg-absolute pf-lg-top-77-5 pf-lg-right-10 pf-lg-flex-nowrap pf-lg-whitespace-nowrap"
         >
           {content.social.map((link, index) => (
             <Fragment key={link.label}>
@@ -174,17 +172,17 @@ export const Footer = ({ content }: FooterProps) => (
                 monospaced face those two spaces are 19 units of the row's
                 width, and dropping them pulled the whole row 16 left. */}
               {index > 0 ? (
-                <li aria-hidden className="whitespace-pre">
+                <li aria-hidden className="o-whitespace-pre">
                   {" / "}
                 </li>
               ) : null}
               <li>
-                <Link
+                <a
                   href={link.href}
-                  className={`block transition-colors duration-[var(--duration-fast)] ease-entrance max-lg:tap-area hover:text-hero-content ${FOCUS_RING}`}
+                  className={`o-block o-transition-colors pf-duration-var-duration-fast pf-ease-entrance pf-max-lg-tap-area pf-hover-text-hero-content ${FOCUS_RING}`}
                 >
                   {link.label}
-                </Link>
+                </a>
               </li>
             </Fragment>
           ))}

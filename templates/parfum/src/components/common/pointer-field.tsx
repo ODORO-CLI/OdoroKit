@@ -1,5 +1,3 @@
-"use client";
-
 import { useEffect } from "react";
 
 import { subscribeToTicker } from "@/lib/animation/ticker";

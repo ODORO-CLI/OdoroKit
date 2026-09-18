@@ -1,8 +1,3 @@
-"use client";
-
-import Image from "next/image";
-import Link from "next/link";
-
 import { ScrambleText } from "@/components/ui/scramble-text";
 
 export interface FrameButtonProps {
@@ -21,15 +16,15 @@ export interface FrameButtonProps {
  * hairlines, an asset would need flipping per corner, and a border cannot
  * disagree with the box it sits beside about what 1px means.
  *
- * `-top-3`/`-left-3` is 12px out against a 10px glyph, so each bracket clears
+ * `pf--top-3`/`pf--left-3` is 12px out against a 10px glyph, so each bracket clears
  * the box's own corner by 2px — they read as a separate frame closing in, not
  * as a thickening of the border. The hidden state sits 4px further out again.
  */
 const CORNERS = [
-  "-top-3 -left-3 border-t border-l -translate-x-1 -translate-y-1",
-  "-top-3 -right-3 border-t border-r translate-x-1 -translate-y-1",
-  "-bottom-3 -left-3 border-b border-l -translate-x-1 translate-y-1",
-  "-bottom-3 -right-3 border-b border-r translate-x-1 translate-y-1",
+  "pf--top-3 pf--left-3 o-border-t o-border-l pf--translate-x-1 pf--translate-y-1",
+  "pf--top-3 pf--right-3 o-border-t o-border-r o-translate-x-1 pf--translate-y-1",
+  "pf--bottom-3 pf--left-3 o-border-b o-border-l pf--translate-x-1 o-translate-y-1",
+  "pf--bottom-3 pf--right-3 o-border-b o-border-r o-translate-x-1 o-translate-y-1",
 ];
 
 /**
@@ -73,30 +68,30 @@ export const FrameButton = ({
   revealDelay,
   revealInView,
 }: FrameButtonProps) => (
-  <Link
+  <a
     href={href}
-    className="hero-lattice-panel group relative flex h-10 items-center gap-6 border border-hero-content px-4 text-hero-body leading-hero-display whitespace-nowrap text-hero-content sm:h-11.5 sm:gap-6 sm:px-5 sm:text-hero-lede lg:gap-8 focus-visible:outline-none forced-colors:focus-visible:outline-2 forced-colors:focus-visible:outline-offset-2"
+    className="hero-lattice-panel group o-relative o-flex o-h-10 o-items-center o-gap-6 o-border-w-1 pf-border-hero-content o-px-4 pf-text-hero-body pf-leading-hero-display o-whitespace-nowrap pf-text-hero-content pf-sm-h-11-5 sm:o-gap-6 sm:o-px-5 pf-sm-text-hero-lede pf-lg-gap-8 pf-focus-visible-outline-none pf-forced-colors-focus-visible-outline-2 pf-forced-colors-focus-visible-outline-offset-2"
   >
     {CORNERS.map((corner) => (
       <span
         key={corner}
         aria-hidden
-        className={`pointer-events-none absolute size-2.5 border-hero-content opacity-0 transition duration-[var(--duration-normal)] ease-entrance group-hover:translate-x-0 group-hover:translate-y-0 group-hover:opacity-100 group-focus-visible:translate-x-0 group-focus-visible:translate-y-0 group-focus-visible:opacity-100 ${corner}`}
+        className={`o-pointer-events-none o-absolute o-size-2.5 pf-border-hero-content o-opacity-0 o-transition pf-duration-var-duration-normal pf-ease-entrance pf-group-hover-translate-x-0 pf-group-hover-translate-y-0 pf-group-hover-opacity-100 pf-group-focus-visible-translate-x-0 pf-group-focus-visible-translate-y-0 pf-group-focus-visible-opacity-100 ${corner}`}
       />
     ))}
 
     <ScrambleText revealDelay={revealDelay} revealInView={revealInView}>
       {label}
     </ScrambleText>
-    <Image
-      // Both axes pinned, and `h-auto` is specifically wrong here. In dev,
-      // `next/image` warns that one dimension was modified without the other —
+    <img
+      // Both axes pinned, and `o-h-auto` is specifically wrong here. In dev,
+      // L autre cadre avertissait qu une dimension avait bouge sans l autre —
       // it compares the *rounded* rendered box against these props, and under
       // the adaptive rem grid a 10×6 mark lands on 10.83×6.48 at phone widths,
       // where the width rounds to 11 and the height still reads 6. A square
       // mark can never trip it, which is why the brackets and corners do not.
       // The warning is a false positive: the ratio is right to 0.2%, and the
-      // check is compiled out of production. `h-auto` silences nothing and
+      // check is compiled out of production. `o-h-auto` silences nothing and
       // actively distorts — this file's SVG is intrinsically 10×5.76, so auto
       // resolves the height against *that* and squashes the arrow by 4%
       // (measured 9.98×5.75 against the correct 9.98×5.98).
@@ -105,7 +100,7 @@ export const FrameButton = ({
       width={10}
       height={6}
       aria-hidden
-      className="h-1.5 w-2.5 shrink-0 transition-transform duration-[var(--duration-normal)] ease-entrance group-hover:translate-x-1 group-focus-visible:translate-x-1"
+      className="o-h-1.5 o-w-2.5 o-shrink-0 o-transition-transform pf-duration-var-duration-normal pf-ease-entrance pf-group-hover-translate-x-1 pf-group-focus-visible-translate-x-1"
     />
-  </Link>
+  </a>
 );

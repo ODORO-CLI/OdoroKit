@@ -1,5 +1,3 @@
-"use client";
-
 /**
  * Decode-on-demand text effect: the label is replaced with random glyphs, then
  * resolves left to right, one character per step.

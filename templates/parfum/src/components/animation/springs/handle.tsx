@@ -18,8 +18,6 @@
  * @param {Tags} tag - HTML tag to use for container
  */
 
-"use client";
-
 import { memo, useEffect, useRef, useState } from "react";
 import { useSpring, SpringConfig, config as _config } from "@react-spring/web";
 import { AnimatedVarTextTag } from "./animated-var-text-tag";

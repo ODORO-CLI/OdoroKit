@@ -1,7 +1,3 @@
-"use client";
-
-import Image from "next/image";
-
 import { Spring } from "@/components/animation/springs/spring";
 import { ScrambleText } from "@/components/ui/scramble-text";
 
@@ -17,16 +13,16 @@ const BRACKET = "/assets/hero/hero-bracket.svg";
 
 const GEOMETRY = {
   start: {
-    block: "items-start lg:left-10 lg:w-39",
-    line: "text-left",
+    block: "o-items-start pf-lg-left-10 pf-lg-w-39",
+    line: "o-text-left",
     cornerTop: "",
-    cornerBottom: "-scale-y-100",
+    cornerBottom: "pf--scale-y-100",
   },
   end: {
-    block: "items-end lg:right-10 lg:w-46.25",
-    line: "text-right",
-    cornerTop: "-scale-x-100",
-    cornerBottom: "-scale-100",
+    block: "o-items-end pf-lg-right-10 pf-lg-w-46-25",
+    line: "o-text-right",
+    cornerTop: "pf--scale-x-100",
+    cornerBottom: "pf--scale-100",
   },
 } as const;
 
@@ -41,7 +37,7 @@ export const HeroMarker = ({ align, lines }: HeroMarkerProps) => {
 
   return (
     <div
-      className={`flex flex-1 flex-col gap-4 text-hero-content lg:absolute lg:top-1/2 lg:z-10 lg:flex-none lg:-translate-y-1/2 lg:gap-6 ${geometry.block}`}
+      className={`o-flex o-flex-1 o-flex-col o-gap-4 pf-text-hero-content pf-lg-absolute pf-lg-top-1-2 pf-lg-z-10 pf-lg-flex-none pf-lg-translate-y-1-2 pf-lg-gap-6 ${geometry.block}`}
     >
       <Spring
         tag="div"
@@ -49,9 +45,9 @@ export const HeroMarker = ({ align, lines }: HeroMarkerProps) => {
         from={{ opacity: 0 }}
         to={{ opacity: 1 }}
         delayIn={120}
-        className={`size-2 sm:size-2.75 ${geometry.cornerTop}`}
+        className={`o-size-2 pf-sm-size-2-75 ${geometry.cornerTop}`}
       >
-        <Image
+        <img
           src={BRACKET}
           alt=""
           width={11}
@@ -62,12 +58,12 @@ export const HeroMarker = ({ align, lines }: HeroMarkerProps) => {
       </Spring>
 
       <p
-        className={`w-full text-hero-chip leading-hero-display sm:text-hero-body md:text-hero-lede lg:text-hero-body ${geometry.line}`}
+        className={`o-w-full pf-text-hero-chip pf-leading-hero-display pf-sm-text-hero-body pf-md-text-hero-lede pf-lg-text-hero-body ${geometry.line}`}
       >
         {lines.map((line, index) => (
           <ScrambleText
             key={line}
-            className="block"
+            className="o-block"
             revealDelay={HERO_REVEAL.marker + index * HERO_REVEAL.markerStep}
           >
             {line}
@@ -81,9 +77,9 @@ export const HeroMarker = ({ align, lines }: HeroMarkerProps) => {
         from={{ opacity: 0 }}
         to={{ opacity: 1 }}
         delayIn={120}
-        className={`size-2 sm:size-2.75 ${geometry.cornerBottom}`}
+        className={`o-size-2 pf-sm-size-2-75 ${geometry.cornerBottom}`}
       >
-        <Image
+        <img
           src={BRACKET}
           alt=""
           width={11}

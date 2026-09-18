@@ -22,8 +22,6 @@
  * @param {Tags} tag - HTML tag to use for container
  */
 
-"use client";
-
 import React from "react";
 import { animated, useSpring } from "@react-spring/web";
 import {

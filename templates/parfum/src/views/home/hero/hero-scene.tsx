@@ -1,5 +1,3 @@
-"use client";
-
 import { useEffect, useRef, useState } from "react";
 import {
   ACESFilmicToneMapping,
@@ -102,7 +100,7 @@ const FRAME_WIDTH = 1440;
  * margins had just been scaled *down* by the same 11%.
  *
  * The height is the axis that still means what it says: every frame screen is
- * `h-200`, exactly 800 units, so `boxHeight / 800` is the frame unit itself.
+ * `pf-h-200`, exactly 800 units, so `boxHeight / 800` is the frame unit itself.
  */
 const FRAME_HEIGHT = 800;
 /**
@@ -811,7 +809,7 @@ const LOOK = {
  * glyphs — the baked label read as gibberish at every size. So the model is
  * generated with a BLANK cream label, and this plane carries the real one: a
  * `CanvasTexture` set in the page's own 3270 through the `--font-3270` variable
- * next/font exposes, so the label on the object and the labels on the page are
+ * la feuille expose, so the label on the object and the labels on the page are
  * one typeface. It is a child of the model, so it turns, rolls and travels with
  * it, and it is lit by the same key and rim — paper, not a sticker on the glass.
  *
@@ -840,7 +838,7 @@ const LABEL = {
  * Draw the label once into an offscreen canvas.
  *
  * The 3270 is read from the CSS variable at call time rather than hardcoded:
- * next/font gives the family a hashed name, and the variable is the only stable
+ * The family could be renamed at any build, and the variable is the only stable
  * handle on it. `document.fonts.load` is awaited so the first draw is not in
  * the fallback face; if the font never resolves the fallback monospace is drawn
  * instead, which is legible if not on-brand — never a blank label.
@@ -1076,7 +1074,7 @@ export const HeroScene = ({ src, label, still }: HeroSceneProps) => {
       // every other width drifted: measured, the product sat 9% higher in the
       // section at 1024 than at 1440. Splitting the overhang evenly puts the two
       // centres back on top of each other at every size.
-      renderer.domElement.style.position = "absolute";
+      renderer.domElement.style.position = "o-absolute";
       renderer.domElement.style.left = "50%";
       renderer.domElement.style.top = "50%";
       renderer.domElement.style.transform = "translate(-50%, -50%)";
@@ -1167,7 +1165,7 @@ export const HeroScene = ({ src, label, still }: HeroSceneProps) => {
       // which is the right answer for as long as the box is wider than the
       // model. For the jacket it stopped being on a phone: the box was 350×262
       // and the garment, sleeves out, half again as wide as it was tall, so 93%
-      // of the height asked for 373px of width inside 350 and `overflow-hidden`
+      // of the height asked for 373px of width inside 350 and `o-overflow-hidden`
       // took the sleeves off. The flacon is 1.57:1 tall, so the height binds on
       // every box the page ships and `forWidth` never wins — but the fit stays
       // generic, and costs nothing while it is not needed.
@@ -1658,13 +1656,13 @@ export const HeroScene = ({ src, label, still }: HeroSceneProps) => {
 
     const onVisibility = () => (document.hidden ? pause() : resume());
     document.addEventListener("visibilitychange", onVisibility);
-    // **`resize` is a desktop event here, `orientationchange` a touch one.**
-    // iOS Safari fires `resize` every time the URL bar collapses during a
+    // **`o-resize` is a desktop event here, `orientationchange` a touch one.**
+    // iOS Safari fires `o-resize` every time the URL bar collapses during a
     // scroll; handling that rebuilds the WebGL framebuffer mid-scroll and reads
     // as a whole-scene flash. A coarse pointer therefore listens only for a
     // rotation, which is the one case where the canvas genuinely has to be
     // rebuilt and the one case that cannot happen mid-scroll.
-    const sizeEvent = coarse ? "orientationchange" : "resize";
+    const sizeEvent = coarse ? "orientationchange" : "o-resize";
     window.addEventListener(sizeEvent, onResize, { passive: true });
 
     applySize();
@@ -1697,12 +1695,12 @@ export const HeroScene = ({ src, label, still }: HeroSceneProps) => {
     <>
       <div
         ref={containerRef}
-        // `transform-gpu backface-hidden` puts the canvas on its own compositor
+        // `pf-transform-gpu pf-backface-hidden` puts the canvas on its own compositor
         // layer. Without it, a neighbouring fixed element repainting during a
         // scroll — this page has a fixed lattice glow and a sticky header —
         // invalidates the WebGL composite on WebKit and the whole scene flickers.
-        className={`pointer-events-none absolute inset-0 z-10 transform-gpu overflow-hidden backface-hidden transition-opacity duration-[var(--duration-normal)] ease-entrance ${
-          ready ? "opacity-100" : "opacity-0"
+        className={`o-pointer-events-none o-absolute o-inset-0 o-z-10 pf-transform-gpu o-overflow-hidden pf-backface-hidden o-transition-opacity pf-duration-var-duration-normal pf-ease-entrance ${
+          ready ? "o-opacity-100" : "o-opacity-0"
         }`}
       />
       {/* Touch-only swipe target, over the product alone. A **pinned** instance
@@ -1718,13 +1716,13 @@ export const HeroScene = ({ src, label, still }: HeroSceneProps) => {
         aria-hidden
         className={
           still
-            ? "hidden"
+            ? "o-hidden"
             : // Centred on the canvas rather than pinned to the frame's x of
               // 340: a 760-unit box at 340 is centred on 720, the frame's own
               // centre line, and only "centred" still lands there on a canvas
               // that is wider. Margins, not a transform - this sits beside a
               // canvas that must not be handed a new containing block.
-              "pointer-events-auto absolute inset-0 z-10 touch-pan-y pointer-coarse:cursor-grab pointer-coarse:active:cursor-grabbing lg:inset-auto lg:top-1/2 lg:left-1/2 lg:-mt-104 lg:-ml-95 lg:size-190"
+              "o-pointer-events-auto o-absolute o-inset-0 o-z-10 o-touch-pan-y pf-pointer-coarse-cursor-grab pf-pointer-coarse-active-cursor-grabbing pf-lg-inset-auto pf-lg-top-1-2 pf-lg-left-1-2 pf-lg-mt-104 pf-lg-ml-95 pf-lg-size-190"
         }
       />
     </>

@@ -1,6 +1,4 @@
-"use client";
-
-import dynamic from "next/dynamic";
+import { lazy, Suspense } from "react";
 
 import { NearViewport } from "@/components/common/near-viewport";
 
@@ -19,9 +17,8 @@ export interface FaqStageProps {
  * not allowed inside a Server Component — the same reason `ProductStage` owns
  * the hero's mount rather than the section itself.
  */
-const HeroScene = dynamic(
-  () => import("../hero/hero-scene").then((m) => m.HeroScene),
-  { ssr: false },
+const HeroScene = lazy(() =>
+  import("../hero/hero-scene").then((m) => ({ default: m.HeroScene })),
 );
 
 /**
@@ -62,7 +59,7 @@ const STILL = {
  * *behind* the questions — it is the screen's ground. Below it there is no
  * corner to run off: the stage became a full-width picture of the same flacon
  * the page has already shown twice, stacked above the list, and read as a
- * repeat rather than as a backdrop. `hidden` also means the box never lays
+ * repeat rather than as a backdrop. `o-hidden` also means the box never lays
  * out, so the reveal never fires and the second WebGL context is never built.
  */
 export const FaqStage = ({ subject }: FaqStageProps) => (
@@ -74,7 +71,7 @@ export const FaqStage = ({ subject }: FaqStageProps) => (
     data-pointer-frame
     // **The bottom fade is back, and the reasoning that removed it was wrong.**
     // It was dropped on the arithmetic that the model comes to rest at 756
-    // against a section `min-h-200` holds at 800 — true at 1440×800 and only
+    // against a section `pf-min-h-200` holds at 800 — true at 1440×800 and only
     // there. The section takes the *larger* of `h-lvh` and 800 units, and those
     // two scale differently: the units track the root font-size, the viewport
     // height does not. Change the aspect ratio and the clearance goes. Measured
@@ -82,14 +79,19 @@ export const FaqStage = ({ subject }: FaqStageProps) => (
     // The curve is `hero-stage-mask`'s, which holds full density through the
     // first third of its travel, so the ghosting that removing it was meant to
     // cure stays out of the body of the flacon.
-    className="pointer-events-none relative isolate hidden aspect-4/5 w-full overflow-hidden sm:aspect-4/3 lg:absolute lg:block lg:inset-0 lg:z-0 lg:aspect-auto lg:hero-stage-mask"
+    className="o-pointer-events-none o-relative o-isolate o-hidden pf-aspect-4-5 o-w-full o-overflow-hidden pf-sm-aspect-4-3 pf-lg-absolute pf-lg-block pf-lg-inset-0 pf-lg-z-0 pf-lg-aspect-auto pf-lg-hero-stage-mask"
   >
     {/* Built only once this screen is near. The scene's cost is not its frame
         loop — that is already gated — it is *construction*: a second WebGL
         context, seven shader programs and nine texture uploads, which used to be
         charged to the first paint for a product seven screens further down. */}
-    <NearViewport className="absolute inset-0">
-      <HeroScene src={subject.src} label={subject.label} still={STILL} />
+    <NearViewport className="o-absolute o-inset-0">
+        {/* Charge a la demande : il lui faut sa frontiere de suspension. Le
+            repli est vide — la scene arrive ou n arrive pas, et rien ne doit
+            occuper sa place en attendant. */}
+      <Suspense fallback={null}>
+        <HeroScene src={subject.src} label={subject.label} still={STILL} />
+      </Suspense>
     </NearViewport>
   </div>
 );

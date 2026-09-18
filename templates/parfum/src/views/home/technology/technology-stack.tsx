@@ -1,6 +1,3 @@
-"use client";
-
-import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 
 import { ScrambleText } from "@/components/ui/scramble-text";
@@ -28,21 +25,21 @@ const units = (value: number) => `${value / 16}rem`;
  *   wide as its box is tall, centred: `50% + (fx − 0.5) × 619`.
  *
  * **619 and 136 are the box, and they have to be kept in step with it.** The
- * clip sits in `lg:top-34 lg:h-154.75` and is `object-contain` at 1:1, so what
+ * clip sits in `pf-lg-top-34 pf-lg-h-154-75` and is `o-object-contain` at 1:1, so what
  * is actually drawn is a square the height of the box — not the box's own
  * 665-unit width. Anchors are stated against the drawing, so this is the
  * conversion between the two.
  */
 /** Distance from the canvas's right edge to the card's left edge, frame units. */
 const CARD_INSET = 457;
-/** The drawn artwork: a square as tall as its box (`lg:h-154.75`), frame units. */
+/** The drawn artwork: a square as tall as its box (`pf-lg-h-154-75`), frame units. */
 const ARTWORK = 619;
-/** The box's top edge on the stage (`lg:top-34`), frame units. */
+/** The box's top edge on the stage (`pf-lg-top-34`), frame units. */
 const ARTWORK_TOP = 136;
 /** Side of the square the leader line plants on the layer, frame units. */
 const MARKER = 8;
 
-const TRANSITION = "transition duration-[var(--duration-normal)] ease-entrance";
+const TRANSITION = "o-transition pf-duration-var-duration-normal pf-ease-entrance";
 
 /**
  * The leader line: a hairline from the card to a small filled square on the
@@ -82,14 +79,14 @@ const Leader = ({
   return (
     <div
       aria-hidden
-      className={`pointer-events-none absolute inset-0 text-hero-rule ${TRANSITION} ${
-        active ? "opacity-100" : "opacity-0"
+      className={`o-pointer-events-none o-absolute o-inset-0 pf-text-hero-rule ${TRANSITION} ${
+        active ? "o-opacity-100" : "o-opacity-0"
       }`}
     >
       <svg
         viewBox="0 0 100 100"
         preserveAspectRatio="none"
-        className="absolute"
+        className="o-absolute"
         style={{
           left: `calc(50% + ${units(offset)})`,
           top: units(Math.min(anchorY, cardSideY)),
@@ -109,7 +106,7 @@ const Leader = ({
       </svg>
 
       <span
-        className="absolute block bg-hero-content"
+        className="o-absolute o-block pf-bg-hero-content"
         style={{
           left: `calc(50% + ${units(offset - MARKER / 2)})`,
           top: units(anchorY - MARKER / 2),
@@ -207,34 +204,34 @@ export const TechnologyStack = ({ layers }: TechnologyStackProps) => {
           <Leader layer={layer} active={entered && index === active} />
 
           <div
-            // `right-10`: the frame's x of 983 plus the card's 417 is 1400, the
+            // `o-right-10`: the frame's x of 983 plus the card's 417 is 1400, the
             // 40-unit margin, and only the margin still means that on a canvas
             // wider than 1440 units. The leader lines are derived from the same
             // two numbers — see `CARD_INSET`.
-            className={`hero-lattice-panel absolute right-10 flex w-104.25 gap-12 border border-hero-rule p-4 ${TRANSITION} ${
-              entered ? "translate-y-0" : "translate-y-4"
-            } ${entered && index === active ? "opacity-100" : "opacity-0"}`}
+            className={`hero-lattice-panel o-absolute o-right-10 o-flex pf-w-104-25 o-gap-12 o-border-w-1 pf-border-hero-rule o-p-4 ${TRANSITION} ${
+              entered ? "o-translate-y-0" : "o-translate-y-4"
+            } ${entered && index === active ? "o-opacity-100" : "o-opacity-0"}`}
             style={{ top: units(layer.cardTop) }}
           >
-            <div className="flex flex-col items-start justify-between self-stretch">
+            <div className="o-flex o-flex-col o-items-start o-justify-between o-self-stretch">
               <span
                 aria-hidden
-                className="text-hero-body leading-hero-display text-hero-content-faint"
+                className="pf-text-hero-body pf-leading-hero-display pf-text-hero-content-faint"
               >
                 {layer.index}
               </span>
-              <Image
+              <img
                 src={layer.icon.src}
                 alt={layer.icon.alt}
                 width={layer.icon.width}
                 height={layer.icon.height}
                 aria-hidden
-                className="size-8 shrink-0 mb-[calc(var(--text-hero-body)*0.155)]"
+                className="o-size-8 o-shrink-0 pf-mb-calc-var-text-hero-body-0-155"
               />
             </div>
 
-            <div className="flex min-w-px flex-1 flex-col gap-3">
-              <h3 className="text-hero-body leading-hero-display text-hero-content">
+            <div className="o-flex o-min-w-px o-flex-1 o-flex-col o-gap-3">
+              <h3 className="pf-text-hero-body pf-leading-hero-display pf-text-hero-content">
                 {/* Re-decodes each time this layer becomes the active one —
                     the card is the only thing that moves, so the decode is what
                     marks the step. */}
@@ -246,7 +243,7 @@ export const TechnologyStack = ({ layers }: TechnologyStackProps) => {
                   {layer.title}
                 </ScrambleText>
               </h3>
-              <p className="text-hero-body leading-hero-prose text-hero-content-muted uppercase">
+              <p className="pf-text-hero-body pf-leading-hero-prose pf-text-hero-content-muted o-uppercase">
                 <ScrambleText
                   tieProse
                   key={entered && index === active ? "on" : "off"}

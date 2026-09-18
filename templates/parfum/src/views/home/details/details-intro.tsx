@@ -1,5 +1,3 @@
-"use client";
-
 import { Inview } from "@/components/animation/springs/in-view";
 import { ScrambleText } from "@/components/ui/scramble-text";
 
@@ -34,14 +32,14 @@ export interface DetailsIntroProps {
  * 17px — a slightly loose gap, not a broken layout.
  */
 export const DetailsIntro = ({ id, heading, lede }: DetailsIntroProps) => (
-  <div className="flex flex-col gap-6 lg:absolute lg:top-30.5 lg:left-10 lg:z-10 lg:w-86 lg:gap-9">
+  <div className="o-flex o-flex-col o-gap-6 pf-lg-absolute pf-lg-top-30-5 pf-lg-left-10 pf-lg-z-10 pf-lg-w-86 pf-lg-gap-9">
     <Inview
       tag="h2"
       id={id}
       mode="once"
       from={{ opacity: 0, y: 20 }}
       to={{ opacity: 1, y: 0 }}
-      className="text-hero-display-compact leading-hero-headline tracking-hero-display text-hero-content [text-box:trim-both_cap_alphabetic] sm:text-hero-display-tablet lg:text-hero-display"
+      className="pf-text-hero-display-compact pf-leading-hero-headline pf-tracking-hero-display pf-text-hero-content pf--text-box-trim-both-cap-alphabetic pf-sm-text-hero-display-tablet pf-lg-text-hero-display"
     >
       <ScrambleText tieProse revealInView revealDelay={DETAILS_REVEAL.heading}>
         {heading}
@@ -54,7 +52,7 @@ export const DetailsIntro = ({ id, heading, lede }: DetailsIntroProps) => (
       from={{ opacity: 0 }}
       to={{ opacity: 1 }}
       delayIn={DETAILS_REVEAL.lede}
-      className="text-hero-body leading-hero-prose text-hero-content-muted uppercase max-sm:prose-even sm:text-hero-lede"
+      className="pf-text-hero-body pf-leading-hero-prose pf-text-hero-content-muted o-uppercase pf-max-sm-prose-even pf-sm-text-hero-lede"
     >
       <ScrambleText tieProse revealInView revealDelay={DETAILS_REVEAL.lede}>
         {lede}

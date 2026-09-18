@@ -1,6 +1,3 @@
-"use client";
-
-import Image from "next/image";
 import { useEffect, useRef } from "react";
 
 import { subscribeToTicker } from "@/lib/animation/ticker";
@@ -49,7 +46,7 @@ const prefersReducedMotion = () =>
  *
  * Driven from the shared ticker with a sine, the same way the product's idle
  * drift is. CSS keyframe animation is banned outright by hard rule #1, and these
- * loop forever, so a `transition` cannot express them either.
+ * loop forever, so a `o-transition` cannot express them either.
  *
  * The globe **turns about its vertical axis** — a real `rotateY` under a short
  * perspective, not a flat `scaleX`. Both narrow the glyph, but only perspective
@@ -122,11 +119,11 @@ export const HeroBadgeIcon = ({ icon, motion }: HeroBadgeIconProps) => {
   return (
     <span
       ref={ref}
-      className="block will-change-transform"
+      className="o-block o-will-change-transform"
       style={{ transformOrigin: "50% 50%" }}
     >
       {/* **Sized in rem, not left at its intrinsic pixels.** `width`/`height`
-          here are the frame's own units, and with no CSS size `next/image`
+          here are the frame's own units, and with no CSS size the image
           renders them as literal pixels — so these two marks stayed 23px while
           everything around them scaled with the root font-size. That is
           invisible at 1440, where the frame's scale is exactly 1 and 23 units
@@ -134,7 +131,7 @@ export const HeroBadgeIcon = ({ icon, motion }: HeroBadgeIconProps) => {
           card had shrunk to 89% and the reticle had not, which pushed it off the
           centre of its cell. They were the only two images on the page that did
           not scale. */}
-      <Image
+      <img
         src={icon.src}
         alt={icon.alt}
         width={icon.width}

@@ -1,5 +1,3 @@
-"use client";
-
 import { useEffect, useRef } from "react";
 
 import { subscribeToTicker } from "@/lib/animation/ticker";
@@ -255,7 +253,7 @@ const framePath = (dir: string, index: number) =>
  * creates one. Everything the artwork could blend with — the page's lattice —
  * is outside it. Verified rather than assumed: with the stage forced to
  * `position: relative` the blend works and the grid reads through the artwork;
- * back on `sticky`, the black rectangle returns. The pin is not negotiable.
+ * back on `o-sticky`, the black rectangle returns. The pin is not negotiable.
  *
  * So the frames carry a real alpha channel, written at export time by the same
  * matrix the SVG filter used to run every paint. A real key survives any
@@ -507,8 +505,8 @@ export const TechnologyReel = ({ content, className }: TechnologyReelProps) => {
           described exactly once and the canvas can stay decorative. A discrete
           opacity change on a token duration — the narrow CSS-transition
           exception, not scroll-driven motion. */}
-      {/* eslint-disable-next-line @next/next/no-img-element -- the canvas is the
-          real picture; this is a paint-immediately backstop, and `next/image`
+      {/* The canvas is the real picture; this is a paint-immediately backstop,
+          and an optimised image
           would add a wrapper that breaks the absolute stacking here. */}
       <img
         ref={posterRef}
@@ -517,7 +515,7 @@ export const TechnologyReel = ({ content, className }: TechnologyReelProps) => {
         width={content.width}
         height={content.height}
         style={{ filter: REEL_TINT }}
-        className={`absolute inset-0 transition-opacity duration-[var(--duration-normal)] ease-entrance motion-reduce:transition-none ${className ?? ""}`}
+        className={`o-absolute o-inset-0 o-transition-opacity pf-duration-var-duration-normal pf-ease-entrance pf-motion-reduce-transition-none ${className ?? ""}`}
       />
 
       {/* The same tint as the poster, from the same constant — the two are the
@@ -530,7 +528,7 @@ export const TechnologyReel = ({ content, className }: TechnologyReelProps) => {
         ref={canvasRef}
         aria-hidden
         style={{ filter: REEL_TINT }}
-        className={`absolute inset-0 ${className ?? ""}`}
+        className={`o-absolute o-inset-0 ${className ?? ""}`}
       />
     </>
   );

@@ -231,7 +231,7 @@
 .al-ease.al-ease { transition-timing-function: var(--raw-ease); }
 .al-track-34.al-track-34 { letter-spacing: 0.34em; }
 
-.al-fs-62.al-fs-62 { font-size: 0.625rem; }
+.al-fs-62.al-fs-62 { font-size: 0.625rem !important; }
 .al-fs-85.al-fs-85 { font-size: 0.85rem; }
 .al-fs-875.al-fs-875 { font-size: 0.875rem; }
 .al-fs-90.al-fs-90 { font-size: 0.9rem; }

@@ -1,5 +1,3 @@
-"use client";
-
 import { Spring } from "@/components/animation/springs/spring";
 import { FrameButton } from "@/components/ui/frame-button";
 
@@ -18,7 +16,7 @@ export type HeroCtaProps = HeroLink;
 export const HeroCta = ({ label, href }: HeroCtaProps) => (
   // The wrapper owns the centring transform; the spring writes its own
   // `transform`, which would otherwise overwrite it.
-  <div className="flex justify-center lg:absolute lg:bottom-10 lg:left-1/2 lg:block lg:-translate-x-1/2 lg:justify-start lg:z-10">
+  <div className="o-flex o-justify-center pf-lg-absolute pf-lg-bottom-10 pf-lg-left-1-2 pf-lg-block pf-lg-translate-x-1-2 pf-lg-justify-start pf-lg-z-10">
     <Spring
       tag="div"
       mode="once"

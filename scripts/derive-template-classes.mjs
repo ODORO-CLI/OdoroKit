@@ -118,13 +118,54 @@ for (const [key, value] of THEME) {
  * chez nous : c est une regle que ce gabarit s est donnee, et elle voyage avec
  * lui.
  */
+/**
+ * Les variantes que l autre moteur livre d office et dont nous n avons pas
+ * l equivalent. Elles ne dependent d aucun gabarit : ce sont des requetes de
+ * media fixes.
+ */
+const VARIANTES_LIVREES = new Map([
+  ['motion-reduce', '(prefers-reduced-motion: reduce)'],
+  ['motion-safe', '(prefers-reduced-motion: no-preference)'],
+  ['pointer-coarse', '(pointer: coarse)'],
+  ['pointer-fine', '(pointer: fine)'],
+  ['any-pointer-coarse', '(any-pointer: coarse)'],
+  ['any-pointer-fine', '(any-pointer: fine)'],
+  ['portrait', '(orientation: portrait)'],
+  ['landscape', '(orientation: landscape)'],
+  ['print', 'print'],
+  ['forced-colors', '(forced-colors: active)'],
+  ['dark', '(prefers-color-scheme: dark)'],
+  ['contrast-more', '(prefers-contrast: more)'],
+  ['contrast-less', '(prefers-contrast: less)'],
+  ['supports-hover', '(hover: hover)'],
+])
+
 const VARIANTES = new Map()
-for (const match of css.matchAll(
-  /@custom-variant\s+([\w-]+)\s*\(([^)]*\([^)]*\)[^)]*|[^)]*)\)\s*;/g,
-)) {
-  const corps = match[2].trim()
-  const media = /@media\s*(.+)$/.exec(corps)
-  if (media !== null) VARIANTES.set(match[1], media[1].trim())
+/*
+ * La parenthese se compte, elle ne se decrit pas.
+ *
+ * L expression reguliere d avant admettait un seul niveau imbrique. Elle lisait
+ * `@custom-variant max-h-717 (@media (max-height: 717px));` sans peine, et
+ * echouait en silence sur
+ *
+ *     @custom-variant lg (@media (min-width: 1024px) and (min-aspect-ratio: 1/1));
+ *
+ * qui en a deux cote a cote. Un echec ici ne se voit pas : la variante tombe
+ * simplement dans la branche suivante, celle des ruptures, et `lg:` reprend la
+ * largeur seule — la condition de format disparait sans que rien ne le dise.
+ */
+for (const debut of [...css.matchAll(/@custom-variant\s+([\w-]+)\s*\(/g)]) {
+  let i = debut.index + debut[0].length
+  let profondeur = 1
+  while (profondeur > 0 && i < css.length) {
+    if (css[i] === '(') profondeur += 1
+    else if (css[i] === ')') profondeur -= 1
+    i += 1
+  }
+  if (profondeur !== 0) continue
+  const corps = css.slice(debut.index + debut[0].length, i - 1).trim()
+  const media = /^@media\s*(.+)$/s.exec(corps)
+  if (media !== null) VARIANTES.set(debut[1], media[1].trim())
 }
 
 /* ============================ Les motifs ================================= */
@@ -172,6 +213,8 @@ const TOKEN_FAMILY = [
   ['border', '--color-', 'border-color'],
   ['rounded', '--radius-', 'border-radius'],
   ['leading', '--leading-', 'line-height'],
+  ['tracking', '--tracking-', 'letter-spacing'],
+  ['shadow', '--shadow-', 'box-shadow'],
   ['font', '--font-', 'font-family'],
   ['backdrop-blur', '--blur-', null],
   ['duration', '--duration-', 'transition-duration'],
@@ -252,6 +295,45 @@ const SIMPLES = {
   'h-svh': ['height: 100svh'],
   'h-dvh': ['height: 100dvh'],
   'backface-hidden': ['backface-visibility: hidden'],
+  'self-auto': ['align-self: auto'],
+  'object-contain': ['object-fit: contain'],
+  'flex-1': ['flex: 1 1 0%'],
+  'flex-auto': ['flex: 1 1 auto'],
+  'flex-initial': ['flex: 0 1 auto'],
+  'flex-none': ['flex: none'],
+  'flex-wrap': ['flex-wrap: wrap'],
+  'flex-nowrap': ['flex-wrap: nowrap'],
+  'flex-wrap-reverse': ['flex-wrap: wrap-reverse'],
+  'border-l': ['border-left-width: 1px'],
+  'border-r': ['border-right-width: 1px'],
+  'cursor-grab': ['cursor: grab'],
+  'cursor-grabbing': ['cursor: grabbing'],
+  'cursor-pointer': ['cursor: pointer'],
+  'cursor-default': ['cursor: default'],
+  'object-cover': ['object-fit: cover'],
+  'object-fill': ['object-fit: fill'],
+  'object-none': ['object-fit: none'],
+  'min-h-lvh': ['min-height: 100lvh'],
+  'min-h-dvh': ['min-height: 100dvh'],
+  'min-h-svh': ['min-height: 100svh'],
+  'min-h-screen': ['min-height: 100vh'],
+  'h-lvh': ['height: 100lvh'],
+  'h-dvh': ['height: 100dvh'],
+  'h-svh': ['height: 100svh'],
+  'h-screen': ['height: 100vh'],
+  'transition-none': ['transition-property: none'],
+  'self-start': ['align-self: flex-start'],
+  'self-end': ['align-self: flex-end'],
+  'self-center': ['align-self: center'],
+  'outline-none': ['outline: 2px solid transparent', 'outline-offset: 2px'],
+  'opacity-0': ['opacity: 0'],
+  'opacity-100': ['opacity: 1'],
+  'pointer-events-auto': ['pointer-events: auto'],
+  'pointer-events-none': ['pointer-events: none'],
+  'border-b': ['border-bottom-width: 1px'],
+  'border-t': ['border-top-width: 1px'],
+  '-scale-y-100': ['scale: 1 -1'],
+  '-scale-x-100': ['scale: -1 1'],
   'transform-gpu': ['transform: translateZ(0)'],
   'w-lvw': ['width: 100lvw'],
   'w-dvw': ['width: 100dvw'],
@@ -294,12 +376,59 @@ const SIMPLES = {
   'auto-rows-auto': ['grid-auto-rows: auto'],
 }
 
+/**
+ * Rend a `calc()` les espaces que la grammaire exige.
+ *
+ * `calc(100svh-5rem)` n est pas du CSS valide : sans espaces autour du `-`, la
+ * declaration entiere est jetee. L autre moteur les inserait pour l auteur, ce
+ * qui explique que la source ne les porte pas. Chez nous, le hero de `parfum`
+ * y perdait 263 px de hauteur minimale, et rien ne le disait.
+ *
+ * `*` et `/` n en ont pas besoin, et un `-` deja precede d un espace non plus.
+ * Le `e` d une notation scientifique est mis a part : `1e-5` n est pas une
+ * soustraction.
+ */
+function espacerCalc(valeur) {
+  if (!valeur.includes('calc(')) return valeur
+  return (
+    valeur
+      /*
+       * Le `+` est sans ambiguite : aucun identifiant CSS n en porte.
+       */
+      .replace(/(?<=[\w%)\]])\+(?=[\w.(])/g, ' + ')
+      /*
+       * Le `-`, lui, vit aussi a l interieur des noms : `safe-area-inset-top`
+       * n est pas une suite de soustractions. Il n est un operateur que s il
+       * introduit un nombre, ou s il suit une valeur close — une parenthese,
+       * un pourcentage. Le `e` d un `1e-5` est mis a part.
+       */
+      .replace(/(?<![\d][eE])(?<=[\w%)\]])-(?=[\d.])/g, ' - ')
+      .replace(/(?<=[%)\]])-(?=[a-z(])/g, ' - ')
+  )
+}
+
 /** The declarations a bare class name produces, or `null`. */
 function declarationsFor(name) {
+  // La table peut nommer le negatif en toutes lettres. `-scale-y-100` retourne
+  // l element ; `scale-y-100` ne veut rien dire tout seul, et lui retirer son
+  // signe avant de chercher revenait a ne jamais le trouver.
+  if (SIMPLES[name] !== undefined) return SIMPLES[name]
+
   const negative = name.startsWith('-')
   // Le `!` de tete forcait la priorite dans l autre moteur ; ici la
   // specificite doublee du selecteur fait le meme travail.
   const bare = (negative ? name.slice(1) : name).replace(/^!/, '')
+
+  const travee = /^(col|row)-span-(\d+)$/.exec(bare)
+  if (travee !== null) {
+    const axe = travee[1] === 'col' ? 'grid-column' : 'grid-row'
+    return [`${axe}: span ${travee[2]} / span ${travee[2]}`]
+  }
+
+  const depart = /^(col|row)-(start|end)-(\d+)$/.exec(bare)
+  if (depart !== null) {
+    return [`grid-${depart[1] === 'col' ? 'column' : 'row'}-${depart[2]}: ${depart[3]}`]
+  }
 
   const profondeur = /^z-(\d+)$/.exec(bare)
   if (profondeur !== null) return [`z-index: ${negative ? '-' : ''}${profondeur[1]}`]
@@ -312,7 +441,7 @@ function declarationsFor(name) {
   const arbitrary = /^([a-z-]+)-\[([^\]]+)\]$/.exec(bare)
   if (arbitrary !== null) {
     const [, root, value] = arbitrary
-    const literal = value.replace(/_/g, ' ').replace(/^image:/, '')
+    const literal = espacerCalc(value.replace(/_/g, ' ').replace(/^image:/, ''))
     const props = SPACING[root]
     if (props !== undefined)
       return props.map((p) => `${p}: ${negative ? '-' : ''}${literal}`)
@@ -392,6 +521,24 @@ function declarationsFor(name) {
     if (base === null) return null
     return [`${prop}: color-mix(in srgb, ${base} ${part}%, transparent)`]
   }
+
+  // `[--tap-x:0.75rem]` ou `[-webkit-appearance:none]` : une declaration
+  // ecrite telle quelle. Le souligne y tient lieu d espace.
+  const declaree = /^\[([^:\]]+):([^\]]+)\]$/.exec(bare)
+  if (declaree !== null) {
+    return [`${declaree[1]}: ${declaree[2].replace(/_/g, ' ')}`]
+  }
+
+  // Les durees et les delais de l echelle livree, comptes en millisecondes.
+  const duree = /^(duration|delay)-(\d+)$/.exec(bare)
+  if (duree !== null) {
+    const prop = duree[1] === 'duration' ? 'transition-duration' : 'transition-delay'
+    return [`${prop}: ${duree[2]}ms`]
+  }
+
+  // Un rapport d image ecrit sans crochets : `aspect-4/5`.
+  const rapport = /^aspect-(\d+)\/(\d+)$/.exec(bare)
+  if (rapport !== null) return [`aspect-ratio: ${rapport[1]} / ${rapport[2]}`]
 
   // Le flou et la saturation d arriere-plan, ecrits en valeur.
   const filtre = /^backdrop-(blur|saturate|brightness)-\[(.+)\]$/.exec(bare)
@@ -502,17 +649,89 @@ const table = []
 const regles = new Map()
 const rendus = []
 
-/** A safe class name for a template rule. */
+/**
+ * Un nom de classe sur lequel le navigateur ne butera pas.
+ *
+ * La version d avant nommait les caracteres a remplacer, un par un. Tout ce
+ * qu elle n avait pas prevu passait — `!`, `+`, `*`, `@`, `&`, `>` — et un seul
+ * suffit : `.hl-!rounded-24px` n est pas un selecteur valide, donc la regle
+ * entiere est jetee. Sans erreur, sans avertissement. Le coin arrondi du menu
+ * de `helion` manquait ainsi depuis son portage, et la hauteur d une section de
+ * `parfum` perdait 1280 px.
+ *
+ * On ne nomme donc plus ce qui est interdit : on nomme ce qui est permis, et
+ * tout le reste devient un tiret.
+ */
+const PRIS = new Map()
+
+/** Le `:` qui separe la variante est celui qui se trouve **hors** des crochets. */
+function coupure(nom) {
+  let cut = -1
+  let profondeur = 0
+  for (let i = 0; i < nom.length; i += 1) {
+    if (nom[i] === '[') profondeur += 1
+    else if (nom[i] === ']') profondeur -= 1
+    else if (nom[i] === ':' && profondeur === 0) cut = i
+  }
+  return cut
+}
+
+/** Les `:` de premier niveau — ceux qui sont hors crochets — separent les variantes. */
+function decouper(chaine) {
+  const parts = []
+  let profondeur = 0
+  let debut = 0
+  for (let i = 0; i < chaine.length; i += 1) {
+    if (chaine[i] === '[') profondeur += 1
+    else if (chaine[i] === ']') profondeur -= 1
+    else if (chaine[i] === ':' && profondeur === 0) {
+      parts.push(chaine.slice(debut, i))
+      debut = i + 1
+    }
+  }
+  parts.push(chaine.slice(debut))
+  return parts.filter((p) => p !== '')
+}
+
+const varianteDe = (nom) => (coupure(nom) < 0 ? '' : nom.slice(0, coupure(nom)))
+const sansVariante = (nom) => (coupure(nom) < 0 ? nom : nom.slice(coupure(nom) + 1))
+
 function nomDeRegle(original) {
-  return (
+  const base =
     `${prefix}-` +
     original
-      .replace(/[[\]().,%/#]/g, '-')
-      .replace(/^-+|-+$/g, '')
-      .replace(/-+/g, '-')
-      .replace(/:/g, '-')
       .toLowerCase()
-  )
+      .replace(/[^a-z0-9-]/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/-+$/g, '')
+
+  /*
+   * Deux originaux differents peuvent desormais se rejoindre : `a*b` et `a+b`
+   * donnent tous deux `a-b`. Ce serait une regle qui en ecrase une autre — et
+   * le meme silence. Le premier arrive garde le nom ; les suivants le suffixent.
+   */
+  const vu = PRIS.get(base)
+  if (vu === undefined) {
+    PRIS.set(base, original)
+    return base
+  }
+  if (vu === original) return base
+
+  // `z-100` et `z-[100]` se rejoignent et posent le meme `z-index: 100`. Deux
+  // noms pour une seule regle ne sert personne : ils la partagent.
+  const memeRegle =
+    JSON.stringify(declarationsFor(sansVariante(vu)))
+    === JSON.stringify(declarationsFor(sansVariante(original)))
+    && varianteDe(vu) === varianteDe(original)
+  if (memeRegle) return base
+
+  let rang = 2
+  while (PRIS.has(`${base}-${String(rang)}`)) {
+    if (PRIS.get(`${base}-${String(rang)}`) === original) return `${base}-${String(rang)}`
+    rang += 1
+  }
+  PRIS.set(`${base}-${String(rang)}`, original)
+  return `${base}-${String(rang)}`
 }
 
 for (const original of entree) {
@@ -540,33 +759,103 @@ for (const original of entree) {
 
   const corps = decls.filter((d) => d !== 'TRANSLATE')
   const translate = decls.includes('TRANSLATE')
+  /*
+   * Le `!` de tete rend sa priorite.
+   *
+   * On le tenait pour superflu : chaque selecteur repete sa classe, ce qui
+   * double sa specificite, et cela suffit face a une regle ordinaire. Cela ne
+   * suffit pas face a une autre regle derivee, qui a la meme — et c est alors
+   * l ordre qui tranche.
+   *
+   * `helion` pose sur son menu deroulant, dans la meme chaine, la constante
+   * `PILL` — qui apporte `rounded-[32px]` — et `!rounded-[24px]`. Les deux regles sortaient a egalite, la
+   * seconde plus bas dans la feuille, et le menu gardait 32 px de rayon. C est
+   * exactement ce que le `!` etait la pour empecher.
+   */
+  const force = /^-?!/.test(bare)
+  const marque = (d) => (force ? `${d} !important` : d)
+
   const declaration = translate
-    ? `${corps.join('; ')}; translate: var(--${prefix}-tx, 0) var(--${prefix}-ty, 0)`
-    : corps.join('; ')
-
-  let selecteur = `.${nom}.${nom}`
-  if (variant === 'hover' || variant === 'focus' || variant === 'active') {
-    selecteur += `:${variant}`
-  } else if (variant === 'focus-visible') selecteur += ':focus-visible'
-  else if (variant === 'placeholder') selecteur += '::placeholder'
-  else if (variant === 'group-hover') selecteur = `.group:hover .${nom}`
-
-  if (variant === 'first') selecteur += ':first-child'
-  if (variant === 'last') selecteur += ':last-child'
+    ? `${corps.map(marque).join('; ')}; translate: var(--${prefix}-tx, 0) var(--${prefix}-ty, 0)`
+    : corps.map(marque).join('; ')
 
   /*
-   * La requete de media : soit une rupture connue, soit une rupture `max-*`,
-   * soit une variante que le gabarit s est declaree.
+   * Une variante peut en cacher plusieurs.
+   *
+   * `sm:[&>li:last-child]:col-span-2` en porte deux : une rupture et un
+   * selecteur. Les traiter comme un seul mot revenait a n en reconnaitre
+   * aucune — la regle sortait sans requete et sans descendant, posee sur la
+   * liste au lieu de son dernier element, et la grille de `parfum` gagnait une
+   * rangee a partir de 640 px.
+   *
+   * On les separe donc, sur les `:` de premier niveau, et chacune agit : les
+   * unes sur le selecteur, les autres sur la requete. L ordre du selecteur suit
+   * celui de l ecriture, de la plus exterieure a la plus interieure.
    */
+  let selecteur = `.${nom}.${nom}`
   let requete = null
-  if (BREAKPOINTS.has(variant)) {
-    requete = `(min-width: ${String(BREAKPOINTS.get(variant))}px)`
-  } else if (variant.startsWith('max-') && BREAKPOINTS.has(variant.slice(4))) {
-    // Tailwind coupe juste en dessous de la rupture, pas dessus.
-    requete = `(max-width: ${String(BREAKPOINTS.get(variant.slice(4)) - 0.02)}px)`
-  } else if (VARIANTES.has(variant)) {
-    requete = VARIANTES.get(variant)
+
+  const morceaux = variant === '' ? [] : decouper(variant)
+
+  for (const part of morceaux) {
+    /* ---- Ce qui agit sur le selecteur. ---- */
+    if (part === 'hover' || part === 'focus' || part === 'active') {
+      selecteur += `:${part}`
+    } else if (part === 'focus-visible') selecteur += ':focus-visible'
+    else if (part === 'focus-within') selecteur += ':focus-within'
+    else if (part === 'disabled') selecteur += ':disabled'
+    else if (part === 'checked') selecteur += ':checked'
+    else if (part === 'indeterminate') selecteur += ':indeterminate'
+    else if (part === 'required') selecteur += ':required'
+    else if (part === 'invalid') selecteur += ':invalid'
+    else if (part === 'visited') selecteur += ':visited'
+    else if (part === 'target') selecteur += ':target'
+    else if (part === 'empty') selecteur += ':empty'
+    else if (part === 'only') selecteur += ':only-child'
+    else if (part === 'first') selecteur += ':first-child'
+    else if (part === 'last') selecteur += ':last-child'
+    else if (part === 'odd') selecteur += ':nth-child(odd)'
+    else if (part === 'even') selecteur += ':nth-child(even)'
+    else if (part === 'placeholder') selecteur += '::placeholder'
+    else if (part === 'before') selecteur += '::before'
+    else if (part === 'after') selecteur += '::after'
+    else if (part.startsWith('group-')) {
+      const etat = part.slice('group-'.length)
+      selecteur = `.group:${etat} ${selecteur}`
+    } else if (part.startsWith('[&') && part.endsWith(']')) {
+      // L esperluette tient la place de ce qui precede ; le souligne, celle
+      // de l espace.
+      selecteur = part.slice(1, -1).replace(/&/g, selecteur).replace(/_/g, ' ')
+    } else {
+      /* ---- Ce qui agit sur la requete. ---- */
+      let ajout = null
+      if (VARIANTES.has(part)) {
+        ajout = VARIANTES.get(part)
+      } else if (BREAKPOINTS.has(part)) {
+        ajout = `(min-width: ${String(BREAKPOINTS.get(part))}px)`
+      } else if (part.startsWith('max-') && BREAKPOINTS.has(part.slice(4))) {
+        // L autre moteur coupe juste en dessous de la rupture, pas dessus. Et
+        // il tire `max-lg` de la rupture meme quand `lg` a ete redeclare : la
+        // declaration ne remplace que la variante qu elle nomme.
+        ajout = `(max-width: ${String(BREAKPOINTS.get(part.slice(4)) - 0.02)}px)`
+      } else if (VARIANTES_LIVREES.has(part)) {
+        ajout = VARIANTES_LIVREES.get(part)
+      } else if (part.startsWith('[@media') && part.endsWith(']')) {
+        ajout = part.slice('[@media'.length, -1).replace(/_/g, ' ')
+      }
+      if (ajout === null) {
+        // Une variante que personne ne reconnait. La rendre plutot que
+        // produire une regle qui ne dit pas ce qu on croit.
+        rendus.push(original)
+        table.pop()
+        selecteur = null
+        break
+      }
+      requete = requete === null ? ajout : `${requete} and ${ajout}`
+    }
   }
+
+  if (selecteur === null) continue
 
   const cle = requete === null ? '' : requete
   const liste = regles.get(cle) ?? []
@@ -577,7 +866,37 @@ for (const original of entree) {
 console.log('/* ---- table ---- */')
 console.log(table.join('\n'))
 console.log('\n/* ---- feuille ---- */')
-for (const [requete, liste] of regles) {
+/*
+ * L ordre des blocs decide, parce que la specificite ne decide plus.
+ *
+ * Chaque regle repete sa classe, donc toutes ont la meme specificite : a egalite
+ * c est la derniere ecrite qui peint. Les blocs sortaient jusqu ici dans l ordre
+ * ou les classes s etaient presentees — un ordre sans rapport avec les ruptures.
+ * Chez `parfum`, `sm:aspect-4/3` se trouvait ecrit apres `lg:aspect-auto`, et la
+ * scene de la FAQ gardait son rapport 4/3 sur un grand ecran : 1080 px au lieu
+ * de 800.
+ *
+ * On les remet donc dans l ordre de l autre moteur : le sans-requete d abord,
+ * puis les `min-width` croissantes, puis les `max-width` decroissantes, puis le
+ * reste — une requete de preference ou de pointeur ne concurrence pas une
+ * largeur, et vient en dernier.
+ */
+function rang(requete) {
+  if (requete === '') return [0, 0]
+  const min = /min-width:\s*([\d.]+)px/.exec(requete)
+  if (min !== null) return [1, Number(min[1])]
+  const max = /max-width:\s*([\d.]+)px/.exec(requete)
+  if (max !== null) return [2, -Number(max[1])]
+  return [3, 0]
+}
+
+const ordonnees = [...regles.entries()].sort((a, b) => {
+  const [ga, va] = rang(a[0])
+  const [gb, vb] = rang(b[0])
+  return ga !== gb ? ga - gb : va - vb
+})
+
+for (const [requete, liste] of ordonnees) {
   if (requete === '') {
     console.log(liste.join('\n'))
   } else {

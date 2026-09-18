@@ -1,5 +1,3 @@
-"use client";
-
 /**
  * Adaptive scaling grid hook.
  *

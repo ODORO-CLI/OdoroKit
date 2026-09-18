@@ -1,7 +1,4 @@
-"use client";
-
-import dynamic from "next/dynamic";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, lazy, Suspense } from "react";
 import type { ReactNode } from "react";
 
 import { PRODUCT_BOX } from "./hero/hero-stage";
@@ -18,9 +15,8 @@ export interface ProductStageProps {
  * the fold depends on them, so the whole renderer is split out and never
  * reaches the server bundle.
  */
-const HeroScene = dynamic(
-  () => import("./hero/hero-scene").then((m) => m.HeroScene),
-  { ssr: false },
+const HeroScene = lazy(() =>
+  import("./hero/hero-scene").then((m) => ({ default: m.HeroScene })),
 );
 
 /**
@@ -56,9 +52,9 @@ const HeroScene = dynamic(
  * ran solid off the bottom edge; the flacon is framed to stay whole
  * (`DETAILS_HEIGHT` 640), so the mask now only softens the base's shadow line.
  *
- * **Stacking.** The canvas is `z-10` and so is the frames' copy, but the copy
+ * **Stacking.** The canvas is `o-z-10` and so is the frames' copy, but the copy
  * comes later in the document, so it paints on top; the wordmark plate inside
- * the hero is `z-0` and stays behind. That is the same order the stage used when
+ * the hero is `o-z-0` and stays behind. That is the same order the stage used when
  * it owned the canvas, just expressed across siblings instead of inside one
  * isolated box.
  */
@@ -102,7 +98,7 @@ export const ProductStage = ({ subject, children }: ProductStageProps) => {
   }, []);
 
   return (
-    <div data-product-region ref={region} className="relative">
+    <div data-product-region ref={region} className="o-relative">
       <div
         data-pointer-frame
         // **The canvas is one frame tall, and it sticks half the slack down.**
@@ -116,14 +112,19 @@ export const ProductStage = ({ subject, children }: ProductStageProps) => {
         // would sit against the top of a viewport that is taller than it; half the
         // leftover puts it back in the middle, where the hero's product belongs.
         // At 1440×800 the leftover is zero and this resolves to `top: 0`.
-        className={`pointer-events-none absolute inset-x-5 top-[var(--hero-stage-top,0px)] z-10 overflow-hidden ${PRODUCT_BOX} lg:sticky lg:inset-x-0 lg:top-[calc((100lvh-50rem)/2)] lg:aspect-auto lg:h-200 lg:w-auto lg:hero-stage-mask`}
+        className={`o-pointer-events-none o-absolute pf-inset-x-5 pf-top-var-hero-stage-top-0px o-z-10 o-overflow-hidden ${PRODUCT_BOX} pf-lg-sticky pf-lg-inset-x-0 pf-lg-top-calc-100lvh-50rem-2 pf-lg-aspect-auto pf-lg-h-200 pf-lg-w-auto pf-lg-hero-stage-mask`}
       >
-        <HeroScene src={subject.src} label={subject.label} />
+        {/* Charge a la demande : il lui faut sa frontiere de suspension. Le
+            repli est vide — la scene arrive ou n arrive pas, et rien ne doit
+            occuper sa place en attendant. */}
+        <Suspense fallback={null}>
+          <HeroScene src={subject.src} label={subject.label} />
+        </Suspense>
       </div>
 
       {/* Pulled back over the sticky box by exactly its height — it is one frame
         tall now, not one viewport. */}
-      <div className="lg:-mt-200">{children}</div>
+      <div className="pf-lg-mt-200">{children}</div>
     </div>
   );
 };

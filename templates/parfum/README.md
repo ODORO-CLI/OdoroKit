@@ -8,36 +8,62 @@ cuite, une seule monospace (IBM 3270). Copie en français.
 Construit sur le starter Next 16 de GetLayers, à partir du template **Artefakt**
 re-skinné puis converti (voir `obsidian/meta/decisions-log.md`, ADR-0048 → 0050).
 
+## Ce qui a changé au passage sur notre moteur
+
+Le gabarit arrive d'ailleurs. Le design n'a pas bougé d'un pixel — c'est la
+règle, et elle est mesurée : à sept largeurs, chaque section a la même hauteur
+que l'original, et à quatre d'entre elles chaque élément de chaque section a la
+même boîte. Ce qui a changé, c'est la mécanique dessous.
+
+| | |
+|---|---|
+| Le cadre | Il n'y en a plus. `index.html` + `src/main.tsx` + `src/App.tsx` remplacent `layout.tsx` et `page.tsx`. |
+| Les routes serveur | Retirées : formulaire de contact, `sitemap`, `robots`. Pour un projet qui en a besoin, voir le socle `react-ts-server`. |
+| Les classes utilitaires | Réécrites vers les nôtres (`o-*`) ou, quand notre générateur ne les produit pas, vers des règles `pf-*` dérivées du bloc de jetons de `src/styles.css`. Aucune valeur n'a changé. |
+| La variante `lg:` | Ce gabarit se la redéclare : `(min-width: 1024px) and (min-aspect-ratio: 1/1)`. Elle **n'est pas** la nôtre, et toutes ses classes portent la requête du gabarit. |
+| Les polices | Liées dans la feuille au lieu du `layout`. La 3270 est servie depuis l'origine du projet ; l'Onest vient du fournisseur. Licences dans `src/fonts/LICENCES.md`. |
+| Les images | `next/image` → `<img>`, et le socle rend `height: auto` aux images qui portent leurs dimensions en attributs. |
+| Le chargement différé | `next/dynamic` → `React.lazy` + `<Suspense>`, aux deux mêmes endroits. |
+| L'origine publique | Elle était lue dans l'environnement ; elle est posée en clair dans `src/lib/site.ts`, seule ligne à changer au déploiement. |
+
+Une chose a été rendue à son intention plutôt qu'à sa lettre : l'original
+écrivait `min-h-[calc(100svh-5rem)]`, que son moteur espaçait pour lui. Chez
+nous la déclaration serait rejetée telle quelle, alors le `calc` est espacé —
+la hauteur est donc celle que l'auteur avait écrite. Pour revenir à la lettre,
+retirer les espaces autour du `-` dans `.pf-min-h-calc-100svh-5rem`.
+
 ## Démarrer
 
 ```sh
-npm install          # yarn fonctionne aussi (yarn.lock est le verrou de référence)
-cp .env.example .env
-PORT=3001 npm run dev  # http://localhost:3001 — le 3000 est souvent pris ailleurs
+npm install
+npm run dev      # http://localhost:3300
+npm run build
+npm run preview
 ```
-
-Node ≥ 22.13 (`.nvmrc` : 24). Première compilation de la page : quelques
-secondes sur une machine saine.
 
 ## Où est quoi
 
 | | |
 |---|---|
 | Contenu (tous les textes, FR) | `src/data/mocks/home.ts` |
-| Tokens de couleur et de typo | `src/app/globals.css` (tier 1 = seuls littéraux) |
+| Tokens de couleur et de typo | `src/styles.css` (tier 1 = seuls littéraux) |
 | Scène 3D du flacon | `src/views/home/hero/hero-scene.tsx` (`LOOK`, `LABEL`, cadrage) |
 | Assets servis | `public/assets/` — flacon `.glb` (Draco + WebP, 659 Ko), packshots, pyramide |
 | Sources des assets et comment les refaire | `assets-source/README.md` |
-| Script d'étiquetage des packshots | `.claude/scripts/assets/label-packshot.py` |
 | Décisions, journal, conventions | `obsidian/` (source de vérité) |
 | État de la session GetLayers | `getlayers.json` |
 
 ## Vérifier
 
 ```sh
-npm run lint && npx tsc --noEmit && npm run build
-bash .claude/scripts/verify.sh   # 1 FAIL connu : faux positif « anywhere » dans un commentaire de src/lib/text/tie.ts
+npx tsc --noEmit && npm run build
+node ../../scripts/check-template-classes.mjs templates/parfum
 ```
+
+Le second vérifie trois choses à la fois : qu'aucune classe connue de notre
+système n'est restée sans préfixe, qu'aucune classe propre au gabarit n'a été
+préfixée à tort, et qu'aucun jeton du gabarit ne porte le nom d'un des nôtres
+en désignant autre chose.
 
 ## À faire avant un lancement
 

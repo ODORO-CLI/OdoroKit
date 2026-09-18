@@ -29,8 +29,6 @@
  *   REVEAL_ROOT_MARGIN so it lands in step with the text decode
  */
 
-"use client";
-
 import { animated, useSpring } from "@react-spring/web";
 import {
   CSSProperties,

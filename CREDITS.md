@@ -129,6 +129,49 @@ etablir apres coup. La mathematique sous-jacente est de toute facon plus courte
 a redemontrer qu'a verifier juridiquement — et chaque fonction porte
 l'explication de ce qu'elle fait et pourquoi.
 
+## Polices des gabarits
+
+Les gabarits de `templates/` arrivent d'ailleurs, et chacun apporte sa
+typographie. Les fichiers embarques vivent dans `templates/<nom>/src/fonts/`,
+avec un `LICENCES.md` a cote d'eux qui dit, famille par famille, ce que la
+licence permet.
+
+| Gabarit    | Famille                | Origine       | Licence            |
+|------------|------------------------|---------------|--------------------|
+| `altitude` | Gilda Display          | Google Fonts  | SIL OFL 1.1        |
+| `altitude` | General Sans           | Fontshare     | ITF Free Font      |
+| `orfevre`  | Inter                  | Google Fonts  | SIL OFL 1.1        |
+| `orfevre`  | Libre Caslon Display   | Google Fonts  | SIL OFL 1.1        |
+| `helion`   | Lato                   | Google Fonts  | SIL OFL 1.1        |
+| `helion`   | Mulish (`@import`)     | Google Fonts  | SIL OFL 1.1        |
+| `helion`   | **Gilroy**             | Radomir Tinkov| **commerciale**    |
+| `parfum`   | 3270                   | Ricardo Banffy| BSD 3-Clause       |
+| `parfum`   | Onest (`@import`)      | Google Fonts  | SIL OFL 1.1        |
+| `socle`    | **Google Sans Flex**   | Google        | **de marque**      |
+| `gravity`  | Cormorant (`@import`)  | Google Fonts  | SIL OFL 1.1        |
+| `manoir`   | Space Grotesk, JetBrains Mono, Raleway, Instrument Serif (`@import`) | Google Fonts | SIL OFL 1.1 |
+
+Les familles marquees `@import` ne sont pas embarquees : la page les demande au
+service, et aucun fichier ne voyage avec le depot.
+
+### Les deux qui demandent une decision
+
+**Gilroy** (`helion`) se vend par graisse et par volume de pages vues ; sa
+licence n'autorise ni la redistribution des fichiers ni leur mise a disposition
+au telechargement. **Google Sans Flex** (`socle`) est la police de marque de
+Google : elle ne figure pas au catalogue Google Fonts et n'est pas publiee sous
+SIL OFL.
+
+Les deux sont arrivees avec leur gabarit d'origine. Elles sont conservees parce
+que les retirer changerait la typographie du site, ce que la migration
+s'interdit. Mais leur presence dans un depot public, et leur inclusion dans
+l'archive telechargeable de la galerie, dependent d'une licence que rien dans
+ces dossiers n'atteste.
+
+`templates/helion/src/fonts/LICENCES.md` et
+`templates/socle/src/fonts/LICENCES.md` posent les trois issues possibles pour
+chacune, et indiquent ou se fait la substitution.
+
 ## Jeux d'icones
 
 `@odoro-cli/icons` ne dessine aucune icone. Il **importe** cinq jeux tiers, les

@@ -60,7 +60,7 @@ const REVEAL = { duration: REVEAL_DURATION, easing: easeOutQuartic } as const;
 
 /**
  * Grid placement per chapter, indexed by position in the flattened list. Static
- * literals so Tailwind can see them. Chapters 01–03 fill the left column (rows
+ * literals so the generator can see them. Chapters 01–03 fill the left column (rows
  * 1–3); 04–05 fill the right column but start at row 2, so the right half is
  * offset down by one row and the two columns interlock around the trunk. On
  * mobile every row resets to auto flow (`max-pad-sm:col-start-auto row-start-auto`)

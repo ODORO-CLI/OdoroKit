@@ -1,5 +1,3 @@
-"use client";
-
 /**
  * Pointer-driven tilt: a flat box that answers the cursor as though it were a
  * plate with a little depth behind it.

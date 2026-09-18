@@ -1,7 +1,3 @@
-"use client";
-
-import Image from "next/image";
-import Link from "next/link";
 import { useEffect, useId, useRef, useState } from "react";
 
 import { ScrambleText } from "@/components/ui/scramble-text";
@@ -17,7 +13,7 @@ export interface HeroNavItemProps extends HeroNavItem {
   caretClassName: string;
 }
 
-const TRANSITION = "transition duration-[var(--duration-fast)] ease-entrance";
+const TRANSITION = "o-transition pf-duration-var-duration-fast pf-ease-entrance";
 
 /**
  * How long the panel survives the pointer leaving it.
@@ -135,16 +131,16 @@ export const HeroNavEntry = ({
 
   if (!submenu?.length) {
     return (
-      <Link href={href} className={labelClassName}>
+      <a href={href} className={labelClassName}>
         <ScrambleText revealDelay={revealDelay}>{label}</ScrambleText>
-      </Link>
+      </a>
     );
   }
 
   return (
     <div
       ref={wrapper}
-      className="relative"
+      className="o-relative"
       onTouchStart={() => {
         lastTouch.current = Date.now();
       }}
@@ -180,19 +176,19 @@ export const HeroNavEntry = ({
           cancelClose();
           setOpen((value) => !value);
         }}
-        className={`cursor-pointer ${labelClassName}`}
+        className={`o-cursor-pointer ${labelClassName}`}
       >
         <ScrambleText revealDelay={revealDelay}>{label}</ScrambleText>
       </button>
 
-      <Image
+      <img
         src="/assets/hero/hero-caret.svg"
         alt=""
         width={6}
         height={5}
         aria-hidden
-        className={`pointer-events-none absolute ${caretClassName} ${TRANSITION} ${
-          open ? "rotate-180" : ""
+        className={`o-pointer-events-none o-absolute ${caretClassName} ${TRANSITION} ${
+          open ? "o-rotate-180" : ""
         }`}
       />
 
@@ -203,28 +199,28 @@ export const HeroNavEntry = ({
           an element that is part of the hover target, so the run from label to
           link is continuous. The gap looks identical either way. */}
       <div
-        className={`absolute top-full left-0 pt-4 ${
-          open ? "visible" : "invisible"
+        className={`o-absolute o-top-full o-left-0 o-pt-4 ${
+          open ? "o-visible" : "o-invisible"
         }`}
       >
         <ul
           id={panelId}
           // Held in the tree rather than unmounted so the panel can fade, and
-          // the wrapper's `invisible` so a closed one is neither clickable nor
-          // tab-reachable — `opacity-0` alone would leave both.
-          className={`hero-lattice-panel flex w-max min-w-56 flex-col gap-3 border border-hero-rule p-4 ${TRANSITION} ${
-            open ? "opacity-100" : "opacity-0"
+          // the wrapper's `o-invisible` so a closed one is neither clickable nor
+          // tab-reachable — `o-opacity-0` alone would leave both.
+          className={`hero-lattice-panel o-flex o-w-max o-min-w-56 o-flex-col o-gap-3 o-border-w-1 pf-border-hero-rule o-p-4 ${TRANSITION} ${
+            open ? "o-opacity-100" : "o-opacity-0"
           }`}
         >
           {submenu.map((entry) => (
             <li key={entry.label}>
-              <Link
+              <a
                 href={entry.href}
                 tabIndex={open ? undefined : -1}
-                className={`block whitespace-nowrap text-hero-body leading-hero-display text-hero-content-muted hover:text-hero-content focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-hero-content ${TRANSITION}`}
+                className={`o-block o-whitespace-nowrap pf-text-hero-body pf-leading-hero-display pf-text-hero-content-muted pf-hover-text-hero-content pf-focus-visible-outline-2 pf-focus-visible-outline-offset-2 pf-focus-visible-outline-hero-content ${TRANSITION}`}
               >
                 {entry.label}
-              </Link>
+              </a>
             </li>
           ))}
         </ul>

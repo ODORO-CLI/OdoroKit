@@ -1,7 +1,4 @@
 // 📖 Docs: obsidian/frontend/components/common.md
-"use client";
-
-import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { animated, useSpring, useTransition } from "@react-spring/web";
 
@@ -97,13 +94,13 @@ export const CookiePreferencesModal = () => {
   return transitions((style, isOpen) =>
     isOpen ? (
       <animated.div
-        className="fixed inset-0 z-[100] font-sans"
+        className="o-fixed o-inset-0 pf-z-100 pf-font-sans"
         style={{ opacity: style.opacity }}
       >
         <div
           aria-hidden
           onMouseDown={closeModal}
-          className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+          className="o-absolute o-inset-0 pf-bg-black-40 o-backdrop-blur-sm"
         />
         <animated.div
           role="dialog"
@@ -112,17 +109,17 @@ export const CookiePreferencesModal = () => {
           style={{
             transform: style.scale.to((s) => `translate(-50%, -50%) scale(${s})`),
           }}
-          className="absolute left-1/2 top-1/2 flex max-h-[calc(100dvh-1.5rem)] w-[calc(100vw-1.5rem)] max-w-[560px] flex-col gap-5 overflow-hidden rounded-xl border border-foreground/10 bg-background p-5 text-foreground shadow-2xl sm:p-7"
+          className="o-absolute o-left-1/2 o-top-1/2 o-flex pf-max-h-calc-100dvh-1-5rem pf-w-calc-100vw-1-5rem pf-max-w-560px o-flex-col o-gap-5 o-overflow-hidden o-rounded-xl o-border-w-1 pf-border-foreground-10 pf-bg-background o-p-5 pf-text-foreground o-shadow-2xl sm:o-p-7"
         >
-          <header className="flex items-start justify-between gap-3">
-            <h2 id={TITLE_ID} className="text-xl font-medium leading-tight">
+          <header className="o-flex o-items-start o-justify-between o-gap-3">
+            <h2 id={TITLE_ID} className="o-text-xl o-font-medium o-leading-tight">
               Cookie preferences
             </h2>
             <button
               type="button"
               onClick={closeModal}
               aria-label="Close cookie preferences"
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-foreground/10 text-foreground hover:bg-foreground/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground"
+              className="o-flex o-h-8 o-w-8 o-shrink-0 o-items-center o-justify-center o-rounded-lg o-border-w-1 pf-border-foreground-10 pf-text-foreground pf-hover-bg-foreground-5 pf-focus-visible-outline-2 pf-focus-visible-outline-offset-2 pf-focus-visible-outline-foreground"
             >
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
                 <path
@@ -135,21 +132,21 @@ export const CookiePreferencesModal = () => {
             </button>
           </header>
 
-          <p className="text-sm leading-relaxed text-foreground/60">
+          <p className="o-text-sm o-leading-relaxed pf-text-foreground-60">
             Choose which categories of cookies we&apos;re allowed to use. You can
             change this any time. See our{" "}
-            <Link
+            <a
               href="/privacy-policy"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-foreground underline underline-offset-2"
+              className="pf-text-foreground o-underline o-underline-offset-2"
             >
               privacy policy
-            </Link>
+            </a>
             .
           </p>
 
-          <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto py-1">
+          <div className="o-flex o-min-h-0 o-flex-1 o-flex-col o-gap-3 o-overflow-y-auto o-py-1">
             {CATEGORIES.map((c) => {
               const value =
                 c.key === "necessary"
@@ -166,11 +163,11 @@ export const CookiePreferencesModal = () => {
               return (
                 <div
                   key={c.key}
-                  className="flex items-start justify-between gap-4 rounded-[10px] border border-foreground/10 px-4 py-3.5"
+                  className="o-flex o-items-start o-justify-between o-gap-4 pf-rounded-10px o-border-w-1 pf-border-foreground-10 o-px-4 o-py-3.5"
                 >
-                  <div className="flex min-w-0 flex-col gap-1">
-                    <h3 className="text-sm font-medium leading-snug">{c.title}</h3>
-                    <p className="text-xs leading-relaxed text-foreground/60">
+                  <div className="o-flex o-min-w-0 o-flex-col o-gap-1">
+                    <h3 className="o-text-sm o-font-medium o-leading-snug">{c.title}</h3>
+                    <p className="o-text-xs o-leading-relaxed pf-text-foreground-60">
                       {c.body}
                     </p>
                   </div>
@@ -185,11 +182,11 @@ export const CookiePreferencesModal = () => {
             })}
           </div>
 
-          <footer className="mt-1 flex flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <footer className="o-mt-1 o-flex o-flex-col-reverse o-gap-2 sm:o-flex-row sm:o-items-center sm:o-justify-between">
             <CookieButton variant="secondary" onClick={rejectAll}>
               Reject all
             </CookieButton>
-            <div className="flex flex-col-reverse gap-2 sm:flex-row sm:items-center">
+            <div className="o-flex o-flex-col-reverse o-gap-2 sm:o-flex-row sm:o-items-center">
               <CookieButton variant="secondary" onClick={handleSave}>
                 Save preferences
               </CookieButton>
@@ -224,13 +221,13 @@ const Toggle = ({ on, disabled, onChange, label }: ToggleProps) => {
       aria-disabled={disabled || undefined}
       disabled={disabled}
       onClick={onChange}
-      className={`relative h-6 w-11 shrink-0 rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground ${
-        on ? "bg-foreground" : "bg-foreground/15"
-      } ${disabled ? "cursor-not-allowed opacity-55" : "cursor-pointer"}`}
+      className={`o-relative o-h-6 o-w-11 o-shrink-0 o-rounded-full pf-focus-visible-outline-2 pf-focus-visible-outline-offset-2 pf-focus-visible-outline-foreground ${
+        on ? "pf-bg-foreground" : "pf-bg-foreground-15"
+      } ${disabled ? "o-cursor-not-allowed o-opacity-55" : "o-cursor-pointer"}`}
     >
       <animated.span
         style={{ transform: knob.x.to((v) => `translateX(${v}px)`) }}
-        className="absolute left-[3px] top-[3px] block h-[18px] w-[18px] rounded-full bg-background shadow"
+        className="o-absolute pf-left-3px pf-top-3px o-block pf-h-18px pf-w-18px o-rounded-full pf-bg-background pf-shadow"
       />
     </button>
   );

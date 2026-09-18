@@ -1,6 +1,3 @@
-"use client";
-
-import Image from "next/image";
 import { useEffect, useRef } from "react";
 import type { CSSProperties } from "react";
 
@@ -180,7 +177,7 @@ export const HeroWordmark = ({ plate, opacity }: HeroWordmarkProps) => {
     frameQuery.addEventListener("change", syncMode);
 
     // The copy inside the aperture has to be the size of the plate, not of the
-    // aperture it lives in, or `object-cover` would frame a different crop and
+    // aperture it lives in, or `o-object-cover` would frame a different crop and
     // the torch would reveal the wrong part of the wordmark.
     const syncSize = () => {
       const rect = box.getBoundingClientRect();
@@ -295,7 +292,7 @@ export const HeroWordmark = ({ plate, opacity }: HeroWordmarkProps) => {
       // **Whole, and as wide as the screen allows.** In the frame the mark is
       // nearly twice the product's width, so the garment stands *in front of*
       // it. Below the frame it was confined to the product's own box and
-      // `object-cover` cropped its ends off at both sides — the marks that
+      // `o-object-cover` cropped its ends off at both sides — the marks that
       // reach past the jacket are exactly the part that makes it read as a
       // backdrop. Contained, it is never cut; bled past the section's margins,
       // it takes the full width of the screen, which is the largest it can be
@@ -305,11 +302,11 @@ export const HeroWordmark = ({ plate, opacity }: HeroWordmarkProps) => {
       // transform.** The frame's x of 142 against a 1157-wide plate is the
       // centre line of a 1440 canvas to half a unit; on a wider canvas only
       // "centred" still means centred. Auto margins because the spring owns
-      // this element's `transform` and `-translate-x-1/2` would be overwritten.
-      className="absolute inset-0 z-0 max-lg:-inset-x-5 lg:inset-x-0 lg:top-1/2 lg:bottom-auto lg:mx-auto lg:-mt-72.25 lg:h-154.25 lg:w-289.25"
+      // this element's `transform` and `pf--translate-x-1-2` would be overwritten.
+      className="o-absolute o-inset-0 o-z-0 pf-max-lg-inset-x-5 pf-lg-inset-x-0 pf-lg-top-1-2 pf-lg-bottom-auto pf-lg-mx-auto pf-lg-mt-72-25 pf-lg-h-154-25 pf-lg-w-289-25"
     >
-      <div ref={boxRef} className="relative h-full w-full overflow-hidden">
-        <Image
+      <div ref={boxRef} className="o-relative o-h-full o-w-full o-overflow-hidden">
+        <img
           ref={baseRef}
           src={plate.src}
           alt={plate.alt}
@@ -317,14 +314,14 @@ export const HeroWordmark = ({ plate, opacity }: HeroWordmarkProps) => {
           height={plate.height}
           priority
           sizes="87vw"
-          className="h-full w-full object-cover max-lg:scale-[var(--ink-scale)] max-lg:object-contain"
+          className="o-h-full o-w-full o-object-cover pf-max-lg-scale-var-ink-scale pf-max-lg-object-contain"
           style={{ opacity }}
         />
 
         <div
           ref={windowRef}
           aria-hidden
-          className="pointer-events-none absolute top-0 left-0 opacity-0"
+          className="o-pointer-events-none o-absolute o-top-0 o-left-0 o-opacity-0"
           style={{
             // Sized by the effect against the plate it sits on — see
             // `REVEAL_SHARE`. These are the frame's values, for the first paint.
@@ -336,8 +333,8 @@ export const HeroWordmark = ({ plate, opacity }: HeroWordmarkProps) => {
             willChange: "transform",
           }}
         >
-          <div ref={innerRef} className="absolute top-0 left-0">
-            <Image
+          <div ref={innerRef} className="o-absolute o-top-0 o-left-0">
+            <img
               src={plate.src}
               alt=""
               width={plate.width}
@@ -345,7 +342,7 @@ export const HeroWordmark = ({ plate, opacity }: HeroWordmarkProps) => {
               priority
               sizes="87vw"
               aria-hidden
-              className="max-w-none object-cover max-lg:scale-[var(--ink-scale)] max-lg:object-contain"
+              className="o-max-w-none o-object-cover pf-max-lg-scale-var-ink-scale pf-max-lg-object-contain"
               style={{ width: "100%", height: "100%" }}
             />
           </div>

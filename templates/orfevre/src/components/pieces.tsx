@@ -69,7 +69,6 @@ export function Pieces() {
               }}
             >
               <div className="o-relative o-overflow-hidden o-rounded-lg bg-ground-alt">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={p.image}
                   alt={`${p.name}, ${p.material}`}

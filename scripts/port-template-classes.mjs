@@ -77,9 +77,14 @@ const dry = process.argv.includes('--dry')
 const folder = resolve(ROOT, target)
 const name = folder.split(/[\\/]/).pop() ?? ''
 
-const { RENAMED, UNCHANGED, RESPELLED, IGNORED, FAUX_AMIS } = await import(
-  `./lib/${name}-classes.mjs`
-)
+const {
+  RENAMED,
+  UNCHANGED,
+  RESPELLED,
+  IGNORED,
+  FAUX_AMIS,
+  VARIANTES_PROPRES,
+} = await import(`./lib/${name}-classes.mjs`)
 
 /*
  * `IGNORED` et `FAUX_AMIS` ne servent pas la meme chose, et les confondre coute
@@ -143,6 +148,25 @@ function translate(original) {
   const cut = original.lastIndexOf(':')
   const variant = cut < 0 ? '' : original.slice(0, cut + 1)
   const bare = (cut < 0 ? original : original.slice(cut + 1)).replace(/^!/, '')
+
+  /*
+   * Une variante que le gabarit s est redeclaree ne peut pas emprunter la
+   * notre, meme si elle en porte le nom.
+   *
+   * `parfum` ecrit `@custom-variant lg (@media (min-width: 1024px) and
+   * (min-aspect-ratio: 1/1))`. Son `lg:` tient compte du format de l ecran ;
+   * le notre est une simple largeur. Traduire `lg:flex` en `o-lg:flex` donnait
+   * une regle qui peint sur un ecran large et bas, la ou l original se taisait.
+   * Rien ne s en serait vu : la classe existe, elle est seulement plus large.
+   *
+   * On refuse donc la traduction, et le dériveur l ecrit avec la requete du
+   * gabarit.
+   */
+  if (VARIANTES_PROPRES !== undefined) {
+    for (const part of variant.split(':')) {
+      if (VARIANTES_PROPRES.has(part)) return null
+    }
+  }
 
   if (KNOWN.has(`${variant}o-${bare}`)) return `${variant}o-${bare}`
   return null
@@ -266,6 +290,52 @@ const SHAPE = /^-?!?[a-z][a-z0-9:/[\]().,%_-]*$/
  * `"grid"` est aussi bien une classe que la valeur d un `display`, et se
  * tromper la corromprait du code.
  */
+/**
+ * Ou sont les commentaires ?
+ *
+ * On lit le fichier caractere par caractere en tenant compte des chaines : un
+ * `//` a l interieur d une adresse n ouvre pas un commentaire, et une apostrophe
+ * a l interieur d un commentaire n ouvre pas une chaine.
+ */
+function commentaires(source) {
+  const zones = []
+  let i = 0
+  while (i < source.length) {
+    const c = source[i]
+    if (c === '\\') {
+      i += 2
+      continue
+    }
+    if (c === '"' || c === "'" || c === '`') {
+      const fin = c
+      i += 1
+      while (i < source.length && source[i] !== fin) {
+        if (source[i] === '\\') i += 1
+        else if (source[i] === '\n' && fin !== '`') break
+        i += 1
+      }
+      i += 1
+      continue
+    }
+    if (c === '/' && source[i + 1] === '/') {
+      const debut = i
+      while (i < source.length && source[i] !== '\n') i += 1
+      zones.push([debut, i])
+      continue
+    }
+    if (c === '/' && source[i + 1] === '*') {
+      const debut = i
+      i += 2
+      while (i < source.length && !(source[i] === '*' && source[i + 1] === '/')) i += 1
+      i += 2
+      zones.push([debut, i])
+      continue
+    }
+    i += 1
+  }
+  return zones
+}
+
 function looksLikeClassList(text) {
   const tokens = text.split(/\s+/).filter((piece) => piece !== '')
   if (tokens.length === 0) return false
@@ -286,10 +356,47 @@ function looksLikeClassList(text) {
    * comme preuve faisait passer pour une liste la prose d un commentaire prise
    * entre deux accents graves — « natively, so the ».
    */
+  /*
+   * Une classe dont la variante est redeclaree ne se traduit pas — mais elle
+   * reste une classe. Le refus lui est oppose **expres**, pour que le dériveur
+   * l ecrive avec la requete du gabarit ; ce n est pas une absence.
+   *
+   * Sans cette seconde branche, une chaine qui ne contient que de tels noms —
+   * `"lg:left-10 lg:w-[max(16.4375rem,263px)]"` — n offrait plus la moindre
+   * preuve et passait entiere a la trappe, sans un mot.
+   */
+  const portee = (piece) => {
+    if (VARIANTES_PROPRES === undefined) return false
+    const cut = piece.lastIndexOf(':')
+    if (cut < 0) return false
+    return piece.slice(0, cut).split(':').some((part) => VARIANTES_PROPRES.has(part))
+  }
+
+  /*
+   * Une troisieme preuve : la forme.
+   *
+   * `PRODUCT_BOX = "aspect-4/3 md:aspect-16/9"` ne contient que deux mots, dont
+   * aucun ne se traduit — ni l un ni l autre n existe chez nous. La chaine
+   * entiere etait donc ecartee, et la scene du hero de `parfum` perdait ses
+   * 262 px de hauteur, absorbes par le `min-height` de la section : le
+   * document tombait juste, et rien ne se voyait.
+   *
+   * Un nom qui se termine par une valeur — un nombre, un rapport, un crochet —
+   * est une classe utilitaire, et ne ressemble a aucun mot de prose. C est une
+   * preuve etroite, et c est ce qui la rend sure : `block`, `centred` ou `is`
+   * n y repondent pas.
+   */
+  const VALEUR = /-(?:\d+(?:\.\d+)?(?:\/\d+)?|\[[^\]]*\])$/
+
+  const forme = (piece) => {
+    const nu = piece.slice(piece.lastIndexOf(':') + 1)
+    return VALEUR.test(nu)
+  }
+
   const revele = (piece) =>
     IGNORED?.has(piece) !== true &&
     FAUX_AMIS?.has(piece) !== true &&
-    translate(piece) !== null
+    (translate(piece) !== null || portee(piece) || forme(piece))
 
   if (tokens.length >= 3) return tokens.some(revele)
 
@@ -337,10 +444,24 @@ for (const file of sources(folder)) {
   //
   // Le plancher est a deux caracteres, et non a huit : `h-full` en fait six, et
   // vingt-deux vraies classes tenaient sous l ancien seuil.
-  after = after.replace(/(["'`])([^"'`\n]{2,800})\1/g, (whole, quote, text) => {
-    if (!looksLikeClassList(text)) return whole
-    return quote + rewriteList(text, where) + quote
-  })
+  //
+  // Elle ne descend pas dans les commentaires. Un mot entre accents graves y
+  // est de la prose : `` `font-display` `` designait, chez `socle`, la propriete
+  // CSS du meme nom — la passe en a fait `sn-font-display`, et le commentaire
+  // s est mis a nommer une classe qui n avait rien a voir. La regle ne peignait
+  // rien de travers ; elle mentait, ce qui est pire dans un texte qui explique.
+  const zonesDeCommentaire = commentaires(after)
+  const dansUnCommentaire = (index) =>
+    zonesDeCommentaire.some(([d, f]) => index >= d && index < f)
+
+  after = after.replace(
+    /(["'`])([^"'`\n]{2,800})\1/g,
+    (whole, quote, text, index) => {
+      if (dansUnCommentaire(index)) return whole
+      if (!looksLikeClassList(text)) return whole
+      return quote + rewriteList(text, where) + quote
+    },
+  )
 
   if (after !== before) {
     if (!dry) writeFileSync(file, after, 'utf8')

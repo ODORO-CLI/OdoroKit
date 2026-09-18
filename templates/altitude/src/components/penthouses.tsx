@@ -69,7 +69,6 @@ export function Penthouses() {
               }}
             >
               <div className="o-relative al-ratio-45 o-overflow-hidden">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={p.poster}
                   alt={`${p.name}, ${p.floor}`}

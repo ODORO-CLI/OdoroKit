@@ -40,7 +40,7 @@ const BACKDROP_OPACITY = 0.2;
  * is framed to the box's height, so the box is the only lever that moves that
  * number without shrinking the type around it.
  */
-export const PRODUCT_BOX = "aspect-4/3 md:aspect-16/9";
+export const PRODUCT_BOX = "pf-aspect-4-3 pf-md-aspect-16-9";
 
 /**
  * The backdrop plate, and the space the product occupies (Figma 902:306 /
@@ -60,8 +60,8 @@ export const PRODUCT_BOX = "aspect-4/3 md:aspect-16/9";
  * of clearance on the left and a 21px *overlap* on the right. At 92% it spans
  * 245–1195: 49px and 20px clear.
  *
- * The plate stays **behind** the product: it is `z-0` here and the canvas is
- * `z-10` on the region, so raising its opacity can never bring it over the
+ * The plate stays **behind** the product: it is `o-z-0` here and the canvas is
+ * `o-z-10` on the region, so raising its opacity can never bring it over the
  * flacon. The canvas is cleared to alpha 0, so the plate shows through wherever
  * the product and the lattice do not cover.
  */
@@ -73,7 +73,7 @@ export const HeroStage = ({ backdrop }: HeroStageProps) => (
     // — the markers — would slide out from under the product unless the canvas
     // is told where the box actually ended up. See `product-stage.tsx`.
     data-hero-stage
-    className={`pointer-events-none relative z-0 w-full lg:absolute lg:inset-0 lg:aspect-auto lg:w-auto ${PRODUCT_BOX}`}
+    className={`o-pointer-events-none o-relative o-z-0 o-w-full pf-lg-absolute pf-lg-inset-0 pf-lg-aspect-auto pf-lg-w-auto ${PRODUCT_BOX}`}
   >
     <HeroWordmark plate={backdrop} opacity={BACKDROP_OPACITY} />
   </div>

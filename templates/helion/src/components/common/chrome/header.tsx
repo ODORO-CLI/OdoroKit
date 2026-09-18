@@ -63,7 +63,7 @@ export const Header = ({ content }: HeaderProps) => {
       from={{ opacity: 0 }}
       to={{ opacity: 1 }}
       config={{ duration: 1000 }}
-      className="o-fixed o-top-0 o-left-0 hl-z-120 o-w-full hl-pt-calc-2-8125rem+env-safe-area-inset-top-0px hl-max-pad-sm-pt-calc-1-875rem+env-safe-area-inset-top-0px hl-max-menu-pt-calc-1-375rem+env-safe-area-inset-top-0px hl-max-hero-xs-pt-calc-1-125rem+env-safe-area-inset-top-0px"
+      className="o-fixed o-top-0 o-left-0 hl-z-120 o-w-full hl-pt-calc-2-8125rem-env-safe-area-inset-top-0px hl-max-pad-sm-pt-calc-1-875rem-env-safe-area-inset-top-0px hl-max-menu-pt-calc-1-375rem-env-safe-area-inset-top-0px hl-max-hero-xs-pt-calc-1-125rem-env-safe-area-inset-top-0px"
     >
       <div className="page-gutter o-flex o-w-full o-items-center o-justify-between">
         {/* Logo — scrolls back to the top rather than navigating, so a real

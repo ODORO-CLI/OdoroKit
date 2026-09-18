@@ -1,5 +1,3 @@
-"use client";
-
 /**
  * The hero's single source of pointer truth.
  *

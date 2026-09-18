@@ -23,7 +23,7 @@ const HEADING_ID = "collections-heading";
  * already rendered by `views/home`.
  *
  * The four cards are a flex row rather than four absolute boxes: the frame puts
- * them at x 40, 383, 726 and 1069 at 331 wide, which is exactly `inset-x-10`
+ * them at x 40, 383, 726 and 1069 at 331 wide, which is exactly `pf-inset-x-10`
  * with three 12-unit gaps and equal shares (4×331 + 3×12 = 1360 = 1440 − 80).
  * Expressing it as the row it is means the arithmetic cannot drift, and it is
  * also what lets the same markup become a two-column grid on a tablet and a
@@ -35,7 +35,7 @@ const HEADING_ID = "collections-heading";
 export const Collections = ({ content }: CollectionsProps) => (
   <section
     aria-labelledby={HEADING_ID}
-    className="relative flex w-full flex-col gap-10 px-5 py-16 font-mono text-hero-content lg:block lg:h-200 lg:gap-0 lg:px-0 lg:py-0"
+    className="o-relative o-flex o-w-full o-flex-col o-gap-10 o-px-5 o-py-16 pf-font-mono pf-text-hero-content pf-lg-block pf-lg-h-200 pf-lg-gap-0 pf-lg-px-0 pf-lg-py-0"
   >
     {/* **The frame's own 800-unit box, centred in the screen.** The section is a
         viewport tall; the composition is not, and the two are only equal on a
@@ -46,25 +46,25 @@ export const Collections = ({ content }: CollectionsProps) => (
         keeps every frame coordinate exact and leaves the slack where it belongs:
         half above, half below.
 
-        `-mt-100` rather than `-translate-y-1/2` — a transform would make this a
+        `pf--mt-100` rather than `pf--translate-y-1-2` — a transform would make this a
         containing block for `background-attachment: fixed`, and the lattice
         panels inside would fall out of step with the page behind them.
 
-        `max-lg:contents` so that below the frame this box is not in the layout
+        `max-lg:o-contents` so that below the frame this box is not in the layout
         at all and the flow column is exactly what it was. */}
-    <div className="max-lg:contents lg:absolute lg:inset-x-0 lg:top-1/2 lg:-mt-100 lg:h-200">
+    <div className="max-lg:o-contents pf-lg-absolute pf-lg-inset-x-0 pf-lg-top-1-2 pf-lg-mt-100 pf-lg-h-200">
       {/* Heading and lede are one group below the frame — they belong to each
           other, and the section's own 40-unit rhythm between them read as two
-          unrelated blocks. `lg:contents` dissolves the wrapper at the frame
+          unrelated blocks. `pf-lg-contents` dissolves the wrapper at the frame
           breakpoint so both go back to their own frame coordinates. */}
-      <div className="flex flex-col gap-4 lg:contents">
+      <div className="o-flex o-flex-col o-gap-4 pf-lg-contents">
         <Inview
           tag="h2"
           id={HEADING_ID}
           mode="once"
           from={{ opacity: 0, y: 20 }}
           to={{ opacity: 1, y: 0 }}
-          className="text-hero-display-compact leading-hero-headline tracking-hero-display text-hero-content [text-box:trim-both_cap_alphabetic] sm:text-hero-display-tablet lg:text-hero-display lg:absolute lg:top-32.5 lg:left-10 lg:z-10"
+          className="pf-text-hero-display-compact pf-leading-hero-headline pf-tracking-hero-display pf-text-hero-content pf--text-box-trim-both-cap-alphabetic pf-sm-text-hero-display-tablet pf-lg-text-hero-display pf-lg-absolute pf-lg-top-32-5 pf-lg-left-10 pf-lg-z-10"
         >
           <ScrambleText
             tieProse
@@ -84,7 +84,7 @@ export const Collections = ({ content }: CollectionsProps) => (
           // Measured from the right edge — the frame puts this at x 1069 at
           // 285 wide, which leaves 86 units of margin, and that gap is what the
           // composition is: a lede tucked under the row's right-hand end.
-          className="max-w-[36ch] text-hero-body leading-hero-prose text-hero-content-muted uppercase max-sm:prose-even sm:text-hero-lede lg:absolute lg:top-30.5 lg:right-21.5 lg:z-10 lg:w-71.25 lg:max-w-none"
+          className="pf-max-w-36ch pf-text-hero-body pf-leading-hero-prose pf-text-hero-content-muted o-uppercase pf-max-sm-prose-even pf-sm-text-hero-lede pf-lg-absolute pf-lg-top-30-5 pf-lg-right-21-5 pf-lg-z-10 pf-lg-w-71-25 pf-lg-max-w-none"
         >
           <ScrambleText
             tieProse
@@ -96,7 +96,7 @@ export const Collections = ({ content }: CollectionsProps) => (
         </Inview>
       </div>
 
-      <ol className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:absolute lg:inset-x-10 lg:top-57 lg:z-10 lg:flex">
+      <ol className="o-grid o-grid-cols-1 o-gap-3 sm:o-grid-cols-2 pf-lg-absolute pf-lg-inset-x-10 pf-lg-top-57 pf-lg-z-10 pf-lg-flex">
         {content.products.map((product, index) => (
           <CollectionsCard key={product.index} order={index} {...product} />
         ))}
@@ -108,7 +108,7 @@ export const Collections = ({ content }: CollectionsProps) => (
         from={{ opacity: 0, y: 12 }}
         to={{ opacity: 1, y: 0 }}
         delayIn={COLLECTIONS_REVEAL.cta}
-        className="flex justify-center lg:absolute lg:bottom-10 lg:left-1/2 lg:z-10 lg:-translate-x-1/2"
+        className="o-flex o-justify-center pf-lg-absolute pf-lg-bottom-10 pf-lg-left-1-2 pf-lg-z-10 pf-lg-translate-x-1-2"
       >
         <FrameButton
           label={content.cta.label}

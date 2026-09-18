@@ -217,7 +217,7 @@ export const RENAMED = {
   'lg:w-83': 'sn-lg-w-83',
   'lg:w-90': 'sn-lg-w-90',
   'lg:w-94.75': 'sn-lg-w-94-75',
-  'max-h-[calc(100dvh-1.5rem)]': 'sn-max-h-calc-100dvh-1-5rem',
+  'max-h-[calc(100dvh-1.5rem)]': "sn-max-h-calc-100dvh-1-5rem",
   'max-w-152': 'sn-max-w-152',
   'max-w-160': 'sn-max-w-160',
   'max-w-[560px]': 'sn-max-w-560px',
@@ -265,8 +265,8 @@ export const RENAMED = {
   'w-4.75': 'sn-w-4-75',
   'w-9.5': 'sn-w-9-5',
   'w-[18px]': 'sn-w-18px',
-  'w-[calc(100%-1.5rem)]': 'sn-w-calc-100-1-5rem',
-  'w-[calc(100vw-1.5rem)]': 'sn-w-calc-100vw-1-5rem',
+  'w-[calc(100%-1.5rem)]': "sn-w-calc-100-1-5rem",
+  'w-[calc(100vw-1.5rem)]': "sn-w-calc-100vw-1-5rem",
   'z-[100]': 'sn-z-100',
 }
 

@@ -1,7 +1,3 @@
-"use client";
-
-import Image from "next/image";
-
 import { Inview } from "@/components/animation/springs/in-view";
 import { ScrambleText } from "@/components/ui/scramble-text";
 
@@ -16,7 +12,7 @@ export interface DetailsFeatureProps extends DetailsFeatureContent {
 /**
  * One numbered specification row (Figma 1921:1736 and siblings).
  *
- * The left rail is `justify-between` against a stretched cross-axis, which is
+ * The left rail is `o-justify-between` against a stretched cross-axis, which is
  * what pins the numeral to the top and the icon to the bottom. That is the
  * whole reason the rows are not all the same height in the frame: rows with a
  * three-line body are 122 tall and row 01, whose body fits in two, is 102 — the
@@ -57,26 +53,26 @@ export const DetailsFeature = ({
     // they share a line across the row. In the frame there is no grid and no
     // stretching — a card is exactly its own copy tall — so the icon lands on
     // the last line there, which is what the frame draws.
-    className="hero-lattice-panel flex items-start gap-6 border border-hero-rule p-4 lg:gap-12"
+    className="hero-lattice-panel o-flex o-items-start o-gap-6 o-border-w-1 pf-border-hero-rule o-p-4 pf-lg-gap-12"
   >
-    <div className="flex flex-col items-start justify-between self-stretch">
+    <div className="o-flex o-flex-col o-items-start o-justify-between o-self-stretch">
       {/* **Flush with the mark's left edge.** The two are read as one rail
           down the side of the card, and a rail is a line you can follow — which
           means the edge that has to be straight is the one they share, not the
           gutter to the copy. */}
       <span
         aria-hidden
-        className="text-hero-body leading-hero-display text-hero-content-faint"
+        className="pf-text-hero-body pf-leading-hero-display pf-text-hero-content-faint"
       >
         {index}
       </span>
-      <Image
+      <img
         src={icon.src}
         alt={icon.alt}
         width={icon.width}
         height={icon.height}
         aria-hidden
-        // **Lifted to the copy's last baseline, not to its box.** `justify-between`
+        // **Lifted to the copy's last baseline, not to its box.** `o-justify-between`
         // puts the mark's box on the same line as the paragraph's, and a line box
         // runs below its own baseline by the font's descent — so the mark hung
         // 0.16em lower than the text it is meant to sit level with. Measured the
@@ -89,12 +85,12 @@ export const DetailsFeature = ({
         // and the mark 32, so the mark stood 24 from the copy where the number
         // stood 36.5. The margin puts the two on one line. At `lg` the
         // column's gutter is twice as wide and the frame's alignment stands.
-        className="size-8 shrink-0 mb-[calc(var(--text-hero-body)*0.155)] max-lg:mr-3"
+        className="o-size-8 o-shrink-0 pf-mb-calc-var-text-hero-body-0-155 max-lg:o-mr-3"
       />
     </div>
 
-    <div className="flex min-w-px flex-1 flex-col gap-3">
-      <h3 className="text-hero-body leading-hero-display text-hero-content">
+    <div className="o-flex o-min-w-px o-flex-1 o-flex-col o-gap-3">
+      <h3 className="pf-text-hero-body pf-leading-hero-display pf-text-hero-content">
         <ScrambleText
           tieProse
           revealInView
@@ -105,7 +101,7 @@ export const DetailsFeature = ({
           {title}
         </ScrambleText>
       </h3>
-      <p className="text-hero-body leading-hero-prose text-hero-content-muted max-sm:prose-even max-lg:max-w-[42ch]">
+      <p className="pf-text-hero-body pf-leading-hero-prose pf-text-hero-content-muted pf-max-sm-prose-even pf-max-lg-max-w-42ch">
         <ScrambleText
           tieProse
           revealInView

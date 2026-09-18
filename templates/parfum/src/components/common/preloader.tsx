@@ -1,6 +1,3 @@
-"use client";
-
-import Image from "next/image";
 import { useEffect, useState } from "react";
 
 import { subscribeToTicker } from "@/lib/animation/ticker";
@@ -22,10 +19,10 @@ const FLOOR_MS = 700;
 const COUNT_LERP = 0.08;
 
 const CORNERS = [
-  "top-10 left-10 border-t border-l",
-  "top-10 right-10 border-t border-r",
-  "bottom-10 left-10 border-b border-l",
-  "bottom-10 right-10 border-b border-r",
+  "o-top-10 o-left-10 o-border-t o-border-l",
+  "o-top-10 o-right-10 o-border-t o-border-r",
+  "o-bottom-10 o-left-10 o-border-b o-border-l",
+  "o-bottom-10 o-right-10 o-border-b o-border-r",
 ];
 
 /**
@@ -113,8 +110,8 @@ export const Preloader = () => {
     <div
       aria-hidden
       data-preloader
-      className={`hero-lattice fixed inset-0 z-100 grid place-items-center font-mono transition-opacity duration-500 ease-entrance motion-reduce:transition-none ${
-        done ? "pointer-events-none opacity-0" : "opacity-100"
+      className={`hero-lattice o-fixed o-inset-0 pf-z-100 o-grid o-place-items-center pf-font-mono o-transition-opacity pf-duration-500 pf-ease-entrance pf-motion-reduce-transition-none ${
+        done ? "o-pointer-events-none o-opacity-0" : "o-opacity-100"
       }`}
     >
       {/* The frame closes on the page — the same gesture the buttons use when
@@ -122,8 +119,8 @@ export const Preloader = () => {
       {CORNERS.map((corner) => (
         <span
           key={corner}
-          className={`absolute size-10 border-hero-content transition-all duration-700 ease-entrance motion-reduce:transition-none ${corner} ${
-            done ? "scale-150 opacity-0" : "scale-100 opacity-100"
+          className={`o-absolute o-size-10 pf-border-hero-content o-transition-all pf-duration-700 pf-ease-entrance pf-motion-reduce-transition-none ${corner} ${
+            done ? "o-scale-150 o-opacity-0" : "o-scale-100 o-opacity-100"
           }`}
         />
       ))}
@@ -132,23 +129,23 @@ export const Preloader = () => {
           curtain is the first thing the page shows, and at the frame's own
           sizes it sat as a small island in the middle of a tablet screen with
           a 12px line under it. */}
-      <div className="flex w-64 flex-col items-center gap-6 max-lg:w-80 max-lg:gap-8">
-        <Image
+      <div className="o-flex o-w-64 o-flex-col o-items-center o-gap-6 max-lg:o-w-80 max-lg:o-gap-8">
+        <img
           src="/assets/ui/logo-mark.png"
           alt=""
           width={300}
           height={120}
           priority
-          className={`h-12 w-auto object-contain max-lg:h-16 transition-transform duration-700 ease-entrance motion-reduce:transition-none ${
-            done ? "scale-105" : "scale-100"
+          className={`o-h-12 o-w-auto o-object-contain max-lg:o-h-16 o-transition-transform pf-duration-700 pf-ease-entrance pf-motion-reduce-transition-none ${
+            done ? "o-scale-105" : "o-scale-100"
           }`}
         />
 
         {/* The rule fills. One transform on one element, so the browser has a
             compositor job rather than a layout one on every frame. */}
-        <div className="h-px w-full bg-hero-rule max-lg:h-0.5">
+        <div className="o-h-px o-w-full pf-bg-hero-rule max-lg:o-h-0.5">
           <div
-            className="h-full origin-left bg-hero-content"
+            className="o-h-full o-origin-left pf-bg-hero-content"
             style={{ transform: `scaleX(${Math.min(1, progress)})` }}
           />
         </div>
@@ -156,7 +153,7 @@ export const Preloader = () => {
         {/* Muted rather than faint below the frame: at 40% ink the readout was
             there without being legible, which is the one thing a loading count
             has to be. */}
-        <p className="text-hero-caption leading-hero-display tracking-hero-caption text-hero-content-faint tabular-nums max-lg:text-hero-body max-lg:text-hero-content-muted">
+        <p className="pf-text-hero-caption pf-leading-hero-display pf-tracking-hero-caption pf-text-hero-content-faint o-tabular-nums pf-max-lg-text-hero-body pf-max-lg-text-hero-content-muted">
           LOADING {String(percent).padStart(3, "0")}
         </p>
       </div>

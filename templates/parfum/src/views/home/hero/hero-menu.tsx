@@ -1,7 +1,3 @@
-"use client";
-
-import Image from "next/image";
-import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { ScrambleText } from "@/components/ui/scramble-text";
@@ -17,9 +13,9 @@ export interface HeroMenuProps {
 }
 
 const FOCUS_RING =
-  "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-hero-content";
+  "pf-focus-visible-outline-2 pf-focus-visible-outline-offset-2 pf-focus-visible-outline-hero-content";
 
-const TRANSITION = "transition duration-[var(--duration-fast)] ease-entrance";
+const TRANSITION = "o-transition pf-duration-var-duration-fast pf-ease-entrance";
 
 /**
  * The burger, and the panel it opens — below the frame breakpoint only.
@@ -50,7 +46,7 @@ export const HeroMenu = ({ logo, nav, cart, logoClassName }: HeroMenuProps) => {
     if (!open) return;
     const root = document.documentElement;
     const previous = root.style.overflow;
-    root.style.overflow = "hidden";
+    root.style.overflow = "o-hidden";
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") setOpen(false);
     };
@@ -70,69 +66,69 @@ export const HeroMenu = ({ logo, nav, cart, logoClassName }: HeroMenuProps) => {
         aria-expanded={open}
         aria-label={open ? "Close menu" : "Open menu"}
         onClick={() => setOpen((value) => !value)}
-        className={`relative z-[70] flex h-6 w-7 shrink-0 cursor-pointer flex-col justify-between py-1 tap-area [--tap-x:0.75rem] [--tap-y:0.75rem] ${FOCUS_RING}`}
+        className={`o-relative pf-z-70 o-flex o-h-6 o-w-7 o-shrink-0 o-cursor-pointer o-flex-col o-justify-between o-py-1 tap-area pf--tap-x-0-75rem pf--tap-y-0-75rem ${FOCUS_RING}`}
       >
         <span
-          className={`${bar} ${open ? "translate-y-[7px] rotate-45" : ""}`}
+          className={`${bar} ${open ? "pf-translate-y-7px o-rotate-45" : ""}`}
         />
-        <span className={`${bar} ${open ? "opacity-0" : ""}`} />
+        <span className={`${bar} ${open ? "o-opacity-0" : ""}`} />
         <span
-          className={`${bar} ${open ? "-translate-y-[7px] -rotate-45" : ""}`}
+          className={`${bar} ${open ? "pf--translate-y-7px pf--rotate-45" : ""}`}
         />
       </button>
 
       <div
-        // Held in the tree so it can fade, and `invisible` when shut so nothing
+        // Held in the tree so it can fade, and `o-invisible` when shut so nothing
         // inside it is clickable or tab-reachable.
-        className={`hero-lattice-panel fixed inset-0 z-[60] flex flex-col px-5 pt-5 pb-10 ${TRANSITION} ${
-          open ? "visible opacity-100" : "invisible opacity-0"
+        className={`hero-lattice-panel o-fixed o-inset-0 pf-z-60 o-flex o-flex-col o-px-5 o-pt-5 o-pb-10 ${TRANSITION} ${
+          open ? "o-visible o-opacity-100" : "o-invisible o-opacity-0"
         }`}
       >
-        <Link
+        <a
           href="/"
           onClick={() => setOpen(false)}
           tabIndex={open ? undefined : -1}
           className={`${logoClassName} ${FOCUS_RING}`}
         >
-          <Image
+          <img
             src={logo.src}
             alt={logo.alt}
             width={logo.width}
             height={logo.height}
-            className="h-full w-full object-contain"
+            className="o-h-full o-w-full o-object-contain"
           />
-        </Link>
+        </a>
 
-        <nav aria-label="Primary" className="mt-10 flex-1 overflow-y-auto">
-          <ul className="flex flex-col">
+        <nav aria-label="Primary" className="o-mt-10 o-flex-1 o-overflow-y-auto">
+          <ul className="o-flex o-flex-col">
             {nav.map((item) => (
               <li
                 key={item.label}
-                className="border-t border-hero-rule py-5 last:border-b"
+                className="o-border-t pf-border-hero-rule o-py-5 pf-last-border-b"
               >
-                <Link
+                <a
                   href={item.href}
                   onClick={() => setOpen(false)}
                   tabIndex={open ? undefined : -1}
-                  className={`block text-hero-title leading-hero-display text-hero-content ${FOCUS_RING}`}
+                  className={`o-block pf-text-hero-title pf-leading-hero-display pf-text-hero-content ${FOCUS_RING}`}
                 >
                   <ScrambleText revealDelay={open ? 0 : undefined}>
                     {item.label}
                   </ScrambleText>
-                </Link>
+                </a>
 
                 {item.submenu?.length ? (
-                  <ul className="mt-4 flex flex-col gap-3 pl-5">
+                  <ul className="o-mt-4 o-flex o-flex-col o-gap-3 o-pl-5">
                     {item.submenu.map((entry) => (
                       <li key={entry.label}>
-                        <Link
+                        <a
                           href={entry.href}
                           onClick={() => setOpen(false)}
                           tabIndex={open ? undefined : -1}
-                          className={`block text-hero-body leading-hero-display text-hero-content-muted ${TRANSITION} hover:text-hero-content ${FOCUS_RING}`}
+                          className={`o-block pf-text-hero-body pf-leading-hero-display pf-text-hero-content-muted ${TRANSITION} pf-hover-text-hero-content ${FOCUS_RING}`}
                         >
                           {entry.label}
-                        </Link>
+                        </a>
                       </li>
                     ))}
                   </ul>
@@ -142,16 +138,16 @@ export const HeroMenu = ({ logo, nav, cart, logoClassName }: HeroMenuProps) => {
           </ul>
         </nav>
 
-        <Link
+        <a
           href={cart.href}
           onClick={() => setOpen(false)}
           tabIndex={open ? undefined : -1}
-          className={`mt-10 flex h-13 items-center justify-center border border-hero-content text-hero-body leading-hero-display text-hero-content ${FOCUS_RING}`}
+          className={`o-mt-10 o-flex pf-h-13 o-items-center o-justify-center o-border-w-1 pf-border-hero-content pf-text-hero-body pf-leading-hero-display pf-text-hero-content ${FOCUS_RING}`}
         >
           <ScrambleText revealDelay={open ? 240 : undefined}>
             {cart.label}
           </ScrambleText>
-        </Link>
+        </a>
       </div>
     </>
   );

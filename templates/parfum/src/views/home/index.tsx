@@ -21,7 +21,7 @@ import { Technology } from "./technology";
  * Home view — a Server Component; every animated piece below is a client leaf.
  *
  * Layout notes:
- * - The lattice and `min-h-lvh` sit on the page, not on the hero: in the frame
+ * - The lattice and `pf-min-h-lvh` sit on the page, not on the hero: in the frame
  *   the lattice is the canvas *behind* everything including the header
  *   (Figma 902:305), and carrying it here keeps it full-bleed and full-height
  *   whatever the viewport aspect, so no bare band is left under the frame.
@@ -30,7 +30,7 @@ import { Technology } from "./technology";
  *   surface those cards are imitating, so it may as well be the same paint.
  *   The bars are `background-attachment: scroll`, so they are anchored to the
  *   document and travel with it; the highlight's three radial layers are
- *   `fixed`, so they stay under the cursor, and they are listed *after* the
+ *   `o-fixed`, so they stay under the cursor, and they are listed *after* the
  *   bars so the bars paint over them and quantise the light into cells.
  *
  *   It used to be two grids — one here on the document, one on a fixed
@@ -58,25 +58,25 @@ import { Technology } from "./technology";
  *   **What that asks of the sections:** every horizontal coordinate in the
  *   `lg:` layout has to be anchored to an edge or to the centre, never to a
  *   left offset that only means the right margin at exactly 1440 units. The
- *   right-hand columns are `right-10`, the centred pieces are `left-1/2` or
+ *   right-hand columns are `o-right-10`, the centred pieces are `o-left-1/2` or
  *   auto margins, and the leader lines in the technology stack are drawn from
  *   `50%` and `100%` rather than from frame x. At exactly 1440 units every one
  *   of those resolves to the frame's own number, so the reference render is
  *   unchanged — they only differ once the canvas is wider.
  *
- *   It also settles the scrollbar: `w-360` was 90rem = `100vw`, and `100vw`
+ *   It also settles the scrollbar: `pf-w-360` was 90rem = `100vw`, and `100vw`
  *   counts the scrollbar while the page's content box does not, so the canvas
  *   overhung the right edge by 15px and everything the frame centres landed
- *   7.5px right of the axis a reader sees. `w-full` is the content box.
+ *   7.5px right of the axis a reader sees. `o-w-full` is the content box.
  *   ADR-0029 for why the frame is abandoned below `lg` rather than scaled.
  * - The header lives in that canvas so it stays on the frame's margins, and is
  *   still a child of plain elements only — so it remains the page banner.
- * - `overflow-x-clip` (not `hidden` — it must not become a scroll container, or
+ * - `pf-overflow-x-clip` (not `o-hidden` — it must not become a scroll container, or
  *   sticky positioning breaks for later sections) is the backstop against a
  *   stray full-bleed child; nothing should be relying on it to hide a spill.
  */
 export const HomeView = () => (
-  <div className="hero-lattice-shell relative min-h-lvh overflow-x-clip font-mono text-hero-content">
+  <div className="hero-lattice-shell o-relative pf-min-h-lvh pf-overflow-x-clip pf-font-mono pf-text-hero-content">
     {/* **The page's surface, as two layers rather than one painted element.**
         `hero-lattice-panel` — which this wore — paints its highlight with
         `background-attachment: fixed`, and a fixed background cannot be
@@ -97,12 +97,12 @@ export const HomeView = () => (
 
     <a
       href="#main"
-      className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:bg-hero-surface focus:px-3 focus:py-2 focus:text-hero-content"
+      className="o-sr-only focus:o-not-sr-only pf-focus-absolute pf-focus-top-2 pf-focus-left-2 pf-focus-z-50 pf-focus-bg-hero-surface pf-focus-px-3 pf-focus-py-2 pf-focus-text-hero-content"
     >
       Skip to content
     </a>
 
-    <div className="relative w-full">
+    <div className="o-relative o-w-full">
       {/* Pinned for the whole page. The wrapper is what sticks; from `lg` it
           is given **zero height** and the header inside it goes back to being
           absolutely positioned, so the banner keeps the frame's own coordinates
@@ -120,7 +120,7 @@ export const HomeView = () => (
           fixed` resolve against the element instead of the viewport, which
           would knock the lattice out of step with the page behind it. At `lg`
           the frame draws no such band, hence `max-lg:`. */}
-      <div className="sticky top-0 z-50 max-lg:hero-lattice-panel max-lg:border-b max-lg:border-hero-rule lg:h-0">
+      <div className="o-sticky o-top-0 o-z-50 pf-max-lg-hero-lattice-panel max-lg:o-border-b pf-max-lg-border-hero-rule pf-lg-h-0">
         <HeroHeader
           logo={homeHero.logo}
           nav={homeHero.nav}

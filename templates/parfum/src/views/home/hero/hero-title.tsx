@@ -1,5 +1,3 @@
-"use client";
-
 import { Spring } from "@/components/animation/springs/spring";
 import { ScrambleText } from "@/components/ui/scramble-text";
 import { keepSentences } from "@/lib/text/tie";
@@ -32,12 +30,12 @@ export const HeroTitle = ({ id, lines }: HeroTitleProps) => (
     mode="once"
     from={{ opacity: 0 }}
     to={{ opacity: 1 }}
-    className="flex flex-col text-center text-hero-body leading-hero-display text-hero-content lg:absolute lg:inset-x-0 lg:bottom-29.5 lg:z-10 sm:text-hero-lede"
+    className="o-flex o-flex-col o-text-center pf-text-hero-body pf-leading-hero-display pf-text-hero-content pf-lg-absolute pf-lg-inset-x-0 pf-lg-bottom-29-5 pf-lg-z-10 pf-sm-text-hero-lede"
   >
     {lines.map((line, index) => (
       <ScrambleText
         key={line}
-        className="block"
+        className="o-block"
         revealDelay={HERO_REVEAL.title + index * HERO_REVEAL.titleStep}
       >
         {keepSentences(line)}

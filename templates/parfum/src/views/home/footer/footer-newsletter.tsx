@@ -1,6 +1,3 @@
-"use client";
-
-import Image from "next/image";
 import { useId } from "react";
 
 import { ScrambleText } from "@/components/ui/scramble-text";
@@ -46,13 +43,13 @@ export const FooterNewsletterForm = ({ content }: FooterNewsletterProps) => {
 
   return (
     <form
-      className="flex w-full flex-col gap-6 lg:gap-[max(0.75rem,12px)]"
+      className="o-flex o-w-full o-flex-col o-gap-6 pf-lg-gap-max-0-75rem-12px"
       onSubmit={(event) => event.preventDefault()}
     >
-      <div className="flex w-full flex-col gap-[max(1.25rem,20px)]">
+      <div className="o-flex o-w-full o-flex-col pf-gap-max-1-25rem-20px">
         <label
           htmlFor={emailId}
-          className="text-hero-body leading-hero-display text-hero-content"
+          className="pf-text-hero-body pf-leading-hero-display pf-text-hero-content"
         >
           <ScrambleText tieProse revealInView revealDelay={120}>
             {content.heading}
@@ -62,33 +59,33 @@ export const FooterNewsletterForm = ({ content }: FooterNewsletterProps) => {
         {/* The padding lives on the *input*, not on this box. On the box it was
             dead space: the field itself resolved to 15 units tall, so on a phone
             most of what looks like the field did not focus it. */}
-        <div className="flex items-center justify-between gap-4 border border-hero-content pr-[max(1rem,16px)] focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-hero-content">
+        <div className="o-flex o-items-center o-justify-between o-gap-4 o-border-w-1 pf-border-hero-content pf-pr-max-1rem-16px pf-focus-within-outline-2 pf-focus-within-outline-offset-2 pf-focus-within-outline-hero-content">
           <input
             id={emailId}
             type="email"
             name="email"
             autoComplete="email"
             placeholder={content.placeholder}
-            className="min-w-px flex-1 bg-transparent px-[max(1rem,16px)] py-[max(0.875rem,14px)] text-hero-body leading-hero-display text-hero-content uppercase placeholder:text-hero-content focus:outline-none lg:text-hero-chip"
+            className="o-min-w-px o-flex-1 o-bg-transparent pf-px-max-1rem-16px pf-py-max-0-875rem-14px pf-text-hero-body pf-leading-hero-display pf-text-hero-content o-uppercase pf-placeholder-text-hero-content focus:o-outline-none pf-lg-text-hero-chip"
           />
           <button
             type="submit"
-            className="shrink-0 cursor-pointer max-lg:tap-area max-lg:[--tap-y:1rem] max-lg:[--tap-x:1rem] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-hero-content"
+            className="o-shrink-0 o-cursor-pointer pf-max-lg-tap-area pf-max-lg-tap-y-1rem pf-max-lg-tap-x-1rem pf-focus-visible-outline-2 pf-focus-visible-outline-offset-2 pf-focus-visible-outline-hero-content"
           >
-            <span className="sr-only">Subscribe</span>
-            <Image
+            <span className="o-sr-only">Subscribe</span>
+            <img
               src="/assets/ui/arrow-right.svg"
               alt=""
               width={10}
               height={6}
               aria-hidden
-              className="h-1.5 w-2.5"
+              className="o-h-1.5 o-w-2.5"
             />
           </button>
         </div>
       </div>
 
-      <div className="flex items-center gap-[max(0.5rem,8px)]">
+      <div className="o-flex o-items-center pf-gap-max-0-5rem-8px">
         <input
           id={consentId}
           type="checkbox"
@@ -99,11 +96,11 @@ export const FooterNewsletterForm = ({ content }: FooterNewsletterProps) => {
           // checkbox. The rest is the site's own language — a hairline that
           // fills when set, and brightens under the pointer like the
           // collections swatches.
-          className="size-2.5 shrink-0 cursor-pointer appearance-none border border-hero-rule transition duration-[var(--duration-fast)] ease-entrance max-lg:tap-area max-lg:[--tap-y:0.75rem] max-lg:[--tap-x:0.75rem] [-webkit-appearance:none] checked:bg-hero-content hover:border-hero-content focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-hero-content"
+          className="o-size-2.5 o-shrink-0 o-cursor-pointer o-appearance-none o-border-w-1 pf-border-hero-rule o-transition pf-duration-var-duration-fast pf-ease-entrance pf-max-lg-tap-area pf-max-lg-tap-y-0-75rem pf-max-lg-tap-x-0-75rem pf--webkit-appearance-none pf-checked-bg-hero-content pf-hover-border-hero-content pf-focus-visible-outline-2 pf-focus-visible-outline-offset-2 pf-focus-visible-outline-hero-content"
         />
         <label
           htmlFor={consentId}
-          className="min-w-px flex-1 text-hero-body leading-hero-display text-hero-content-faint uppercase [text-box:trim-both_cap_alphabetic] lg:w-[max(11.875rem,190px)] lg:flex-none lg:text-hero-fine"
+          className="o-min-w-px o-flex-1 pf-text-hero-body pf-leading-hero-display pf-text-hero-content-faint o-uppercase pf--text-box-trim-both-cap-alphabetic pf-lg-w-max-11-875rem-190px pf-lg-flex-none pf-lg-text-hero-fine"
         >
           <ScrambleText tieProse revealInView revealDelay={180}>
             {content.consent}

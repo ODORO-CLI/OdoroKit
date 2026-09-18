@@ -4,7 +4,6 @@
  * Consumed by the metadata generator, `robots.ts`, `sitemap.ts`, and the
  * JSON-LD structured-data helper. Update the placeholder values per project.
  */
-import { publicEnv } from "@/env";
 
 export const siteConfig = {
   /**
@@ -19,10 +18,14 @@ export const siteConfig = {
   description:
     "ODORO, maison de parfum. Des extraits techniques pensés pour la chimie de la peau : tête stabilisée, coeur d'ambre chaud, concentration à 22 %.",
   /**
-   * Public origin, no trailing slash. Drives canonical URLs, OG tags, the
-   * sitemap, and JSON-LD. Set `NEXT_PUBLIC_SITE_URL` in production.
+   * Public origin, no trailing slash. Drives canonical URLs, OG tags and
+   * JSON-LD.
+   *
+   * L original le lisait dans une variable d environnement, injectee a la
+   * construction par l autre cadre. Il n y a plus de cadre : l origine se pose
+   * ici, en toutes lettres, et c est la seule ligne a changer au deploiement.
    */
-  url: publicEnv.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
+  url: "http://localhost:3000",
   /** Default Open Graph / Twitter share image (path under `public/`). */
   ogImage: "/open-graph.png",
   /**

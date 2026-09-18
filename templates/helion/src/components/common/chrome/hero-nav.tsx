@@ -238,7 +238,7 @@ const HeroNavMobile = ({ content }: HeroNavProps) => {
               opacity: sheet.opacity,
               transform: sheet.y.to((v) => `translateY(${v}px)`),
             }}
-            className={`o-absolute hl-top-calc-100-+10px o-right-0 o-flex hl-w-220px o-flex-col hl-gap-6px hl-p-10px ${PILL} hl-!rounded-24px`}
+            className={`o-absolute hl-top-calc-100-10px o-right-0 o-flex hl-w-220px o-flex-col hl-gap-6px hl-p-10px ${PILL} hl--rounded-24px`}
           >
             {content.links.map((link) => (
               <button

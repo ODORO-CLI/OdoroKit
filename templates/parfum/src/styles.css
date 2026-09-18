@@ -1,0 +1,1313 @@
+/* ===========================================================================
+   La feuille du projet.
+
+   Les trois etages de jetons sont ceux de l original, mot pour mot. Ce qui a
+   change : le bloc qui les liait a un generateur d utilitaires devient des
+   variables ordinaires, les couches sortent de leur couche, les `@utility`
+   deviennent des classes, et les mesures que l original ecrivait en valeurs
+   arbitraires deviennent des classes `pf-*`.
+
+   Ces dernieres sont derivees — pas ecrites a la main — par
+   `scripts/derive-template-classes.mjs`, a partir du bloc de jetons ci-dessous
+   et de la variante que ce gabarit se redeclare.
+   =========================================================================== */
+
+/* ---------------------------------------------------------------------------
+   LES POLICES
+
+   L original les liait depuis son `layout` : deux variables, `--font-onest` et
+   `--font-3270`, posees en classe sur le `body`. Le lien est ici, ou la feuille
+   peut le tenir seule.
+
+   La 3270 porte le texte **et** le rendu WebGL, qui la lit dans
+   `--font-3270` pour peindre ses textures : la variable est donc load-bearing,
+   pas decorative.
+   --------------------------------------------------------------------------- */
+
+/* Onest vient du fournisseur de polices, sous licence SIL OFL. */
+@import url('https://fonts.googleapis.com/css2?family=Onest:wght@100..900&display=swap');
+
+@font-face {
+  font-family: '3270';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./fonts/3270-Regular.otf') format('opentype');
+}
+
+:root {
+  --font-onest: 'Onest', sans-serif;
+  --font-3270: '3270', ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+/* ---------------------------------------------------------------------------
+   TIER 1 — PRIMITIVES  (`--raw-*`)
+   Raw literal values. The only tier allowed to contain a hex/px/ms literal.
+   Never referenced in markup, never bound into @theme. Rename freely.
+   Grammar: --raw-<category>-<name>[-<shade>]
+   See obsidian/frontend/design-system.md → "Token naming convention".
+   --------------------------------------------------------------------------- */
+:root {
+
+  /* --- Olive Terracotta ramp (GetLayers palette `olive-terracotta`) -------
+     A LIGHT, warm ramp. The page used to be a near-black lattice lit by one
+     azure key; it is now cream paper ruled in olive, with terracotta as the
+     only hot hue and oxblood reserved for the four section mastheads.
+     Roles map 1:1 onto the palette: background / primary / secondary / accent.
+     See obsidian/meta/decisions-log.md ADR-0049. */
+  --raw-color-cream: #efe0cd;
+  --raw-color-cream-deep: #e3d3bd;
+  --raw-color-ink: #0b0b0e;
+  --raw-color-olive: #607556;
+  --raw-color-terracotta: #b96a4c;
+  --raw-color-oxblood: #7b2524;
+  /* The garment's shell albedo — a warm near-black, deliberately NOT the page
+     ink. hero-scene.tsx explains the value; it lives here so the .tsx mirrors a
+     primitive instead of inventing one. */
+  --raw-color-shell: #1a1512;
+  /* The correction applied to the technology reel's artwork, if any. */
+  /* `none` since the perfume conversion (ADR-0050): the reel is a generated
+     still already composed in the palette. The hue-rotate that warmed the old
+     magenta-violet frames would turn it turquoise. Kept as a token so a future
+     reel that needs correcting has the seam ready. */
+  --raw-filter-reel-tint: none;
+  /* The ink at four alphas — the style's "one ink, four steps", carried over
+     from the dark original. The alphas are HIGHER than the dark page's 40/25:
+     on a ~90%-luminance ground the same fraction of ink reads far fainter than
+     the same fraction of white read on black. Measured against the cream, not
+     inherited. */
+  --raw-color-ink-58: rgb(11 11 14 / 0.58);
+  --raw-color-ink-40: rgb(11 11 14 / 0.4);
+  --raw-color-olive-50: rgb(96 117 86 / 0.5);
+
+  /* **The pointer torch, tokenised.** It used to be six hard-coded
+     `rgb(255 255 255 / …)` stops written out TWICE — once for the page beam and
+     once for the panel copy — with nothing keeping the two in step. They are one
+     set of primitives now, so a re-tint cannot put the panels out of phase with
+     the page behind them.
+     The hue is terracotta, not white: on a 90%-luminance ground additive white
+     is invisible, so the torch WARMS and slightly deepens the cells it crosses
+     instead of brightening them. The alphas are the dark page's, scaled 2.6x —
+     the same delta needs more paint when the paint is darker than the ground. */
+  --raw-color-glow-1: rgb(185 106 76 / 0.182);
+  --raw-color-glow-2: rgb(185 106 76 / 0.143);
+  --raw-color-glow-3: rgb(185 106 76 / 0.088);
+  --raw-color-glow-4: rgb(185 106 76 / 0.042);
+  --raw-color-glow-5: rgb(185 106 76 / 0.013);
+  --raw-color-glow-wide-1: rgb(185 106 76 / 0.044);
+  --raw-color-glow-wide-2: rgb(185 106 76 / 0.023);
+  --raw-color-glow-lag-1: rgb(185 106 76 / 0.083);
+  --raw-color-glow-lag-2: rgb(185 106 76 / 0.036);
+
+  --raw-duration-fast: 150ms;
+  --raw-duration-normal: 250ms;
+
+  /* Type ramp, in rem against the 1440 design base (16px root). */
+  --raw-text-size-75: 0.75rem; /* 12px — badge captions */
+  --raw-text-size-112: 1.125rem; /* 18px — nav & marker copy */
+  --raw-text-size-125: 1.25rem; /* 20px — lede & CTA */
+  --raw-text-size-81: 0.8125rem; /* 13px — footer consent line (1931:2743) */
+  --raw-text-size-87: 0.875rem; /* 14px — tag chips (1923:2042) */
+  --raw-text-size-162: 1.625rem; /* 26px — product card title (1923:2039) */
+  --raw-text-size-250: 2.5rem; /* 40px — headline below the frame breakpoint */
+  --raw-text-size-312: 3.125rem; /* 50px — headline on a tablet; see below */
+  --raw-text-size-437: 4.375rem; /* 70px — section headline (1748:1102) */
+
+  --raw-leading-tight: 0.9; /* frame line-height on single-line 18/20px copy */
+  --raw-leading-caption: 1.1; /* frame line-height on copy that wraps */
+  --raw-leading-headline: 0.8; /* frame line-height on the 70px headline */
+  /* Both frames set -0.02em: -0.24px at 12px, -1.4px at 70px. */
+  --raw-tracking-tight: -0.02em;
+
+  /* Background lattice geometry: 10px pitch, 2px gap between cells. */
+  --raw-size-lattice-pitch: 0.625rem;
+  --raw-size-lattice-gap: 0.125rem;
+  /* Reach of the pointer highlight. Tightened from the shader's original 340px
+     on the client's call: at that radius the glow read as a wash over a third
+     of the screen rather than as cells answering the cursor. */
+  --raw-size-lattice-reach: 12rem; /* 192px — the highlight's radius */
+  --raw-size-stage-fade: 17rem; /* 272px — see `hero-stage-mask` for its shape */
+}
+
+/* ---------------------------------------------------------------------------
+   TIER 2 — SEMANTIC  (role names, no namespace prefix)
+   Purpose, not appearance. Always `var(--raw-*)` — never a literal.
+   This is the themeable layer: dark mode overrides happen HERE, which is why
+   these are separate from the @theme bindings below (see the note there).
+   Grammar: --<role>[-<variant>][-<state>]
+   --------------------------------------------------------------------------- */
+:root {
+  /* The app shell follows the page onto cream, so the two routes that use it
+     — not-found and error — no longer render a white card on the site's own
+     canvas. */
+  --background: var(--raw-color-cream);
+  --foreground: var(--raw-color-ink);
+
+  --duration-fast: var(--raw-duration-fast);
+  --duration-normal: var(--raw-duration-normal);
+
+  /* --- Hero roles ---------------------------------------------------------
+     The hero is a fixed LIGHT canvas by design, so these roles are deliberately
+     NOT overridden in the prefers-color-scheme block below.
+     `surface` is the lattice BAR and the html canvas; `surface-lattice` is the
+     CELL. The cell stays the lighter of the two, exactly as it was on the dark
+     page — the grid is that luminance step and nothing else. */
+  --hero-surface: var(--raw-color-cream-deep);
+  --hero-surface-lattice: var(--raw-color-cream);
+  --hero-content: var(--raw-color-ink);
+  /* Secondary copy — the frames set body prose at 40% and index numerals at
+     the same 25% the rules are drawn in. Two roles, one primitive: `rule` is
+     an edge, `faint` is ink, and they are free to diverge later. */
+  --hero-content-muted: var(--raw-color-ink-58);
+  --hero-content-faint: var(--raw-color-ink-40);
+  /* The rule DIVERGES from `faint` here — the comment above always allowed it.
+     Every hairline and border on the page is olive, which is what gives the
+     paper its second hue without a single filled surface. */
+  --hero-rule: var(--raw-color-olive-50);
+
+  /* The one hot hue. Rationed: the CTA rules, the pointer light, and the WebGL
+     key that lights the garment (hero-scene.tsx `LOOK.key.colour`). */
+  --hero-accent: var(--raw-color-terracotta);
+  /* The four 70px section mastheads, and nothing else. */
+  --hero-display: var(--raw-color-oxblood);
+  --hero-shell: var(--raw-color-shell);
+  --hero-reel-tint: var(--raw-filter-reel-tint);
+
+  /* **A floor, in px, under the four smallest roles.**
+     Above 1024 the page is the 1440 frame scaled by viewport width, and that
+     scaling applies to type as faithfully as to everything else — which is right
+     until it isn't. At a 1024 viewport the frame renders at 71%, and 12 frame
+     units becomes 8.5px: the badge captions, the consent line and the tag chips
+     stopped being readable while remaining perfectly proportional.
+     `max()` pins them at 12px and leaves everything larger alone. At 1440 the
+     floor is exactly the caption's own size, so nothing there moves at all —
+     verified against the recorded frame. Only the roles that actually fall below
+     it carry this; the display sizes must keep scaling. */
+  --hero-text-caption: max(var(--raw-text-size-75), 12px);
+  --hero-text-body: max(var(--raw-text-size-112), 12px);
+  --hero-text-lede: var(--raw-text-size-125);
+  --hero-text-fine: max(var(--raw-text-size-81), 12px);
+  --hero-text-chip: max(var(--raw-text-size-87), 12px);
+  --hero-text-title: var(--raw-text-size-162);
+  --hero-text-display: var(--raw-text-size-437);
+  /* No frame exists under 1024, so the headline needs a step of its own there
+     — 70px would eat the whole column on a phone. See ADR-0029. */
+  --hero-text-display-compact: var(--raw-text-size-250);
+  /* The middle of the three headline sizes, for 640–1023 where the layout
+     is flow but the screen is no longer a phone. Its value is not chosen
+     freely: at 1024 the frame takes over and draws the 70px headline at
+     the frame's own scale, 70 * 1024 / 1440 = 49.8px. Matching that to
+     50px makes the one place the page changes layout regime the one place
+     the headline does not visibly jump. Below 640 it steps down to 40. */
+  --hero-text-display-tablet: var(--raw-text-size-312);
+
+  --hero-leading-display: var(--raw-leading-tight);
+  --hero-leading-headline: var(--raw-leading-headline);
+  --hero-leading-caption: var(--raw-leading-caption);
+  /* Same 1.1 as `caption`, different role: copy that wraps at reading size. */
+  --hero-leading-prose: var(--raw-leading-caption);
+  --hero-tracking-caption: var(--raw-tracking-tight);
+  --hero-tracking-display: var(--raw-tracking-tight);
+
+  --hero-lattice-pitch: var(--raw-size-lattice-pitch);
+  --hero-lattice-gap: var(--raw-size-lattice-gap);
+  /* The half-gap bleed the frame draws at the top-left edge. A token because
+     three utilities set it and it has to round with the gap — see below. */
+  --hero-lattice-offset: calc(var(--hero-lattice-gap) / -2);
+  --hero-lattice-reach: var(--raw-size-lattice-reach);
+  /* How far the product's canvas dissolves into the page at its bottom edge. */
+  --hero-stage-fade: var(--raw-size-stage-fade);
+  /* Published each frame by `hero-pointer.ts`, in viewport pixels. Parked well
+     off-screen so nothing is lit before the pointer has ever been seen. */
+  --hero-pointer-x: -100vw;
+  --hero-pointer-y: -100vh;
+  --hero-pointer-lag-x: -100vw;
+  --hero-pointer-lag-y: -100vh;
+}
+
+/* **The lattice has to land on whole pixels, or it stops being squares.**
+ *
+ * Pitch and gap are rem — they are frame units, so the grid scales with the
+ * frame like everything else — and a rem is not a whole number of pixels at
+ * most window sizes: at 1920 the pitch resolves to 13.33px and the gap to
+ * 2.67px. A repeating gradient with fractional stops is antialiased *per bar*,
+ * and because the fraction only comes back round every three cells the error
+ * repeats on a three-cell beat. That beat is the ripple running through the
+ * background — cells that read light, dark, light again across the screen, and
+ * a moire that crawls when anything moves over it.
+ *
+ * Rounding both to the device's own pixel grid makes every bar identical and
+ * every cell the same square. The cell ends up 10/13 of the pitch rather than
+ * the frame's 8/10 at some widths, which is a difference of a third of a pixel
+ * in a 13px cell and invisible; the ripple is not.
+ *
+ * Guarded, because `round()` is a comparatively recent addition: where it is
+ * missing the tokens keep their unrounded values and the grid is exactly what
+ * it was before. */
+@supports (width: round(1px, 1px)) {
+  :root {
+    --hero-lattice-pitch: round(var(--raw-size-lattice-pitch), 1px);
+    --hero-lattice-gap: round(var(--raw-size-lattice-gap), 1px);
+    --hero-lattice-offset: round(calc(var(--hero-lattice-gap) / -2), 1px);
+  }
+}
+
+/* **No dark-mode override, on purpose.** The page is one fixed light surface —
+   cream paper — and the app-shell tokens now follow it, so a reader in dark mode
+   gets the site as designed rather than a dark card on a cream canvas. The
+   declaration below is what tells the UA so: without it the native scrollbar
+   Lenis leaves in place renders in the wrong livery down the edge of the page. */
+:root {
+  color-scheme: light;
+}
+
+/* The only chromatic accident the design did not own. Selection was painting
+   the UA's default blue over an olive-and-terracotta page. */
+::selection {
+  background: var(--raw-color-terracotta);
+  color: var(--raw-color-cream);
+}
+
+/* ---------------------------------------------------------------------------
+   THEME BINDINGS — map semantic tokens into Tailwind namespaces.
+   Every entry is exactly `--<tw-namespace>-<role>: var(--<role>)`.
+   `inline` is required: it inlines the var() into each utility, so the
+   dark-mode overrides on the Tier 2 tokens above cascade. Binding a literal
+   here instead would freeze the value and break theming.
+
+   Only these namespaces generate utilities (verified against tailwindcss
+   v4.3.3): --color-* --spacing-* --radius-* --leading-* --tracking-* --text-*
+   --font-* --ease-* --breakpoint-* --container-* --shadow-* --blur-* --animate-*
+   NOTE: there is NO --duration-* namespace in v4 — `duration-fast` compiles to
+   nothing. Durations stay Tier 2 only and are used as duration-[var(--duration-fast)].
+   --------------------------------------------------------------------------- */
+/**
+ * `lg` is **landscape and 1024 or wider**, not merely 1024 or wider.
+ *
+ * `lg` is not a size step in this project — it is the switch between two
+ * designs: ordinary flow below it, the 1440 frame at and above (ADR-0032). The
+ * frame is 1.8:1, so it only makes sense on a screen shaped roughly like one.
+ * A width test alone sent an iPad in portrait — 1024×1366, a very common
+ * device — into frame mode, where the composition scaled to 71% and filled the
+ * top 40% of the screen with 800px of empty lattice beneath it.
+ *
+ * A portrait tablet is closer to a large phone than to a desktop, and the flow
+ * layout is already built for narrow-and-tall. So the frame asks for landscape
+ * as well as width. 1024×768 and 1280×1024 still get it; 1024×1366 does not.
+ *
+ * Overriding the built-in variant rather than renaming it, so all 246 existing
+ * `lg:` usages keep meaning "the frame" and none of them had to be touched.
+ */
+
+/* ---------------------------------------------------------------------------
+   LES JETONS, EN VARIABLES
+
+   Ils ne sont plus lies a un generateur d utilitaires. Les classes que le
+   balisage emploie sont declarees plus bas, derivees de ce meme bloc — dont la
+   variante `lg`, qui n est pas la notre.
+   --------------------------------------------------------------------------- */
+:root {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-onest);
+  --font-mono: var(--font-3270);
+
+  --color-hero-surface: var(--hero-surface);
+  --color-hero-surface-lattice: var(--hero-surface-lattice);
+  --color-hero-content: var(--hero-content);
+  --color-hero-content-muted: var(--hero-content-muted);
+  --color-hero-content-faint: var(--hero-content-faint);
+  --color-hero-rule: var(--hero-rule);
+  --color-hero-accent: var(--hero-accent);
+  --color-hero-display: var(--hero-display);
+
+  --text-hero-caption: var(--hero-text-caption);
+  --text-hero-body: var(--hero-text-body);
+  --text-hero-lede: var(--hero-text-lede);
+  --text-hero-fine: var(--hero-text-fine);
+  --text-hero-chip: var(--hero-text-chip);
+  --text-hero-title: var(--hero-text-title);
+  --text-hero-display: var(--hero-text-display);
+  --text-hero-display-compact: var(--hero-text-display-compact);
+  --text-hero-display-tablet: var(--hero-text-display-tablet);
+
+  --leading-hero-display: var(--hero-leading-display);
+  --leading-hero-headline: var(--hero-leading-headline);
+  --leading-hero-caption: var(--hero-leading-caption);
+  --leading-hero-prose: var(--hero-leading-prose);
+  --tracking-hero-caption: var(--hero-tracking-caption);
+  --tracking-hero-display: var(--hero-tracking-display);
+
+  /* Leading floor for clipped TextEngine reveals — see
+     obsidian/frontend/text-engine.md → "Alignment & line-height". */
+  --leading-display: 1.1;
+
+  --ease-entrance: cubic-bezier(0.2, 0, 0, 1);
+}
+
+/* **The canvas colour is taken from `html`, deliberately.**
+   With a background only on `body`, the browser propagates *that* to the page
+   canvas — and `--background` is the app's light surface. Everything the page
+   itself paints is dark, so nobody sees it until the surface it is painted on
+   is exposed: a rubber-band scroll past either end, a pinch, the gutter beside
+   an over-scrolled page. On a tablet that reads as white flashing at the edge
+   of a black site. Naming the canvas here paints those areas in the page's own
+   surface; `body` keeps the app token for anything that is not this site. */
+html {
+  background-color: var(--hero-surface);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+}
+
+
+/* Adaptive scaling grid — two regimes, not three, and the split is the whole
+   idea. ADR-0024, revised.
+
+   **At and above 1024 the page reproduces the 1440x800 frame**, so the root
+   font-size is that frame's scale factor. Every rem in the `lg:` layout is a
+   frame unit, and one CSS rule makes the whole composition fill the viewport
+   — 71% of full size at 1024, 1:1 at 1440, and larger beyond, unbounded on
+   purpose since 1440 is the only desktop frame this project has.
+
+   **The scale is bound by whichever axis runs out first, not by the width
+   alone.** The frame is 1.8:1 and every screen in it is `h-200` — 50rem, the
+   frame's own 800 units — so a width-only scale makes the composition taller
+   than the window on any screen wider than 1.8:1, and the bottom of it is
+   simply cut off. That is not an edge case: a maximised browser on a
+   1920x1080 display is about 1920x950, an aspect of 2.02, where the frame
+   came out 1067 units tall in a 950-unit window and the hero's CTA and both
+   badges sat below the fold. Measured there, 45 elements crossed it.
+
+   So the height term: `16 * 100 / 800`vh, and the smaller of the two wins.
+   Below 1.8:1 the width binds and nothing about this rule changes; above it
+   the height binds, the frame is drawn at the size that fits and `mx-auto`
+   centres it, leaving a band of the page's own lattice down each side. The
+   alternative — letting the section keep the window's height while its
+   contents keep the frame's — is the drift ADR-0024 already rejected: the
+   pairs the frames draw level with each other come apart by exactly the
+   slack. A frame with a fixed aspect either scales to fit or is cropped.
+
+   `lvh`, not `vh` or `svh`, because the sections are `h-lvh` and the two
+   have to agree: a scale off the *small* viewport with sections off the
+   large one puts the slack back and re-opens the crop this closes.
+
+   **Below 1024 there is no frame to reproduce**, so the root font-size is a
+   plain 16px and the layout is ordinary responsive flow. Scaling here was
+   the original design and it was wrong in a way worth recording: a band
+   pinned to a base width is only correct *at* that base width and drifts
+   linearly away from it in both directions. The old three-band rule scaled
+   to 360 up to 640 and to 1024 above it, which meant a root font-size of
+   28.4px at 640 and 10.0px one pixel later — a 2.8× cliff mid-layout, with
+   headlines at 124px on a large phone and 8.8px card titles on a small
+   tablet. Nothing between 360, 1024 and 1440 was ever drawn correctly.
+
+   The one remaining discontinuity, at 1024, is deliberate: that is where the
+   page changes from flow to frame, so the two sides are different designs
+   and are not meant to match. It also fixes a real defect — the old rule gave
+   a 1024 viewport a 16px root *and* the `lg:` frame, so the 1440-wide
+   composition was drawn at full scale inside 1024px and everything past the
+   right edge, the collections lede among it, was simply off-screen.
+
+   Keep in sync with src/components/common/grid/grid.config.ts. */
+html {
+  /* 16 * 100 / 1440 across, 16 * 100 / 800 down — the frame's scale factor
+     on each axis. The smaller one is the one that fits. */
+  font-size: min(1.111111vw, 2lvh);
+}
+
+/* Mirrors the `lg` variant exactly: anything that is not the frame gets the
+   plain root, including a landscape-less tablet above 1024. Keep the two
+   conditions identical — a mismatch would draw the flow layout at the frame's
+   scale, which is how the collections lede once ended up off-screen. */
+@media (max-width: 1023.98px), (max-aspect-ratio: 0.9999/1) {
+  html {
+    font-size: 16px;
+  }
+}
+
+
+
+
+
+/* Background lattice of the hero frame (Figma 902:305): cells of
+   `--hero-surface-lattice` on `--hero-surface`, separated by a `--hero-lattice-gap`
+   line every `--hero-lattice-pitch`. Half-gap offset reproduces the frame's
+   1px bleed at the top-left edge. Not expressible with utilities, and the
+   values are token-backed, so it lives here as a single-purpose helper. */
+.hero-lattice {
+  background-color: var(--hero-surface-lattice);
+  background-image:
+    repeating-linear-gradient(
+      to right,
+      var(--hero-surface) 0 var(--hero-lattice-gap),
+      transparent var(--hero-lattice-gap) var(--hero-lattice-pitch)
+    ),
+    repeating-linear-gradient(
+      to bottom,
+      var(--hero-surface) 0 var(--hero-lattice-gap),
+      transparent var(--hero-lattice-gap) var(--hero-lattice-pitch)
+    );
+  background-position: var(--hero-lattice-offset) var(--hero-lattice-offset);
+}
+
+/* Dissolves the product canvas into the page at its bottom edge.
+
+   Once the canvas has finished sticking it comes to rest over exactly the
+   details screen, so its bottom edge lands on the seam with the section below —
+   and the product, which the frame runs off the bottom of that screen, was
+   being sliced there by a hard horizontal line. In Figma the two blocks are
+   separate artboards and that cut is never seen; on a continuous page it reads
+   as a join. The colours here are mask alpha stops, not paint. */
+/**
+ * Dissolves the bottom edge of a product canvas where the box clips it.
+ *
+ * **The shape matters more than the length, and both extremes were wrong.** A
+ * mask makes the garment *translucent* rather than merely dim, so whatever is
+ * behind it reads straight through — and behind it is a 10px lattice. A linear
+ * 160px ramp is 50% transparent 80px up, which ghosted the grid across the whole
+ * lower body of the jacket. Cutting the ramp to 48px stopped that and replaced
+ * it with the thing the fade exists to prevent: a hard horizontal line where the
+ * jacket is sliced off, running the full width of the screen.
+ *
+ * So: **opaque for the first third, then a long even decay**. 272px of travel;
+ * the first 87 hold full density and the remaining 185 do the dissolving —
+ * lengthened from 192 on the client's call, the hand-off to the next screen
+ * still reading as an edge rather than a dissolve.
+ *
+ * An earlier attempt pushed almost all of the change into the last 30px. That
+ * kept the ghosting away, but it made the transition itself abrupt — measured
+ * on a 1920 screen the ramp was only 60px, which is short enough to read as the
+ * straight cut it exists to hide. **The band that dissolves has to be wide
+ * enough to look like dissolving**, and the way to keep the ghosting out of it
+ * is to spend the first third of the travel at full density rather than to
+ * shorten the ramp.
+ *
+ * A canvas the box does not clip should not carry this at all — see the FAQ
+ * stage, whose model comes to rest well clear of its own bottom edge.
+ */
+.hero-stage-mask {
+  mask-image: linear-gradient(
+    to bottom,
+    #000 0,
+    #000 calc(100% - var(--hero-stage-fade)),
+    rgb(0 0 0 / 0.97) calc(100% - var(--hero-stage-fade) * 0.68),
+    rgb(0 0 0 / 0.82) calc(100% - var(--hero-stage-fade) * 0.52),
+    rgb(0 0 0 / 0.55) calc(100% - var(--hero-stage-fade) * 0.36),
+    rgb(0 0 0 / 0.26) calc(100% - var(--hero-stage-fade) * 0.20),
+    rgb(0 0 0 / 0.08) calc(100% - var(--hero-stage-fade) * 0.08),
+    transparent 100%
+  );
+}
+
+/* The pointer highlight, quantised to the lattice.
+
+   The glow layers are listed **last** so they paint underneath the two gap
+   gradients, and the gaps are opaque — the light therefore survives only inside
+   the cells and reads as squares coming up rather than as a soft blob. Two of
+   them: a tight one on the pointer and a slacker one trailing behind it, which
+   is what the shader this replaces used a lag uniform for.
+
+   Every surface draws it from the same two custom properties, in viewport
+   coordinates, so the page and the opaque panels standing on it light up in
+   step with no per-element geometry. */
+/**
+ * The pointer highlight, drawn into the lattice.
+ *
+ * **The falloff curve is what stops it reading as a blob**, not the radius. A
+ * plain `colour → transparent` radial is a linear cone: bright flat core, and a
+ * rim where it reaches zero that the eye finds and traces, so the whole thing
+ * reads as a patch stuck on top of the grid. Three things fix that and none of
+ * them is "make it dimmer":
+ *
+ * - a **convex** decay through explicit stops, so brightness falls fastest near
+ *   the middle and there is no flat core to see the edge of;
+ * - a second, much wider halo at a sixth of the strength, whose only job is to
+ *   dissolve the first one's rim into the page;
+ * - the same treatment on the trailing pair, which otherwise arrives as a
+ *   sharper second patch chasing the first.
+ *
+ * The two opaque bar layers are listed first, so they paint **over** the light
+ * and quantise it to the cells — the highlight is the grid brightening, never a
+ * lamp shining across it.
+ */
+.hero-lattice-glow {
+  background-image:
+    repeating-linear-gradient(
+      to right,
+      var(--hero-surface) 0 var(--hero-lattice-gap),
+      transparent var(--hero-lattice-gap) var(--hero-lattice-pitch)
+    ),
+    repeating-linear-gradient(
+      to bottom,
+      var(--hero-surface) 0 var(--hero-lattice-gap),
+      transparent var(--hero-lattice-gap) var(--hero-lattice-pitch)
+    ),
+    radial-gradient(
+      circle var(--hero-lattice-reach) at var(--hero-pointer-x)
+        var(--hero-pointer-y),
+      var(--raw-color-glow-1) 0%,
+      var(--raw-color-glow-2) 26%,
+      var(--raw-color-glow-3) 52%,
+      var(--raw-color-glow-4) 74%,
+      var(--raw-color-glow-5) 89%,
+      transparent 100%
+    ),
+    radial-gradient(
+      circle calc(var(--hero-lattice-reach) * 1.75) at var(--hero-pointer-x)
+        var(--hero-pointer-y),
+      var(--raw-color-glow-wide-1) 0%,
+      var(--raw-color-glow-wide-2) 48%,
+      transparent 100%
+    ),
+    radial-gradient(
+      circle calc(var(--hero-lattice-reach) * 1.2) at var(--hero-pointer-lag-x)
+        var(--hero-pointer-lag-y),
+      var(--raw-color-glow-lag-1) 0%,
+      var(--raw-color-glow-lag-2) 52%,
+      transparent 100%
+    );
+  background-position:
+    var(--hero-lattice-offset) var(--hero-lattice-offset),
+    var(--hero-lattice-offset) var(--hero-lattice-offset),
+    0 0,
+    0 0,
+    0 0;
+}
+
+/* An opaque lattice panel — the fill the details and technology frames put
+   behind their rows, and the FAQ frame behind its questions. Measured off the
+   frames' own renders: inside those boxes the median pixel is 13, the lattice
+   cell value, while just outside it is the product. They are not transparent
+   cards over the artwork; they knock it out. `fixed` attachment keeps the glow
+   in the viewport's frame, which is what puts every panel in phase with the
+   page behind it. */
+/**
+ * Enlarges a control's touch target without moving anything.
+ *
+ * The frame draws for a cursor: nav labels resolve to an 11px-tall box, the
+ * collections view switches to 12×12, the newsletter's arrow to 10×6. Those are
+ * fine for a mouse and unusable with a thumb, and simply making them bigger
+ * would be redrawing the design. So the *hit* area grows and the drawing does
+ * not — an empty `::before` stretched past the element's own box, which the
+ * browser hit-tests but nobody sees.
+ *
+ * Tune per use with `--tap-y` / `--tap-x`; keep the vertical inset at or under
+ * half the gap to the neighbour, or two targets start fighting over the same
+ * pixels. Applied `max-lg:` — the frame has a cursor and does not need it.
+ *
+ * It does inflate the element's own `scrollWidth`, being an absolutely
+ * positioned child hanging outside the box. Harmless here — measured, the page
+ * gains no sideways scroll at any width — but do not put this inside anything
+ * that scrolls horizontally, and do not read `scrollWidth` on a control that
+ * carries it and conclude its text is cut.
+ */
+/* **Even lines on a narrow column.** Below `sm` a paragraph is twenty-nine
+   characters wide, and greedy wrapping — fill the line, break, repeat — leaves
+   a rag that swings by a third and breaks words at their hyphens. The browser's
+   own balancer sets the whole paragraph at once and picks the line set with the
+   least difference between lines; measured here it took a page of mobile prose
+   from 18 lines ending on a short word to 5, and removed the "ALL-/DAY" break
+   outright. It applies to short paragraphs only — Chrome stops at six lines —
+   which is exactly what this page has. */
+.prose-even {
+  text-wrap: balance;
+}
+
+.tap-area {
+  position: relative;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: calc(var(--tap-y, 0.75rem) * -1) calc(var(--tap-x, 0.5rem) * -1);
+  }
+}
+
+/**
+ * The lattice as a surface: cells, bars and the pointer highlight, in one
+ * element.
+ *
+ * **The page itself wears this**, not only the cards — it is the surface the
+ * cards are imitating, and drawing it here is what lets the page own exactly
+ * one grid. The bars are `scroll`, so they are anchored to the element's own
+ * box and travel with the document; the three highlight layers are `fixed`, so
+ * they stay under the cursor wherever the page has got to. Because the bars are
+ * listed first they paint over the light and quantise it into cells.
+ *
+ * One value per layer, and the count matters: a short list is *repeated*, so
+ * dropping a value silently hands the last layer `scroll` and pulls the
+ * highlight out of the viewport's frame.
+ *
+ * A transform on the element breaks the `fixed` half — it becomes the
+ * containing block — so do not put this on anything a spring is animating.
+ */
+.hero-lattice-panel {
+  background-color: var(--hero-surface-lattice);
+  background-image:
+    repeating-linear-gradient(
+      to right,
+      var(--hero-surface) 0 var(--hero-lattice-gap),
+      transparent var(--hero-lattice-gap) var(--hero-lattice-pitch)
+    ),
+    repeating-linear-gradient(
+      to bottom,
+      var(--hero-surface) 0 var(--hero-lattice-gap),
+      transparent var(--hero-lattice-gap) var(--hero-lattice-pitch)
+    ),
+    radial-gradient(
+      circle var(--hero-lattice-reach) at var(--hero-pointer-x)
+        var(--hero-pointer-y),
+      var(--raw-color-glow-1) 0%,
+      var(--raw-color-glow-2) 26%,
+      var(--raw-color-glow-3) 52%,
+      var(--raw-color-glow-4) 74%,
+      var(--raw-color-glow-5) 89%,
+      transparent 100%
+    ),
+    radial-gradient(
+      circle calc(var(--hero-lattice-reach) * 1.75) at var(--hero-pointer-x)
+        var(--hero-pointer-y),
+      var(--raw-color-glow-wide-1) 0%,
+      var(--raw-color-glow-wide-2) 48%,
+      transparent 100%
+    ),
+    radial-gradient(
+      circle calc(var(--hero-lattice-reach) * 1.2) at var(--hero-pointer-lag-x)
+        var(--hero-pointer-lag-y),
+      var(--raw-color-glow-lag-1) 0%,
+      var(--raw-color-glow-lag-2) 52%,
+      transparent 100%
+    );
+  background-position:
+    var(--hero-lattice-offset) var(--hero-lattice-offset),
+    var(--hero-lattice-offset) var(--hero-lattice-offset),
+    0 0,
+    0 0,
+    0 0;
+  background-attachment: scroll, scroll, fixed, fixed, fixed;
+}
+
+/**
+ * The page's own surface, as two layers instead of one painted element.
+ *
+ * **Same picture, same order, a fifth of the cost** ([[decisions-log]] ADR-0047).
+ * `hero-lattice-panel` is right for a card and wrong for the page: its three
+ * highlight layers are `background-attachment: fixed`, and a fixed background
+ * cannot be scrolled by the compositor — it has to be *repainted* every frame,
+ * over the element's whole visible area. On a card that area is a card. On the
+ * page shell it is the entire viewport, every frame, for the length of the
+ * document. Measured at 4× CPU throttle, that one element held the content
+ * sections at 16ms frames; splitting it takes them to 8.5.
+ *
+ * So the shell keeps only its colour, and the two halves it used to paint
+ * become elements with the positioning each actually wanted:
+ *
+ * - `hero-lattice-beam` is the pointer highlight, `position: fixed`. It was
+ *   viewport-anchored before and still is — but as a composited layer that
+ *   scrolling does not touch, rather than as a background that scrolling
+ *   invalidates.
+ * - `hero-lattice-bars` is the grid, `position: absolute` across the shell.
+ *   It was `scroll`-attached to this same box before, so it is the same
+ *   rectangle with the same origin.
+ *
+ * **Order is load-bearing and it is now tree order.** The bars must paint over
+ * the light — that is what quantises the highlight into cells instead of
+ * letting a lamp shine across the grid — so the beam element comes first and
+ * the bars second, and both must stay ahead of the page's content. Swapping
+ * them does not error; it just stops looking like the page.
+ */
+.hero-lattice-shell {
+  background-color: var(--hero-surface-lattice);
+}
+
+.hero-lattice-beam {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(
+      circle var(--hero-lattice-reach) at var(--hero-pointer-x)
+        var(--hero-pointer-y),
+      var(--raw-color-glow-1) 0%,
+      var(--raw-color-glow-2) 26%,
+      var(--raw-color-glow-3) 52%,
+      var(--raw-color-glow-4) 74%,
+      var(--raw-color-glow-5) 89%,
+      transparent 100%
+    ),
+    radial-gradient(
+      circle calc(var(--hero-lattice-reach) * 1.75) at var(--hero-pointer-x)
+        var(--hero-pointer-y),
+      var(--raw-color-glow-wide-1) 0%,
+      var(--raw-color-glow-wide-2) 48%,
+      transparent 100%
+    ),
+    radial-gradient(
+      circle calc(var(--hero-lattice-reach) * 1.2) at var(--hero-pointer-lag-x)
+        var(--hero-pointer-lag-y),
+      var(--raw-color-glow-lag-1) 0%,
+      var(--raw-color-glow-lag-2) 52%,
+      transparent 100%
+    );
+}
+
+/**
+ * No pointer, no beam. `PointerField` bails on exactly this query and never
+ * sets the variables, so the gradients stay parked at `-100vw/-100vh` and paint
+ * nothing — but a full-viewport fixed element still costs a composited layer to
+ * hold nothing at all. Matching the query the field itself uses keeps the two
+ * from drifting apart.
+ */
+@media (hover: none) and (pointer: coarse) {
+  .hero-lattice-beam {
+    display: none;
+  }
+}
+
+.hero-lattice-bars {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    repeating-linear-gradient(
+      to right,
+      var(--hero-surface) 0 var(--hero-lattice-gap),
+      transparent var(--hero-lattice-gap) var(--hero-lattice-pitch)
+    ),
+    repeating-linear-gradient(
+      to bottom,
+      var(--hero-surface) 0 var(--hero-lattice-gap),
+      transparent var(--hero-lattice-gap) var(--hero-lattice-pitch)
+    );
+  background-position: var(--hero-lattice-offset) var(--hero-lattice-offset);
+}
+
+/* ============================================================================
+   CE QUE LA REMISE A ZERO DE L AUTRE MOTEUR FOURNISSAIT
+
+   Le gabarit a ete ecrit au-dessus d une remise a zero qui n est pas la notre,
+   et il comptait dessus sans le dire — c est la nature meme d une remise a
+   zero. Les regles ci-dessous sont la difference exacte entre les deux,
+   relevee en comparant les styles calcules d un jeu d elements dans les deux
+   pages, et non devinee.
+
+   Sans elles, la premiere chose qu on voit est que **tous les liens
+   redeviennent bleus et soulignes** : le navigateur reprend la main sur une
+   ancre dont personne ne dit plus rien.
+
+   Ce bloc appartient au gabarit, pas au systeme. Ajouter ces regles a la
+   remise a zero d `@odoro-cli/libs` changerait le rendu de tout projet deja
+   livre, pour le confort d un portage.
+   ========================================================================== */
+
+a {
+  color: inherit;
+  text-decoration: inherit;
+}
+
+button,
+input,
+optgroup,
+select,
+textarea {
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  letter-spacing: inherit;
+  background-color: transparent;
+  border-radius: 0;
+}
+
+button,
+[type='button'],
+[type='reset'],
+[type='submit'] {
+  appearance: button;
+}
+
+/* La couleur de filet par defaut suit l encre, au lieu d un gris fixe : c est
+   ce qui rend `border` seul utilisable sans dire de quelle couleur. */
+*,
+::before,
+::after {
+  border-color: currentColor;
+}
+
+/* Une image posee dans une ligne de texte s aligne sur le milieu, pas sur la
+   ligne de base : sans cela elle laisse sous elle le jambage d une lettre. */
+img,
+svg,
+video,
+canvas,
+audio,
+iframe,
+embed,
+object {
+  vertical-align: middle;
+}
+
+/* Notre socle borne les `svg` a la largeur de leur parent ; celui d origine
+   non. Un sigle dessine plus large que sa boite s en trouvait retreci. */
+svg {
+  max-width: none;
+}
+
+hr {
+  height: 0;
+  margin: 0;
+  color: inherit;
+  border-top-width: 1px;
+}
+
+/* Notre socle donne la main au survol d un bouton ; celui d origine laissait la
+   fleche, comme le fait le navigateur seul. C est visible a chaque survol. */
+button,
+[role='button'] {
+  cursor: default;
+}
+
+/* Une image qui porte ses dimensions en attributs — `width="11" height="11"` —
+   et dont le CSS ne contraint que la largeur gardait chez nous sa hauteur
+   declaree, au lieu de la deduire du rapport. Les quatre crochets du hero de
+   `parfum` faisaient 8x11 au lieu de 8x8.
+
+   Le socle d origine posait `height: auto` ; le notre s en tient a la largeur.
+   Les utilitaires de hauteur sont ecrits apres cette feuille et l emportent
+   toujours. */
+img,
+video {
+  max-width: 100%;
+  height: auto;
+}
+
+
+/* ============================================================================
+   LES CLASSES QUE LE GENERATEUR NE PRODUIT PAS
+
+   Chaque selecteur repete sa classe : les utilitaires du systeme sont ecrits
+   **apres** cette feuille dans le paquet final, et a specificite egale c est le
+   dernier qui gagne.
+   ========================================================================== */
+
+.pf--mt-100.pf--mt-100 { margin-top: -25rem; }
+.pf--scale-100.pf--scale-100 { scale: 1; }
+.pf--scale-x-100.pf--scale-x-100 { scale: -1 1; }
+.pf-aspect-4-3.pf-aspect-4-3 { aspect-ratio: 4 / 3; }
+.pf-h-200.pf-h-200 { height: 50rem; }
+.pf-inset-x-10.pf-inset-x-10 { left: 2.5rem; right: 2.5rem; }
+.pf-min-h-200.pf-min-h-200 { min-height: 50rem; }
+.pf-w-360.pf-w-360 { width: 90rem; }
+.pf-font-sans.pf-font-sans { font-family: var(--font-onest); }
+.pf-font-mono.pf-font-mono { font-family: var(--font-3270); }
+.pf-ease-entrance.pf-ease-entrance { transition-timing-function: cubic-bezier(0.2, 0, 0, 1); }
+.pf-checked-bg-hero-content.pf-checked-bg-hero-content:checked { background-color: var(--hero-content); }
+.pf--scale-y-100.pf--scale-y-100 { scale: 1 -1; }
+.pf--bottom-3.pf--bottom-3 { bottom: -0.75rem; }
+.pf--left-3.pf--left-3 { left: -0.75rem; }
+.pf--right-2.pf--right-2 { right: -0.5rem; }
+.pf--right-3.pf--right-3 { right: -0.75rem; }
+.pf--rotate-45.pf--rotate-45 { rotate: -45deg; }
+.pf--top-3.pf--top-3 { top: -0.75rem; }
+.pf--translate-x-1.pf--translate-x-1 { --pf-tx: -0.25rem; translate: var(--pf-tx, 0) var(--pf-ty, 0); }
+.pf--translate-x-1-2.pf--translate-x-1-2 { --pf-tx: -50%; translate: var(--pf-tx, 0) var(--pf-ty, 0); }
+.pf--translate-y-1.pf--translate-y-1 { --pf-ty: -0.25rem; translate: var(--pf-tx, 0) var(--pf-ty, 0); }
+.pf--translate-y-1-2.pf--translate-y-1-2 { --pf-ty: -50%; translate: var(--pf-tx, 0) var(--pf-ty, 0); }
+.pf--translate-y-7px.pf--translate-y-7px { --pf-ty: -7px; translate: var(--pf-tx, 0) var(--pf-ty, 0); }
+.pf--tap-x-0-75rem.pf--tap-x-0-75rem { --tap-x: 0.75rem; }
+.pf--tap-y-0-75rem.pf--tap-y-0-75rem { --tap-y: 0.75rem; }
+.pf--webkit-appearance-none.pf--webkit-appearance-none { -webkit-appearance: none; }
+.pf--text-box-trim-both-cap-alphabetic.pf--text-box-trim-both-cap-alphabetic { text-box: trim-both cap alphabetic; }
+.pf-aspect-4-5.pf-aspect-4-5 { aspect-ratio: 4 / 5; }
+.pf-backface-hidden.pf-backface-hidden { backface-visibility: hidden; }
+.pf-bg-background.pf-bg-background { background-color: var(--background); }
+.pf-bg-background-95.pf-bg-background-95 { background-color: color-mix(in srgb, var(--background) 95%, transparent); }
+.pf-bg-black-40.pf-bg-black-40 { background-color: color-mix(in srgb, #000 40%, transparent); }
+.pf-bg-foreground.pf-bg-foreground { background-color: var(--foreground); }
+.pf-bg-foreground-15.pf-bg-foreground-15 { background-color: color-mix(in srgb, var(--foreground) 15%, transparent); }
+.pf-bg-hero-content.pf-bg-hero-content { background-color: var(--hero-content); }
+.pf-bg-hero-rule.pf-bg-hero-rule { background-color: var(--hero-rule); }
+.pf-border-foreground-10.pf-border-foreground-10 { border-color: color-mix(in srgb, var(--foreground) 10%, transparent); }
+.pf-border-foreground-15.pf-border-foreground-15 { border-color: color-mix(in srgb, var(--foreground) 15%, transparent); }
+.pf-border-hero-content.pf-border-hero-content { border-color: var(--hero-content); }
+.pf-border-hero-content-muted.pf-border-hero-content-muted { border-color: var(--hero-content-muted); }
+.pf-border-hero-rule.pf-border-hero-rule { border-color: var(--hero-rule); }
+.pf-duration-500.pf-duration-500 { transition-duration: 500ms; }
+.pf-duration-700.pf-duration-700 { transition-duration: 700ms; }
+.pf-duration-var-duration-fast.pf-duration-var-duration-fast { transition-duration: var(--duration-fast); }
+.pf-duration-var-duration-normal.pf-duration-var-duration-normal { transition-duration: var(--duration-normal); }
+.pf-focus-visible-outline-2.pf-focus-visible-outline-2:focus-visible { outline-width: 2px; outline-style: solid; }
+.pf-focus-visible-outline-foreground.pf-focus-visible-outline-foreground:focus-visible { outline-color: var(--foreground); }
+.pf-focus-visible-outline-hero-content.pf-focus-visible-outline-hero-content:focus-visible { outline-color: var(--hero-content); }
+.pf-focus-visible-outline-none.pf-focus-visible-outline-none:focus-visible { outline: 2px solid transparent; outline-offset: 2px; }
+.pf-focus-visible-outline-offset-2.pf-focus-visible-outline-offset-2:focus-visible { outline-offset: 2px; }
+.pf-focus-within-outline-2.pf-focus-within-outline-2:focus-within { outline-width: 2px; outline-style: solid; }
+.pf-focus-within-outline-hero-content.pf-focus-within-outline-hero-content:focus-within { outline-color: var(--hero-content); }
+.pf-focus-within-outline-offset-2.pf-focus-within-outline-offset-2:focus-within { outline-offset: 2px; }
+.pf-focus-absolute.pf-focus-absolute:focus { position: absolute; }
+.pf-focus-bg-hero-surface.pf-focus-bg-hero-surface:focus { background-color: var(--hero-surface); }
+.pf-focus-left-2.pf-focus-left-2:focus { left: 0.5rem; }
+.pf-focus-px-3.pf-focus-px-3:focus { padding-inline: 0.75rem; }
+.pf-focus-py-2.pf-focus-py-2:focus { padding-block: 0.5rem; }
+.pf-focus-text-hero-content.pf-focus-text-hero-content:focus { color: var(--hero-content); }
+.pf-focus-top-2.pf-focus-top-2:focus { top: 0.5rem; }
+.pf-focus-z-50.pf-focus-z-50:focus { z-index: 50; }
+.pf-gap-max-0-5rem-8px.pf-gap-max-0-5rem-8px { gap: max(0.5rem,8px); }
+.pf-gap-max-1-25rem-20px.pf-gap-max-1-25rem-20px { gap: max(1.25rem,20px); }
+.group:focus-visible .pf-group-focus-visible-opacity-100.pf-group-focus-visible-opacity-100 { opacity: 1; }
+.group:focus-visible .pf-group-focus-visible-translate-x-0.pf-group-focus-visible-translate-x-0 { --pf-tx: 0rem; translate: var(--pf-tx, 0) var(--pf-ty, 0); }
+.group:focus-visible .pf-group-focus-visible-translate-x-1.pf-group-focus-visible-translate-x-1 { --pf-tx: 0.25rem; translate: var(--pf-tx, 0) var(--pf-ty, 0); }
+.group:focus-visible .pf-group-focus-visible-translate-y-0.pf-group-focus-visible-translate-y-0 { --pf-ty: 0rem; translate: var(--pf-tx, 0) var(--pf-ty, 0); }
+.group:focus-within .pf-group-focus-within-opacity-0.pf-group-focus-within-opacity-0 { opacity: 0; }
+.group:focus-within .pf-group-focus-within-opacity-100.pf-group-focus-within-opacity-100 { opacity: 1; }
+.group:focus-within .pf-group-focus-within-pointer-events-auto.pf-group-focus-within-pointer-events-auto { pointer-events: auto; }
+.group:focus-within .pf-group-focus-within-text-hero-content.pf-group-focus-within-text-hero-content { color: var(--hero-content); }
+.group:hover .pf-group-hover-opacity-0.pf-group-hover-opacity-0 { opacity: 0; }
+.group:hover .pf-group-hover-opacity-100.pf-group-hover-opacity-100 { opacity: 1; }
+.group:hover .pf-group-hover-pointer-events-auto.pf-group-hover-pointer-events-auto { pointer-events: auto; }
+.group:hover .pf-group-hover-text-hero-content.pf-group-hover-text-hero-content { color: var(--hero-content); }
+.group:hover .pf-group-hover-translate-x-0.pf-group-hover-translate-x-0 { --pf-tx: 0rem; translate: var(--pf-tx, 0) var(--pf-ty, 0); }
+.group:hover .pf-group-hover-translate-x-1.pf-group-hover-translate-x-1 { --pf-tx: 0.25rem; translate: var(--pf-tx, 0) var(--pf-ty, 0); }
+.group:hover .pf-group-hover-translate-y-0.pf-group-hover-translate-y-0 { --pf-ty: 0rem; translate: var(--pf-tx, 0) var(--pf-ty, 0); }
+.pf-h-1-25.pf-h-1-25 { height: 0.3125rem; }
+.pf-h-111-5.pf-h-111-5 { height: 27.875rem; }
+.pf-h-13.pf-h-13 { height: 3.25rem; }
+.pf-h-5-25.pf-h-5-25 { height: 1.3125rem; }
+.pf-h-6-25.pf-h-6-25 { height: 1.5625rem; }
+.pf-h-9-25.pf-h-9-25 { height: 2.3125rem; }
+.pf-h-18px.pf-h-18px { height: 18px; }
+.pf-hover-bg-foreground-5.pf-hover-bg-foreground-5:hover { background-color: color-mix(in srgb, var(--foreground) 5%, transparent); }
+.pf-hover-border-hero-content.pf-hover-border-hero-content:hover { border-color: var(--hero-content); }
+.pf-hover-text-foreground-70.pf-hover-text-foreground-70:hover { color: color-mix(in srgb, var(--foreground) 70%, transparent); }
+.pf-hover-text-hero-content.pf-hover-text-hero-content:hover { color: var(--hero-content); }
+.pf-inset-x-5.pf-inset-x-5 { left: 1.25rem; right: 1.25rem; }
+.pf-last-border-b.pf-last-border-b:last-child { border-bottom-width: 1px; }
+.pf-leading-hero-caption.pf-leading-hero-caption { line-height: var(--hero-leading-caption); }
+.pf-leading-hero-display.pf-leading-hero-display { line-height: var(--hero-leading-display); }
+.pf-leading-hero-headline.pf-leading-hero-headline { line-height: var(--hero-leading-headline); }
+.pf-leading-hero-prose.pf-leading-hero-prose { line-height: var(--hero-leading-prose); }
+.pf-leading-none.pf-leading-none { line-height: 1; }
+.pf-left-3px.pf-left-3px { left: 3px; }
+.pf-max-h-calc-100dvh-1-5rem.pf-max-h-calc-100dvh-1-5rem { max-height: calc(100dvh - 1.5rem); }
+.pf-max-w-36ch.pf-max-w-36ch { max-width: 36ch; }
+.pf-max-w-560px.pf-max-w-560px { max-width: 560px; }
+.pf-mb-calc-var-text-hero-body-0-155.pf-mb-calc-var-text-hero-body-0-155 { margin-bottom: calc(var(--text-hero-body)*0.155); }
+.pf-min-h-calc-100svh-5rem.pf-min-h-calc-100svh-5rem { min-height: calc(100svh - 5rem); }
+.pf-min-h-lvh.pf-min-h-lvh { min-height: 100lvh; }
+.pf-overflow-x-clip.pf-overflow-x-clip { overflow-x: clip; }
+.pf-placeholder-text-hero-content.pf-placeholder-text-hero-content::placeholder { color: var(--hero-content); }
+.pf-pr-max-1rem-16px.pf-pr-max-1rem-16px { padding-right: max(1rem,16px); }
+.pf-px-max-1rem-16px.pf-px-max-1rem-16px { padding-inline: max(1rem,16px); }
+.pf-py-max-0-875rem-14px.pf-py-max-0-875rem-14px { padding-block: max(0.875rem,14px); }
+.pf-rounded-10px.pf-rounded-10px { border-radius: 10px; }
+.pf-shadow.pf-shadow { box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1); }
+.pf-size-3-25.pf-size-3-25 { width: 0.8125rem; height: 0.8125rem; }
+.pf-size-74-25.pf-size-74-25 { width: 18.5625rem; height: 18.5625rem; }
+.pf-text-background.pf-text-background { color: var(--background); }
+.pf-text-foreground.pf-text-foreground { color: var(--foreground); }
+.pf-text-foreground-60.pf-text-foreground-60 { color: color-mix(in srgb, var(--foreground) 60%, transparent); }
+.pf-text-foreground-70.pf-text-foreground-70 { color: color-mix(in srgb, var(--foreground) 70%, transparent); }
+.pf-text-hero-body.pf-text-hero-body { font-size: var(--hero-text-body); }
+.pf-text-hero-caption.pf-text-hero-caption { font-size: var(--hero-text-caption); }
+.pf-text-hero-chip.pf-text-hero-chip { font-size: var(--hero-text-chip); }
+.pf-text-hero-content.pf-text-hero-content { color: var(--hero-content); }
+.pf-text-hero-content-faint.pf-text-hero-content-faint { color: var(--hero-content-faint); }
+.pf-text-hero-content-muted.pf-text-hero-content-muted { color: var(--hero-content-muted); }
+.pf-text-hero-display-compact.pf-text-hero-display-compact { font-size: var(--hero-text-display-compact); }
+.pf-text-hero-rule.pf-text-hero-rule { color: var(--hero-rule); }
+.pf-text-hero-title.pf-text-hero-title { font-size: var(--hero-text-title); }
+.pf-top-3px.pf-top-3px { top: 3px; }
+.pf-top-var-hero-stage-top-0px.pf-top-var-hero-stage-top-0px { top: var(--hero-stage-top,0px); }
+.pf-tracking-hero-caption.pf-tracking-hero-caption { letter-spacing: var(--hero-tracking-caption); }
+.pf-tracking-hero-display.pf-tracking-hero-display { letter-spacing: var(--hero-tracking-display); }
+.pf-transform-gpu.pf-transform-gpu { transform: translateZ(0); }
+.pf-translate-y-7px.pf-translate-y-7px { --pf-ty: 7px; translate: var(--pf-tx, 0) var(--pf-ty, 0); }
+.pf-w-104-25.pf-w-104-25 { width: 26.0625rem; }
+.pf-w-27-5.pf-w-27-5 { width: 6.875rem; }
+.pf-w-32-5.pf-w-32-5 { width: 8.125rem; }
+.pf-w-54-25.pf-w-54-25 { width: 13.5625rem; }
+.pf-w-18px.pf-w-18px { width: 18px; }
+.pf-w-calc-100vw-1-5rem.pf-w-calc-100vw-1-5rem { width: calc(100vw - 1.5rem); }
+.pf-z-100.pf-z-100 { z-index: 100; }
+.pf-z-100.pf-z-100 { z-index: 100; }
+.pf-z-60.pf-z-60 { z-index: 60; }
+.pf-z-70.pf-z-70 { z-index: 70; }
+
+@media (min-width: 640px) {
+  .pf-sm-li-last-child-col-span-2.pf-sm-li-last-child-col-span-2>li:last-child { grid-column: span 2 / span 2; }
+  .pf-sm-aspect-4-3.pf-sm-aspect-4-3 { aspect-ratio: 4 / 3; }
+  .pf-sm-h-11-5.pf-sm-h-11-5 { height: 2.875rem; }
+  .pf-sm-size-2-75.pf-sm-size-2-75 { width: 0.6875rem; height: 0.6875rem; }
+  .pf-sm-text-hero-body.pf-sm-text-hero-body { font-size: var(--hero-text-body); }
+  .pf-sm-text-hero-display-tablet.pf-sm-text-hero-display-tablet { font-size: var(--hero-text-display-tablet); }
+  .pf-sm-text-hero-lede.pf-sm-text-hero-lede { font-size: var(--hero-text-lede); }
+  .pf-sm-w-420px.pf-sm-w-420px { width: 420px; }
+}
+
+@media (min-width: 768px) {
+  .pf-md-aspect-16-9.pf-md-aspect-16-9 { aspect-ratio: 16 / 9; }
+  .pf-md-text-hero-lede.pf-md-text-hero-lede { font-size: var(--hero-text-lede); }
+}
+
+@media (min-width: 1024px) and (min-aspect-ratio: 1/1) {
+  .pf-lg-left-max-1-1875rem-19px.pf-lg-left-max-1-1875rem-19px { left: max(1.1875rem,19px); }
+  .pf-lg-left-max-1-3125rem-21px.pf-lg-left-max-1-3125rem-21px { left: max(1.3125rem,21px); }
+  .pf-lg-left-max-4-125rem-66px.pf-lg-left-max-4-125rem-66px { left: max(4.125rem,66px); }
+  .pf-lg-left-max-5-5rem-88px.pf-lg-left-max-5-5rem-88px { left: max(5.5rem,88px); }
+  .pf-lg-left-max-5-625rem-90px.pf-lg-left-max-5-625rem-90px { left: max(5.625rem,90px); }
+  .pf-lg-left-max-6-875rem-110px.pf-lg-left-max-6-875rem-110px { left: max(6.875rem,110px); }
+  .pf-lg-top-3-25.pf-lg-top-3-25 { top: 0.8125rem; }
+  .pf-lg-top-3-5.pf-lg-top-3-5 { top: 0.875rem; }
+  .pf-lg-top-3-75.pf-lg-top-3-75 { top: 0.9375rem; }
+  .pf-lg-top-5-25.pf-lg-top-5-25 { top: 1.3125rem; }
+  .pf-lg-w-max-13-875rem-222px.pf-lg-w-max-13-875rem-222px { width: max(13.875rem,222px); }
+  .pf-lg-w-max-16-4375rem-263px.pf-lg-w-max-16-4375rem-263px { width: max(16.4375rem,263px); }
+  .pf-lg-w-max-3-1875rem-51px.pf-lg-w-max-3-1875rem-51px { width: max(3.1875rem,51px); }
+  .pf-lg-w-max-7-0625rem-113px.pf-lg-w-max-7-0625rem-113px { width: max(7.0625rem,113px); }
+  .pf-lg-w-max-8-25rem-132px.pf-lg-w-max-8-25rem-132px { width: max(8.25rem,132px); }
+  .pf-lg-border-l.pf-lg-border-l { border-left-width: 1px; }
+  .pf-lg-flex-1.pf-lg-flex-1 { flex: 1 1 0%; }
+  .pf-lg-flex-none.pf-lg-flex-none { flex: none; }
+  .pf-lg-flex-nowrap.pf-lg-flex-nowrap { flex-wrap: nowrap; }
+  .pf-lg-ml-95.pf-lg-ml-95 { margin-left: -23.75rem; }
+  .pf-lg-mt-100.pf-lg-mt-100 { margin-top: -25rem; }
+  .pf-lg-mt-104.pf-lg-mt-104 { margin-top: -26rem; }
+  .pf-lg-mt-200.pf-lg-mt-200 { margin-top: -50rem; }
+  .pf-lg-mt-72-25.pf-lg-mt-72-25 { margin-top: -18.0625rem; }
+  .pf-lg-translate-x-1-2.pf-lg-translate-x-1-2 { --pf-tx: -50%; translate: var(--pf-tx, 0) var(--pf-ty, 0); }
+  .pf-lg-translate-y-1-2.pf-lg-translate-y-1-2 { --pf-ty: -50%; translate: var(--pf-tx, 0) var(--pf-ty, 0); }
+  .pf-lg-absolute.pf-lg-absolute { position: absolute; }
+  .pf-lg-aspect-auto.pf-lg-aspect-auto { aspect-ratio: auto; }
+  .pf-lg-block.pf-lg-block { display: block; }
+  .pf-lg-border-hero-rule.pf-lg-border-hero-rule { border-color: var(--hero-rule); }
+  .pf-lg-bottom-10.pf-lg-bottom-10 { bottom: 2.5rem; }
+  .pf-lg-bottom-29-5.pf-lg-bottom-29-5 { bottom: 7.375rem; }
+  .pf-lg-bottom-auto.pf-lg-bottom-auto { bottom: auto; }
+  .pf-lg-contents.pf-lg-contents { display: contents; }
+  .pf-lg-flex.pf-lg-flex { display: flex; }
+  .pf-lg-flex-col.pf-lg-flex-col { flex-direction: column; }
+  .pf-lg-flex-row.pf-lg-flex-row { flex-direction: row; }
+  .pf-lg-gap-0.pf-lg-gap-0 { gap: 0rem; }
+  .pf-lg-gap-12.pf-lg-gap-12 { gap: 3rem; }
+  .pf-lg-gap-16.pf-lg-gap-16 { gap: 4rem; }
+  .pf-lg-gap-6.pf-lg-gap-6 { gap: 1.5rem; }
+  .pf-lg-gap-8.pf-lg-gap-8 { gap: 2rem; }
+  .pf-lg-gap-9.pf-lg-gap-9 { gap: 2.25rem; }
+  .pf-lg-gap-max-0-75rem-12px.pf-lg-gap-max-0-75rem-12px { gap: max(0.75rem,12px); }
+  .pf-lg-h-0.pf-lg-h-0 { height: 0rem; }
+  .pf-lg-h-13-5.pf-lg-h-13-5 { height: 3.375rem; }
+  .pf-lg-h-154-25.pf-lg-h-154-25 { height: 38.5625rem; }
+  .pf-lg-h-154-75.pf-lg-h-154-75 { height: 38.6875rem; }
+  .pf-lg-h-16-5.pf-lg-h-16-5 { height: 4.125rem; }
+  .pf-lg-h-200.pf-lg-h-200 { height: 50rem; }
+  .pf-lg-h-28.pf-lg-h-28 { height: 7rem; }
+  .pf-lg-h-28-5.pf-lg-h-28-5 { height: 7.125rem; }
+  .pf-lg-h-3-5.pf-lg-h-3-5 { height: 0.875rem; }
+  .pf-lg-h-4-75.pf-lg-h-4-75 { height: 1.1875rem; }
+  .pf-lg-h-87-5.pf-lg-h-87-5 { height: 21.875rem; }
+  .pf-lg-h-calc-var-technology-region-50rem.pf-lg-h-calc-var-technology-region-50rem { height: calc(var(--technology-region)*50rem); }
+  .pf-lg-h-max-4-25rem-68px.pf-lg-h-max-4-25rem-68px { height: max(4.25rem,68px); }
+  .pf-lg-h-lvh.pf-lg-h-lvh { height: 100lvh; }
+  .pf-lg-hidden.pf-lg-hidden { display: none; }
+  .pf-lg-inset-0.pf-lg-inset-0 { inset: 0rem; }
+  .pf-lg-inset-auto.pf-lg-inset-auto { inset: auto; }
+  .pf-lg-inset-x-0.pf-lg-inset-x-0 { left: 0rem; right: 0rem; }
+  .pf-lg-inset-x-10.pf-lg-inset-x-10 { left: 2.5rem; right: 2.5rem; }
+  .pf-lg-items-center.pf-lg-items-center { align-items: center; }
+  .pf-lg-items-start.pf-lg-items-start { align-items: flex-start; }
+  .pf-lg-justify-center.pf-lg-justify-center { justify-content: center; }
+  .pf-lg-justify-start.pf-lg-justify-start { justify-content: flex-start; }
+  .pf-lg-last-w-auto.pf-lg-last-w-auto:last-child { width: auto; }
+  .pf-lg-left-1-2.pf-lg-left-1-2 { left: 50%; }
+  .pf-lg-left-10.pf-lg-left-10 { left: 2.5rem; }
+  .pf-lg-left-28-25.pf-lg-left-28-25 { left: 7.0625rem; }
+  .pf-lg-left-74-25.pf-lg-left-74-25 { left: 18.5625rem; }
+  .pf-lg-max-w-var-faq-question.pf-lg-max-w-var-faq-question { max-width: var(--faq-question); }
+  .pf-lg-max-w-none.pf-lg-max-w-none { max-width: none; }
+  .pf-lg-min-h-200.pf-lg-min-h-200 { min-height: 50rem; }
+  .pf-lg-ml-0.pf-lg-ml-0 { margin-left: 0rem; }
+  .pf-lg-ml-8.pf-lg-ml-8 { margin-left: 2rem; }
+  .pf-lg-mx-auto.pf-lg-mx-auto { margin-inline: auto; }
+  .pf-lg-p-0.pf-lg-p-0 { padding: 0rem; }
+  .pf-lg-pb-0.pf-lg-pb-0 { padding-bottom: 0rem; }
+  .pf-lg-pl-8.pf-lg-pl-8 { padding-left: 2rem; }
+  .pf-lg-pt-0.pf-lg-pt-0 { padding-top: 0rem; }
+  .pf-lg-pt-0-92rem.pf-lg-pt-0-92rem { padding-top: 0.92rem; }
+  .pf-lg-px-0.pf-lg-px-0 { padding-inline: 0rem; }
+  .pf-lg-px-4.pf-lg-px-4 { padding-inline: 1rem; }
+  .pf-lg-py-0.pf-lg-py-0 { padding-block: 0rem; }
+  .pf-lg-right-10.pf-lg-right-10 { right: 2.5rem; }
+  .pf-lg-right-21-5.pf-lg-right-21-5 { right: 5.375rem; }
+  .pf-lg-right-auto.pf-lg-right-auto { right: auto; }
+  .pf-lg-self-auto.pf-lg-self-auto { align-self: auto; }
+  .pf-lg-size-190.pf-lg-size-190 { width: 47.5rem; height: 47.5rem; }
+  .pf-lg-sticky.pf-lg-sticky { position: sticky; }
+  .pf-lg-text-hero-body.pf-lg-text-hero-body { font-size: var(--hero-text-body); }
+  .pf-lg-text-hero-caption.pf-lg-text-hero-caption { font-size: var(--hero-text-caption); }
+  .pf-lg-text-hero-chip.pf-lg-text-hero-chip { font-size: var(--hero-text-chip); }
+  .pf-lg-text-hero-display.pf-lg-text-hero-display { color: var(--hero-display); }
+  .pf-lg-text-hero-fine.pf-lg-text-hero-fine { font-size: var(--hero-text-fine); }
+  .pf-lg-top-0.pf-lg-top-0 { top: 0rem; }
+  .pf-lg-top-1-2.pf-lg-top-1-2 { top: 50%; }
+  .pf-lg-top-162-5.pf-lg-top-162-5 { top: 40.625rem; }
+  .pf-lg-top-30-5.pf-lg-top-30-5 { top: 7.625rem; }
+  .pf-lg-top-32-5.pf-lg-top-32-5 { top: 8.125rem; }
+  .pf-lg-top-34.pf-lg-top-34 { top: 8.5rem; }
+  .pf-lg-top-57.pf-lg-top-57 { top: 14.25rem; }
+  .pf-lg-top-6.pf-lg-top-6 { top: 1.5rem; }
+  .pf-lg-top-71-5.pf-lg-top-71-5 { top: 17.875rem; }
+  .pf-lg-top-77-5.pf-lg-top-77-5 { top: 19.375rem; }
+  .pf-lg-top-calc-100lvh-50rem-2.pf-lg-top-calc-100lvh-50rem-2 { top: calc((100lvh - 50rem)/2); }
+  .pf-lg-w-104-25.pf-lg-w-104-25 { width: 26.0625rem; }
+  .pf-lg-w-166-25.pf-lg-w-166-25 { width: 41.5625rem; }
+  .pf-lg-w-168-5.pf-lg-w-168-5 { width: 42.125rem; }
+  .pf-lg-w-18-75.pf-lg-w-18-75 { width: 4.6875rem; }
+  .pf-lg-w-24-75.pf-lg-w-24-75 { width: 6.1875rem; }
+  .pf-lg-w-289-25.pf-lg-w-289-25 { width: 72.3125rem; }
+  .pf-lg-w-29-75.pf-lg-w-29-75 { width: 7.4375rem; }
+  .pf-lg-w-30.pf-lg-w-30 { width: 7.5rem; }
+  .pf-lg-w-39.pf-lg-w-39 { width: 9.75rem; }
+  .pf-lg-w-46-25.pf-lg-w-46-25 { width: 11.5625rem; }
+  .pf-lg-w-48-75.pf-lg-w-48-75 { width: 12.1875rem; }
+  .pf-lg-w-64-5.pf-lg-w-64-5 { width: 16.125rem; }
+  .pf-lg-w-71-25.pf-lg-w-71-25 { width: 17.8125rem; }
+  .pf-lg-w-86.pf-lg-w-86 { width: 21.5rem; }
+  .pf-lg-w-91-75.pf-lg-w-91-75 { width: 22.9375rem; }
+  .pf-lg-w-max-11-875rem-190px.pf-lg-w-max-11-875rem-190px { width: max(11.875rem,190px); }
+  .pf-lg-w-max-15-3125rem-245px.pf-lg-w-max-15-3125rem-245px { width: max(15.3125rem,245px); }
+  .pf-lg-w-auto.pf-lg-w-auto { width: auto; }
+  .pf-lg-whitespace-nowrap.pf-lg-whitespace-nowrap { white-space: nowrap; }
+  .pf-lg-z-0.pf-lg-z-0 { z-index: 0; }
+  .pf-lg-z-10.pf-lg-z-10 { z-index: 10; }
+}
+
+@media (max-width: 1023.98px) {
+  .pf-max-lg-inset-x-5.pf-max-lg-inset-x-5 { left: -1.25rem; right: -1.25rem; }
+  .pf-max-lg-mt-3.pf-max-lg-mt-3 { margin-top: -0.75rem; }
+  .pf-max-lg-tap-x-0-75rem.pf-max-lg-tap-x-0-75rem { --tap-x: 0.75rem; }
+  .pf-max-lg-tap-x-1rem.pf-max-lg-tap-x-1rem { --tap-x: 1rem; }
+  .pf-max-lg-tap-y-0-3125rem.pf-max-lg-tap-y-0-3125rem { --tap-y: 0.3125rem; }
+  .pf-max-lg-tap-y-0-5rem.pf-max-lg-tap-y-0-5rem { --tap-y: 0.5rem; }
+  .pf-max-lg-tap-y-0-75rem.pf-max-lg-tap-y-0-75rem { --tap-y: 0.75rem; }
+  .pf-max-lg-tap-y-1rem.pf-max-lg-tap-y-1rem { --tap-y: 1rem; }
+  .pf-max-lg-border-hero-rule.pf-max-lg-border-hero-rule { border-color: var(--hero-rule); }
+  .pf-max-lg-max-w-42ch.pf-max-lg-max-w-42ch { max-width: 42ch; }
+  .pf-max-lg-object-contain.pf-max-lg-object-contain { object-fit: contain; }
+  .pf-max-lg-scale-var-ink-scale.pf-max-lg-scale-var-ink-scale { scale: var(--ink-scale); }
+  .pf-max-lg-text-hero-body.pf-max-lg-text-hero-body { font-size: var(--hero-text-body); }
+  .pf-max-lg-text-hero-content-muted.pf-max-lg-text-hero-content-muted { color: var(--hero-content-muted); }
+}
+
+@media (forced-colors: active) {
+  .pf-forced-colors-focus-visible-outline-2.pf-forced-colors-focus-visible-outline-2:focus-visible { outline-width: 2px; outline-style: solid; }
+  .pf-forced-colors-focus-visible-outline-offset-2.pf-forced-colors-focus-visible-outline-offset-2:focus-visible { outline-offset: 2px; }
+}
+
+@media (pointer: coarse) {
+  .pf-pointer-coarse-cursor-grab.pf-pointer-coarse-cursor-grab { cursor: grab; }
+  .pf-pointer-coarse-active-cursor-grabbing.pf-pointer-coarse-active-cursor-grabbing:active { cursor: grabbing; }
+}
+
+@media (hover:none) {
+  .pf--media-hover-none-opacity-0.pf--media-hover-none-opacity-0 { opacity: 0; }
+  .pf--media-hover-none-opacity-100.pf--media-hover-none-opacity-100 { opacity: 1; }
+  .pf--media-hover-none-pointer-events-auto.pf--media-hover-none-pointer-events-auto { pointer-events: auto; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pf-motion-reduce-transition-none.pf-motion-reduce-transition-none { transition-property: none; }
+}
+
+
+/* ---------------------------------------------------------------------------
+   LES TROIS HOMONYMES
+
+   Notre systeme connait ces trois noms, et n entend pas la meme chose. Ce sont
+   les valeurs du gabarit, reprises de son bloc de jetons.
+   --------------------------------------------------------------------------- */
+.pf-font-sans.pf-font-sans { font-family: var(--font-sans); }
+.pf-font-mono.pf-font-mono { font-family: var(--font-mono); }
+.pf-ease-entrance.pf-ease-entrance { transition-timing-function: var(--ease-entrance); }
+
+/* ---------------------------------------------------------------------------
+   QUATRE VARIANTES SUR LES CLASSES DU GABARIT
+
+   Le dériveur lit les jetons, pas le corps des regles : il ne pouvait pas
+   ecrire celles-ci. Leur corps est celui des `@utility` de la feuille, repris
+   mot pour mot — celui du treillis avec sa directive resolue sur place, faute
+   de lecteur chez nous.
+   --------------------------------------------------------------------------- */
+@media (min-width: 1024px) and (min-aspect-ratio: 1/1) {
+  .pf-lg-hero-stage-mask.pf-lg-hero-stage-mask { mask-image: linear-gradient(
+    to bottom,
+    #000 0,
+    #000 calc(100% - var(--hero-stage-fade)),
+    rgb(0 0 0 / 0.97) calc(100% - var(--hero-stage-fade) * 0.68),
+    rgb(0 0 0 / 0.82) calc(100% - var(--hero-stage-fade) * 0.52),
+    rgb(0 0 0 / 0.55) calc(100% - var(--hero-stage-fade) * 0.36),
+    rgb(0 0 0 / 0.26) calc(100% - var(--hero-stage-fade) * 0.20),
+    rgb(0 0 0 / 0.08) calc(100% - var(--hero-stage-fade) * 0.08),
+    transparent 100%
+  ); }
+}
+
+@media (max-width: 1023.98px) {
+  .pf-max-lg-hero-lattice-panel.pf-max-lg-hero-lattice-panel { background-color: var(--hero-surface-lattice);
+  background-image:
+    repeating-linear-gradient(
+      to right,
+      var(--hero-surface) 0 var(--hero-lattice-gap),
+      transparent var(--hero-lattice-gap) var(--hero-lattice-pitch)
+    ),
+    repeating-linear-gradient(
+      to bottom,
+      var(--hero-surface) 0 var(--hero-lattice-gap),
+      transparent var(--hero-lattice-gap) var(--hero-lattice-pitch)
+    ),
+    radial-gradient(
+      circle var(--hero-lattice-reach) at var(--hero-pointer-x)
+        var(--hero-pointer-y),
+      var(--raw-color-glow-1) 0%,
+      var(--raw-color-glow-2) 26%,
+      var(--raw-color-glow-3) 52%,
+      var(--raw-color-glow-4) 74%,
+      var(--raw-color-glow-5) 89%,
+      transparent 100%
+    ),
+    radial-gradient(
+      circle calc(var(--hero-lattice-reach) * 1.75) at var(--hero-pointer-x)
+        var(--hero-pointer-y),
+      var(--raw-color-glow-wide-1) 0%,
+      var(--raw-color-glow-wide-2) 48%,
+      transparent 100%
+    ),
+    radial-gradient(
+      circle calc(var(--hero-lattice-reach) * 1.2) at var(--hero-pointer-lag-x)
+        var(--hero-pointer-lag-y),
+      var(--raw-color-glow-lag-1) 0%,
+      var(--raw-color-glow-lag-2) 52%,
+      transparent 100%
+    );
+  background-position:
+    var(--hero-lattice-offset) var(--hero-lattice-offset),
+    var(--hero-lattice-offset) var(--hero-lattice-offset),
+    0 0,
+    0 0,
+    0 0;
+  background-attachment: scroll, scroll, fixed, fixed, fixed; }
+
+  .pf-max-lg-tap-area.pf-max-lg-tap-area { position: relative; }
+
+  .pf-max-lg-tap-area.pf-max-lg-tap-area::before {
+    content: "";
+    position: absolute;
+    inset: calc(var(--tap-y, 0.75rem) * -1) calc(var(--tap-x, 0.5rem) * -1);
+  }
+}
+
+@media (max-width: 639.98px) {
+  .pf-max-sm-prose-even.pf-max-sm-prose-even { text-wrap: balance; }
+}
+

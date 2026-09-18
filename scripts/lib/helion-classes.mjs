@@ -36,7 +36,7 @@ export const RENAMED = {
   'top-[633px]': 'hl-top-633px',
   'top-[703px]': 'hl-top-703px',
   'top-[712px]': 'hl-top-712px',
-  'top-[calc(100%+10px)]': 'hl-top-calc-100-+10px',
+  'top-[calc(100%+10px)]': "hl-top-calc-100-10px",
   'tracking-[-0.01em]': 'hl-tracking-0-01em',
   'tracking-[-0.02em]': 'hl-tracking-0-02em',
   'tracking-[0.005em]': 'hl-tracking-0-005em',
@@ -67,7 +67,7 @@ export const RENAMED = {
   'w-[423px]': 'hl-w-423px',
   'w-[623px]': 'hl-w-623px',
   'w-[663px]': 'hl-w-663px',
-  'w-[calc(100vw-1.5rem)]': 'hl-w-calc-100vw-1-5rem',
+  'w-[calc(100vw-1.5rem)]': "hl-w-calc-100vw-1-5rem",
   'w-[min(100%,var(--container-max))]': 'hl-w-min-100-var-container-max',
   'w-[min(20rem,56vw)]': 'hl-w-min-20rem-56vw',
   'w-lvw': 'hl-w-lvw',
@@ -81,7 +81,7 @@ export const RENAMED = {
   'ring-accent-500/30': 'hl-anneau-accent',
   // Une taille livree, avec un interligne arbitraire.
   'text-base/[1.7]': 'hl-fs-base-17',
-  '!rounded-[24px]': 'hl-!rounded-24px',
+  '!rounded-[24px]': "hl--rounded-24px",
   '-ml-[0.375rem]': 'hl-ml-0-375rem',
   '-ml-[0.5625rem]': 'hl-ml-0-5625rem',
   '-translate-x-1/2': 'hl-translate-x-1-2',
@@ -205,7 +205,7 @@ export const RENAMED = {
   'max-h-717:py-3': 'hl-max-h-717-py-3',
   'max-h-717:text-2xl': 'hl-max-h-717-text-2xl',
   'max-h-828:py-4': 'hl-max-h-828-py-4',
-  'max-h-[calc(100dvh-1.5rem)]': 'hl-max-h-calc-100dvh-1-5rem',
+  'max-h-[calc(100dvh-1.5rem)]': "hl-max-h-calc-100dvh-1-5rem",
   'max-hero-lg:gap-x-8': 'hl-max-hero-lg-gap-x-8',
   'max-hero-lg:grid-cols-[minmax(0,1fr)_minmax(18rem,30rem)_minmax(0,1fr)]':
     'hl-max-hero-lg-grid-cols-minmax-0-1fr-_minmax-18rem-30rem-_minmax-0-1fr',
@@ -259,7 +259,7 @@ export const RENAMED = {
   'max-hero-xs:pt-[1.75rem]': 'hl-max-hero-xs-pt-1-75rem',
   'max-hero-xs:pt-[12vh]': 'hl-max-hero-xs-pt-12vh',
   'max-hero-xs:pt-[calc(1.125rem+env(safe-area-inset-top,0px))]':
-    'hl-max-hero-xs-pt-calc-1-125rem+env-safe-area-inset-top-0px',
+    "hl-max-hero-xs-pt-calc-1-125rem-env-safe-area-inset-top-0px",
   'max-hero-xs:px-0.5': 'hl-max-hero-xs-px-0-5',
   'max-hero-xs:px-[1.375rem]': 'hl-max-hero-xs-px-1-375rem',
   'max-hero-xs:py-5': 'hl-max-hero-xs-py-5',
@@ -289,7 +289,7 @@ export const RENAMED = {
   'max-menu:block': 'hl-max-menu-block',
   'max-menu:hidden': 'hl-max-menu-hidden',
   'max-menu:pt-[calc(1.375rem+env(safe-area-inset-top,0px))]':
-    'hl-max-menu-pt-calc-1-375rem+env-safe-area-inset-top-0px',
+    "hl-max-menu-pt-calc-1-375rem-env-safe-area-inset-top-0px",
   'max-menu:size-[2.125rem]': 'hl-max-menu-size-2-125rem',
   'max-menu:text-[1.0625rem]': 'hl-max-menu-text-1-0625rem',
   'max-menu:tracking-[0.34em]': 'hl-max-menu-tracking-0-34em',
@@ -314,7 +314,7 @@ export const RENAMED = {
   'max-pad-sm:pt-0': 'hl-max-pad-sm-pt-0',
   'max-pad-sm:pt-30': 'hl-max-pad-sm-pt-30',
   'max-pad-sm:pt-[calc(1.875rem+env(safe-area-inset-top,0px))]':
-    'hl-max-pad-sm-pt-calc-1-875rem+env-safe-area-inset-top-0px',
+    "hl-max-pad-sm-pt-calc-1-875rem-env-safe-area-inset-top-0px",
   'max-pad-sm:px-[1.875rem]': 'hl-max-pad-sm-px-1-875rem',
   'max-pad-sm:py-4': 'hl-max-pad-sm-py-4',
   'max-pad-sm:row-start-auto': 'hl-max-pad-sm-row-start-auto',
@@ -379,7 +379,7 @@ export const RENAMED = {
   'pt-[92px]': 'hl-pt-92px',
   'pt-[96px]': 'hl-pt-96px',
   'pt-[calc(2.8125rem+env(safe-area-inset-top,0px))]':
-    'hl-pt-calc-2-8125rem+env-safe-area-inset-top-0px',
+    "hl-pt-calc-2-8125rem-env-safe-area-inset-top-0px",
   'px-6.5': 'hl-px-6-5',
   'px-[1.375rem]': 'hl-px-1-375rem',
   'px-[1.625rem]': 'hl-px-1-625rem',

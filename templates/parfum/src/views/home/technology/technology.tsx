@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { Fragment } from "react";
 import type { CSSProperties } from "react";
 
@@ -51,14 +50,14 @@ export const Technology = ({ content }: TechnologyProps) => (
     // The region has to be tall enough to contain the walk; the stage inside
     // sticks for exactly the difference. Expressed as a custom property so the
     // number lives with the motion constants rather than in a class string.
-    className="relative w-full font-mono text-hero-content lg:h-[calc(var(--technology-region)*50rem)]"
+    className="o-relative o-w-full pf-font-mono pf-text-hero-content pf-lg-h-calc-var-technology-region-50rem"
     style={
       {
         "--technology-region": regionHeight(content.layers.length),
       } as CSSProperties
     }
   >
-    <div className="flex flex-col gap-10 px-5 py-16 lg:sticky lg:top-0 lg:block lg:h-200 lg:gap-0 lg:px-0 lg:py-0">
+    <div className="o-flex o-flex-col o-gap-10 o-px-5 o-py-16 pf-lg-sticky pf-lg-top-0 pf-lg-block pf-lg-h-200 pf-lg-gap-0 pf-lg-px-0 pf-lg-py-0">
       {/* The box fills the pinned stage rather than being centred in it, and for
           the same reason the hero's does: **everything here hangs off the top**
           — the headline, the walking card, the closing note — so there is no
@@ -68,14 +67,14 @@ export const Technology = ({ content }: TechnologyProps) => (
           instead pushed the headline down and opened a visibly wider gap where
           the collections screen hands over: measured 28% of a screen at 1280
           against 22% at 1440. */}
-      <div className="max-lg:contents lg:absolute lg:inset-0">
+      <div className="max-lg:o-contents pf-lg-absolute pf-lg-inset-0">
         {/* Heading and lede are one group below the frame. In the frame they sit
             at opposite ends of the screen — top-left and bottom-left, with the
             stack between them — and that reads as composition. In flow the same
             arrangement put the whole card list between a heading and the
-            sentence that introduces it. `lg:contents` dissolves this wrapper at
+            sentence that introduces it. `pf-lg-contents` dissolves this wrapper at
             the frame breakpoint, so both keep their own frame coordinates. */}
-        <div className="flex flex-col gap-4 lg:contents">
+        <div className="o-flex o-flex-col o-gap-4 pf-lg-contents">
           <Inview
             tag="h2"
             id={HEADING_ID}
@@ -86,7 +85,7 @@ export const Technology = ({ content }: TechnologyProps) => (
             // trim-both` trims a block container's own first and last line boxes,
             // and a flex parent has no text of its own to trim — the declaration is
             // simply inert there, which put every line 10px low against the frame.
-            className="text-hero-display-compact leading-hero-headline tracking-hero-display text-hero-content [text-box:trim-both_cap_alphabetic] sm:text-hero-display-tablet lg:text-hero-display lg:absolute lg:top-34 lg:left-10 lg:z-10 lg:w-91.75"
+            className="pf-text-hero-display-compact pf-leading-hero-headline pf-tracking-hero-display pf-text-hero-content pf--text-box-trim-both-cap-alphabetic pf-sm-text-hero-display-tablet pf-lg-text-hero-display pf-lg-absolute pf-lg-top-34 pf-lg-left-10 pf-lg-z-10 pf-lg-w-91-75"
           >
             {content.heading.map((line, index) => (
               <Fragment key={line}>
@@ -103,7 +102,7 @@ export const Technology = ({ content }: TechnologyProps) => (
             from={{ opacity: 0 }}
             to={{ opacity: 1 }}
             delayIn={120}
-            className="text-hero-body leading-hero-prose text-hero-content-muted uppercase max-sm:prose-even sm:text-hero-lede lg:absolute lg:top-162.5 lg:left-10 lg:z-10 lg:w-91.75"
+            className="pf-text-hero-body pf-leading-hero-prose pf-text-hero-content-muted o-uppercase pf-max-sm-prose-even pf-sm-text-hero-lede pf-lg-absolute pf-lg-top-162-5 pf-lg-left-10 pf-lg-z-10 pf-lg-w-91-75"
           >
             {/* **One paragraph below the frame, three lines in it.** The frame
               sets this note as three measured lines against a 367-unit column,
@@ -116,7 +115,7 @@ export const Technology = ({ content }: TechnologyProps) => (
               <Fragment key={line}>
                 {index > 0 ? (
                   <>
-                    <br aria-hidden className="max-lg:hidden" />{" "}
+                    <br aria-hidden className="max-lg:o-hidden" />{" "}
                   </>
                 ) : null}
                 <ScrambleText
@@ -133,7 +132,7 @@ export const Technology = ({ content }: TechnologyProps) => (
 
         {/* **The stack is a clip now, and its motion is the scroll scrub** — so
             the reveal that used to wrap this box is gone, and the box is centred
-            with auto margins rather than `-translate-x-1/2`.
+            with auto margins rather than `pf--translate-x-1-2`.
 
             Both went for a `mix-blend-mode` that turned out not to work in this
             section at all: the stage above is pinned with `position: sticky`,
@@ -145,30 +144,30 @@ export const Technology = ({ content }: TechnologyProps) => (
             out is still right — the scrub is the motion, and a transform here
             would isolate whatever a later pass tries.
 
-            Four fifths of the column below the frame, centred. `object-contain`
+            Four fifths of the column below the frame, centred. `o-object-contain`
             means the artwork was never cropped at full width — it simply ran
             edge to edge, and an exploded stack needs ground around it to read
             as one object rather than as a pattern. */}
-        <div className="relative mx-auto aspect-square w-4/5 sm:aspect-4/3 lg:absolute lg:top-34 lg:inset-x-0 lg:aspect-auto lg:h-154.75 lg:w-166.25">
+        <div className="o-relative o-mx-auto o-aspect-square o-w-4/5 pf-sm-aspect-4-3 pf-lg-absolute pf-lg-top-34 pf-lg-inset-x-0 pf-lg-aspect-auto pf-lg-h-154-75 pf-lg-w-166-25">
           {/* Twelve megabytes, seven screens from the top of the page: built
               when the section is near, like the FAQ's product. */}
-          <NearViewport className="size-full" lead={1}>
+          <NearViewport className="o-size-full" lead={1}>
             <TechnologyReel
               content={content.stack}
-              className="size-full object-contain"
+              className="o-size-full o-object-contain"
             />
           </NearViewport>
         </div>
 
         {/* The walk, and the five cards it steps through. Absolute against this
             stage, so it needs the stage to be the positioned ancestor. */}
-        <div className="hidden lg:block">
+        <div className="o-hidden pf-lg-block">
           <TechnologyStack layers={content.layers} />
         </div>
 
         {/* Below the frame breakpoint the same five specifications are simply a
             stack in the flow — see the note on the section. */}
-        <ol className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:[&>li:last-child]:col-span-2 lg:hidden">
+        <ol className="o-grid o-grid-cols-1 o-gap-3 sm:o-grid-cols-2 pf-sm-li-last-child-col-span-2 pf-lg-hidden">
           {content.layers.map((layer, index) => (
             <Inview
               tag="li"
@@ -179,18 +178,18 @@ export const Technology = ({ content }: TechnologyProps) => (
               delayIn={index * 80}
               // Stretched by the card, so a row's marks share one line — see
               // `details-feature.tsx`.
-              className="hero-lattice-panel flex items-start gap-6 border border-hero-rule p-4"
+              className="hero-lattice-panel o-flex o-items-start o-gap-6 o-border-w-1 pf-border-hero-rule o-p-4"
             >
-              <div className="flex flex-col items-start justify-between self-stretch">
+              <div className="o-flex o-flex-col o-items-start o-justify-between o-self-stretch">
                 {/* Flush with the mark's left edge — see
                     `details-feature.tsx`. */}
                 <span
                   aria-hidden
-                  className="text-hero-body leading-hero-display text-hero-content-faint"
+                  className="pf-text-hero-body pf-leading-hero-display pf-text-hero-content-faint"
                 >
                   {layer.index}
                 </span>
-                <Image
+                <img
                   src={layer.icon.src}
                   alt={layer.icon.alt}
                   width={layer.icon.width}
@@ -203,16 +202,16 @@ export const Technology = ({ content }: TechnologyProps) => (
                   // from the copy while the number stood 36.5. The margin puts
                   // them on one line. At `lg` the column's gutter is twice as
                   // wide and the frame's own alignment stands.
-                  className="size-8 shrink-0 mb-[calc(var(--text-hero-body)*0.155)] max-lg:mr-3"
+                  className="o-size-8 o-shrink-0 pf-mb-calc-var-text-hero-body-0-155 max-lg:o-mr-3"
                 />
               </div>
-              <div className="flex min-w-px flex-1 flex-col gap-3">
-                <h3 className="text-hero-body leading-hero-display text-hero-content">
+              <div className="o-flex o-min-w-px o-flex-1 o-flex-col o-gap-3">
+                <h3 className="pf-text-hero-body pf-leading-hero-display pf-text-hero-content">
                   <ScrambleText tieProse revealInView revealDelay={index * 80}>
                     {layer.title}
                   </ScrambleText>
                 </h3>
-                <p className="text-hero-body leading-hero-prose text-hero-content-muted uppercase max-sm:prose-even max-lg:max-w-[42ch]">
+                <p className="pf-text-hero-body pf-leading-hero-prose pf-text-hero-content-muted o-uppercase pf-max-sm-prose-even pf-max-lg-max-w-42ch">
                   <ScrambleText
                     tieProse
                     revealInView

@@ -43,7 +43,7 @@ export const Faq = ({ content }: FaqProps) => (
   <section
     aria-labelledby={HEADING_ID}
     data-product-region
-    className="relative flex w-full flex-col gap-10 overflow-hidden px-5 py-16 font-mono text-hero-content lg:block lg:h-200 lg:gap-0 lg:px-0 lg:py-0"
+    className="o-relative o-flex o-w-full o-flex-col o-gap-10 o-overflow-hidden o-px-5 o-py-16 pf-font-mono pf-text-hero-content pf-lg-block pf-lg-h-200 pf-lg-gap-0 pf-lg-px-0 pf-lg-py-0"
   >
     {/* **The frame's own 800-unit box, centred in the screen.** The section is a
         viewport tall; the composition is not, and the two are only equal on a
@@ -54,13 +54,13 @@ export const Faq = ({ content }: FaqProps) => (
         keeps every frame coordinate exact and leaves the slack where it belongs:
         half above, half below.
 
-        `-mt-100` rather than `-translate-y-1/2` — a transform would make this a
+        `pf--mt-100` rather than `pf--translate-y-1-2` — a transform would make this a
         containing block for `background-attachment: fixed`, and the lattice
         panels inside would fall out of step with the page behind them.
 
-        `max-lg:contents` so that below the frame this box is not in the layout
+        `max-lg:o-contents` so that below the frame this box is not in the layout
         at all and the flow column is exactly what it was. */}
-    <div className="max-lg:contents lg:absolute lg:inset-x-0 lg:top-1/2 lg:-mt-100 lg:h-200">
+    <div className="max-lg:o-contents pf-lg-absolute pf-lg-inset-x-0 pf-lg-top-1-2 pf-lg-mt-100 pf-lg-h-200">
       {/* The frame runs the product off the bottom-left, mirrored — the same
           photograph the details frame used, flipped so the jacket faces into the
           page. The inner percentages are its crop, verbatim. */}
@@ -72,7 +72,7 @@ export const Faq = ({ content }: FaqProps) => (
         mode="once"
         from={{ opacity: 0, y: 20 }}
         to={{ opacity: 1, y: 0 }}
-        className="text-hero-display-compact leading-hero-headline tracking-hero-display text-hero-content [text-box:trim-both_cap_alphabetic] sm:text-hero-display-tablet lg:text-hero-display lg:absolute lg:top-34 lg:left-10 lg:z-10 lg:w-64.5"
+        className="pf-text-hero-display-compact pf-leading-hero-headline pf-tracking-hero-display pf-text-hero-content pf--text-box-trim-both-cap-alphabetic pf-sm-text-hero-display-tablet pf-lg-text-hero-display pf-lg-absolute pf-lg-top-34 pf-lg-left-10 pf-lg-z-10 pf-lg-w-64-5"
       >
         <ScrambleText revealInView tieProse>
           {content.heading}
@@ -81,7 +81,7 @@ export const Faq = ({ content }: FaqProps) => (
 
       {/* Right margin, not the frame's x of 726: 726 + 674 = 1400. See the
           note on the canvas in `views/home`. */}
-      <dl className="flex flex-col gap-3 lg:absolute lg:top-34 lg:right-10 lg:z-10 lg:w-168.5">
+      <dl className="o-flex o-flex-col o-gap-3 pf-lg-absolute pf-lg-top-34 pf-lg-right-10 pf-lg-z-10 pf-lg-w-168-5">
         {content.entries.map((entry, index) => (
           <Inview
             tag="div"
@@ -90,14 +90,14 @@ export const Faq = ({ content }: FaqProps) => (
             from={{ opacity: 0, y: 16 }}
             to={{ opacity: 1, y: 0 }}
             delayIn={ROW_DELAY + index * ROW_STEP}
-            className="hero-lattice-panel flex flex-col gap-4 border border-hero-rule p-4 lg:h-28.5 lg:flex-row lg:items-center lg:gap-0 lg:px-4 lg:py-0"
+            className="hero-lattice-panel o-flex o-flex-col o-gap-4 o-border-w-1 pf-border-hero-rule o-p-4 pf-lg-h-28-5 pf-lg-flex-row pf-lg-items-center pf-lg-gap-0 pf-lg-px-4 pf-lg-py-0"
           >
             {/* **Reversed below the frame, not reordered in the DOM.** The frame puts
                 the index under the question because the two sit in a column beside
                 the answer; read top to bottom on a narrow screen that is index-last,
                 which is backwards — the number introduces the row. The markup keeps
                 question first, where a reader needs it, and the column flips. */}
-            <dt className="flex shrink-0 flex-col-reverse gap-4 lg:flex-col lg:w-48.75 lg:justify-center lg:gap-8">
+            <dt className="o-flex o-shrink-0 o-flex-col-reverse o-gap-4 pf-lg-flex-col pf-lg-w-48-75 pf-lg-justify-center pf-lg-gap-8">
               {/* **The frame's measured width, and only there.** Each
                   question carries the width the frame wraps it to — 175 units
                   by default — and that width is a fact about a 1440 screen
@@ -107,7 +107,7 @@ export const Faq = ({ content }: FaqProps) => (
                   broke a question that fits comfortably on one line into
                   three. Carried as a variable, applied at `lg`. */}
               <span
-                className="block text-hero-body leading-hero-display text-hero-content max-sm:prose-even lg:max-w-[var(--faq-question)]"
+                className="o-block pf-text-hero-body pf-leading-hero-display pf-text-hero-content pf-max-sm-prose-even pf-lg-max-w-var-faq-question"
                 style={
                   {
                     "--faq-question": `${(entry.questionWidth ?? 175) / 16}rem`,
@@ -128,7 +128,7 @@ export const Faq = ({ content }: FaqProps) => (
               </span>
               <span
                 aria-hidden
-                className="text-hero-body leading-hero-display whitespace-nowrap text-hero-content-faint"
+                className="pf-text-hero-body pf-leading-hero-display o-whitespace-nowrap pf-text-hero-content-faint"
               >
                 {entry.index}
               </span>
@@ -141,12 +141,12 @@ export const Faq = ({ content }: FaqProps) => (
                 inside it, which is where the frame's own 80-unit block sits. */}
             {/* **Top-aligned, not centred, and the padding is measured.** The
                 frame centres the answer in its own 112-unit box while the
-                question sits in a `justify-center` column beside it, so their
+                question sits in a `o-justify-center` column beside it, so their
                 first lines never met — the answer began 0.77rem above the
                 question at every width, 1440 included. Aligning to the top and
                 padding by the measured difference puts the two first lines on
                 one line. In rem so it holds at every scale. */}
-            <dd className="min-w-px text-hero-body leading-hero-prose text-hero-content-muted uppercase max-sm:prose-even lg:ml-8 lg:flex lg:h-28 lg:flex-1 lg:items-start lg:border-l lg:border-hero-rule lg:pt-[0.92rem] lg:pl-8">
+            <dd className="o-min-w-px pf-text-hero-body pf-leading-hero-prose pf-text-hero-content-muted o-uppercase pf-max-sm-prose-even pf-lg-ml-8 pf-lg-flex pf-lg-h-28 pf-lg-flex-1 pf-lg-items-start pf-lg-border-l pf-lg-border-hero-rule pf-lg-pt-0-92rem pf-lg-pl-8">
               <ScrambleText
                 tieProse
                 revealInView

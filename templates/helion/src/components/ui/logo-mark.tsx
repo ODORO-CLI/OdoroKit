@@ -16,7 +16,7 @@ import { MARK_SVG_PATH, MARK_SVG_VIEWBOX } from "@/lib/brand/odoro-mark";
  */
 
 export interface LogoMarkProps {
-  /** Tailwind size classes. Defaults to the header's 28px. */
+  /** Les classes de taille. Par defaut, les 28px de l en-tete. */
   className?: string;
 }
 

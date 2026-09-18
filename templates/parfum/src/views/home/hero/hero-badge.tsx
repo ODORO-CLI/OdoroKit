@@ -1,5 +1,3 @@
-"use client";
-
 import { Spring } from "@/components/animation/springs/spring";
 import { ScrambleText } from "@/components/ui/scramble-text";
 
@@ -18,17 +16,17 @@ export interface HeroBadgeProps extends HeroBadgeContent {
  */
 const GEOMETRY = {
   start: {
-    card: "lg:left-10 lg:w-[max(16.4375rem,263px)]",
+    card: "pf-lg-left-10 pf-lg-w-max-16-4375rem-263px",
     media:
-      "lg:top-3.5 lg:left-[max(1.1875rem,19px)] lg:w-[max(3.1875rem,51px)]",
-    rule: "lg:left-[max(5.625rem,90px)]",
-    copy: "lg:top-3.75 lg:left-[max(6.875rem,110px)] lg:w-[max(8.25rem,132px)]",
+      "pf-lg-top-3-5 pf-lg-left-max-1-1875rem-19px pf-lg-w-max-3-1875rem-51px",
+    rule: "pf-lg-left-max-5-625rem-90px",
+    copy: "pf-lg-top-3-75 pf-lg-left-max-6-875rem-110px pf-lg-w-max-8-25rem-132px",
   },
   end: {
-    card: "lg:right-10 lg:w-[max(13.875rem,222px)]",
-    media: "lg:top-5.25 lg:left-[max(1.3125rem,21px)]",
-    rule: "lg:left-[max(4.125rem,66px)]",
-    copy: "lg:top-3.25 lg:left-[max(5.5rem,88px)] lg:w-[max(7.0625rem,113px)]",
+    card: "pf-lg-right-10 pf-lg-w-max-13-875rem-222px",
+    media: "pf-lg-top-5-25 pf-lg-left-max-1-3125rem-21px",
+    rule: "pf-lg-left-max-4-125rem-66px",
+    copy: "pf-lg-top-3-25 pf-lg-left-max-5-5rem-88px pf-lg-w-max-7-0625rem-113px",
   },
 } as const;
 
@@ -58,7 +56,7 @@ export const HeroBadge = ({ align, icon, caption, lines }: HeroBadgeProps) => {
       from={{ opacity: 0, y: 12 }}
       to={{ opacity: 1, y: 0 }}
       delayIn={align === "start" ? 300 : 360}
-      className={`relative flex w-full items-stretch gap-4 border border-hero-rule p-4 text-hero-content md:flex-1 lg:absolute lg:bottom-10 lg:z-10 lg:block lg:h-[max(4.25rem,68px)] lg:gap-0 lg:p-0 lg:flex-none ${geometry.card}`}
+      className={`o-relative o-flex o-w-full o-items-stretch o-gap-4 o-border-w-1 pf-border-hero-rule o-p-4 pf-text-hero-content md:o-flex-1 pf-lg-absolute pf-lg-bottom-10 pf-lg-z-10 pf-lg-block pf-lg-h-max-4-25rem-68px pf-lg-gap-0 pf-lg-p-0 pf-lg-flex-none ${geometry.card}`}
     >
       <div
         // **One width for both cards below the frame.** The column is
@@ -69,7 +67,7 @@ export const HeroBadge = ({ align, icon, caption, lines }: HeroBadgeProps) => {
         // Here they are given the same box instead, wide enough for the caption
         // at its largest (86px at the tablet's type), and the rule lands on one
         // line down the pair.
-        className={`flex shrink-0 flex-col items-center justify-center gap-2 max-lg:w-24 lg:absolute lg:justify-start ${geometry.media}`}
+        className={`o-flex o-shrink-0 o-flex-col o-items-center o-justify-center o-gap-2 max-lg:o-w-24 pf-lg-absolute pf-lg-justify-start ${geometry.media}`}
       >
         {/* The frame carries exactly one of each mark, and which idle suits a
             glyph is a property of the glyph, not of the corner it sits in — so
@@ -79,7 +77,7 @@ export const HeroBadge = ({ align, icon, caption, lines }: HeroBadgeProps) => {
           motion={align === "start" ? "globe" : "reticle"}
         />
         {caption ? (
-          <p className="text-hero-chip leading-hero-caption tracking-hero-caption sm:text-hero-body lg:text-hero-caption">
+          <p className="pf-text-hero-chip pf-leading-hero-caption pf-tracking-hero-caption pf-sm-text-hero-body pf-lg-text-hero-caption">
             <ScrambleText revealDelay={reveal}>
               {caption}
             </ScrambleText>
@@ -89,7 +87,7 @@ export const HeroBadge = ({ align, icon, caption, lines }: HeroBadgeProps) => {
 
       <span
         aria-hidden
-        className={`w-px shrink-0 self-stretch bg-hero-rule lg:absolute lg:top-0 lg:h-16.5 lg:self-auto ${geometry.rule}`}
+        className={`o-w-px o-shrink-0 o-self-stretch pf-bg-hero-rule pf-lg-absolute pf-lg-top-0 pf-lg-h-16-5 pf-lg-self-auto ${geometry.rule}`}
       />
 
       <p
@@ -98,12 +96,12 @@ export const HeroBadge = ({ align, icon, caption, lines }: HeroBadgeProps) => {
           // above it. The balancer fixed that and introduced its own: given two
           // line sets of equal longest line it stranded "FAST &". Plain
           // wrapping picks the better of the two here, so it is left alone.
-          className={`min-w-px flex-1 self-center text-hero-chip leading-hero-caption tracking-hero-caption sm:text-hero-body lg:absolute lg:flex-none lg:self-auto lg:text-hero-caption ${geometry.copy}`}
+          className={`o-min-w-px o-flex-1 o-self-center pf-text-hero-chip pf-leading-hero-caption pf-tracking-hero-caption pf-sm-text-hero-body pf-lg-absolute pf-lg-flex-none pf-lg-self-auto pf-lg-text-hero-caption ${geometry.copy}`}
       >
         {lines.map((line, index) => (
           <ScrambleText
             key={line}
-            className="block"
+            className="o-block"
             revealDelay={reveal + (index + 1) * HERO_REVEAL.badgeStep}
           >
             {line}

@@ -1,5 +1,3 @@
-"use client";
-
 /**
  * Custom hook that provides both a ref for intersection observation and a ref containing the current view state
  *

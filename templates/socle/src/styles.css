@@ -435,6 +435,19 @@ hr {
   color: inherit;
   border-top-width: 1px;
 }
+/* Une image qui porte ses dimensions en attributs — `width="11" height="11"` —
+   et dont le CSS ne contraint que la largeur gardait chez nous sa hauteur
+   declaree, au lieu de la deduire du rapport : 8x11 au lieu de 8x8.
+
+   Le socle d origine posait `height: auto` ; le notre s en tient a la largeur.
+   Les utilitaires de hauteur sont ecrits apres cette feuille et l emportent
+   toujours. */
+img,
+video {
+  max-width: 100%;
+  height: auto;
+}
+
 
 
 /* ============================================================================
@@ -511,7 +524,7 @@ hr {
 .sn-leading-flat.sn-leading-flat { line-height: var(--line-height-flat); }
 .sn-leading-none.sn-leading-none { line-height: 1; }
 .sn-left-3px.sn-left-3px { left: 3px; }
-.sn-max-h-calc-100dvh-1-5rem.sn-max-h-calc-100dvh-1-5rem { max-height: calc(100dvh-1.5rem); }
+.sn-max-h-calc-100dvh-1-5rem.sn-max-h-calc-100dvh-1-5rem { max-height: calc(100dvh - 1.5rem); }
 .sn-max-w-152.sn-max-w-152 { max-width: 38rem; }
 .sn-max-w-160.sn-max-w-160 { max-width: 40rem; }
 .sn-max-w-560px.sn-max-w-560px { max-width: 560px; }
@@ -552,8 +565,8 @@ hr {
 .sn-w-4-75.sn-w-4-75 { width: 1.1875rem; }
 .sn-w-9-5.sn-w-9-5 { width: 2.375rem; }
 .sn-w-18px.sn-w-18px { width: 18px; }
-.sn-w-calc-100-1-5rem.sn-w-calc-100-1-5rem { width: calc(100%-1.5rem); }
-.sn-w-calc-100vw-1-5rem.sn-w-calc-100vw-1-5rem { width: calc(100vw-1.5rem); }
+.sn-w-calc-100-1-5rem.sn-w-calc-100-1-5rem { width: calc(100% - 1.5rem); }
+.sn-w-calc-100vw-1-5rem.sn-w-calc-100vw-1-5rem { width: calc(100vw - 1.5rem); }
 .sn-z-100.sn-z-100 { z-index: 100; }
 
 @media (min-width: 540px) {
@@ -569,6 +582,48 @@ hr {
   .sn-sm-w-420px.sn-sm-w-420px { width: 420px; }
 }
 
+@media (min-width: 1024px) {
+  .sn-lg-absolute.sn-lg-absolute { position: absolute; }
+  .sn-lg-block.sn-lg-block { display: block; }
+  .sn-lg-bottom-auto.sn-lg-bottom-auto { bottom: auto; }
+  .sn-lg-contents.sn-lg-contents { display: contents; }
+  .sn-lg-flex.sn-lg-flex { display: flex; }
+  .sn-lg-flex-row.sn-lg-flex-row { flex-direction: row; }
+  .sn-lg-gap-10.sn-lg-gap-10 { gap: 2.5rem; }
+  .sn-lg-gap-2-5.sn-lg-gap-2-5 { gap: 0.625rem; }
+  .sn-lg-gap-6.sn-lg-gap-6 { gap: 1.5rem; }
+  .sn-lg-grid-cols-3.sn-lg-grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .sn-lg-grid-rows-3.sn-lg-grid-rows-3 { grid-template-rows: repeat(3, minmax(0, 1fr)); }
+  .sn-lg-h-full.sn-lg-h-full { height: 100%; }
+  .sn-lg-hidden.sn-lg-hidden { display: none; }
+  .sn-lg-inset-x-0.sn-lg-inset-x-0 { left: 0rem; right: 0rem; }
+  .sn-lg-items-center.sn-lg-items-center { align-items: center; }
+  .sn-lg-justify-start.sn-lg-justify-start { justify-content: flex-start; }
+  .sn-lg-left-10.sn-lg-left-10 { left: 2.5rem; }
+  .sn-lg-max-w-none.sn-lg-max-w-none { max-width: none; }
+  .sn-lg-min-h-0.sn-lg-min-h-0 { min-height: 0rem; }
+  .sn-lg-mt-0.sn-lg-mt-0 { margin-top: 0; }
+  .sn-lg-pb-0.sn-lg-pb-0 { padding-bottom: 0rem; }
+  .sn-lg-pt-0.sn-lg-pt-0 { padding-top: 0rem; }
+  .sn-lg-px-0.sn-lg-px-0 { padding-inline: 0rem; }
+  .sn-lg-py-0.sn-lg-py-0 { padding-block: 0rem; }
+  .sn-lg-w-56.sn-lg-w-56 { width: 14rem; }
+  .sn-lg-w-auto.sn-lg-w-auto { width: auto; }
+  .sn-lg-whitespace-nowrap.sn-lg-whitespace-nowrap { white-space: nowrap; }
+}
+.sn-focus-visible-outline-action-primary.sn-focus-visible-outline-action-primary:focus-visible { outline-color: var(--action-primary); }
+.sn-focus-visible-outline-offset-4.sn-focus-visible-outline-offset-4:focus-visible { outline-offset: 4px; }
+
+/* Les trois homonymes : la valeur du gabarit, sous un nom qui n est qu a lui. */
+.sn-ease-entrance.sn-ease-entrance { transition-timing-function: var(--ease-entrance); }
+.sn-font-sans.sn-font-sans { font-family: var(--font-google-sans-flex), ui-sans-serif, system-ui, sans-serif; }
+.sn-font-display.sn-font-display { font-family: var(--font-google-sans-flex-display), var(--font-google-sans-flex), ui-sans-serif, sans-serif; }
+
+.sn-hover--translate-y-0-25.sn-hover--translate-y-0-25:hover { --sn-ty: -0.0625rem; translate: var(--sn-tx, 0) var(--sn-ty, 0); }
+.sn-inset-y-10.sn-inset-y-10 { top: -10%; bottom: -10%; }
+.sn-top-20.sn-top-20 { top: -20%; }
+
+/* Les ruptures du gabarit, qui ne sont pas les notres. */
 @media (min-width: 1280px) {
   .sn-lg--left-28-5.sn-lg--left-28-5 { left: -7.125rem; }
   .sn-lg-aspect-auto.sn-lg-aspect-auto { aspect-ratio: auto; }
@@ -647,46 +702,4 @@ hr {
   .sn-lg-w-83.sn-lg-w-83 { width: 20.75rem; }
   .sn-lg-w-90.sn-lg-w-90 { width: 22.5rem; }
   .sn-lg-w-94-75.sn-lg-w-94-75 { width: 23.6875rem; }
-}
-.sn-focus-visible-outline-action-primary.sn-focus-visible-outline-action-primary:focus-visible { outline-color: var(--action-primary); }
-.sn-focus-visible-outline-offset-4.sn-focus-visible-outline-offset-4:focus-visible { outline-offset: 4px; }
-
-/* Les trois homonymes : la valeur du gabarit, sous un nom qui n est qu a lui. */
-.sn-ease-entrance.sn-ease-entrance { transition-timing-function: var(--ease-entrance); }
-.sn-font-sans.sn-font-sans { font-family: var(--font-google-sans-flex), ui-sans-serif, system-ui, sans-serif; }
-.sn-font-display.sn-font-display { font-family: var(--font-google-sans-flex-display), var(--font-google-sans-flex), ui-sans-serif, sans-serif; }
-
-.sn-hover--translate-y-0-25.sn-hover--translate-y-0-25:hover { --sn-ty: -0.0625rem; translate: var(--sn-tx, 0) var(--sn-ty, 0); }
-.sn-inset-y-10.sn-inset-y-10 { top: -10%; bottom: -10%; }
-.sn-top-20.sn-top-20 { top: -20%; }
-
-/* Les ruptures du gabarit, qui ne sont pas les notres. */
-@media (min-width: 1024px) {
-  .sn-lg-absolute.sn-lg-absolute { position: absolute; }
-  .sn-lg-block.sn-lg-block { display: block; }
-  .sn-lg-bottom-auto.sn-lg-bottom-auto { bottom: auto; }
-  .sn-lg-contents.sn-lg-contents { display: contents; }
-  .sn-lg-flex.sn-lg-flex { display: flex; }
-  .sn-lg-flex-row.sn-lg-flex-row { flex-direction: row; }
-  .sn-lg-gap-10.sn-lg-gap-10 { gap: 2.5rem; }
-  .sn-lg-gap-2-5.sn-lg-gap-2-5 { gap: 0.625rem; }
-  .sn-lg-gap-6.sn-lg-gap-6 { gap: 1.5rem; }
-  .sn-lg-grid-cols-3.sn-lg-grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .sn-lg-grid-rows-3.sn-lg-grid-rows-3 { grid-template-rows: repeat(3, minmax(0, 1fr)); }
-  .sn-lg-h-full.sn-lg-h-full { height: 100%; }
-  .sn-lg-hidden.sn-lg-hidden { display: none; }
-  .sn-lg-inset-x-0.sn-lg-inset-x-0 { left: 0rem; right: 0rem; }
-  .sn-lg-items-center.sn-lg-items-center { align-items: center; }
-  .sn-lg-justify-start.sn-lg-justify-start { justify-content: flex-start; }
-  .sn-lg-left-10.sn-lg-left-10 { left: 2.5rem; }
-  .sn-lg-max-w-none.sn-lg-max-w-none { max-width: none; }
-  .sn-lg-min-h-0.sn-lg-min-h-0 { min-height: 0rem; }
-  .sn-lg-mt-0.sn-lg-mt-0 { margin-top: 0; }
-  .sn-lg-pb-0.sn-lg-pb-0 { padding-bottom: 0rem; }
-  .sn-lg-pt-0.sn-lg-pt-0 { padding-top: 0rem; }
-  .sn-lg-px-0.sn-lg-px-0 { padding-inline: 0rem; }
-  .sn-lg-py-0.sn-lg-py-0 { padding-block: 0rem; }
-  .sn-lg-w-56.sn-lg-w-56 { width: 14rem; }
-  .sn-lg-w-auto.sn-lg-w-auto { width: auto; }
-  .sn-lg-whitespace-nowrap.sn-lg-whitespace-nowrap { white-space: nowrap; }
 }
