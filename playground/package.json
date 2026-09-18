@@ -5,13 +5,14 @@
   "type": "module",
   "description": "Application de test liee a odoro-libs, pour developper la librairie avec rechargement a chaud.",
   "scripts": {
-    "dev": "node ../scripts/build-vitrine-exports.mjs && node scripts/instructive.mjs && node scripts/versions.mjs && odoro dev",
-    "build": "node ../scripts/build-vitrine-exports.mjs && node scripts/instructive.mjs && node scripts/versions.mjs && odoro build",
+    "dev": "node ../scripts/build-vitrine-exports.mjs && node ../scripts/build-project-previews.mjs && node scripts/instructive.mjs && node scripts/versions.mjs && odoro dev",
+    "build": "node ../scripts/build-vitrine-exports.mjs && node ../scripts/build-project-previews.mjs && node scripts/instructive.mjs && node scripts/versions.mjs && odoro build",
     "preview": "odoro preview",
     "typecheck": "node ../scripts/build-vitrine-exports.mjs && node scripts/versions.mjs && tsc --noEmit",
     "instructive": "node scripts/instructive.mjs",
     "versions": "node scripts/versions.mjs",
-    "exports": "node ../scripts/build-vitrine-exports.mjs"
+    "exports": "node ../scripts/build-vitrine-exports.mjs",
+    "apercus-projets": "node ../scripts/build-project-previews.mjs"
   },
   "dependencies": {
     "@odoro-cli/engine": "workspace:*",

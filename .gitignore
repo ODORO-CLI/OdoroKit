@@ -73,3 +73,11 @@ packages/odoro/src/scaffold/family-versions.generated.ts
 # copie de tout ce qu il contient deja, libre de diverger de la premiere.
 playground/public/exports/
 playground/src/docs/exports.generated.ts
+
+# Les projets livres, prets a etre montres, produits par
+# `scripts/build-project-previews.mjs` avant chaque `dev` et chaque `build`.
+#
+# Cent soixante-dix megaoctets : la construction de chaque gabarit, recopiee
+# avec ses adresses rendues relatives pour tenir sous `/projets/<nom>/`. Tout
+# s en deduit de `templates/*/dist`, qui se deduit lui-meme de la source.
+playground/public/projets/

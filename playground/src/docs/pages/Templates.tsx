@@ -362,20 +362,33 @@ function CarteVitrine({
 function CarteProjet({ projet }: { readonly projet: TemplateEntry }): ReactElement {
   return (
     <article className="o-flex o-flex-col o-overflow-hidden o-rounded-xl o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-bg-white dark:o-bg-zinc-900">
-      <img
-        src={`/apercus-templates/${projet.name}.jpg`}
-        alt=""
-        loading="lazy"
-        decoding="async"
-        className="o-h-44 o-w-full o-object-cover"
-        onError={(e) => {
-          e.currentTarget.style.display = 'none'
-        }}
-      />
+      {/* La capture et le titre ouvrent le projet, comme ceux d une vitrine.
+          Le reste de la carte — la pile, la commande, les deux sorties —
+          reste hors du lien : on y clique pour autre chose. */}
+      <Link
+        to={`/templates/projet/${projet.name}`}
+        className="o-block o-no-underline o-text-inherit"
+      >
+        <img
+          src={`/apercus-templates/${projet.name}.jpg`}
+          alt=""
+          loading="lazy"
+          decoding="async"
+          className="o-h-44 o-w-full o-object-cover o-transition-opacity hover:o-opacity-90"
+          onError={(e) => {
+            e.currentTarget.style.display = 'none'
+          }}
+        />
+      </Link>
       <div className="o-flex o-flex-col o-gap-3 o-p-6">
         <div className="o-flex o-items-baseline o-justify-between o-gap-3">
           <h3 className="o-m-0 o-text-lg o-font-semibold o-tracking-tight">
-            {projet.title}
+            <Link
+              to={`/templates/projet/${projet.name}`}
+              className="o-no-underline o-text-inherit hover:o-text-brand-600 dark:hover:o-text-brand-400 o-transition-colors"
+            >
+              {projet.title}
+            </Link>
           </h3>
           <span className="o-shrink-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
             {projet.kind === 'site'
