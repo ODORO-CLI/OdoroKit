@@ -5,12 +5,25 @@ updated: 2026-05-21
 
 # 🧠 next16-claude-starter — Project Brain
 
+> [!warning] Ce coffre décrit le projet **tel qu'il a été bâti**, sur un autre
+> moteur.
+>
+> Le gabarit a depuis été porté sur le moteur Odoro sans toucher au design.
+> Ce qui a changé — le cadre, les routes serveur, les classes utilitaires, les
+> polices — est décrit dans le `README.md` à la racine du gabarit, avec la
+> mesure qui l'accompagne.
+>
+> Les conventions de ces pages restent utiles pour comprendre **pourquoi** le
+> code est écrit ainsi. Les commandes et les chemins, eux, sont ceux de
+> l'ancien moteur : c'est le README qui fait foi.
+
+
 This vault is the **single source of truth** for the `next16-claude-starter` project. It documents
 how the project is built, why decisions were made, and how to extend it — for both
 humans and AI agents (Claude Code, Cursor).
 
 > [!info] What is this project?
-> `next16-claude-starter` (package name `next16-claude-starter`) is a **Next.js 16 starter template**
+> `next16-claude-starter` (package name `next16-claude-starter`) is a **the framework starter template**
 > built by [Textura](https://textura.agency) for animation-heavy marketing & landing
 > sites. Every motion is spring-based; there is no backend yet.
 
@@ -30,7 +43,7 @@ humans and AI agents (Claude Code, Cursor).
 
 ### 02 — Frontend
 - [[routing]] — App Router conventions, route → view delegation
-- [[design-system]] — Tailwind v4 tokens, CSS layers, styling rules
+- [[design-system]] — the utility generator tokens, CSS layers, styling rules
 - [[animation-system]] — the spring component library (the core of this starter)
 - [[text-engine]] — `spring-text-engine` usage summary & project rules
 - [[text-engine-reference]] — full `spring-text-engine` API reference

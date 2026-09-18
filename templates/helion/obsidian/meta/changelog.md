@@ -31,7 +31,7 @@ ADR-0046.
   is now that SVG in `currentColor`; `<HeroIcon>` draws the still mark + a spinning
   orbit; `three/objects/logo-mark.ts` assembles the same mark from particles (band 0
   still, band 1 = orbit, `ORBIT_EVERY = 6`, raster box 140, `markSize` 14).
-  `hero-nav.tsx` lockup = `<LogoMark>` + « odoro »; `next/image` import dropped.
+  `hero-nav.tsx` lockup = `<LogoMark>` + « odoro »; the framework's image component import dropped.
   `logo-particle-field.ts` (dormant) updated to the same geometry.
 - **Wait-list form works** (`contact-form.tsx`): posts to `/api/contact`, shows the
   confirmation only on 200, keeps the pill on failure. `HeroFormContent` gains
@@ -42,8 +42,8 @@ ADR-0046.
   `https://github.com/MalikosDM/odoro-landing-helion.git` (the GitHub repo itself
   still has to be created — the `gh` token cannot). `.env*.local` added to
   `.gitignore` beside the starter's `.env`.
-- **Dependencies pinned for this machine** (`package.json`): `tailwindcss` and
-  `@tailwindcss/postcss` at exact `4.2.4`, plus `resolutions.jiti = 2.6.1`. The
+- **Dependencies pinned for this machine** (`package.json`): The utility generator and
+  the generator's plugin at exact `4.2.4`, plus `resolutions.jiti = 2.6.1`. The
   lockfile's 4.3.2 / jiti 2.7.0 never finish loading under Node 25.5.0 here (Turbopack
   reports `Invalid package config …/jiti/package.json`, every route 500s). No API
   difference for this project; lift the pins when the toolchain moves.
@@ -357,7 +357,7 @@ A broad optimisation + polish pass, mostly aimed at phones.
   Figma `666:1817`) — three glass pills (logo / links / gradient CTA) scaled by
   the same factor, `position: fixed` so it stays pinned on scroll. **Removed the
   old global `Header` + `Menu` from the home view.**
-- **Typography:** added **Mulish** (300/400) via `next/font/google` in
+- **Typography:** added **Mulish** (300/400) via the framework's font loader in
   `lib/fonts.ts`; the whole hero + nav use it at the mockup's exact sizes /
   line-heights (56px/1 masthead, 16px/1.2 chrome). New tokens in `globals.css`:
   `--gradient-hero-title`(+`-inv`), `--gradient-hero-cta`, `--gradient-hero-icon`,
@@ -371,8 +371,8 @@ A broad optimisation + polish pass, mostly aimed at phones.
 ## 2026-07-14 — clean build: two spurious CSS warnings + workspace-root warning
 
 - **Two "Unexpected token Ident(…)" CSS build warnings, silenced at the source.**
-  Tailwind v4 auto-scans the whole project for class candidates — including the
-  `obsidian/` vault, whose prose documents literal Tailwind syntax like
+  the utility generator auto-scans the whole project for class candidates — including the
+  `obsidian/` vault, whose prose documents literal the utility generator syntax like
   `bg-[image:var(…)]`. The scanner matched those and compiled invalid rules
   (`.bg-[var(…)] { background-color: var(…) }`). Fixed by scoping the scanner:
   `@source not "../../obsidian"` in `app/globals.css`. Also reworded the JSX
@@ -399,7 +399,7 @@ A broad optimisation + polish pass, mostly aimed at phones.
   SVG, no image, crisp at any DPR, and it recolours itself for free if the palette
   moves. Replaces the ringed dot.
 - **`bg-[var(--gradient-…)]` renders nothing, and every gradient token in the project
-  was written that way.** Tailwind cannot see what a bare custom property holds, so it
+  was written that way.** the utility generator cannot see what a bare custom property holds, so it
   guesses `background-color` — invalid for a gradient, so the declaration is dropped
   silently. **The footer's entire background wash had never rendered once**, nor its
   hairline rule, nor the burger's hover halo. All four now use `bg-[image:var(…)]`.
@@ -976,7 +976,7 @@ Second pass on the chapters blob (`objects/blob.ts`), all against
 
 - **Rebuilt the HELIOS site into this starter.** Ported the original Create React
   App build (`../helios`) — a single scrolling case study over a persistent
-  Three.js scene — onto Next 16, Tailwind v4 tokens, and the spring animation
+  Three.js scene — onto Next 16, the utility generator tokens, and the spring animation
   system.
   - **New dependency:** `three@0.143.0`, pinned. See [[tech-stack]] and
     [[decisions-log]] ADR-0014.
@@ -1046,7 +1046,7 @@ Second pass on the chapters blob (`objects/blob.ts`), all against
 
 - **Styling-placement convention added** — to stop `globals.css` accumulating
   hundreds of component-specific classes, styling now follows a strict
-  placement order: one-offs are Tailwind utilities, repeated patterns become
+  placement order: one-offs are the utility generator utilities, repeated patterns become
   **React components** (not `@layer components` classes), and `@layer
   components` is reserved strictly for pseudo-elements and third-party
   overrides. `globals.css` stays bounded — `@import`, tokens, base resets only.
@@ -1081,7 +1081,7 @@ Second pass on the chapters blob (`objects/blob.ts`), all against
   `app/sitemap.ts`, and an `Organization`+`WebSite` JSON-LD helper; OG image
   dimensions corrected to match the asset; dead `keywords`/`other` tags dropped.
   **Performance:** populated `next.config.ts` (`removeConsole` in prod,
-  AVIF/WebP, `next/image` breakpoints aligned to the grid, `poweredByHeader:
+  AVIF/WebP, the framework's image component breakpoints aligned to the grid, `poweredByHeader:
   false`); fixed a `requestAnimationFrame` leak in `ScrollLayout` (Lenis loop
   never cancelled on unmount); `HomeView` is now a Server Component with the
   animation demo split into the `HomeShowcase` client leaf; added
@@ -1115,7 +1115,7 @@ Second pass on the chapters blob (`objects/blob.ts`), all against
   `src/components/common/grid/` (`<AdaptiveGrid>` + `useAdaptiveGrid` hook +
   `grid.config.ts`), with `vw` media queries in `globals.css` for scale-down.
   It was dropped into `common/` as a `styled-components` system; ported to the
-  project stack — config-driven TS + CSS-only Tailwind, no `styled-components`.
+  project stack — config-driven TS + CSS-only the utility generator, no `styled-components`.
   The unused dropped files (`colors.ts`, `fonts.ts`, `utils.ts`, `index.ts`,
   the `styled-components` `grid.tsx`) were removed. Mounted via `<AdaptiveGrid>`
   in the root layout. See [[components/common]] and [[decisions-log]] ADR-0008.
@@ -1125,7 +1125,7 @@ Second pass on the chapters blob (`objects/blob.ts`), all against
   project README that points into this vault.
 - **`generic-layout-prompt.md` moved** — relocated from repo root to
   `obsidian/workflows/` as [[generic-layout-prompt]].
-- **Navigation convention resolved** — standard `next/link` confirmed; the unbuilt
+- **Navigation convention resolved** — standard the framework's link component confirmed; the unbuilt
   `<AnimLink>` / `useAnimRouter()` convention dropped. See [[decisions-log]] ADR-0005.
 - **Docs consolidated into the vault** — `project-specs.md` deleted (decomposed into
   vault notes + new [[environment-variables]]); `text-engine-docs.md` moved in as
@@ -1146,7 +1146,7 @@ Second pass on the chapters blob (`objects/blob.ts`), all against
   was replaced by an in-house `Cookie/` component (banner + category preferences
   modal + Zustand store). `react-cookie-consent` removed from dependencies. The
   component shipped using `styled-components` + an external design system; it was
-  ported to the project stack — Tailwind v4 tokens and `@react-spring/web` motion.
+  ported to the project stack — the utility generator tokens and `@react-spring/web` motion.
   Mounted via `<LazyCookie>`. See [[components/common]].
 - **Fixed TextEngine spring type mismatch** — the `mode="once"` heading in
   `views/home.tsx` mixed `lineIn={{ y: 0 }}` (number) with `lineOut={{ y: "100%" }}`
@@ -1163,5 +1163,5 @@ Second pass on the chapters blob (`objects/blob.ts`), all against
 | `b2b84e6` | initial — `next16-claude-starter` scaffold |
 
 > [!note]
-> The starter shipped with: Next.js 16.2, React 19.2, Tailwind v4, `@react-spring/web`,
+> The starter shipped with: The framework.2, React 19.2, the utility generator, `@react-spring/web`,
 > `spring-text-engine`, Lenis, and Zustand. See [[tech-stack]] for the current state.

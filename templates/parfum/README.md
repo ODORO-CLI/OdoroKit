@@ -22,8 +22,8 @@ même boîte. Ce qui a changé, c'est la mécanique dessous.
 | Les classes utilitaires | Réécrites vers les nôtres (`o-*`) ou, quand notre générateur ne les produit pas, vers des règles `pf-*` dérivées du bloc de jetons de `src/styles.css`. Aucune valeur n'a changé. |
 | La variante `lg:` | Ce gabarit se la redéclare : `(min-width: 1024px) and (min-aspect-ratio: 1/1)`. Elle **n'est pas** la nôtre, et toutes ses classes portent la requête du gabarit. |
 | Les polices | Liées dans la feuille au lieu du `layout`. La 3270 est servie depuis l'origine du projet ; l'Onest vient du fournisseur. Licences dans `src/fonts/LICENCES.md`. |
-| Les images | `next/image` → `<img>`, et le socle rend `height: auto` aux images qui portent leurs dimensions en attributs. |
-| Le chargement différé | `next/dynamic` → `React.lazy` + `<Suspense>`, aux deux mêmes endroits. |
+| Les images | the framework's image component → `<img>`, et le socle rend `height: auto` aux images qui portent leurs dimensions en attributs. |
+| Le chargement différé | the framework's dynamic import → `React.lazy` + `<Suspense>`, aux deux mêmes endroits. |
 | L'origine publique | Elle était lue dans l'environnement ; elle est posée en clair dans `src/lib/site.ts`, seule ligne à changer au déploiement. |
 
 Une chose a été rendue à son intention plutôt qu'à sa lettre : l'original
@@ -78,12 +78,12 @@ _Ci-dessous : la documentation d'origine du starter._
 
 # next16-claude-starter
 
-A **Next.js 16 starter** for animation-heavy marketing & landing sites — built
+A **the framework starter** for animation-heavy marketing & landing sites — built
 by [Textura](https://textura.agency) so that AI agents (Claude Code, Cursor)
 generate **clean, production-ready code on the first pass**.
 
 Every motion is spring-based (`@react-spring/web`), text animation runs through
-`spring-text-engine`, scrolling is smoothed with Lenis, styling is Tailwind
+`spring-text-engine`, scrolling is smoothed with Lenis, styling is the utility generator
 v4, and a rem-based adaptive grid scales the design across every viewport.
 
 ---
@@ -208,7 +208,7 @@ re-inject context on every turn. That bought-clean code costs tokens.
 
 ## 🚀 Deploy to Vercel
 
-The fastest path to production — Next.js is Vercel's home framework, so the
+The fastest path to production — the framework is Vercel's home framework, so the
 defaults Just Work. From the project root:
 
 ```bash
@@ -218,7 +218,7 @@ vercel --prod             # promotes to production
 ```
 
 Or from the dashboard: open [vercel.com/new](https://vercel.com/new), import
-the GitHub repo you created in step 3, accept the defaults — the Next.js
+the GitHub repo you created in step 3, accept the defaults — the framework
 preset auto-configures the build, output, and image optimisation. No
 `vercel.json` required.
 
@@ -241,7 +241,7 @@ Start at [`obsidian/README.md`](./obsidian/README.md).
 
 ## For AI agents
 
-> ⚠️ This is **not** the Next.js you may know — APIs and conventions differ
+> ⚠️ This is **not** the framework you may know — APIs and conventions differ
 > from older versions. Read `AGENTS.md` and the `obsidian/` vault before
 > writing code.
 

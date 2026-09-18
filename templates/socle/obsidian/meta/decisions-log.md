@@ -95,7 +95,7 @@ a few MB of VRAM against a 60 ms hitch every time the user scrolls past.
 
 **Not fixed here, measured and noted:** `public/assets/Location/mask.png` is
 1.5 MB and `location.png` 3.8 MB. The mask is loaded by hand for WebGL, so
-`next/image` never touches it and the full 1.5 MB goes over the wire
+the framework's image component never touches it and the full 1.5 MB goes over the wire
 (`optimize-3d-scene` §12).
 
 ---
@@ -128,7 +128,7 @@ the Figma composition at **11.4 px** body copy.
 
 The desktop composition moved from `md:` to `lg:`, with `--breakpoint-lg`
 overridden to 1280 and a new `--breakpoint-tablet` at 540. `md:` is left at
-Tailwind's 768 and deliberately unused for layout, so a stray `md:` cannot
+the generator's 768 and deliberately unused for layout, so a stray `md:` cannot
 half-apply the desktop composition to a tablet.
 
 **Consequences.** Type is constant and readable across the whole tablet range
@@ -165,7 +165,7 @@ thicker strokes so it holds up at 24 pt.
 
 **Decision.** Ship the official Google Fonts **variable** build alongside the
 static cuts, latin subset (the wordmark is three distinct letters), as a second
-`next/font/local` family bound to `--font-display`. Browsers apply
+the framework's local font loader family bound to `--font-display`. Browsers apply
 `font-optical-sizing: auto` by default, so the wordmark needs no explicit
 variation settings — at 801 px `opsz` lands on the axis maximum on its own, and
 it stays there at every grid width because the type is far above the axis range.
@@ -367,7 +367,7 @@ at scroll 0**. The resource timeline explained it: three core (283 KB), three
 module (129 KB), three examples (44 KB) and the Draco decoder all fetched from
 ~757 ms — while the visitor was still looking at the hero.
 
-Both WebGL consumers were already behind `next/dynamic` / below the fold, and
+Both WebGL consumers were already behind the framework's dynamic import / below the fold, and
 that was the trap: **code-splitting defers the bundle, not the work.** The
 component mounts immediately, so the chunk downloads, parses, creates a GL
 context, generates a PMREM environment (which renders a scene) and decodes a
@@ -382,7 +382,7 @@ never during the hero.
 
 - Nothing heavy touches page load: verified `[]` heavy resources at scroll 0,
   and all six still present once scrolled.
-- **`next/dynamic` is not a performance measure on its own.** Anything that
+- **the framework's dynamic import is not a performance measure on its own.** Anything that
   costs main-thread time on mount — a GL context, a WASM decoder, a large
   decode — needs a visibility gate as well. Treat the two as separate concerns.
 - The margins are a latency trade: too small and the section arrives before the
@@ -493,7 +493,7 @@ for no benefit.
 **Consequences.**
 
 - **It is code-split.** `three` is ~150 KB and the mark sits well below the
-  fold, so `ScrollModel` is loaded through `next/dynamic` with `ssr: false`
+  fold, so `ScrollModel` is loaded through the framework's dynamic import with `ssr: false`
   (it needs a WebGL context). It must not be imported statically.
 - **The `.glb` is Draco-compressed** — that is why it is 3 KB — so `GLTFLoader`
   alone fails with *"No DRACOLoader instance provided"*. The decoder is served
@@ -767,7 +767,7 @@ should be *called*. The starter shipped two tokens (`--background`,
 `--foreground`) and no grammar, so every project built from it would invent its
 own — defeating the point of a shared starter, since an agent moving between
 projects could not predict a token name without reading `globals.css`. Reference
-taken from [Mavik Labs — *Design Tokens in Tailwind v4*](https://www.maviklabs.com/blog/design-tokens-tailwind-v4-2026/)
+taken from [Mavik Labs — *Design Tokens in the utility generator*](https://www.maviklabs.com/blog/design-tokens-utility-generator-2026/)
 (three tiers: primitive → semantic → component).
 
 **Decision.** Adopt the three-tier model with an explicit grammar, documented in
@@ -787,13 +787,13 @@ taken from [Mavik Labs — *Design Tokens in Tailwind v4*](https://www.maviklabs
 - Tier 3 stays rare by design (ADR-0012 prefers a React component).
 
 **Two deliberate deviations from the reference article**, both verified against
-`tailwindcss` v4.3.3 by compiling a probe stylesheet:
+the utility generator v4.3.3 by compiling a probe stylesheet:
 1. The article names primitives `--color-blue-500`. We prefix them `--raw-*` and
-   keep them out of `@theme` — under Tailwind v4 a `--color-*` entry *generates
+   keep them out of `@theme` — under the utility generator a `--color-*` entry *generates
    utilities*, so naming primitives that way would emit a `bg-blue-500` for every
    raw value and let markup bypass the semantic tier.
 2. The article lists `--duration-fast` / `--duration-normal` next to `--ease-*`.
-   **There is no `--duration-*` namespace in Tailwind v4** — the probe confirmed
+   **There is no `--duration-*` namespace in the utility generator** — the probe confirmed
    `duration-fast` compiles to nothing and the variable is not even emitted from
    `@theme inline`. Durations therefore stay Tier 2 only, consumed as
    `duration-[var(--duration-fast)]`. (`--ease-*` *is* a real namespace and is used.)
@@ -911,12 +911,12 @@ same bloat.
 **Decision.** Styling follows a strict placement order; `globals.css` stays
 bounded by design.
 
-- One-off styling → **Tailwind utilities** in `className`. Nothing enters CSS.
+- One-off styling → **the utility generator utilities** in `className`. Nothing enters CSS.
 - A repeated pattern with markup/structure/props → a **React component**
   (`components/ui/`), *not* a CSS class. This is the default answer to "this
   looks repeated" — e.g. an eyebrow label with a `::before` dot is an
   `<Eyebrow>` component, not a `.label-eyebrow` class.
-- A repeated pure-utility combo with no structure → a Tailwind v4 `@utility`.
+- A repeated pure-utility combo with no structure → a utility generator `@utility`.
 - `@layer components` is reserved **strictly** for what utilities and
   components genuinely cannot express: pseudo-elements (`::before`/`::after`),
   third-party DOM overrides (`!important` on library markup), complex
@@ -946,7 +946,7 @@ project wants anyway. This **amends ADR-0004**: design *tokens* still go in
 external services that keeps secret keys off the client and gives endpoints a
 consistent shape.
 
-**Decision.** External calls go through Next.js Route Handlers —
+**Decision.** External calls go through the framework Route Handlers —
 `src/app/api/<resource>/route.ts`:
 - **The handler owns the work** — business logic, multiple upstream calls,
   filtering, and reading secret env vars all live in `route.ts`. No mandatory
@@ -1000,7 +1000,7 @@ and the animation-heavy starter ignored `prefers-reduced-motion`.
   toggling the global `skipAnimation` — one app-root mount covers every spring
   and `spring-text-engine`. Chosen over per-component handling for its reach.
 - **Build config.** `next.config.ts` now sets `removeConsole` (prod),
-  AVIF/WebP, `next/image` breakpoints aligned to the adaptive-grid widths, and
+  AVIF/WebP, the framework's image component breakpoints aligned to the adaptive-grid widths, and
   `poweredByHeader: false`. React Compiler is left as a documented opt-in (needs
   `babel-plugin-react-compiler`).
 - Fixed the `ScrollLayout` Lenis rAF leak (cancel on unmount).
@@ -1141,18 +1141,18 @@ hold canonical spec content.
 
 ---
 
-## ADR-0005 — Use standard `next/link` for navigation
+## ADR-0005 — Use standard the framework's link component for navigation
 
 - **Status:** Accepted
 - **Date:** 2026-05-21
 
 **Context.** Two conflicting conventions existed: `project-specs.md` specified
-standard `next/link` / `useRouter`, while `generic-layout-prompt.md` specified
+standard the framework's link component / `useRouter`, while `generic-layout-prompt.md` specified
 custom `<AnimLink>` / `useAnimRouter()` wrappers. The custom wrappers were never
 built.
 
-**Decision.** Use standard Next.js navigation — `<Link>` from `next/link` and
-`useRouter` from `next/navigation`. The `AnimLink` / `useAnimRouter` convention is
+**Decision.** Use standard the framework navigation — `<Link>` from the framework's link component and
+`useRouter` from the framework's navigation module. The `AnimLink` / `useAnimRouter` convention is
 dropped. See [[routing]].
 
 **Consequences.** `generic-layout-prompt.md` §5 updated to match. No animated-route-
@@ -1211,12 +1211,12 @@ to test.
 
 ---
 
-## ADR-0004 — Tailwind v4 with CSS-based config
+## ADR-0004 — the utility generator with CSS-based config
 
 - **Status:** Accepted (inherited from starter) — amended by ADR-0012 and ADR-0015
 - **Date:** Project baseline
 
-**Context.** Tailwind v4 removes `tailwind.config.js` in favour of CSS-native config.
+**Context.** the utility generator removes the generator's config in favour of CSS-native config.
 
 **Decision.** All theme tokens live in `globals.css` under `:root` and `@theme inline`.
 No JS config file. Raw values in class names are banned. See [[design-system]].

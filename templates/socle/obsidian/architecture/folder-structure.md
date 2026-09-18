@@ -34,7 +34,7 @@ documentation workflow automatically — also see [[ai-agent-guide]].
 src/
 ├── env.ts                  # zod-validated env (public + server-only split)
 │
-├── app/                    # Next.js routes — keep lean, routing only
+├── app/                    # the framework routes — keep lean, routing only
 │   ├── layout.tsx          # Root layout — provider tree lives here
 │   ├── page.tsx            # Route → delegates to a view
 │   ├── api/<resource>/route.ts  # API endpoints — see [[api-architecture]]
@@ -46,7 +46,7 @@ src/
 │   ├── opengraph-image.tsx # → /opengraph-image  1200×630 share card
 │   ├── robots.ts           # → /robots.txt
 │   ├── sitemap.ts          # → /sitemap.xml
-│   └── globals.css         # Tailwind v4 config + design tokens
+│   └── globals.css         # the utility generator config + design tokens
 │
 ├── data/mocks/             # Placeholder content, passed into views via props
 │   └── home.ts             # AERRA home page copy (from the Figma frame)

@@ -21,7 +21,7 @@ petits, et localisés.
 |---|---|
 | Le cadre | Il n'y en a plus. `index.html` + `src/main.tsx` + `src/App.tsx` remplacent `layout.tsx` et `page.tsx`. |
 | La vue | Elle était `async` — un composant serveur. React ne rend pas une fonction asynchrone côté navigateur : il lève, et la page reste blanche. `HomeView` est donc synchrone, et lit la chaîne d'agent au premier rendu. |
-| Le chargement différé | `next/dynamic` → `React.lazy` + `<Suspense>`, pour la scène de cubes. |
+| Le chargement différé | the framework's dynamic import → `React.lazy` + `<Suspense>`, pour la scène de cubes. |
 | Les classes utilitaires | Réécrites vers les nôtres (`o-*`) ou, quand notre générateur ne les produit pas, vers des règles `at-*` dérivées du bloc de jetons de `src/styles.css`. Aucune valeur n'a changé. |
 | Les dégradés | L'autre moteur assemblait un dégradé en classes indépendantes qui se parlent par des variables. Le protocole est repris tel quel, sous notre préfixe. |
 | Les images | Le composant image de l'autre cadre cède la place à `<img>`. |
@@ -55,8 +55,8 @@ npm run preview
 
 | Layer | Choice |
 |-------|--------|
-| Framework | Next.js 16 (App Router, Turbopack) · React 19 · TypeScript |
-| Styling | Tailwind v4, configured entirely in `src/app/globals.css` (no `tailwind.config.js`) |
+| Framework | the framework (App Router, Turbopack) · React 19 · TypeScript |
+| Styling | the utility generator, configured entirely in `src/app/globals.css` (no the generator's config) |
 | Motion | `@react-spring/web` + `spring-text-engine` — **spring-based only**, no CSS keyframes, no framer-motion |
 | Scroll | Lenis smooth scroll + a Zustand store |
 | 3D | `three` + `cannon-es`, plain (no R3F), lazy-loaded |
@@ -80,7 +80,7 @@ npm run dev             # http://localhost:3000
 
 > **Don't keep the repo in an iCloud-synced folder** (`~/Desktop`,
 > `~/Documents` with Desktop & Documents sync on). Every file open is proxied
-> through the file provider, and Node tooling opens thousands: `next dev`,
+> through the file provider, and Node tooling opens thousands: the dev server,
 > `tsc` and `eslint` hang for minutes. `~/Developer` or anywhere outside the
 > sync root is fine.
 

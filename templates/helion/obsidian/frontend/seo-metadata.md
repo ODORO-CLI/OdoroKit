@@ -32,7 +32,7 @@ export const metadata = generateMetadata({ title: "…", description: "…" });
 export const viewport = generateViewport();
 ```
 
-- `generateMetadata(props?)` → a Next.js `Metadata` object: title/description,
+- `generateMetadata(props?)` → a framework `Metadata` object: title/description,
   OpenGraph, Twitter cards, canonical, robots. `metadataBase` is **always set** from
   `siteConfig.url`, so relative URLs (OG image, canonical) resolve to absolute —
   required by social scrapers. Title is a `{ default, template: "%s — HELION" }`

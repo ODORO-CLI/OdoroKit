@@ -6,7 +6,7 @@
  * C est le portage de `templates/starter-next/` : la page d accueil AERRA du
  * socle Next, une maison en bois a vendre, un seul bien, un seul mandat. La
  * composition, la copie et l ordre des ecrans sont ceux de la source ; la pile
- * — react-spring, Lenis, spring-text-engine, three.js avec un GLB, Tailwind —
+ * — react-spring, Lenis, spring-text-engine, three.js avec un GLB —
  * est remplacee par le moteur et la trousse des vitrines.
  *
  * ## Ce que la page fait

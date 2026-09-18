@@ -34,7 +34,7 @@ const HEIGHT_RATIO = 0.127;
 /**
  * Start loading three this far before the section reaches the viewport.
  *
- * Without this gate `next/dynamic` fires on mount, so ~456 KB of three plus the
+ * Without this gate the framework's dynamic import fires on mount, so ~456 KB of three plus the
  * Draco decoder are fetched and parsed while the visitor is still looking at the
  * hero — measured as a 125 ms main-thread block at load. Code-splitting alone
  * does not defer the *work*, only the bundle.
@@ -76,7 +76,7 @@ export const AudienceMark = ({ src, label }: AudienceMarkProps) => {
       onChange={({ progress: value }) => {
         progress.current = value;
       }}
-      // Literal classes: Tailwind scans source text, so a class assembled from
+      // Literal classes: The utility generator scans source text, so a class assembled from
       // a variable is never generated.
       className="o-pointer-events-none o-absolute o-inset-y-0 o-left-1/2 o-z-0 o-w-full sn-translate-x-1-2 sn-lg-w-120"
     >

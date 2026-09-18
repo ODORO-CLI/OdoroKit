@@ -144,7 +144,7 @@ it is used: `springs/config.ts` and `animation/ticker.ts` in
 | `FRAME_TIERS` | desktop 210 × 1920×1080; mobile 105 × 1280×720 (every other frame) |
 | `pickFrameTier()` | mobile below 1024px wide or on a coarse pointer. Read **once at mount**: switching tiers would re-download the set, and a 2D canvas has nothing to retune |
 | `framePath(tier, i)` | `/assets/scene/sequence/<tier>/NNN.webp` |
-| `FRAME_POSTER` | desktop frame 0, the `next/image` poster under the canvas and the bot / no-JS fallback |
+| `FRAME_POSTER` | desktop frame 0, the framework's image component poster under the canvas and the bot / no-JS fallback |
 | `loadFrames(tier, onFrame, signal)` | fetch + `img.decode()` in index order, six in flight. A failed frame is reported as `null` and the canvas falls back to its nearest neighbour. Stops when `signal` aborts |
 
 The tiering and memory reasoning are in [[decisions-log]] ADR-0025. The encode

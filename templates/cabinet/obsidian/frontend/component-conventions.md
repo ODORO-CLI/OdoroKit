@@ -64,7 +64,7 @@ Markup must be **semantic, accessible, and SEO-correct** — the full rulebook i
 ## Animation in components
 
 Use the [[animation-system]] primitives. Pass the semantic element via `tag`.
-Tailwind classes go on `className` / `innerClassName`, never into spring `from`/`to`.
+The utility generator classes go on `className` / `innerClassName`, never into spring `from`/`to`.
 
 ## Code quality
 

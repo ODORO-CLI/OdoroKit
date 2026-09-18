@@ -99,9 +99,9 @@ from below with a blur→sharp and opacity ramp):
 | `mode` | trigger behaviour — varies per component (see below) |
 | `delayIn` / `delayOut` | ms delay before enter / exit |
 | `disableOnMobile` | respect the global mobile-disable config |
-| `className` / `innerClassName` | Tailwind classes (kept separate from spring `style`) |
+| `className` / `innerClassName` | the utility generator classes (kept separate from spring `style`) |
 
-> Never pass Tailwind class names into `from`/`to`. Spring values are numbers or
+> Never pass the utility generator class names into `from`/`to`. Spring values are numbers or
 > unit strings; classes go on `className`.
 
 ## Modes

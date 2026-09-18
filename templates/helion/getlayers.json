@@ -146,10 +146,10 @@
   "environment": {
     "target": "next",
     "framework": "next",
-    "stack": "Next 16.2.0 + React 19.2 + Tailwind v4 + Lenis + three 0.162 (rig point-cloud maison, pas R3F) + @react-spring/web 10 + spring-text-engine + zustand + zod",
+    "stack": "Next 16.2.0 + React 19.2 + the utility generator + Lenis + three 0.162 (rig point-cloud maison, pas R3F) + @react-spring/web 10 + spring-text-engine + zustand + zod",
     "installedWith": "npx yarn@1.22.22 install (pas de yarn/corepack sur la machine)",
     "pins": {
-      "tailwindcss / @tailwindcss/postcss": "4.2.4 (exact) — la 4.3.2 du lockfile Helion bloque au chargement sous Node 25.5.0 sur cette machine ; 4.2.4 est la version vérifiée la veille sur Template-Landing-ODORO",
+      "the utility generator / the generator's plugin": "4.2.4 (exact) — la 4.3.2 du lockfile Helion bloque au chargement sous Node 25.5.0 sur cette machine ; 4.2.4 est la version vérifiée la veille sur Template-Landing-ODORO",
       "jiti": "2.6.1 via resolutions — même raison"
     },
     "devPort": 3001,
@@ -173,6 +173,6 @@
       "mobile hero + nav"
     ],
     "typecheckLint": "NON TERMINÉS — `tsc --noEmit` et `eslint` n'ont jamais obtenu de CPU (disque à 99 %, swap 10 Go) et ont été arrêtés après 27 min ; à relancer une fois de l'espace libéré : `npx tsc --noEmit && npx eslint`.",
-    "note": "playwright-core installé DANS le scratchpad, pas dans le projet. Aucune dépendance ajoutée à package.json en dehors des pins tailwind/jiti."
+    "note": "playwright-core installé DANS le scratchpad, pas dans le projet. Aucune dépendance ajoutée à package.json en dehors des pins generator/jiti."
   }
 }

@@ -58,7 +58,7 @@ shipped as two re-encoded tiers — desktop 210 × 1920×1080 WebP (14 MB), mobi
 and count as loaded only after `img.decode()`. The canvas draws on the shared
 ticker, and only when the wanted frame index changes, the canvas is still
 visible and the tab is in front. Frame zero is the poster underneath
-(`next/image`, `priority`). The preloader lifts on *clock and frames settled*.
+(the framework's image component, `priority`). The preloader lifts on *clock and frames settled*.
 A client-side user-agent check (`isBotAgent`) skips the download for crawlers
 and audit tools.
 
@@ -337,7 +337,7 @@ appearance, and is the themeable layer. No tier may be skipped.
 should be *called*, so every project would invent its own — defeating the point of
 a shared starter. The names are predictable across projects by design.
 
-**When building.** Full rules in [[design-system]]. Two Tailwind v4 facts,
+**When building.** Full rules in [[design-system]]. Two the utility generator facts,
 verified by compiling a probe stylesheet, that guides commonly get wrong:
 
 1. Naming primitives `--color-*` would **generate a utility for every raw value**
@@ -403,9 +403,9 @@ were explicitly signed-off bug fixes, not an opening.
 
 | Situation | Goes where |
 |-----------|-----------|
-| One-off styling | Tailwind utilities in `className` |
+| One-off styling | the utility generator utilities in `className` |
 | Repeated pattern with markup/structure/props | a **React component** in `components/ui/` |
-| Repeated pure-utility combo, no structure | a Tailwind v4 `@utility` |
+| Repeated pure-utility combo, no structure | a utility generator `@utility` |
 | Pseudo-elements, 3rd-party overrides, complex selectors | `@layer components` |
 | A new colour/spacing/radius value | a token (per ADR-0015) |
 
@@ -429,7 +429,7 @@ keyframes to co-locate) and utilities plus components cover everything else.
 
 **Status:** Accepted · 2026-05-22
 
-**Decision.** External calls go through Next.js Route Handlers at
+**Decision.** External calls go through the framework Route Handlers at
 `src/app/api/<resource>/route.ts`. The handler owns the work — business logic,
 upstream calls, filtering, secret env vars. No mandatory passthrough service
 layer; extract shared code only when genuinely reused.
@@ -545,12 +545,12 @@ shims consistent with it — they are the first thing every agent reads.
 
 ---
 
-## ADR-0005 — Use standard `next/link` for navigation
+## ADR-0005 — Use standard the framework's link component for navigation
 
 **Status:** Accepted · 2026-05-21
 
-**Decision.** Standard Next.js navigation — `<Link>` from `next/link`,
-`useRouter` from `next/navigation`. The custom `<AnimLink>` / `useAnimRouter()`
+**Decision.** Standard the framework navigation — `<Link>` from the framework's link component,
+`useRouter` from the framework's navigation module. The custom `<AnimLink>` / `useAnimRouter()`
 convention referenced in early drafts is dropped; it was never built.
 
 **Why.** Two conflicting conventions existed in the docs and only one had code.
@@ -560,15 +560,15 @@ revisit with a new ADR rather than reviving the old names. See [[routing]].
 
 ---
 
-## ADR-0004 — Tailwind v4 with CSS-based config
+## ADR-0004 — the utility generator with CSS-based config
 
 **Status:** Accepted (starter baseline) · amended by ADR-0012 and ADR-0015
 
 **Decision.** All theme configuration lives in `globals.css` under `:root` and
-`@theme inline`. There is no `tailwind.config.js`. Raw values in class names are
+`@theme inline`. There is no the generator's config. Raw values in class names are
 banned.
 
-**Why.** Tailwind v4 removes the JS config file in favour of CSS-native config.
+**Why.** the utility generator removes the JS config file in favour of CSS-native config.
 
 **When building.** Design tokens are the only styling currency: a value that does
 not exist as a token gets added to `globals.css` first — following the three-tier

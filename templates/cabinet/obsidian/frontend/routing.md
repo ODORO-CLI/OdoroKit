@@ -5,10 +5,10 @@ updated: 2026-09-14
 
 # Routing
 
-Next.js 16 App Router. The defining convention: **routes delegate to views**.
+the framework App Router. The defining convention: **routes delegate to views**.
 
 > [!warning]
-> Per `AGENTS.md`, this version of Next.js may differ from older knowledge. Heed
+> Per `AGENTS.md`, this version of the framework may differ from older knowledge. Heed
 > deprecation notices before writing routing code.
 
 ## Route → View delegation
@@ -61,7 +61,7 @@ architecture is [[decisions-log]] ADR-0024. The full story is in [[changelog]]
 
 ## `middleware.ts` is gone — it is `proxy.ts`
 
-Next.js 16 renamed it: the file is `proxy.ts` and the exported function is
+the framework renamed it: the file is `proxy.ts` and the exported function is
 `proxy`. It runs on **Node**; the Edge runtime is not supported and cannot be
 configured. This is exactly the kind of breaking change `AGENTS.md` warns about —
 training data will confidently write `middleware.ts`, and
@@ -92,18 +92,18 @@ keep the `matcher` tight or static marketing pages get dragged through it.
 
 ## Navigation
 
-Use **standard Next.js navigation** — `<Link>` from `next/link` and `useRouter`
-from `next/navigation`. ADR: [[decisions-log]] ADR-0005.
+Use **standard the framework navigation** — `<Link>` from the framework's link component and `useRouter`
+from the framework's navigation module. ADR: [[decisions-log]] ADR-0005.
 
 ```tsx
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import Link from 'the framework's link component';
+import { useRouter } from 'the framework's navigation module';
 ```
 
 > [!note]
 > Earlier drafts of `generic-layout-prompt.md` referenced `<AnimLink>` /
 > `useAnimRouter()`. Those were never built and the convention is dropped — use
-> `next/link` directly.
+> The framework's link component directly.
 
 ## SEO per route
 

@@ -19,7 +19,7 @@ updated: 2026-09-14
 > | Switcher | SLIDER / LIST | OR / ARGENT |
 > | Tally lamp | signal red | **gold** — the one place the accent blinks |
 > | Thumbnails | one aerial at two crops | the manchette portrait at two crops (`hero-thumbnails.tsx → CROP`) |
-> | Type | Instrument Serif / Inter Tight | Cormorant / Inter Tight, via `next/font/google` |
+> | Type | Instrument Serif / Inter Tight | Cormorant / Inter Tight, via the framework's font loader |
 >
 > **One addition — the exit parallax.** The picture layers (footage, still, veil,
 > vignette, grain) share one `animated.div` plate that sinks by `EXIT_PARALLAX`
@@ -356,7 +356,7 @@ care what happened before it. See
 Desktop (>1024) is untouched. The two ranges below it are laid out against the
 grid's own base widths — 1024 and 360 — so everything inside a range scales by
 itself. Positions live in `CLASS` in `hero.geometry.ts` as **literal class
-strings** (Tailwind's scanner needs to see them) rather than inline styles,
+strings** (the generator's scanner needs to see them) rather than inline styles,
 because an inline style cannot be overridden by a media query.
 
 Breakpoints are pinned to the grid: `max-lg:` is ≤1024, `max-md:` is ≤640.

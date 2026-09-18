@@ -16,19 +16,19 @@ Package name: `next16-claude-starter` · version `0.1.0` · private.
 | `react` / `react-dom` | `19.2.8` | UI runtime |
 | `typescript` | `^5` | Type system — `any` is banned |
 
-> [!warning] This is not the Next.js you may know
+> [!warning] This is not the framework you may know
 > `AGENTS.md` warns: APIs, conventions, and file structure may differ from older
-> Next.js knowledge. Always check [[routing]] before writing routing code, and
+> The framework knowledge. Always check [[routing]] before writing routing code, and
 > heed deprecation notices.
 
 ## Styling
 
 | Package | Version | Role |
 |---------|---------|------|
-| `tailwindcss` | `^4` | Utility CSS — **no `tailwind.config.js`** |
-| `@tailwindcss/postcss` | `^4` | PostCSS integration |
+| The utility generator | `^4` | Utility CSS — **no the generator's config** |
+| The generator's plugin | `^4` | PostCSS integration |
 
-Tailwind v4 is configured entirely in `src/app/globals.css` via `@theme inline`.
+the utility generator is configured entirely in `src/app/globals.css` via `@theme inline`.
 See [[design-system]].
 
 ## Animation (the heart of the starter)
@@ -52,7 +52,7 @@ No `@react-three/fiber` and no `drei`: the scene is a single static model, and
 fiber would add a React reconciler **and a second rAF loop** beside the shared
 ticker this project already runs everything through. `three` is imported only
 from `src/views/home/hero/hero-subject.tsx`, which is loaded with
-`next/dynamic({ ssr: false })` so it never enters the server bundle. The Draco
+`the framework's dynamic import({ ssr: false })` so it never enters the server bundle. The Draco
 decoder is **self-hosted** in `public/draco/` (copied from
 `three/examples/jsm/libs/draco/gltf/`) rather than pulled off Google's CDN.
 ADR: [[decisions-log]] ADR-0027.
@@ -89,7 +89,7 @@ former `react-cookie-consent` package was removed. See [[components/common]].
 ## Scripts
 
 ```bash
-yarn dev      # next dev — local development
+yarn dev      # the dev server — local development
 yarn build    # next build — production build
 yarn start    # next start — serve production build
 yarn lint     # eslint

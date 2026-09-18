@@ -16,26 +16,26 @@ Package name: `next16-claude-starter` · version `0.1.0` · private.
 | `react` / `react-dom` | `19.2.4` | UI runtime |
 | `typescript` | `^5` | Type system — `any` is banned |
 
-> [!warning] This is not the Next.js you may know
+> [!warning] This is not the framework you may know
 > `AGENTS.md` warns: APIs, conventions, and file structure may differ from older
-> Next.js knowledge. Always check [[routing]] before writing routing code, and
+> The framework knowledge. Always check [[routing]] before writing routing code, and
 > heed deprecation notices.
 
 ## Styling
 
 | Package | Version | Role |
 |---------|---------|------|
-| `tailwindcss` | `^4` | Utility CSS — **no `tailwind.config.js`** |
-| `@tailwindcss/postcss` | `^4` | PostCSS integration |
+| The utility generator | `^4` | Utility CSS — **no the generator's config** |
+| The generator's plugin | `^4` | PostCSS integration |
 
-Tailwind v4 is configured entirely in `src/app/globals.css` via `@theme inline`.
+the utility generator is configured entirely in `src/app/globals.css` via `@theme inline`.
 See [[design-system]].
 
-**Typeface: Google Sans Flex**, self-hosted via `next/font/local` from
+**Typeface: Google Sans Flex**, self-hosted via the framework's local font loader from
 `src/app/fonts/` — four static 24 pt instances (Thin / Light / Regular / Medium)
 for text, **plus the variable build** (`GoogleSansFlex-Variable-latin.woff2`,
 the official Google Fonts file, latin subset) for display type that needs the
-`opsz` axis. This replaced Onest (`next/font/google`); no package changed, only
+`opsz` axis. This replaced Onest (the framework's font loader); no package changed, only
 the loader. See [[design-system]] → Typography and [[decisions-log]] ADR-0029.
 
 ## Animation (the heart of the starter)
@@ -55,7 +55,7 @@ No `framer-motion`, no CSS transitions/keyframes. See [[animation-system]] and
 | `three` | `0.185.1` | WebGL renderer for the audience section's glTF mark |
 | `@types/three` | `^0.185.4` | Types (dev) |
 
-Loaded only through `next/dynamic` (`ssr: false`) so it stays out of the first
+Loaded only through the framework's dynamic import (`ssr: false`) so it stays out of the first
 load — see [[components/ui|`<ScrollModel>`]]. The model is **Draco-compressed**,
 so the decoder is served from `public/draco/`, copied from
 `three/examples/jsm/libs/draco/gltf/`; **re-copy it whenever three is upgraded**.
@@ -93,7 +93,7 @@ former `react-cookie-consent` package was removed. See [[components/common]].
 ## Scripts
 
 ```bash
-yarn dev      # next dev — local development
+yarn dev      # the dev server — local development
 yarn build    # next build — production build
 yarn start    # next start — serve production build
 yarn lint     # eslint

@@ -16,13 +16,13 @@ For *why* the conventions are what they are, see [[decisions-log]].
 
 ---
 
-## 2026-09-08 (ops) — `next dev` qui sort sans un mot : un verrou orphelin
+## 2026-09-08 (ops) — the dev server qui sort sans un mot : un verrou orphelin
 
-Un `next dev` tué avec `kill -9` laisse `.next/dev/lock` derrière lui. Le
+Un the dev server tué avec `kill -9` laisse the framework's dev lock derrière lui. Le
 lancement suivant sort **immédiatement, code 0, sans aucun message** — le journal
 ne montre que l'en-tête npm et un `[?25h`. Rien dans le projet n'est en cause.
 Le remède est `rm -rf .next` (cache ignoré par git, régénéré au prochain
-démarrage). Vu aussi : sur une machine sans mémoire, `next dev` met plusieurs
+démarrage). Vu aussi : sur une machine sans mémoire, the dev server met plusieurs
 minutes à imprimer `Ready` et la première compilation de `/` peut rester à 0 %
 de CPU indéfiniment ; c'est le disque saturé par le swap, pas Turbopack.
 
@@ -153,7 +153,7 @@ new face would move all of them. IBM 3270 stays; the change is colour.
 
 **Changed — assets**
 - The 16 SVG icons under `public/assets` carried 30 hardcoded white fills and
-  strokes that no token can reach (they load through `next/image`). All are
+  strokes that no token can reach (they load through the framework's image component). All are
   rewritten: 28 to ink, the collections corner cross to olive at the rule's own
   50%, the hero bracket to ink because `FrameButton` draws the same gesture in
   ink on the same screen.
@@ -916,7 +916,7 @@ block for `background-attachment: fixed` and knock every lattice panel inside it
 out of step with the page — the same trap the sticky header hit.
 
 **The two badge marks were the only images on the page that did not scale.**
-`next/image` with `width`/`height` and no CSS size renders literal pixels, so the
+the framework's image component with `width`/`height` and no CSS size renders literal pixels, so the
 globe and the reticle stayed 23px while their cards shrank with the root
 font-size. Invisible at 1440, where the frame's scale is exactly 1 and 23 units
 *are* 23px; wrong everywhere else, and the reason the reticle read as off-centre.
@@ -1484,7 +1484,7 @@ injected, so the `suppressHydrationWarning` fix holds.
 
 Three things surface in dev only and none is a defect:
 
-- **`next/image` aspect-ratio warning on `arrow-right.svg`, phone widths only.**
+- **the framework's image component aspect-ratio warning on `arrow-right.svg`, phone widths only.**
   The check is `round(rendered) !== declared` on each axis, warning when exactly
   one differs. Under the adaptive rem grid the 10×6 mark renders 10.83×6.48 at
   390 — width rounds to 11, height still reads 6. A *square* mark can never trip
@@ -1526,7 +1526,7 @@ so a genuine mismatch anywhere inside the app still reports normally.
 **Note this is invisible to a headless browser**, which has no extensions: the
 CDP console scan came back clean while the overlay was showing the error on the
 developer's own Chrome. Reproducing it means injecting the attribute yourself at
-document-start, then reading the overlay's text out of the `nextjs-portal` shadow
+document-start, then reading the overlay's text out of the `framework-portal` shadow
 root. Both directions were measured — the error present without the fix, the
 overlay empty with it, with the attribute still on `<body>` in both runs.
 
@@ -1547,7 +1547,7 @@ straight through — they read as cut-outs rather than as objects. Now
 the pointer highlight across the card. Card rects unchanged: 331×446 at x 40 /
 383 / 726 / 1069.
 
-**Seven `LazyLoadImageIssue` entries cleared.** `next/image` defaults to
+**Seven `LazyLoadImageIssue` entries cleared.** the framework's image component defaults to
 `loading="lazy"`, and seven images in the first screen inherited it — the four
 corner brackets, the wordmark's torch copy, and the two badge marks. Chrome
 raises the issue because lazily loading what is already on screen only delays
@@ -1594,8 +1594,8 @@ What the starter ships, so the first project entry has something to diff against
 
 | Area | What is there |
 |------|---------------|
-| Framework | Next.js 16 App Router · React 19 · TypeScript · Yarn · Node ≥ 20.19 |
-| Styling | Tailwind v4, CSS-only config, three-tier design tokens ([[design-system]]) |
+| Framework | the framework App Router · React 19 · TypeScript · Yarn · Node ≥ 20.19 |
+| Styling | the utility generator, CSS-only config, three-tier design tokens ([[design-system]]) |
 | Motion | Vendored spring engine + `spring-text-engine`, shared rAF ticker, reduced-motion ([[animation-system]]) |
 | Layout | Adaptive scaling grid — root font-size tracks the viewport ([[design-system]]) |
 | Scroll | Lenis smooth scroll + Zustand scroll store ([[smooth-scroll]]) |
@@ -1868,7 +1868,7 @@ plate are transparent PNGs — so the browser asked, the optimiser sat on the
 encode, and only the one already cached arrived. `formats` is now `["image/webp"]`
 and the four sources are WebP: **4.24MB → 0.39MB**, with alpha bit-identical to
 the PNGs and a mean RGB difference under one level. This was nearly misdiagnosed
-twice — first as a headless artifact, then as a `next/image` bug.
+twice — first as a headless artifact, then as a framework's image component bug.
 
 **The seam is dissolved.** Once the canvas finishes sticking it comes to rest
 over exactly the details screen, so its bottom edge lands on the join with the
@@ -1920,7 +1920,7 @@ restated, and the same markup becomes two columns at `md` and a stack on a phone
 Measured clean at 390 and 820, titles still breaking in two.
 
 **A note on where that measurement had to happen.** Three of the four product
-images did not paint under `next/image` on the **dev server** — they loaded,
+images did not paint under the framework's image component on the **dev server** — they loaded,
 decoded (verified by drawing each into a canvas: 52–55% opaque, real luminance),
 sat at the right coordinates at opacity 1, and still came out blank, while a
 plain `<img>` rendered all four. On a production build all four render. So the
@@ -2498,10 +2498,10 @@ deviation (DESIGN-MAP.md), not a drift.
 
 **The plate stayed invisible after all of this, and the cause was not the CSS.**
 Swapping the dark export for the chrome one under the same filename left the
-`next/image` URL unchanged, so the optimizer kept serving the cached dark bytes —
-from `.next/dev/cache/images`, which survives a dev-server restart and holds
+the framework's image component URL unchanged, so the optimizer kept serving the cached dark bytes —
+from the framework's dev image cache, which survives a dev-server restart and holds
 entries for 4 hours. Disk and the raw `/assets/…` URL both had the chrome file
-(brightest 246); `/_next/image` was returning the dark one (brightest 19.7) the
+(brightest 246); `/_the framework's image component` was returning the dark one (brightest 19.7) the
 whole time. Cleared, and written up in [[folder-structure]] with the two curls
 that tell the two apart — **compare the raw path against the optimized one before
 touching any CSS.**
@@ -2512,7 +2512,7 @@ The flat jacket render is gone; the hero now renders `hero-jacket.glb` live on
 `three`. See [[decisions-log]] ADR-0027 and [[tech-stack]].
 
 - `src/views/home/hero/hero-subject.tsx` — the renderer. Plain three.js on the
-  shared ticker, drawing on demand; code-split with `next/dynamic({ ssr: false })`
+  shared ticker, drawing on demand; code-split with `the framework's dynamic import({ ssr: false })`
   so it never reaches the server bundle. The canvas keeps the exact 650-unit box
   the flat plate had, so nothing around it moved.
 - `public/draco/` — self-hosted Draco decoder. The mesh is Draco-compressed and
@@ -2612,7 +2612,7 @@ unscaled layout on first paint. See [[decisions-log]] ADR-0024.
 **Fixed along the way**
 - The backdrop plate is the LCP element and was lazy-loading — now `priority`.
   (This was the "1 Issue" in the Next dev overlay.)
-- `size-2.625`, `h-1.125` and `w-1.3` emitted **no CSS at all**: Tailwind's
+- `size-2.625`, `h-1.125` and `w-1.3` emitted **no CSS at all**: The generator's
   dynamic spacing scale only accepts multiples of `0.25`. The corner brackets and
   the nav caret were silently falling back to their intrinsic attribute sizes.
   Now `size-2.75` / `h-1.25 w-1.5`, which is what they were rendering anyway —
@@ -2629,8 +2629,8 @@ Built the Get Layers hero (Figma `WINXFW2nTM7zYwd5dGgm1T`, node `902:304`,
   `HeroBadge`). Replaces the flat `src/views/home.tsx`.
 - `src/data/mocks/home.ts` — hero copy and asset descriptors.
 - `public/assets/hero/` — 3 rasters, 5 SVGs. See `DESIGN-MAP.md`.
-- **IBM 3270** via `next/font/local` (`src/app/fonts/3270-Regular.otf`), bound to
-  `--font-mono`. No new package — `next/font` is already in the framework.
+- **IBM 3270** via the framework's local font loader (`src/app/fonts/3270-Regular.otf`), bound to
+  `--font-mono`. No new package — the framework's font loader is already in the framework.
 - Hero tokens in `globals.css`: surface / lattice / content / rule colours, a
   12·18·20px type ramp, 0.9 and 1.1 leadings, −0.02em tracking, lattice geometry.
 - `@utility hero-lattice` — the frame's background grid. Figma exported node

@@ -45,7 +45,7 @@ permissions in `settings.json`, plus the commands, rules, skills, agents and the
 src/
 ├── env.ts                  # zod-validated env (public + server-only split)
 │
-├── app/                    # Next.js routes — keep lean, routing only
+├── app/                    # the framework routes — keep lean, routing only
 │   ├── layout.tsx          # Root layout — provider tree lives here
 │   ├── page.tsx            # Route → delegates to a view
 │   ├── api/<resource>/route.ts  # API endpoints — see [[api-architecture]]
@@ -54,7 +54,7 @@ src/
 │   ├── not-found.tsx       # 404 page
 │   ├── robots.ts           # → /robots.txt
 │   ├── sitemap.ts          # → /sitemap.xml
-│   ├── globals.css         # Tailwind v4 config + design tokens
+│   ├── globals.css         # the utility generator config + design tokens
 │   └── favicon.ico
 │
 ├── data/mocks/             # Placeholder content per page, passed in via props
@@ -117,21 +117,21 @@ public/
 
 > [!warning] Replacing an asset in place serves the **old** one
 > A `public/` path is not content-hashed, so swapping the file behind a name
-> leaves the `next/image` URL identical — and the optimizer keeps serving what it
-> cached under it. In dev that cache is **`.next/dev/cache/images`** (Turbopack;
-> *not* `.next/cache/images`) with a 4-hour TTL, and it **survives a dev-server
+> leaves the framework's image component URL identical — and the optimizer keeps serving what it
+> cached under it. In dev that cache is **the framework's dev image cache** (Turbopack;
+> *not* the framework's build image cache) with a 4-hour TTL, and it **survives a dev-server
 > restart**. This has already cost real debugging time here: a plate was swapped
 > for a brighter export, disk and the raw `/assets/…` URL both had the new file,
-> and `/_next/image` went on serving the old one.
+> and `/_the framework's image component` went on serving the old one.
 >
 > Symptom: the raw path looks right, the optimized one does not. Confirm it
 > rather than guessing:
 > ```bash
 > curl -s localhost:3000/assets/hero/x.png -o raw.png            # source
-> curl -s "localhost:3000/_next/image?url=%2Fassets%2Fhero%2Fx.png&w=2560&q=75" \
+> curl -s "localhost:3000/_the framework's image component?url=%2Fassets%2Fhero%2Fx.png&w=2560&q=75" \
 >   -H "Accept: image/avif" -o served.avif                        # what pages get
 > ```
-> Fix: `rm -rf .next/dev/cache/images`. Avoid it entirely by giving the new file
+> Fix: `rm -rf the framework's dev image cache`. Avoid it entirely by giving the new file
 > a new name, or by importing it statically so Next content-hashes the URL.
 
 ## Placement rules — where do I put a new file?

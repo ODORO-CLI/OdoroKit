@@ -1,7 +1,7 @@
 # Aerra — source template
 
 This is the complete source for the **Aerra** project, distributed as a GetLayers template.
-It's a Next.js app —
+It's a framework app —
 the full project tree, minus installed dependencies and any local secrets.
 
 ## Run it as-is

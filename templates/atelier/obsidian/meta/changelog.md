@@ -22,8 +22,8 @@ What the starter ships, so the first project entry has something to diff against
 
 | Area | What is there |
 |------|---------------|
-| Framework | Next.js 16 App Router · React 19 · TypeScript · Yarn · Node ≥ 20.19 |
-| Styling | Tailwind v4, CSS-only config, three-tier design tokens ([[design-system]]) |
+| Framework | the framework App Router · React 19 · TypeScript · Yarn · Node ≥ 20.19 |
+| Styling | the utility generator, CSS-only config, three-tier design tokens ([[design-system]]) |
 | Motion | Vendored spring engine + `spring-text-engine`, shared rAF ticker, reduced-motion ([[animation-system]]) |
 | Layout | Adaptive scaling grid — root font-size tracks the viewport ([[design-system]]) |
 | Scroll | Lenis smooth scroll + Zustand scroll store ([[smooth-scroll]]) |
@@ -61,7 +61,7 @@ warning below, because it costs a newcomer an hour otherwise.
 **Environment trap, recorded.** A checkout inside an iCloud-synced folder
 (`~/Desktop` with Desktop & Documents sync) proxies every file open through the
 file provider. Measured on this machine: reading 132 files with Node took
-2 m 25 s there against 0.07 s outside it, and `next dev` / `tsc` / `eslint` hung
+2 m 25 s there against 0.07 s outside it, and the dev server / `tsc` / `eslint` hung
 for over ten minutes. Not a sandbox effect — identical with the sandbox off.
 All verification for this project therefore runs in a copy outside the sync
 root. Keep the repo out of `~/Desktop`.
@@ -98,8 +98,8 @@ machine that built this (Volta shim without a Yarn), so `npm install` produced
 (`npm run dev` / `build` / `lint`). ADR-0026.
 
 **Fonts.** Melodrama Light is committed at `src/assets/fonts/` and loaded with
-`next/font/local`; Instrument Serif (with italic) and Mulish through
-`next/font/google`. `--font-sans` is now Mulish; Onest is gone.
+the framework's local font loader; Instrument Serif (with italic) and Mulish through
+the framework's font loader. `--font-sans` is now Mulish; Onest is gone.
 
 **Tokens.** `globals.css` carries the Style: porcelain / black / electric
 primitives, `--foreground-muted`, `--surface-raised`, `--line`, `--accent`,

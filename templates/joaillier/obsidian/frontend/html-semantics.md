@@ -11,7 +11,7 @@ SEO-correct** — this note is the canonical rulebook. AGENTS.md hard rule #10.
 ## Principles
 
 1. **The tag carries meaning; the class carries looks.** Choose elements for
-   what they *are*, never for how they render. Visual size comes from Tailwind
+   what they *are*, never for how they render. Visual size comes from the utility generator
    utilities / tokens — never from picking a different heading level.
 2. **Native first.** A real `<button>` / `<a>` / `<nav>` beats a `<div>` plus
    ARIA. Reach for ARIA only to fill a genuine gap.
@@ -62,12 +62,12 @@ real emphasis (not bolding).
 - `<button type="button">` unless it submits a form (avoids accidental submit).
 - A link styled as a button is still an `<a>`; a button styled as a link is
   still a `<button>`.
-- Navigation uses `next/link` `<Link>` — see [[routing]].
+- Navigation uses the framework's link component `<Link>` — see [[routing]].
 
 ## Images & media
 
 - Informative images: concise, meaningful `alt`. Decorative images: `alt=""`.
-- Use `next/image` with explicit `width`/`height` (prevents CLS); `priority` on
+- Use the framework's image component with explicit `width`/`height` (prevents CLS); `priority` on
   the LCP image; `sizes` for responsive images. See [[seo-metadata]].
 - `<video>`: provide `<track kind="captions">`; don't autoplay with sound.
 
@@ -135,7 +135,7 @@ Never leave a heading or landmark as the default `<div>` because it is animated.
 - [ ] `<main>` present once; sections/nav/header/footer used correctly
 - [ ] Every `<section>` has an accessible name
 - [ ] Buttons vs links correct; no click-handler `<div>`s
-- [ ] All images have `alt`; `next/image` with dimensions
+- [ ] All images have `alt`; the framework's image component with dimensions
 - [ ] Forms fully labelled
 - [ ] Icon-only controls named; focus visible; keyboard-operable
 - [ ] Structured data as JSON-LD; metadata via the generator

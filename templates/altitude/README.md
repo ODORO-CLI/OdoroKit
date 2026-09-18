@@ -22,8 +22,8 @@ Ce qui a changé est le moteur, et ce qu'il fallait pour l'atteindre :
 | Avant | Après |
 | --- | --- |
 | Next 16, App Router | `index.html` + `src/main.tsx`, servis par le moteur Odoro |
-| `next/font` | `@font-face` dans `src/styles.css`, polices dans `src/fonts/` |
-| Utilitaires Tailwind | Utilitaires `o-` du système, plus les classes du projet |
+| The framework's font loader | `@font-face` dans `src/styles.css`, polices dans `src/fonts/` |
+| Utilitaires the utility generator | Utilitaires `o-` du système, plus les classes du projet |
 | `@theme inline` | Des règles CSS ordinaires, troisième étage de la feuille |
 
 Les classes que notre générateur ne produit pas — celles que l'original

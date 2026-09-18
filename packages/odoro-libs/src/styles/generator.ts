@@ -316,7 +316,8 @@ function spacingRules(
 }
 
 /**
- * Gradient stops the Tailwind way: `from` and `to` set variables, `via`
+ * Gradient stops, the way the other engine does it: `from` and `to` set
+ * variables, `via`
  * rewrites the stop list to insert itself into it. The direction classes
  * consume `--o-gradient-stops` and work with any combination of the three.
  */

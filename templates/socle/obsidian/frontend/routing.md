@@ -5,10 +5,10 @@ updated: 2026-08-09
 
 # Routing
 
-Next.js 16 App Router. The defining convention: **routes delegate to views**.
+the framework App Router. The defining convention: **routes delegate to views**.
 
 > [!warning]
-> Per `AGENTS.md`, this version of Next.js may differ from older knowledge. Heed
+> Per `AGENTS.md`, this version of the framework may differ from older knowledge. Heed
 > deprecation notices before writing routing code.
 
 ## Route → View delegation
@@ -57,7 +57,7 @@ wider than the viewport and reads as stray fragments rather than a word.
 The same stack serves phones and tablets, with **`tablet:`** (540 px) refining
 it for the wider range: audience cards two-up, the three stats in a row, contact
 fields side by side, and a capped reading measure so body copy does not run the
-full 780 px. `md:` is Tailwind's default 768 and is **deliberately unused for
+full 780 px. `md:` is the generator's default 768 and is **deliberately unused for
 layout** — a stray `md:` would otherwise half-apply the desktop composition to a
 tablet. Ranges and the reasoning: ADR-0027 and ADR-0030.
 
@@ -100,7 +100,7 @@ Editing one? Follow [[new-page]] and keep diffs minimal.
 
 - `src/app/layout.tsx` — the **root layout**. Holds the provider tree
   (`ScrollLayout` → `AdaptiveGrid` / `ReducedMotion` / `Cookie` → children),
-  loads the Google Sans Flex font (`next/font/local`) and `globals.css`, exports
+  loads the Google Sans Flex font (the framework's local font loader) and `globals.css`, exports
   `metadata` + `viewport`, and renders the JSON-LD script. Note `AdaptiveGrid`
   takes `coef={1}` here — see [[decisions-log]] ADR-0018. See [[data-flow]].
 - Reusable layout *wrappers* (not route layouts) live in `src/layouts/` —
@@ -108,18 +108,18 @@ Editing one? Follow [[new-page]] and keep diffs minimal.
 
 ## Navigation
 
-Use **standard Next.js navigation** — `<Link>` from `next/link` and `useRouter`
-from `next/navigation`. ADR: [[decisions-log]] ADR-0005.
+Use **standard the framework navigation** — `<Link>` from the framework's link component and `useRouter`
+from the framework's navigation module. ADR: [[decisions-log]] ADR-0005.
 
 ```tsx
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import Link from 'the framework's link component';
+import { useRouter } from 'the framework's navigation module';
 ```
 
 > [!note]
 > Earlier drafts of `generic-layout-prompt.md` referenced `<AnimLink>` /
 > `useAnimRouter()`. Those were never built and the convention is dropped — use
-> `next/link` directly.
+> The framework's link component directly.
 
 ## SEO per route
 

@@ -25,7 +25,7 @@ What it decides mechanically:
 |-------|--------|
 | Motion | `@keyframes`, foreign animation libs, `mode="manual"`, `leading-none`+`overflow`, dead `duration-fast` class, untokenised transitions |
 | Tokens | hex in `className`/`style`, arbitrary px, literals in `@theme inline` or a Tier 2 token |
-| Architecture | route importing outside `views/`, `"use client"` on page/layout/view, `any`, `next/router`, `middleware.ts`, `process.env` outside `env.ts` |
+| Architecture | route importing outside `views/`, `"use client"` on page/layout/view, `any`, the framework's router, `middleware.ts`, `process.env` outside `env.ts` |
 | Markup | raw `<img>`, missing `alt`, raw `<a>` internal link, click handler on a `div`, multiple `<h1>`, `tag="div"` |
 | Hygiene | `console.log`, TODO/FIXME, **any diff inside the vendored animation engine** |
 

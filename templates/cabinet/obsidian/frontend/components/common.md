@@ -17,7 +17,7 @@ category **preferences modal**. No third-party library (the old
 | File | Role |
 |------|------|
 | `Cookie.tsx` | Mount component — hydrates the store, renders banner + modal |
-| `LazyCookie.tsx` | `next/dynamic` `ssr:false` wrapper — keeps cookie JS out of first-load |
+| `LazyCookie.tsx` | the framework's dynamic import `ssr:false` wrapper — keeps cookie JS out of first-load |
 | `CookieBanner.tsx` | Bottom-right consent banner |
 | `CookiePreferencesModal.tsx` | Category preferences dialog with per-category toggles |
 | `CookieButton.tsx` | Local button primitive — `primary` / `secondary` variants |
@@ -34,7 +34,7 @@ the banner shows only after hydration confirms `consent === null`. Persisted to
 `localStorage` under key `cookie-consent-v1`. Three categories: `necessary`
 (always on), `analytics`, `marketing`.
 
-**Styling & motion** — ported to the project stack: Tailwind v4 with the
+**Styling & motion** — ported to the project stack: The utility generator with the
 `background` / `foreground` design tokens (themeable through Tier 2, no
 hardcoded hex; this project ships a single theme, see [[design-system]]),
 and `@react-spring/web` for all motion — `useTransition` drives the banner and

@@ -23,7 +23,7 @@ fixes the 48 px height and the caller sets the width.
 | Prop | Type | Meaning |
 |------|------|---------|
 | `label` | `string` | Button text |
-| `href` | `string?` | Renders a `next/link` `<a>`. Omit for `<button type="submit">` |
+| `href` | `string?` | Renders a framework's link component `<a>`. Omit for `<button type="submit">` |
 | `className` | `string?` | Width and layout from the caller (`w-full`, `w-83`, …) |
 
 `justify-between gap-6` covers both cases: at content width the gap sets the
@@ -59,7 +59,7 @@ what switches between the dark and on-photograph variants.
 ## `<ParallaxLayer>` / `<ParallaxMedia>` — `parallax-media.tsx`
 
 `ParallaxLayer` is the drifting layer on its own; `ParallaxMedia` is it plus a
-`next/image`. Anything stacked over a parallaxed photo — the location section's
+the framework's image component. Anything stacked over a parallaxed photo — the location section's
 reveal canvas, for instance — must go **inside a `ParallaxLayer`** rather than
 get a hand-copied second set of constants, or the two slide against each other.
 
@@ -72,11 +72,11 @@ get a hand-copied second set of constants, or the two slide against each other.
 
 A photograph that drifts against the scroll. The outer element is the clip box
 (it fills its parent, so callers never position it); an inner layer holds the
-`next/image` and is what `SpringTrigger mode="scrub"` moves.
+the framework's image component and is what `SpringTrigger mode="scrub"` moves.
 
 | Prop | Type | Meaning |
 |------|------|---------|
-| `src` / `alt` / `sizes` | `string` | Passed to `next/image` (`fill`) |
+| `src` / `alt` / `sizes` | `string` | Passed to the framework's image component (`fill`) |
 | `priority` | `boolean?` | LCP image only |
 | `className` | `string?` | Extra classes on the clip box |
 | `start` / `end` | `TriggerPos?` | Scroll range; defaults `top bottom` → `bottom top` |
@@ -305,7 +305,7 @@ never needs to see it. The caller (`views/home/audience-mark.tsx`) writes it fro
 a `<ProgressTrigger>` and the render loop reads it.
 
 > [!warning] Three things that will bite
-> - **`next/dynamic` + `ssr: false` is necessary but not sufficient.** It defers
+> - **the framework's dynamic import + `ssr: false` is necessary but not sufficient.** It defers
 >   the *bundle*, not the *work* — the component mounting is what fetches three,
 >   builds a GL context and generates the PMREM environment. The mount must also
 >   be gated on viewport proximity or all of that lands during page load. See

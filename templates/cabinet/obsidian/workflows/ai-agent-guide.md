@@ -9,8 +9,8 @@ Rules of engagement for AI agents (Claude Code, Cursor) working in this repo.
 
 ## Read this first
 
-> [!warning] This is NOT the Next.js you know
-> `AGENTS.md` warns that this version of Next.js has breaking changes — APIs,
+> [!warning] This is NOT the framework you know
+> `AGENTS.md` warns that this version of the framework has breaking changes — APIs,
 > conventions, and file structure may differ from training data. **Read the
 > relevant spec before writing code. Heed deprecation notices.**
 

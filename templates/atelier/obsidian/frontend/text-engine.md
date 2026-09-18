@@ -117,7 +117,7 @@ in — so the fix is the leading, not the `overflow`.
 
 Whenever you set `overflow`, **double-check the computed leading** on the
 container — including whatever a `text-*` size utility brought with it, since
-Tailwind's `text-5xl` and above ship `line-height: 1`, which clips.
+the generator's `text-5xl` and above ship `line-height: 1`, which clips.
 
 If a design genuinely calls for tighter visual leading than `1.1`, do **not**
 shrink the container's leading. Give the clip box room and pull the layout back

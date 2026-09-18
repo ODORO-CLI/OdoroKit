@@ -51,7 +51,7 @@
     ]
   },
   "environment": {
-    "stack": "Next.js 16.3.1 / React 19.2.8 / Tailwind 4 / three 0.185 / @react-spring/web / spring-text-engine / lenis",
+    "stack": "the framework.3.1 / React 19.2.8 / the utility generator 4 / three 0.185 / @react-spring/web / spring-text-engine / lenis",
     "installedWith": "npm (yarn and corepack unavailable on this machine; yarn.lock kept, package-lock.json generated)",
     "node": "v25.5.0 present, .nvmrc asks for 24.16.0"
   },

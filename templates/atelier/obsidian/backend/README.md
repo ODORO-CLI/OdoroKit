@@ -5,7 +5,7 @@ updated: 2026-05-22
 
 # Backend
 
-`next16-claude-starter` is frontend-first, with a server **API layer**: Next.js
+`next16-claude-starter` is frontend-first, with a server **API layer**: The framework
 Route Handlers under `src/app/api/`. The starter itself ships **no database, CMS
 or auth** — those are added per project, and the conventions for doing so are
 documented here so every project built from this starter does it the same way.

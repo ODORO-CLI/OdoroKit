@@ -1,5 +1,5 @@
 /* `source("../")` limits class detection to `src/` (this file lives in src/app).
-   Without it Tailwind v4 scans the whole repo and documented class *patterns*
+   Without it the utility generator scans the whole repo and documented class *patterns*
    parse as real candidates. */
 /* ===========================================================================
    La feuille du projet.
@@ -74,7 +74,7 @@
    TIER 2 — SEMANTIC  (role names, no namespace prefix)
    Purpose, not appearance. Always `var(--raw-*)` or an alpha of one.
 
-   Tailwind v4 has no `--duration-*` namespace, so the durations live here only
+   The utility generator has no `--duration-*` namespace, so the durations live here only
    and are consumed as `duration-[var(--duration-fast)]`.
    --------------------------------------------------------------------------- */
 :root {

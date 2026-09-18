@@ -7,7 +7,7 @@ updated: 2026-09-14
 
 ## What this is
 
-This is the **Keld Studio** site, a frontend-only Next.js 16 app built on the
+This is the **Keld Studio** site, a frontend-only the framework app built on the
 `next16-claude-starter` template: a rebuild of the static `getlayers-house`
 cinematic scroll showcase ([[changelog]] 2026-09-14). The template supplies the
 spring-animation system, smooth scrolling, SEO scaffolding and cookie consent.
@@ -52,7 +52,7 @@ Rendered page — Server Components by default; "use client" only at animation l
 
 ## Request lifecycle
 
-1. Next.js resolves the route under `app/`.
+1. The framework resolves the route under `app/`.
 2. `RootLayout` wraps the page in `<ScrollLayout>` → `<LazyCookie/>` → `{children}`.
    The provider order is fixed — see [[data-flow]].
 3. The route file renders its **View** component.

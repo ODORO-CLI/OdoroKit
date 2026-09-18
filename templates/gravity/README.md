@@ -29,7 +29,7 @@ npm run dev        # http://localhost:3000
 
 Vite 6 · React 19 (SPA) · three.js 0.184 en trois.js vanille — un rig
 `MeshPhysicalMaterial` avec collisions Verlet écrites à la main, pas R3F ·
-Lenis · motion/react · Tailwind v4.
+Lenis · motion/react · the utility generator.
 
 ## Architecture
 
@@ -130,7 +130,7 @@ La couleur, la typographie, l'espacement et la copie sont à vous.
 ## Problèmes connus
 
 - **`vite build` se bloque** sur « transforming » à 0 % CPU sans produire `dist/`.
-  Reproduit y compris avec le plugin Tailwind retiré, donc ce n'est pas Tailwind.
+  Reproduit y compris avec le plugin the utility generator retiré, donc ce n'est pas the utility generator.
   Ce n'est pas le code non plus : `tsc --noEmit` passe à 0 erreur et le serveur de
   dev sert tous les modules. Suspect : **Node v25** (Vite 6 vise Node 18/20/22).
   À réessayer sous Node 22 LTS.

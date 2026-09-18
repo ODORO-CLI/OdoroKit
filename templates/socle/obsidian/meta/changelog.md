@@ -23,7 +23,7 @@ This is a human-curated log — not a mirror of `git log`.
   3. la forme 2D d'origine est rendue en SVG et comparee au logo.
   Ne jamais annoncer « verifie visuellement » pour une section qui porte une
   scene : seul le navigateur de l'utilisateur peut le confirmer.
-- **`next dev` et `next start` sur un projet voisin partagent le port par
+- **the dev server et `next start` sur un projet voisin partagent le port par
   defaut.** Ce projet tourne sur **3001** ; `~/ODORO` occupe 3000. Toujours
   verifier a qui appartient le port avant de lire un resultat ou d'arreter un
   processus : `lsof -ti tcp:<port>` puis `lsof -a -p <pid> -d cwd` pour son
@@ -65,7 +65,7 @@ This is a human-curated log — not a mirror of `git log`.
   un PNG : il reste net a toute echelle, et surtout **le meme tracé sert au plat
   et au volume**, donc les deux ne peuvent pas diverger. `BRAND_MARK_PATH` est
   exporte depuis `brand-mark.tsx` ; `icon.tsx`, `apple-icon.tsx` et
-  `opengraph-image.tsx` le recopient en clair parce que `next/og` rend dans
+  `opengraph-image.tsx` le recopient en clair parce que the framework's social image generator rend dans
   Satori et ne resout pas un import React.
   Le tracé exige `fill-rule: evenodd` : sans lui les deux sous-tracés se
   remplissent et l'anneau devient une goutte pleine.
@@ -142,7 +142,7 @@ This is a human-curated log — not a mirror of `git log`.
 
 - **Piege d'outillage, a ne pas reproduire.** Plusieurs `next build` ont semble
   « sortir en 0 sans rien produire ». La cause n'etait ni le code ni les
-  dependances : les commandes commencaient par `pkill -f "next dev"`, et comme
+  dependances : les commandes commencaient par `pkill -f "the dev server"`, et comme
   `-f` compare la LIGNE DE COMMANDE ENTIERE, le shell qui portait ce texte se
   tuait lui-meme avant d'arriver au build. Le code de sortie 144 (128 + SIGTERM)
   le disait. **Ne jamais utiliser `pkill -f` avec un motif qui apparait dans sa
@@ -152,7 +152,7 @@ This is a human-curated log — not a mirror of `git log`.
   .next`, tant que le processus orphelin vit. Le retrouver par son repertoire de
   travail (`lsof -a -p <pid> -d cwd`) avant de le tuer, pour ne pas viser le
   build d'un autre projet.
-- **Ne jamais lancer `next build` pendant que `next dev` tourne.** Les deux
+- **Ne jamais lancer `next build` pendant que the dev server tourne.** Les deux
   ecrivent dans `.next` : le serveur de dev a servi un moment une page perimee,
   ce qui a fait croire a une correction sans effet.
 - **Le port 3000 n'est pas forcement ce projet.** Un autre projet de la machine
@@ -238,7 +238,7 @@ This is a human-curated log — not a mirror of `git log`.
   and never when to tear down: repeat entries now log **zero** long tasks, p50
   16.7 / p95 17.0 / max **17.4 ms**. ADR-0031 in [[decisions-log]], including
   the one 83 ms first-mount task that remains and why the PNG decode was left
-  alone. Also noted there: `mask.png` is 1.5 MB and bypasses `next/image`.
+  alone. Also noted there: `mask.png` is 1.5 MB and bypasses the framework's image component.
 - **The reveal mask no longer appears unprompted.** Scrolling the page under a
   stationary cursor makes the browser synthesise pointer events at unchanged
   coordinates; those were being treated as hovering, so the mask was already
@@ -278,7 +278,7 @@ This is a human-curated log — not a mirror of `git log`.
   carries no transform. ADR-0028 in [[decisions-log]] covers the two approaches
   that failed first — scaling the curtain, and clipping the page.
 - **`text-engine-nowrap` moved from `@layer components` to `@utility`.**
-  Tailwind only generates variants for utilities, so `md:text-engine-nowrap`
+  the utility generator only generates variants for utilities, so `md:text-engine-nowrap`
   compiled to nothing and the numbers heading wrapped at desktop. Now one line
   at 1440 (measured height 43 px at a 36 px/1.2 heading). See [[design-system]].
 - **Hero wordmark removed below `md:`** — at 390 px it was fragments of a word
@@ -378,7 +378,7 @@ This is a human-curated log — not a mirror of `git log`.
   ~456 KB of three plus the Draco decoder were being fetched and parsed while
   the hero was on screen (125 ms main-thread block). Both WebGL mounts are now
   gated on viewport proximity; nothing heavy touches page load. ADR-0024 in
-  [[decisions-log]] — including why `next/dynamic` alone did not prevent this.
+  [[decisions-log]] — including why the framework's dynamic import alone did not prevent this.
 - **The turntable plays once**, starting when it scrolls into view, then rests
   on its final frame. Hover still stops it early for dragging.
 - **Cards use the same glass as the header** — `--surface-glass` and
@@ -446,7 +446,7 @@ This is a human-curated log — not a mirror of `git log`.
 - **About photo rounded**; **video drag no longer stutters** (seek throttled to
   the clip's frame rate and skipped while a seek is in flight).
 - **Fixed: the contact eyebrow sat hard left.** `left-170.375` has three decimal
-  places, which Tailwind silently does not generate — see the warning in
+  places, which the utility generator silently does not generate — see the warning in
   [[design-system]]. All three centred eyebrows now centre with flexbox rather
   than a converted offset, which no longer depends on the text measuring exactly
   what Figma measured.
@@ -462,7 +462,7 @@ This is a human-curated log — not a mirror of `git log`.
   which scrubs `public/assets/About/about-video.mp4` by pointer drag instead of
   playing it. See ADR-0020 in [[decisions-log]]; the **all-keyframe encoding
   requirement** for any replacement clip is documented in [[components/ui]].
-- **Parallax on every photograph** — new `<ParallaxMedia>` wraps `next/image` in
+- **Parallax on every photograph** — new `<ParallaxMedia>` wraps the framework's image component in
   a `SpringTrigger mode="scrub"`, 10 % of the clip box in each direction. Applied
   to the hero, about, location and contact images. Its `anchor` prop is a
   fidelity control, not a style one: `"center"` overscales the layer 20 % (so the
@@ -495,10 +495,10 @@ This is a human-curated log — not a mirror of `git log`.
   The starter's placeholder neutral ramp and its `prefers-color-scheme` override
   are gone: the design is light-only, and a dark-mode override would invert a
   page whose type colours are chosen against photographs.
-- **Typeface switched to Google Sans Flex** — `next/font/local` loading the four
+- **Typeface switched to Google Sans Flex** — the framework's local font loader loading the four
   static 24 pt instances the design uses (Thin / Light / Regular / Medium) from
   `src/app/fonts/`, bound to `--font-google-sans-flex` → `--font-sans`. Replaces
-  Onest (`next/font/google`). No dependency change.
+  Onest (the framework's font loader). No dependency change.
 - **New UI primitives** — `CtaButton`, `Eyebrow`, `TextField` and three inline
   icon components in `components/ui/`; catalogued in [[components/common]].
 - **Grid collapsed to a single 1440 breakpoint, fully proportional** — see
@@ -615,10 +615,10 @@ This is a human-curated log — not a mirror of `git log`.
   Tier 1 holds literals; Tier 2 names purpose and is the themeable layer.
   `globals.css` restructured accordingly — **no brand palette invented**, the
   convention is the deliverable. Two deviations from the reference article,
-  verified by compiling a probe against `tailwindcss` v4.3.3: primitives are
+  verified by compiling a probe against the utility generator v4.3.3: primitives are
   `--raw-*` and stay out of `@theme` (a `--color-*` entry would generate
   utilities and let markup skip the semantic tier), and **`--duration-*` is not a
-  Tailwind v4 namespace** — `duration-fast` compiles to nothing, so durations
+  the utility generator namespace** — `duration-fast` compiles to nothing, so durations
   stay Tier 2 and are used as `duration-[var(--duration-fast)]`. See
   [[decisions-log]] ADR-0015 and [[design-system]].
 - **Narrow CSS-transition exception** — hard rule #1 no longer bans CSS
@@ -681,7 +681,7 @@ This is a human-curated log — not a mirror of `git log`.
 
 - **Styling-placement convention added** — to stop `globals.css` accumulating
   hundreds of component-specific classes, styling now follows a strict
-  placement order: one-offs are Tailwind utilities, repeated patterns become
+  placement order: one-offs are the utility generator utilities, repeated patterns become
   **React components** (not `@layer components` classes), and `@layer
   components` is reserved strictly for pseudo-elements and third-party
   overrides. `globals.css` stays bounded — `@import`, tokens, base resets only.
@@ -716,7 +716,7 @@ This is a human-curated log — not a mirror of `git log`.
   `app/sitemap.ts`, and an `Organization`+`WebSite` JSON-LD helper; OG image
   dimensions corrected to match the asset; dead `keywords`/`other` tags dropped.
   **Performance:** populated `next.config.ts` (`removeConsole` in prod,
-  AVIF/WebP, `next/image` breakpoints aligned to the grid, `poweredByHeader:
+  AVIF/WebP, the framework's image component breakpoints aligned to the grid, `poweredByHeader:
   false`); fixed a `requestAnimationFrame` leak in `ScrollLayout` (Lenis loop
   never cancelled on unmount); `HomeView` is now a Server Component with the
   animation demo split into the `HomeShowcase` client leaf; added
@@ -750,7 +750,7 @@ This is a human-curated log — not a mirror of `git log`.
   `src/components/common/grid/` (`<AdaptiveGrid>` + `useAdaptiveGrid` hook +
   `grid.config.ts`), with `vw` media queries in `globals.css` for scale-down.
   It was dropped into `common/` as a `styled-components` system; ported to the
-  project stack — config-driven TS + CSS-only Tailwind, no `styled-components`.
+  project stack — config-driven TS + CSS-only the utility generator, no `styled-components`.
   The unused dropped files (`colors.ts`, `fonts.ts`, `utils.ts`, `index.ts`,
   the `styled-components` `grid.tsx`) were removed. Mounted via `<AdaptiveGrid>`
   in the root layout. See [[components/common]] and [[decisions-log]] ADR-0008.
@@ -760,7 +760,7 @@ This is a human-curated log — not a mirror of `git log`.
   project README that points into this vault.
 - **`generic-layout-prompt.md` moved** — relocated from repo root to
   `obsidian/workflows/` as [[generic-layout-prompt]].
-- **Navigation convention resolved** — standard `next/link` confirmed; the unbuilt
+- **Navigation convention resolved** — standard the framework's link component confirmed; the unbuilt
   `<AnimLink>` / `useAnimRouter()` convention dropped. See [[decisions-log]] ADR-0005.
 - **Docs consolidated into the vault** — `project-specs.md` deleted (decomposed into
   vault notes + new [[environment-variables]]); `text-engine-docs.md` moved in as
@@ -781,7 +781,7 @@ This is a human-curated log — not a mirror of `git log`.
   was replaced by an in-house `Cookie/` component (banner + category preferences
   modal + Zustand store). `react-cookie-consent` removed from dependencies. The
   component shipped using `styled-components` + an external design system; it was
-  ported to the project stack — Tailwind v4 tokens and `@react-spring/web` motion.
+  ported to the project stack — the utility generator tokens and `@react-spring/web` motion.
   Mounted via `<LazyCookie>`. See [[components/common]].
 - **Fixed TextEngine spring type mismatch** — the `mode="once"` heading in
   `views/home.tsx` mixed `lineIn={{ y: 0 }}` (number) with `lineOut={{ y: "100%" }}`
@@ -798,5 +798,5 @@ This is a human-curated log — not a mirror of `git log`.
 | `b2b84e6` | initial — `next16-claude-starter` scaffold |
 
 > [!note]
-> The starter shipped with: Next.js 16.2, React 19.2, Tailwind v4, `@react-spring/web`,
+> The starter shipped with: The framework.2, React 19.2, the utility generator, `@react-spring/web`,
 > `spring-text-engine`, Lenis, and Zustand. See [[tech-stack]] for the current state.

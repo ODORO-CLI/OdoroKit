@@ -22,7 +22,7 @@ export function StylesOverview(): ReactElement {
 
       <Section
         title="Convention"
-        lead="Toutes les classes portent le préfixe o- et se lisent comme du Tailwind. Les variants se prefixent par deux-points : état (hover:, focus:, active:), thème (dark:) et écran (sm: a 2xl:, max-sm: a max-lg:)."
+        lead="Toutes les classes portent le préfixe o- et se lisent comme des utilitaires. Les variants se prefixent par deux-points : état (hover:, focus:, active:), thème (dark:) et écran (sm: a 2xl:, max-sm: a max-lg:)."
       >
         <DemoBlock
           code={`<button className="o-inline-flex o-items-center o-gap-2 o-rounded-md o-bg-brand-600 dark:o-bg-brand-400 o-text-white dark:o-text-zinc-950 o-px-4 o-h-10 hover:o-bg-brand-700 dark:hover:o-bg-brand-300 o-transition">

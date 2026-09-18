@@ -38,7 +38,7 @@ export const metadata = generateMetadata({ title: "…", description: "…" });
 export const viewport = generateViewport();
 ```
 
-- `generateMetadata(props?)` → a Next.js `Metadata` object: title/description,
+- `generateMetadata(props?)` → a framework `Metadata` object: title/description,
   OpenGraph, Twitter cards, canonical, icons, robots. `metadataBase` is **always
   set** from `siteConfig.url`, so relative URLs (OG image, canonical) resolve to
   absolute — required by social scrapers.
@@ -85,7 +85,7 @@ PageSpeed, HeadlessChrome, GTmetrix, Pingdom, Bingbot, Yandexbot.
 list, tested against `navigator.userAgent` in the browser. Use it when the
 decision can wait for the client, because it keeps the route static. On the home
 page, `SequenceCanvas` uses it to skip the frame-sequence download (14 MB desktop
-/ 3.3 MB mobile). Crawlers get frame zero as a `next/image` poster and the same
+/ 3.3 MB mobile). Crawlers get frame zero as a framework's image component poster and the same
 DOM text as everyone else; only the decorative motion differs. `/` prerenders
 static (`○`). See [[decisions-log]] ADR-0025.
 

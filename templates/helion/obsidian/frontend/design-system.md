@@ -3,17 +3,17 @@ tags: [frontend, design-system, stable]
 updated: 2026-09-11
 ---
 
-# Design System — Tailwind v4
+# Design System — the utility generator
 
-Styling uses **Tailwind CSS v4**, configured entirely in CSS. There is **no
-`tailwind.config.js`**. ADR: [[decisions-log]] ADR-0004.
+Styling uses **the utility generator**, configured entirely in CSS. There is **no
+the generator's config**. ADR: [[decisions-log]] ADR-0004.
 
 ## Where config lives
 
 `src/app/globals.css` is the single config file:
 
 ```css
-@import "tailwindcss";
+@import "the utility generator";
 
 :root {
   --background: #ffffff;
@@ -32,7 +32,7 @@ Extra CSS layers can be split into `src/style/index.css` and imported.
 ## Design tokens
 
 All colours, spacing, font sizes, radii, and shadows are **tokens** declared under
-`:root` (raw values) and `@theme inline` (Tailwind bindings).
+`:root` (raw values) and `@theme inline` (the utility generator bindings).
 
 Once a token is in `@theme`, it becomes a utility automatically:
 
@@ -65,9 +65,9 @@ match wins:
 
 | Situation | Goes where |
 |-----------|-----------|
-| One-off styling | Tailwind utilities in `className` — nothing in CSS |
+| One-off styling | the utility generator utilities in `className` — nothing in CSS |
 | Repeated pattern with markup / structure / props | a **React component** in `components/ui/` |
-| Repeated *pure-utility* combo, no structure | a Tailwind v4 `@utility` |
+| Repeated *pure-utility* combo, no structure | a utility generator `@utility` |
 | Pseudo-elements, 3rd-party DOM overrides, complex selectors | `@layer components` — the genuine exceptions |
 | A new colour / spacing / radius value | a **token** in `:root` + `@theme` |
 
@@ -111,11 +111,11 @@ the mark: one object, not a logo followed by a title.
 Dark mode is not a concern — the site is dark by construction, so the starter's
 `prefers-color-scheme` override was removed.
 
-### Breakpoints (not Tailwind's defaults)
+### Breakpoints (not the generator's defaults)
 
 The original's media queries are preserved as `--breakpoint-*` tokens and used
-through Tailwind's `max-*` variants: `hero-lg` 1180, `hero-md` 855, `hero-sm` 656,
-`hero-xs` 480, `menu` 912, `pad-sm` 991. Tailwind's own `md` (768px) is used where
+through the generator's `max-*` variants: `hero-lg` 1180, `hero-md` 855, `hero-sm` 656,
+`hero-xs` 480, `menu` 912, `pad-sm` 991. The generator's own `md` (768px) is used where
 the original broke at 768. Two `@custom-variant`s — `max-h-828`, `max-h-717` —
 cover the Sitemap, which reflows on viewport **height**.
 
@@ -144,7 +144,7 @@ so it becomes a flat wash. If copy is hard to read over a scene, change this —
 not add a background to the section. See [[decisions-log]] ADR-0034.
 
 > [!warning] Gradient tokens need the `image:` hint
-> `bg-[var(--gradient-footer)]` **silently renders nothing.** Tailwind cannot see
+> `bg-[var(--gradient-footer)]` **silently renders nothing.** the utility generator cannot see
 > what a bare custom property holds, so it guesses `background-color` — which is not
 > a valid target for a gradient, and the declaration is simply dropped. Always write
 > `bg-[image:var(--gradient-…)]`.
@@ -163,7 +163,7 @@ not add a background to the section. See [[decisions-log]] ADR-0034.
 ## Typography
 
 Fonts: **Gilroy** (headings + body) and **Lato** (buttons, the hero wordmark),
-self-hosted via `next/font/local` from `public/fonts` — see `src/lib/fonts.ts`.
+self-hosted via the framework's local font loader from `public/fonts` — see `src/lib/fonts.ts`.
 Bound to `--font-gilroy` → `--font-sans`, and `--font-lato` → `font-lato`.
 
 ## Styling rules

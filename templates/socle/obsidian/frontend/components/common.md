@@ -17,7 +17,7 @@ category **preferences modal**. No third-party library (the old
 | File | Role |
 |------|------|
 | `Cookie.tsx` | Mount component — hydrates the store, renders banner + modal |
-| `LazyCookie.tsx` | `next/dynamic` `ssr:false` wrapper — keeps cookie JS out of first-load |
+| `LazyCookie.tsx` | the framework's dynamic import `ssr:false` wrapper — keeps cookie JS out of first-load |
 | `CookieBanner.tsx` | Bottom-right consent banner |
 | `CookiePreferencesModal.tsx` | Category preferences dialog with per-category toggles |
 | `CookieButton.tsx` | Local button primitive — `primary` / `secondary` variants |
@@ -43,7 +43,7 @@ porte le texte de la banniere, `CookiePreferencesModal.tsx` la constante
 deux endroits. Attention aux apostrophes dans le JSX : la regle
 `react/no-unescaped-entities` impose `&apos;`.
 
-**Styling & motion** — ported to the project stack: Tailwind v4 with the
+**Styling & motion** — ported to the project stack: The utility generator with the
 `background` / `foreground` design tokens (dark-mode adaptive, no hardcoded hex),
 and `@react-spring/web` for all motion — `useTransition` drives the banner and
 modal mount/unmount, `useSpring` drives the toggle knob. No CSS transitions.

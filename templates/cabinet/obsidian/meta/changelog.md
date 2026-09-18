@@ -22,8 +22,8 @@ What the starter ships, so the first project entry has something to diff against
 
 | Area | What is there |
 |------|---------------|
-| Framework | Next.js 16 App Router · React 19 · TypeScript · Yarn · Node ≥ 20.19 |
-| Styling | Tailwind v4, CSS-only config, three-tier design tokens ([[design-system]]) |
+| Framework | the framework App Router · React 19 · TypeScript · Yarn · Node ≥ 20.19 |
+| Styling | the utility generator, CSS-only config, three-tier design tokens ([[design-system]]) |
 | Motion | Vendored spring engine + `spring-text-engine`, shared rAF ticker, reduced-motion ([[animation-system]]) |
 | Layout | Adaptive scaling grid — root font-size tracks the viewport ([[design-system]]) |
 | Scroll | Lenis smooth scroll + Zustand scroll store ([[smooth-scroll]]) |
@@ -52,7 +52,7 @@ is now `["Organization", "LegalService"]` with `telephone`, `email` and a
 `#echo` → `#expertises`, `#details` → `#cabinet` (`SCENE_ANCHOR`).
 
 **Type.** Instrument Sans is gone. Cormorant (400/500/600 + italic, display
-only) and Inter Tight (labels, nav, copy) load through `next/font/google`;
+only) and Inter Tight (labels, nav, copy) load through the framework's font loader;
 `--font-display` is bound in `@theme` and every display element carries
 `font-display` (hero words, Expertises title, stats, odometer, quote, footer
 CTA, zoom title, wordmark). Display tracking loosened from −0.04em to −0.02em
@@ -120,7 +120,7 @@ and preferences modal were English — translated. `open-graph.png` is a
 
 **Environment note.** This project folder is on `~/Desktop`, which iCloud
 Drive syncs with "Optimize Mac Storage": within the hour, `node_modules/` had
-been evicted to dataless files and every Node read stalled ~2 s, so `next dev`,
+been evicted to dataless files and every Node read stalled ~2 s, so the dev server,
 `next build` and `eslint` sat at 0 % CPU forever. `node_modules` and `.next`
 are now symlinks to `node_modules.nosync/` and `.next.nosync/` (iCloud ignores
 `*.nosync`; both gitignored). Order matters: `npm install` replaces a symlinked
@@ -147,7 +147,7 @@ route yet; the contact links go to `#contact` / a `mailto:`.
 ## 2026-09-14 — Follow-up: hydration mismatch, text popping in, footer LCP
 
 Three bugs reported on the rebuild, each measured before and after with a
-headless-Chromium probe against `next dev` and a production build.
+headless-Chromium probe against the dev server and a production build.
 
 **Hydration mismatch** ("some attributes of the server rendered HTML didn't
 match"). The star's fill was a scrubbed `color-mix(in srgb,

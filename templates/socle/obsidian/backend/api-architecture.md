@@ -15,7 +15,7 @@ How the app talks to external services. ADR: [[decisions-log]] ADR-0011.
 
 ## `app/api` endpoints — the convention
 
-API endpoints are Next.js Route Handlers: `src/app/api/<resource>/route.ts`.
+API endpoints are the framework Route Handlers: `src/app/api/<resource>/route.ts`.
 
 - **One resource per folder** — `app/api/contact/route.ts`,
   `app/api/<resource>/[id]/route.ts` for items. Name folders by resource (noun).

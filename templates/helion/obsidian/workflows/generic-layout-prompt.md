@@ -28,7 +28,7 @@ Use the Figma MCP server to fetch exact measurements, colours, typography, and s
 ### 1. Responsive Layout
 
 - Implement **mobile-first** responsive design.
-- Use Tailwind's responsive prefixes (`sm:`, `md:`, `lg:`, `xl:`) to adapt for larger screens.
+- Use the generator's responsive prefixes (`sm:`, `md:`, `lg:`, `xl:`) to adapt for larger screens.
 - Inspect both Figma frames and ensure the component structure supports all differences (hidden/shown elements, reordered sections, different type scales).
 - The result must match the desktop frame exactly at desktop widths and the mobile frame exactly at mobile widths.
 
@@ -40,7 +40,7 @@ Use the Figma MCP server to fetch exact measurements, colours, typography, and s
 - **Reuse and extend existing components** before creating new ones. Check `components/ui/` and `components/common/` first.
 - Each component must have a clearly typed `interface ComponentNameProps`. No `any`.
 
-### 3. Tailwind & Design Tokens
+### 3. The utility generator & Design Tokens
 
 - All colour, spacing, typography, and radius values must reference design tokens defined in `globals.css` under `:root` / `@theme inline`.
 - If a Figma value does not correspond to an existing token, **add it to `globals.css`** before using it — do not hardcode raw values in class names or inline styles.
@@ -48,7 +48,7 @@ Use the Figma MCP server to fetch exact measurements, colours, typography, and s
   - `@layer base` — element resets and defaults
   - `@layer components` — reusable multi-utility patterns
   - `@layer utilities` — single-purpose helpers
-- No inline `style` attributes for anything Tailwind can express. Inline styles are only acceptable for dynamic values (e.g. spring-animated values from `@react-spring/web`) or values that cannot be represented as static Tailwind classes.
+- No inline `style` attributes for anything the utility generator can express. Inline styles are only acceptable for dynamic values (e.g. spring-animated values from `@react-spring/web`) or values that cannot be represented as static the utility generator classes.
 
 ### 4. Animations
 
@@ -67,15 +67,15 @@ Choose the right primitive for each animation:
 
 Rules:
 - All animation components accept a `tag` prop — use the semantically correct HTML element (`h1`, `section`, `p`, etc.), not a generic `div`.
-- Animation props (`from`, `to`, `config`) must use values that resolve to animatable CSS properties (numbers or strings with units). Never pass Tailwind class names into spring values.
-- When you need an animated element to also receive Tailwind classes, pass them via `className` (or `innerClassName` for the inner animated wrapper) — Tailwind classes and spring values coexist via the component's `style` + `className` separation.
+- Animation props (`from`, `to`, `config`) must use values that resolve to animatable CSS properties (numbers or strings with units). Never pass the utility generator class names into spring values.
+- When you need an animated element to also receive the utility generator classes, pass them via `className` (or `innerClassName` for the inner animated wrapper) — the utility generator classes and spring values coexist via the component's `style` + `className` separation.
 - Do not disable animations globally. Use `disableOnMobile` per component when a specific animation degrades mobile UX.
 - Staggered entry animations: use `delayIn` with incremental values across siblings.
 
 ### 5. Navigation
 
-- Use `<Link>` from `next/link` for all internal navigation.
-- Use `useRouter` from `next/navigation` for programmatic navigation.
+- Use `<Link>` from the framework's link component for all internal navigation.
+- Use `useRouter` from the framework's navigation module for programmatic navigation.
 
 ### 6. Data & State
 

@@ -8,7 +8,7 @@
  * ecran par ecran est la sienne : l entete, le heros a marqueurs, la matiere
  * premiere, les quatre extraits, la pyramide olfactive, les questions, le
  * pied a bulletin. Ce qui change est le moteur : l horloge du systeme a la
- * place de react-spring, les classes `o-*` a la place de Tailwind, un flacon
+ * place de react-spring, nos classes `o-*` a la place des siennes, un flacon
  * modele en primitives a la place du GLB, et des icones redessinees en ligne.
  *
  * ## Le mecanisme : un flacon qui traverse la page

@@ -45,7 +45,7 @@ interface ArrowLinkProps {
   ease-glide`; the arrow shifts `0.5` on `group-hover`. Visible
   `focus-visible` outline.
 - **External hrefs** (`/^https?:\/\//`) get `target="_blank" rel="noopener"`.
-- **A plain `<a>`, not `next/link`.** Every current href is an in-page `#hash`,
+- **A plain `<a>`, not the framework's link component.** Every current href is an in-page `#hash`,
   which Lenis `anchors` scrolls ([[smooth-scroll]]). Passing an internal *route*
   here would do a full-page load; route links go through `<Link>` (hard rule #8).
 

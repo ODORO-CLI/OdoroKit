@@ -125,7 +125,7 @@ in — so the fix is the leading, not the `overflow`.
 
 Whenever you set `overflow`, **double-check the computed leading** on the
 container — including whatever a `text-*` size utility brought with it, since
-Tailwind's `text-5xl` and above ship `line-height: 1`, which clips.
+the generator's `text-5xl` and above ship `line-height: 1`, which clips.
 
 ### 3. Word spacing — `columnGap` is not the space you had
 

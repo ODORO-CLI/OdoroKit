@@ -28,7 +28,7 @@ with the GetLayers library end to end (ADR-0024).
 `cormorant` — night `#03060f` ground, one cream ink at four alphas, silver
 `#98958d` as the muted ink and the one inverted band, gold `#ffe49a` rationed
 to a lamp, a button and `::selection`. Cormorant (display, headline-only) and
-Inter Tight (everything else) via `next/font/google`. One dark theme, no
+Inter Tight (everything else) via the framework's font loader. One dark theme, no
 `prefers-color-scheme` override. Adaptive grid re-based to 1440
 (`grid.config.ts`, `AdaptiveGrid coef={1}`). See [[design-system]].
 
@@ -64,7 +64,7 @@ under the fixed nav. The film plate is over-scanned (`OVERSCAN` 1.12) so the
 scroll drift never bares cinema black at the section's edges, and its veil runs
 0.5 → 0.82. The preloader's hard cap now actually lifts the card on a stalled
 clip (ADR-0025 amendment). The spacing step `block` was renamed `stack`: it
-made Tailwind emit `inline-block { inline-size: 4.5rem }` and broke every
+made the utility generator emit `inline-block { inline-size: 4.5rem }` and broke every
 letter-by-letter reveal (ADR-0029).
 
 **Tooling.** `verify.sh`: the `duration-fast` rule no longer matches inside
@@ -92,8 +92,8 @@ What the starter ships, so the first project entry has something to diff against
 
 | Area | What is there |
 |------|---------------|
-| Framework | Next.js 16 App Router · React 19 · TypeScript · Yarn · Node ≥ 20.19 |
-| Styling | Tailwind v4, CSS-only config, three-tier design tokens ([[design-system]]) |
+| Framework | the framework App Router · React 19 · TypeScript · Yarn · Node ≥ 20.19 |
+| Styling | the utility generator, CSS-only config, three-tier design tokens ([[design-system]]) |
 | Motion | Vendored spring engine + `spring-text-engine`, shared rAF ticker, reduced-motion ([[animation-system]]) |
 | Layout | Adaptive scaling grid — root font-size tracks the viewport ([[design-system]]) |
 | Scroll | Lenis smooth scroll + Zustand scroll store ([[smooth-scroll]]) |

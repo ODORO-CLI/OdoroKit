@@ -3,18 +3,18 @@ tags: [frontend, design-system, stable]
 updated: 2026-09-14
 ---
 
-# Design System — Tailwind v4
+# Design System — the utility generator
 
-Styling uses **Tailwind CSS v4**, configured entirely in CSS. There is **no
-`tailwind.config.js`**. ADR: [[decisions-log]] ADR-0004.
+Styling uses **the utility generator**, configured entirely in CSS. There is **no
+the generator's config**. ADR: [[decisions-log]] ADR-0004.
 
 ## Where config lives
 
 `src/app/globals.css` is the single config file. Extra CSS layers can be split
 into `src/style/index.css` and imported.
 
-The import is scoped: `@import "tailwindcss" source("../")` limits class
-detection to `src/`. Without it Tailwind v4 auto-scans the whole repo, so class
+The import is scoped: `@import "the utility generator" source("../")` limits class
+detection to `src/`. Without it the utility generator auto-scans the whole repo, so class
 *patterns* written in documentation — `duration-[var(--duration-*)]` in the vault
 and in `.claude/` — are parsed as real candidates and emit CSS build warnings.
 Documentation is not a source of utilities.
@@ -56,7 +56,7 @@ Plus the **theme binding**, which is what actually creates the utilities:
    No literals, no `calc()`, no skipping to `var(--raw-*)`.
 5. **kebab-case, singular, unabbreviated.** `--raw-color-neutral-950`, not
    `--raw-clr-neutrals-950`. State goes last: `--action-primary-hover`.
-6. **Never name a `--spacing-*` token after a display keyword.** Tailwind v4
+6. **Never name a `--spacing-*` token after a display keyword.** the utility generator
    builds `inline-<token>` (`inline-size`) from the spacing namespace, so a
    token called `block` turns the built-in `inline-block` utility into
    `display: inline-block; inline-size: 4.5rem` — every letter of the hero's
@@ -77,8 +77,8 @@ The indirection is load-bearing, not ceremony.
 
 ### Namespaces that generate utilities
 
-A token only becomes a utility if its prefix is a Tailwind namespace. Verified
-against `tailwindcss` v4.3.3 (the installed version):
+A token only becomes a utility if its prefix is a utility generator namespace. Verified
+against the utility generator v4.3.3 (the installed version):
 
 | Namespace | Generated utilities |
 |-----------|--------------------|
@@ -93,7 +93,7 @@ against `tailwindcss` v4.3.3 (the installed version):
 | `--shadow-*` / `--blur-*` / `--animate-*` | `shadow-*` / `blur-*` / `animate-*` |
 | `--breakpoint-*` / `--container-*` | `sm:` … / `max-w-*` |
 
-> [!warning] There is **no `--duration-*` namespace** in Tailwind v4
+> [!warning] There is **no `--duration-*` namespace** in the utility generator
 > `--duration-fast` in `@theme` generates nothing and is not even emitted — a
 > `duration-fast` class silently does nothing. Durations therefore stay **Tier 2
 > only** and are consumed as `duration-[var(--duration-fast)]`. (Guides that list
@@ -126,9 +126,9 @@ match wins:
 
 | Situation | Goes where |
 |-----------|-----------|
-| One-off styling | Tailwind utilities in `className` — nothing in CSS |
+| One-off styling | the utility generator utilities in `className` — nothing in CSS |
 | Repeated pattern with markup / structure / props | a **React component** in `components/ui/` |
-| Repeated *pure-utility* combo, no structure | a Tailwind v4 `@utility` |
+| Repeated *pure-utility* combo, no structure | a utility generator `@utility` |
 | Pseudo-elements, 3rd-party DOM overrides, complex selectors | `@layer components` — the genuine exceptions |
 | A new colour / spacing / radius value | a **token** in `:root` + `@theme` |
 
@@ -157,7 +157,7 @@ The theme is the GetLayers Style committed in `getlayers.json` (ADR-0024):
   `foreground-signal` — the gold tally lamp); actions (`action-primary` gold on
   night, `action-inverse` night on silver); `line` / `line-strong` / `line-ink`;
   five scrims; `typeface-display` / `typeface-ui`; sizes, lines, gaps.
-- **Bindings:** every role above under its Tailwind namespace, plus
+- **Bindings:** every role above under its the utility generator namespace, plus
   `--leading-display` (1.1, the TextEngine clip floor), `--ease-entrance`, and
   breakpoints pinned to the grid (`md` 641, `lg` 1025).
 - **Utilities:** `text-trim`, `min-h-viewport`, `h-viewport`, `pull-viewport`.
@@ -204,7 +204,7 @@ If you are reaching past this list, you want `<Hover>` — see
 
 ## Typography
 
-Two faces, both through `next/font/google` in `src/app/layout.tsx`, exposed on
+Two faces, both through the framework's font loader in `src/app/layout.tsx`, exposed on
 `<html>` (the `:root` typeface tokens would not see a `<body>` variable):
 
 - **Cormorant** → `--font-cormorant` → `--typeface-display` → `font-display`.

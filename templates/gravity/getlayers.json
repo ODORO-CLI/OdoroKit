@@ -19,7 +19,7 @@
   "environment": {
     "target": "other",
     "framework": "vite",
-    "stack": "Vite 6 + React 19 (SPA) + three 0.184 (rig MeshPhysicalMaterial + physique Verlet a la main, pas R3F) + Lenis + motion/react + Tailwind v4",
+    "stack": "Vite 6 + React 19 (SPA) + three 0.184 (rig MeshPhysicalMaterial + physique Verlet a la main, pas R3F) + Lenis + motion/react + the utility generator",
     "installedWith": "npm install (node v25.5.0, npm 11.8.0) — 223 paquets",
     "devPort": 3001,
     "devPortNote": "3000 etait occupe (probablement un autre projet ODORO) — Vite a bascule sur 3001.",
@@ -182,7 +182,7 @@
     },
     {
       "issue": "`vite build` (production) se bloque indefiniment.",
-      "detail": "Le build s'arrete sur « transforming... » a 0% CPU et ne produit aucun dist/. Reproduit 4 fois, y compris avec le plugin Tailwind retire — ce n'est donc pas Tailwind.",
+      "detail": "Le build s'arrete sur « transforming... » a 0% CPU et ne produit aucun dist/. Reproduit 4 fois, y compris avec le plugin the utility generator retire — ce n'est donc pas the utility generator.",
       "notTheCause": "Ce n'est pas le code : `npx tsc --noEmit` passe a 0 erreur, et le serveur de dev sert les 7 modules en 200 sans erreur de transformation.",
       "suspect": "Node v25.5.0. Vite 6 vise Node 18/20/22 ; 25 est une version impaire, hors LTS. Le binaire natif de rollup ou ses workers sont les suspects.",
       "nextStep": "Reessayer sous Node 22 LTS (nvm use 22) avant de chercher plus loin.",
@@ -218,7 +218,7 @@
         "esbuild",
         "autoprefixer"
       ],
-      "why": "Echafaudage AI Studio dormant herite de la template, plus autoprefixer (aucune config postcss, et Tailwind v4 n'en a pas besoin). Verifie : zero import, zero reference dans les scripts.",
+      "why": "Echafaudage AI Studio dormant herite de la template, plus autoprefixer (aucune config postcss, et the utility generator n'en a pas besoin). Verifie : zero import, zero reference dans les scripts.",
       "alsoFixed": [
         "vite etait declare dans dependencies ET devDependencies -> devDependencies seul",
         "@vitejs/plugin-react deplace en devDependencies (outil de build)",

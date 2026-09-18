@@ -16,21 +16,21 @@ Package name: `next16-claude-starter` · version `0.1.0` · private.
 | `react` / `react-dom` | `19.2.4` | UI runtime |
 | `typescript` | `^5` | Type system — `any` is banned |
 
-> [!warning] This is not the Next.js you may know
+> [!warning] This is not the framework you may know
 > `AGENTS.md` warns: APIs, conventions, and file structure may differ from older
-> Next.js knowledge. Always check [[routing]] before writing routing code, and
+> The framework knowledge. Always check [[routing]] before writing routing code, and
 > heed deprecation notices.
 
 ## Styling
 
 | Package | Version | Role |
 |---------|---------|------|
-| `tailwindcss` | `^4` | Utility CSS — **no `tailwind.config.js`** |
+| The utility generator | `^4` | Utility CSS — **no the generator's config** |
 
 > [!warning] Pinned to `4.2.4` (with `resolutions.jiti = 2.6.1`) on 2026-09-11 — 4.3.2 / jiti 2.7.0 hang at load under Node 25.5.0 on the build machine. See [[changelog]].
-| `@tailwindcss/postcss` | `^4` | PostCSS integration |
+| The generator's plugin | `^4` | PostCSS integration |
 
-Tailwind v4 is configured entirely in `src/app/globals.css` via `@theme inline`.
+the utility generator is configured entirely in `src/app/globals.css` via `@theme inline`.
 See [[design-system]].
 
 ## Animation (the heart of the starter)
@@ -72,7 +72,7 @@ former `react-cookie-consent` package was removed. See [[components/common]].
 ## Scripts
 
 ```bash
-yarn dev      # next dev — local development
+yarn dev      # the dev server — local development
 yarn build    # next build — production build
 yarn start    # next start — serve production build
 yarn lint     # eslint

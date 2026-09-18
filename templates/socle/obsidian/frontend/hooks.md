@@ -42,7 +42,7 @@ components — don't call them directly unless extending the engine.
 > [[animation-system]]. The ticker is **not** `#do-not-modify`.
 
 > [!important] `useDynamicInView` is how expensive components are deferred
-> `next/dynamic` defers a **bundle**; it does not defer the **work**. A
+> The framework's dynamic import defers a **bundle**; it does not defer the **work**. A
 > component still mounts on render, and mounting is what fetches the chunk,
 > creates a WebGL context, generates an environment map or decodes a large
 > image — all on the main thread, during page load.

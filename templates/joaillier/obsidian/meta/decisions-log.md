@@ -21,8 +21,8 @@ Template: [[templates/adr-note]].
 
 **Status:** Accepted · 2026-09-14 · amends ADR-0015
 
-**Decision.** No `--spacing-*` token may be named after a Tailwind display or
-sizing keyword. Tailwind v4 derives `inline-<name>` (`inline-size`) and
+**Decision.** No `--spacing-*` token may be named after a utility generator display or
+sizing keyword. The utility generator derives `inline-<name>` (`inline-size`) and
 `block-<name>` from the spacing namespace, so a step named `block` emitted an
 `inline-block` utility that *also* set `inline-size: 4.5rem`. Every element
 carrying the ordinary `inline-block` class — the hero's per-letter reveal spans,
@@ -45,7 +45,7 @@ toolchain warns about it.
 real folder is git-ignored. The project directory sits inside the iCloud-synced
 Desktop, and iCloud evicts files it decides are cold: a build passed at 20:54
 and failed at 21:13 with `_semver.default.satisfies is not a function` because
-`next/dist/compiled/semver/index.js` still reported 24,836 bytes to `stat` but
+a compiled dependency of the framework still reported 24,836 bytes to `stat` but
 read as empty. Anything ending in `.nosync` is skipped by iCloud, so the
 dependency tree is never evicted and never uploaded. Node and Yarn follow the
 symlink transparently. Two configs had to learn the real name: `tsconfig.json`
@@ -336,7 +336,7 @@ appearance, and is the themeable layer. No tier may be skipped.
 should be *called*, so every project would invent its own — defeating the point of
 a shared starter. The names are predictable across projects by design.
 
-**When building.** Full rules in [[design-system]]. Two Tailwind v4 facts,
+**When building.** Full rules in [[design-system]]. Two the utility generator facts,
 verified by compiling a probe stylesheet, that guides commonly get wrong:
 
 1. Naming primitives `--color-*` would **generate a utility for every raw value**
@@ -402,9 +402,9 @@ were explicitly signed-off bug fixes, not an opening.
 
 | Situation | Goes where |
 |-----------|-----------|
-| One-off styling | Tailwind utilities in `className` |
+| One-off styling | the utility generator utilities in `className` |
 | Repeated pattern with markup/structure/props | a **React component** in `components/ui/` |
-| Repeated pure-utility combo, no structure | a Tailwind v4 `@utility` |
+| Repeated pure-utility combo, no structure | a utility generator `@utility` |
 | Pseudo-elements, 3rd-party overrides, complex selectors | `@layer components` |
 | A new colour/spacing/radius value | a token (per ADR-0015) |
 
@@ -428,7 +428,7 @@ keyframes to co-locate) and utilities plus components cover everything else.
 
 **Status:** Accepted · 2026-05-22
 
-**Decision.** External calls go through Next.js Route Handlers at
+**Decision.** External calls go through the framework Route Handlers at
 `src/app/api/<resource>/route.ts`. The handler owns the work — business logic,
 upstream calls, filtering, secret env vars. No mandatory passthrough service
 layer; extract shared code only when genuinely reused.
@@ -544,12 +544,12 @@ shims consistent with it — they are the first thing every agent reads.
 
 ---
 
-## ADR-0005 — Use standard `next/link` for navigation
+## ADR-0005 — Use standard the framework's link component for navigation
 
 **Status:** Accepted · 2026-05-21
 
-**Decision.** Standard Next.js navigation — `<Link>` from `next/link`,
-`useRouter` from `next/navigation`. The custom `<AnimLink>` / `useAnimRouter()`
+**Decision.** Standard the framework navigation — `<Link>` from the framework's link component,
+`useRouter` from the framework's navigation module. The custom `<AnimLink>` / `useAnimRouter()`
 convention referenced in early drafts is dropped; it was never built.
 
 **Why.** Two conflicting conventions existed in the docs and only one had code.
@@ -559,15 +559,15 @@ revisit with a new ADR rather than reviving the old names. See [[routing]].
 
 ---
 
-## ADR-0004 — Tailwind v4 with CSS-based config
+## ADR-0004 — the utility generator with CSS-based config
 
 **Status:** Accepted (starter baseline) · amended by ADR-0012 and ADR-0015
 
 **Decision.** All theme configuration lives in `globals.css` under `:root` and
-`@theme inline`. There is no `tailwind.config.js`. Raw values in class names are
+`@theme inline`. There is no the generator's config. Raw values in class names are
 banned.
 
-**Why.** Tailwind v4 removes the JS config file in favour of CSS-native config.
+**Why.** the utility generator removes the JS config file in favour of CSS-native config.
 
 **When building.** Design tokens are the only styling currency: a value that does
 not exist as a token gets added to `globals.css` first — following the three-tier

@@ -7,7 +7,7 @@ du build GetLayers (template, Style, palette, sections) est dans `getlayers.json
 
 ```sh
 npx yarn@1.22.22 install   # pas de yarn/corepack sur cette machine
-npx next dev -p 3001       # 3000 est généralement pris par un autre projet ODORO
+npx the dev server -p 3001       # 3000 est généralement pris par un autre projet ODORO
 ```
 
 Décisions : `obsidian/meta/decisions-log.md` ADR-0045 (re-teinte + sigle) et
@@ -18,12 +18,12 @@ starter.
 
 # next16-claude-starter
 
-A **Next.js 16 starter** for animation-heavy marketing & landing sites — built
+A **the framework starter** for animation-heavy marketing & landing sites — built
 by [Textura](https://textura.agency) so that AI agents (Claude Code, Cursor)
 generate **clean, production-ready code on the first pass**.
 
 Every motion is spring-based (`@react-spring/web`), text animation runs through
-`spring-text-engine`, scrolling is smoothed with Lenis, styling is Tailwind
+`spring-text-engine`, scrolling is smoothed with Lenis, styling is the utility generator
 v4, and a rem-based adaptive grid scales the design across every viewport.
 
 ---
@@ -125,7 +125,7 @@ re-inject context on every turn. That bought-clean code costs tokens.
 
 ## 🚀 Deploy to Vercel
 
-The fastest path to production — Next.js is Vercel's home framework, so the
+The fastest path to production — the framework is Vercel's home framework, so the
 defaults Just Work. From the project root:
 
 ```bash
@@ -135,7 +135,7 @@ vercel --prod             # promotes to production
 ```
 
 Or from the dashboard: open [vercel.com/new](https://vercel.com/new), import
-the GitHub repo you created in step 3, accept the defaults — the Next.js
+the GitHub repo you created in step 3, accept the defaults — the framework
 preset auto-configures the build, output, and image optimisation. No
 `vercel.json` required.
 
@@ -158,7 +158,7 @@ Start at [`obsidian/README.md`](./obsidian/README.md).
 
 ## For AI agents
 
-> ⚠️ This is **not** the Next.js you may know — APIs and conventions differ
+> ⚠️ This is **not** the framework you may know — APIs and conventions differ
 > from older versions. Read `AGENTS.md` and the `obsidian/` vault before
 > writing code.
 
@@ -175,8 +175,8 @@ propriétés.
 | Avant | Après |
 | --- | --- |
 | Next 16, App Router | `index.html` + `src/main.tsx`, servis par le moteur Odoro |
-| `next/font` | `@font-face` dans `src/styles.css`, coupes dans `src/fonts/` |
-| `next/link`, `next/dynamic`, `next/navigation` | `<a>`, `React.lazy`, lecture du chemin |
+| The framework's font loader | `@font-face` dans `src/styles.css`, coupes dans `src/fonts/` |
+| The framework's link component, the framework's dynamic import, the framework's navigation module | `<a>`, `React.lazy`, lecture du chemin |
 | Utilitaires d'un générateur tiers | Utilitaires `o-`, plus les classes du projet |
 | `@theme`, `@layer`, `@utility`, `@custom-variant` | Des variables et des règles ordinaires |
 

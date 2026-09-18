@@ -42,7 +42,7 @@ permissions in `settings.json`, plus the commands, rules, skills, agents and the
 src/
 ├── env.ts                  # zod-validated env (public + server-only split)
 │
-├── app/                    # Next.js routes — keep lean, routing only
+├── app/                    # the framework routes — keep lean, routing only
 │   ├── layout.tsx          # Root layout — provider tree lives here
 │   ├── page.tsx            # Route → delegates to a view
 │   ├── api/<resource>/route.ts  # API endpoints — see [[api-architecture]]
@@ -51,7 +51,7 @@ src/
 │   ├── not-found.tsx       # 404 page
 │   ├── robots.ts           # → /robots.txt
 │   ├── sitemap.ts          # → /sitemap.xml
-│   ├── globals.css         # Tailwind v4 config + design tokens
+│   ├── globals.css         # the utility generator config + design tokens
 │   └── favicon.ico
 │
 ├── views/                  # Page-level components — one per route

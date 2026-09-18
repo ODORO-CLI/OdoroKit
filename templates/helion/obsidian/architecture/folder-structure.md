@@ -34,7 +34,7 @@ documentation workflow automatically — also see [[ai-agent-guide]].
 src/
 ├── env.ts                  # zod-validated env (public + server-only split)
 │
-├── app/                    # Next.js routes — keep lean, routing only
+├── app/                    # the framework routes — keep lean, routing only
 │   ├── layout.tsx          # Root layout — provider tree lives here
 │   ├── page.tsx            # Route → delegates to a view
 │   ├── api/<resource>/route.ts  # API endpoints — see [[api-architecture]]
@@ -43,7 +43,7 @@ src/
 │   ├── not-found.tsx       # 404 page
 │   ├── robots.ts           # → /robots.txt
 │   ├── sitemap.ts          # → /sitemap.xml
-│   ├── globals.css         # Tailwind v4 config + design tokens
+│   ├── globals.css         # the utility generator config + design tokens
 │   └── favicon.ico
 │
 ├── views/                  # Page-level components — one per route
@@ -74,7 +74,7 @@ src/
 │   ├── animation/ticker.ts # Shared app-wide requestAnimationFrame loop
 │   ├── api/                # API route-handler helpers (handle, ApiError)
 │   ├── api-client.ts       # Typed same-origin /api fetch wrapper (client)
-│   ├── fonts.ts            # Self-hosted Gilroy + Lato (next/font/local)
+│   ├── fonts.ts            # Self-hosted Gilroy + Lato (the framework's local font loader)
 │   ├── scene/              # WebGL support: screens, scroll-state, tween, easing, mouse, canvas3d
 │   ├── site.ts             # Site-wide SEO config (single source of truth)
 │   └── springs/config.ts   # Global animation config

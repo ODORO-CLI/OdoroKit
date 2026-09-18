@@ -121,12 +121,12 @@
 }
 
 /* ---------------------------------------------------------------------------
-   THEME BINDINGS — map semantic tokens into Tailwind namespaces.
+   THEME BINDINGS — map semantic tokens into the utility generator namespaces.
    Every entry is exactly `--<tw-namespace>-<role>: var(--<role>)`.
    `inline` is required: it inlines the var() into each utility, so any Tier 2
    override cascades. Binding a literal here instead would freeze the value.
 
-   Only these namespaces generate utilities (verified against tailwindcss
+   Only these namespaces generate utilities (verified against the utility generator
    v4.3.3): --color-* --spacing-* --radius-* --leading-* --tracking-* --text-*
    --font-* --ease-* --breakpoint-* --container-* --shadow-* --blur-* --animate-*
    NOTE: there is NO --duration-* namespace in v4 — `duration-fast` compiles to

@@ -197,13 +197,13 @@
 }
 
 /* ---------------------------------------------------------------------------
-   THEME BINDINGS — map semantic tokens into Tailwind namespaces.
+   THEME BINDINGS — map semantic tokens into the utility generator namespaces.
    Every entry is exactly `--<tw-namespace>-<role>: var(--<role>)`.
    `inline` is required: it inlines the var() into each utility, so overrides on
    the Tier 2 tokens above cascade. Binding a literal here instead would freeze
    the value and break theming.
 
-   Only these namespaces generate utilities (verified against tailwindcss
+   Only these namespaces generate utilities (verified against the utility generator
    v4.3.3): --color-* --spacing-* --radius-* --leading-* --tracking-* --text-*
    --font-* --ease-* --breakpoint-* --container-* --shadow-* --blur-* --animate-*
    NOTE: there is NO --duration-* namespace in v4 — `duration-fast` compiles to
@@ -265,7 +265,7 @@
        (default) phone   < 540
        tablet:           540 – 1279   — the stacked layout, fixed 16 px root
        lg:               ≥ 1280       — the Figma 1440 composition
-     `md:` is left at Tailwind's 768 and deliberately unused for layout, so a
+     `md:` is left at the generator's 768 and deliberately unused for layout, so a
      stray `md:` can never half-apply the desktop composition to a tablet.
      Media-query rem always resolves against 16 px, never the adaptive root. */
   --breakpoint-tablet: 33.75rem; /* 540px */

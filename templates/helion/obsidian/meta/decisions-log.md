@@ -189,21 +189,21 @@ portable; anything that must have visible thickness is a quad** — already appl
 
 ---
 
-## ADR-0041 — Scope the Tailwind scanner; pin the Turbopack root
+## ADR-0041 — Scope the utility generator scanner; pin the Turbopack root
 
 - **Status:** Accepted
 - **Date:** 2026-07-14
 
 **Context.** The build was clean-but-noisy: three warnings that were harmless yet
-easy to mistake for real breakage. (1) Tailwind v4 auto-detects source content
+easy to mistake for real breakage. (1) the utility generator auto-detects source content
 across the whole project, so it scanned the `obsidian/` vault — prose that
-*documents* Tailwind syntax, including the literal `bg-[image:var(…)]` examples from
+*documents* the utility generator syntax, including the literal `bg-[image:var(…)]` examples from
 the dead-gradient fix (see [[changelog]] 2026-07-12). The scanner took those as real
 utilities and emitted invalid CSS (`background-color: var(…)`), producing two
 "Unexpected token" warnings. (2) A stray `package-lock.json` in a parent directory
 made Next infer the wrong workspace root for Turbopack.
 
-**Decision.** Draw a hard line between *source* and *documentation* for the Tailwind
+**Decision.** Draw a hard line between *source* and *documentation* for the utility generator
 scanner, and pin the build's roots explicitly rather than relying on inference.
 
 - `@source not "../../obsidian"` in `app/globals.css` — the vault is prose, never a
@@ -212,7 +212,7 @@ scanner, and pin the build's roots explicitly rather than relying on inference.
 - Defence in depth: JSX comments must not contain literal arbitrary-value class
   syntax, since component files *are* scanned. Reworded `logo-mark.tsx` accordingly.
 
-**Consequences.** `yarn build` is warning-free. New docs may freely quote Tailwind
+**Consequences.** `yarn build` is warning-free. New docs may freely quote the utility generator
 class syntax without corrupting the compiled CSS. If documentation is ever moved out
 of `obsidian/`, revisit the `@source not` path.
 
@@ -1206,12 +1206,12 @@ Stacking the two compounds: the hero title's `10.5rem` would render at ~224px on
 **Decision.** Fix the root at `font-size: 16px`, drop `<AdaptiveGrid>` from the
 root layout, and reproduce the original's media queries as `--breakpoint-*` tokens
 (`hero-lg` 1180, `hero-md` 855, `hero-sm` 656, `hero-xs` 480, `menu` 912,
-`pad-sm` 991), consumed through Tailwind's `max-*` variants.
+`pad-sm` 991), consumed through the generator's `max-*` variants.
 
 **Consequences.** px values port as `px / 16` rem and render 1:1. The starter's
 grid components (`components/common/grid/`) are unused here but left in place.
 Two `@custom-variant`s (`max-h-828`, `max-h-717`) exist because the Sitemap
-reflows on viewport *height* and Tailwind has no built-in max-height variant.
+reflows on viewport *height* and the utility generator has no built-in max-height variant.
 
 ---
 
@@ -1309,12 +1309,12 @@ same bloat.
 **Decision.** Styling follows a strict placement order; `globals.css` stays
 bounded by design.
 
-- One-off styling → **Tailwind utilities** in `className`. Nothing enters CSS.
+- One-off styling → **the utility generator utilities** in `className`. Nothing enters CSS.
 - A repeated pattern with markup/structure/props → a **React component**
   (`components/ui/`), *not* a CSS class. This is the default answer to "this
   looks repeated" — e.g. an eyebrow label with a `::before` dot is an
   `<Eyebrow>` component, not a `.label-eyebrow` class.
-- A repeated pure-utility combo with no structure → a Tailwind v4 `@utility`.
+- A repeated pure-utility combo with no structure → a utility generator `@utility`.
 - `@layer components` is reserved **strictly** for what utilities and
   components genuinely cannot express: pseudo-elements (`::before`/`::after`),
   third-party DOM overrides (`!important` on library markup), complex
@@ -1344,7 +1344,7 @@ project wants anyway. This **amends ADR-0004**: design *tokens* still go in
 external services that keeps secret keys off the client and gives endpoints a
 consistent shape.
 
-**Decision.** External calls go through Next.js Route Handlers —
+**Decision.** External calls go through the framework Route Handlers —
 `src/app/api/<resource>/route.ts`:
 - **The handler owns the work** — business logic, multiple upstream calls,
   filtering, and reading secret env vars all live in `route.ts`. No mandatory
@@ -1398,7 +1398,7 @@ and the animation-heavy starter ignored `prefers-reduced-motion`.
   toggling the global `skipAnimation` — one app-root mount covers every spring
   and `spring-text-engine`. Chosen over per-component handling for its reach.
 - **Build config.** `next.config.ts` now sets `removeConsole` (prod),
-  AVIF/WebP, `next/image` breakpoints aligned to the adaptive-grid widths, and
+  AVIF/WebP, the framework's image component breakpoints aligned to the adaptive-grid widths, and
   `poweredByHeader: false`. React Compiler is left as a documented opt-in (needs
   `babel-plugin-react-compiler`).
 - Fixed the `ScrollLayout` Lenis rAF leak (cancel on unmount).
@@ -1539,18 +1539,18 @@ hold canonical spec content.
 
 ---
 
-## ADR-0005 — Use standard `next/link` for navigation
+## ADR-0005 — Use standard the framework's link component for navigation
 
 - **Status:** Accepted
 - **Date:** 2026-05-21
 
 **Context.** Two conflicting conventions existed: `project-specs.md` specified
-standard `next/link` / `useRouter`, while `generic-layout-prompt.md` specified
+standard the framework's link component / `useRouter`, while `generic-layout-prompt.md` specified
 custom `<AnimLink>` / `useAnimRouter()` wrappers. The custom wrappers were never
 built.
 
-**Decision.** Use standard Next.js navigation — `<Link>` from `next/link` and
-`useRouter` from `next/navigation`. The `AnimLink` / `useAnimRouter` convention is
+**Decision.** Use standard the framework navigation — `<Link>` from the framework's link component and
+`useRouter` from the framework's navigation module. The `AnimLink` / `useAnimRouter` convention is
 dropped. See [[routing]].
 
 **Consequences.** `generic-layout-prompt.md` §5 updated to match. No animated-route-
@@ -1608,12 +1608,12 @@ to test.
 
 ---
 
-## ADR-0004 — Tailwind v4 with CSS-based config
+## ADR-0004 — the utility generator with CSS-based config
 
 - **Status:** Accepted (inherited from starter)
 - **Date:** Project baseline
 
-**Context.** Tailwind v4 removes `tailwind.config.js` in favour of CSS-native config.
+**Context.** the utility generator removes the generator's config in favour of CSS-native config.
 
 **Decision.** All theme tokens live in `globals.css` under `:root` and `@theme inline`.
 No JS config file. Raw values in class names are banned. See [[design-system]].

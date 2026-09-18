@@ -932,7 +932,7 @@ Measured: the root font-size reached **28.4px at a 640 viewport** and dropped to
 phone and 8.8px card titles on a small tablet. At 820 everything rendered at 80%
 of its intended size; at 500, at 139%.
 
-**It also broke 1024 outright.** `max-width: 1024px` and Tailwind's `lg`
+**It also broke 1024 outright.** `max-width: 1024px` and the generator's `lg`
 (`min-width: 1024px`) both match at exactly 1024, so that viewport got a 16px
 root *and* the frame layout: the 1440-wide composition was drawn at full scale
 inside 1024px. The collections lede sat at x 1069–1354 — entirely off-screen,
@@ -1120,7 +1120,7 @@ projecting the frame's own coordinates rather than by a CSS box (see
 **Decision.** The hero product is rendered from `hero-jacket.glb` by
 `src/views/home/hero/hero-subject.tsx`, built on `three` directly — no
 `@react-three/fiber`, no `drei`. It renders on demand through the shared ticker,
-and is code-split with `next/dynamic({ ssr: false })`.
+and is code-split with `the framework's dynamic import({ ssr: false })`.
 
 **Why.** The scene is one static, untextured mesh. Fiber would add a React
 reconciler and, more importantly, **its own rAF loop** running beside the shared
@@ -1253,7 +1253,7 @@ actually means.
 **When building.** Pick by whether the element is on screen at load, not by
 whether the motion is a "reveal". Note that `<Spring>` has no `innerTag`, so a
 spring that animates `transform` needs a plain positioning wrapper when the
-element also carries a Tailwind transform (`-translate-x-1/2`) — react-spring
+element also carries a utility generator transform (`-translate-x-1/2`) — react-spring
 writes `transform` inline and would otherwise overwrite the class. See
 [[animation-system]] and [[components/animation-springs]].
 
@@ -1414,7 +1414,7 @@ appearance, and is the themeable layer. No tier may be skipped.
 should be *called*, so every project would invent its own — defeating the point of
 a shared starter. The names are predictable across projects by design.
 
-**When building.** Full rules in [[design-system]]. Two Tailwind v4 facts,
+**When building.** Full rules in [[design-system]]. Two the utility generator facts,
 verified by compiling a probe stylesheet, that guides commonly get wrong:
 
 1. Naming primitives `--color-*` would **generate a utility for every raw value**
@@ -1480,9 +1480,9 @@ were explicitly signed-off bug fixes, not an opening.
 
 | Situation | Goes where |
 |-----------|-----------|
-| One-off styling | Tailwind utilities in `className` |
+| One-off styling | the utility generator utilities in `className` |
 | Repeated pattern with markup/structure/props | a **React component** in `components/ui/` |
-| Repeated pure-utility combo, no structure | a Tailwind v4 `@utility` |
+| Repeated pure-utility combo, no structure | a utility generator `@utility` |
 | Pseudo-elements, 3rd-party overrides, complex selectors | `@layer components` |
 | A new colour/spacing/radius value | a token (per ADR-0015) |
 
@@ -1506,7 +1506,7 @@ keyframes to co-locate) and utilities plus components cover everything else.
 
 **Status:** Accepted · 2026-05-22
 
-**Decision.** External calls go through Next.js Route Handlers at
+**Decision.** External calls go through the framework Route Handlers at
 `src/app/api/<resource>/route.ts`. The handler owns the work — business logic,
 upstream calls, filtering, secret env vars. No mandatory passthrough service
 layer; extract shared code only when genuinely reused.
@@ -1622,12 +1622,12 @@ shims consistent with it — they are the first thing every agent reads.
 
 ---
 
-## ADR-0005 — Use standard `next/link` for navigation
+## ADR-0005 — Use standard the framework's link component for navigation
 
 **Status:** Accepted · 2026-05-21
 
-**Decision.** Standard Next.js navigation — `<Link>` from `next/link`,
-`useRouter` from `next/navigation`. The custom `<AnimLink>` / `useAnimRouter()`
+**Decision.** Standard the framework navigation — `<Link>` from the framework's link component,
+`useRouter` from the framework's navigation module. The custom `<AnimLink>` / `useAnimRouter()`
 convention referenced in early drafts is dropped; it was never built.
 
 **Why.** Two conflicting conventions existed in the docs and only one had code.
@@ -1637,15 +1637,15 @@ revisit with a new ADR rather than reviving the old names. See [[routing]].
 
 ---
 
-## ADR-0004 — Tailwind v4 with CSS-based config
+## ADR-0004 — the utility generator with CSS-based config
 
 **Status:** Accepted (starter baseline) · amended by ADR-0012 and ADR-0015
 
 **Decision.** All theme configuration lives in `globals.css` under `:root` and
-`@theme inline`. There is no `tailwind.config.js`. Raw values in class names are
+`@theme inline`. There is no the generator's config. Raw values in class names are
 banned.
 
-**Why.** Tailwind v4 removes the JS config file in favour of CSS-native config.
+**Why.** the utility generator removes the JS config file in favour of CSS-native config.
 
 **When building.** Design tokens are the only styling currency: a value that does
 not exist as a token gets added to `globals.css` first — following the three-tier

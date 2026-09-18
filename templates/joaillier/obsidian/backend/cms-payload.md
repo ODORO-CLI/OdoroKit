@@ -11,7 +11,7 @@ ADR: [[decisions-log]] ADR-0020.
 
 ## Why Payload
 
-It installs **into this Next.js app** rather than running as a separate service:
+It installs **into this the framework app** rather than running as a separate service:
 the admin UI is a route group, content is read through an in-process Local API,
 and the schema generates TypeScript types. That matches how this starter already
 works — Server Components reading data and passing it down as props — and it keeps

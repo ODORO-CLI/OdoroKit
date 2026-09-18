@@ -17,7 +17,7 @@ category **preferences modal**. No third-party library (the old
 | File | Role |
 |------|------|
 | `Cookie.tsx` | Mount component — hydrates the store, renders banner + modal |
-| `LazyCookie.tsx` | `next/dynamic` `ssr:false` wrapper — keeps cookie JS out of first-load |
+| `LazyCookie.tsx` | the framework's dynamic import `ssr:false` wrapper — keeps cookie JS out of first-load |
 | `CookieBanner.tsx` | Bottom-right consent banner |
 | `CookiePreferencesModal.tsx` | Category preferences dialog with per-category toggles |
 | `CookieButton.tsx` | Local button primitive — `primary` / `secondary` variants |
@@ -40,7 +40,7 @@ the banner shows only after hydration confirms `consent === null`. Persisted to
 `localStorage` under key `cookie-consent-v1`. Three categories: `necessary`
 (always on), `analytics`, `marketing`.
 
-**Styling & motion** — ported to the project stack: Tailwind v4 with the
+**Styling & motion** — ported to the project stack: The utility generator with the
 `background` / `foreground` design tokens (dark-mode adaptive, no hardcoded hex),
 and `@react-spring/web` for all motion — `useTransition` drives the banner and
 modal mount/unmount, `useSpring` drives the toggle knob. No CSS transitions.
@@ -191,7 +191,7 @@ a narrowed measure (word reveal), an italic signature rising behind it.
 
 `vexon-showcase`: a 4|8 heading row (label · statement with a line reveal ·
 paragraph) over a 3-column grid (2 on portrait, 1 on phones). `<ProductCard>`
-is an `<Inview tag="li">` plate: `next/image` 4:5 that leans toward the pointer
+is an `<Inview tag="li">` plate: The framework's image component 4:5 that leans toward the pointer
 through `<Hover trigger>`, an index in the corner, an "add" pill on hover
 (CSS opacity, token-timed), and a ruled footer with name, detail and price.
 The link is the plate; there is no cart — this is a template.
@@ -203,7 +203,7 @@ preserve-3d ring driven by one `--rot`, cards placed by
 `rotateY(a) translateZ(-r)`, drag / inertia / snap-to-card / keyboard /
 prev-next / dot / tap-to-focus, front-card sync to the dock through refs, all
 on the shared ticker. **Skin ours**: tokens, faces, the seven looks
-(`next/image` in the cards), the masthead (line reveal). Config:
+(the framework's image component in the cards), the masthead (line reveal). Config:
 `src/lib/lookbook/spotlight.config.ts`. Reduced motion snaps instantly.
 
 ### Scene — `scene/onyx-cubes-canvas.tsx`, `scene/lazy-onyx-cubes.tsx`, `src/lib/scene/onyx-cubes.ts`
