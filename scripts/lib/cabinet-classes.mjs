@@ -214,6 +214,21 @@ export const UNCHANGED = new Set([
 export const FAUX_AMIS = new Set([
   // La valeur d une propriete de composant : `descriptionSide`.
   'right',
+  /*
+   * Des valeurs CSS ecrites en clair, un nom d evenement, de la prose de
+   * commentaire — et `glass`, qui est le membre d un type : `variant?: "plain"
+   * | "glass"`. Verifies un a un.
+   */
+  'absolute',
+  'fixed',
+  'glass',
+  'grid-cols-4',
+  'hidden',
+  'relative',
+  'resize',
+  'sr-only',
+  'text-center',
+  'visible',
 ])
 
 export const IGNORED = new Set(FAUX_AMIS)

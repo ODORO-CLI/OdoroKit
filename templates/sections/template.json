@@ -1,7 +1,7 @@
 {
   "name": "sections",
   "title": "Sections autonomes",
-  "order": 5,
+  "order": 12,
   "kind": "library",
   "description": "Vingt et une sections en HTML autonome — heros, chargeurs, carrousels, cartes — chacune un document complet qui s ouvre sans rien installer.",
   "stack": [

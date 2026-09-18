@@ -157,6 +157,72 @@ function corpus(v: Vitrine): string {
   return [v.titre, v.metier, v.resume, v.slug, ...v.pieces].join(' ').toLowerCase()
 }
 
+/* ============================ Les trois familles ======================= */
+
+/**
+ * Une entree de la bibliotheque, quelle que soit sa famille.
+ *
+ * Les trois ne se ressemblent pas : une vitrine est une page qu on ouvre ici
+ * meme, un projet livre est un site entier qu on clone, un socle est une
+ * commande qui echafaude. Elles partagent pourtant ce qu il faut pour etre
+ * cherchees et triees ensemble — un nom, un resume, un texte ou lire.
+ */
+type Famille = 'vitrine' | 'projet' | 'socle'
+
+interface Entree {
+  readonly famille: Famille
+  readonly cle: string
+  readonly titre: string
+  readonly corpus: string
+  readonly vitrine?: Vitrine
+  readonly projet?: TemplateEntry
+  readonly socle?: Template
+}
+
+const FAMILLES = [
+  ['vitrine', 'Vitrines'],
+  ['projet', 'Projets livrés'],
+  ['socle', 'Socles'],
+] as const
+
+/**
+ * La bibliotheque entiere, dans l ordre ou elle se presente : les vitrines,
+ * puis les projets livres, puis les socles.
+ */
+const BIBLIOTHEQUE: readonly Entree[] = [
+  ...VITRINES.map(
+    (v): Entree => ({
+      famille: 'vitrine',
+      cle: `vitrine:${v.slug}`,
+      titre: v.titre,
+      corpus: corpus(v),
+      vitrine: v,
+    }),
+  ),
+  ...PROJETS.map(
+    (p): Entree => ({
+      famille: 'projet',
+      cle: `projet:${p.name}`,
+      titre: p.title,
+      corpus: [p.title, p.name, p.description, ...(p.tags ?? []), ...p.stack]
+        .join(' ')
+        .toLowerCase(),
+      projet: p,
+    }),
+  ),
+  ...TEMPLATES.map(
+    (t): Entree => ({
+      famille: 'socle',
+      cle: `socle:${t.slug}`,
+      titre: t.title,
+      corpus: [t.title, t.slug, t.description, ...t.includes, t.audience ?? '']
+        .join(' ')
+        .toLowerCase(),
+      socle: t,
+    }),
+  ),
+]
+
 /** Les tris proposes. */
 const TRIS = [
   ['registre', 'Ordre du registre'],
@@ -548,6 +614,7 @@ function voletReplie(): boolean {
 /** L etat des filtres. */
 interface Filtres {
   readonly recherche: string
+  readonly familles: readonly Famille[]
   readonly secteurs: readonly VitrineSecteur[]
   readonly tons: readonly ('sombre' | 'theme')[]
   readonly scene: 'toutes' | 'avec' | 'sans'
@@ -556,6 +623,7 @@ interface Filtres {
 
 const VIDE: Filtres = {
   recherche: '',
+  familles: [],
   secteurs: [],
   tons: [],
   scene: 'toutes',
@@ -606,24 +674,41 @@ export function Templates(): ReactElement {
 
   const visibles = useMemo(() => {
     const mots = filtres.recherche.trim().toLowerCase().split(/\s+/).filter(Boolean)
-    let liste = VITRINES.filter((v) => {
-      if (filtres.secteurs.length > 0 && !filtres.secteurs.includes(v.secteur))
+
+    /*
+     * Un filtre propre aux vitrines — secteur, ton, scene — ne s applique
+     * qu a elles. Mais il ne peut pas non plus laisser passer les deux autres
+     * familles comme si de rien n etait : demander « les vitrines sombres »
+     * pour se voir repondre par trois socles n aurait aucun sens. Un tel filtre
+     * retire donc les autres familles.
+     */
+    const propreAuxVitrines =
+      filtres.secteurs.length > 0 || filtres.tons.length > 0 || filtres.scene !== 'toutes'
+
+    let liste = BIBLIOTHEQUE.filter((e) => {
+      if (filtres.familles.length > 0 && !filtres.familles.includes(e.famille))
         return false
-      if (filtres.tons.length > 0 && !filtres.tons.includes(ton(v))) return false
-      if (filtres.scene === 'avec' && !aUneScene(v)) return false
-      if (filtres.scene === 'sans' && aUneScene(v)) return false
-      if (mots.length > 0) {
-        const texte = corpus(v)
-        if (!mots.every((m) => texte.includes(m))) return false
+      if (propreAuxVitrines && e.famille !== 'vitrine') return false
+
+      const v = e.vitrine
+      if (v !== undefined) {
+        if (filtres.secteurs.length > 0 && !filtres.secteurs.includes(v.secteur))
+          return false
+        if (filtres.tons.length > 0 && !filtres.tons.includes(ton(v))) return false
+        if (filtres.scene === 'avec' && !aUneScene(v)) return false
+        if (filtres.scene === 'sans' && aUneScene(v)) return false
       }
+
+      if (mots.length > 0 && !mots.every((m) => e.corpus.includes(m))) return false
       return true
     })
+
     if (filtres.tri === 'nom')
       liste = [...liste].sort((a, b) => a.titre.localeCompare(b.titre, 'fr'))
     if (filtres.tri === 'secteur')
       liste = [...liste].sort(
         (a, b) =>
-          a.secteur.localeCompare(b.secteur, 'fr') ||
+          (a.vitrine?.secteur ?? '').localeCompare(b.vitrine?.secteur ?? '', 'fr') ||
           a.titre.localeCompare(b.titre, 'fr'),
       )
     if (filtres.tri === 'recentes') liste = [...liste].reverse()
@@ -631,10 +716,13 @@ export function Templates(): ReactElement {
   }, [filtres])
 
   const actifs =
+    filtres.familles.length +
     filtres.secteurs.length +
     filtres.tons.length +
     (filtres.scene === 'toutes' ? 0 : 1) +
     (filtres.recherche.trim() === '' ? 0 : 1)
+  const compteFamille = (f: Famille): number =>
+    BIBLIOTHEQUE.filter((e) => e.famille === f).length
   const compteSecteur = (cle: VitrineSecteur): number =>
     VITRINES.filter((v) => v.secteur === cle).length
   const compteTon = (t: 'sombre' | 'theme'): number =>
@@ -669,6 +757,23 @@ export function Templates(): ReactElement {
           /
         </kbd>
       </label>
+
+      {/* La famille passe en premier : c est elle qui dit de quoi on parle, et
+          les trois autres groupes ne concernent que les vitrines. */}
+      <Groupe titre="Famille">
+        {FAMILLES.map(([cle, libelle]) => (
+          <Case
+            key={cle}
+            coche={filtres.familles.includes(cle)}
+            compte={compteFamille(cle)}
+            onChange={() => {
+              setFiltres((f) => ({ ...f, familles: basculer(f.familles, cle) }))
+            }}
+          >
+            {libelle}
+          </Case>
+        ))}
+      </Groupe>
 
       <Groupe titre="Secteur">
         {SECTEURS.map(([cle, libelle]) => (
@@ -753,12 +858,14 @@ export function Templates(): ReactElement {
           className="o-m-0 o-max-w-3xl o-text-balance o-font-light o-tracking-tight"
           style={{ fontSize: 'clamp(2.25rem, 5vw, 4rem)', lineHeight: 1.02 }}
         >
-          Cent sites entiers, ouverts.
+          La bibliothèque, ouverte.
         </h1>
         <p className="o-m-0 o-max-w-prose o-text-pretty o-text-lg o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-300">
-          {VITRINES.length} pages d’atterrissage complètes, chacune d’un metier different,
-          batie avec les pieces du registre. Ouvrez-en une : c’est le site, pas une
-          capture.
+          {VITRINES.length} pages d’atterrissage complètes, chacune d’un metier
+          different, baties avec les pieces du registre : ouvrez-en une, c’est le site
+          et pas une capture. Puis {PROJETS.length} projets livrés — des sites entiers,
+          qu’on clone et qu’on fait tourner — et {TEMPLATES.length} socles, qui
+          échafaudent un projet vide mais câblé.
         </p>
       </header>
 
@@ -837,9 +944,9 @@ export function Templates(): ReactElement {
                 </button>
               )}
               <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">
-                {visibles.length === VITRINES.length
-                  ? `${String(VITRINES.length)} vitrines`
-                  : `${String(visibles.length)} sur ${String(VITRINES.length)}`}
+                {visibles.length === BIBLIOTHEQUE.length
+                  ? `${String(BIBLIOTHEQUE.length)} entrées`
+                  : `${String(visibles.length)} sur ${String(BIBLIOTHEQUE.length)}`}
               </p>
             </div>
             {/* La liste deroulante est celle de la librairie, pas celle du
@@ -869,7 +976,7 @@ export function Templates(): ReactElement {
           {visibles.length === 0 ? (
             <div className="tp-verre o-rounded-2xl o-border-w-1 o-px-6 o-py-20 o-text-center">
               <p className="o-m-0 o-text-lg o-font-medium">
-                Aucune vitrine ne répond a ces filtres.
+                Rien ne répond a ces filtres.
               </p>
               <p className="o-m-0 o-mt-2 o-text-sm o-text-zinc-500 dark:o-text-zinc-400">
                 Essayez un mot plus court, ou retirez un filtre.
@@ -886,54 +993,32 @@ export function Templates(): ReactElement {
             </div>
           ) : (
             <div className="o-grid o-gap-5 md:o-grid-cols-2 2xl:o-grid-cols-3">
-              {visibles.map((v, rang) => (
-                <CarteVitrine key={v.slug} vitrine={v} rang={rang} />
-              ))}
+              {visibles.map((entree, rang) =>
+                entree.vitrine !== undefined ? (
+                  <CarteVitrine
+                    key={entree.cle}
+                    vitrine={entree.vitrine}
+                    rang={rang}
+                  />
+                ) : entree.projet !== undefined ? (
+                  <CarteProjet key={entree.cle} projet={entree.projet} />
+                ) : entree.socle !== undefined ? (
+                  <CarteSocle key={entree.cle} template={entree.socle} />
+                ) : null,
+              )}
             </div>
           )}
         </section>
       </div>
 
       <Reveal>
-        <div className="o-mt-16 o-border-t o-border-zinc-200 dark:o-border-zinc-800 o-pt-10">
-          <h2 className="o-m-0 o-text-xl o-font-bold o-tracking-tight">Projets livrés</h2>
-          <p className="o-mt-2 o-max-w-prose o-text-sm o-text-zinc-600 dark:o-text-zinc-400">
-            Des sites entiers, avec leur pile propre, livrés dans{' '}
-            <code className="o-font-mono o-text-xs">templates/</code>. On les clone et on
-            les fait tourner — ce ne sont ni des aperçus ni des projets vides.
-          </p>
-          <div className="o-mt-5 o-grid o-gap-4 md:o-grid-cols-2 xl:o-grid-cols-3">
-            {PROJETS.map((projet) => (
-              <CarteProjet key={projet.name} projet={projet} />
-            ))}
-          </div>
-        </div>
+        <p className="o-mt-16 o-flex o-items-center o-gap-2 o-border-t o-border-zinc-200 dark:o-border-zinc-800 o-pt-10 o-text-sm o-text-zinc-500 dark:o-text-zinc-400">
+          <Icon icon={ArrowRight} size={14} />
+          Chaque vitrine se retinte depuis sa barre, une fois ouverte. Un projet
+          livré se clone ; un socle s&rsquo;échafaude.
+        </p>
       </Reveal>
 
-      <Reveal>
-        <div className="o-mt-16 o-border-t o-border-zinc-200 dark:o-border-zinc-800 o-pt-10">
-          <h2 className="o-m-0 o-text-xl o-font-bold o-tracking-tight">
-            Socles échafaudables
-          </h2>
-          <p className="o-mt-2 o-max-w-prose o-text-sm o-text-zinc-600 dark:o-text-zinc-400">
-            Une vitrine se lit ; un socle s installe. Ces deux-la sortent un projet vide
-            mais cable, ou reposer les pieces du{' '}
-            <Link to="/docs/registry" className="lien">
-              registre
-            </Link>
-            .
-          </p>
-          <div className="o-mt-5 o-grid o-gap-4 md:o-grid-cols-2">
-            {TEMPLATES.map((t) => (
-              <CarteSocle key={t.slug} template={t} />
-            ))}
-          </div>
-          <p className="o-mt-6 o-flex o-items-center o-gap-2 o-text-sm o-text-zinc-500 dark:o-text-zinc-400">
-            <Icon icon={ArrowRight} size={14} />
-            Chaque vitrine se retinte depuis sa barre, une fois ouverte.
-          </p>
-        </div>
-      </Reveal>
     </>
   )
 }

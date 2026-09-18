@@ -1,7 +1,7 @@
 {
   "name": "helion",
   "title": "Helion",
-  "order": 2,
+  "order": 3,
   "kind": "site",
   "description": "Une scene WebGL continue : galaxie, souffle, disque d accretion, puis le sigle assemble en particules.",
   "stack": [
@@ -18,7 +18,7 @@
     "particules",
     "attente"
   ],
-  "source": "Template Helion d origine, portee de Next 16 vers le moteur Odoro sans toucher au design.",
+  "source": "Template Helion d origine, portee d un autre moteur vers le notre sans toucher au design.",
   "licence": "non declaree",
   "install": "npm install",
   "dev": "npm run dev",

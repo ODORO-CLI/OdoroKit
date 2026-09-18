@@ -1,0 +1,25 @@
+{
+  "name": "cabinet",
+  "title": "Cabinet",
+  "order": 8,
+  "kind": "site",
+  "description": "Une scene defilee en trois panneaux, un showreel qui s ouvre en plein cadre, et une etoile posee immense puis reduite a sa taille de repos.",
+  "stack": [
+    "Odoro",
+    "React",
+    "react-spring",
+    "spring-text-engine",
+    "Lenis"
+  ],
+  "tags": [
+    "landing",
+    "cabinet",
+    "scene",
+    "defilement"
+  ],
+  "source": "Template GetLayers, portee d un autre moteur vers le notre sans toucher au design.",
+  "licence": "non declaree",
+  "install": "npm install",
+  "dev": "npm run dev",
+  "preview": "preview.jpg"
+}

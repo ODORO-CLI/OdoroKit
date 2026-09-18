@@ -129,6 +129,35 @@ etablir apres coup. La mathematique sous-jacente est de toute facon plus courte
 a redemontrer qu'a verifier juridiquement — et chaque fonction porte
 l'explication de ce qu'elle fait et pourquoi.
 
+## Gabarits repris
+
+Les onze gabarits de `templates/` ne sont pas dessines ici. Ils viennent de
+GetLayers — un socle et des Styles — et de deux gabarits maison batis dessus.
+Tous arrivaient sur **Next.js 16** et **Tailwind CSS v4** ; ils ont ete portes
+sur le moteur Odoro sans toucher au design, ce qui est mesure gabarit par
+gabarit et rapporte dans chaque README.
+
+| Gabarit | Origine |
+|---------|---------|
+| `parfum` | Socle GetLayers, template Artefakt re-habille |
+| `joaillier`, `cabinet`, `atelier`, `nocturne` | Templates GetLayers |
+| `helion` | Template Helion |
+| `altitude`, `orfevre` | Templates ODORO |
+| `socle` | Socle ODORO |
+| `gravity` | Projet maison, sur un autre outillage de construction |
+| `manoir` | Page HTML/CSS/JS, sans moteur d utilitaires |
+| `sections` | Catalogue GetLayers, repris tel quel — **licence non declaree** |
+
+Le portage ne copie aucun code de ces deux moteurs : les classes sont
+reecrites vers les notres, ou vers des regles derivees du bloc de jetons de
+chaque gabarit, par `scripts/port-template-classes.mjs` et
+`scripts/derive-template-classes.mjs`. Ce qui voyage est le design — le
+balisage, les valeurs, les assets — qui appartient a ses auteurs.
+
+`templates/sections` porte une licence non declaree. Elle est signalee ici
+plutot que tue : le dossier est publie et telechargeable, et personne n a
+verifie ce que son auteur autorise.
+
 ## Polices des gabarits
 
 Les gabarits de `templates/` arrivent d'ailleurs, et chacun apporte sa

@@ -4,8 +4,18 @@
   "order": 7,
   "kind": "site",
   "description": "Maison d architecte : une visite cinematique ou la video 1080p se scrube au defilement, quatre chapitres epingles, une piece par chapitre. Sans cadre applicatif — du HTML, une feuille, un fichier.",
-  "stack": ["Odoro", "HTML", "CSS", "JavaScript"],
-  "tags": ["vitrine", "video", "defilement", "architecture"],
+  "stack": [
+    "Odoro",
+    "HTML",
+    "CSS",
+    "JavaScript"
+  ],
+  "tags": [
+    "vitrine",
+    "video",
+    "defilement",
+    "architecture"
+  ],
   "source": "Template ODORO d origine, portee de son serveur maison vers le moteur Odoro sans toucher au design.",
   "licence": "Unlicense",
   "install": "npm install",

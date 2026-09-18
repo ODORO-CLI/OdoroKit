@@ -1,0 +1,26 @@
+{
+  "name": "joaillier",
+  "title": "Joaillier",
+  "order": 2,
+  "kind": "site",
+  "description": "Un hero video a viseur qui suit le curseur, un triptyque de collection, un film d atelier et des editions numerotees.",
+  "stack": [
+    "Odoro",
+    "React",
+    "react-spring",
+    "spring-text-engine",
+    "Lenis"
+  ],
+  "tags": [
+    "landing",
+    "luxe",
+    "video",
+    "viseur",
+    "defilement"
+  ],
+  "source": "Template GetLayers, portee d un autre moteur vers le notre sans toucher au design.",
+  "licence": "non declaree",
+  "install": "npm install",
+  "dev": "npm run dev",
+  "preview": "preview.jpg"
+}

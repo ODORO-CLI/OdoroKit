@@ -1,0 +1,26 @@
+{
+  "name": "nocturne",
+  "title": "Nocturne",
+  "order": 10,
+  "kind": "site",
+  "description": "Deux films defiles au scroll, six voitures en fiches techniques, et une voiture detouree en WebGL derriere laquelle le nom de la marque passe.",
+  "stack": [
+    "Odoro",
+    "React",
+    "three.js",
+    "react-spring",
+    "Lenis"
+  ],
+  "tags": [
+    "landing",
+    "automobile",
+    "webgl",
+    "video",
+    "nuit"
+  ],
+  "source": "Template GetLayers, portee d un autre moteur vers le notre sans toucher au design.",
+  "licence": "non declaree",
+  "install": "npm install",
+  "dev": "npm run dev",
+  "preview": "preview.jpg"
+}

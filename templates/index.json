@@ -6,11 +6,10 @@
     "kind": "site",
     "description": "Un flacon rendu en direct qui traverse la page au defilement, six ecrans, direction artistique officine. Francais.",
     "stack": [
-      "Next 16",
+      "Odoro",
       "three.js",
       "react-spring",
-      "Lenis",
-      "Tailwind v4"
+      "Lenis"
     ],
     "tags": [
       "vitrine",
@@ -18,8 +17,34 @@
       "produit",
       "defilement"
     ],
-    "source": "Starter Next 16 de GetLayers, template Artefakt re-habille.",
+    "source": "Socle GetLayers, template Artefakt re-habille, porte d un autre moteur vers le notre.",
     "licence": "Unlicense",
+    "install": "npm install",
+    "dev": "npm run dev",
+    "preview": "preview.jpg"
+  },
+  {
+    "name": "joaillier",
+    "title": "Joaillier",
+    "order": 2,
+    "kind": "site",
+    "description": "Un hero video a viseur qui suit le curseur, un triptyque de collection, un film d atelier et des editions numerotees.",
+    "stack": [
+      "Odoro",
+      "React",
+      "react-spring",
+      "spring-text-engine",
+      "Lenis"
+    ],
+    "tags": [
+      "landing",
+      "luxe",
+      "video",
+      "viseur",
+      "defilement"
+    ],
+    "source": "Template GetLayers, portee d un autre moteur vers le notre sans toucher au design.",
+    "licence": "non declaree",
     "install": "npm install",
     "dev": "npm run dev",
     "preview": "preview.jpg"
@@ -27,7 +52,7 @@
   {
     "name": "helion",
     "title": "Helion",
-    "order": 2,
+    "order": 3,
     "kind": "site",
     "description": "Une scene WebGL continue : galaxie, souffle, disque d accretion, puis le sigle assemble en particules.",
     "stack": [
@@ -44,7 +69,7 @@
       "particules",
       "attente"
     ],
-    "source": "Template Helion d origine, portee de Next 16 vers le moteur Odoro sans toucher au design.",
+    "source": "Template Helion d origine, portee d un autre moteur vers le notre sans toucher au design.",
     "licence": "non declaree",
     "install": "npm install",
     "dev": "npm run dev",
@@ -53,7 +78,7 @@
   {
     "name": "gravity",
     "title": "Gravity",
-    "order": 3,
+    "order": 4,
     "kind": "site",
     "description": "Quatre-vingt-seize spheres tombent sous une gravite reelle, se reassemblent en sigle, puis depassent l objectif. Quatre sections en fondu sur une seule horloge.",
     "stack": [
@@ -77,55 +102,9 @@
     "preview": "preview.jpg"
   },
   {
-    "name": "socle",
-    "title": "Socle",
-    "order": 4,
-    "kind": "starter",
-    "description": "Le socle dont les autres derivent : ressorts partout, texte anime, defilement lisse, grille adaptative en rem, composition posee au pixel depuis une maquette.",
-    "stack": [
-      "Odoro",
-      "React",
-      "react-spring",
-      "Lenis",
-      "three.js"
-    ],
-    "tags": [
-      "socle",
-      "marketing",
-      "animation"
-    ],
-    "source": "Socle ODORO d origine, porte de Next 16 vers le moteur Odoro sans toucher au design.",
-    "licence": "Unlicense",
-    "install": "npm install",
-    "dev": "npm run dev",
-    "preview": "preview.jpg"
-  },
-  {
-    "name": "sections",
-    "title": "Sections autonomes",
-    "order": 5,
-    "kind": "library",
-    "description": "Vingt et une sections en HTML autonome — heros, chargeurs, carrousels, cartes — chacune un document complet qui s ouvre sans rien installer.",
-    "stack": [
-      "HTML",
-      "CSS",
-      "JavaScript"
-    ],
-    "tags": [
-      "sections",
-      "chargeurs",
-      "autonome",
-      "sans-build"
-    ],
-    "source": "Catalogue GetLayers, recupere tel quel.",
-    "licence": "non declaree",
-    "dev": "Ouvrir index.html",
-    "preview": "preview.jpg"
-  },
-  {
     "name": "altitude",
     "title": "Altitude",
-    "order": 6,
+    "order": 5,
     "kind": "site",
     "description": "Agence immobiliere : un plan-sequence de quarante secondes scrube au defilement, une tour detouree en WebGL, et une seule encre baissee a l alpha pour toute la hierarchie.",
     "stack": [
@@ -141,7 +120,32 @@
       "defilement",
       "immobilier"
     ],
-    "source": "Template ODORO d origine, portee de Next 16 vers le moteur Odoro sans toucher au design.",
+    "source": "Template ODORO d origine, portee d un autre moteur vers le notre sans toucher au design.",
+    "licence": "Unlicense",
+    "install": "npm install",
+    "dev": "npm run dev",
+    "preview": "preview.jpg"
+  },
+  {
+    "name": "orfevre",
+    "title": "Orfevre",
+    "order": 6,
+    "kind": "site",
+    "description": "Marque de bijoux : blanc sur blanc, deux films scrubes au defilement, une main detouree en WebGL. Une seule encre, baissee a l alpha, pour toute la hierarchie.",
+    "stack": [
+      "Odoro",
+      "React",
+      "three.js",
+      "Lenis",
+      "WebGL"
+    ],
+    "tags": [
+      "vitrine",
+      "video",
+      "defilement",
+      "joaillerie"
+    ],
+    "source": "Template ODORO d origine, portee d un autre moteur vers le notre sans toucher au design.",
     "licence": "Unlicense",
     "install": "npm install",
     "dev": "npm run dev",
@@ -172,28 +176,127 @@
     "preview": "preview.jpg"
   },
   {
-    "name": "orfevre",
-    "title": "Orfevre",
+    "name": "cabinet",
+    "title": "Cabinet",
     "order": 8,
     "kind": "site",
-    "description": "Marque de bijoux : blanc sur blanc, deux films scrubes au defilement, une main detouree en WebGL. Une seule encre, baissee a l alpha, pour toute la hierarchie.",
+    "description": "Une scene defilee en trois panneaux, un showreel qui s ouvre en plein cadre, et une etoile posee immense puis reduite a sa taille de repos.",
+    "stack": [
+      "Odoro",
+      "React",
+      "react-spring",
+      "spring-text-engine",
+      "Lenis"
+    ],
+    "tags": [
+      "landing",
+      "cabinet",
+      "scene",
+      "defilement"
+    ],
+    "source": "Template GetLayers, portee d un autre moteur vers le notre sans toucher au design.",
+    "licence": "non declaree",
+    "install": "npm install",
+    "dev": "npm run dev",
+    "preview": "preview.jpg"
+  },
+  {
+    "name": "atelier",
+    "title": "Atelier",
+    "order": 9,
+    "kind": "site",
+    "description": "Un film de studio epingle avec la copie qui voyage dessus, un manifeste, six pieces, un carrousel de lookbook en 3D et un ecran de cloture en WebGL.",
     "stack": [
       "Odoro",
       "React",
       "three.js",
-      "Lenis",
-      "WebGL"
+      "cannon-es",
+      "react-spring",
+      "Lenis"
     ],
     "tags": [
-      "vitrine",
-      "video",
-      "defilement",
-      "joaillerie"
+      "landing",
+      "mode",
+      "webgl",
+      "film",
+      "defilement"
     ],
-    "source": "Template ODORO d origine, portee de Next 16 vers le moteur Odoro sans toucher au design.",
+    "source": "Template GetLayers, portee d un autre moteur vers le notre sans toucher au design.",
+    "licence": "non declaree",
+    "install": "npm install",
+    "dev": "npm run dev",
+    "preview": "preview.jpg"
+  },
+  {
+    "name": "nocturne",
+    "title": "Nocturne",
+    "order": 10,
+    "kind": "site",
+    "description": "Deux films defiles au scroll, six voitures en fiches techniques, et une voiture detouree en WebGL derriere laquelle le nom de la marque passe.",
+    "stack": [
+      "Odoro",
+      "React",
+      "three.js",
+      "react-spring",
+      "Lenis"
+    ],
+    "tags": [
+      "landing",
+      "automobile",
+      "webgl",
+      "video",
+      "nuit"
+    ],
+    "source": "Template GetLayers, portee d un autre moteur vers le notre sans toucher au design.",
+    "licence": "non declaree",
+    "install": "npm install",
+    "dev": "npm run dev",
+    "preview": "preview.jpg"
+  },
+  {
+    "name": "socle",
+    "title": "Socle",
+    "order": 11,
+    "kind": "starter",
+    "description": "Le socle dont les autres derivent : ressorts partout, texte anime, defilement lisse, grille adaptative en rem, composition posee au pixel depuis une maquette.",
+    "stack": [
+      "Odoro",
+      "React",
+      "react-spring",
+      "Lenis",
+      "three.js"
+    ],
+    "tags": [
+      "socle",
+      "marketing",
+      "animation"
+    ],
+    "source": "Socle ODORO d origine, porte d un autre moteur vers le notre sans toucher au design.",
     "licence": "Unlicense",
     "install": "npm install",
     "dev": "npm run dev",
+    "preview": "preview.jpg"
+  },
+  {
+    "name": "sections",
+    "title": "Sections autonomes",
+    "order": 12,
+    "kind": "library",
+    "description": "Vingt et une sections en HTML autonome — heros, chargeurs, carrousels, cartes — chacune un document complet qui s ouvre sans rien installer.",
+    "stack": [
+      "HTML",
+      "CSS",
+      "JavaScript"
+    ],
+    "tags": [
+      "sections",
+      "chargeurs",
+      "autonome",
+      "sans-build"
+    ],
+    "source": "Catalogue GetLayers, recupere tel quel.",
+    "licence": "non declaree",
+    "dev": "Ouvrir index.html",
     "preview": "preview.jpg"
   }
 ]

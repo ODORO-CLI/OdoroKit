@@ -1,12 +1,23 @@
 {
   "name": "altitude",
   "title": "Altitude",
-  "order": 6,
+  "order": 5,
   "kind": "site",
   "description": "Agence immobiliere : un plan-sequence de quarante secondes scrube au defilement, une tour detouree en WebGL, et une seule encre baissee a l alpha pour toute la hierarchie.",
-  "stack": ["Odoro", "React", "three.js", "Lenis", "WebGL"],
-  "tags": ["vitrine", "video", "defilement", "immobilier"],
-  "source": "Template ODORO d origine, portee de Next 16 vers le moteur Odoro sans toucher au design.",
+  "stack": [
+    "Odoro",
+    "React",
+    "three.js",
+    "Lenis",
+    "WebGL"
+  ],
+  "tags": [
+    "vitrine",
+    "video",
+    "defilement",
+    "immobilier"
+  ],
+  "source": "Template ODORO d origine, portee d un autre moteur vers le notre sans toucher au design.",
   "licence": "Unlicense",
   "install": "npm install",
   "dev": "npm run dev",

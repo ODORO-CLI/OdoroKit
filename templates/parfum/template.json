@@ -5,11 +5,10 @@
   "kind": "site",
   "description": "Un flacon rendu en direct qui traverse la page au defilement, six ecrans, direction artistique officine. Francais.",
   "stack": [
-    "Next 16",
+    "Odoro",
     "three.js",
     "react-spring",
-    "Lenis",
-    "Tailwind v4"
+    "Lenis"
   ],
   "tags": [
     "vitrine",
@@ -17,7 +16,7 @@
     "produit",
     "defilement"
   ],
-  "source": "Starter Next 16 de GetLayers, template Artefakt re-habille.",
+  "source": "Socle GetLayers, template Artefakt re-habille, porte d un autre moteur vers le notre.",
   "licence": "Unlicense",
   "install": "npm install",
   "dev": "npm run dev",

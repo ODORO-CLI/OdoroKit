@@ -1,0 +1,27 @@
+{
+  "name": "atelier",
+  "title": "Atelier",
+  "order": 9,
+  "kind": "site",
+  "description": "Un film de studio epingle avec la copie qui voyage dessus, un manifeste, six pieces, un carrousel de lookbook en 3D et un ecran de cloture en WebGL.",
+  "stack": [
+    "Odoro",
+    "React",
+    "three.js",
+    "cannon-es",
+    "react-spring",
+    "Lenis"
+  ],
+  "tags": [
+    "landing",
+    "mode",
+    "webgl",
+    "film",
+    "defilement"
+  ],
+  "source": "Template GetLayers, portee d un autre moteur vers le notre sans toucher au design.",
+  "licence": "non declaree",
+  "install": "npm install",
+  "dev": "npm run dev",
+  "preview": "preview.jpg"
+}
