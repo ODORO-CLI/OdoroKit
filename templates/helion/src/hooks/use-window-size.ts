@@ -12,8 +12,6 @@
  * `useSyncExternalStore`, so it is SSR-safe and tear-free.
  */
 
-"use client";
-
 import { useSyncExternalStore } from "react";
 
 /** Debounce applied to the single shared `resize` listener (ms). */

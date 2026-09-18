@@ -20,8 +20,6 @@
  *   - scrub: Smoothly interpolates between states
  */
 
-"use client";
-
 import { animated, config, easings, SpringConfig } from "@react-spring/web";
 import {
   CSSProperties,

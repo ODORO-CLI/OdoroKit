@@ -1,5 +1,3 @@
-"use client";
-
 /**
  * Custom hook that executes a callback when window width changes
  *

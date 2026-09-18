@@ -40,12 +40,13 @@ export const TEMPLATES: readonly TemplateEntry[] = [
     kind: 'site',
     description:
       'Une scene WebGL continue : galaxie, souffle, disque d accretion, puis le sigle assemble en particules.',
-    stack: ['Next 16', 'WebGL', 'react-spring', 'Lenis', 'Tailwind v4'],
+    stack: ['Odoro', 'React', 'three.js', 'react-spring', 'Lenis', 'WebGL'],
     tags: ['landing', 'webgl', 'particules', 'attente'],
-    source: 'Template Helion de GetLayers, re-teinte.',
+    source:
+      'Template Helion d origine, portee de Next 16 vers le moteur Odoro sans toucher au design.',
     licence: 'non declaree',
-    install: 'npx yarn@1.22.22 install',
-    dev: 'npx next dev -p 3001',
+    install: 'npm install',
+    dev: 'npm run dev',
     preview: 'preview.jpg',
   },
   {

@@ -1,5 +1,3 @@
-"use client";
-
 import { useState } from "react";
 
 import {
@@ -115,9 +113,9 @@ const TABS: { id: BloomScene; label: string }[] = [
 /* --------------------------------------------------------------- primitives */
 
 const rowLabel =
-  "flex items-center justify-between gap-2 text-[11px] text-white/70";
+  "o-flex o-items-center o-justify-between o-gap-2 hl-text-11px hl-text-white-70";
 const swatch =
-  "size-6 shrink-0 cursor-pointer rounded border border-white/20 bg-transparent p-0";
+  "o-size-6 o-shrink-0 o-cursor-pointer hl-rounded o-border-w-1 hl-border-white-20 o-bg-transparent o-p-0";
 
 const Range = <K extends string>({
   spec,
@@ -128,10 +126,10 @@ const Range = <K extends string>({
   value: number;
   onChange: (v: number) => void;
 }) => (
-  <label className="flex flex-col gap-1">
+  <label className="o-flex o-flex-col o-gap-1">
     <span className={rowLabel}>
       <span>{spec.label}</span>
-      <span className="tabular-nums text-white/50">
+      <span className="o-tabular-nums hl-text-white-50">
         {value.toFixed(spec.step < 1 ? 2 : 0)}
       </span>
     </span>
@@ -142,7 +140,7 @@ const Range = <K extends string>({
       step={spec.step}
       value={value}
       onChange={(e) => onChange(Number(e.target.value))}
-      className="w-full accent-[#6d8bff]"
+      className="o-w-full hl-accent-6d8bff"
     />
   </label>
 );
@@ -175,8 +173,8 @@ const Group = ({
   title: string;
   children: React.ReactNode;
 }) => (
-  <div className="flex flex-col gap-2">
-    <span className="text-[10px] font-semibold tracking-[0.15em] text-white/45 uppercase">
+  <div className="o-flex o-flex-col o-gap-2">
+    <span className="hl-text-10px o-font-semibold hl-tracking-0-15em hl-text-white-45 o-uppercase">
       {title}
     </span>
     {children}
@@ -227,7 +225,7 @@ export const SettingsPanel = () => {
         type="button"
         onClick={() => setOpen(true)}
         aria-label="Open scene settings"
-        className="fixed right-4 bottom-4 z-[200] flex size-11 items-center justify-center rounded-full border border-white/20 bg-black/80 text-lg text-white/90 backdrop-blur-md hover:text-white"
+        className="o-fixed o-right-4 o-bottom-4 hl-z-200 o-flex o-size-11 o-items-center o-justify-center o-rounded-full o-border-w-1 hl-border-white-20 hl-bg-black-80 o-text-lg hl-text-white-90 o-backdrop-blur-md hover:o-text-white"
       >
         ⚙
       </button>
@@ -287,32 +285,32 @@ export const SettingsPanel = () => {
   );
 
   return (
-    <div className="fixed top-4 right-4 bottom-4 z-[200] flex w-[300px] flex-col overflow-hidden rounded-2xl border border-white/15 bg-black/85 text-white backdrop-blur-md">
-      <div className="flex items-center justify-between border-b border-white/10 px-3 py-2">
-        <span className="text-xs font-semibold tracking-wide uppercase">
+    <div className="o-fixed o-top-4 o-right-4 o-bottom-4 hl-z-200 o-flex hl-w-300px o-flex-col o-overflow-hidden o-rounded-2xl o-border-w-1 hl-border-white-15 hl-bg-black-85 o-text-white o-backdrop-blur-md">
+      <div className="o-flex o-items-center o-justify-between o-border-b hl-border-white-10 o-px-3 o-py-2">
+        <span className="o-text-xs o-font-semibold o-tracking-wide o-uppercase">
           Scene settings
         </span>
         <button
           type="button"
           onClick={() => setOpen(false)}
           aria-label="Close settings"
-          className="text-white/60 hover:text-white"
+          className="hl-text-white-60 hover:o-text-white"
         >
           ✕
         </button>
       </div>
 
       {/* Scene tabs */}
-      <div className="flex gap-1 border-b border-white/10 px-2 py-2">
+      <div className="o-flex o-gap-1 o-border-b hl-border-white-10 o-px-2 o-py-2">
         {TABS.map((t) => (
           <button
             key={t.id}
             type="button"
             onClick={() => setTab(t.id)}
-            className={`flex-1 rounded-md px-2 py-1 text-[11px] font-medium ${
+            className={`o-flex-1 o-rounded-md o-px-2 o-py-1 hl-text-11px o-font-medium ${
               tab === t.id
-                ? "bg-[#3a5cff]/30 text-white"
-                : "text-white/60 hover:text-white"
+                ? "hl-bg-3a5cff-30 o-text-white"
+                : "hl-text-white-60 hover:o-text-white"
             }`}
           >
             {t.label}
@@ -320,7 +318,7 @@ export const SettingsPanel = () => {
         ))}
       </div>
 
-      <div className="flex flex-col gap-4 overflow-y-auto px-3 py-3">
+      <div className="o-flex o-flex-col o-gap-4 o-overflow-y-auto o-px-3 o-py-3">
         {tab === "hero" && (
           <>
             {vortexShape(HERO_SHAPE)}
@@ -398,28 +396,28 @@ export const SettingsPanel = () => {
         )}
       </div>
 
-      <div className="flex flex-col gap-2 border-t border-white/10 px-3 py-2">
+      <div className="o-flex o-flex-col o-gap-2 o-border-t hl-border-white-10 o-px-3 o-py-2">
         {tab !== "logo" && (
           <button
             type="button"
             onClick={applyPalette}
-            className="rounded-md border border-white/20 bg-white/5 px-3 py-1.5 text-[11px] text-white/90 hover:bg-white/10"
+            className="o-rounded-md o-border-w-1 hl-border-white-20 hl-bg-white-5 o-px-3 o-py-1.5 hl-text-11px hl-text-white-90 hl-hover-bg-white-10"
           >
             Apply vortex (palette + density)
           </button>
         )}
-        <div className="flex gap-2">
+        <div className="o-flex o-gap-2">
           <button
             type="button"
             onClick={copy}
-            className="flex-1 rounded-md border border-[#6d8bff]/50 bg-[#3a5cff]/20 px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#3a5cff]/30"
+            className="o-flex-1 o-rounded-md o-border-w-1 hl-border-6d8bff-50 hl-bg-3a5cff-20 o-px-3 o-py-1.5 o-text-xs o-font-semibold o-text-white hl-hover-bg-3a5cff-30"
           >
             {copied ? "Copied ✓" : "Export config"}
           </button>
           <button
             type="button"
             onClick={reset}
-            className="rounded-md border border-white/20 px-3 py-1.5 text-xs text-white/80 hover:bg-white/10"
+            className="o-rounded-md o-border-w-1 hl-border-white-20 o-px-3 o-py-1.5 o-text-xs hl-text-white-80 hl-hover-bg-white-10"
           >
             Reset
           </button>

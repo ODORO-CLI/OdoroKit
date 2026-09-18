@@ -1,5 +1,3 @@
-"use client";
-
 import { animated, useSpring } from "@react-spring/web";
 
 import { markPath } from "@/lib/brand/odoro-mark";
@@ -62,7 +60,7 @@ export const HeroIcon = ({ className }: HeroIconProps) => {
         viewBox={`0 0 ${BOX} ${BOX}`}
         fill="none"
         aria-hidden="true"
-        className="absolute inset-0 size-full"
+        className="o-absolute o-inset-0 o-size-full"
         style={{
           transformOrigin: "center",
           transform: orbit.rotate.to((r) => `rotate(${r}deg)`),
@@ -98,7 +96,7 @@ export const HeroIcon = ({ className }: HeroIconProps) => {
         viewBox={`0 0 ${BOX} ${BOX}`}
         fill="none"
         aria-hidden="true"
-        className="absolute inset-0 size-full"
+        className="o-absolute o-inset-0 o-size-full"
       >
         <g transform={`translate(${INSET} ${INSET})`}>
           <path d={MARK_PATH} fill="url(#hero-icon-mark)" fillRule="evenodd" />

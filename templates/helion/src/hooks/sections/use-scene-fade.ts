@@ -1,5 +1,3 @@
-"use client";
-
 import { useEffect } from "react";
 import { useSpring } from "@react-spring/web";
 import { subscribeToTicker } from "@/lib/animation/ticker";

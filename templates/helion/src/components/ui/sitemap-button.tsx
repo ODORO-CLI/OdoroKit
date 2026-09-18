@@ -1,10 +1,8 @@
-"use client";
-
 import { useRef } from "react";
 import { Hover } from "@/components/animation/springs/hover";
 
 /**
- * A single chapter row in the Sitemap "ring around the core" layout.
+ * A single chapter row in the Sitemap "o-ring around the core" layout.
  *
  * The button itself is the hover trigger; its children read that hover through
  * `trigger={ref}`. On hover the content slides slightly, the arrow slides and
@@ -18,8 +16,8 @@ import { Hover } from "@/components/animation/springs/hover";
  * `align="right"` mirrors the row so it frames the scene from the right half of
  * the layout: the affordance moves to the far left (a `←` travelling
  * `0 → -4`), the copy right-aligns, and the index lands on the far right — the
- * row now reads right-to-left. Mirroring is CSS-only (`flex-row-reverse` +
- * `items-end`/`text-right` + a glyph swap), so a `max-pad-sm:` reset collapses it
+ * row now reads right-to-left. Mirroring is CSS-only (`o-flex-row-reverse` +
+ * `o-items-end`/`o-text-right` + a glyph swap), so a `max-pad-sm:` reset collapses it
  * back to the left layout once the ledger becomes a single column (991px, matching
  * `Sitemap`) without ever branching on a JS width; the parent re-orders the DOM.
  * Hover is disabled under `mobileWidth` regardless, so the mirrored slide
@@ -56,8 +54,8 @@ export const SitemapButton = ({
       ref={ref}
       type="button"
       onClick={onClick}
-      className={`flex w-full cursor-pointer items-center gap-5 py-5 text-left max-h-828:py-4 max-h-717:py-3 max-pad-sm:min-h-11 max-pad-sm:gap-4 max-pad-sm:py-4 ${
-        isRight ? "flex-row-reverse max-pad-sm:flex-row" : ""
+      className={`o-flex o-w-full o-cursor-pointer o-items-center o-gap-5 o-py-5 o-text-left hl-max-h-828-py-4 hl-max-h-717-py-3 hl-max-pad-sm-min-h-11 hl-max-pad-sm-gap-4 hl-max-pad-sm-py-4 ${
+        isRight ? "o-flex-row-reverse hl-max-pad-sm-flex-row" : ""
       } ${className}`}
     >
       {/* Index + title/subtitle — springs as a unit on hover. Reversed and
@@ -68,8 +66,8 @@ export const SitemapButton = ({
         from={{ x: 0 }}
         to={{ x: isRight ? -6 : 6 }}
         config={SLIDE}
-        className={`flex min-w-0 flex-1 items-baseline gap-5 max-pad-sm:gap-4 ${
-          isRight ? "flex-row-reverse max-pad-sm:flex-row" : ""
+        className={`o-flex o-min-w-0 o-flex-1 o-items-baseline o-gap-5 hl-max-pad-sm-gap-4 ${
+          isRight ? "o-flex-row-reverse hl-max-pad-sm-flex-row" : ""
         }`}
       >
         <Hover
@@ -78,14 +76,14 @@ export const SitemapButton = ({
           from={{ opacity: 0.7 }}
           to={{ opacity: 1 }}
           config={TINT}
-          className="shrink-0 font-sans text-[0.6875rem]/none font-semibold tracking-[0.28em] text-accent-500"
+          className="o-shrink-0 o-font-sans hl-text-0-6875rem-none o-font-semibold hl-tracking-0-28em hl-text-accent-500"
         >
           {number}
         </Hover>
 
         <span
-          className={`flex min-w-0 flex-col gap-1.5 ${
-            isRight ? "items-end text-right max-pad-sm:items-start max-pad-sm:text-left" : ""
+          className={`o-flex o-min-w-0 o-flex-col o-gap-1.5 ${
+            isRight ? "o-items-end o-text-right hl-max-pad-sm-items-start hl-max-pad-sm-text-left" : ""
           }`}
         >
           <Hover
@@ -94,12 +92,12 @@ export const SitemapButton = ({
             from={{ opacity: 0.9 }}
             to={{ opacity: 1 }}
             config={TINT}
-            className="font-lato text-[1.375rem]/[1.15] tracking-[0.03em] text-foreground uppercase max-pad-sm:text-lg max-hero-xs:text-[1.0625rem]"
+            className="hl-font-lato hl-text-1-375rem-1-15 hl-tracking-0-03em hl-text-foreground o-uppercase hl-max-pad-sm-text-lg hl-max-hero-xs-text-1-0625rem"
           >
             {title}
           </Hover>
           {subtitle && (
-            <span className="font-sans text-xs/[1.4] text-foreground/45 max-hero-xs:text-[0.71875rem]">
+            <span className="o-font-sans hl-text-xs-1-4 hl-text-foreground-45 hl-max-hero-xs-text-0-71875rem">
               {subtitle}
             </span>
           )}
@@ -117,12 +115,12 @@ export const SitemapButton = ({
         to={{ x: isRight ? -4 : 4, opacity: 1 }}
         config={SLIDE}
         aria-hidden="true"
-        className="shrink-0 font-sans text-base text-accent-300"
+        className="o-shrink-0 o-font-sans o-text-base hl-text-accent-300"
       >
         {isRight ? (
           <>
-            <span className="max-pad-sm:hidden">←</span>
-            <span className="hidden max-pad-sm:inline">→</span>
+            <span className="hl-max-pad-sm-hidden">←</span>
+            <span className="o-hidden hl-max-pad-sm-inline">→</span>
           </>
         ) : (
           "→"

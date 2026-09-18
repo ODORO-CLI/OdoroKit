@@ -1,5 +1,3 @@
-"use client";
-
 import type { ReactNode } from "react";
 import TextEngine from "spring-text-engine";
 
@@ -21,9 +19,9 @@ import type { Tags } from "@/types/springs";
 const CONFIG = { duration: 900, easing: easeReveal } as const;
 
 const JUSTIFY = {
-  left: "justify-start",
-  center: "justify-center",
-  right: "justify-end",
+  left: "o-justify-start",
+  center: "o-justify-center",
+  right: "o-justify-end",
 } as const;
 
 export interface AnimatedTextProps {

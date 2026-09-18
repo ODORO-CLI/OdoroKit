@@ -1,7 +1,4 @@
 // 📖 Docs: obsidian/frontend/components/common.md
-"use client";
-
-import Link from "next/link";
 import { animated, useTransition } from "@react-spring/web";
 
 import { CookieButton } from "./CookieButton";
@@ -36,26 +33,26 @@ export const CookieBanner = () => {
           opacity: style.opacity,
           transform: style.y.to((v) => `translateY(${v}px)`),
         }}
-        className="fixed bottom-4 left-4 right-4 z-50 flex flex-col gap-3 rounded-xl border border-foreground/10 bg-background/95 p-5 font-sans text-foreground shadow-2xl backdrop-blur-xl sm:bottom-12 sm:left-auto sm:right-12 sm:w-[420px] sm:p-6"
+        className="o-fixed o-bottom-4 o-left-4 o-right-4 o-z-50 o-flex o-flex-col o-gap-3 o-rounded-xl o-border-w-1 hl-border-foreground-10 hl-bg-background-95 o-p-5 o-font-sans hl-text-foreground o-shadow-2xl o-backdrop-blur-xl sm:o-bottom-12 sm:o-left-auto sm:o-right-12 hl-sm-w-420px sm:o-p-6"
       >
-        <h2 className="text-base font-medium leading-snug sm:text-lg">
+        <h2 className="o-text-base o-font-medium o-leading-snug sm:o-text-lg">
           This website uses cookies
         </h2>
-        <p className="text-sm leading-relaxed text-foreground/70">
+        <p className="o-text-sm o-leading-relaxed hl-text-foreground-70">
           We use cookies to keep the site working, learn how it&apos;s used, and
           improve what we ship next. Accept everything, reject the non-essential,
           or pick category by category. See our{" "}
-          <Link
+          <a
             href="/privacy-policy"
             target="_blank"
             rel="noopener noreferrer"
-            className="underline underline-offset-2 hover:text-foreground/70"
+            className="o-underline o-underline-offset-2 hl-hover-text-foreground-70"
           >
             privacy policy
-          </Link>
+          </a>
           .
         </p>
-        <div className="mt-1 flex flex-wrap items-center gap-2">
+        <div className="o-mt-1 o-flex o-flex-wrap o-items-center o-gap-2">
           <CookieButton onClick={acceptAll}>Accept all</CookieButton>
           <CookieButton variant="secondary" onClick={rejectAll}>
             Reject all
@@ -63,7 +60,7 @@ export const CookieBanner = () => {
           <button
             type="button"
             onClick={openModal}
-            className="px-2 py-2 text-sm font-medium leading-none text-foreground underline underline-offset-2 hover:text-foreground/70 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground"
+            className="o-px-2 o-py-2 o-text-sm o-font-medium hl-leading-none hl-text-foreground o-underline o-underline-offset-2 hl-hover-text-foreground-70 hl-focus-visible-outline-2 hl-focus-visible-outline-offset-2 hl-focus-visible-outline-foreground"
           >
             Manage preferences
           </button>

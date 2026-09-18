@@ -1,5 +1,3 @@
-"use client";
-
 import type { ReactNode } from "react";
 
 export interface SlideProps {
@@ -43,10 +41,10 @@ export const Slide = ({
 }: SlideProps) => (
   <div
     data-slide-id={id}
-    className={`relative min-h-screen w-full ${className}`}
+    className={`o-relative o-min-h-screen o-w-full ${className}`}
     style={vh > 1 ? { minHeight: `${vh * 100}vh` } : undefined}
   >
-    <div className={sticky ? "sticky top-0 h-svh w-full" : "static w-full"}>
+    <div className={sticky ? "o-sticky o-top-0 o-h-svh o-w-full" : "o-static o-w-full"}>
       {children}
     </div>
   </div>

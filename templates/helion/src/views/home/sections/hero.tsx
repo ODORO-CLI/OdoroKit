@@ -1,5 +1,3 @@
-"use client";
-
 import { animated } from "@react-spring/web";
 
 import { Spring } from "@/components/animation/springs/spring";
@@ -60,7 +58,7 @@ const HeroDesktop = ({ content }: HeroProps) => {
     <section
       id="hero"
       aria-label={`${content.titleTop} ${content.titleBottom}`}
-      className="relative h-svh w-full"
+      className="o-relative o-h-svh o-w-full"
     >
       {/* Pinned to the viewport: the composition fades in place as the slide
           leaves. `pointer-events` follow the active slide. */}
@@ -69,11 +67,11 @@ const HeroDesktop = ({ content }: HeroProps) => {
           opacity: fade.opacity,
           pointerEvents: active === screens.HERO ? "auto" : "none",
         }}
-        className="fixed inset-0 overflow-hidden"
+        className="o-fixed o-inset-0 o-overflow-hidden"
       >
         {/* The 1440×800 design frame, centred and uniformly scaled. */}
         <div
-          className="absolute top-1/2 left-1/2 h-[800px] w-[1440px]"
+          className="o-absolute o-top-1/2 o-left-1/2 hl-h-800px hl-w-1440px"
           style={{ transform: `translate(-50%, -50%) scale(${scale})` }}
         >
           {/* Masthead — one h1, two lines, per-letter cascade from the bright ends. */}
@@ -81,7 +79,7 @@ const HeroDesktop = ({ content }: HeroProps) => {
             tag="h1"
             enabled={isLoaded}
             baseDelay={delay(150)}
-            className="absolute top-[100px] left-[389px] m-0 w-[663px] text-center font-mulish text-[56px] leading-none font-light"
+            className="o-absolute hl-top-100px hl-left-389px o-m-0 hl-w-663px o-text-center hl-font-mulish hl-text-56px hl-leading-none o-font-light"
             lines={[
               { text: content.titleTop, opaque: "left" },
               { text: content.titleBottom, opaque: "right" },
@@ -97,24 +95,24 @@ const HeroDesktop = ({ content }: HeroProps) => {
             to={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
             delayIn={delay(300)}
             config={REVEAL}
-            className="absolute top-[360px] left-[658.46px] h-[124.97px] w-[123.86px]"
+            className="o-absolute hl-top-360px hl-left-658-46px hl-h-124-97px hl-w-123-86px"
           >
             <span
               aria-hidden="true"
-              className="pointer-events-none absolute top-1/2 left-1/2 size-[210px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-black/60 blur-2xl"
+              className="o-pointer-events-none o-absolute o-top-1/2 o-left-1/2 hl-size-210px hl-translate-x-1-2 hl-translate-y-1-2 o-rounded-full hl-bg-black-60 o-blur-2xl"
             />
             <span
               aria-hidden="true"
-              className="pointer-events-none absolute top-1/2 left-1/2 size-[285px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[color:var(--hero-glass-border)]"
+              className="o-pointer-events-none o-absolute o-top-1/2 o-left-1/2 hl-size-285px hl-translate-x-1-2 hl-translate-y-1-2 o-rounded-full o-border-w-1 hl-border-color-var-hero-glass-border"
             />
-            <HeroIcon className="relative size-full" />
+            <HeroIcon className="o-relative o-size-full" />
           </Spring>
 
           {/* Subtitle — word-by-word fly-up. */}
           <AnimatedText
             enabled={isLoaded}
             delayIn={delay(500)}
-            className="absolute top-[633px] left-[518px] m-0 w-[405px] font-mulish text-[16px] leading-[1.2] font-normal text-foreground"
+            className="o-absolute hl-top-633px hl-left-518px o-m-0 hl-w-405px hl-font-mulish hl-text-16px hl-leading-1-2 o-font-normal hl-text-foreground"
           >
             {content.subtitle}
           </AnimatedText>
@@ -127,7 +125,7 @@ const HeroDesktop = ({ content }: HeroProps) => {
             to={{ opacity: 1, y: 0, filter: "blur(0px)" }}
             delayIn={delay(650)}
             config={REVEAL}
-            className="absolute top-[703px] left-[409px] w-[623px]"
+            className="o-absolute hl-top-703px hl-left-409px hl-w-623px"
           >
             <ContactForm form={content.form} layout="row" />
           </Spring>
@@ -148,22 +146,22 @@ const HeroMobile = ({ content }: HeroProps) => {
     <section
       id="hero"
       aria-label={`${content.titleTop} ${content.titleBottom}`}
-      className="relative h-svh w-full"
+      className="o-relative o-h-svh o-w-full"
     >
       <animated.div
         style={{
           opacity: fade.opacity,
           pointerEvents: active === screens.HERO ? "auto" : "none",
         }}
-        className="fixed inset-0 overflow-hidden"
+        className="o-fixed o-inset-0 o-overflow-hidden"
       >
-        <div className="flex h-full w-full flex-col items-center justify-center gap-[22px] px-[20px] pt-[92px] pb-[28px]">
+        <div className="o-flex o-h-full o-w-full o-flex-col o-items-center o-justify-center hl-gap-22px hl-px-20px hl-pt-92px hl-pb-28px">
           <AnimatedHeading
             tag="h1"
             enabled={isLoaded}
             baseDelay={delay(150)}
             stagger={34}
-            className="m-0 w-full text-center font-mulish text-[clamp(24px,6.4vw,44px)] leading-[1.06] font-light"
+            className="o-m-0 o-w-full o-text-center hl-font-mulish hl-text-clamp-24px-6-4vw-44px hl-leading-1-06 o-font-light"
             lines={[
               { text: content.titleTop, opaque: "left" },
               { text: content.titleBottom, opaque: "right" },
@@ -177,23 +175,23 @@ const HeroMobile = ({ content }: HeroProps) => {
             to={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
             delayIn={delay(300)}
             config={REVEAL}
-            className="relative my-[6px] size-[92px]"
+            className="o-relative hl-my-6px hl-size-92px"
           >
             <span
               aria-hidden="true"
-              className="pointer-events-none absolute top-1/2 left-1/2 size-[150px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-black/60 blur-xl"
+              className="o-pointer-events-none o-absolute o-top-1/2 o-left-1/2 hl-size-150px hl-translate-x-1-2 hl-translate-y-1-2 o-rounded-full hl-bg-black-60 o-blur-xl"
             />
             <span
               aria-hidden="true"
-              className="pointer-events-none absolute top-1/2 left-1/2 size-[188px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[color:var(--hero-glass-border)]"
+              className="o-pointer-events-none o-absolute o-top-1/2 o-left-1/2 hl-size-188px hl-translate-x-1-2 hl-translate-y-1-2 o-rounded-full o-border-w-1 hl-border-color-var-hero-glass-border"
             />
-            <HeroIcon className="relative size-full" />
+            <HeroIcon className="o-relative o-size-full" />
           </Spring>
 
           <AnimatedText
             enabled={isLoaded}
             delayIn={delay(500)}
-            className="m-0 max-w-[400px] font-mulish text-[15px] leading-[1.35] font-normal text-foreground"
+            className="o-m-0 hl-max-w-400px hl-font-mulish hl-text-15px hl-leading-1-35 o-font-normal hl-text-foreground"
           >
             {content.subtitle}
           </AnimatedText>
@@ -205,7 +203,7 @@ const HeroMobile = ({ content }: HeroProps) => {
             to={{ opacity: 1, y: 0, filter: "blur(0px)" }}
             delayIn={delay(650)}
             config={REVEAL}
-            className="w-full max-w-[420px]"
+            className="o-w-full hl-max-w-420px"
           >
             <ContactForm form={content.form} layout="stack" />
           </Spring>

@@ -1,5 +1,3 @@
-"use client";
-
 import { useEffect, useRef } from "react";
 import { useShallow } from "zustand/react/shallow";
 
@@ -25,7 +23,7 @@ import type { MenuContent, NavItem } from "@/data/mocks/home";
  * SCSS animated the colour — react-spring can't tween the token itself.
  */
 
-/** CSS `ease-out` — the overlay/stagger reveal curve. */
+/** CSS `o-ease-out` — the overlay/stagger reveal curve. */
 const EASE_OUT = cubicBezier(0, 0, 0.58, 1);
 /** CSS `ease` — the per-element hover curve. */
 const EASE = cubicBezier(0.25, 0.1, 0.25, 1);
@@ -59,13 +57,13 @@ const MenuItem = ({ item, index, open, onSelect }: MenuItemProps) => {
       to={{ opacity: 1, y: 0 }}
       delayIn={ITEM_BASE_DELAY + index * ITEM_STAGGER}
       config={ITEM}
-      className="border-b border-accent-500/14"
+      className="o-border-b hl-border-accent-500-14"
     >
       <button
         ref={ref}
         type="button"
         onClick={onSelect}
-        className="grid w-full grid-cols-[2.75rem_1fr_auto] items-center gap-[1.125rem] px-1 py-[1.375rem] text-left text-foreground max-hero-xs:grid-cols-[2.25rem_1fr_auto] max-hero-xs:gap-[0.875rem] max-hero-xs:px-0.5 max-hero-xs:py-5 max-[360px]:px-0 max-[360px]:py-[1.125rem]"
+        className="o-grid o-w-full hl-grid-cols-2-75rem_1fr_auto o-items-center hl-gap-1-125rem o-px-1 hl-py-1-375rem o-text-left hl-text-foreground hl-max-hero-xs-grid-cols-2-25rem_1fr_auto hl-max-hero-xs-gap-0-875rem hl-max-hero-xs-px-0-5 hl-max-hero-xs-py-5 hl-max-360px--px-0 hl-max-360px--py-1-125rem"
       >
         <Hover
           tag="span"
@@ -73,11 +71,11 @@ const MenuItem = ({ item, index, open, onSelect }: MenuItemProps) => {
           from={{ opacity: 0.7 }}
           to={{ opacity: 1 }}
           config={HOVER}
-          className="font-sans text-[0.6875rem] leading-none font-medium tracking-[0.28em] text-accent-500"
+          className="o-font-sans hl-text-0-6875rem hl-leading-none o-font-medium hl-tracking-0-28em hl-text-accent-500"
         >
           {String(index + 1).padStart(2, "0")}
         </Hover>
-        <span className="font-lato text-[1.625rem] leading-none tracking-[0.02em] text-foreground/92 uppercase max-hero-xs:text-[1.375rem] max-[360px]:text-[1.25rem]">
+        <span className="hl-font-lato hl-text-1-625rem hl-leading-none hl-tracking-0-02em hl-text-foreground-92 o-uppercase hl-max-hero-xs-text-1-375rem hl-max-360px--text-1-25rem">
           {item.label}
         </span>
         <Hover
@@ -87,7 +85,7 @@ const MenuItem = ({ item, index, open, onSelect }: MenuItemProps) => {
           to={{ x: 4, opacity: 1 }}
           config={HOVER}
           aria-hidden="true"
-          className="text-[1.125rem] text-accent-300 max-hero-xs:text-[1rem]"
+          className="hl-text-1-125rem hl-text-accent-300 hl-max-hero-xs-text-1rem"
         >
           →
         </Hover>
@@ -133,11 +131,11 @@ export const Menu = ({ content }: MenuProps) => {
       config={OVERLAY}
       inert={!isMenuOpen}
       aria-hidden={!isMenuOpen}
-      className={`fixed inset-0 z-[100] bg-surface-panel/55 backdrop-blur-[30px] backdrop-saturate-[1.4] min-[913px]:hidden ${
-        isMenuOpen ? "" : "pointer-events-none"
+      className={`o-fixed o-inset-0 hl-z-100 hl-bg-surface-panel-55 hl-backdrop-blur-30px hl-backdrop-saturate-1-4 hl-min-913px--hidden ${
+        isMenuOpen ? "" : "o-pointer-events-none"
       }`}
     >
-      <div className="mx-auto flex h-full w-full max-w-[32.5rem] flex-col px-7 pt-[7.5rem] pb-12 max-hero-xs:px-[1.375rem] max-hero-xs:pt-24 max-hero-xs:pb-9">
+      <div className="o-mx-auto o-flex o-h-full o-w-full hl-max-w-32-5rem o-flex-col o-px-7 hl-pt-7-5rem o-pb-12 hl-max-hero-xs-px-1-375rem hl-max-hero-xs-pt-24 hl-max-hero-xs-pb-9">
         <Spring
           tag="p"
           enabled={isMenuOpen}
@@ -145,13 +143,13 @@ export const Menu = ({ content }: MenuProps) => {
           to={{ opacity: 1, y: 0 }}
           delayIn={EYEBROW_DELAY}
           config={META}
-          className="mb-7 font-sans text-[0.6875rem] leading-none font-medium tracking-[0.34em] text-accent-500/85 uppercase"
+          className="o-mb-7 o-font-sans hl-text-0-6875rem hl-leading-none o-font-medium hl-tracking-0-34em hl-text-accent-500-85 o-uppercase"
         >
           {content.eyebrow}
         </Spring>
 
         <nav aria-label={content.eyebrow}>
-          <ul className="flex flex-col border-t border-accent-500/14">
+          <ul className="o-flex o-flex-col o-border-t hl-border-accent-500-14">
             {content.links.map((item, i) => (
               <MenuItem
                 key={item.target}
@@ -171,13 +169,13 @@ export const Menu = ({ content }: MenuProps) => {
           to={{ opacity: 1, y: 0 }}
           delayIn={CTA_DELAY}
           config={META}
-          className="mt-auto"
+          className="o-mt-auto"
         >
           <Hover
             tag="button"
             ref={ctaRef}
             onClick={() => setIsMenuOpen(false)}
-            className="relative flex w-full items-center justify-center gap-3 rounded-full border border-accent-500/50 bg-accent-500/8 px-7 py-4 font-sans text-[0.75rem] leading-none font-semibold tracking-[0.24em] text-foreground uppercase shadow-cta"
+            className="o-relative o-flex o-w-full o-items-center o-justify-center o-gap-3 o-rounded-full o-border-w-1 hl-border-accent-500-50 hl-bg-accent-500-8 o-px-7 o-py-4 o-font-sans hl-text-0-75rem hl-leading-none o-font-semibold hl-tracking-0-24em hl-text-foreground o-uppercase hl-shadow-cta"
           >
             <Hover
               tag="span"
@@ -186,9 +184,9 @@ export const Menu = ({ content }: MenuProps) => {
               to={{ opacity: 1 }}
               config={HOVER}
               aria-hidden="true"
-              className="pointer-events-none absolute inset-0 rounded-full border border-accent-500 bg-accent-500/16"
+              className="o-pointer-events-none o-absolute o-inset-0 o-rounded-full o-border-w-1 hl-border-accent-500 hl-bg-accent-500-16"
             />
-            <span className="relative">{content.ctaLabel}</span>
+            <span className="o-relative">{content.ctaLabel}</span>
             <Hover
               tag="span"
               trigger={ctaRef}
@@ -196,7 +194,7 @@ export const Menu = ({ content }: MenuProps) => {
               to={{ x: 4 }}
               config={HOVER}
               aria-hidden="true"
-              className="relative text-[0.875rem] text-accent-300"
+              className="o-relative hl-text-0-875rem hl-text-accent-300"
             >
               →
             </Hover>

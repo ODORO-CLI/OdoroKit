@@ -1,5 +1,3 @@
-"use client";
-
 /**
  * Custom hook that runs a callback on a render loop with a configurable framerate.
  *

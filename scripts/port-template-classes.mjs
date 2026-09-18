@@ -77,7 +77,7 @@ const dry = process.argv.includes('--dry')
 const folder = resolve(ROOT, target)
 const name = folder.split(/[\\/]/).pop() ?? ''
 
-const { RENAMED, UNCHANGED, RESPELLED, IGNORED } = await import(
+const { RENAMED, UNCHANGED, RESPELLED, IGNORED, FAUX_AMIS } = await import(
   `./lib/${name}-classes.mjs`
 )
 
@@ -268,9 +268,33 @@ const SHAPE = /^-?!?[a-z][a-z0-9:/[\]().,%_-]*$/
  */
 function looksLikeClassList(text) {
   const tokens = text.split(/\s+/).filter((piece) => piece !== '')
-  if (tokens.length < 3) return false
+  if (tokens.length === 0) return false
   if (!tokens.every((piece) => SHAPE.test(piece))) return false
-  return tokens.some((piece) => translate(piece) !== null)
+
+  /*
+   * Trois mots ou plus : il suffit qu un se traduise. En dessous, l ambiguite
+   * l emporte et la regle se durcit — **tous** doivent se traduire, et aucun ne
+   * doit figurer parmi les mots que le gabarit declare comme n en etant pas.
+   *
+   * Le seuil etait a trois tout court, et vingt-cinq vraies listes courtes
+   * passaient au travers : `border-t border-accent-500/14`, `col-start-1
+   * row-start-1`, `h-full`. En dessous de trois, `"block"` est aussi bien une
+   * classe que la valeur d un `display` — d ou la liste, et d ou la rigueur.
+   */
+  /*
+   * Un mot declare comme n etant pas une classe ne prouve rien : le compter
+   * comme preuve faisait passer pour une liste la prose d un commentaire prise
+   * entre deux accents graves — « natively, so the ».
+   */
+  const revele = (piece) =>
+    IGNORED?.has(piece) !== true &&
+    FAUX_AMIS?.has(piece) !== true &&
+    translate(piece) !== null
+
+  if (tokens.length >= 3) return tokens.some(revele)
+
+  if (tokens.some((piece) => FAUX_AMIS?.has(piece) === true)) return false
+  return tokens.every(revele)
 }
 
 let touched = 0
@@ -310,7 +334,10 @@ for (const file of sources(folder)) {
   // Seconde passe : les listes qui ne sont pas dans un attribut. Elle vient
   // apres, sur le resultat de la premiere, pour ne pas repasser sur ce qui
   // vient d etre traduit — `o-flex` n a plus la forme d un nom a traduire.
-  after = after.replace(/(["'`])([^"'`\n]{8,800})\1/g, (whole, quote, text) => {
+  //
+  // Le plancher est a deux caracteres, et non a huit : `h-full` en fait six, et
+  // vingt-deux vraies classes tenaient sous l ancien seuil.
+  after = after.replace(/(["'`])([^"'`\n]{2,800})\1/g, (whole, quote, text) => {
     if (!looksLikeClassList(text)) return whole
     return quote + rewriteList(text, where) + quote
   })

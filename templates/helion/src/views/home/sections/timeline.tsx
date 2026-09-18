@@ -1,5 +1,3 @@
-"use client";
-
 import { useEffect, useRef, useState } from "react";
 import { animated } from "@react-spring/web";
 
@@ -75,7 +73,7 @@ const Station = ({ step, x, index, enabled }: StationProps) => {
         to={{ opacity: 1, scaleY: 1 }}
         delayIn={delayIn}
         config={STATION_REVEAL}
-        className="absolute w-px origin-bottom"
+        className="o-absolute o-w-px o-origin-bottom"
         style={{
           left: tickX,
           top: CONTENT_TOP,
@@ -93,7 +91,7 @@ const Station = ({ step, x, index, enabled }: StationProps) => {
         to={{ opacity: 1, scale: 1 }}
         delayIn={delayIn}
         config={STATION_REVEAL}
-        className="absolute"
+        className="o-absolute"
         style={{ left: tickX - TRI_SIZE / 2, top: BASELINE_Y - TRI_SIZE }}
       >
         <svg
@@ -101,7 +99,7 @@ const Station = ({ step, x, index, enabled }: StationProps) => {
           height={TRI_SIZE}
           viewBox="0 0 19 19"
           fill="none"
-          className="block"
+          className="o-block"
         >
           <path d="M9.5 0L19 19H0L9.5 0Z" fill={`url(#${gradientId})`} />
           <defs>
@@ -129,21 +127,21 @@ const Station = ({ step, x, index, enabled }: StationProps) => {
         to={{ opacity: 1, y: 0, filter: "blur(0px)" }}
         delayIn={delayIn + 120}
         config={STATION_REVEAL}
-        className="absolute flex flex-col gap-[24px]"
+        className="o-absolute o-flex o-flex-col hl-gap-24px"
         style={{ left: x, top: CONTENT_TOP, width: ITEM_WIDTH }}
       >
         <div
-          className="flex flex-col gap-[12px]"
+          className="o-flex o-flex-col hl-gap-12px"
           style={{ width: GROUP_WIDTH }}
         >
-          <p className="m-0 bg-[image:var(--gradient-hero-icon)] bg-clip-text font-mulish text-[16px] leading-[1.2] font-normal text-transparent [-webkit-background-clip:text]">
+          <p className="o-m-0 hl-bg-image-var-gradient-hero-icon hl-bg-clip-text hl-font-mulish hl-text-16px hl-leading-1-2 o-font-normal o-text-transparent hl-clip-texte">
             {step.index}
           </p>
-          <p className="m-0 font-mulish text-[32px] leading-none font-light text-foreground">
+          <p className="o-m-0 hl-font-mulish hl-text-32px hl-leading-none o-font-light hl-text-foreground">
             {step.title}
           </p>
         </div>
-        <p className="m-0 font-mulish text-[16px] leading-[1.2] font-normal text-foreground">
+        <p className="o-m-0 hl-font-mulish hl-text-16px hl-leading-1-2 o-font-normal hl-text-foreground">
           {step.body}
         </p>
       </Spring>
@@ -184,27 +182,27 @@ const TimelineMobile = ({ content, revealed, progress }: TimelineMobileProps) =>
   }, [content]);
 
   return (
-    <div className="flex h-full w-full flex-col px-[24px] pt-[92px] pb-[20px]">
+    <div className="o-flex o-h-full o-w-full o-flex-col hl-px-24px hl-pt-92px hl-pb-20px">
       <AnimatedHeading
         tag="h2"
         id="timeline-heading"
         enabled={revealed}
         baseDelay={120}
         stagger={34}
-        className="m-0 w-full text-center font-mulish text-[clamp(24px,6.4vw,44px)] leading-[1.06] font-light"
+        className="o-m-0 o-w-full o-text-center hl-font-mulish hl-text-clamp-24px-6-4vw-44px hl-leading-1-06 o-font-light"
         lines={[
           { text: content.titleTop, opaque: "left" },
           { text: content.titleBottom, opaque: "right" },
         ]}
       />
 
-      <div ref={windowRef} className="relative mt-[22px] flex-1 overflow-hidden">
+      <div ref={windowRef} className="o-relative hl-mt-22px o-flex-1 o-overflow-hidden">
         <animated.ol
           ref={listRef}
           style={{
             transform: progress.to((p) => `translateY(${(-p * travel).toFixed(1)}px)`),
           }}
-          className="absolute inset-x-0 top-0 flex flex-col gap-[24px]"
+          className="o-absolute o-inset-x-0 o-top-0 o-flex o-flex-col hl-gap-24px"
         >
           {content.steps.map((step, i) => (
             <Spring
@@ -216,16 +214,16 @@ const TimelineMobile = ({ content, revealed, progress }: TimelineMobileProps) =>
               to={{ opacity: 1, y: 0, filter: "blur(0px)" }}
               delayIn={160 + i * 90}
               config={STATION_REVEAL}
-              className="flex gap-[16px]"
+              className="o-flex hl-gap-16px"
             >
-              <div className="flex w-[18px] shrink-0 flex-col items-center pt-[6px]">
+              <div className="o-flex hl-w-18px o-shrink-0 o-flex-col o-items-center hl-pt-6px">
                 <svg
                   width="14"
                   height="14"
                   viewBox="0 0 19 19"
                   fill="none"
                   aria-hidden="true"
-                  className="shrink-0"
+                  className="o-shrink-0"
                 >
                   <path d="M9.5 0L19 19H0L9.5 0Z" fill={`url(#tl-m-tri-${i})`} />
                   <defs>
@@ -242,17 +240,17 @@ const TimelineMobile = ({ content, revealed, progress }: TimelineMobileProps) =>
                     </linearGradient>
                   </defs>
                 </svg>
-                <span className="mt-[8px] w-px flex-1 bg-[color:var(--timeline-rail)]" />
+                <span className="hl-mt-8px o-w-px o-flex-1 hl-bg-color-var-timeline-rail" />
               </div>
 
-              <div className="flex flex-col gap-[6px] pb-[6px]">
-                <p className="m-0 bg-[image:var(--gradient-hero-icon)] bg-clip-text font-mulish text-[14px] leading-none font-normal text-transparent [-webkit-background-clip:text]">
+              <div className="o-flex o-flex-col hl-gap-6px hl-pb-6px">
+                <p className="o-m-0 hl-bg-image-var-gradient-hero-icon hl-bg-clip-text hl-font-mulish hl-text-14px hl-leading-none o-font-normal o-text-transparent hl-clip-texte">
                   {step.index}
                 </p>
-                <p className="m-0 font-mulish text-[22px] leading-none font-light text-foreground">
+                <p className="o-m-0 hl-font-mulish hl-text-22px hl-leading-none o-font-light hl-text-foreground">
                   {step.title}
                 </p>
-                <p className="m-0 font-mulish text-[15px] leading-[1.35] font-normal text-foreground/80">
+                <p className="o-m-0 hl-font-mulish hl-text-15px hl-leading-1-35 o-font-normal hl-text-foreground-80">
                   {step.body}
                 </p>
               </div>
@@ -291,7 +289,7 @@ export const Timeline = ({ content }: TimelineProps) => {
     <section
       id="timeline"
       aria-labelledby="timeline-heading"
-      className="relative h-svh w-full"
+      className="o-relative o-h-svh o-w-full"
     >
       {/* Pinned to the viewport: fades in place, never scrolls. */}
       <animated.div
@@ -301,7 +299,7 @@ export const Timeline = ({ content }: TimelineProps) => {
           opacity: isLoaded ? fade.opacity : 0,
           pointerEvents: active === screens.ROADMAP ? "auto" : "none",
         }}
-        className="fixed inset-0 overflow-hidden"
+        className="o-fixed o-inset-0 o-overflow-hidden"
       >
         {isMobile ? (
           <TimelineMobile
@@ -312,7 +310,7 @@ export const Timeline = ({ content }: TimelineProps) => {
         ) : (
         /* The 1440×800 design frame, centred and scaled to viewport width. */
         <div
-          className="absolute top-1/2 left-1/2 h-[800px] w-[1440px]"
+          className="o-absolute o-top-1/2 o-left-1/2 hl-h-800px hl-w-1440px"
           style={{ transform: `translate(-50%, -50%) scale(${scale})` }}
         >
           {/* Masthead — per-letter cascade from the bright ends. */}
@@ -321,7 +319,7 @@ export const Timeline = ({ content }: TimelineProps) => {
             id="timeline-heading"
             enabled={revealed}
             baseDelay={120}
-            className="absolute top-[100px] left-[389px] m-0 w-[663px] text-center font-mulish text-[56px] leading-none font-light"
+            className="o-absolute hl-top-100px hl-left-389px o-m-0 hl-w-663px o-text-center hl-font-mulish hl-text-56px hl-leading-none o-font-light"
             lines={[
               { text: content.titleTop, opaque: "left" },
               { text: content.titleBottom, opaque: "right" },
@@ -330,7 +328,7 @@ export const Timeline = ({ content }: TimelineProps) => {
 
           {/* The rail — a wide track that travels right-to-left with scroll. */}
           <animated.div
-            className="absolute top-0 left-0 h-[800px]"
+            className="o-absolute o-top-0 o-left-0 hl-h-800px"
             style={{
               width: trackWidth,
               transform: progress.to(
@@ -353,7 +351,7 @@ export const Timeline = ({ content }: TimelineProps) => {
               to={{ opacity: 1, scaleX: 1 }}
               delayIn={120}
               config={STATION_REVEAL}
-              className="absolute h-px origin-left"
+              className="o-absolute o-h-px o-origin-left"
               style={{
                 left: 50,
                 top: BASELINE_Y,

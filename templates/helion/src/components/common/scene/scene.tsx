@@ -1,5 +1,3 @@
-"use client";
-
 import { useEffect, useRef, useState } from "react";
 import { animated, useSpring } from "@react-spring/web";
 
@@ -39,9 +37,9 @@ interface LoadingEventDetail {
  * page. It reads scroll progress from `@/lib/scene/scroll-state`, written each
  * frame by `SectionController`.
  *
- * `h-lvh`/`w-lvw`: iOS Safari's address bar changes the dynamic viewport, so
+ * `hl-h-lvh`/`hl-w-lvw`: iOS Safari's address bar changes the dynamic viewport, so
  * the canvas is sized against the *largest* viewport and always fills the
- * screen. `transform-gpu` + `backface-hidden` promote the wrapper to its own
+ * screen. `hl-transform-gpu` + `hl-backface-hidden` promote the wrapper to its own
  * compositor layer — without it, a neighbouring fixed element repainting during
  * scroll invalidates the WebGL composite on WebKit and the whole scene flickers.
  */
@@ -148,12 +146,12 @@ export const Scene = () => {
     <animated.div
       ref={parentRef}
       style={visibility}
-      className="pointer-events-none fixed inset-0 h-lvh w-lvw transform-gpu backface-hidden will-change-transform"
+      className="o-pointer-events-none o-fixed o-inset-0 hl-h-lvh hl-w-lvw hl-transform-gpu hl-backface-hidden o-will-change-transform"
     >
       <canvas
         ref={canvasRef}
         aria-hidden="true"
-        className="pointer-events-none h-full w-full transform-gpu"
+        className="o-pointer-events-none o-h-full o-w-full hl-transform-gpu"
       />
       {/* Vignette: darkens the top band for header readability and the bottom
           for CTA contrast. Inside this wrapper so it fades with the canvas. */}
@@ -166,26 +164,26 @@ export const Scene = () => {
       {!loaderGone && (
         <animated.div
           style={loaderFade}
-          className="absolute inset-x-0 bottom-[14vh] flex flex-col items-center gap-[1.375rem] px-6"
+          className="o-absolute o-inset-x-0 hl-bottom-14vh o-flex o-flex-col o-items-center hl-gap-1-375rem o-px-6"
           role="status"
           aria-live="polite"
         >
           {/* Set in the site's heading face and size (Mulish 56/light), so the
               readout reads as the first line of the site, not a spinner. */}
-          <p className="m-0 flex items-start font-mulish text-[56px] leading-none font-light text-foreground tabular-nums">
+          <p className="o-m-0 o-flex o-items-start hl-font-mulish hl-text-56px hl-leading-none o-font-light hl-text-foreground o-tabular-nums">
             {percent}
-            <span className="mt-[0.15em] ml-[0.08em] font-mulish text-[0.42em] leading-none font-light tracking-[0.1em] text-accent-300/70">
+            <span className="hl-mt-0-15em hl-ml-0-08em hl-font-mulish hl-text-0-42em hl-leading-none o-font-light hl-tracking-0-1em hl-text-accent-300-70">
               %
             </span>
           </p>
 
           <span
             aria-hidden="true"
-            className="relative block h-px w-[min(20rem,56vw)] overflow-hidden bg-foreground/12"
+            className="o-relative o-block o-h-px hl-w-min-20rem-56vw o-overflow-hidden hl-bg-foreground-12"
           >
             <animated.span
               style={rail}
-              className="absolute inset-0 origin-left bg-accent-500 shadow-[var(--shadow-loader-rail)]"
+              className="o-absolute o-inset-0 o-origin-left hl-bg-accent-500 hl-shadow-var-shadow-loader-rail"
             />
           </span>
         </animated.div>

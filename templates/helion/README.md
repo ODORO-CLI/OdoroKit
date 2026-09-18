@@ -165,3 +165,43 @@ Start at [`obsidian/README.md`](./obsidian/README.md).
 Entry points `AGENTS.md` · `CLAUDE.md` · `.cursorrules` all lead into the
 `obsidian/` vault — the single source of truth for this project. Full rules of
 engagement: [`obsidian/workflows/ai-agent-guide.md`](./obsidian/workflows/ai-agent-guide.md).
+
+## Le portage sur le moteur Odoro
+
+Le design n'a pas bougé : la hauteur du document est identique au pixel dans les
+deux largeurs, et les deux remises à zéro concordent sur quinze balises et vingt
+propriétés.
+
+| Avant | Après |
+| --- | --- |
+| Next 16, App Router | `index.html` + `src/main.tsx`, servis par le moteur Odoro |
+| `next/font` | `@font-face` dans `src/styles.css`, coupes dans `src/fonts/` |
+| `next/link`, `next/dynamic`, `next/navigation` | `<a>`, `React.lazy`, lecture du chemin |
+| Utilitaires d'un générateur tiers | Utilitaires `o-`, plus les classes du projet |
+| `@theme`, `@layer`, `@utility`, `@custom-variant` | Des variables et des règles ordinaires |
+
+Trois cent quatre-vingt-seize classes, dont 385 **dérivées** par
+`scripts/derive-template-classes.mjs` à partir du bloc de jetons du gabarit.
+Ce gabarit se donne sept points de rupture — `hero-lg`, `hero-md`, `hero-sm`,
+`hero-xs`, `pad-md`, `pad-sm`, `menu` — et deux variantes de hauteur d'écran.
+Aucune n'existe dans notre système : toutes les classes qui les portent sont
+donc des classes du gabarit.
+
+### Les routes profondes
+
+`/sitemap`, `/partners`, `/roadmap`… rendaient la même page et l'ancraient sur
+une section. Le segment se lit désormais une fois au chargement : il n'y a pas
+de navigation à intercepter. La route `app/api/contact`, `robots.ts` et
+`sitemap.ts` demandaient un serveur ; pour un formulaire qui aboutit, voir le
+gabarit `react-ts-server` de la CLI.
+
+### Ce que la comparaison peut dire
+
+La scène est une simulation de particules en continu. Comparer la page
+d'origine à elle-même donne déjà jusqu'à cinquante pour cent de pixels
+différents : le rendu de la scène n'est pas jugeable ainsi. Ce qui l'est — la
+hauteur du document, le socle, la présence et la position du chrome — coïncide.
+
+## Licence
+
+Voir `LICENSE.md`.

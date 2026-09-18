@@ -111,6 +111,22 @@ for (const [key, value] of THEME) {
   else if (px !== null) BREAKPOINTS.set(name[1], Number(px[1]))
 }
 
+/**
+ * Les variantes que le gabarit declare par `@custom-variant`.
+ *
+ * `@custom-variant max-h-717 (@media (max-height: 717px))` n a pas d equivalent
+ * chez nous : c est une regle que ce gabarit s est donnee, et elle voyage avec
+ * lui.
+ */
+const VARIANTES = new Map()
+for (const match of css.matchAll(
+  /@custom-variant\s+([\w-]+)\s*\(([^)]*\([^)]*\)[^)]*|[^)]*)\)\s*;/g,
+)) {
+  const corps = match[2].trim()
+  const media = /@media\s*(.+)$/.exec(corps)
+  if (media !== null) VARIANTES.set(match[1], media[1].trim())
+}
+
 /* ============================ Les motifs ================================= */
 
 /** Properties a numeric spacing utility sets. */
@@ -162,6 +178,29 @@ const TOKEN_FAMILY = [
   ['ease', '--ease-', 'transition-timing-function'],
 ]
 
+/**
+ * L echelle typographique par defaut de l autre moteur.
+ *
+ * Un gabarit qui ne redefinit pas `--text-sm` emploie quand meme `text-sm`, et
+ * la valeur vient alors de l echelle livree. La voici, telle quelle : sans
+ * elle, `max-hero-md:text-sm` n avait aucune declaration a produire.
+ */
+const ECHELLE = {
+  xs: ['0.75rem', '1rem'],
+  sm: ['0.875rem', '1.25rem'],
+  base: ['1rem', '1.5rem'],
+  lg: ['1.125rem', '1.75rem'],
+  xl: ['1.25rem', '1.75rem'],
+  '2xl': ['1.5rem', '2rem'],
+  '3xl': ['1.875rem', '2.25rem'],
+  '4xl': ['2.25rem', '2.5rem'],
+  '5xl': ['3rem', '1'],
+  '6xl': ['3.75rem', '1'],
+  '7xl': ['4.5rem', '1'],
+  '8xl': ['6rem', '1'],
+  '9xl': ['8rem', '1'],
+}
+
 /** A quarter of a rem per step, as the other engine counts. */
 function spacingValue(raw) {
   if (raw === 'px') return '1px'
@@ -209,6 +248,28 @@ const SIMPLES = {
   'outline-2': ['outline-width: 2px', 'outline-style: solid'],
   'outline-offset-2': ['outline-offset: 2px'],
   shadow: ['box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)'],
+  'h-lvh': ['height: 100lvh'],
+  'h-svh': ['height: 100svh'],
+  'h-dvh': ['height: 100dvh'],
+  'backface-hidden': ['backface-visibility: hidden'],
+  'transform-gpu': ['transform: translateZ(0)'],
+  'w-lvw': ['width: 100lvw'],
+  'w-dvw': ['width: 100dvw'],
+  'ring-1': [
+    '--tw-ring: 1px',
+    'box-shadow: 0 0 0 1px var(--xx-ring-color, currentColor)',
+  ],
+  rounded: ['border-radius: 0.25rem'],
+  inline: ['display: inline'],
+  'max-h-none': ['max-height: none'],
+  'min-h-screen': ['min-height: 100vh'],
+  'overflow-visible': ['overflow: visible'],
+  'col-start-auto': ['grid-column-start: auto'],
+  'row-start-auto': ['grid-row-start: auto'],
+  'text-left': ['text-align: left'],
+  'text-center': ['text-align: center'],
+  'text-right': ['text-align: right'],
+  'border-t-0': ['border-top-width: 0'],
   absolute: ['position: absolute'],
   relative: ['position: relative'],
   static: ['position: static'],
@@ -236,10 +297,19 @@ const SIMPLES = {
 /** The declarations a bare class name produces, or `null`. */
 function declarationsFor(name) {
   const negative = name.startsWith('-')
-  const bare = negative ? name.slice(1) : name
+  // Le `!` de tete forcait la priorite dans l autre moteur ; ici la
+  // specificite doublee du selecteur fait le meme travail.
+  const bare = (negative ? name.slice(1) : name).replace(/^!/, '')
+
+  const profondeur = /^z-(\d+)$/.exec(bare)
+  if (profondeur !== null) return [`z-index: ${negative ? '-' : ''}${profondeur[1]}`]
 
   // Une valeur arbitraire : ce qui est entre crochets est litteral.
-  const arbitrary = /^([a-z-]+)-\[(.+)\]$/.exec(bare)
+  // La capture refuse un `]` en son sein : gloutonne, elle avalait la paire
+  // `text-[0.75rem]/[1.5]` en une seule valeur et produisait
+  // `font-size: 0.75rem]/[1.5` — une declaration malformee qui, en CSS,
+  // n invalide pas seulement sa regle mais tronque tout ce qui la suit.
+  const arbitrary = /^([a-z-]+)-\[([^\]]+)\]$/.exec(bare)
   if (arbitrary !== null) {
     const [, root, value] = arbitrary
     const literal = value.replace(/_/g, ' ').replace(/^image:/, '')
@@ -261,7 +331,12 @@ function declarationsFor(name) {
       return [`--${prefix}-tx: ${negative ? '-' : ''}${literal}`, 'TRANSLATE']
     if (root === 'translate-y')
       return [`--${prefix}-ty: ${negative ? '-' : ''}${literal}`, 'TRANSLATE']
-    return null
+    if (root === 'grid-cols') {
+      return [`grid-template-columns: ${literal.replace(/,(?=\S)/g, ', ')}`]
+    }
+    if (root === 'grid-rows') return [`grid-template-rows: ${literal}`]
+    // Pas de reponse ici : la suite en a peut-etre une. Couper court a
+    // empeche `backdrop-blur-[30px]` d atteindre son propre motif.
   }
 
   // Un utilitaire sans valeur.
@@ -318,6 +393,70 @@ function declarationsFor(name) {
     return [`${prop}: color-mix(in srgb, ${base} ${part}%, transparent)`]
   }
 
+  // Le flou et la saturation d arriere-plan, ecrits en valeur.
+  const filtre = /^backdrop-(blur|saturate|brightness)-\[(.+)\]$/.exec(bare)
+  if (filtre !== null) {
+    const fn =
+      filtre[1] === 'blur' ? 'blur' : filtre[1] === 'saturate' ? 'saturate' : 'brightness'
+    return [
+      `backdrop-filter: ${fn}(${filtre[2]})`,
+      `-webkit-backdrop-filter: ${fn}(${filtre[2]})`,
+    ]
+  }
+  const flou = /^blur-\[(.+)\]$/.exec(bare)
+  if (flou !== null) return [`filter: blur(${flou[1]})`]
+  const teinte = /^accent-\[(.+)\]$/.exec(bare)
+  if (teinte !== null) return [`accent-color: ${teinte[1]}`]
+
+  // `text-base/[1.7]` ou `text-[0.6875rem]/none` : une taille et son interligne.
+  const paire = /^text-(\[[^\]]+\]|[\w.-]+)\/(\[[^\]]+\]|[\w.-]+)$/.exec(bare)
+  if (paire !== null) {
+    const taille = paire[1].startsWith('[')
+      ? paire[1].slice(1, -1)
+      : (THEME.get(`--text-${paire[1]}`) ?? ECHELLE[paire[1]]?.[0])
+    const inter =
+      paire[2] === 'none'
+        ? '1'
+        : paire[2].startsWith('[')
+          ? paire[2].slice(1, -1)
+          : THEME.get(`--leading-${paire[2]}`)
+    if (taille !== undefined && inter !== undefined) {
+      return [`font-size: ${taille}`, `line-height: ${inter}`]
+    }
+  }
+
+  // Une couleur arbitraire, avec ou sans opacite.
+  const brute = /^(bg|text|border|ring)-\[([^\]]+)\](?:\/(\d+|\[[\d.]+\]))?$/.exec(bare)
+  if (brute !== null) {
+    const [, root, couleur, part] = brute
+    const prop =
+      root === 'bg' ? 'background-color' : root === 'text' ? 'color' : 'border-color'
+    const valeur = couleur.replace(/^color:/, '')
+    if (part === undefined) return [`${prop}: ${valeur}`]
+    const pourcent = part.startsWith('[') ? String(Number(part.slice(1, -1)) * 100) : part
+    return [`${prop}: color-mix(in srgb, ${valeur} ${pourcent}%, transparent)`]
+  }
+
+  // Une opacite ecrite entre crochets sur un jeton : `bg-foreground/[0.06]`.
+  const fraction = /^(bg|text|border)-([\w-]+)\/\[([\d.]+)\]$/.exec(bare)
+  if (fraction !== null) {
+    const [, root, jeton, part] = fraction
+    const prop =
+      root === 'bg' ? 'background-color' : root === 'text' ? 'color' : 'border-color'
+    const base = THEME.get(`--color-${jeton}`)
+    if (base !== undefined) {
+      return [
+        `${prop}: color-mix(in srgb, ${base} ${String(Number(part) * 100)}%, transparent)`,
+      ]
+    }
+  }
+
+  // Une ombre nommee par le theme.
+  const ombre = /^shadow-([\w-]+)$/.exec(bare)
+  if (ombre !== null && THEME.has(`--shadow-${ombre[1]}`)) {
+    return [`box-shadow: ${THEME.get(`--shadow-${ombre[1]}`)}`]
+  }
+
   // Un jeton du thème.
   for (const [root, namespace, prop] of TOKEN_FAMILY) {
     if (!bare.startsWith(`${root}-`)) continue
@@ -331,6 +470,13 @@ function declarationsFor(name) {
         `-webkit-backdrop-filter: blur(${value})`,
       ]
     return [`${prop}: ${value}`]
+  }
+
+  // Une taille de l echelle livree, que le theme ne redefinit pas.
+  const nommee = /^text-([\w-]+)$/.exec(bare)
+  if (nommee !== null && ECHELLE[nommee[1]] !== undefined) {
+    const [taille, inter] = ECHELLE[nommee[1]]
+    return [`font-size: ${taille}`, `line-height: ${inter}`]
   }
 
   // Une mesure de l'echelle.
@@ -405,8 +551,24 @@ for (const original of entree) {
   else if (variant === 'placeholder') selecteur += '::placeholder'
   else if (variant === 'group-hover') selecteur = `.group:hover .${nom}`
 
-  const media = BREAKPOINTS.has(variant) ? BREAKPOINTS.get(variant) : null
-  const cle = media === null ? '' : String(media)
+  if (variant === 'first') selecteur += ':first-child'
+  if (variant === 'last') selecteur += ':last-child'
+
+  /*
+   * La requete de media : soit une rupture connue, soit une rupture `max-*`,
+   * soit une variante que le gabarit s est declaree.
+   */
+  let requete = null
+  if (BREAKPOINTS.has(variant)) {
+    requete = `(min-width: ${String(BREAKPOINTS.get(variant))}px)`
+  } else if (variant.startsWith('max-') && BREAKPOINTS.has(variant.slice(4))) {
+    // Tailwind coupe juste en dessous de la rupture, pas dessus.
+    requete = `(max-width: ${String(BREAKPOINTS.get(variant.slice(4)) - 0.02)}px)`
+  } else if (VARIANTES.has(variant)) {
+    requete = VARIANTES.get(variant)
+  }
+
+  const cle = requete === null ? '' : requete
   const liste = regles.get(cle) ?? []
   liste.push(`${selecteur} { ${declaration}; }`)
   regles.set(cle, liste)
@@ -415,13 +577,11 @@ for (const original of entree) {
 console.log('/* ---- table ---- */')
 console.log(table.join('\n'))
 console.log('\n/* ---- feuille ---- */')
-for (const [media, liste] of [...regles].sort(
-  (a, b) => Number(a[0] || 0) - Number(b[0] || 0),
-)) {
-  if (media === '') {
+for (const [requete, liste] of regles) {
+  if (requete === '') {
     console.log(liste.join('\n'))
   } else {
-    console.log(`\n@media (min-width: ${media}px) {`)
+    console.log(`\n@media ${requete} {`)
     console.log(liste.map((r) => `  ${r}`).join('\n'))
     console.log('}')
   }

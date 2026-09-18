@@ -1,5 +1,3 @@
-"use client";
-
 import { useEffect, useState } from "react";
 import { animated } from "@react-spring/web";
 
@@ -15,10 +13,10 @@ import { easeOutQuartic } from "@/utils/animation/easing";
 import type { SitemapContent } from "@/data/mocks/home";
 
 /**
- * Sitemap — the chapter list arranged as a "ring around the core": the UI frames
+ * Sitemap — the chapter list arranged as a "o-ring around the core": the UI frames
  * the plume, which climbs the middle of the viewport as the slide arrives.
  *
- * The section is a full-height, three-row stack (`justify-between`): a header
+ * The section is a full-height, three-row stack (`o-justify-between`): a header
  * block latches top-left, the chapter list spans the middle, the CTA sits at the
  * bottom-centre. The middle is a 3-column grid whose CENTRE column is left empty
  * — that hole is where the column of smoke climbs. Chapters 01–03 go in the left
@@ -69,11 +67,11 @@ const REVEAL = { duration: REVEAL_DURATION, easing: easeOutQuartic } as const;
  * and the single column reads 01→05 in DOM order.
  */
 const PLACEMENT = [
-  "col-start-1 row-start-1",
-  "col-start-1 row-start-2",
-  "col-start-1 row-start-3",
-  "col-start-3 row-start-2",
-  "col-start-3 row-start-3",
+  "o-col-start-1 o-row-start-1",
+  "o-col-start-1 o-row-start-2",
+  "o-col-start-1 o-row-start-3",
+  "o-col-start-3 o-row-start-2",
+  "o-col-start-3 o-row-start-3",
 ] as const;
 
 export interface SitemapProps {
@@ -106,21 +104,21 @@ export const Sitemap = ({ content }: SitemapProps) => {
       id="sitemap"
       aria-labelledby="sitemap-heading"
       /* `static` overrides the sticky rule the other slides rely on — the
-       * Sitemap scrolls with the page. `overflow-hidden` + the 100vh clamp stop
+       * Sitemap scrolls with the page. `o-overflow-hidden` + the 100vh clamp stop
        * mid-animation overflow from growing the document. */
-      /* `h-screen` (not just `min-h-screen`) gives the inner `h-full` a definite
+      /* `o-h-screen` (not just `o-min-h-screen`) gives the inner `o-h-full` a definite
          parent to resolve against — without it the wrapper collapses to content
          height and nothing vertically centres. */
-      className="static h-screen max-h-screen min-h-screen w-full overflow-hidden max-pad-sm:h-auto max-pad-sm:max-h-none max-pad-sm:min-h-screen max-pad-sm:overflow-visible max-pad-sm:pt-30 max-pad-sm:pb-14 max-[376px]:pt-25 max-[376px]:pb-10 max-[360px]:pt-22.5"
+      className="o-static o-h-screen o-max-h-screen o-min-h-screen o-w-full o-overflow-hidden hl-max-pad-sm-h-auto hl-max-pad-sm-max-h-none hl-max-pad-sm-min-h-screen hl-max-pad-sm-overflow-visible hl-max-pad-sm-pt-30 hl-max-pad-sm-pb-14 hl-max-376px--pt-25 hl-max-376px--pb-10 hl-max-360px--pt-22-5"
     >
       <animated.div
         style={fade}
         /* Three rows spread top → bottom: header, list, CTA. Top padding clears
            the fixed header. On mobile it un-spreads to a left-aligned stack. */
-        className="page-gutter flex h-full w-full flex-col justify-between pt-28 pb-12 max-pad-sm:h-auto max-pad-sm:justify-start max-pad-sm:gap-y-8 max-pad-sm:pt-0 max-pad-sm:pb-0"
+        className="page-gutter o-flex o-h-full o-w-full o-flex-col o-justify-between o-pt-28 o-pb-12 hl-max-pad-sm-h-auto hl-max-pad-sm-justify-start hl-max-pad-sm-gap-y-8 hl-max-pad-sm-pt-0 hl-max-pad-sm-pb-0"
       >
         {/* Row 1 — header, top-left, hugging the left edge. */}
-        <div className="max-w-[18ch] max-pad-sm:max-w-none">
+        <div className="hl-max-w-18ch hl-max-pad-sm-max-w-none">
           <Spring
             tag="p"
             enabled={revealed}
@@ -129,7 +127,7 @@ export const Sitemap = ({ content }: SitemapProps) => {
             to={to}
             delayIn={DELAY.eyebrow}
             config={REVEAL}
-            className="mb-4 font-sans text-[0.6875rem]/none font-medium tracking-[0.34em] text-accent-500/85 uppercase"
+            className="o-mb-4 o-font-sans hl-text-0-6875rem-none o-font-medium hl-tracking-0-34em hl-text-accent-500-85 o-uppercase"
           >
             {content.eyebrow}
           </Spring>
@@ -143,7 +141,7 @@ export const Sitemap = ({ content }: SitemapProps) => {
             to={to}
             delayIn={DELAY.heading}
             config={REVEAL}
-            className="font-lato text-[1.75rem]/[1.3] tracking-[0.01em] text-foreground/92 max-h-717:text-2xl max-pad-sm:text-2xl max-hero-xs:text-xl"
+            className="hl-font-lato hl-text-1-75rem-1-3 hl-tracking-0-01em hl-text-foreground-92 hl-max-h-717-text-2xl hl-max-pad-sm-text-2xl hl-max-hero-xs-text-xl"
           >
             {content.heading}
           </Spring>
@@ -152,7 +150,7 @@ export const Sitemap = ({ content }: SitemapProps) => {
         {/* Row 2 — the chapter list. One `<ol>` laid out as a 3-column grid; the
             centre column is empty (the tree's hole). Rows split via grid
             placement, so the reading order stays 01→05. */}
-        <ol className="grid w-full grid-cols-[minmax(0,1fr)_minmax(22rem,34rem)_minmax(0,1fr)] gap-x-12 max-hero-lg:grid-cols-[minmax(0,1fr)_minmax(18rem,30rem)_minmax(0,1fr)] max-hero-lg:gap-x-8 max-pad-sm:grid-cols-1 max-pad-sm:gap-x-0">
+        <ol className="o-grid o-w-full hl-grid-cols-minmax-0-1fr-_minmax-22rem-34rem-_minmax-0-1fr o-gap-x-12 hl-max-hero-lg-grid-cols-minmax-0-1fr-_minmax-18rem-30rem-_minmax-0-1fr hl-max-hero-lg-gap-x-8 hl-max-pad-sm-grid-cols-1 hl-max-pad-sm-gap-x-0">
           {chapters.map((chapter, index) => {
             const isRight = index >= 3;
 
@@ -166,7 +164,7 @@ export const Sitemap = ({ content }: SitemapProps) => {
                 to={to}
                 delayIn={DELAY.ledger + index * ROW_STAGGER}
                 config={REVEAL}
-                className={`${PLACEMENT[index]} max-pad-sm:col-start-auto max-pad-sm:row-start-auto border-t border-accent-500/14 first:border-t-0`}
+                className={`${PLACEMENT[index]} hl-max-pad-sm-col-start-auto hl-max-pad-sm-row-start-auto o-border-t hl-border-accent-500-14 hl-first-border-t-0`}
               >
                 <SitemapButton
                   number={chapter.number}
@@ -189,12 +187,12 @@ export const Sitemap = ({ content }: SitemapProps) => {
           to={to}
           delayIn={DELAY.cta}
           config={REVEAL}
-          className="flex justify-center max-pad-sm:justify-start"
+          className="o-flex o-justify-center hl-max-pad-sm-justify-start"
         >
           <button
             type="button"
             onClick={() => scrollToSection(screens.SOCIAL)}
-            className="cursor-pointer rounded-full border border-accent-500/50 bg-accent-500/8 px-6.5 py-3.5 font-sans text-xs/none font-semibold tracking-[0.22em] text-foreground uppercase shadow-cta"
+            className="o-cursor-pointer o-rounded-full o-border-w-1 hl-border-accent-500-50 hl-bg-accent-500-8 hl-px-6-5 o-py-3.5 o-font-sans hl-text-xs-none o-font-semibold hl-tracking-0-22em hl-text-foreground o-uppercase hl-shadow-cta"
           >
             {content.ctaLabel}
           </button>

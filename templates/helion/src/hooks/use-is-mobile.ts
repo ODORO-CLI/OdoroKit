@@ -1,5 +1,3 @@
-"use client";
-
 import { useWindowWidth } from "@/hooks/use-window-size";
 
 /**

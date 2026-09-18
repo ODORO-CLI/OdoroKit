@@ -1,5 +1,3 @@
-"use client";
-
 import { useState } from "react";
 import { animated, useSpring } from "@react-spring/web";
 
@@ -35,7 +33,7 @@ const NAV_REVEAL = { duration: 1000, easing: easeReveal } as const;
 const HOVER = { tension: 320, friction: 22 } as const;
 
 const PILL =
-  "rounded-[32px] border border-[color:var(--hero-glass-border)] bg-[var(--hero-glass)] backdrop-blur-[8px]";
+  "hl-rounded-32px o-border-w-1 hl-border-color-var-hero-glass-border hl-bg-var-hero-glass hl-backdrop-blur-8px";
 
 export interface HeroNavProps {
   content: HeroNavContent;
@@ -59,11 +57,11 @@ const HeroNavDesktop = ({ content }: HeroNavProps) => {
   return (
     <nav
       aria-label="Navigation principale"
-      className="fixed left-1/2 z-[120] -translate-x-1/2"
+      className="o-fixed o-left-1/2 hl-z-120 hl-translate-x-1-2"
       style={{ top: navTop }}
     >
       <div style={{ transform: `scale(${scale})`, transformOrigin: "top center" }}>
-        <div className="flex items-center gap-1">
+        <div className="o-flex o-items-center o-gap-1">
           {/* Logo pill — scrolls back to the top, so a real button. */}
           <Spring
             tag="div"
@@ -78,10 +76,10 @@ const HeroNavDesktop = ({ content }: HeroNavProps) => {
                 type="button"
                 onClick={() => scrollToSection(screens.HERO)}
                 aria-label={content.wordmark}
-                className={`flex h-[43px] items-center px-[24px] py-[12px] ${PILL}`}
+                className={`o-flex hl-h-43px o-items-center hl-px-24px hl-py-12px ${PILL}`}
               >
-                <LogoMark className="size-[19px] text-accent-500" />
-                <span className="ml-[8px] font-mulish text-[18px] leading-none font-normal lowercase tracking-[0.01em] text-accent-500">
+                <LogoMark className="hl-size-19px hl-text-accent-500" />
+                <span className="hl-ml-8px hl-font-mulish hl-text-18px hl-leading-none o-font-normal o-lowercase hl-tracking-0-01em hl-text-accent-500">
                   {content.wordmark}
                 </span>
               </button>
@@ -96,9 +94,9 @@ const HeroNavDesktop = ({ content }: HeroNavProps) => {
             to={{ opacity: 1, y: 0, filter: "blur(0px)" }}
             delayIn={220}
             config={NAV_REVEAL}
-            className={`flex items-center px-[32px] py-[12px] ${PILL}`}
+            className={`o-flex o-items-center hl-px-32px hl-py-12px ${PILL}`}
           >
-            <ul className="flex items-center gap-[32px] font-mulish text-[16px] leading-[1.2] font-normal text-foreground">
+            <ul className="o-flex o-items-center hl-gap-32px hl-font-mulish hl-text-16px hl-leading-1-2 o-font-normal hl-text-foreground">
               {content.links.map((link) => (
                 <Hover
                   tag="li"
@@ -110,7 +108,7 @@ const HeroNavDesktop = ({ content }: HeroNavProps) => {
                   <button
                     type="button"
                     onClick={() => scrollToSection(link.target)}
-                    className="whitespace-nowrap"
+                    className="o-whitespace-nowrap"
                   >
                     {link.label}
                   </button>
@@ -132,15 +130,15 @@ const HeroNavDesktop = ({ content }: HeroNavProps) => {
               <button
                 type="button"
                 onClick={() => scrollToSection(content.ctaTarget)}
-                className="flex items-center gap-[8px] rounded-[50px] px-[28px] py-[12px]"
+                className="o-flex o-items-center hl-gap-8px hl-rounded-50px hl-px-28px hl-py-12px"
                 style={{ backgroundImage: "var(--gradient-hero-cta)" }}
               >
-                <span className="font-mulish text-[16px] leading-[1.2] font-normal whitespace-nowrap text-foreground">
+                <span className="hl-font-mulish hl-text-16px hl-leading-1-2 o-font-normal o-whitespace-nowrap hl-text-foreground">
                   {content.ctaLabel}
                 </span>
                 <span
                   aria-hidden="true"
-                  className="size-[3px] shrink-0 rounded-full bg-foreground"
+                  className="hl-size-3px o-shrink-0 o-rounded-full hl-bg-foreground"
                 />
               </button>
             </Hover>
@@ -173,7 +171,7 @@ const HeroNavMobile = ({ content }: HeroNavProps) => {
   return (
     <nav
       aria-label="Navigation principale"
-      className="fixed inset-x-0 top-0 z-[120] px-[16px] pt-[16px]"
+      className="o-fixed o-inset-x-0 o-top-0 hl-z-120 hl-px-16px hl-pt-16px"
     >
       <Spring
         tag="div"
@@ -182,17 +180,17 @@ const HeroNavMobile = ({ content }: HeroNavProps) => {
         to={{ opacity: 1, y: 0, filter: "blur(0px)" }}
         delayIn={120}
         config={NAV_REVEAL}
-        className="relative flex items-center justify-between"
+        className="o-relative o-flex o-items-center o-justify-between"
       >
         {/* Logo pill. */}
         <button
           type="button"
           onClick={() => go(screens.HERO)}
           aria-label={content.wordmark}
-          className={`flex h-[44px] items-center px-[20px] ${PILL}`}
+          className={`o-flex hl-h-44px o-items-center hl-px-20px ${PILL}`}
         >
-          <LogoMark className="size-[18px] text-accent-500" />
-          <span className="ml-[8px] font-mulish text-[17px] leading-none font-normal lowercase tracking-[0.01em] text-accent-500">
+          <LogoMark className="hl-size-18px hl-text-accent-500" />
+          <span className="hl-ml-8px hl-font-mulish hl-text-17px hl-leading-none o-font-normal o-lowercase hl-tracking-0-01em hl-text-accent-500">
             {content.wordmark}
           </span>
         </button>
@@ -203,11 +201,11 @@ const HeroNavMobile = ({ content }: HeroNavProps) => {
           onClick={() => setOpen((v) => !v)}
           aria-label={open ? "Fermer le menu" : "Ouvrir le menu"}
           aria-expanded={open}
-          className={`relative flex size-[44px] items-center justify-center ${PILL} !rounded-full`}
+          className={`o-relative o-flex hl-size-44px o-items-center o-justify-center ${PILL} o-rounded-full`}
         >
-          <span className="relative block size-[18px]">
+          <span className="o-relative o-block hl-size-18px">
             <animated.span
-              className="absolute left-0 block h-[1.5px] w-full rounded-full bg-foreground"
+              className="o-absolute o-left-0 o-block hl-h-1-5px o-w-full o-rounded-full hl-bg-foreground"
               style={{
                 top: 4,
                 transformOrigin: "center",
@@ -217,11 +215,11 @@ const HeroNavMobile = ({ content }: HeroNavProps) => {
               }}
             />
             <animated.span
-              className="absolute top-1/2 left-0 block h-[1.5px] w-full -translate-y-1/2 rounded-full bg-foreground"
+              className="o-absolute o-top-1/2 o-left-0 o-block hl-h-1-5px o-w-full hl-translate-y-1-2 o-rounded-full hl-bg-foreground"
               style={{ opacity: t.t.to((v) => 1 - v) }}
             />
             <animated.span
-              className="absolute left-0 block h-[1.5px] w-full rounded-full bg-foreground"
+              className="o-absolute o-left-0 o-block hl-h-1-5px o-w-full o-rounded-full hl-bg-foreground"
               style={{
                 bottom: 4,
                 transformOrigin: "center",
@@ -240,14 +238,14 @@ const HeroNavMobile = ({ content }: HeroNavProps) => {
               opacity: sheet.opacity,
               transform: sheet.y.to((v) => `translateY(${v}px)`),
             }}
-            className={`absolute top-[calc(100%+10px)] right-0 flex w-[220px] flex-col gap-[6px] p-[10px] ${PILL} !rounded-[24px]`}
+            className={`o-absolute hl-top-calc-100-+10px o-right-0 o-flex hl-w-220px o-flex-col hl-gap-6px hl-p-10px ${PILL} hl-!rounded-24px`}
           >
             {content.links.map((link) => (
               <button
                 key={link.label}
                 type="button"
                 onClick={() => go(link.target)}
-                className="rounded-[16px] px-[16px] py-[12px] text-left font-mulish text-[16px] leading-none font-normal text-foreground active:bg-foreground/10"
+                className="hl-rounded-16px hl-px-16px hl-py-12px o-text-left hl-font-mulish hl-text-16px hl-leading-none o-font-normal hl-text-foreground hl-active-bg-foreground-10"
               >
                 {link.label}
               </button>
@@ -255,15 +253,15 @@ const HeroNavMobile = ({ content }: HeroNavProps) => {
             <button
               type="button"
               onClick={() => go(content.ctaTarget)}
-              className="mt-[2px] flex items-center justify-center gap-[8px] rounded-[50px] px-[20px] py-[13px]"
+              className="hl-mt-2px o-flex o-items-center o-justify-center hl-gap-8px hl-rounded-50px hl-px-20px hl-py-13px"
               style={{ backgroundImage: "var(--gradient-hero-cta)" }}
             >
-              <span className="font-mulish text-[16px] leading-none font-normal whitespace-nowrap text-foreground">
+              <span className="hl-font-mulish hl-text-16px hl-leading-none o-font-normal o-whitespace-nowrap hl-text-foreground">
                 {content.ctaLabel}
               </span>
               <span
                 aria-hidden="true"
-                className="size-[3px] shrink-0 rounded-full bg-foreground"
+                className="hl-size-3px o-shrink-0 o-rounded-full hl-bg-foreground"
               />
             </button>
           </animated.div>

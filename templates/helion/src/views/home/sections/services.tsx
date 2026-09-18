@@ -1,5 +1,3 @@
-"use client";
-
 import { useEffect, useState } from "react";
 import { animated } from "@react-spring/web";
 
@@ -62,23 +60,23 @@ const Feature = ({ item, top, align, rule, enabled, delayIn }: FeatureProps) => 
     style={{ top }}
     className={
       align === "left"
-        ? "absolute left-[50px] w-[400px]"
-        : "absolute left-[990px] w-[400px]"
+        ? "o-absolute hl-left-50px hl-w-400px"
+        : "o-absolute hl-left-990px hl-w-400px"
     }
   >
     <div
-      className={`flex flex-col gap-[12px] ${align === "right" ? "items-end text-right" : "items-start text-left"}`}
+      className={`o-flex o-flex-col hl-gap-12px ${align === "right" ? "o-items-end o-text-right" : "o-items-start o-text-left"}`}
     >
-      <p className="font-mulish text-[32px] leading-none font-light text-foreground">
+      <p className="hl-font-mulish hl-text-32px hl-leading-none o-font-light hl-text-foreground">
         {item.title}
       </p>
-      <p className="font-mulish text-[16px] leading-[1.2] font-normal text-foreground">
+      <p className="hl-font-mulish hl-text-16px hl-leading-1-2 o-font-normal hl-text-foreground">
         {item.caption}
       </p>
     </div>
     <div
       aria-hidden="true"
-      className="mt-[16px] h-px w-full"
+      className="hl-mt-16px o-h-px o-w-full"
       style={{ backgroundImage: `var(${rule})` }}
     />
   </Spring>
@@ -108,7 +106,7 @@ export const Services = ({ content }: ServicesProps) => {
     <section
       id="sitemap"
       aria-labelledby="services-heading"
-      className="relative h-svh w-full"
+      className="o-relative o-h-svh o-w-full"
     >
       {/* Pinned to the viewport: the composition fades in place rather than
           scrolling away. `pointer-events` follow the active slide. */}
@@ -117,24 +115,24 @@ export const Services = ({ content }: ServicesProps) => {
           opacity: fade.opacity,
           pointerEvents: active === screens.SITEMAP ? "auto" : "none",
         }}
-        className="fixed inset-0 overflow-hidden"
+        className="o-fixed o-inset-0 o-overflow-hidden"
       >
         {isMobile ? (
-          <div className="flex h-full w-full flex-col items-center justify-center gap-[24px] px-[24px] pt-[96px] pb-[32px]">
+          <div className="o-flex o-h-full o-w-full o-flex-col o-items-center o-justify-center hl-gap-24px hl-px-24px hl-pt-96px hl-pb-32px">
             <AnimatedHeading
               tag="h2"
               id="services-heading"
               enabled={revealed}
               baseDelay={120}
               stagger={34}
-              className="m-0 w-full text-center font-mulish text-[clamp(24px,6.4vw,44px)] leading-[1.06] font-light"
+              className="o-m-0 o-w-full o-text-center hl-font-mulish hl-text-clamp-24px-6-4vw-44px hl-leading-1-06 o-font-light"
               lines={[
                 { text: content.titleTop, opaque: "left" },
                 { text: content.titleBottom, opaque: "right" },
               ]}
             />
 
-            <div className="flex w-full max-w-[420px] flex-col gap-[18px]">
+            <div className="o-flex o-w-full hl-max-w-420px o-flex-col hl-gap-18px">
               {mobileFeatures(content).map((item, i) => (
                 <Spring
                   key={item.title}
@@ -145,17 +143,17 @@ export const Services = ({ content }: ServicesProps) => {
                   to={{ opacity: 1, y: 0, filter: "blur(0px)" }}
                   delayIn={220 + i * 80}
                   config={REVEAL}
-                  className="flex flex-col gap-[4px]"
+                  className="o-flex o-flex-col hl-gap-4px"
                 >
-                  <p className="font-mulish text-[22px] leading-none font-light text-foreground">
+                  <p className="hl-font-mulish hl-text-22px hl-leading-none o-font-light hl-text-foreground">
                     {item.title}
                   </p>
-                  <p className="font-mulish text-[15px] leading-[1.3] font-normal text-foreground/80">
+                  <p className="hl-font-mulish hl-text-15px hl-leading-1-3 o-font-normal hl-text-foreground-80">
                     {item.caption}
                   </p>
                   <div
                     aria-hidden="true"
-                    className="mt-[10px] h-px w-full"
+                    className="hl-mt-10px o-h-px o-w-full"
                     style={{ backgroundImage: "var(--gradient-service-rule)" }}
                   />
                 </Spring>
@@ -165,14 +163,14 @@ export const Services = ({ content }: ServicesProps) => {
             <AnimatedText
               enabled={revealed}
               delayIn={620}
-              className="m-0 max-w-[420px] font-mulish text-[14px] leading-[1.4] font-normal text-foreground/85"
+              className="o-m-0 hl-max-w-420px hl-font-mulish hl-text-14px hl-leading-1-4 o-font-normal hl-text-foreground-85"
             >
               {content.footnote}
             </AnimatedText>
           </div>
         ) : (
           <div
-            className="absolute top-1/2 left-1/2 h-[800px] w-[1440px]"
+            className="o-absolute o-top-1/2 o-left-1/2 hl-h-800px hl-w-1440px"
             style={{ transform: `translate(-50%, -50%) scale(${scale})` }}
           >
             {/* Masthead — per-letter cascade from the bright ends. */}
@@ -181,7 +179,7 @@ export const Services = ({ content }: ServicesProps) => {
               id="services-heading"
               enabled={revealed}
               baseDelay={120}
-              className="absolute top-[100px] left-[389px] m-0 w-[663px] text-center font-mulish text-[56px] leading-none font-light"
+              className="o-absolute hl-top-100px hl-left-389px o-m-0 hl-w-663px o-text-center hl-font-mulish hl-text-56px hl-leading-none o-font-light"
               lines={[
                 { text: content.titleTop, opaque: "left" },
                 { text: content.titleBottom, opaque: "right" },
@@ -216,7 +214,7 @@ export const Services = ({ content }: ServicesProps) => {
             <AnimatedText
               enabled={revealed}
               delayIn={520}
-              className="absolute top-[712px] left-[509px] m-0 w-[423px] text-center font-mulish text-[16px] leading-[1.2] font-normal text-foreground"
+              className="o-absolute hl-top-712px hl-left-509px o-m-0 hl-w-423px o-text-center hl-font-mulish hl-text-16px hl-leading-1-2 o-font-normal hl-text-foreground"
             >
               {content.footnote}
             </AnimatedText>

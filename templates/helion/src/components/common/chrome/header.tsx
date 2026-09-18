@@ -1,5 +1,3 @@
-"use client";
-
 import { useRef } from "react";
 
 import { LogoMark } from "@/components/ui/logo-mark";
@@ -27,7 +25,7 @@ import type { HeaderContent } from "@/data/mocks/home";
 
 /** CSS `ease` — the SCSS default on every hover transition. */
 const EASE = cubicBezier(0.25, 0.1, 0.25, 1);
-/** CSS `ease-in` — the `--nav` reveal's transform curve. */
+/** CSS `o-ease-in` — the `--nav` reveal's transform curve. */
 const EASE_IN = cubicBezier(0.42, 0, 1, 1);
 /** The burger bars' `cubic-bezier(.4,0,.2,1)` morph curve. */
 const EASE_BURGER = cubicBezier(0.4, 0, 0.2, 1);
@@ -65,18 +63,18 @@ export const Header = ({ content }: HeaderProps) => {
       from={{ opacity: 0 }}
       to={{ opacity: 1 }}
       config={{ duration: 1000 }}
-      className="fixed top-0 left-0 z-[120] w-full pt-[calc(2.8125rem+env(safe-area-inset-top,0px))] max-pad-sm:pt-[calc(1.875rem+env(safe-area-inset-top,0px))] max-menu:pt-[calc(1.375rem+env(safe-area-inset-top,0px))] max-hero-xs:pt-[calc(1.125rem+env(safe-area-inset-top,0px))]"
+      className="o-fixed o-top-0 o-left-0 hl-z-120 o-w-full hl-pt-calc-2-8125rem+env-safe-area-inset-top-0px hl-max-pad-sm-pt-calc-1-875rem+env-safe-area-inset-top-0px hl-max-menu-pt-calc-1-375rem+env-safe-area-inset-top-0px hl-max-hero-xs-pt-calc-1-125rem+env-safe-area-inset-top-0px"
     >
-      <div className="page-gutter flex w-full items-center justify-between">
+      <div className="page-gutter o-flex o-w-full o-items-center o-justify-between">
         {/* Logo — scrolls back to the top rather than navigating, so a real
             <button>, not a link. */}
         <button
           type="button"
           onClick={() => scrollToSection(screens.HERO)}
-          className="flex items-center"
+          className="o-flex o-items-center"
         >
-          <LogoMark className="size-7 max-menu:size-[2.125rem] max-hero-xs:size-[1.875rem]" />
-          <span className="ml-[0.875rem] font-sans text-base leading-none font-semibold tracking-[0.3em] text-foreground uppercase max-menu:text-[1.0625rem] max-menu:tracking-[0.34em] max-hero-xs:ml-3 max-hero-xs:text-[0.9375rem] max-hero-xs:tracking-[0.32em]">
+          <LogoMark className="o-size-7 hl-max-menu-size-2-125rem hl-max-hero-xs-size-1-875rem" />
+          <span className="hl-ml-0-875rem o-font-sans o-text-base hl-leading-none o-font-semibold hl-tracking-0-3em hl-text-foreground o-uppercase hl-max-menu-text-1-0625rem hl-max-menu-tracking-0-34em hl-max-hero-xs-ml-3 hl-max-hero-xs-text-0-9375rem hl-max-hero-xs-tracking-0-32em">
             {content.wordmark}
           </span>
         </button>
@@ -84,7 +82,7 @@ export const Header = ({ content }: HeaderProps) => {
         {/* Primary nav — hidden below the burger breakpoint. */}
         <nav
           aria-label={content.navLabel}
-          className="flex grow items-center justify-between px-[5.125rem] max-[1151px]:px-10 max-pad-sm:px-[1.875rem] max-menu:hidden"
+          className="o-flex o-grow o-items-center o-justify-between hl-px-5-125rem hl-max-1151px--px-10 hl-max-pad-sm-px-1-875rem hl-max-menu-hidden"
         >
           <Spring
             tag="div"
@@ -97,7 +95,7 @@ export const Header = ({ content }: HeaderProps) => {
               ref={navRef}
               type="button"
               onClick={() => scrollToSection(screens.SITEMAP)}
-              className="font-lato text-base leading-[1.19] font-bold whitespace-nowrap text-foreground"
+              className="hl-font-lato o-text-base hl-leading-1-19 o-font-bold o-whitespace-nowrap hl-text-foreground"
             >
               <Hover
                 tag="span"
@@ -105,7 +103,7 @@ export const Header = ({ content }: HeaderProps) => {
                 from={{ y: 0, opacity: 1 }}
                 to={{ y: -4, opacity: 0.5 }}
                 config={HOVER}
-                className="inline-block"
+                className="o-inline-block"
               >
                 {content.navLabel}
               </Hover>
@@ -120,7 +118,7 @@ export const Header = ({ content }: HeaderProps) => {
           from={{ y: 0 }}
           to={{ y: -1 }}
           config={HOVER}
-          className="relative inline-flex items-center gap-[0.625rem] rounded-full border border-accent-500/45 bg-accent-500/6 px-[1.375rem] py-[0.6875rem] font-sans text-[0.6875rem]/none font-semibold tracking-[0.22em] whitespace-nowrap text-foreground uppercase shadow-cta max-menu:hidden"
+          className="o-relative o-inline-flex o-items-center hl-gap-0-625rem o-rounded-full o-border-w-1 hl-border-accent-500-45 hl-bg-accent-500-6 hl-px-1-375rem hl-py-0-6875rem o-font-sans hl-text-0-6875rem-none o-font-semibold hl-tracking-0-22em o-whitespace-nowrap hl-text-foreground o-uppercase hl-shadow-cta hl-max-menu-hidden"
         >
           <Hover
             tag="span"
@@ -129,9 +127,9 @@ export const Header = ({ content }: HeaderProps) => {
             to={{ opacity: 1 }}
             config={HOVER}
             aria-hidden="true"
-            className="pointer-events-none absolute inset-0 rounded-full border border-accent-500 bg-accent-500/14 shadow-cta-hover"
+            className="o-pointer-events-none o-absolute o-inset-0 o-rounded-full o-border-w-1 hl-border-accent-500 hl-bg-accent-500-14 hl-shadow-cta-hover"
           />
-          <span className="relative">{content.ctaLabel}</span>
+          <span className="o-relative">{content.ctaLabel}</span>
           <Hover
             tag="span"
             trigger={ctaRef}
@@ -139,7 +137,7 @@ export const Header = ({ content }: HeaderProps) => {
             to={{ x: 4, y: -1 }}
             config={HOVER}
             aria-hidden="true"
-            className="relative text-[0.875rem] text-accent-300"
+            className="o-relative hl-text-0-875rem hl-text-accent-300"
           >
             →
           </Hover>
@@ -152,7 +150,7 @@ export const Header = ({ content }: HeaderProps) => {
           aria-label={isMenuOpen ? "Close menu" : "Open menu"}
           aria-expanded={isMenuOpen}
           onClick={() => setIsMenuOpen(!isMenuOpen)}
-          className="relative hidden size-11 shrink-0 rounded-full border border-accent-500/35 bg-accent-500/6 shadow-cta max-menu:block max-hero-xs:size-10"
+          className="o-relative o-hidden o-size-11 o-shrink-0 o-rounded-full o-border-w-1 hl-border-accent-500-35 hl-bg-accent-500-6 hl-shadow-cta hl-max-menu-block hl-max-hero-xs-size-10"
         >
           {/* Hover brighten + blurred halo. */}
           <Hover
@@ -162,7 +160,7 @@ export const Header = ({ content }: HeaderProps) => {
             to={{ opacity: 1 }}
             config={HOVER}
             aria-hidden="true"
-            className="pointer-events-none absolute inset-0 rounded-full border border-accent-500/85 bg-accent-500/12"
+            className="o-pointer-events-none o-absolute o-inset-0 o-rounded-full o-border-w-1 hl-border-accent-500-85 hl-bg-accent-500-12"
           />
           <Hover
             tag="span"
@@ -171,7 +169,7 @@ export const Header = ({ content }: HeaderProps) => {
             to={{ opacity: 1 }}
             config={GLOW}
             aria-hidden="true"
-            className="pointer-events-none absolute inset-[-1px] -z-10 rounded-full bg-[image:var(--gradient-burger-glow)] blur-[4px]"
+            className="o-pointer-events-none o-absolute hl-inset-1px hl-z-10 o-rounded-full hl-bg-image-var-gradient-burger-glow hl-blur-4px"
           />
           {/* Open-state brighten (the SCSS `--menu-active` pill tint). */}
           <Spring
@@ -181,10 +179,10 @@ export const Header = ({ content }: HeaderProps) => {
             to={{ opacity: 1 }}
             config={BURGER}
             aria-hidden="true"
-            className="pointer-events-none absolute inset-0 rounded-full border border-accent-500/85 bg-accent-500/14"
+            className="o-pointer-events-none o-absolute o-inset-0 o-rounded-full o-border-w-1 hl-border-accent-500-85 hl-bg-accent-500-14"
           />
 
-          {/* Three bars. Each is centred on the pill (`left-1/2` + margin for x,
+          {/* Three bars. Each is centred on the pill (`o-left-1/2` + margin for x,
               a −0.75px y nudge for vertical centring) and springs to the X. */}
           <Spring
             tag="span"
@@ -193,7 +191,7 @@ export const Header = ({ content }: HeaderProps) => {
             to={{ y: -0.75, rotate: -45 }}
             config={BURGER}
             aria-hidden="true"
-            className="absolute top-1/2 left-1/2 -ml-[0.5625rem] block h-[1.5px] w-[1.125rem] rounded-[2px] bg-accent-300 max-hero-xs:-ml-[0.5rem] max-hero-xs:w-[1rem]"
+            className="o-absolute o-top-1/2 o-left-1/2 hl-ml-0-5625rem o-block hl-h-1-5px hl-w-1-125rem hl-rounded-2px hl-bg-accent-300 hl-max-hero-xs--ml-0-5rem hl-max-hero-xs-w-1rem"
           >
             <Spring
               tag="span"
@@ -201,7 +199,7 @@ export const Header = ({ content }: HeaderProps) => {
               from={{ opacity: 0 }}
               to={{ opacity: 1 }}
               config={BURGER}
-              className="absolute inset-0 rounded-[2px] bg-foreground"
+              className="o-absolute o-inset-0 hl-rounded-2px hl-bg-foreground"
             />
           </Spring>
           <Spring
@@ -211,7 +209,7 @@ export const Header = ({ content }: HeaderProps) => {
             to={{ y: -0.75, scaleX: 0, opacity: 0 }}
             config={BURGER}
             aria-hidden="true"
-            className="absolute top-1/2 left-1/2 -ml-[0.375rem] block h-[1.5px] w-[0.75rem] rounded-[2px] bg-accent-300 max-hero-xs:-ml-[0.3125rem] max-hero-xs:w-[0.625rem]"
+            className="o-absolute o-top-1/2 o-left-1/2 hl-ml-0-375rem o-block hl-h-1-5px hl-w-0-75rem hl-rounded-2px hl-bg-accent-300 hl-max-hero-xs--ml-0-3125rem hl-max-hero-xs-w-0-625rem"
           />
           <Spring
             tag="span"
@@ -220,7 +218,7 @@ export const Header = ({ content }: HeaderProps) => {
             to={{ y: -0.75, rotate: 45 }}
             config={BURGER}
             aria-hidden="true"
-            className="absolute top-1/2 left-1/2 -ml-[0.5625rem] block h-[1.5px] w-[1.125rem] rounded-[2px] bg-accent-300 max-hero-xs:-ml-[0.5rem] max-hero-xs:w-[1rem]"
+            className="o-absolute o-top-1/2 o-left-1/2 hl-ml-0-5625rem o-block hl-h-1-5px hl-w-1-125rem hl-rounded-2px hl-bg-accent-300 hl-max-hero-xs--ml-0-5rem hl-max-hero-xs-w-1rem"
           >
             <Spring
               tag="span"
@@ -228,7 +226,7 @@ export const Header = ({ content }: HeaderProps) => {
               from={{ opacity: 0 }}
               to={{ opacity: 1 }}
               config={BURGER}
-              className="absolute inset-0 rounded-[2px] bg-foreground"
+              className="o-absolute o-inset-0 hl-rounded-2px hl-bg-foreground"
             />
           </Spring>
         </button>

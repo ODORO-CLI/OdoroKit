@@ -1,3 +1,6 @@
+import { ReducedMotion } from "@/components/common/reduced-motion";
+import { ScrollLayout } from "@/layouts/scroll-layout";
+import { sectionRoutes, type SectionRoute } from "@/lib/scene/screens";
 import { Scene } from "@/components/common/scene/scene";
 import { SectionController } from "@/components/common/sections/section-controller";
 import { SectionDeepLink } from "@/components/common/sections/section-deep-link";
@@ -29,7 +32,7 @@ export interface HomeViewProps {
   section?: string;
 }
 
-export const HomeView = ({ section }: HomeViewProps) => {
+const Vue = ({ section }: HomeViewProps) => {
   return (
     <>
       <Scene />
@@ -38,7 +41,7 @@ export const HomeView = ({ section }: HomeViewProps) => {
 
       <HeroNav content={content.heroNav} />
 
-      <main className="relative w-full">
+      <main className="o-relative o-w-full">
         {/* Each slide's height in viewports is the scroll length its scene morph
             is mapped across, so the vh values are also the transition pacing: the
             galaxy→burst morph runs over the hero's scroll, burst→maelstrom over the
@@ -61,7 +64,7 @@ export const HomeView = ({ section }: HomeViewProps) => {
           id={screens.ROADMAP}
           vh={3.2}
           sticky={false}
-          className="mt-75 max-hero-md:mt-50 max-hero-xs:mt-35"
+          className="hl-mt-75 hl-max-hero-md-mt-50 hl-max-hero-xs-mt-35"
         >
           <Timeline content={content.timeline} />
         </Slide>
@@ -69,7 +72,7 @@ export const HomeView = ({ section }: HomeViewProps) => {
         <Slide
           id={screens.IMPACT}
           vh={2.4}
-          className="mt-24 max-hero-md:mt-16 max-hero-xs:mt-12"
+          className="o-mt-24 hl-max-hero-md-mt-16 hl-max-hero-xs-mt-12"
         >
           <LogoParticles content={content.logoScene} />
         </Slide>
@@ -77,3 +80,25 @@ export const HomeView = ({ section }: HomeViewProps) => {
     </>
   );
 };
+
+
+/**
+ * La racine de l application.
+ *
+ * Ce que l autre cadre posait dans son `layout` vit ici : il n y a plus de
+ * layout. Le segment d adresse, lui, ne changeait pas de page — il ancrait la
+ * meme vue sur une de ses sections. Il se lit donc une fois, au chargement.
+ */
+export function App() {
+  const segment =
+    typeof window === "undefined" ? "" : window.location.pathname.replace(/^\/+|\/+$/g, "");
+  const section =
+    segment in sectionRoutes ? sectionRoutes[segment as SectionRoute] : undefined;
+
+  return (
+    <ScrollLayout>
+      <ReducedMotion />
+      <Vue section={section} />
+    </ScrollLayout>
+  );
+}

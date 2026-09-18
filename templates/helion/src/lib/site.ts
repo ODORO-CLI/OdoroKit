@@ -7,8 +7,6 @@
  * ODORO's domain name and social handles are NOT decided yet (cadrage §11) — the
  * `url` fallback and the handle below are holding values, not a promise.
  */
-import { publicEnv } from "@/env";
-
 export const siteConfig = {
   name: "ODORO",
   /**
@@ -23,7 +21,7 @@ export const siteConfig = {
    * Public origin, no trailing slash. Drives canonical URLs, OG tags, the
    * sitemap, and JSON-LD. Set `NEXT_PUBLIC_SITE_URL` in production.
    */
-  url: publicEnv.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
+  url: import.meta.env.ODORO_SITE_URL ?? "http://localhost:3000",
   /** Default Open Graph / Twitter share image (path under `public/`). */
   ogImage: "/open-graph.png",
   /** Holding value — no handle exists yet. */

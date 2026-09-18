@@ -20,8 +20,6 @@
  * @param {Tags} tag - HTML tag to use for container
  */
 
-"use client";
-
 import { CSSProperties, forwardRef, useImperativeHandle, useRef } from "react";
 import { SpringConfig, config } from "@react-spring/web";
 import { Tags } from "@/types/springs";

@@ -24,8 +24,6 @@
  * @param {boolean} immediateOut - Whether to skip exit animation
  */
 
-"use client";
-
 import { animated, useSpring } from "@react-spring/web";
 import {
   CSSProperties,

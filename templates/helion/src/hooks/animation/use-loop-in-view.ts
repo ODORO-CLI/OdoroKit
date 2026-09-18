@@ -1,5 +1,3 @@
-"use client";
-
 /**
  * Custom hook that manages a render loop based on element visibility
  *

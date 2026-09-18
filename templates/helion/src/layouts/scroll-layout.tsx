@@ -1,8 +1,5 @@
-"use client";
-
 import { useEffect, useRef, useState } from "react";
 import Lenis from "lenis";
-import { usePathname } from "next/navigation";
 import { useScroll } from "@/hooks/smooth-scroll/use-scroll";
 import { scrollTo } from "@/utils/scroll-to";
 import { useShallow } from "zustand/react/shallow";
@@ -28,7 +25,14 @@ function ScrollController() {
   const [lenis, setLenis] = useScroll(
     useShallow((state) => [state.lenis, state.setLenis]),
   );
-  const pathname = usePathname();
+  /*
+   * Le site tient en une page : le chemin ne change qu au chargement, et la
+   * seule chose qu on en lise est l ancre qui le suit.
+   */
+  const pathname =
+    typeof window === "undefined"
+      ? ""
+      : window.location.pathname + window.location.hash;
   const savedPathname = useRef("");
 
   useEffect(() => {

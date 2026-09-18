@@ -1,5 +1,3 @@
-"use client";
-
 import { useEffect } from "react";
 import { useSections } from "@/hooks/sections/use-sections";
 import { scrollToSection } from "@/utils/scroll-to-section";

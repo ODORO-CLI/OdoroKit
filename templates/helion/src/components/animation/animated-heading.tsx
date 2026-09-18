@@ -1,5 +1,3 @@
-"use client";
-
 import { animated, useSpring } from "@react-spring/web";
 
 import { easeReveal } from "@/utils/animation/easing";
@@ -64,7 +62,7 @@ const Letter = ({
     <animated.span
       style={{
         ...style,
-        display: "inline-block",
+        display: "o-inline-block",
         whiteSpace: "pre",
         color,
         willChange: "transform, filter, opacity",

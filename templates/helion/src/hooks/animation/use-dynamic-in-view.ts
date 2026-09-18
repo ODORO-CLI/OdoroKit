@@ -1,5 +1,3 @@
-"use client";
-
 /**
  * Custom hook that observes an element's viewport visibility.
  *

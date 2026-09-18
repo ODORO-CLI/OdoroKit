@@ -1,6 +1,4 @@
 // 📖 Docs: obsidian/frontend/components/common.md
-"use client";
-
 import { useEffect } from "react";
 
 import { CookieBanner } from "./CookieBanner";

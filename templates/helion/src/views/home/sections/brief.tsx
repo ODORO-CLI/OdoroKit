@@ -1,5 +1,3 @@
-"use client";
-
 import { animated } from "@react-spring/web";
 import TextEngine from "spring-text-engine";
 
@@ -54,15 +52,15 @@ export const Brief = ({ content }: BriefProps) => {
       /* `static` opts out of the sticky pin the other slides use — Brief's
          stations flow naturally through its 2.5-viewport slide. The inter-slide
          gap lives on the `<Slide>` anchor, not here. */
-      className="relative static flex min-h-screen w-full flex-col items-start pt-[16vh] pb-[6vh] max-hero-xs:pt-[12vh] max-hero-xs:pb-[8vh]"
+      className="o-relative o-static o-flex o-min-h-screen o-w-full o-flex-col o-items-start hl-pt-16vh hl-pb-6vh hl-max-hero-xs-pt-12vh hl-max-hero-xs-pb-8vh"
     >
       <animated.div
         style={fade}
-        className="page-gutter flex w-full max-w-[53rem] flex-col"
+        className="page-gutter o-flex o-w-full hl-max-w-53rem o-flex-col"
       >
         {/* The rail: one hairline down the left of the whole content column.
             Markers sit on it (`li` left edge), content is padded off it. */}
-        <div className="relative w-full border-l border-accent-500/20">
+        <div className="o-relative o-w-full o-border-l hl-border-accent-500-20">
           {/* Chapter label — the head of the rail, above the first station. */}
           <Inview
             tag="p"
@@ -70,28 +68,28 @@ export const Brief = ({ content }: BriefProps) => {
             from={{ opacity: 0, y: 20 }}
             to={{ opacity: 1, y: 0 }}
             config={REVEAL}
-            className="m-0 pl-[3.25rem] font-sans text-[0.6875rem]/none font-medium tracking-[0.34em] text-accent-500/85 uppercase max-md:pl-[2.25rem] max-hero-xs:pl-[1.75rem] max-hero-xs:text-[0.625rem] max-hero-xs:tracking-[0.3em]"
+            className="o-m-0 hl-pl-3-25rem o-font-sans hl-text-0-6875rem-none o-font-medium hl-tracking-0-34em hl-text-accent-500-85 o-uppercase hl-max-md-pl-2-25rem hl-max-hero-xs-pl-1-75rem hl-max-hero-xs-text-0-625rem hl-max-hero-xs-tracking-0-3em"
           >
             {content.chapter}
           </Inview>
 
-          <ol className="mt-[10vh] flex flex-col gap-[34vh] max-md:gap-[26vh]">
+          <ol className="hl-mt-10vh o-flex o-flex-col hl-gap-34vh hl-max-md-gap-26vh">
             {content.phases.map((phase) => {
               const wordCount = phase.heading.split(" ").length;
 
               return (
                 <li
                   key={phase.num}
-                  className="relative pl-[3.25rem] max-md:pl-[2.25rem] max-hero-xs:pl-[1.75rem]"
+                  className="o-relative hl-pl-3-25rem hl-max-md-pl-2-25rem hl-max-hero-xs-pl-1-75rem"
                 >
                   {/* Station marker — a small ringed dot sitting on the rail.
                       Purely decorative, so it leaves the reading order. */}
                   <span
                     aria-hidden="true"
-                    className="absolute top-[3.25rem] left-0 size-[0.4375rem] -translate-x-1/2 rounded-full bg-accent-500/80 ring-1 ring-accent-500/30 max-hero-md:top-[2.5rem] max-hero-xs:top-[2rem]"
+                    className="o-absolute hl-top-3-25rem o-left-0 hl-size-0-4375rem hl-translate-x-1-2 o-rounded-full hl-bg-accent-500-80 hl-ring-1 hl-anneau-accent hl-max-hero-md-top-2-5rem hl-max-hero-xs-top-2rem"
                   />
 
-                  <article className="relative flex flex-col pt-[3rem] max-hero-md:pt-[2.25rem] max-hero-xs:pt-[1.75rem]">
+                  <article className="o-relative o-flex o-flex-col hl-pt-3rem hl-max-hero-md-pt-2-25rem hl-max-hero-xs-pt-1-75rem">
                     {/* Ghosted numeral — a large, low-alpha index sitting behind
                         the kicker. Decorative, hidden from the reading order. */}
                     <Inview
@@ -101,7 +99,7 @@ export const Brief = ({ content }: BriefProps) => {
                       to={{ opacity: 1, y: 0 }}
                       config={REVEAL}
                       aria-hidden="true"
-                      className="pointer-events-none absolute top-0 left-0 block font-lato text-[7rem]/[0.8] font-normal tracking-[-0.02em] text-accent-500/15 select-none max-hero-md:text-[5rem] max-hero-xs:text-[3.5rem]"
+                      className="o-pointer-events-none o-absolute o-top-0 o-left-0 o-block hl-font-lato hl-text-7rem-0-8 o-font-normal hl-tracking-0-02em hl-text-accent-500-15 o-select-none hl-max-hero-md-text-5rem hl-max-hero-xs-text-3-5rem"
                     >
                       {phase.num}
                     </Inview>
@@ -113,7 +111,7 @@ export const Brief = ({ content }: BriefProps) => {
                       to={{ opacity: 1, y: 0 }}
                       delayIn={KICKER_DELAY}
                       config={REVEAL}
-                      className="relative mb-[1.125rem] font-sans text-xs/none font-semibold tracking-[0.34em] text-accent-500 uppercase max-hero-xs:text-[0.6875rem] max-hero-xs:tracking-[0.3em]"
+                      className="o-relative hl-mb-1-125rem o-font-sans hl-text-xs-none o-font-semibold hl-tracking-0-34em hl-text-accent-500 o-uppercase hl-max-hero-xs-text-0-6875rem hl-max-hero-xs-tracking-0-3em"
                     >
                       {phase.kicker}
                     </Inview>
@@ -128,7 +126,7 @@ export const Brief = ({ content }: BriefProps) => {
                       wordStagger={WORD_STAGGER}
                       delayIn={WORD_BASE_DELAY}
                       wordConfig={REVEAL}
-                      className="relative m-0 max-w-full font-lato text-[2.875rem]/[1.18] font-normal tracking-[0.005em] text-balance text-foreground max-hero-md:text-[2rem] max-hero-md:leading-[1.2] max-hero-xs:text-[1.625rem]"
+                      className="o-relative o-m-0 o-max-w-full hl-font-lato hl-text-2-875rem-1-18 o-font-normal hl-tracking-0-005em o-text-balance hl-text-foreground hl-max-hero-md-text-2rem hl-max-hero-md-leading-1-2 hl-max-hero-xs-text-1-625rem"
                     >
                       {phase.heading}
                     </TextEngine>
@@ -140,7 +138,7 @@ export const Brief = ({ content }: BriefProps) => {
                       to={{ opacity: 1, y: 0 }}
                       delayIn={wordCount * WORD_STAGGER + BODY_BASE_DELAY}
                       config={REVEAL}
-                      className="relative mt-[1.5rem] max-w-[54ch] font-sans text-base/[1.7] font-normal text-foreground/72 max-hero-md:text-sm max-hero-xs:text-[0.84375rem] max-hero-xs:leading-[1.65]"
+                      className="o-relative hl-mt-1-5rem hl-max-w-54ch o-font-sans hl-fs-base-17 o-font-normal hl-text-foreground-72 hl-max-hero-md-text-sm hl-max-hero-xs-text-0-84375rem hl-max-hero-xs-leading-1-65"
                     >
                       {phase.body}
                     </Inview>

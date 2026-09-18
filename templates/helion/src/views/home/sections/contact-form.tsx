@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, type FormEvent } from "react";
 
 import { Hover } from "@/components/animation/springs/hover";
@@ -22,14 +20,14 @@ import type { HeroFormContent } from "@/data/mocks/home";
 const HOVER = { tension: 320, friction: 22 } as const;
 
 const FIELD_ROW =
-  "w-[180px] bg-transparent font-mulish text-[16px] leading-[1.2] font-normal text-foreground placeholder:text-foreground/90";
+  "hl-w-180px o-bg-transparent hl-font-mulish hl-text-16px hl-leading-1-2 o-font-normal hl-text-foreground hl-placeholder-text-foreground-90";
 const FIELD_STACK =
-  "w-full rounded-[16px] bg-foreground/[0.06] px-[18px] py-[14px] font-mulish text-[16px] leading-none font-normal text-foreground placeholder:text-foreground/70 focus:bg-foreground/[0.1] focus:outline-none";
+  "o-w-full hl-rounded-16px hl-bg-foreground-0-06 hl-px-18px hl-py-14px hl-font-mulish hl-text-16px hl-leading-none o-font-normal hl-text-foreground hl-placeholder-text-foreground-70 hl-focus-bg-foreground-0-1 focus:o-outline-none";
 
 const PILL_ROW =
-  "rounded-[32px] border border-[color:var(--hero-glass-border)] bg-[var(--hero-glass)] backdrop-blur-[8px]";
+  "hl-rounded-32px o-border-w-1 hl-border-color-var-hero-glass-border hl-bg-var-hero-glass hl-backdrop-blur-8px";
 const PILL_STACK =
-  "rounded-[24px] border border-[color:var(--hero-glass-border)] bg-[var(--hero-glass)] backdrop-blur-[8px]";
+  "hl-rounded-24px o-border-w-1 hl-border-color-var-hero-glass-border hl-bg-var-hero-glass hl-backdrop-blur-8px";
 
 /** What the endpoint receives as the message body — this form has no free text. */
 const WAITLIST_MESSAGE = "Liste d'attente ODORO";
@@ -70,10 +68,10 @@ export const ContactForm = ({ form, layout = "row" }: ContactFormProps) => {
     return (
       <p
         role="status"
-        className={`m-0 flex items-center font-mulish text-[16px] leading-[1.2] font-normal text-foreground ${
+        className={`o-m-0 o-flex o-items-center hl-font-mulish hl-text-16px hl-leading-1-2 o-font-normal hl-text-foreground ${
           row
-            ? `h-[43px] px-[32px] ${PILL_ROW}`
-            : `justify-center px-[18px] py-[16px] text-center ${PILL_STACK}`
+            ? `hl-h-43px hl-px-32px ${PILL_ROW}`
+            : `o-justify-center hl-px-18px hl-py-16px o-text-center ${PILL_STACK}`
         }`}
       >
         {form.done}
@@ -82,14 +80,14 @@ export const ContactForm = ({ form, layout = "row" }: ContactFormProps) => {
   }
 
   return (
-    <div className="relative">
+    <div className="o-relative">
       <form
         onSubmit={onSubmit}
         aria-busy={status === "sending"}
         className={
           row
-            ? `flex items-center gap-[25px] py-[2px] pr-[2px] pl-[32px] ${PILL_ROW}`
-            : `flex flex-col gap-[10px] p-[10px] ${PILL_STACK}`
+            ? `o-flex o-items-center hl-gap-25px hl-py-2px hl-pr-2px hl-pl-32px ${PILL_ROW}`
+            : `o-flex o-flex-col hl-gap-10px hl-p-10px ${PILL_STACK}`
         }
       >
         <input
@@ -115,25 +113,25 @@ export const ContactForm = ({ form, layout = "row" }: ContactFormProps) => {
           from={{ scale: 1 }}
           to={{ scale: 1.03 }}
           config={HOVER}
-          className={row ? "shrink-0" : "w-full"}
+          className={row ? "o-shrink-0" : "o-w-full"}
         >
           <button
             type="submit"
             disabled={status === "sending"}
             className={
               row
-                ? "flex w-full shrink-0 items-center justify-center gap-[8px] rounded-[50px] py-[2px] pr-[28px] pl-[2px] disabled:cursor-progress"
-                : "flex w-full items-center justify-center gap-[10px] rounded-[50px] py-[6px] pr-[24px] pl-[6px] disabled:cursor-progress"
+                ? "o-flex o-w-full o-shrink-0 o-items-center o-justify-center hl-gap-8px hl-rounded-50px hl-py-2px hl-pr-28px hl-pl-2px disabled:o-cursor-progress"
+                : "o-flex o-w-full o-items-center o-justify-center hl-gap-10px hl-rounded-50px hl-py-6px hl-pr-24px hl-pl-6px disabled:o-cursor-progress"
             }
             style={{ backgroundImage: "var(--gradient-hero-cta)" }}
           >
-            <span className="relative block size-[39px] shrink-0">
-              <span className="absolute top-0 left-0 size-[39px] rounded-[50px] bg-foreground" />
+            <span className="o-relative o-block hl-size-39px o-shrink-0">
+              <span className="o-absolute o-top-0 o-left-0 hl-size-39px hl-rounded-50px hl-bg-foreground" />
               <svg
                 viewBox="0 0 24 24"
                 fill="none"
                 aria-hidden="true"
-                className="absolute top-1/2 left-1/2 size-[23px] -translate-x-1/2 -translate-y-1/2"
+                className="o-absolute o-top-1/2 o-left-1/2 hl-size-23px hl-translate-x-1-2 hl-translate-y-1-2"
               >
                 <path
                   d="M9 6l6 6-6 6"
@@ -144,7 +142,7 @@ export const ContactForm = ({ form, layout = "row" }: ContactFormProps) => {
                 />
               </svg>
             </span>
-            <span className="font-mulish text-[16px] leading-[1.2] font-normal whitespace-nowrap text-foreground">
+            <span className="hl-font-mulish hl-text-16px hl-leading-1-2 o-font-normal o-whitespace-nowrap hl-text-foreground">
               {status === "sending" ? form.sending : form.submit}
             </span>
           </button>
@@ -154,10 +152,10 @@ export const ContactForm = ({ form, layout = "row" }: ContactFormProps) => {
       {status === "failed" && (
         <p
           role="alert"
-          className={`m-0 font-mulish text-[14px] leading-[1.3] font-normal text-accent-300 ${
+          className={`o-m-0 hl-font-mulish hl-text-14px hl-leading-1-3 o-font-normal hl-text-accent-300 ${
             row
-              ? "absolute top-full left-[32px] mt-[10px] whitespace-nowrap"
-              : "mt-[10px] px-[10px]"
+              ? "o-absolute o-top-full hl-left-32px hl-mt-10px o-whitespace-nowrap"
+              : "hl-mt-10px hl-px-10px"
           }`}
         >
           {form.failed}

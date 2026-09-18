@@ -1,5 +1,3 @@
-"use client";
-
 import { useEffect, useState } from "react";
 import { animated } from "@react-spring/web";
 
@@ -52,7 +50,7 @@ export const LogoParticles = ({ content }: LogoParticlesProps) => {
     <section
       id="impact"
       aria-label={`${content.titleTop} ${content.titleBottom}`}
-      className="relative h-svh w-full"
+      className="o-relative o-h-svh o-w-full"
     >
       {/* Pinned to the viewport: fades in place. Held hidden until the scene has
           loaded so it never bleeds through the preloader. */}
@@ -61,28 +59,28 @@ export const LogoParticles = ({ content }: LogoParticlesProps) => {
           opacity: isLoaded ? fade.opacity : 0,
           pointerEvents: active === screens.IMPACT ? "auto" : "none",
         }}
-        className="fixed inset-0 overflow-hidden"
+        className="o-fixed o-inset-0 o-overflow-hidden"
       >
         {isMobile ? (
-          <div className="flex h-full w-full flex-col justify-between px-[20px] pt-[100px] pb-[36px]">
+          <div className="o-flex o-h-full o-w-full o-flex-col o-justify-between hl-px-20px hl-pt-100px hl-pb-36px">
             <AnimatedHeading
               tag="h2"
               id="impact-heading"
               enabled={revealed}
               baseDelay={150}
               stagger={34}
-              className="m-0 w-full text-center font-mulish text-[clamp(24px,6.4vw,44px)] leading-[1.06] font-light"
+              className="o-m-0 o-w-full o-text-center hl-font-mulish hl-text-clamp-24px-6-4vw-44px hl-leading-1-06 o-font-light"
               lines={[
                 { text: content.titleTop, opaque: "left" },
                 { text: content.titleBottom, opaque: "right" },
               ]}
             />
 
-            <div className="flex flex-col items-center gap-[18px]">
+            <div className="o-flex o-flex-col o-items-center hl-gap-18px">
               <AnimatedText
                 enabled={revealed}
                 delayIn={520}
-                className="m-0 max-w-[400px] font-mulish text-[15px] leading-[1.35] font-normal text-foreground"
+                className="o-m-0 hl-max-w-400px hl-font-mulish hl-text-15px hl-leading-1-35 o-font-normal hl-text-foreground"
               >
                 {content.subtitle}
               </AnimatedText>
@@ -94,7 +92,7 @@ export const LogoParticles = ({ content }: LogoParticlesProps) => {
                 to={{ opacity: 1, y: 0, filter: "blur(0px)" }}
                 delayIn={720}
                 config={REVEAL}
-                className="w-full max-w-[420px]"
+                className="o-w-full hl-max-w-420px"
               >
                 <ContactForm form={content.form} layout="stack" />
               </Spring>
@@ -102,7 +100,7 @@ export const LogoParticles = ({ content }: LogoParticlesProps) => {
           </div>
         ) : (
           <div
-            className="absolute top-1/2 left-1/2 h-[800px] w-[1440px]"
+            className="o-absolute o-top-1/2 o-left-1/2 hl-h-800px hl-w-1440px"
             style={{ transform: `translate(-50%, -50%) scale(${scale})` }}
           >
             {/* Masthead — per-letter cascade from the bright ends, as in the hero. */}
@@ -111,7 +109,7 @@ export const LogoParticles = ({ content }: LogoParticlesProps) => {
               id="impact-heading"
               enabled={revealed}
               baseDelay={150}
-              className="absolute top-[100px] left-[389px] m-0 w-[663px] text-center font-mulish text-[56px] leading-none font-light"
+              className="o-absolute hl-top-100px hl-left-389px o-m-0 hl-w-663px o-text-center hl-font-mulish hl-text-56px hl-leading-none o-font-light"
               lines={[
                 { text: content.titleTop, opaque: "left" },
                 { text: content.titleBottom, opaque: "right" },
@@ -122,7 +120,7 @@ export const LogoParticles = ({ content }: LogoParticlesProps) => {
             <AnimatedText
               enabled={revealed}
               delayIn={520}
-              className="absolute top-[633px] left-[518px] m-0 w-[405px] font-mulish text-[16px] leading-[1.2] font-normal text-foreground"
+              className="o-absolute hl-top-633px hl-left-518px o-m-0 hl-w-405px hl-font-mulish hl-text-16px hl-leading-1-2 o-font-normal hl-text-foreground"
             >
               {content.subtitle}
             </AnimatedText>
@@ -135,7 +133,7 @@ export const LogoParticles = ({ content }: LogoParticlesProps) => {
               to={{ opacity: 1, y: 0, filter: "blur(0px)" }}
               delayIn={720}
               config={REVEAL}
-              className="absolute top-[703px] left-[409px] w-[623px]"
+              className="o-absolute hl-top-703px hl-left-409px hl-w-623px"
             >
               <ContactForm form={content.form} layout="row" />
             </Spring>

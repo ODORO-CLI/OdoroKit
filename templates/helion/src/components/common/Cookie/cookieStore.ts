@@ -1,6 +1,4 @@
 // 📖 Docs: obsidian/frontend/components/common.md
-"use client";
-
 import { create } from "zustand";
 
 const STORAGE_KEY = "cookie-consent-v1";
