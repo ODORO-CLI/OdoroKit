@@ -297,6 +297,16 @@ const SIMPLES = {
   'backface-hidden': ['backface-visibility: hidden'],
   'self-auto': ['align-self: auto'],
   'object-contain': ['object-fit: contain'],
+  'max-w-none': ['max-width: none'],
+  'max-h-none': ['max-height: none'],
+  'min-w-0': ['min-width: 0'],
+  'min-h-0': ['min-height: 0'],
+  'w-auto': ['width: auto'],
+  'h-auto': ['height: auto'],
+  'w-full': ['width: 100%'],
+  'h-full': ['height: 100%'],
+  'max-w-full': ['max-width: 100%'],
+  'max-h-full': ['max-height: 100%'],
   outline: ['outline-style: solid'],
   'outline-hidden': ['outline: 2px solid transparent', 'outline-offset: 2px'],
   'flex-1': ['flex: 1 1 0%'],
@@ -488,6 +498,57 @@ function declarationsFor(name) {
   // Un utilitaire sans valeur.
   if (SIMPLES[bare] !== undefined) return SIMPLES[bare]
 
+  /*
+   * Les tailles que le gabarit nomme.
+   *
+   * `--spacing-footer-reveal: 85vh` fait exister `h-footer-reveal`,
+   * `mt-footer-reveal`, `translate-y-footer-reveal` — toute la famille des
+   * mesures. `--container-showreel` fait de meme pour les largeurs, et
+   * `--aspect-showreel` pour les rapports. Ce sont des jetons comme les
+   * couleurs, a ceci pres qu ils portent un nom au lieu d un nombre.
+   */
+  for (const [racine, props] of Object.entries(SPACING)) {
+    if (!bare.startsWith(racine + '-')) continue
+    const reste = bare.slice(racine.length + 1)
+    const jeton =
+      THEME.get(`--spacing-${reste}`) ??
+      (racine.startsWith('w') || racine.startsWith('max-w') || racine.startsWith('min-w')
+        ? THEME.get(`--container-${reste}`)
+        : undefined)
+    if (jeton === undefined) continue
+    const valeur = `${negative ? '-' : ''}var(--spacing-${reste})`
+    const nomJeton = THEME.has(`--spacing-${reste}`)
+      ? `--spacing-${reste}`
+      : `--container-${reste}`
+    const ecrit = `${negative ? 'calc(-1 * var(' + nomJeton + '))' : `var(${nomJeton})`}`
+    void valeur
+    return props.map((p) => `${p}: ${ecrit}`)
+  }
+
+  const rapportNomme = /^aspect-([\w-]+)$/.exec(bare)
+  if (rapportNomme !== null && THEME.has(`--aspect-${rapportNomme[1]}`)) {
+    return [`aspect-ratio: var(--aspect-${rapportNomme[1]})`]
+  }
+
+  const remplissage = /^(fill|stroke)-([\w-]+)$/.exec(bare)
+  if (remplissage !== null && THEME.has(`--color-${remplissage[2]}`)) {
+    return [`${remplissage[1]}: var(--color-${remplissage[2]})`]
+  }
+
+  /*
+   * `transition-[color,border-color,translate]` : la liste des proprietes est
+   * ecrite dans le nom. L autre moteur y joint la duree et la courbe par
+   * defaut — sans quoi la transition ne dure rien et ne se voit pas.
+   */
+  const transition = /^transition-\[([^\]]+)\]$/.exec(bare)
+  if (transition !== null) {
+    return [
+      `transition-property: ${transition[1].split(',').map((p) => p.trim()).join(', ')}`,
+      'transition-timing-function: var(--default-transition-timing-function, cubic-bezier(0.4, 0, 0.2, 1))',
+      'transition-duration: var(--default-transition-duration, 150ms)',
+    ]
+  }
+
   // Les transformations chiffrees.
   const rotate = /^rotate-(\d+)$/.exec(bare)
   if (rotate !== null) return [`rotate: ${negative ? '-' : ''}${rotate[1]}deg`]
@@ -505,6 +566,20 @@ function declarationsFor(name) {
     if (valeur !== null) {
       return [`--${prefix}-t${move[1]}: ${negative ? '-' : ''}${valeur}`, 'TRANSLATE']
     }
+    // Une mesure que le gabarit nomme : `translate-y-wordmark-drop`.
+    if (THEME.has(`--spacing-${move[2]}`)) {
+      const ecrit = negative
+        ? `calc(-1 * var(--spacing-${move[2]}))`
+        : `var(--spacing-${move[2]})`
+      return [`--${prefix}-t${move[1]}: ${ecrit}`, 'TRANSLATE']
+    }
+  }
+
+  // `-translate-1/2` deplace des deux cotes a la fois, en fraction de la boite.
+  const moitie = /^translate-(\d+)\/(\d+)$/.exec(bare)
+  if (moitie !== null) {
+    const part = `${negative ? '-' : ''}${String((Number(moitie[1]) / Number(moitie[2])) * 100)}%`
+    return [`--${prefix}-tx: ${part}`, `--${prefix}-ty: ${part}`, 'TRANSLATE']
   }
 
   // Le contour se compte en pixels, pas en quarts de rem.

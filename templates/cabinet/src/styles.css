@@ -1,0 +1,594 @@
+/* ===========================================================================
+   La feuille du projet.
+
+   Les etages de jetons sont ceux de l original, mot pour mot : c est la le
+   design, et il ne bouge pas. Ce qui a change : le bloc qui les liait a un
+   generateur d utilitaires devient des variables ordinaires, les couches
+   sortent de leur couche, et les mesures que l original ecrivait en valeurs
+   arbitraires deviennent des classes `cb-*` portant la meme declaration.
+
+   Ces dernieres sont derivees — pas ecrites a la main — par
+   `scripts/derive-template-classes.mjs`, a partir du bloc de jetons ci-dessous.
+   =========================================================================== */
+
+/* ---------------------------------------------------------------------------
+   LES POLICES
+
+   Deux voix : la Cormorant, serif de titrage a fort contraste, pour tout ce qui
+   parle a la taille du titre — jamais le texte courant — et l Inter Tight pour
+   les libelles, la navigation et la copie.
+
+   L original les liait depuis son `layout`. Le lien est ici, ou la feuille peut
+   le tenir seule. Les deux viennent de Google Fonts, sous licence SIL OFL 1.1.
+   --------------------------------------------------------------------------- */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Inter+Tight:wght@100..900&display=swap');
+
+:root {
+  --font-cormorant: 'Cormorant', Georgia, 'Times New Roman', serif;
+  --font-inter-tight: 'Inter Tight', ui-sans-serif, system-ui, sans-serif;
+}
+
+/* ---------------------------------------------------------------------------
+   TIER 1 — PRIMITIVES  (`--raw-*`)
+   Raw literal values. The only tier allowed to contain a hex/px/ms literal.
+   Never referenced in markup, never bound into @theme. Rename freely.
+   Grammar: --raw-<category>-<name>[-<shade>]
+   See obsidian/frontend/design-system.md → "Token naming convention".
+   --------------------------------------------------------------------------- */
+:root {
+  --raw-color-white: #ffffff;
+  --raw-color-black: #000000;
+
+  /* Cabinet Odoro palette — the GetLayers Style "Wanderlust" re-tinted with
+     the "Noir Vermillion" palette (black / cream #f7eedf / sand #e8c99a /
+     burgundy #8e1617); see getlayers.json. One warm cream ink on a warm
+     near-black, one sand section, one burgundy accent that is rationed. */
+  --raw-color-neutral-950: #0a0908; /* warm near-black ground; dock + contact-button glass */
+  --raw-color-neutral-900: #171412; /* glass hover, Expertises panel tint */
+  --raw-color-burgundy-950: #23080a; /* footer ground under the photograph; the star's final colour */
+  --raw-color-burgundy-600: #8e1617; /* THE accent: marks, rules, the reviews' muted ink */
+  --raw-color-sand-300: #e8c99a; /* client-stories surface (palette secondary) */
+  --raw-color-sand-400: #d9b785; /* portrait placeholder */
+  --raw-color-cream-100: #f7eedf; /* the single ink on dark */
+  --raw-color-ink-900: #1a1410; /* copy on sand */
+
+  --raw-duration-fast: 200ms; /* icon hovers — 0.2s in the source */
+  --raw-duration-normal: 350ms; /* buttons, dock, links — 0.3–0.35s */
+  --raw-duration-slow: 600ms; /* showreel grayscale → colour */
+
+  /* Type scale — the source's clamp() sizes evaluated at 1440, as rem on the
+     1440 grid base (px / 16). `-tablet` is the 1024 base, `-phone` the 360 one. */
+  --raw-font-size-display: 11.875rem; /* 190px — hero words, Expertises, stats, preloader count */
+  --raw-font-size-display-tablet: 8.9375rem; /* 14vw on the 1024 base */
+  --raw-font-size-display-phone: 3.75rem; /* 60px */
+  --raw-font-size-display-panel: 7.5rem; /* 120px — "Expertises" must hold one line in the half panel */
+  --raw-font-size-stat-phone: 2.25rem; /* 36px — phone stats sit above the dock */
+  --raw-font-size-headline: 2.5rem; /* 40px — quote, footer CTA, zoom title (2.8vw) */
+  --raw-font-size-headline-phone: 1.625rem; /* 26px */
+  --raw-font-size-title: 2rem; /* 32px — panel labels, details title, preloader label (2.2vw) */
+  --raw-font-size-title-phone: 1.25rem; /* 20px */
+  --raw-font-size-lead: 1.125rem; /* 18px — author name, footer links (1.2vw) */
+  --raw-font-size-body: 1rem; /* 16px — descriptions, stat labels (1.1vw) */
+  --raw-font-size-body-phone: 0.875rem; /* 14px */
+  --raw-font-size-caption: 0.8125rem; /* 13px — tracked-out caps labels (0.85vw) */
+  --raw-font-size-badge: 0.6875rem; /* 11px — PLAY cursor badge */
+  --raw-font-size-quote-mark: 10rem; /* 160px */
+  --raw-font-size-quote-mark-phone: 5rem; /* 80px — the full mark leaves a void on a phone */
+  --raw-font-size-wordmark: 30vw; /* footer "Odoro" — one word, fills the width by design */
+  --raw-font-size-wordmark-phone: 34vw;
+
+  --raw-leading-hero: 0.9; /* display words — never clipped, so under the 1.1 floor */
+  --raw-leading-wordmark: 0.75; /* the wordmark sits on the footer's bottom edge */
+  --raw-leading-heading: 1.15;
+  --raw-leading-copy: 1.5;
+
+  --raw-tracking-display: -0.02em; /* Cormorant: looser than a grotesk */
+  --raw-tracking-title: -0.01em;
+  --raw-tracking-copy: -0.01em;
+  --raw-tracking-caps: 0.22em;
+  --raw-tracking-caps-wide: 0.25em;
+
+  /* Scene geometry — viewport-relative in the source, kept that way. */
+  --raw-size-showreel: 65vw; /* showreel frame before it zooms */
+  --raw-ratio-showreel: 65 / 37;
+  --raw-size-overlay-lead: 48vw; /* zoom-title column */
+  --raw-size-overlay-aside: 22vw; /* address column */
+  /* The star is laid out huge and scaled DOWN to its resting size, so its
+     final, screen-filling state is rasterised crisp rather than upsampled. */
+  --raw-size-star: 156.25rem; /* 2500px */
+  /* The fixed footer's height IS the scroll it takes to reveal it: the spacer
+     after the reviews and the footer read the same token, so they cannot drift. */
+  --raw-size-footer-reveal: 85vh;
+  --raw-size-wordmark-drop: calc(9vw - 12.5rem); /* seats the wordmark on the bottom edge */
+}
+
+/* ---------------------------------------------------------------------------
+   TIER 2 — SEMANTIC  (role names, no namespace prefix)
+   Purpose, not appearance. Always `var(--raw-*)` — never a literal.
+   This is the themeable layer. The site is single-theme by design — a dark
+   cinematic scene with one sand section — so there is no prefers-color-scheme
+   override; add one here, never in @theme, if that changes.
+   Grammar: --<role>[-<variant>][-<state>]
+   --------------------------------------------------------------------------- */
+:root {
+  --background: var(--raw-color-neutral-950);
+  --background-media: var(--raw-color-black);
+  --foreground: var(--raw-color-cream-100);
+  --accent: var(--raw-color-burgundy-600);
+  --accent-glow: var(--raw-color-sand-300);
+  --surface-glass: var(--raw-color-neutral-950);
+  --surface-glass-raised: var(--raw-color-neutral-900);
+  --surface-footer: var(--raw-color-burgundy-950);
+  --surface-warp: var(--raw-color-burgundy-950);
+  --surface-inverse: var(--raw-color-sand-300);
+  --surface-inverse-sunken: var(--raw-color-sand-400);
+  --foreground-inverse: var(--raw-color-ink-900);
+  --foreground-inverse-muted: var(--raw-color-burgundy-600);
+
+  --duration-fast: var(--raw-duration-fast);
+  --duration-normal: var(--raw-duration-normal);
+  --duration-slow: var(--raw-duration-slow);
+
+  --font-size-display: var(--raw-font-size-display);
+  --font-size-display-tablet: var(--raw-font-size-display-tablet);
+  --font-size-display-phone: var(--raw-font-size-display-phone);
+  --font-size-display-panel: var(--raw-font-size-display-panel);
+  --font-size-stat-phone: var(--raw-font-size-stat-phone);
+  --font-size-headline: var(--raw-font-size-headline);
+  --font-size-headline-phone: var(--raw-font-size-headline-phone);
+  --font-size-title: var(--raw-font-size-title);
+  --font-size-title-phone: var(--raw-font-size-title-phone);
+  --font-size-lead: var(--raw-font-size-lead);
+  --font-size-body: var(--raw-font-size-body);
+  --font-size-body-phone: var(--raw-font-size-body-phone);
+  --font-size-caption: var(--raw-font-size-caption);
+  --font-size-badge: var(--raw-font-size-badge);
+  --font-size-quote-mark: var(--raw-font-size-quote-mark);
+  --font-size-quote-mark-phone: var(--raw-font-size-quote-mark-phone);
+  --font-size-wordmark: var(--raw-font-size-wordmark);
+  --font-size-wordmark-phone: var(--raw-font-size-wordmark-phone);
+
+  --line-height-hero: var(--raw-leading-hero);
+  --line-height-wordmark: var(--raw-leading-wordmark);
+  --line-height-heading: var(--raw-leading-heading);
+  --line-height-copy: var(--raw-leading-copy);
+
+  --letter-spacing-display: var(--raw-tracking-display);
+  --letter-spacing-title: var(--raw-tracking-title);
+  --letter-spacing-copy: var(--raw-tracking-copy);
+  --letter-spacing-caps: var(--raw-tracking-caps);
+  --letter-spacing-caps-wide: var(--raw-tracking-caps-wide);
+
+  --size-showreel: var(--raw-size-showreel);
+  --ratio-showreel: var(--raw-ratio-showreel);
+  --size-overlay-lead: var(--raw-size-overlay-lead);
+  --size-overlay-aside: var(--raw-size-overlay-aside);
+  --size-star: var(--raw-size-star);
+  --size-footer-reveal: var(--raw-size-footer-reveal);
+  --size-wordmark-drop: var(--raw-size-wordmark-drop);
+}
+
+/* ---------------------------------------------------------------------------
+   LES LIAISONS DE JETONS — elles nommaient les espaces du generateur.
+   Every entry is exactly `--<tw-namespace>-<role>: var(--<role>)`.
+   `inline` is required: it inlines the var() into each utility, so any Tier 2
+   override cascades. Binding a literal here instead would freeze the value.
+
+   Seuls ces espaces produisaient des utilitaires (verifie contre le moteur
+   v4.3.3): --color-* --spacing-* --radius-* --leading-* --tracking-* --text-*
+   --font-* --ease-* --breakpoint-* --container-* --shadow-* --blur-* --animate-*
+   --aspect-*
+   NOTE: there is NO --duration-* namespace in v4 — `duration-fast` compiles to
+   nothing. Durations stay Tier 2 only and are used as duration-[var(--duration-fast)].
+   --------------------------------------------------------------------------- */
+/* ---------------------------------------------------------------------------
+   LES JETONS, EN VARIABLES
+
+   Ils ne sont plus lies a un generateur d utilitaires. Les classes que le
+   balisage emploie sont declarees plus bas, derivees de ce meme bloc.
+   --------------------------------------------------------------------------- */
+:root {
+  --color-background: var(--background);
+  --color-background-media: var(--background-media);
+  --color-foreground: var(--foreground);
+  --color-accent: var(--accent);
+  --color-accent-glow: var(--accent-glow);
+  --color-surface-glass: var(--surface-glass);
+  --color-surface-glass-raised: var(--surface-glass-raised);
+  --color-surface-footer: var(--surface-footer);
+  --color-surface-warp: var(--surface-warp);
+  --color-surface-inverse: var(--surface-inverse);
+  --color-surface-inverse-sunken: var(--surface-inverse-sunken);
+  --color-foreground-inverse: var(--foreground-inverse);
+  --color-foreground-inverse-muted: var(--foreground-inverse-muted);
+  --font-sans: var(--font-inter-tight);
+  --font-display: var(--font-cormorant);
+
+  --text-display: var(--font-size-display);
+  --text-display-tablet: var(--font-size-display-tablet);
+  --text-display-phone: var(--font-size-display-phone);
+  --text-display-panel: var(--font-size-display-panel);
+  --text-stat-phone: var(--font-size-stat-phone);
+  --text-headline: var(--font-size-headline);
+  --text-headline-phone: var(--font-size-headline-phone);
+  --text-title: var(--font-size-title);
+  --text-title-phone: var(--font-size-title-phone);
+  --text-lead: var(--font-size-lead);
+  --text-body: var(--font-size-body);
+  --text-body-phone: var(--font-size-body-phone);
+  --text-caption: var(--font-size-caption);
+  --text-badge: var(--font-size-badge);
+  --text-quote-mark: var(--font-size-quote-mark);
+  --text-quote-mark-phone: var(--font-size-quote-mark-phone);
+  --text-wordmark: var(--font-size-wordmark);
+  --text-wordmark-phone: var(--font-size-wordmark-phone);
+
+  /* Leading floor for clipped TextEngine reveals — see
+     obsidian/frontend/text-engine.md → "Alignment & line-height". */
+  --leading-display: 1.1;
+  --leading-hero: var(--line-height-hero);
+  --leading-wordmark: var(--line-height-wordmark);
+  --leading-heading: var(--line-height-heading);
+  --leading-copy: var(--line-height-copy);
+
+  --tracking-display: var(--letter-spacing-display);
+  --tracking-title: var(--letter-spacing-title);
+  --tracking-copy: var(--letter-spacing-copy);
+  --tracking-caps: var(--letter-spacing-caps);
+  --tracking-caps-wide: var(--letter-spacing-caps-wide);
+
+  --ease-entrance: cubic-bezier(0.2, 0, 0, 1);
+  /* The source's hover curve (easeOutQuart) — buttons, dock, showreel. */
+  --ease-glide: cubic-bezier(0.25, 1, 0.5, 1);
+
+  --container-showreel: var(--size-showreel);
+  --container-overlay-lead: var(--size-overlay-lead);
+  --container-overlay-aside: var(--size-overlay-aside);
+  --container-star: var(--size-star);
+  --aspect-showreel: var(--ratio-showreel);
+  --spacing-footer-reveal: var(--size-footer-reveal);
+  --spacing-wordmark-drop: var(--size-wordmark-drop);
+}
+
+
+/* Adaptive scaling grid — scales the root font-size with the viewport so a
+   rem-based layout stays proportional. Each band divides FONT_BASE (16px) by
+   the design base width its range was laid out at:
+     font-size: 16 * 100 / baseWidth  (vw)
+   The design is authored at 1440, so there is no 1920 band: above 1440 the
+   AdaptiveGrid component takes over (damped scale-up).
+   Keep in sync with src/components/common/grid/grid.config.ts. */
+html {
+  font-size: 16px;
+}
+
+@media (max-width: 1440px) {
+  html {
+    font-size: 1.111111vw; /* 16 * 100 / 1440 */
+  }
+}
+
+@media (max-width: 1024px) {
+  html {
+    font-size: 1.5625vw; /* 16 * 100 / 1024 */
+  }
+}
+
+@media (max-width: 640px) {
+  html {
+    font-size: 4.444444vw; /* 16 * 100 / 360 */
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  overflow-x: clip;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ============================================================================
+   CE QUE LA REMISE A ZERO DE L AUTRE MOTEUR FOURNISSAIT
+
+   Le gabarit a ete ecrit au-dessus d une remise a zero qui n est pas la notre,
+   et il comptait dessus sans le dire — c est la nature meme d une remise a
+   zero. Les regles ci-dessous sont la difference exacte entre les deux,
+   relevee en comparant les styles calcules d un jeu d elements dans les deux
+   pages, et non devinee.
+
+   Sans elles, la premiere chose qu on voit est que **tous les liens
+   redeviennent bleus et soulignes** : le navigateur reprend la main sur une
+   ancre dont personne ne dit plus rien.
+
+   Ce bloc appartient au gabarit, pas au systeme. Ajouter ces regles a la
+   remise a zero d `@odoro-cli/libs` changerait le rendu de tout projet deja
+   livre, pour le confort d un portage.
+   ========================================================================== */
+
+a {
+  color: inherit;
+  text-decoration: inherit;
+}
+
+button,
+input,
+optgroup,
+select,
+textarea {
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  letter-spacing: inherit;
+  background-color: transparent;
+  border-radius: 0;
+}
+
+button,
+[type='button'],
+[type='reset'],
+[type='submit'] {
+  appearance: button;
+}
+
+/* La couleur de filet par defaut suit l encre, au lieu d un gris fixe : c est
+   ce qui rend `border` seul utilisable sans dire de quelle couleur. */
+*,
+::before,
+::after {
+  border-color: currentColor;
+}
+
+/* Une image posee dans une ligne de texte s aligne sur le milieu, pas sur la
+   ligne de base : sans cela elle laisse sous elle le jambage d une lettre. */
+img,
+svg,
+video,
+canvas,
+audio,
+iframe,
+embed,
+object {
+  vertical-align: middle;
+}
+
+/* Notre socle borne les `svg` a la largeur de leur parent ; celui d origine
+   non. Un sigle dessine plus large que sa boite s en trouvait retreci. */
+svg {
+  max-width: none;
+}
+
+hr {
+  height: 0;
+  margin: 0;
+  color: inherit;
+  border-top-width: 1px;
+}
+
+/* Notre socle donne la main au survol d un bouton ; celui d origine laissait la
+   fleche, comme le fait le navigateur seul. C est visible a chaque survol. */
+button,
+[role='button'] {
+  cursor: default;
+}
+
+/* Une image qui porte ses dimensions en attributs — `width="11" height="11"` —
+   et dont le CSS ne contraint que la largeur gardait chez nous sa hauteur
+   declaree, au lieu de la deduire du rapport. Les quatre crochets du hero de
+   `parfum` faisaient 8x11 au lieu de 8x8.
+
+   Le socle d origine posait `height: auto` ; le notre s en tient a la largeur.
+   Les utilitaires de hauteur sont ecrits apres cette feuille et l emportent
+   toujours. */
+img,
+video {
+  max-width: 100%;
+  height: auto;
+}
+
+
+/* ============================================================================
+   LES CLASSES QUE LE GENERATEUR NE PRODUIT PAS
+
+   Chaque selecteur repete sa classe : les utilitaires du systeme sont ecrits
+   **apres** cette feuille dans le paquet final, et a specificite egale c est le
+   dernier qui gagne.
+   ========================================================================== */
+
+
+.cb--mb-3-5.cb--mb-3-5 { margin-bottom: -0.875rem; }
+.cb--translate-y-1-2.cb--translate-y-1-2 { --cb-ty: -50%; translate: var(--cb-tx, 0) var(--cb-ty, 0); }
+.cb-aspect-3-4.cb-aspect-3-4 { aspect-ratio: 3 / 4; }
+.cb-bg-background.cb-bg-background { background-color: var(--background); }
+.cb-bg-background-95.cb-bg-background-95 { background-color: color-mix(in srgb, var(--background) 95%, transparent); }
+.cb-bg-black-40.cb-bg-black-40 { background-color: color-mix(in srgb, #000 40%, transparent); }
+.cb-bg-foreground.cb-bg-foreground { background-color: var(--foreground); }
+.cb-bg-foreground-12.cb-bg-foreground-12 { background-color: color-mix(in srgb, var(--foreground) 12%, transparent); }
+.cb-bg-foreground-15.cb-bg-foreground-15 { background-color: color-mix(in srgb, var(--foreground) 15%, transparent); }
+.cb-bg-foreground-18.cb-bg-foreground-18 { background-color: color-mix(in srgb, var(--foreground) 18%, transparent); }
+.cb-bg-surface-footer.cb-bg-surface-footer { background-color: var(--surface-footer); }
+.cb-bg-surface-footer-20.cb-bg-surface-footer-20 { background-color: color-mix(in srgb, var(--surface-footer) 20%, transparent); }
+.cb-bg-surface-glass-raised-45.cb-bg-surface-glass-raised-45 { background-color: color-mix(in srgb, var(--surface-glass-raised) 45%, transparent); }
+.cb-bg-surface-glass-75.cb-bg-surface-glass-75 { background-color: color-mix(in srgb, var(--surface-glass) 75%, transparent); }
+.cb-bg-surface-glass-85.cb-bg-surface-glass-85 { background-color: color-mix(in srgb, var(--surface-glass) 85%, transparent); }
+.cb-bg-surface-inverse.cb-bg-surface-inverse { background-color: var(--surface-inverse); }
+.cb-bg-surface-inverse-sunken.cb-bg-surface-inverse-sunken { background-color: var(--surface-inverse-sunken); }
+.cb-border-foreground-inverse-muted-20.cb-border-foreground-inverse-muted-20 { border-color: color-mix(in srgb, var(--foreground-inverse-muted) 20%, transparent); }
+.cb-border-foreground-inverse-18.cb-border-foreground-inverse-18 { border-color: color-mix(in srgb, var(--foreground-inverse) 18%, transparent); }
+.cb-border-foreground-10.cb-border-foreground-10 { border-color: color-mix(in srgb, var(--foreground) 10%, transparent); }
+.cb-border-foreground-15.cb-border-foreground-15 { border-color: color-mix(in srgb, var(--foreground) 15%, transparent); }
+.cb-border-foreground-22.cb-border-foreground-22 { border-color: color-mix(in srgb, var(--foreground) 22%, transparent); }
+.cb-border-foreground-25.cb-border-foreground-25 { border-color: color-mix(in srgb, var(--foreground) 25%, transparent); }
+.cb-border-foreground-30.cb-border-foreground-30 { border-color: color-mix(in srgb, var(--foreground) 30%, transparent); }
+.cb-border-foreground-8.cb-border-foreground-8 { border-color: color-mix(in srgb, var(--foreground) 8%, transparent); }
+.cb-duration-var-duration-fast.cb-duration-var-duration-fast { transition-duration: var(--duration-fast); }
+.cb-duration-var-duration-normal.cb-duration-var-duration-normal { transition-duration: var(--duration-normal); }
+.cb-duration-var-duration-slow.cb-duration-var-duration-slow { transition-duration: var(--duration-slow); }
+.cb-ease-glide.cb-ease-glide { transition-timing-function: cubic-bezier(0.25, 1, 0.5, 1); }
+.cb-focus-visible-outline-1.cb-focus-visible-outline-1:focus-visible { outline-width: 1px; outline-style: solid; }
+.cb-focus-visible-outline-2.cb-focus-visible-outline-2:focus-visible { outline-width: 2px; outline-style: solid; }
+.cb-focus-visible-outline-foreground.cb-focus-visible-outline-foreground:focus-visible { outline-color: var(--foreground); }
+.cb-focus-visible-outline-foreground-inverse.cb-focus-visible-outline-foreground-inverse:focus-visible { outline-color: var(--foreground-inverse); }
+.cb-focus-visible-outline-offset-2.cb-focus-visible-outline-offset-2:focus-visible { outline-offset: 2px; }
+.cb-focus-visible-outline-offset-4.cb-focus-visible-outline-offset-4:focus-visible { outline-offset: 4px; }
+.cb-font-display.cb-font-display { font-family: var(--font-cormorant); }
+.group:hover .cb-group-hover-rotate-90.cb-group-hover-rotate-90 { rotate: 90deg; }
+.group:hover .cb-group-hover-translate-x-0-5.cb-group-hover-translate-x-0-5 { --cb-tx: 0.125rem; translate: var(--cb-tx, 0) var(--cb-ty, 0); }
+.group:hover .cb-group-hover-translate-y-0-5.cb-group-hover-translate-y-0-5 { --cb-ty: 0.125rem; translate: var(--cb-tx, 0) var(--cb-ty, 0); }
+.cb-h-0-9em.cb-h-0-9em { height: 0.9em; }
+.cb-h-18px.cb-h-18px { height: 18px; }
+.cb-h-dvh.cb-h-dvh { height: 100dvh; }
+.cb-hover-translate-y-0-5.cb-hover-translate-y-0-5:hover { --cb-ty: -0.125rem; translate: var(--cb-tx, 0) var(--cb-ty, 0); }
+.cb-hover-bg-foreground-inverse-muted-5.cb-hover-bg-foreground-inverse-muted-5:hover { background-color: color-mix(in srgb, var(--foreground-inverse-muted) 5%, transparent); }
+.cb-hover-bg-foreground-5.cb-hover-bg-foreground-5:hover { background-color: color-mix(in srgb, var(--foreground) 5%, transparent); }
+.cb-hover-bg-surface-glass-raised-95.cb-hover-bg-surface-glass-raised-95:hover { background-color: color-mix(in srgb, var(--surface-glass-raised) 95%, transparent); }
+.cb-hover-border-foreground-inverse.cb-hover-border-foreground-inverse:hover { border-color: var(--foreground-inverse); }
+.cb-hover-border-foreground-22.cb-hover-border-foreground-22:hover { border-color: color-mix(in srgb, var(--foreground) 22%, transparent); }
+.cb-hover-border-foreground-85.cb-hover-border-foreground-85:hover { border-color: color-mix(in srgb, var(--foreground) 85%, transparent); }
+.cb-hover-text-foreground-70.cb-hover-text-foreground-70:hover { color: color-mix(in srgb, var(--foreground) 70%, transparent); }
+.cb-hover-text-foreground-85.cb-hover-text-foreground-85:hover { color: color-mix(in srgb, var(--foreground) 85%, transparent); }
+.cb-inset-x-10.cb-inset-x-10 { left: 2.5rem; right: 2.5rem; }
+.cb-inset-x-8.cb-inset-x-8 { left: 2rem; right: 2rem; }
+.cb-last-border-r.cb-last-border-r:last-child { border-right-width: 1px; }
+.cb-leading-0-5.cb-leading-0-5 { line-height: 0.5; }
+.cb-leading-copy.cb-leading-copy { line-height: var(--line-height-copy); }
+.cb-leading-display.cb-leading-display { line-height: 1.1; }
+.cb-leading-heading.cb-leading-heading { line-height: var(--line-height-heading); }
+.cb-leading-hero.cb-leading-hero { line-height: var(--line-height-hero); }
+.cb-leading-none.cb-leading-none { line-height: 1; }
+.cb-leading-wordmark.cb-leading-wordmark { line-height: var(--line-height-wordmark); }
+.cb-left-3px.cb-left-3px { left: 3px; }
+.cb-max-h-calc-100dvh-1-5rem.cb-max-h-calc-100dvh-1-5rem { max-height: calc(100dvh - 1.5rem); }
+.cb-max-w-560px.cb-max-w-560px { max-width: 560px; }
+.cb-max-w-85.cb-max-w-85 { max-width: 85%; }
+.cb-mt-0-12em.cb-mt-0-12em { margin-top: 0.12em; }
+.cb-rounded-10px.cb-rounded-10px { border-radius: 10px; }
+.cb-shadow.cb-shadow { box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1); }
+.cb-size-4-5.cb-size-4-5 { width: 1.125rem; height: 1.125rem; }
+.cb-size-5-5.cb-size-5-5 { width: 1.375rem; height: 1.375rem; }
+.cb-size-6-5.cb-size-6-5 { width: 1.625rem; height: 1.625rem; }
+.cb-text-0-35em.cb-text-0-35em { font-size: 0.35em; }
+.cb-text-background.cb-text-background { color: var(--background); }
+.cb-text-badge.cb-text-badge { font-size: var(--font-size-badge); }
+.cb-text-body.cb-text-body { font-size: var(--font-size-body); }
+.cb-text-body-phone.cb-text-body-phone { font-size: var(--font-size-body-phone); }
+.cb-text-caption.cb-text-caption { font-size: var(--font-size-caption); }
+.cb-text-display-phone.cb-text-display-phone { font-size: var(--font-size-display-phone); }
+.cb-text-foreground.cb-text-foreground { color: var(--foreground); }
+.cb-text-foreground-inverse.cb-text-foreground-inverse { color: var(--foreground-inverse); }
+.cb-text-foreground-inverse-muted.cb-text-foreground-inverse-muted { color: var(--foreground-inverse-muted); }
+.cb-text-foreground-inverse-70.cb-text-foreground-inverse-70 { color: color-mix(in srgb, var(--foreground-inverse) 70%, transparent); }
+.cb-text-foreground-45.cb-text-foreground-45 { color: color-mix(in srgb, var(--foreground) 45%, transparent); }
+.cb-text-foreground-60.cb-text-foreground-60 { color: color-mix(in srgb, var(--foreground) 60%, transparent); }
+.cb-text-foreground-70.cb-text-foreground-70 { color: color-mix(in srgb, var(--foreground) 70%, transparent); }
+.cb-text-foreground-95.cb-text-foreground-95 { color: color-mix(in srgb, var(--foreground) 95%, transparent); }
+.cb-text-headline-phone.cb-text-headline-phone { font-size: var(--font-size-headline-phone); }
+.cb-text-lead.cb-text-lead { font-size: var(--font-size-lead); }
+.cb-text-quote-mark-phone.cb-text-quote-mark-phone { font-size: var(--font-size-quote-mark-phone); }
+.cb-text-stat-phone.cb-text-stat-phone { font-size: var(--font-size-stat-phone); }
+.cb-text-title-phone.cb-text-title-phone { font-size: var(--font-size-title-phone); }
+.cb-text-wordmark-phone.cb-text-wordmark-phone { font-size: var(--font-size-wordmark-phone); }
+.cb-top-3px.cb-top-3px { top: 3px; }
+.cb-tracking-caps.cb-tracking-caps { letter-spacing: var(--letter-spacing-caps); }
+.cb-tracking-caps-wide.cb-tracking-caps-wide { letter-spacing: var(--letter-spacing-caps-wide); }
+.cb-tracking-copy.cb-tracking-copy { letter-spacing: var(--letter-spacing-copy); }
+.cb-tracking-display.cb-tracking-display { letter-spacing: var(--letter-spacing-display); }
+.cb-tracking-title.cb-tracking-title { letter-spacing: var(--letter-spacing-title); }
+.cb-w-90.cb-w-90 { width: 22.5rem; }
+.cb-w-18px.cb-w-18px { width: 18px; }
+.cb-w-calc-100vw-1-5rem.cb-w-calc-100vw-1-5rem { width: calc(100vw - 1.5rem); }
+.cb-z-1.cb-z-1 { z-index: 1; }
+.cb-z-100.cb-z-100 { z-index: 100; }
+.cb-z-110.cb-z-110 { z-index: 110; }
+.cb-z-15.cb-z-15 { z-index: 15; }
+.cb-z-2.cb-z-2 { z-index: 2; }
+.cb-z-200.cb-z-200 { z-index: 200; }
+.cb-z-22.cb-z-22 { z-index: 22; }
+.cb-z-25.cb-z-25 { z-index: 25; }
+.cb-z-45.cb-z-45 { z-index: 45; }
+.cb-z-5.cb-z-5 { z-index: 5; }
+.cb-z-100.cb-z-100 { z-index: 100; }
+
+@media (min-width: 640px) {
+  .cb-sm-text-body.cb-sm-text-body { font-size: var(--font-size-body); }
+  .cb-sm-text-display-panel.cb-sm-text-display-panel { font-size: var(--font-size-display-panel); }
+  .cb-sm-text-display-tablet.cb-sm-text-display-tablet { font-size: var(--font-size-display-tablet); }
+  .cb-sm-text-headline.cb-sm-text-headline { font-size: var(--font-size-headline); }
+  .cb-sm-text-title.cb-sm-text-title { font-size: var(--font-size-title); }
+  .cb-sm-w-420px.cb-sm-w-420px { width: 420px; }
+}
+
+@media (min-width: 768px) {
+  .cb-md-translate-x-5.cb-md-translate-x-5 { --cb-tx: -1.25rem; translate: var(--cb-tx, 0) var(--cb-ty, 0); }
+  .cb-md-translate-y-17-5.cb-md-translate-y-17-5 { --cb-ty: -4.375rem; translate: var(--cb-tx, 0) var(--cb-ty, 0); }
+  .cb-md-translate-y-40.cb-md-translate-y-40 { --cb-ty: -10rem; translate: var(--cb-tx, 0) var(--cb-ty, 0); }
+  .cb-md-gap-4-5.cb-md-gap-4-5 { gap: 1.125rem; }
+  .cb-md-grid-cols-12-5rem-1fr.cb-md-grid-cols-12-5rem-1fr { grid-template-columns: 12.5rem 1fr; }
+  .cb-md-h-dvh.cb-md-h-dvh { height: 100dvh; }
+  .cb-md-inset-x-8.cb-md-inset-x-8 { left: 2rem; right: 2rem; }
+  .cb-md-max-w-126.cb-md-max-w-126 { max-width: 31.5rem; }
+  .cb-md-text-display-tablet.cb-md-text-display-tablet { font-size: var(--font-size-display-tablet); }
+  .cb-md-text-quote-mark.cb-md-text-quote-mark { font-size: var(--font-size-quote-mark); }
+  .cb-md-text-wordmark.cb-md-text-wordmark { font-size: var(--font-size-wordmark); }
+  .cb-md-translate-y-10.cb-md-translate-y-10 { --cb-ty: 2.5rem; translate: var(--cb-tx, 0) var(--cb-ty, 0); }
+  .cb-md-translate-y-18.cb-md-translate-y-18 { --cb-ty: 4.5rem; translate: var(--cb-tx, 0) var(--cb-ty, 0); }
+}
+
+@media (min-width: 1024px) {
+  .cb-lg-grid-cols-23-75rem-1fr.cb-lg-grid-cols-23-75rem-1fr { grid-template-columns: 23.75rem 1fr; }
+  .cb-lg-text-display.cb-lg-text-display { font-size: var(--font-size-display); }
+}
+
+@media (max-width: 767.98px) {
+  .cb-max-md-bottom-28.cb-max-md-bottom-28 { bottom: 7rem; }
+  .cb-max-md-bottom-32.cb-max-md-bottom-32 { bottom: 8rem; }
+  .cb-max-md-bottom-52.cb-max-md-bottom-52 { bottom: 13rem; }
+  .cb-max-md-inset-x-6.cb-max-md-inset-x-6 { left: 1.5rem; right: 1.5rem; }
+  .cb-max-md-max-w-60.cb-max-md-max-w-60 { max-width: 15rem; }
+  .cb-max-md-max-w-42.cb-max-md-max-w-42 { max-width: 42%; }
+  .cb-max-md-top-36.cb-max-md-top-36 { top: 9rem; }
+}
+
+@media (max-width: 639.98px) {
+  .cb-max-sm-w-70.cb-max-sm-w-70 { width: 17.5rem; }
+}
+
+.cb--translate-1-2.cb--translate-1-2 { --cb-tx: -50%; --cb-ty: -50%; translate: var(--cb-tx, 0) var(--cb-ty, 0); }
+.cb-aspect-showreel.cb-aspect-showreel { aspect-ratio: var(--aspect-showreel); }
+.cb-fill-foreground.cb-fill-foreground { fill: var(--color-foreground); }
+.cb-fill-surface-warp.cb-fill-surface-warp { fill: var(--color-surface-warp); }
+.cb-h-footer-reveal.cb-h-footer-reveal { height: var(--spacing-footer-reveal); }
+.cb-transition-background-color-border-color-translate.cb-transition-background-color-border-color-translate { transition-property: background-color, border-color, translate; transition-timing-function: var(--default-transition-timing-function, cubic-bezier(0.4, 0, 0.2, 1)); transition-duration: var(--default-transition-duration, 150ms); }
+.cb-transition-background-color-border-color.cb-transition-background-color-border-color { transition-property: background-color, border-color; transition-timing-function: var(--default-transition-timing-function, cubic-bezier(0.4, 0, 0.2, 1)); transition-duration: var(--default-transition-duration, 150ms); }
+.cb-transition-color-border-color-translate.cb-transition-color-border-color-translate { transition-property: color, border-color, translate; transition-timing-function: var(--default-transition-timing-function, cubic-bezier(0.4, 0, 0.2, 1)); transition-duration: var(--default-transition-duration, 150ms); }
+.cb-transition-filter.cb-transition-filter { transition-property: filter; transition-timing-function: var(--default-transition-timing-function, cubic-bezier(0.4, 0, 0.2, 1)); transition-duration: var(--default-transition-duration, 150ms); }
+.cb-transition-opacity-translate-background-color-border-color.cb-transition-opacity-translate-background-color-border-color { transition-property: opacity, translate, background-color, border-color; transition-timing-function: var(--default-transition-timing-function, cubic-bezier(0.4, 0, 0.2, 1)); transition-duration: var(--default-transition-duration, 150ms); }
+.cb-transition-opacity-translate.cb-transition-opacity-translate { transition-property: opacity, translate; transition-timing-function: var(--default-transition-timing-function, cubic-bezier(0.4, 0, 0.2, 1)); transition-duration: var(--default-transition-duration, 150ms); }
+.cb-transition-rotate.cb-transition-rotate { transition-property: rotate; transition-timing-function: var(--default-transition-timing-function, cubic-bezier(0.4, 0, 0.2, 1)); transition-duration: var(--default-transition-duration, 150ms); }
+.cb-w-overlay-aside.cb-w-overlay-aside { width: var(--container-overlay-aside); }
+.cb-w-overlay-lead.cb-w-overlay-lead { width: var(--container-overlay-lead); }
+.cb-w-showreel.cb-w-showreel { width: var(--container-showreel); }
+.cb-w-star.cb-w-star { width: var(--container-star); }
+
+@media (min-width: 768px) {
+  .cb-md-h-footer-reveal.cb-md-h-footer-reveal { height: var(--spacing-footer-reveal); }
+  .cb-md-translate-y-wordmark-drop.cb-md-translate-y-wordmark-drop { --cb-ty: var(--spacing-wordmark-drop); translate: var(--cb-tx, 0) var(--cb-ty, 0); }
+}
+
+/* ---------------------------------------------------------------------------
+   UN MASQUE DE BORD
+
+   `mask-b-from-45%` : le bas de la boite fond a partir de 45 % de sa hauteur.
+   Notre generateur ne produit pas cette famille ; la declaration est celle de
+   l autre moteur.
+   --------------------------------------------------------------------------- */
+.cb-mask-b-from-45.cb-mask-b-from-45 {
+  mask-image: linear-gradient(to bottom, black 45%, transparent 100%);
+}
+
+/* Un homonyme rendu au gabarit : notre `o-font-sans` designe notre pile, celui
+   d ici vaut l Inter Tight. */
+.cb-font-sans.cb-font-sans { font-family: var(--font-inter-tight); }
+
+@media (max-width: 767.98px) {
+  .cb-max-md-max-w-none.cb-max-md-max-w-none { max-width: none; }
+}

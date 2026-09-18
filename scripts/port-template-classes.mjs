@@ -400,6 +400,23 @@ function looksLikeClassList(text) {
 
   if (tokens.length >= 3) return tokens.some(revele)
 
+  /*
+   * Un seul mot ne suffit jamais.
+   *
+   * `"glass"` se traduit — nous connaissons `o-glass` — mais c est ici le
+   * membre d un type : `variant?: "plain" | "glass"`. La passe l a reecrit, la
+   * cle `glass` de la table de styles est restee, et le bouton givre du pied de
+   * page allait perdre toutes ses regles.
+   *
+   * Un mot isole n est donc pris pour une classe que s il en a la forme — une
+   * valeur au bout, une variante devant. Une vraie classe solitaire qui passe
+   * au travers ne peint rien et se fait signaler par le controle ; un type
+   * reecrit, lui, ne se signale pas.
+   */
+  if (tokens.length === 1) {
+    return revele(tokens[0]) && (forme(tokens[0]) || portee(tokens[0]))
+  }
+
   if (tokens.some((piece) => FAUX_AMIS?.has(piece) === true)) return false
   return tokens.every(revele)
 }

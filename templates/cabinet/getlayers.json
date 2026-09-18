@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "brief": {
+    "dimensionality": ["depth"],
+    "mood": ["luxe"],
+    "tone": ["dark"],
+    "motionEnergy": ["subtle"],
+    "density": ["sparse", "balanced"]
+  },
+  "styleId": "wanderlust-style",
+  "paletteId": "noir-vermillion",
+  "fontId": "cormorant",
+  "tokens": {
+    "gl-bg": "#0c0c0c",
+    "gl-bg-alt": "#000000",
+    "gl-surface": "#0c0c0c",
+    "gl-surface-raised": "#161616",
+    "gl-sand": "#e8c99a",
+    "gl-sand-ink": "#0c0c0c",
+    "gl-ink": "#f7eedf",
+    "gl-ink-muted": "#cbbf9f",
+    "gl-ink-subtle": "#6d6155",
+    "gl-accent": "#8e1617",
+    "gl-accent-ink": "#f7eedf",
+    "gl-line": "#3a3128",
+    "gl-glow": "#e8c99a",
+    "gl-font-display": "'Cormorant', ui-serif, Georgia, 'Times New Roman', serif",
+    "gl-font-body": "'Inter Tight', ui-sans-serif, system-ui, sans-serif",
+    "gl-radius": "0.25rem",
+    "gl-radius-lg": "0.25rem",
+    "gl-duration-fast": "150ms",
+    "gl-duration": "250ms",
+    "gl-ease": "cubic-bezier(0.2, 0, 0, 1)"
+  },
+  "activeTemplateId": "house",
+  "placed": [
+    { "sectionId": "house/preloader", "slot": 0, "composition": "house-loader (columns wipe, honest odometer gated on frames)" },
+    { "sectionId": "house/hero", "slot": 1, "composition": "house-hero (1400vh pinned track, canvas scrub 0–40%)", "media": "Seedance 2.5 library dolly → public/assets/scene/sequence/{desktop 240, mobile 120}" },
+    { "sectionId": "house/echo-panel", "slot": 2, "composition": "house features-1 (frosted half panel over interior)", "content": "Expertises + 5 practice rows", "media": "Higgsfield gpt_image_2_5 boardroom → interior-echo.webp" },
+    { "sectionId": "house/details-panel", "slot": 3, "composition": "house features-2 (stats corners, star warp, showreel)", "media": "video last frame → interior-details.webp; clip → showreel.mp4 (H.264 720p)" },
+    { "sectionId": "house/reviews", "slot": 4, "composition": "house testimonials on sand (palette secondary)", "media": "2 B&W portraits (gpt_image_2_5)" },
+    { "sectionId": "house/footer", "slot": 5, "composition": "house reveal footer", "media": "video frame 0 (curtain) → footer-bg.webp" }
+  ],
+  "notes": "Cabinet Odoro (test content, invented). Style Wanderlust re-tinted with Noir Vermillion (black / cream #f7eedf / sand #e8c99a / burgundy #8e1617), display re-typed to Cormorant, body kept on Wanderlust's Inter Tight. Template House taken whole (Next 16 tree): its 210-frame canvas scrub is replaced by a Seedance 2.5 1080p 10s library dolly (Higgsfield job 531f1994-f863-4ff7-8942-8563f3714446) re-encoded to WebP frames. Sand section = House's testimonials band, mapped to the palette secondary. The star warp ends on burgundy-950 (--surface-warp), not on the accent; the accent stays rationed to marks and the reviews' muted ink."
+}
