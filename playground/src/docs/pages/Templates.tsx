@@ -33,13 +33,10 @@
  */
 
 import { Icon } from '@odoro-cli/icons'
-import { Github } from '@odoro-cli/icons/brands'
 import {
   ArrowRight,
   ArrowUpRight,
   ChevronLeft,
-  Download,
-  ExternalLink,
   LayoutGrid,
   Search,
   Server,
@@ -58,9 +55,7 @@ import {
   type SyntheticEvent,
 } from 'react'
 
-import { CodeBlock } from '../components/CodeBlock.jsx'
-import { DEPOT, EXPORTS_PROJETS } from '../exports.generated.js'
-import { TEMPLATES, scaffoldCommand, type Template } from '../templates.js'
+import { TEMPLATES, type Template } from '../templates.js'
 import { TEMPLATES as PROJETS, type TemplateEntry } from '../templates.generated.js'
 import {
   SECTEURS,
@@ -351,120 +346,98 @@ function CarteVitrine({
 /**
  * Une carte de projet livré.
  *
- * Ni vitrine ni socle : un site entier, avec sa pile propre, livré dans
- * `templates/`. Il porte donc sa pile et sa licence, que les deux autres
- * familles n'ont pas besoin d'annoncer.
+ * Elle est celle d une vitrine, et c est voulu : dans une grille ou les trois
+ * familles se cotoient, une carte qui se dessine autrement se lit comme une
+ * autre sorte d objet. Toute la carte est un lien, la capture porte ses
+ * pastilles, et le bas porte la pile plutot que le secteur.
  *
- * L'aperçu vit sous `apercus-templates/` et non `templates/` : ce dernier est
- * l'espace de routage des vitrines, et un dossier réel à cette adresse masquait
- * la page d'index derrière un 403 de nginx.
+ * L archive et le depot n y sont plus. Une carte entierement cliquable ne peut
+ * pas contenir d autres liens — deux ancres imbriquees ne sont pas du HTML —
+ * et ces deux sorties vivent dans le bandeau de la page du projet, ou l on
+ * arrive d un clic.
+ *
+ * L aperçu vit sous `apercus-templates/` et non `templates/` : ce dernier est
+ * l espace de routage des vitrines, et un dossier reel a cette adresse masquait
+ * la page d index derriere un 403 de nginx.
  */
-function CarteProjet({ projet }: { readonly projet: TemplateEntry }): ReactElement {
+function CarteProjet({
+  projet,
+  rang,
+}: {
+  readonly projet: TemplateEntry
+  readonly rang: number
+}): ReactElement {
+  const pile = projet.stack.slice(0, 3)
+  const reste = projet.stack.length - pile.length
+  const genre =
+    projet.kind === 'site' ? 'Site' : projet.kind === 'starter' ? 'Socle' : 'Bibliothèque'
+
   return (
-    <article className="o-flex o-flex-col o-overflow-hidden o-rounded-xl o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-bg-white dark:o-bg-zinc-900">
-      {/* La capture et le titre ouvrent le projet, comme ceux d une vitrine.
-          Le reste de la carte — la pile, la commande, les deux sorties —
-          reste hors du lien : on y clique pour autre chose. */}
-      <Link to={`/templates/projet/${projet.name}`} className="o-block">
+    <Link
+      to={`/templates/projet/${projet.name}`}
+      data-o-carte=""
+      aria-label={`${projet.title} — projet livré`}
+      className="tp-carte o-flex o-flex-col o-overflow-hidden o-rounded-2xl o-border-w-1 o-no-underline o-text-zinc-900 dark:o-text-zinc-50 o-transition-colors focus:o-ring"
+    >
+      <div className="o-relative o-h-60 o-overflow-hidden" aria-hidden="true">
         <img
           src={`/apercus-templates/${projet.name}.jpg`}
           alt=""
           loading="lazy"
           decoding="async"
-          className="o-h-44 o-w-full o-object-cover o-transition-opacity hover:o-opacity-90"
-          onError={(e) => {
-            e.currentTarget.style.display = 'none'
+          className="o-h-full o-w-full o-object-cover"
+          onError={(evenement) => {
+            evenement.currentTarget.style.display = 'none'
           }}
         />
-      </Link>
-      <div className="o-flex o-flex-col o-gap-3 o-p-6">
-        <div className="o-flex o-items-baseline o-justify-between o-gap-3">
-          <h3 className="o-m-0 o-text-lg o-font-semibold o-tracking-tight">
-            {/* La couleur est posee, et non heritee : `o-text-inherit`
-                n existe pas dans notre systeme, et le titre prenait le bleu
-                des liens — une carte dont le titre est bleu ne ressemble plus
-                a celle d a cote. */}
-            <Link
-              to={`/templates/projet/${projet.name}`}
-              className="o-no-underline o-text-zinc-950 dark:o-text-zinc-50 hover:o-text-brand-600 dark:hover:o-text-brand-400 o-transition-colors"
-            >
-              {projet.title}
-            </Link>
-          </h3>
-          <span className="o-shrink-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
-            {projet.kind === 'site'
-              ? 'Site'
-              : projet.kind === 'starter'
-                ? 'Socle'
-                : 'Bibliothèque'}
+        {/* Les memes pastilles de verre qu une vitrine, sur ce qui distingue
+            un projet : il se clone, et il porte parfois une scene. */}
+        <span className="o-absolute o-left-3 o-top-3 o-flex o-gap-1.5">
+          <span className="o-rounded-full o-border-w-1 o-border-white-20 o-bg-black-60 o-px-2 o-py-0.5 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-white o-backdrop-blur-md">
+            Projet livré
           </span>
-        </div>
-        <p className="o-m-0 o-text-sm o-text-zinc-600 dark:o-text-zinc-400">
+          {projet.stack.some((x) => /three|webgl|cannon/i.test(x)) && (
+            <span className="o-rounded-full o-border-w-1 o-border-white-20 o-bg-black-60 o-px-2 o-py-0.5 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-white o-backdrop-blur-md">
+              Scène
+            </span>
+          )}
+        </span>
+      </div>
+
+      <div className="o-flex o-flex-1 o-flex-col o-gap-2 o-p-5">
+        <p className="o-m-0 o-flex o-items-center o-justify-between o-gap-3 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">
+          <span>{genre}</span>
+          <span className="o-tabular-nums">{String(rang + 1).padStart(2, '0')}</span>
+        </p>
+        <h3
+          className="o-m-0 o-text-2xl o-font-light o-tracking-tight"
+          style={{ fontFamily: 'var(--o-font-sans)' }}
+        >
+          {projet.title}
+        </h3>
+        <p className="o-m-0 o-text-sm o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400">
           {projet.description}
         </p>
-        <ul className="o-m-0 o-flex o-flex-wrap o-gap-1.5 o-list-none o-p-0">
-          {projet.stack.map((x) => (
-            <li
+        <div className="o-mt-auto o-flex o-flex-wrap o-items-center o-gap-1.5 o-pt-3">
+          <span className="tp-touche o-rounded-full o-border-w-1 o-px-2.5 o-py-0.5 o-text-xs o-text-zinc-600 dark:o-text-zinc-300">
+            {pile[0] ?? 'Odoro'}
+          </span>
+          {pile.slice(1).map((x) => (
+            <span
               key={x}
-              className="o-rounded-md o-bg-zinc-100 dark:o-bg-zinc-800 o-px-2 o-py-1 o-text-xs"
+              className="o-font-mono o-text-xs o-text-zinc-500 dark:o-text-zinc-400"
             >
               {x}
-            </li>
+            </span>
           ))}
-        </ul>
-        <SortiesProjet projet={projet} />
+          {reste > 0 && (
+            <span className="o-font-mono o-text-xs o-text-zinc-500 dark:o-text-zinc-400">
+              +{reste}
+            </span>
+          )}
+        </div>
       </div>
-    </article>
-  )
-}
-
-/** Un poids en octets, tel qu on l annonce. */
-function poids(octets: number): string {
-  if (octets < 1024 * 1024) return `${(octets / 1024).toFixed(0)} ko`
-  return `${(octets / (1024 * 1024)).toFixed(1)} Mo`
-}
-
-/**
- * Les deux sorties d un projet livre : l archive, et le depot.
- *
- * Pas de panneau de code ici, contrairement aux vitrines. Une vitrine est un
- * fichier qu on lit ; un projet livre en compte jusqu a cinq cents, repartis
- * sur sa propre chaine — cela se parcourt sur le depot, pas dans une colonne
- * de trois cents pixels.
- *
- * Pas de commande d installation non plus, ni de licence. La premiere est la
- * meme pour les onze et n apprend rien sur celui qu on regarde ; la seconde
- * tient en deux mots au coin d une carte alors qu elle demande un paragraphe —
- * `CREDITS.md` la dit en entier, gabarit par gabarit, avec ce qu elle autorise
- * et ce qu elle n autorise pas.
- */
-function SortiesProjet({ projet }: { readonly projet: TemplateEntry }): ReactElement {
-  const mesures = EXPORTS_PROJETS[projet.name]
-
-  return (
-    <div className="o-mt-auto o-flex o-flex-wrap o-items-center o-gap-2 o-pt-1">
-      {mesures !== undefined && (
-        <a
-          href={`/exports/projets/${projet.name}.zip`}
-          download={`${projet.name}.zip`}
-          className="o-inline-flex o-items-center o-gap-1.5 o-rounded-lg o-border-w-1 o-border-zinc-300 dark:o-border-zinc-700 o-px-2.5 o-py-1.5 o-text-xs o-font-medium o-no-underline o-text-zinc-700 dark:o-text-zinc-200 hover:o-border-zinc-400 dark:hover:o-border-zinc-600 o-transition-colors"
-        >
-          <Icon icon={Download} size={13} aria-hidden="true" />
-          ZIP
-          <span className="o-font-mono o-opacity-70">{poids(mesures.zip)}</span>
-        </a>
-      )}
-      <a
-        href={`${DEPOT}/tree/main/templates/${projet.name}`}
-        target="_blank"
-        rel="noreferrer"
-        className="o-inline-flex o-items-center o-gap-1.5 o-rounded-lg o-border-w-1 o-border-zinc-300 dark:o-border-zinc-700 o-px-2.5 o-py-1.5 o-text-xs o-font-medium o-no-underline o-text-zinc-700 dark:o-text-zinc-200 hover:o-border-zinc-400 dark:hover:o-border-zinc-600 o-transition-colors"
-      >
-        <Icon icon={Github} size={13} aria-hidden="true" />
-        GitHub
-        <Icon icon={ExternalLink} size={11} aria-hidden="true" className="o-opacity-60" />
-      </a>
-    </div>
+    </Link>
   )
 }
 
@@ -507,15 +480,24 @@ function CarteSocle({ template }: { readonly template: Template }): ReactElement
           </li>
         ))}
       </ul>
-      <div className="o-mt-auto o-min-w-0 o-pt-2">
-        {livre ? (
-          <CodeBlock lang="sh" code={scaffoldCommand(template)} />
-        ) : (
-          <p className="o-m-0 o-text-sm o-italic o-text-zinc-500 dark:o-text-zinc-400">
-            Ce socle n’est pas encore livre — la commande ne fonctionnerait pas.
-          </p>
-        )}
-      </div>
+      {/* La commande d echafaudage n est plus dans la carte : elle est la meme
+          a un mot pres pour les deux socles, et un bloc de code ne ressemble
+          plus aux cartes qui l entourent. Elle reste a un clic — la page du
+          moteur la donne, avec le drapeau que ce socle demande. */}
+      {livre ? (
+        <p className="o-m-0 o-mt-auto o-pt-2 o-text-sm o-text-zinc-500 dark:o-text-zinc-400">
+          Échafaudé par le moteur, avec le drapeau{' '}
+          <code className="o-font-mono o-text-xs">{template.slug}</code> —{' '}
+          <Link to="/docs/engine" className="lien">
+            la commande
+          </Link>
+          .
+        </p>
+      ) : (
+        <p className="o-m-0 o-mt-auto o-pt-2 o-text-sm o-italic o-text-zinc-500 dark:o-text-zinc-400">
+          Ce socle n’est pas encore livre — la commande ne fonctionnerait pas.
+        </p>
+      )}
     </article>
   )
 }
@@ -1013,7 +995,7 @@ export function Templates(): ReactElement {
                     rang={rang}
                   />
                 ) : entree.projet !== undefined ? (
-                  <CarteProjet key={entree.cle} projet={entree.projet} />
+                  <CarteProjet key={entree.cle} projet={entree.projet} rang={rang} />
                 ) : entree.socle !== undefined ? (
                   <CarteSocle key={entree.cle} template={entree.socle} />
                 ) : null,

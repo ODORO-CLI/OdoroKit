@@ -94,7 +94,3 @@ export function availableTemplates(): readonly Template[] {
   return TEMPLATES.filter((t) => t.status === 'disponible')
 }
 
-/** La commande qui echafaude un template. */
-export function scaffoldCommand(template: Template, projet = 'mon-site'): string {
-  return `odoro create ${projet} --template ${template.slug}`
-}
