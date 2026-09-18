@@ -365,10 +365,7 @@ function CarteProjet({ projet }: { readonly projet: TemplateEntry }): ReactEleme
       {/* La capture et le titre ouvrent le projet, comme ceux d une vitrine.
           Le reste de la carte — la pile, la commande, les deux sorties —
           reste hors du lien : on y clique pour autre chose. */}
-      <Link
-        to={`/templates/projet/${projet.name}`}
-        className="o-block o-no-underline o-text-inherit"
-      >
+      <Link to={`/templates/projet/${projet.name}`} className="o-block">
         <img
           src={`/apercus-templates/${projet.name}.jpg`}
           alt=""
@@ -383,9 +380,13 @@ function CarteProjet({ projet }: { readonly projet: TemplateEntry }): ReactEleme
       <div className="o-flex o-flex-col o-gap-3 o-p-6">
         <div className="o-flex o-items-baseline o-justify-between o-gap-3">
           <h3 className="o-m-0 o-text-lg o-font-semibold o-tracking-tight">
+            {/* La couleur est posee, et non heritee : `o-text-inherit`
+                n existe pas dans notre systeme, et le titre prenait le bleu
+                des liens — une carte dont le titre est bleu ne ressemble plus
+                a celle d a cote. */}
             <Link
               to={`/templates/projet/${projet.name}`}
-              className="o-no-underline o-text-inherit hover:o-text-brand-600 dark:hover:o-text-brand-400 o-transition-colors"
+              className="o-no-underline o-text-zinc-950 dark:o-text-zinc-50 hover:o-text-brand-600 dark:hover:o-text-brand-400 o-transition-colors"
             >
               {projet.title}
             </Link>
@@ -411,11 +412,6 @@ function CarteProjet({ projet }: { readonly projet: TemplateEntry }): ReactEleme
             </li>
           ))}
         </ul>
-        {projet.install !== undefined && (
-          <div className="o-mt-auto o-pt-1">
-            <CodeBlock lang="sh" code={projet.install} />
-          </div>
-        )}
         <SortiesProjet projet={projet} />
       </div>
     </article>
@@ -432,9 +428,15 @@ function poids(octets: number): string {
  * Les deux sorties d un projet livre : l archive, et le depot.
  *
  * Pas de panneau de code ici, contrairement aux vitrines. Une vitrine est un
- * fichier qu on lit ; un projet livre en compte jusqu a deux cent soixante-dix,
- * repartis sur sa propre chaine — cela se parcourt sur le depot, pas dans une
- * colonne de trois cents pixels.
+ * fichier qu on lit ; un projet livre en compte jusqu a cinq cents, repartis
+ * sur sa propre chaine — cela se parcourt sur le depot, pas dans une colonne
+ * de trois cents pixels.
+ *
+ * Pas de commande d installation non plus, ni de licence. La premiere est la
+ * meme pour les onze et n apprend rien sur celui qu on regarde ; la seconde
+ * tient en deux mots au coin d une carte alors qu elle demande un paragraphe —
+ * `CREDITS.md` la dit en entier, gabarit par gabarit, avec ce qu elle autorise
+ * et ce qu elle n autorise pas.
  */
 function SortiesProjet({ projet }: { readonly projet: TemplateEntry }): ReactElement {
   const mesures = EXPORTS_PROJETS[projet.name]
@@ -462,9 +464,6 @@ function SortiesProjet({ projet }: { readonly projet: TemplateEntry }): ReactEle
         GitHub
         <Icon icon={ExternalLink} size={11} aria-hidden="true" className="o-opacity-60" />
       </a>
-      <span className="o-ml-auto o-text-xs o-text-zinc-400">
-        Licence {projet.licence}
-      </span>
     </div>
   )
 }
