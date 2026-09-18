@@ -1,0 +1,808 @@
+/* ===========================================================================
+   La feuille du projet.
+
+   Les etages de jetons sont ceux de l original, mot pour mot : c est la le
+   design, et il ne bouge pas. Ce qui a change : le bloc qui les liait a un
+   generateur d utilitaires devient des variables ordinaires, les couches
+   sortent de leur couche, les `@utility` deviennent des classes, et les mesures
+   que l original ecrivait en valeurs arbitraires deviennent des classes `jo-*`
+   portant la meme declaration.
+
+   Ces dernieres sont derivees — pas ecrites a la main — par
+   `scripts/derive-template-classes.mjs`, a partir du bloc de jetons ci-dessous.
+   =========================================================================== */
+
+/* ---------------------------------------------------------------------------
+   LES POLICES
+
+   Deux voix : la Cormorant, serif de titrage a fort contraste, et l Inter Tight
+   pour les libelles, les prix et les paragraphes.
+
+   L original les liait depuis son `layout`, et les posait sur `<html>` et non
+   sur `<body>` : les jetons de typographie sont declares dans `:root`, et une
+   variable definie plus bas ne les atteindrait jamais. Ici elles sont
+   declarees dans `:root` elles aussi, ce qui regle la question.
+
+   Les deux viennent de Google Fonts, sous licence SIL OFL 1.1.
+   --------------------------------------------------------------------------- */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300..700;1,300..700&family=Inter+Tight:wght@100..900&display=swap');
+
+:root {
+  --font-cormorant: 'Cormorant', Georgia, 'Times New Roman', serif;
+  /* La liste de repli est celle d Arial, et non la pile du systeme.
+     L autre cadre construisait une police de repli aux metriques ajustees sur
+     Arial ; c est elle qui dessine le `€` et l espace fine, que l Inter Tight
+     ne couvre pas. Avec la pile du systeme, ces deux signes mesuraient 1,2 px
+     de moins et la ligne se repartissait autrement. */
+  --font-inter-tight: 'Inter Tight', Arial, Helvetica, sans-serif;
+}
+
+/* ---------------------------------------------------------------------------
+   TIER 1 — PRIMITIVES  (`--raw-*`)
+   Raw literal values. The only tier allowed to contain a hex/px/ms literal.
+   Never referenced in markup, never bound into @theme. Rename freely.
+   Grammar: --raw-<category>-<name>[-<shade>]
+   See obsidian/frontend/design-system.md → "Token naming convention".
+
+   ODORO palette — GetLayers `halcyon-palette` applied over the committed
+   `wanderlust-style` (see getlayers.json and ADR-0001 in decisions-log.md):
+     background #03060f · primary #f4ecda · secondary #98958d · accent #ffe49a
+   The champagne of the campaign lives INSIDE the footage and the photographs,
+   never as a surface: on the page, colour is light, not paint.
+   --------------------------------------------------------------------------- */
+:root {
+  /* Ground. A night blue-black, not a designer grey — the footage is a warm
+     champagne and needs a cold, deep ground to glow against. */
+  --raw-color-night-950: #03060f;
+  --raw-color-night-950-alpha-60: rgb(3 6 15 / 0.6);
+  --raw-color-night-950-alpha-40: rgb(3 6 15 / 0.4);
+  --raw-color-night-950-alpha-12: rgb(3 6 15 / 0.12);
+  /* Under the hero footage while it decodes: cinema black. */
+  --raw-color-black: #000000;
+  --raw-color-black-alpha-50: rgb(0 0 0 / 0.5);
+  --raw-color-black-alpha-40: rgb(0 0 0 / 0.4);
+  --raw-color-black-alpha-15: rgb(0 0 0 / 0.15);
+
+  /* The ONE ink — warm cream — at four alphas instead of four greys. */
+  --raw-color-cream-100: #f4ecda;
+  --raw-color-cream-100-alpha-80: rgb(244 236 218 / 0.8);
+  --raw-color-cream-100-alpha-50: rgb(244 236 218 / 0.5);
+  --raw-color-cream-100-alpha-40: rgb(244 236 218 / 0.4);
+  --raw-color-cream-100-alpha-20: rgb(244 236 218 / 0.2);
+  --raw-color-cream-100-alpha-10: rgb(244 236 218 / 0.1);
+  --raw-color-cream-100-alpha-6: rgb(244 236 218 / 0.06);
+
+  /* Silver — the palette's secondary. A warm grey that reads as brushed
+     metal: the muted ink everywhere, and the ONE inverted band's surface. */
+  --raw-color-silver-500: #98958d;
+
+  /* Gold — the palette's accent, rationed to a lamp, a button and a selection. */
+  --raw-color-gold-200: #ffe49a;
+  --raw-color-gold-200-alpha-25: rgb(255 228 154 / 0.25);
+
+  --raw-duration-fast: 150ms;
+  --raw-duration-normal: 250ms;
+  --raw-duration-slow: 700ms;
+
+  --raw-radius-xs: 0.25rem; /* 4px @1440 — the Style's one radius */
+  --raw-radius-pill: 62.5rem;
+
+  /* Type scale — px @1440 ÷ 16. rem (not px) so the adaptive grid keeps the
+     design proportional; at 1440 these equal the design pixel values exactly. */
+  --raw-text-display: 5.625rem; /* 90px — hero lines, preloader count */
+  --raw-text-headline: 3.75rem; /* 60px — section headings */
+  --raw-text-statement: 2.75rem; /* 44px — the manifesto passage */
+  --raw-text-title: 1.75rem; /* 28px — card titles, footer columns */
+  --raw-text-wordmark: 1.5rem; /* 24px */
+  --raw-text-lead: 1.125rem; /* 18px — supporting paragraphs */
+  --raw-text-body: 0.875rem; /* 14px — labels, nav, prices */
+  --raw-text-caption: 0.75rem; /* 12px */
+
+  /* Line-heights are absolute (multiplier × size), not ratios — that is what
+     lets trimmed display type sit flush against the 24px page margin. */
+  --raw-leading-title: 4.5rem; /* 72px  = 90 × 0.8 */
+  --raw-leading-headline: 3.5625rem; /* 57px  = 60 × 0.95 */
+  --raw-leading-statement: 3.3rem; /* 52.8px = 44 × 1.2 */
+  --raw-leading-heading: 1.925rem; /* 30.8px = 28 × 1.1 */
+  --raw-leading-wordmark: 1.35rem; /* 21.6px = 24 × 0.9 */
+  --raw-leading-lead: 1.6875rem; /* 27px = 18 × 1.5 */
+  --raw-leading-copy: 1.4rem; /* 22.4px = 14 × 1.6 — running text */
+  --raw-leading-body: 0.7rem; /* 11.2px = 14 × 0.8 — trimmed labels */
+  --raw-leading-caption: 0.6rem; /* 9.6px  = 12 × 0.8 */
+
+  --raw-spacing-page: 1.5rem; /* 24px — the uniform page inset */
+  --raw-spacing-xs: 0.375rem; /* 6px */
+  --raw-spacing-sm: 0.625rem; /* 10px */
+  --raw-spacing-md: 0.75rem; /* 12px */
+  --raw-spacing-lg: 1.5rem; /* 24px */
+  --raw-spacing-xl: 2.5rem; /* 40px */
+  --raw-spacing-stack: 4.5rem; /* 72px — between a heading block and its body */
+  --raw-spacing-section: 9rem; /* 144px — between sections */
+}
+
+/* ---------------------------------------------------------------------------
+   TIER 2 — SEMANTIC  (role names, no namespace prefix)
+   Purpose, not appearance. Always `var(--raw-*)` — never a literal.
+   This is the themeable layer. ODORO ships ONE theme — dark, by design (the
+   Style does not survive being flipped light) — so there is deliberately no
+   `prefers-color-scheme` override here.
+   Grammar: --<role>[-<variant>][-<state>]
+   --------------------------------------------------------------------------- */
+:root {
+  --background: var(--raw-color-night-950);
+  --foreground: var(--raw-color-cream-100);
+
+  --duration-fast: var(--raw-duration-fast);
+  --duration-normal: var(--raw-duration-normal);
+  --duration-slow: var(--raw-duration-slow);
+
+  /* What sits behind the hero footage while it loads. */
+  --surface-cinema: var(--raw-color-black);
+  /* The page ground under every flat section. */
+  --surface-gallery: var(--raw-color-night-950);
+  /* Frosted rather than filled — the reserve capsule and the footer. */
+  --surface-glass: var(--raw-color-cream-100-alpha-6);
+  /* A card is the ink at 6%, and 10% when pointed at: no fill reads as fill. */
+  --surface-card: var(--raw-color-cream-100-alpha-6);
+  --surface-card-hover: var(--raw-color-cream-100-alpha-10);
+  /* The ONE inverted band on the page — the silver of the palette as a surface. */
+  --surface-band: var(--raw-color-silver-500);
+
+  --foreground-accent: var(--raw-color-cream-100);
+  --foreground-accent-muted: var(--raw-color-cream-100-alpha-40);
+  --foreground-accent-soft: var(--raw-color-cream-100-alpha-50);
+  --foreground-accent-strong: var(--raw-color-cream-100-alpha-80);
+  /* Secondary copy in the palette's silver — a second METAL, not a second ink. */
+  --foreground-silver: var(--raw-color-silver-500);
+  /* Ink for the one band that is lighter than its type. */
+  --foreground-ink: var(--raw-color-night-950);
+  --foreground-ink-muted: var(--raw-color-night-950-alpha-60);
+  /* The tally lamp in the hero's viewfinder. A signal, not text: the one
+     place gold blinks. Deliberately not a `foreground-*` name. */
+  --foreground-signal: var(--raw-color-gold-200);
+
+  /* The primary action — gold, with night type on it. Rationed. */
+  --action-primary: var(--raw-color-gold-200);
+  --action-primary-ink: var(--raw-color-night-950);
+  --action-inverse: var(--raw-color-night-950);
+  --action-inverse-ink: var(--raw-color-silver-500);
+
+  --line: var(--raw-color-cream-100-alpha-20);
+  --line-strong: var(--raw-color-cream-100-alpha-40);
+  --line-ink: var(--raw-color-night-950-alpha-40);
+  --glow: var(--raw-color-gold-200-alpha-25);
+
+  /* `page` darkens the whole hero backdrop so the UI stays legible; `media`
+     darkens the edge thumbnails and card footers; `scene` is the film's veil. */
+  --scrim-page: var(--raw-color-black-alpha-50);
+  --scrim-media: var(--raw-color-black-alpha-40);
+  --scrim-scene: var(--raw-color-night-950-alpha-40);
+  --scrim-cta: var(--raw-color-black-alpha-15);
+  --scrim-panel: var(--raw-color-black-alpha-50);
+
+  --rounding-media: var(--raw-radius-xs);
+  --rounding-pill: var(--raw-radius-pill);
+
+  /* Cormorant is HEADLINE-ONLY (its hairlines fall apart below ~28px);
+     Inter Tight carries every label, price and paragraph. */
+  --typeface-display: var(--font-cormorant);
+  --typeface-ui: var(--font-inter-tight);
+
+  --size-display: var(--raw-text-display);
+  --size-headline: var(--raw-text-headline);
+  --size-statement: var(--raw-text-statement);
+  --size-title: var(--raw-text-title);
+  --size-wordmark: var(--raw-text-wordmark);
+  --size-lead: var(--raw-text-lead);
+  --size-body: var(--raw-text-body);
+  --size-caption: var(--raw-text-caption);
+
+  --line-title: var(--raw-leading-title);
+  --line-headline: var(--raw-leading-headline);
+  --line-statement: var(--raw-leading-statement);
+  --line-heading: var(--raw-leading-heading);
+  --line-wordmark: var(--raw-leading-wordmark);
+  --line-lead: var(--raw-leading-lead);
+  --line-copy: var(--raw-leading-copy);
+  --line-body: var(--raw-leading-body);
+  --line-caption: var(--raw-leading-caption);
+
+  --gap-page: var(--raw-spacing-page);
+  --gap-xs: var(--raw-spacing-xs);
+  --gap-sm: var(--raw-spacing-sm);
+  --gap-md: var(--raw-spacing-md);
+  --gap-lg: var(--raw-spacing-lg);
+  --gap-xl: var(--raw-spacing-xl);
+  --gap-stack: var(--raw-spacing-stack);
+  --gap-section: var(--raw-spacing-section);
+}
+
+/* ---------------------------------------------------------------------------
+   LES LIAISONS DE JETONS — elles nommaient les espaces du generateur.
+   Every entry is exactly `--<tw-namespace>-<role>: var(--<role>)`.
+   `inline` is required: it inlines the var() into each utility, so a Tier 2
+   override would cascade. Binding a literal here instead freezes the value.
+
+   Seuls ces espaces produisaient des utilitaires (verifie contre le moteur
+   v4.3.3): --color-* --spacing-* --radius-* --leading-* --tracking-* --text-*
+   --font-* --ease-* --breakpoint-* --container-* --shadow-* --blur-* --animate-*
+   NOTE: there is NO --duration-* namespace in v4 — `duration-fast` compiles to
+   nothing. Durations stay Tier 2 only and are used as duration-[var(--duration-fast)].
+   --------------------------------------------------------------------------- */
+/* ---------------------------------------------------------------------------
+   LES JETONS, EN VARIABLES
+
+   Ils ne sont plus lies a un generateur d utilitaires. Les classes que le
+   balisage emploie sont declarees plus bas, derivees de ce meme bloc.
+   --------------------------------------------------------------------------- */
+:root {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--typeface-ui);
+
+  /* Leading floor for clipped TextEngine reveals — see
+     obsidian/frontend/text-engine.md → "Alignment & line-height". */
+  --leading-display: 1.1;
+
+  --ease-entrance: cubic-bezier(0.2, 0, 0, 1);
+
+  /* Breakpoints are pinned to the grid's own base widths (grid.config.ts), so a
+     `max-lg:` / `max-md:` override lands exactly where the root font-size
+     switches design base. `lg` is 1025px and `md` is 641px, which makes
+     `max-lg:` mean ≤1024 (tablet and below) and `max-md:` mean ≤640 (mobile). */
+  --breakpoint-md: 40.0625rem;
+  --breakpoint-lg: 64.0625rem;
+
+  --color-surface-cinema: var(--surface-cinema);
+  --color-surface-gallery: var(--surface-gallery);
+  --color-surface-glass: var(--surface-glass);
+  --color-surface-card: var(--surface-card);
+  --color-surface-card-hover: var(--surface-card-hover);
+  --color-surface-band: var(--surface-band);
+
+  --color-foreground-accent: var(--foreground-accent);
+  --color-foreground-accent-muted: var(--foreground-accent-muted);
+  --color-foreground-accent-soft: var(--foreground-accent-soft);
+  --color-foreground-accent-strong: var(--foreground-accent-strong);
+  --color-foreground-silver: var(--foreground-silver);
+  --color-foreground-ink: var(--foreground-ink);
+  --color-foreground-ink-muted: var(--foreground-ink-muted);
+  --color-foreground-signal: var(--foreground-signal);
+
+  --color-action-primary: var(--action-primary);
+  --color-action-primary-ink: var(--action-primary-ink);
+  --color-action-inverse: var(--action-inverse);
+  --color-action-inverse-ink: var(--action-inverse-ink);
+
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-line-ink: var(--line-ink);
+  --color-glow: var(--glow);
+
+  --color-scrim-page: var(--scrim-page);
+  --color-scrim-media: var(--scrim-media);
+  --color-scrim-scene: var(--scrim-scene);
+  --color-scrim-cta: var(--scrim-cta);
+  --color-scrim-panel: var(--scrim-panel);
+
+  --radius-media: var(--rounding-media);
+  --radius-pill: var(--rounding-pill);
+
+  --font-display: var(--typeface-display);
+  --font-ui: var(--typeface-ui);
+
+  --text-display: var(--size-display);
+  --text-headline: var(--size-headline);
+  --text-statement: var(--size-statement);
+  --text-title: var(--size-title);
+  --text-wordmark: var(--size-wordmark);
+  --text-lead: var(--size-lead);
+  --text-body: var(--size-body);
+  --text-caption: var(--size-caption);
+
+  --leading-title: var(--line-title);
+  --leading-headline: var(--line-headline);
+  --leading-statement: var(--line-statement);
+  --leading-heading: var(--line-heading);
+  --leading-wordmark: var(--line-wordmark);
+  --leading-lead: var(--line-lead);
+  --leading-copy: var(--line-copy);
+  --leading-body: var(--line-body);
+  --leading-caption: var(--line-caption);
+
+  --spacing-page: var(--gap-page);
+  --spacing-xs: var(--gap-xs);
+  --spacing-sm: var(--gap-sm);
+  --spacing-md: var(--gap-md);
+  --spacing-lg: var(--gap-lg);
+  --spacing-xl: var(--gap-xl);
+  --spacing-stack: var(--gap-stack);
+  --spacing-section: var(--gap-section);
+}
+
+body {
+  /* La police de page.
+     Le socle d origine la posait sur `html` a partir de `--font-sans`, que le
+     bloc de jetons lie a `--typeface-ui`. Le notre lit sa propre variable, et
+     la page retombait sur la pile systeme — mesure sur quinze balises. Ici la
+     liaison du gabarit est reprise telle quelle. */
+  font-family: var(--font-sans);
+  background: var(--background);
+  color: var(--foreground);
+  /* A scroll-driven page needs a normal flow block that can grow past the
+     viewport — no centring, no fixed height. */
+  min-height: 100vh;
+  /* `clip`, not `hidden`: `overflow-x: hidden` turns the body into a scroll
+     container, which silently breaks `position: sticky` on the pinned film. */
+  overflow-x: clip;
+}
+
+
+/* Adaptive scaling grid — scales the root font-size with the viewport so a
+   rem-based layout stays proportional. Each breakpoint divides FONT_BASE
+   (16px) by the design base width its range was laid out at:
+     font-size: 16 * 100 / baseWidth  (vw)
+   Above 1440px the AdaptiveGrid component takes over (scale-up, coef 1 —
+   fully proportional), so the single 1440 design holds at every desktop
+   width. Keep in sync with src/components/common/grid/grid.config.ts. */
+html {
+  font-size: 16px;
+}
+
+@media (max-width: 1440px) {
+  html {
+    font-size: 1.111111vw; /* 16 * 100 / 1440 */
+  }
+}
+
+@media (max-width: 1024px) {
+  html {
+    font-size: 1.5625vw; /* 16 * 100 / 1024 */
+  }
+}
+
+@media (max-width: 640px) {
+  html {
+    font-size: 4.444444vw; /* 16 * 100 / 360 */
+  }
+}
+
+/* The one other place gold appears: text the reader has taken hold of. */
+::selection {
+  background: var(--action-primary);
+  color: var(--action-primary-ink);
+}
+
+
+
+
+
+/* Every display line is set "trim both / cap · alphabetic", which is what lets
+   a 0.8 line-height sit flush against the 24px page margin. Progressive
+   enhancement: Chrome 133+ and Safari 18.4+ honour it, elsewhere the text
+   simply sits at its normal leading. */
+.text-trim {
+  text-box-trim: trim-both;
+  text-box-edge: cap alphabetic;
+}
+
+/* `dvh` after `vh`, in this order, so browsers without dynamic viewport units
+   still get a full-height section. Declaration order is only guaranteed inside
+   one rule, which is why this is a utility rather than two classes. */
+.min-h-viewport {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+.h-viewport {
+  height: 100vh;
+  height: 100dvh;
+}
+
+/* Pulls a block up over the sticky stage that precedes it by exactly one
+   viewport — the film's chapters ride the footage from its first frame. */
+.pull-viewport {
+  margin-top: -100vh;
+  margin-top: -100dvh;
+}
+
+/* ============================================================================
+   CE QUE LA REMISE A ZERO DE L AUTRE MOTEUR FOURNISSAIT
+
+   Le gabarit a ete ecrit au-dessus d une remise a zero qui n est pas la notre,
+   et il comptait dessus sans le dire — c est la nature meme d une remise a
+   zero. Les regles ci-dessous sont la difference exacte entre les deux,
+   relevee en comparant les styles calcules d un jeu d elements dans les deux
+   pages, et non devinee.
+
+   Sans elles, la premiere chose qu on voit est que **tous les liens
+   redeviennent bleus et soulignes** : le navigateur reprend la main sur une
+   ancre dont personne ne dit plus rien.
+
+   Ce bloc appartient au gabarit, pas au systeme. Ajouter ces regles a la
+   remise a zero d `@odoro-cli/libs` changerait le rendu de tout projet deja
+   livre, pour le confort d un portage.
+   ========================================================================== */
+
+a {
+  color: inherit;
+  text-decoration: inherit;
+}
+
+button,
+input,
+optgroup,
+select,
+textarea {
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  letter-spacing: inherit;
+  background-color: transparent;
+  border-radius: 0;
+}
+
+button,
+[type='button'],
+[type='reset'],
+[type='submit'] {
+  appearance: button;
+}
+
+/* La couleur de filet par defaut suit l encre, au lieu d un gris fixe : c est
+   ce qui rend `border` seul utilisable sans dire de quelle couleur. */
+*,
+::before,
+::after {
+  border-color: currentColor;
+}
+
+/* Une image posee dans une ligne de texte s aligne sur le milieu, pas sur la
+   ligne de base : sans cela elle laisse sous elle le jambage d une lettre. */
+img,
+svg,
+video,
+canvas,
+audio,
+iframe,
+embed,
+object {
+  vertical-align: middle;
+}
+
+/* Notre socle borne les `svg` a la largeur de leur parent ; celui d origine
+   non. Un sigle dessine plus large que sa boite s en trouvait retreci. */
+svg {
+  max-width: none;
+}
+
+hr {
+  height: 0;
+  margin: 0;
+  color: inherit;
+  border-top-width: 1px;
+}
+
+/* Notre socle donne la main au survol d un bouton ; celui d origine laissait la
+   fleche, comme le fait le navigateur seul. C est visible a chaque survol. */
+button,
+[role='button'] {
+  cursor: default;
+}
+
+/* Une image qui porte ses dimensions en attributs — `width="11" height="11"` —
+   et dont le CSS ne contraint que la largeur gardait chez nous sa hauteur
+   declaree, au lieu de la deduire du rapport. Les quatre crochets du hero de
+   `parfum` faisaient 8x11 au lieu de 8x8.
+
+   Le socle d origine posait `height: auto` ; le notre s en tient a la largeur.
+   Les utilitaires de hauteur sont ecrits apres cette feuille et l emportent
+   toujours. */
+img,
+video {
+  max-width: 100%;
+  height: auto;
+}
+
+
+/* ============================================================================
+   LES CLASSES QUE LE GENERATEUR NE PRODUIT PAS
+
+   Chaque selecteur repete sa classe : les utilitaires du systeme sont ecrits
+   **apres** cette feuille dans le paquet final, et a specificite egale c est le
+   dernier qui gagne.
+   ========================================================================== */
+
+.jo-disabled-cursor-wait.jo-disabled-cursor-wait:disabled { cursor: wait; }
+.jo-disabled-opacity-70.jo-disabled-opacity-70:disabled { opacity: 0.7; }
+.jo-hover-opacity-90.jo-hover-opacity-90:hover { opacity: 0.9; }
+.jo-bg-action-inverse.jo-bg-action-inverse { background-color: var(--action-inverse); }
+.jo-border-line-strong.jo-border-line-strong { border-color: var(--line-strong); }
+.jo-focus-visible-outline-foreground-ink.jo-focus-visible-outline-foreground-ink:focus-visible { outline-color: var(--foreground-ink); }
+.jo-text-action-inverse-ink.jo-text-action-inverse-ink { color: var(--action-inverse-ink); }
+.jo-h-19-6875rem.jo-h-19-6875rem { height: 19.6875rem; }
+.jo-left-29-375rem.jo-left-29-375rem { left: 29.375rem; }
+.jo-left-77-1875rem.jo-left-77-1875rem { left: 77.1875rem; }
+.jo-right-62-125rem.jo-right-62-125rem { right: 62.125rem; }
+.jo-top-calc-50-10-59375rem.jo-top-calc-50-10-59375rem { top: calc(50% + 10.59375rem); }
+.jo-top-calc-50-11-15625rem.jo-top-calc-50-11-15625rem { top: calc(50% - 11.15625rem); }
+.jo-top-calc-50-4-3125rem.jo-top-calc-50-4-3125rem { top: calc(50% - 4.3125rem); }
+.jo-top-calc-50-9-84375rem.jo-top-calc-50-9-84375rem { top: calc(50% - 9.84375rem); }
+.jo-w-11-3125rem.jo-w-11-3125rem { width: 11.3125rem; }
+.jo-w-14-875rem.jo-w-14-875rem { width: 14.875rem; }
+.jo-w-21-258625rem.jo-w-21-258625rem { width: 21.258625rem; }
+.jo-w-31-25rem.jo-w-31-25rem { width: 31.25rem; }
+.jo--translate-x-1-2.jo--translate-x-1-2 { --jo-tx: -50%; translate: var(--jo-tx, 0) var(--jo-ty, 0); }
+.jo--translate-y-1-2.jo--translate-y-1-2 { --jo-ty: -50%; translate: var(--jo-tx, 0) var(--jo-ty, 0); }
+.jo-bg-foreground-signal.jo-bg-foreground-signal { background-color: var(--foreground-signal); }
+.jo-bg-scrim-page.jo-bg-scrim-page { background-color: var(--scrim-page); }
+.jo-h-8-25rem.jo-h-8-25rem { height: 8.25rem; }
+.jo-h-8-3125rem.jo-h-8-3125rem { height: 8.3125rem; }
+.jo-left-1rem.jo-left-1rem { left: 1rem; }
+.jo-left-37-9375rem.jo-left-37-9375rem { left: 37.9375rem; }
+.jo-left-62-125rem.jo-left-62-125rem { left: 62.125rem; }
+.jo-size-0-5rem.jo-size-0-5rem { width: 0.5rem; height: 0.5rem; }
+.jo-size-1-5rem.jo-size-1-5rem { width: 1.5rem; height: 1.5rem; }
+.jo-top-1rem.jo-top-1rem { top: 1rem; }
+.jo-w-14-1875rem.jo-w-14-1875rem { width: 14.1875rem; }
+.jo-w-5-75rem.jo-w-5-75rem { width: 5.75rem; }
+.jo-font-sans.jo-font-sans { font-family: var(--typeface-ui); }
+.jo-ease-entrance.jo-ease-entrance { transition-timing-function: cubic-bezier(0.2, 0, 0, 1); }
+.jo-rounded-b-media.jo-rounded-b-media { border-bottom-left-radius: var(--rounding-media); border-bottom-right-radius: var(--rounding-media); }
+.jo-rounded-t-media.jo-rounded-t-media { border-top-left-radius: var(--rounding-media); border-top-right-radius: var(--rounding-media); }
+.jo--bottom-1.jo--bottom-1 { bottom: -0.25rem; }
+.jo--bottom-px.jo--bottom-px { bottom: -1px; }
+.jo--inset-6rem.jo--inset-6rem { inset: -6rem; }
+.jo--mt-0-35em.jo--mt-0-35em { margin-top: -0.35em; }
+.jo--mix-blend-mode-overlay.jo--mix-blend-mode-overlay { mix-blend-mode: overlay; }
+.jo-aspect-3-4.jo-aspect-3-4 { aspect-ratio: 3 / 4; }
+.jo-aspect-4-5.jo-aspect-4-5 { aspect-ratio: 4 / 5; }
+.jo-bg-action-primary.jo-bg-action-primary { background-color: var(--action-primary); }
+.jo-bg-background.jo-bg-background { background-color: var(--background); }
+.jo-bg-background-95.jo-bg-background-95 { background-color: color-mix(in srgb, var(--background) 95%, transparent); }
+.jo-bg-black-40.jo-bg-black-40 { background-color: color-mix(in srgb, #000 40%, transparent); }
+.jo-bg-foreground.jo-bg-foreground { background-color: var(--foreground); }
+.jo-bg-foreground-accent.jo-bg-foreground-accent { background-color: var(--foreground-accent); }
+.jo-bg-foreground-accent-muted.jo-bg-foreground-accent-muted { background-color: var(--foreground-accent-muted); }
+.jo-bg-foreground-15.jo-bg-foreground-15 { background-color: color-mix(in srgb, var(--foreground) 15%, transparent); }
+.jo-bg-line.jo-bg-line { background-color: var(--line); }
+.jo-bg-line-ink.jo-bg-line-ink { background-color: var(--line-ink); }
+.jo-bg-line-strong.jo-bg-line-strong { background-color: var(--line-strong); }
+.jo-bg-linear-to-t.jo-bg-linear-to-t { background-image: linear-gradient(to top, var(--jo-stops)); }
+.jo-bg-scrim-media.jo-bg-scrim-media { background-color: var(--scrim-media); }
+.jo-bg-scrim-scene.jo-bg-scrim-scene { background-color: var(--scrim-scene); }
+.jo-bg-surface-band.jo-bg-surface-band { background-color: var(--surface-band); }
+.jo-bg-surface-card.jo-bg-surface-card { background-color: var(--surface-card); }
+.jo-bg-surface-cinema.jo-bg-surface-cinema { background-color: var(--surface-cinema); }
+.jo-bg-surface-glass.jo-bg-surface-glass { background-color: var(--surface-glass); }
+.jo-border-foreground-accent.jo-border-foreground-accent { border-color: var(--foreground-accent); }
+.jo-border-foreground-accent-muted.jo-border-foreground-accent-muted { border-color: var(--foreground-accent-muted); }
+.jo-border-foreground-10.jo-border-foreground-10 { border-color: color-mix(in srgb, var(--foreground) 10%, transparent); }
+.jo-border-foreground-15.jo-border-foreground-15 { border-color: color-mix(in srgb, var(--foreground) 15%, transparent); }
+.jo-border-line.jo-border-line { border-color: var(--line); }
+.jo-bottom-md.jo-bottom-md { bottom: var(--spacing-md); }
+.jo-bottom-page.jo-bottom-page { bottom: var(--spacing-page); }
+.jo-col-start-8.jo-col-start-8 { grid-column-start: 8; }
+.jo-col-start-9.jo-col-start-9 { grid-column-start: 9; }
+.jo-duration-var-duration-fast.jo-duration-var-duration-fast { transition-duration: var(--duration-fast); }
+.jo-focus-visible-outline-2.jo-focus-visible-outline-2:focus-visible { outline-width: 2px; outline-style: solid; }
+.jo-focus-visible-outline-foreground.jo-focus-visible-outline-foreground:focus-visible { outline-color: var(--foreground); }
+.jo-focus-visible-outline-foreground-accent.jo-focus-visible-outline-foreground-accent:focus-visible { outline-color: var(--foreground-accent); }
+.jo-focus-visible-outline-offset-2.jo-focus-visible-outline-offset-2:focus-visible { outline-offset: 2px; }
+.jo-focus-visible-outline-offset-4.jo-focus-visible-outline-offset-4:focus-visible { outline-offset: 4px; }
+.jo-focus-visible-placeholder-text-foreground-accent-soft.jo-focus-visible-placeholder-text-foreground-accent-soft:focus-visible::placeholder { color: var(--foreground-accent-soft); }
+.jo-focus-visible-text-foreground-accent.jo-focus-visible-text-foreground-accent:focus-visible { color: var(--foreground-accent); }
+.jo-font-display.jo-font-display { font-family: var(--typeface-display); }
+.jo-font-ui.jo-font-ui { font-family: var(--typeface-ui); }
+.jo-from-scrim-panel.jo-from-scrim-panel { --jo-from: var(--scrim-panel); --jo-stops: var(--jo-via-stops, var(--jo-from) var(--jo-from-pos, 0%), var(--jo-to, color-mix(in oklab, var(--jo-from) 0%, transparent)) var(--jo-to-pos, 100%)); }
+.jo-gap-lg.jo-gap-lg { gap: var(--spacing-lg); }
+.jo-gap-md.jo-gap-md { gap: var(--spacing-md); }
+.jo-gap-sm.jo-gap-sm { gap: var(--spacing-sm); }
+.jo-gap-x-lg.jo-gap-x-lg { column-gap: var(--spacing-lg); }
+.jo-gap-xs.jo-gap-xs { gap: var(--spacing-xs); }
+.jo-gap-y-lg.jo-gap-y-lg { row-gap: var(--spacing-lg); }
+.jo-gap-y-stack.jo-gap-y-stack { row-gap: var(--spacing-stack); }
+.jo-gap-y-xl.jo-gap-y-xl { row-gap: var(--spacing-xl); }
+.group:focus-visible .jo-group-focus-visible-scale-x-100.jo-group-focus-visible-scale-x-100 { scale: 1 1; }
+.group:hover .jo-group-hover-border-foreground-accent.jo-group-hover-border-foreground-accent { border-color: var(--foreground-accent); }
+.group:hover .jo-group-hover-scale-x-100.jo-group-hover-scale-x-100 { scale: 1 1; }
+.group:hover .jo-group-hover-text-foreground-accent.jo-group-hover-text-foreground-accent { color: var(--foreground-accent); }
+.group:hover .jo-group-hover-translate-x-3px.jo-group-hover-translate-x-3px { --jo-tx: 3px; translate: var(--jo-tx, 0) var(--jo-ty, 0); }
+.jo-h-2-5.jo-h-2-5 { height: 40%; }
+.jo-h-18px.jo-h-18px { height: 18px; }
+.jo-hover-bg-foreground-accent.jo-hover-bg-foreground-accent:hover { background-color: var(--foreground-accent); }
+.jo-hover-bg-foreground-5.jo-hover-bg-foreground-5:hover { background-color: color-mix(in srgb, var(--foreground) 5%, transparent); }
+.jo-hover-text-foreground-accent.jo-hover-text-foreground-accent:hover { color: var(--foreground-accent); }
+.jo-hover-text-foreground-70.jo-hover-text-foreground-70:hover { color: color-mix(in srgb, var(--foreground) 70%, transparent); }
+.jo-leading-0-85.jo-leading-0-85 { line-height: 0.85; }
+.jo-leading-body.jo-leading-body { line-height: var(--line-body); }
+.jo-leading-caption.jo-leading-caption { line-height: var(--line-caption); }
+.jo-leading-copy.jo-leading-copy { line-height: var(--line-copy); }
+.jo-leading-heading.jo-leading-heading { line-height: var(--line-heading); }
+.jo-leading-headline.jo-leading-headline { line-height: var(--line-headline); }
+.jo-leading-lead.jo-leading-lead { line-height: var(--line-lead); }
+.jo-leading-none.jo-leading-none { line-height: 1; }
+.jo-leading-statement.jo-leading-statement { line-height: var(--line-statement); }
+.jo-leading-title.jo-leading-title { line-height: var(--line-title); }
+.jo-leading-wordmark.jo-leading-wordmark { line-height: var(--line-wordmark); }
+.jo-left-3px.jo-left-3px { left: 3px; }
+.jo-left-md.jo-left-md { left: var(--spacing-md); }
+.jo-left-page.jo-left-page { left: var(--spacing-page); }
+.jo-left-xl.jo-left-xl { left: var(--spacing-xl); }
+.jo-max-h-calc-100dvh-1-5rem.jo-max-h-calc-100dvh-1-5rem { max-height: calc(100dvh - 1.5rem); }
+.jo-max-w-22rem.jo-max-w-22rem { max-width: 22rem; }
+.jo-max-w-28rem.jo-max-w-28rem { max-width: 28rem; }
+.jo-max-w-34rem.jo-max-w-34rem { max-width: 34rem; }
+.jo-max-w-36rem.jo-max-w-36rem { max-width: 36rem; }
+.jo-max-w-40rem.jo-max-w-40rem { max-width: 40rem; }
+.jo-max-w-44rem.jo-max-w-44rem { max-width: 44rem; }
+.jo-max-w-52rem.jo-max-w-52rem { max-width: 52rem; }
+.jo-max-w-560px.jo-max-w-560px { max-width: 560px; }
+.jo-mt-lg.jo-mt-lg { margin-top: var(--spacing-lg); }
+.jo-mt-md.jo-mt-md { margin-top: var(--spacing-md); }
+.jo-mt-stack.jo-mt-stack { margin-top: var(--spacing-stack); }
+.jo-mt-xl.jo-mt-xl { margin-top: var(--spacing-xl); }
+.jo-mt-xs.jo-mt-xs { margin-top: var(--spacing-xs); }
+.jo-p-xl.jo-p-xl { padding: var(--spacing-xl); }
+.jo-p-xs.jo-p-xs { padding: var(--spacing-xs); }
+.jo-pb-page.jo-pb-page { padding-bottom: var(--spacing-page); }
+.jo-pb-stack.jo-pb-stack { padding-bottom: var(--spacing-stack); }
+.jo-pb-xs.jo-pb-xs { padding-bottom: var(--spacing-xs); }
+.jo-pl-xl.jo-pl-xl { padding-left: var(--spacing-xl); }
+.jo-placeholder-text-foreground-accent-muted.jo-placeholder-text-foreground-accent-muted::placeholder { color: var(--foreground-accent-muted); }
+.jo-pt-section.jo-pt-section { padding-top: var(--spacing-section); }
+.jo-pt-stack.jo-pt-stack { padding-top: var(--spacing-stack); }
+.jo-px-md.jo-px-md { padding-inline: var(--spacing-md); }
+.jo-px-page.jo-px-page { padding-inline: var(--spacing-page); }
+.jo-px-xl.jo-px-xl { padding-inline: var(--spacing-xl); }
+.jo-py-lg.jo-py-lg { padding-block: var(--spacing-lg); }
+.jo-py-md.jo-py-md { padding-block: var(--spacing-md); }
+.jo-py-section.jo-py-section { padding-block: var(--spacing-section); }
+.jo-py-sm.jo-py-sm { padding-block: var(--spacing-sm); }
+.jo-py-stack.jo-py-stack { padding-block: var(--spacing-stack); }
+.jo-right-md.jo-right-md { right: var(--spacing-md); }
+.jo-right-page.jo-right-page { right: var(--spacing-page); }
+.jo-rounded-10px.jo-rounded-10px { border-radius: 10px; }
+.jo-rounded-media.jo-rounded-media { border-radius: var(--rounding-media); }
+.jo-rounded-pill.jo-rounded-pill { border-radius: var(--rounding-pill); }
+.jo-scale-x-0.jo-scale-x-0 { scale: 0 1; }
+.jo-shadow.jo-shadow { box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1); }
+.jo-size-1rem.jo-size-1rem { width: 1rem; height: 1rem; }
+.jo-text-12vw.jo-text-12vw { font-size: 12vw; }
+.jo-text-action-primary-ink.jo-text-action-primary-ink { color: var(--action-primary-ink); }
+.jo-text-background.jo-text-background { color: var(--background); }
+.jo-text-body.jo-text-body { font-size: var(--size-body); }
+.jo-text-caption.jo-text-caption { font-size: var(--size-caption); }
+.jo-text-display.jo-text-display { font-size: var(--size-display); }
+.jo-text-foreground.jo-text-foreground { color: var(--foreground); }
+.jo-text-foreground-accent.jo-text-foreground-accent { color: var(--foreground-accent); }
+.jo-text-foreground-accent-muted.jo-text-foreground-accent-muted { color: var(--foreground-accent-muted); }
+.jo-text-foreground-accent-soft.jo-text-foreground-accent-soft { color: var(--foreground-accent-soft); }
+.jo-text-foreground-accent-strong.jo-text-foreground-accent-strong { color: var(--foreground-accent-strong); }
+.jo-text-foreground-accent-20.jo-text-foreground-accent-20 { color: color-mix(in srgb, var(--foreground-accent) 20%, transparent); }
+.jo-text-foreground-ink.jo-text-foreground-ink { color: var(--foreground-ink); }
+.jo-text-foreground-ink-muted.jo-text-foreground-ink-muted { color: var(--foreground-ink-muted); }
+.jo-text-foreground-silver.jo-text-foreground-silver { color: var(--foreground-silver); }
+.jo-text-foreground-60.jo-text-foreground-60 { color: color-mix(in srgb, var(--foreground) 60%, transparent); }
+.jo-text-foreground-70.jo-text-foreground-70 { color: color-mix(in srgb, var(--foreground) 70%, transparent); }
+.jo-text-headline.jo-text-headline { font-size: var(--size-headline); }
+.jo-text-lead.jo-text-lead { font-size: var(--size-lead); }
+.jo-text-statement.jo-text-statement { font-size: var(--size-statement); }
+.jo-text-title.jo-text-title { font-size: var(--size-title); }
+.jo-text-wordmark.jo-text-wordmark { font-size: var(--size-wordmark); }
+.jo-top-3px.jo-top-3px { top: 3px; }
+.jo-top-md.jo-top-md { top: var(--spacing-md); }
+.jo-top-page.jo-top-page { top: var(--spacing-page); }
+.jo-top-xl.jo-top-xl { top: var(--spacing-xl); }
+.jo-tracking-0-08em.jo-tracking-0-08em { letter-spacing: 0.08em; }
+.jo-tracking-0-12em.jo-tracking-0-12em { letter-spacing: 0.12em; }
+.jo-tracking-0-14em.jo-tracking-0-14em { letter-spacing: 0.14em; }
+.jo-w-18px.jo-w-18px { width: 18px; }
+.jo-w-2rem.jo-w-2rem { width: 2rem; }
+.jo-w-calc-100vw-1-5rem.jo-w-calc-100vw-1-5rem { width: calc(100vw - 1.5rem); }
+.jo-z-100.jo-z-100 { z-index: 100; }
+
+@media (min-width: 640px) {
+  .jo-sm-bottom-12.jo-sm-bottom-12 { bottom: 3rem; }
+  .jo-sm-left-auto.jo-sm-left-auto { left: auto; }
+  .jo-sm-p-6.jo-sm-p-6 { padding: 1.5rem; }
+  .jo-sm-p-7.jo-sm-p-7 { padding: 1.75rem; }
+  .jo-sm-right-12.jo-sm-right-12 { right: 3rem; }
+  .jo-sm-w-420px.jo-sm-w-420px { width: 420px; }
+}
+
+@media (min-width: 1025px) {
+  .jo-lg-fixed.jo-lg-fixed { position: fixed; }
+  .jo-lg-z-50.jo-lg-z-50 { z-index: 50; }
+}
+
+@media (max-width: 1024.98px) {
+  .jo-max-lg-bottom-auto.jo-max-lg-bottom-auto { bottom: auto; }
+  .jo-max-lg-col-span-12.jo-max-lg-col-span-12 { grid-column: span 12 / span 12; }
+  .jo-max-lg-col-start-1.jo-max-lg-col-start-1 { grid-column-start: 1; }
+  .jo-max-lg-grid-cols-1.jo-max-lg-grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+  .jo-max-lg-hidden.jo-max-lg-hidden { display: none; }
+  .jo-max-lg-items-end.jo-max-lg-items-end { align-items: flex-end; }
+  .jo-max-lg-items-start.jo-max-lg-items-start { align-items: flex-start; }
+  .jo-max-lg-left-0.jo-max-lg-left-0 { left: 0rem; }
+  .jo-max-lg-left-1-2.jo-max-lg-left-1-2 { left: 50%; }
+  .jo-max-lg-left-auto.jo-max-lg-left-auto { left: auto; }
+  .jo-max-lg-mx-auto.jo-max-lg-mx-auto { margin-inline: auto; }
+  .jo-max-lg-order-1.jo-max-lg-order-1 { order: 1; }
+  .jo-max-lg-right-0.jo-max-lg-right-0 { right: 0rem; }
+  .jo-max-lg-text-center.jo-max-lg-text-center { text-align: center; }
+  .jo-max-lg-text-left.jo-max-lg-text-left { text-align: left; }
+  .jo-max-lg-text-right.jo-max-lg-text-right { text-align: right; }
+  .jo-max-lg-top-auto.jo-max-lg-top-auto { top: auto; }
+  .jo-max-lg-w-auto.jo-max-lg-w-auto { width: auto; }
+  .jo-max-lg-w-fit.jo-max-lg-w-fit { width: fit-content; }
+  .jo-max-lg-bottom-page.jo-max-lg-bottom-page { bottom: var(--spacing-page); }
+  .jo-max-lg-h-calc-min-100vw-3rem-78vw-100vh-36rem-0-63-0-63.jo-max-lg-h-calc-min-100vw-3rem-78vw-100vh-36rem-0-63-0-63 { height: calc(min(100vw - 3rem,78vw,(100vh - 36rem)/0.63)*0.63); }
+  .jo-max-lg-top-calc-50-min-100vw-3rem-78vw-100vh-36rem-0-63-0-315-12px.jo-max-lg-top-calc-50-min-100vw-3rem-78vw-100vh-36rem-0-63-0-315-12px { top: calc(50% + min(100vw - 3rem,78vw,(100vh - 36rem)/0.63)*0.315 + 12px); }
+  .jo-max-lg-top-calc-50-min-100vw-3rem-78vw-100vh-36rem-0-63-0-315-5-75rem.jo-max-lg-top-calc-50-min-100vw-3rem-78vw-100vh-36rem-0-63-0-315-5-75rem { top: calc(50% + min(100vw - 3rem,78vw,(100vh - 36rem)/0.63)*0.315 + 5.75rem); }
+  .jo-max-lg-top-calc-50-min-100vw-3rem-78vw-100vh-36rem-0-63-0-315.jo-max-lg-top-calc-50-min-100vw-3rem-78vw-100vh-36rem-0-63-0-315 { top: calc(50% - min(100vw - 3rem,78vw,(100vh - 36rem)/0.63)*0.315); }
+  .jo-max-lg-top-calc-50-min-100vw-3rem-78vw-100vh-36rem-0-63-0-315-23-2px.jo-max-lg-top-calc-50-min-100vw-3rem-78vw-100vh-36rem-0-63-0-315-23-2px { top: calc(50% - min(100vw - 3rem,78vw,(100vh - 36rem)/0.63)*0.315 - 23.2px); }
+  .jo-max-lg-top-calc-50-min-100vw-3rem-78vw-100vh-36rem-0-63-0-315-9-5rem.jo-max-lg-top-calc-50-min-100vw-3rem-78vw-100vh-36rem-0-63-0-315-9-5rem { top: calc(50% - min(100vw - 3rem,78vw,(100vh - 36rem)/0.63)*0.315 - 9.5rem); }
+  .jo-max-lg-w-min-100vw-3rem-78vw-100vh-36rem-0-63.jo-max-lg-w-min-100vw-3rem-78vw-100vh-36rem-0-63 { width: min(100vw - 3rem,78vw,(100vh - 36rem)/0.63); }
+  .jo-max-lg-ml-7rem.jo-max-lg-ml-7rem { margin-left: -7rem; }
+  .jo-max-lg-h-8-1rem.jo-max-lg-h-8-1rem { height: 8.1rem; }
+  .jo-max-lg-leading-44-8px.jo-max-lg-leading-44-8px { line-height: 44.8px; }
+  .jo-max-lg-left-12px.jo-max-lg-left-12px { left: 12px; }
+  .jo-max-lg-left-page.jo-max-lg-left-page { left: var(--spacing-page); }
+  .jo-max-lg-right-page.jo-max-lg-right-page { right: var(--spacing-page); }
+  .jo-max-lg-size-20px.jo-max-lg-size-20px { width: 20px; height: 20px; }
+  .jo-max-lg-size-7px.jo-max-lg-size-7px { width: 7px; height: 7px; }
+  .jo-max-lg-text-56px.jo-max-lg-text-56px { font-size: 56px; }
+  .jo-max-lg-top-12px.jo-max-lg-top-12px { top: 12px; }
+  .jo-max-lg-top-page.jo-max-lg-top-page { top: var(--spacing-page); }
+  .jo-max-lg-w-14rem.jo-max-lg-w-14rem { width: 14rem; }
+  .jo-max-lg-gap-10-8px.jo-max-lg-gap-10-8px { gap: 10.8px; }
+  .jo-max-lg-gap-xl.jo-max-lg-gap-xl { gap: var(--spacing-xl); }
+  .jo-max-lg-leading-11-2px.jo-max-lg-leading-11-2px { line-height: 11.2px; }
+  .jo-max-lg-leading-18px.jo-max-lg-leading-18px { line-height: 18px; }
+  .jo-max-lg-leading-57-6px.jo-max-lg-leading-57-6px { line-height: 57.6px; }
+  .jo-max-lg-mt-21px.jo-max-lg-mt-21px { margin-top: 21px; }
+  .jo-max-lg-text-14px.jo-max-lg-text-14px { font-size: 14px; }
+  .jo-max-lg-text-20px.jo-max-lg-text-20px { font-size: 20px; }
+  .jo-max-lg-text-72px.jo-max-lg-text-72px { font-size: 72px; }
+}
+
+@media (max-width: 640.98px) {
+  .jo-max-md-border-b.jo-max-md-border-b { border-bottom-width: 1px; }
+  .jo-max-md-flex-col.jo-max-md-flex-col { flex-direction: column; }
+  .jo-max-md-grid-cols-1.jo-max-md-grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+  .jo-max-md-hidden.jo-max-md-hidden { display: none; }
+  .jo-max-md-items-stretch.jo-max-md-items-stretch { align-items: stretch; }
+  .jo-max-md-left-0.jo-max-md-left-0 { left: 0rem; }
+  .jo-max-md-mx-auto.jo-max-md-mx-auto { margin-inline: auto; }
+  .jo-max-md-right-0.jo-max-md-right-0 { right: 0rem; }
+  .jo-max-md-bottom-calc-24px-env-safe-area-inset-bottom.jo-max-md-bottom-calc-24px-env-safe-area-inset-bottom { bottom: calc(24px + env(safe-area-inset-bottom)); }
+  .jo-max-md-h-calc-min-100vw-3rem-100vh-30rem-0-63-0-63.jo-max-md-h-calc-min-100vw-3rem-100vh-30rem-0-63-0-63 { height: calc(min(100vw - 3rem,(100vh - 30rem)/0.63)*0.63); }
+  .jo-max-md-top-calc-50-min-100vw-3rem-100vh-30rem-0-63-0-315-12px.jo-max-md-top-calc-50-min-100vw-3rem-100vh-30rem-0-63-0-315-12px { top: calc(50% + min(100vw - 3rem,(100vh - 30rem)/0.63)*0.315 + 12px); }
+  .jo-max-md-top-calc-50-min-100vw-3rem-100vh-30rem-0-63-0-315-69px.jo-max-md-top-calc-50-min-100vw-3rem-100vh-30rem-0-63-0-315-69px { top: calc(50% + min(100vw - 3rem,(100vh - 30rem)/0.63)*0.315 + 69px); }
+  .jo-max-md-top-calc-50-min-100vw-3rem-100vh-30rem-0-63-0-315.jo-max-md-top-calc-50-min-100vw-3rem-100vh-30rem-0-63-0-315 { top: calc(50% - min(100vw - 3rem,(100vh - 30rem)/0.63)*0.315); }
+  .jo-max-md-top-calc-50-min-100vw-3rem-100vh-30rem-0-63-0-315-23-2px.jo-max-md-top-calc-50-min-100vw-3rem-100vh-30rem-0-63-0-315-23-2px { top: calc(50% - min(100vw - 3rem,(100vh - 30rem)/0.63)*0.315 - 23.2px); }
+  .jo-max-md-top-calc-50-min-100vw-3rem-100vh-30rem-0-63-0-315-87px.jo-max-md-top-calc-50-min-100vw-3rem-100vh-30rem-0-63-0-315-87px { top: calc(50% - min(100vw - 3rem,(100vh - 30rem)/0.63)*0.315 - 87px); }
+  .jo-max-md-w-min-100vw-3rem-100vh-30rem-0-63.jo-max-md-w-min-100vw-3rem-100vh-30rem-0-63 { width: min(100vw - 3rem,(100vh - 30rem)/0.63); }
+  .jo-max-md-leading-16-2px.jo-max-md-leading-16-2px { line-height: 16.2px; }
+  .jo-max-md-leading-33-6px.jo-max-md-leading-33-6px { line-height: 33.6px; }
+  .jo-max-md-text-18px.jo-max-md-text-18px { font-size: 18px; }
+  .jo-max-md-text-42px.jo-max-md-text-42px { font-size: 42px; }
+  .jo-max-md-border-line.jo-max-md-border-line { border-color: var(--line); }
+  .jo-max-md-gap-md.jo-max-md-gap-md { gap: var(--spacing-md); }
+  .jo-max-md-gap-xl.jo-max-md-gap-xl { gap: var(--spacing-xl); }
+  .jo-max-md-leading-26px.jo-max-md-leading-26px { line-height: 26px; }
+  .jo-max-md-leading-36px.jo-max-md-leading-36px { line-height: 36px; }
+  .jo-max-md-leading-40px.jo-max-md-leading-40px { line-height: 40px; }
+  .jo-max-md-leading-44-8px.jo-max-md-leading-44-8px { line-height: 44.8px; }
+  .jo-max-md-p-lg.jo-max-md-p-lg { padding: var(--spacing-lg); }
+  .jo-max-md-pb-page.jo-max-md-pb-page { padding-bottom: var(--spacing-page); }
+  .jo-max-md-pt-29px.jo-max-md-pt-29px { padding-top: 29px; }
+  .jo-max-md-py-stack.jo-max-md-py-stack { padding-block: var(--spacing-stack); }
+  .jo-max-md-rounded-media.jo-max-md-rounded-media { border-radius: var(--rounding-media); }
+  .jo-max-md-text-20px.jo-max-md-text-20px { font-size: 20px; }
+  .jo-max-md-text-24vw.jo-max-md-text-24vw { font-size: 24vw; }
+  .jo-max-md-text-28px.jo-max-md-text-28px { font-size: 28px; }
+  .jo-max-md-text-40px.jo-max-md-text-40px { font-size: 40px; }
+  .jo-max-md-text-56px.jo-max-md-text-56px { font-size: 56px; }
+}

@@ -1,0 +1,131 @@
+{
+  "version": 1,
+  "brief": {
+    "dimensionality": [
+      "depth"
+    ],
+    "mood": [
+      "luxe",
+      "organic"
+    ],
+    "tone": [
+      "dark"
+    ],
+    "motionEnergy": [
+      "lively",
+      "subtle"
+    ],
+    "density": [
+      "sparse",
+      "balanced"
+    ]
+  },
+  "styleId": "wanderlust-style",
+  "paletteId": "halcyon-palette",
+  "fontId": "cormorant",
+  "tokens": {
+    "gl-bg": "#03060f",
+    "gl-bg-alt": "#98958d",
+    "gl-surface": "rgba(244, 236, 218, 0.06)",
+    "gl-surface-raised": "rgba(244, 236, 218, 0.10)",
+    "gl-ink": "#f4ecda",
+    "gl-ink-muted": "#98958d",
+    "gl-ink-subtle": "rgba(244, 236, 218, 0.4)",
+    "gl-accent": "#ffe49a",
+    "gl-accent-ink": "#03060f",
+    "gl-line": "rgba(244, 236, 218, 0.2)",
+    "gl-glow": "#ffe49a",
+    "gl-font-display": "'Cormorant', ui-serif, Georgia, 'Times New Roman', serif",
+    "gl-font-body": "'Inter Tight', ui-sans-serif, system-ui, sans-serif",
+    "gl-radius": "0.25rem",
+    "gl-radius-lg": "0.25rem",
+    "gl-duration-fast": "150ms",
+    "gl-duration": "250ms",
+    "gl-duration-slow": "700ms",
+    "gl-ease": "cubic-bezier(0.2, 0, 0, 1)"
+  },
+  "activeTemplateId": "wanderlust",
+  "placed": [
+    {
+      "sectionId": "wanderlust/preloader",
+      "slot": 0,
+      "composition": "loader",
+      "status": "built",
+      "file": "src/components/common/preloader/"
+    },
+    {
+      "sectionId": "wanderlust/hero",
+      "slot": 1,
+      "composition": "wanderlust-hero (window-opening video entrance, preserved)",
+      "media": "video-1 hero woman champagne (Seedance 2.5, 1080p)",
+      "status": "built",
+      "file": "src/views/home/hero/"
+    },
+    {
+      "sectionId": "odoro/manifesto",
+      "slot": 2,
+      "composition": "artist-statement",
+      "status": "built",
+      "file": "src/views/home/manifesto/"
+    },
+    {
+      "sectionId": "odoro/collection",
+      "slot": 3,
+      "composition": "vexon-showcase",
+      "media": "product shots 5/6/7 (nano banana 2)",
+      "status": "built",
+      "file": "src/views/home/collection/"
+    },
+    {
+      "sectionId": "odoro/film",
+      "slot": 4,
+      "composition": "negantropy-entropy -> negantropy-choice -> negantropy-persist (scroll chapters over persistent full-bleed video)",
+      "media": "video-2 jewels float (Seedance 2.5, 1080p)",
+      "status": "built",
+      "file": "src/views/home/film/"
+    },
+    {
+      "sectionId": "odoro/atelier",
+      "slot": 5,
+      "composition": "artist-cta (viewport-tall inverted band = gl-bg-alt silver surface)",
+      "media": "image 3 back-steel",
+      "status": "built",
+      "file": "src/views/home/atelier/"
+    },
+    {
+      "sectionId": "odoro/editions",
+      "slot": 6,
+      "composition": "lumora-portfolio (two-up inverted cards)",
+      "media": "images 2 profile + 4 cuff",
+      "status": "built",
+      "file": "src/views/home/editions/"
+    },
+    {
+      "sectionId": "odoro/reserve",
+      "slot": 7,
+      "composition": "altitude-cta (inline enquiry capsule under display heading)",
+      "status": "built",
+      "file": "src/views/home/reserve/"
+    },
+    {
+      "sectionId": "odoro/footer",
+      "slot": 8,
+      "composition": "footer",
+      "status": "built",
+      "file": "src/views/home/footer/"
+    }
+  ],
+  "notes": "ODORO — bijoux, landing template sans paiement. Tone dark (nuit #03060f) avec le champagne exprimé comme LUMIÈRE dans la vidéo et les images (refs utilisateur : champagne + silhouettes contre-jour, alternées avec gris acier). Palette halcyon = or #ffe49a accent, gris chaud #98958d = argent (ink-muted + la seule bande inversée). Cormorant display headline-only, Inter Tight body. Copywriting FR. Deux vidéos Seedance 2.5 1080p bitrate high, muettes. Images nano banana 2 @2k. Un seul accent, une seule bande inversée, jamais de deuxième encre.",
+  "media": {
+    "hero": {
+      "video": "public/assets/hero/hero-video.mp4 (Seedance 2.5 job 1d8f787e-9863-4423-bb59-90f97bca2d6c, HEVC master re-encoded H.264 1080p)",
+      "still": "public/assets/hero/hero-still.jpg (last frame via ffmpeg)",
+      "thumb": "public/assets/hero/hero-thumb.jpg"
+    },
+    "film": {
+      "video": "public/assets/film/film-video.mp4 (Seedance 2.5 job 1b2abf5b-0e3a-42b3-9075-0eaea3839765, H.264 1080p)",
+      "poster": "public/assets/film/film-poster.jpg"
+    },
+    "stills": "nano banana 2 @2k — collection/ (3 products), editions/ (2), argent/ (1)"
+  }
+}

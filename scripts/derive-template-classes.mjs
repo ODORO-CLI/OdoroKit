@@ -297,6 +297,20 @@ const SIMPLES = {
   'backface-hidden': ['backface-visibility: hidden'],
   'self-auto': ['align-self: auto'],
   'object-contain': ['object-fit: contain'],
+  'cursor-wait': ['cursor: wait'],
+  'cursor-not-allowed': ['cursor: not-allowed'],
+  'opacity-70': ['opacity: 0.7'],
+  'opacity-90': ['opacity: 0.9'],
+  'opacity-50': ['opacity: 0.5'],
+  'w-fit': ['width: fit-content'],
+  'h-fit': ['height: fit-content'],
+  'w-min': ['width: min-content'],
+  'w-max': ['width: max-content'],
+  'items-stretch': ['align-items: stretch'],
+  'items-start': ['align-items: flex-start'],
+  'items-end': ['align-items: flex-end'],
+  'items-center': ['align-items: center'],
+  'items-baseline': ['align-items: baseline'],
   'transform-3d': ['transform-style: preserve-3d'],
   'order-first': ['order: -9999'],
   'order-last': ['order: 9999'],
@@ -405,10 +419,35 @@ const SIMPLES = {
  * Le `e` d une notation scientifique est mis a part : `1e-5` n est pas une
  * soustraction.
  */
+const FONCTIONS_MATH = /(calc|min|max|clamp|round|mod|rem)\(/
+
 function espacerCalc(valeur) {
-  if (!valeur.includes('calc(')) return valeur
-  return (
-    valeur
+  /*
+   * `min()`, `max()` et `clamp()` ont la meme grammaire que `calc()` : l espace
+   * autour d un `+` ou d un `-` y est obligatoire. Ne regarder que `calc(`
+   * laissait passer `min(100vw-3rem,78vw,…)`, ou la premiere borne est
+   * invalide — et une borne invalide invalide la fonction, donc la
+   * declaration. La carte du hero de `joaillier` prenait 336 px au lieu de 210.
+   */
+  
+  if (!FONCTIONS_MATH.test(valeur)) return valeur
+
+  /*
+   * Le nom d une variable n est pas une soustraction.
+   *
+   * `max(var(--raw-text-size-112), 12px)` porte un `-` entre une lettre et un
+   * chiffre, exactement comme `100svh-5rem`. On met donc les `var(--…)` de
+   * cote le temps d espacer, et on les remet ensuite — ce qui est entre
+   * parentheses n a jamais ete un operateur.
+   */
+  const gardes = []
+  const masque = valeur.replace(/var\(\s*--[\w-]+\s*(?:,[^()]*)?\)/g, (v) => {
+    gardes.push(v)
+    return `@@${String(gardes.length - 1)}@@`
+  })
+
+  const espace = (
+    masque
       /*
        * Le `+` est sans ambiguite : aucun identifiant CSS n en porte.
        */
@@ -422,6 +461,10 @@ function espacerCalc(valeur) {
       .replace(/(?<![\d][eE])(?<=[\w%)\]])-(?=[\d.])/g, ' - ')
       .replace(/(?<=[%)\]])-(?=[a-z(])/g, ' - ')
   )
+
+  const fini = espace.replace(/@@(\d+)@@/g, (_, i) => gardes[Number(i)])
+  console.error('TRACE dans espacerCalc:', JSON.stringify(valeur), '->', JSON.stringify(masque), '->', JSON.stringify(espace), '->', JSON.stringify(fini))
+  return fini
 }
 
 /**
@@ -561,6 +604,27 @@ function declarationsFor(name) {
   if (ombreCouleur !== null && !THEME.has(`--shadow-${ombreCouleur[1]}`)) {
     const teinte = couleurDeJeton(ombreCouleur[1])
     if (teinte !== null) return [`--${prefix}-shadow-color: ${teinte}`]
+  }
+
+  /*
+   * Un rayon sur un seul cote, ou un seul coin : `rounded-b-media`,
+   * `rounded-tl-card`. Le jeton est le meme ; ce qui change est le nombre de
+   * coins qu il touche.
+   */
+  const COINS = {
+    t: ['top-left', 'top-right'],
+    b: ['bottom-left', 'bottom-right'],
+    l: ['top-left', 'bottom-left'],
+    r: ['top-right', 'bottom-right'],
+    tl: ['top-left'], tr: ['top-right'],
+    bl: ['bottom-left'], br: ['bottom-right'],
+  }
+  const coin = /^rounded-(t|b|l|r|tl|tr|bl|br)-([\w-]+)$/.exec(bare)
+  if (coin !== null) {
+    const jeton = THEME.get(`--radius-${coin[2]}`)
+    if (jeton !== undefined) {
+      return COINS[coin[1]].map((c) => `border-${c}-radius: ${jeton}`)
+    }
   }
 
   const travee = /^(col|row)-span-(\d+)$/.exec(bare)

@@ -1,0 +1,31 @@
+{
+  "name": "odoro-joaillier",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Une maison de joaillerie : un hero video a viseur qui suit le curseur, un triptyque de collection, un film d atelier et des editions numerotees.",
+  "scripts": {
+    "dev": "odoro dev",
+    "build": "odoro build",
+    "preview": "odoro preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@odoro-cli/libs": "^2.0.0",
+    "@react-spring/web": "^10.1.2",
+    "lenis": "^1.3.26",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "resize-observer-polyfill": "^1.5.1",
+    "spring-text-engine": "^0.1.5",
+    "zod": "^4.4.3",
+    "zustand": "^5.0.15"
+  },
+  "devDependencies": {
+    "@types/node": "^24",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "odoro": "^2.0.0",
+    "typescript": "^5.9.3"
+  }
+}

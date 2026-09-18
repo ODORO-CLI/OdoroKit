@@ -114,7 +114,18 @@ function sources(directory, found = []) {
     if (['node_modules', '.next', 'public', 'dist'].includes(entry.name)) continue
     const path = join(directory, entry.name)
     if (entry.isDirectory()) sources(path, found)
-    else if (entry.name.endsWith('.tsx')) found.push(path)
+    /*
+     * `.ts` autant que `.tsx`.
+     *
+     * `joaillier` range la geometrie de son hero dans `hero.geometry.ts` : des
+     * listes de classes nommees, employees plus loin par `className={G.video}`.
+     * Ne lire que les `.tsx` les laissait entieres — la video du hero perdait
+     * sa position absolue, et six surcouches avec elle. Une passe ne peut pas
+     * echouer sur ce qu elle ne regarde pas.
+     */
+    else if (entry.name.endsWith('.tsx') || entry.name.endsWith('.ts')) {
+      found.push(path)
+    }
   }
   return found
 }
@@ -280,7 +291,23 @@ function rewriteExpression(code, where) {
  * dispositions n en a vu qu une traduite, la photographie du hero a perdu son
  * bloc englobant, et la page s est affichee blanche.
  */
-const SHAPE = /^-?!?[a-z][a-z0-9:/[\]().,%_-]*$/
+/*
+ * La forme d un nom de classe.
+ *
+ * La classe de caracteres admis manquait de tout ce qu une valeur arbitraire
+ * peut contenir : le `*` d une multiplication, le `+` d une addition, les
+ * accolades d une variable, l esperluette d un selecteur ecrit en ligne.
+ *
+ * Un nom peut aussi commencer par un crochet : `[mix-blend-mode:overlay]` est
+ * une declaration ecrite en classe, et elle en est une.
+ *
+ * Un seul mot refuse suffisait a ecarter la chaine entiere — elles sont testees
+ * d un bloc. Chez `joaillier`, quatre `max-lg:h-[calc(min(…)*0.63)]` faisaient
+ * tomber une liste de quinze classes, et la carte du hero perdait sa position
+ * absolue, sa taille et son rayon. Rien ne le disait : une chaine qu on ne
+ * regarde pas ne peut pas manquer.
+ */
+const SHAPE = /^-?!?[a-z[][a-z0-9:/[\]().,%_*+&>=~^{}$-]*$/
 
 /**
  * Une chaine hors attribut est-elle une liste de classes ?
@@ -475,8 +502,22 @@ for (const file of sources(folder)) {
     /(["'`])([^"'`\n]{2,800})\1/g,
     (whole, quote, text, index) => {
       if (dansUnCommentaire(index)) return whole
-      if (!looksLikeClassList(text)) return whole
-      return quote + rewriteList(text, where) + quote
+
+      /*
+       * Ce qu un littéral gabarit interpole est du code, et non une classe.
+       *
+       * `` `font-ui text-caption … ${smallType}` `` echouait au test de forme a
+       * cause du seul `${smallType}`, et les cinq classes qui le precedaient
+       * partaient avec lui. On met donc le code de cote, on juge et on reecrit
+       * ce qui reste, et on le remet en place.
+       */
+      const morceaux = text.split(/(\$\{[^}]*\})/g)
+      const litteral = morceaux.filter((_, i) => i % 2 === 0).join(' ')
+      if (!looksLikeClassList(litteral)) return whole
+      const refait = morceaux
+        .map((m, i) => (i % 2 === 0 ? rewriteList(m, where) : m))
+        .join('')
+      return quote + refait + quote
     },
   )
 

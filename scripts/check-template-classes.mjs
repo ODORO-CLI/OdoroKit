@@ -120,7 +120,23 @@ function sources(directory, found = []) {
  * dispositions n en a vu qu une traduite, la photographie du hero a perdu son
  * bloc englobant, et la page s est affichee blanche.
  */
-const SHAPE = /^-?!?[a-z][a-z0-9:/[\]().,%_-]*$/
+/*
+ * La forme d un nom de classe.
+ *
+ * La classe de caracteres admis manquait de tout ce qu une valeur arbitraire
+ * peut contenir : le `*` d une multiplication, le `+` d une addition, les
+ * accolades d une variable, l esperluette d un selecteur ecrit en ligne.
+ *
+ * Un nom peut aussi commencer par un crochet : `[mix-blend-mode:overlay]` est
+ * une declaration ecrite en classe, et elle en est une.
+ *
+ * Un seul mot refuse suffisait a ecarter la chaine entiere — elles sont testees
+ * d un bloc. Chez `joaillier`, quatre `max-lg:h-[calc(min(…)*0.63)]` faisaient
+ * tomber une liste de quinze classes, et la carte du hero perdait sa position
+ * absolue, sa taille et son rayon. Rien ne le disait : une chaine qu on ne
+ * regarde pas ne peut pas manquer.
+ */
+const SHAPE = /^-?!?[a-z[][a-z0-9:/[\]().,%_*+&>=~^{}$-]*$/
 
 const found = new Map()
 

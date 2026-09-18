@@ -501,6 +501,16 @@ export const IGNORED = new Set(['left', 'right', 'center', 'around', 'core', 'th
 
 /** Des mots croises ailleurs, qui ressemblent a une classe sans en etre. */
 export const FAUX_AMIS = new Set([
+  /*
+   * Des identifiants de section, pas des classes : `screens.ts` les emploie
+   * comme ancres de defilement.
+   */
+  'product-0',
+  'product-1',
+  'roadmap-0',
+  'roadmap-1',
+  'roadmap-2',
+
   'hidden',
   'resize',
   'fixed',
