@@ -639,9 +639,13 @@ export function PanneauCode({ vitrine }: { readonly vitrine: Vitrine }): ReactEl
 export function PanneauCodeProjet({
   nom,
   titre,
+  install,
+  dev,
 }: {
   readonly nom: string
   readonly titre: string
+  readonly install?: string
+  readonly dev?: string
 }): ReactElement {
   useFeuilleCode()
   const etat = useExport(`projet:${nom}`, `/exports/projets/${nom}.json`)
@@ -677,10 +681,17 @@ export function PanneauCodeProjet({
         </h2>
         <p className="o-m-0 o-mt-1 o-max-w-2xl o-text-sm o-text-zinc-600 dark:o-text-zinc-400">
           L’arborescence entière du projet, telle qu’elle est livrée :{' '}
-          <code className="o-font-mono o-text-xs">npm install</code> puis{' '}
-          <code className="o-font-mono o-text-xs">npm run dev</code>, et il tourne. Les
-          fichiers qui ne se lisent pas dans une colonne — images, vidéos, polices —
-          gardent leur place et leur poids.
+          {/* Tous les projets ne s installent pas. `sections` est une
+              bibliotheque de documents autonomes : il n y a rien a poser, et
+              annoncer une commande qui ne sert pas serait une fausse piste. */}
+          {install !== undefined && (
+            <>
+              <code className="o-font-mono o-text-xs">{install}</code> puis{' '}
+            </>
+          )}
+          <code className="o-font-mono o-text-xs">{dev ?? 'npm run dev'}</code>, et il
+          tourne. Les fichiers qui ne se lisent pas dans une colonne — images, vidéos,
+          polices — gardent leur place et leur poids.
         </p>
       </div>
 

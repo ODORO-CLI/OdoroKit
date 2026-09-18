@@ -135,7 +135,7 @@ function Bandeau({
       <span className="o-ml-auto o-flex o-items-center o-gap-3">
         <ChoixVue vue={vue} onChange={onVue} />
 
-        {/* Les deux sorties du projet. Elles restent devant les deux vues : ce
+        {/* Les deux sorties du projet. Elles restent apres les trois vues : ce
             sont elles qu on vient chercher apres avoir regarde. */}
         {mesures !== undefined && (
           <a
@@ -281,7 +281,12 @@ export function ProjetRoute(): ReactElement {
         </div>
       ) : vue === 'code' ? (
         <div className="o-flex-1 o-overflow-auto">
-          <PanneauCodeProjet nom={projet.name} titre={projet.title} />
+          <PanneauCodeProjet
+            nom={projet.name}
+            titre={projet.title}
+            install={projet.install}
+            dev={projet.dev}
+          />
         </div>
       ) : (
         /*
