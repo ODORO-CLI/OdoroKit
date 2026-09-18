@@ -30,6 +30,14 @@
  * module and the page stays blank. `parfum`, which splits its bundle, stopped
  * there. They are therefore rewritten first, relative to the file.
  *
+ * ## A template that has no build
+ *
+ * `sections` is a library of standalone HTML documents: no bundler, no `dist/`,
+ * an `index.html` at its root and nothing to compile. It was therefore skipped,
+ * and its page framed a document that did not exist — the documentation's own
+ * 404, shown inside the documentation. Such a template is copied as it stands,
+ * minus what never gets served.
+ *
  * ## What is not copied
  *
  * The source maps. They are the heaviest thing in a build and nobody reads
@@ -181,6 +189,33 @@ function poserLaBase(fichier, nom) {
   )
 }
 
+/**
+ * What never gets served, whatever the template.
+ *
+ * A template with no build is copied whole, and what a repository carries for
+ * the person who clones it — its dependencies, its history, its card in the
+ * catalogue — has no place behind an address.
+ */
+const HORS_COPIE = new Set([
+  'node_modules',
+  '.git',
+  'dist',
+  'preview.jpg',
+  'template.json',
+])
+
+/**
+ * The folder that holds what a template serves.
+ *
+ * A built template serves its `dist/`. A template that has nothing to build —
+ * standalone HTML — serves itself.
+ */
+function servi(template) {
+  return existsSync(join(template, 'dist', 'index.html'))
+    ? join(template, 'dist')
+    : template
+}
+
 /** The size of a folder, in bytes. */
 function poids(dossier) {
   let total = 0
@@ -195,7 +230,10 @@ function poids(dossier) {
 
 const projets = readdirSync(SOURCE, { withFileTypes: true })
   .filter(
-    (e) => e.isDirectory() && existsSync(join(SOURCE, e.name, 'dist', 'index.html')),
+    (e) =>
+      e.isDirectory() &&
+      (existsSync(join(SOURCE, e.name, 'dist', 'index.html')) ||
+        existsSync(join(SOURCE, e.name, 'index.html'))),
   )
   .map((e) => e.name)
 
@@ -212,9 +250,14 @@ for (const nom of projets) {
   const template = join(SOURCE, nom)
   const cible = join(OUT, nom)
 
-  cpSync(join(template, 'dist'), cible, {
+  const source = servi(template)
+  cpSync(source, cible, {
     recursive: true,
-    filter: (chemin) => !chemin.endsWith('.map'),
+    filter: (chemin) => {
+      if (chemin.endsWith('.map')) return false
+      const nom = relative(source, chemin).split(sep)[0]
+      return nom === undefined || !HORS_COPIE.has(nom)
+    },
   })
 
   parcourir(cible, racines(template), cible)
