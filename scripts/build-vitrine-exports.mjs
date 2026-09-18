@@ -612,6 +612,38 @@ function buildExport(showcase) {
  */
 const NOT_SHIPPED = new Set(['node_modules', '.next', 'dist', '.turbo', '.git', 'out'])
 
+/**
+ * Les extensions dont le contenu se lit.
+ *
+ * Le panneau de code montre l arborescence entiere — un projet se comprend a
+ * sa forme autant qu a ses lignes — mais ne porte le texte que de ce qui se
+ * lit. Une video de trente megaoctets encodee en base64 dans un JSON serait
+ * quatre fois son poids, pour un panneau qui ne l afficherait pas.
+ */
+const SE_LIT = new Set([
+  '.ts', '.tsx', '.js', '.jsx', '.mjs', '.cjs', '.css', '.json', '.md',
+  '.html', '.svg', '.txt', '.yml', '.yaml', '.sh', '.xml', '.webmanifest',
+])
+
+/**
+ * Au-dela de cette taille, un fichier texte n est pas montre non plus.
+ *
+ * Un verrou de dependances fait deux cent mille lignes que personne ne lit
+ * dans une colonne. Il reste dans l arborescence, avec son poids.
+ */
+const TROP_LONG = 128 * 1024
+
+/** Le contenu d un fichier, s il se lit. */
+function contenuLisible(chemin, taille) {
+  const point = chemin.lastIndexOf('.')
+  const extension = point < 0 ? '' : chemin.slice(point)
+  // Un nom sans extension — `.gitignore`, `LICENSE` — se lit aussi.
+  const sansExtension = point <= chemin.lastIndexOf('/') + 1
+  if (!SE_LIT.has(extension) && !sansExtension) return null
+  if (taille > TROP_LONG) return null
+  return true
+}
+
 /** Every file of a folder, minus what rebuilds itself. */
 function filesOf(folder, prefix = '') {
   const found = []
@@ -650,7 +682,27 @@ function buildProjects() {
       })),
     )
     writeFileSync(join(OUT_PROJECTS, `${name}.zip`), zip)
-    rows[name] = { zip: zip.length, files: paths.length }
+
+    /*
+     * L arborescence, et le texte de ce qui se lit.
+     *
+     * C est ce que le panneau de code affiche sur le site. Chaque entree porte
+     * son chemin et son poids ; celles qui se lisent portent leur texte en
+     * plus. Le panneau sait alors montrer la forme entiere du projet, et
+     * ouvrir ce qui s ouvre.
+     */
+    const fichiers = paths.map((path) => {
+      const octets = statSync(join(folder, path)).size
+      const lisible = contenuLisible(path, octets)
+      return lisible === null
+        ? { path, bytes: octets }
+        : { path, bytes: octets, code: readFileSync(join(folder, path), 'utf8') }
+    })
+
+    const arbre = JSON.stringify({ name, files: fichiers })
+    writeFileSync(join(OUT_PROJECTS, `${name}.json`), arbre)
+
+    rows[name] = { zip: zip.length, files: paths.length, code: arbre.length }
 
     console.log(
       `  ${name.padEnd(22)} ${String(paths.length).padStart(3)} fichiers` +

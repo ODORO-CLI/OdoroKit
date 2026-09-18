@@ -13,14 +13,14 @@
  * Il vit donc dans un cadre, servi depuis `/projets/<nom>/`, ou il est chez lui
  * — et c est exactement ce que voit quelqu un qui le clone.
  *
- * ## Deux vues, pas trois
+ * ## Trois vues
  *
- * Une vitrine en a trois : apercu, code, integrer. Un projet n a pas de vue
- * « code » : elle montre un fichier qu on lit dans une colonne, et un projet
- * livre en compte jusqu a cinq cents. Son code se parcourt sur le depot, et le
- * bandeau y mene.
+ * Les memes qu une vitrine : apercu, code, integrer. Le code d un projet livre
+ * se regarde ici, arborescence comprise — cinq cents fichiers dans une colonne,
+ * c est justement ce qu on vient voir. Le depot reste dans le bandeau pour qui
+ * veut l historique.
  *
- * Il n a pas de palette non plus. Une vitrine lit ses couleurs dans
+ * Il n a pas de palette. Une vitrine lit ses couleurs dans
  * `--o-vitrine-*` et se reteinte ; un projet a la sienne, ecrite dans ses
  * jetons, et la reteinter serait le defigurer.
  *
@@ -34,13 +34,15 @@ import { Link, useParams, useSearchParams } from '@odoro-cli/libs/router'
 import { useState, type ReactElement } from 'react'
 
 import { CodeBlock } from '../components/CodeBlock.jsx'
+import { PanneauCodeProjet } from '../components/VitrineExport.jsx'
 import { HEADER_OFFSET } from '../components/Shell.jsx'
 import { DEPOT, EXPORTS_PROJETS } from '../exports.generated.js'
 import { TEMPLATES as PROJETS, type TemplateEntry } from '../templates.generated.js'
 
-/** Les deux vues d un projet. */
+/** Les trois vues d un projet. */
 const VUES = [
   { cle: '', etiquette: 'Aperçu' },
+  { cle: 'code', etiquette: 'Code' },
   { cle: 'integrer', etiquette: 'Intégrer' },
 ] as const
 
@@ -153,7 +155,7 @@ function Bandeau({
           className="max-sm:o-hidden o-inline-flex o-items-center o-gap-1.5 o-rounded-lg o-border-w-1 o-border-zinc-300 dark:o-border-zinc-700 o-px-2.5 o-py-1.5 o-text-xs o-font-medium o-no-underline o-text-zinc-700 dark:o-text-zinc-200 hover:o-border-zinc-400 dark:hover:o-border-zinc-600 o-transition-colors"
         >
           <Icon icon={Github} size={13} aria-hidden="true" />
-          Code
+          Dépôt
           <Icon icon={ExternalLink} size={11} aria-hidden="true" className="o-opacity-60" />
         </a>
       </span>
@@ -233,7 +235,7 @@ export function ProjetRoute(): ReactElement {
   const projet = PROJETS.find((p) => p.name === nom)
 
   const demandee = recherche.get('vue')
-  const vue: Vue = demandee === 'integrer' ? demandee : ''
+  const vue: Vue = demandee === 'integrer' || demandee === 'code' ? demandee : ''
 
   if (projet === undefined) {
     return (
@@ -276,6 +278,10 @@ export function ProjetRoute(): ReactElement {
       {vue === 'integrer' ? (
         <div className="o-flex-1 o-overflow-auto">
           <PanneauIntegration projet={projet} />
+        </div>
+      ) : vue === 'code' ? (
+        <div className="o-flex-1 o-overflow-auto">
+          <PanneauCodeProjet nom={projet.name} titre={projet.title} />
         </div>
       ) : (
         /*

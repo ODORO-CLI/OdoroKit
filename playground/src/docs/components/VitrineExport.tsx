@@ -128,19 +128,28 @@ function useFeuilleCode(): void {
 
 /* ============================ Le chargement ============================= */
 
-/** Un fichier du projet exporte. */
+/**
+ * Un fichier du projet exporte.
+ *
+ * `code` manque pour ce qui ne se lit pas — une image, une video, une police.
+ * Ces fichiers restent dans l arborescence, avec leur poids : un projet se
+ * comprend a sa forme autant qu a ses lignes, et cacher ses assets donnerait
+ * une forme fausse.
+ */
 interface Fichier {
   readonly path: string
-  readonly code: string
+  readonly code?: string
+  readonly bytes?: number
 }
 
-/** Ce que le generateur ecrit pour une vitrine. */
+/**
+ * Ce que le generateur ecrit, vitrine ou projet livre.
+ *
+ * Les deux fichiers ne portent pas les memes entetes — une vitrine annonce son
+ * metier, un projet son nom de dossier — mais le panneau ne lit que `files`.
+ * C est le seul champ qu il exige.
+ */
 interface Export {
-  readonly slug: string
-  readonly title: string
-  readonly trade: string
-  readonly source: string
-  readonly photographs: number
   readonly files: readonly Fichier[]
 }
 
@@ -163,8 +172,14 @@ function lienDepot(slug: string): string {
   return `${DEPOT}/blob/main/playground/src/docs/vitrines/${slug}.tsx`
 }
 
-/** Telecharge le code d une vitrine, une seule fois. */
-function useExport(slug: string): Etat {
+/**
+ * Telecharge une liste de fichiers, une seule fois.
+ *
+ * L adresse est donnee plutot que deduite : une vitrine et un projet livre
+ * n ecrivent pas au meme endroit, et le panneau qui les montre est le meme.
+ */
+function useExport(cle: string, adresse: string): Etat {
+  const slug = cle
   const [etat, setEtat] = useState<Etat>(() => {
     const deja = CACHE.get(slug)
     return deja === undefined ? { statut: 'attente' } : { statut: 'pret', contenu: deja }
@@ -183,7 +198,7 @@ function useExport(slug: string): Etat {
     let vivant = true
     setEtat({ statut: 'attente' })
 
-    fetch(`/exports/vitrines/${slug}.json`)
+    fetch(adresse)
       .then((reponse) => {
         if (!reponse.ok) throw new Error(`reponse ${String(reponse.status)}`)
         return reponse.json() as Promise<Export>
@@ -199,7 +214,7 @@ function useExport(slug: string): Etat {
     return () => {
       vivant = false
     }
-  }, [slug])
+  }, [slug, adresse])
 
   return etat
 }
@@ -340,11 +355,31 @@ function Ligne({
   const { icone, teinte } = apparence(noeud.nom)
   const bouton = useRef<HTMLButtonElement>(null)
 
-  // Le fichier lu est souvent au fond de l arbre — `src/vitrine/` vient apres
-  // les onze pieces du registre. Sans cela, le panneau s ouvre sur un fichier
-  // surligne que personne ne voit.
+  /*
+   * Le fichier lu est souvent au fond de l arbre — `src/vitrine/` vient apres
+   * les onze pieces du registre. Sans cela, le panneau s ouvre sur un fichier
+   * surligne que personne ne voit.
+   *
+   * On deplace la colonne a la main plutot que d appeler `scrollIntoView` :
+   * celui-ci remonte la chaine des parents defilables et bouge aussi la page.
+   * Dans la route d un projet, ou le panneau vit dans une colonne haute,
+   * cela decalait le titre sous le bandeau des l ouverture.
+   */
   useEffect(() => {
-    if (actif) bouton.current?.scrollIntoView({ block: 'nearest' })
+    if (!actif) return
+    const cible = bouton.current
+    const colonne = cible?.closest('.tp-arbre-corps')
+    if (cible === null || colonne === null || colonne === undefined) return
+
+    /*
+     * La position se mesure a l ecran, pas avec `offsetTop` : les groupes de
+     * l arbre sont positionnes — ils portent leur filet vertical — et c est
+     * donc son groupe, pas la colonne, qui sert de repere a une ligne.
+     */
+    const cadre = colonne.getBoundingClientRect()
+    const ligne = cible.getBoundingClientRect()
+    const centre = ligne.top - cadre.top - cadre.height / 2 + ligne.height / 2
+    colonne.scrollTop = Math.max(0, colonne.scrollTop + centre)
   }, [actif])
 
   return (
@@ -514,7 +549,7 @@ function Explorateur({
 /** La liste des fichiers, et celui qu on lit. */
 export function PanneauCode({ vitrine }: { readonly vitrine: Vitrine }): ReactElement {
   useFeuilleCode()
-  const etat = useExport(vitrine.slug)
+  const etat = useExport(vitrine.slug, `/exports/vitrines/${vitrine.slug}.json`)
   const [choisi, setChoisi] = useState<string | null>(null)
   const mesures = EXPORTS[vitrine.slug]
 
@@ -564,9 +599,122 @@ export function PanneauCode({ vitrine }: { readonly vitrine: Vitrine }): ReactEl
           />
 
           <div className="o-min-w-0">
+            {/* Un fichier sans texte n est pas une erreur : c est une image,
+                une video, une police. On le dit, avec son poids, plutot que
+                d afficher une colonne vide. */}
             <CodeBlock
-              lang={langage(courant.path)}
-              code={courant.code}
+              lang={courant.code === undefined ? 'txt' : langage(courant.path)}
+              code={
+                courant.code ??
+                `Ce fichier ne se lit pas dans une colonne.
+` +
+                  `${poids(courant.bytes ?? 0)} — il est dans l’archive.`
+              }
+              className="tp-code-corps o-overflow-y-auto o-scrollbar dark:o-scrollbar-dark"
+              actions={
+                <span className="o-font-mono o-text-xs o-text-zinc-500 dark:o-text-zinc-400">
+                  {courant.path}
+                </span>
+              }
+            />
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+/**
+ * Les fichiers d un projet livre.
+ *
+ * Le meme explorateur que pour une vitrine, sur une autre source. Ce qui
+ * change tient en trois points : l adresse du fichier de code, le fichier
+ * ouvert par defaut — on veut voir la page, pas `tsconfig.json` — et
+ * l arborescence, qui porte ici tout le projet, assets compris.
+ *
+ * Un projet livre compte jusqu a cinq cents fichiers. C est beaucoup pour une
+ * colonne, et c est justement ce qu on vient voir : la forme d un vrai projet,
+ * pas un extrait choisi.
+ */
+export function PanneauCodeProjet({
+  nom,
+  titre,
+}: {
+  readonly nom: string
+  readonly titre: string
+}): ReactElement {
+  useFeuilleCode()
+  const etat = useExport(`projet:${nom}`, `/exports/projets/${nom}.json`)
+  const [choisi, setChoisi] = useState<string | null>(null)
+
+  const fichiers = useMemo(
+    () => (etat.statut === 'pret' ? etat.contenu.files : []),
+    [etat],
+  )
+  const chemins = useMemo(() => fichiers.map((f) => f.path), [fichiers])
+
+  useEffect(() => {
+    setChoisi(null)
+  }, [nom])
+
+  /*
+   * A l ouverture, la page : celle qui monte l application, ou a defaut le
+   * premier fichier qui se lit. Ouvrir sur un binaire montrerait une colonne
+   * qui dit « ce fichier ne se lit pas », ce qui est vrai et sans interet.
+   */
+  const ORDRE = ['src/App.tsx', 'src/main.tsx', 'index.html', 'README.md']
+  const courant =
+    fichiers.find((f) => f.path === choisi) ??
+    ORDRE.map((p) => fichiers.find((f) => f.path === p)).find((f) => f !== undefined) ??
+    fichiers.find((f) => f.code !== undefined) ??
+    fichiers[0]
+
+  return (
+    <div className="o-mx-auto o-max-w-7xl o-px-4 o-py-6 md:o-px-6">
+      <div className="o-min-w-0">
+        <h2 className="o-m-0 o-text-lg o-font-semibold o-tracking-tight">
+          Le code complet de {titre}
+        </h2>
+        <p className="o-m-0 o-mt-1 o-max-w-2xl o-text-sm o-text-zinc-600 dark:o-text-zinc-400">
+          L’arborescence entière du projet, telle qu’elle est livrée :{' '}
+          <code className="o-font-mono o-text-xs">npm install</code> puis{' '}
+          <code className="o-font-mono o-text-xs">npm run dev</code>, et il tourne. Les
+          fichiers qui ne se lisent pas dans une colonne — images, vidéos, polices —
+          gardent leur place et leur poids.
+        </p>
+      </div>
+
+      {etat.statut === 'attente' && (
+        <p className="o-mt-8 o-text-sm o-text-zinc-500 dark:o-text-zinc-400">
+          Chargement du code...
+        </p>
+      )}
+
+      {etat.statut === 'echec' && (
+        <p className="o-mt-8 o-text-sm o-text-red-600 dark:o-text-red-400">
+          Le code n’a pas pu être chargé ({etat.message}). L’archive et le dépôt restent
+          accessibles depuis le bandeau.
+        </p>
+      )}
+
+      {etat.statut === 'pret' && courant !== undefined && (
+        <div className="o-mt-6 o-grid o-gap-5 tp-code">
+          <Explorateur
+            slug={nom}
+            chemins={chemins}
+            choisi={courant.path}
+            onChoisir={setChoisi}
+          />
+
+          <div className="o-min-w-0">
+            <CodeBlock
+              lang={courant.code === undefined ? 'txt' : langage(courant.path)}
+              code={
+                courant.code ??
+                `Ce fichier ne se lit pas dans une colonne.
+` +
+                  `${poids(courant.bytes ?? 0)} — il est dans l’archive.`
+              }
               className="tp-code-corps o-overflow-y-auto o-scrollbar dark:o-scrollbar-dark"
               actions={
                 <span className="o-font-mono o-text-xs o-text-zinc-500 dark:o-text-zinc-400">
