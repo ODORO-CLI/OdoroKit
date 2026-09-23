@@ -38,10 +38,10 @@ import {
   Waves,
   Zap,
 } from '@odoro-cli/icons/outline'
-import { Github } from '@odoro-cli/icons/brands'
+import { Github, Npm } from '@odoro-cli/icons/brands'
 import { Link, useLocation } from '@odoro-cli/libs/router'
 
-import { DEPOT } from '../liens.js'
+import { DEPOT, NPM } from '../liens.js'
 import { DOC_SECTIONS, type DocPage, type DocSection, sectionPages } from '../registry.js'
 import { Pagination } from './Pagination.jsx'
 import { SearchDialog } from './SearchDialog.jsx'
@@ -585,6 +585,9 @@ export function Shell({ children }: { children?: ReactNode }): ReactElement {
         <div className="o-flex-1" />
 
         <ThemeToggle />
+        {/* Les deux sorties du projet, cote a cote : le depot et le paquet
+            publie. Elles se cherchent une fois, pas a chaque page — d ou
+            l icone seule, sans libelle. */}
         <a
           href={DEPOT}
           target="_blank"
@@ -594,9 +597,15 @@ export function Shell({ children }: { children?: ReactNode }): ReactElement {
         >
           <Icon icon={Github} size={16} />
         </a>
-        <span className="ods-avatar" aria-hidden="true">
-          OD
-        </span>
+        <a
+          href={NPM}
+          target="_blank"
+          rel="noreferrer"
+          aria-label="Paquet npm"
+          className="max-sm:o-hidden ods-barre-icone o-no-underline"
+        >
+          <Icon icon={Npm} size={16} />
+        </a>
       </header>
 
       {/* La colonne borde la zone de travail : elle porte sa surface, sa
