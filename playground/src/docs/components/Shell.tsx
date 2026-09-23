@@ -580,6 +580,10 @@ export function Shell({ children }: { children?: ReactNode }): ReactElement {
 
       {/* La colonne borde la zone de travail : elle porte sa surface, sa
           limite a droite, et son propre defilement. */}
+      {/* La vitrine et la page d accueil n ont pas de colonne : elles ne sont
+          pas des pages de documentation, et une navigation laterale y
+          annoncerait une arborescence qu elles n ont pas. */}
+      {colonneCachee ? null : (
       <aside
         className="ods-colonne"
         data-ouverte={menuOpen ? '' : undefined}
@@ -622,8 +626,15 @@ export function Shell({ children }: { children?: ReactNode }): ReactElement {
 
         <SideNav onNavigate={() => setMenuOpen(false)} />
       </aside>
+      )}
 
-      <div className="ods-zone-contenu o-view-transition-page">
+      <div
+        className={[
+          'ods-zone-contenu o-view-transition-page',
+          colonneCachee ? 'ods-zone-contenu-pleine' : '',
+          large ? 'ods-zone-contenu-bord' : '',
+        ].join(' ')}
+      >
         <div className={large || colonneCachee ? '' : 'ods-mesure-fiche'}>
           {/* Sur une console, ce qui se lit est pose sur une carte, et le gris
               autour n est pas un fond : c est ce qui fait exister la carte. Les

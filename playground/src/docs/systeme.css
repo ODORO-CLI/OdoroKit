@@ -797,6 +797,29 @@
   background-color: var(--ods-fond);
 }
 
+/*
+ * Les pages sans colonne.
+ *
+ * La vitrine et la page d accueil n ont pas de navigation laterale : leur
+ * contenu part du bord gauche. Et elles posent leurs marges section par
+ * section — un hero doit toucher les bords, donc la gouttiere de la zone
+ * disparait aussi, sinon la scene s arrete a seize pixels du cadre.
+ */
+.ods-zone-contenu-pleine {
+  margin-left: 0;
+}
+/*
+ * Le selecteur est double a dessein : la requete de media qui elargit la
+ * gouttiere a 1440 px est ecrite plus bas dans ce fichier, a specificite
+ * egale, et l emportait. Un hero repoussait donc de vingt-quatre pixels sur
+ * les grands ecrans, et seulement sur eux.
+ */
+.ods-zone-contenu-bord.ods-zone-contenu-bord {
+  padding-top: var(--ods-barre-h);
+  padding-inline: 0;
+  padding-bottom: 0;
+}
+
 /* Les mesures de contenu, selon le type de page (§1). */
 .ods-mesure-liste {
   max-width: 100%;
