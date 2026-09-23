@@ -968,3 +968,243 @@
 .ods-selecteur.ods-selecteur {
   color: var(--ods-encre);
 }
+
+/* ==================================================================== */
+/* Modales, menus, infobulles (§12) et etats vides (§8)                  */
+/* ==================================================================== */
+
+/*
+ * Le voile.
+ *
+ * Il ferme au clic, donc il est un element a part et non une ombre portee sur
+ * la modale : une ombre ne recoit pas de clic, et on aurait ajoute un
+ * ecouteur sur le document pour rattraper ce que la structure disait deja.
+ */
+.ods-voile {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  justify-content: center;
+  background: rgb(0 0 0 / 0.5);
+}
+
+.ods-modale {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-height: 90vh;
+  overflow: hidden;
+  border-radius: var(--ods-r-carte);
+  background-color: var(--ods-carte);
+  box-shadow: var(--ods-ombre-modale);
+  color: var(--ods-encre);
+}
+
+/* Trois largeurs, et pas une de plus : une modale dont la largeur se decide
+   au cas par cas finit par en avoir autant que de modales. */
+.ods-modale-etroite {
+  max-width: 380px;
+}
+.ods-modale-moyenne {
+  max-width: 620px;
+}
+.ods-modale-large {
+  max-width: 980px;
+}
+
+.ods-modale-tete {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  height: 52px;
+  padding: 0 8px 0 16px;
+  background-color: var(--ods-sous-bloc);
+  border-bottom: 1px solid var(--ods-separateur);
+}
+.ods-modale-titre {
+  margin: 0;
+  font-family: var(--ods-police);
+  font-size: var(--ods-titre-carte);
+  line-height: var(--ods-corps-h);
+  font-weight: var(--ods-gras);
+  color: var(--ods-encre);
+}
+.ods-modale-corps {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--ods-marge);
+}
+/* Une liste d options occupe tout le corps : elle pose ses propres marges,
+   ligne par ligne, et un padding autour la decollerait des bords. */
+.ods-modale-corps-liste {
+  padding: 0;
+}
+.ods-modale-pied {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  height: 60px;
+  padding: 0 var(--ods-marge);
+  border-top: 1px solid var(--ods-separateur);
+}
+
+/*
+ * Une ligne d option.
+ *
+ * Soixante-quatre pixels : c est la hauteur qu il faut pour un titre et une
+ * description sans que la seconde touche la premiere. Le separateur est pose
+ * en haut plutot qu en bas — la derniere ligne n a alors pas a etre traitee
+ * a part pour eviter un trait double au-dessus du pied.
+ */
+.ods-option {
+  display: flex;
+  width: 100%;
+  min-height: 64px;
+  align-items: center;
+  gap: 12px;
+  padding: 10px var(--ods-marge);
+  border: 0;
+  background: none;
+  color: var(--ods-encre);
+  font-family: var(--ods-police);
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color var(--ods-t-couleur);
+}
+.ods-option + .ods-option {
+  border-top: 1px solid var(--ods-separateur);
+}
+.ods-option:hover,
+.ods-option[data-tenu] {
+  background-color: var(--ods-sous-bloc);
+}
+.ods-option-titre {
+  font-size: var(--ods-corps);
+  line-height: var(--ods-corps-h);
+  font-weight: var(--ods-gras);
+}
+.ods-option-detail {
+  font-size: var(--ods-corps);
+  line-height: var(--ods-corps-h);
+  color: var(--ods-encre-douce);
+}
+
+/* --- Menus, infobulles, toasts --------------------------------------- */
+
+.ods-menu {
+  padding: 4px;
+  border-radius: var(--ods-r-controle);
+  background-color: var(--ods-carte);
+  box-shadow: var(--ods-ombre-menu);
+}
+.ods-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  height: var(--ods-nav-h);
+  padding: 0 8px;
+  border: 0;
+  border-radius: var(--ods-r-petit);
+  background: none;
+  color: var(--ods-encre);
+  font-family: var(--ods-police);
+  font-size: var(--ods-corps);
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--ods-t-menu);
+}
+.ods-menu-item:hover {
+  background-color: var(--ods-fond);
+}
+.ods-menu-item-destructeur {
+  color: var(--ods-critique-plein);
+}
+
+.ods-infobulle {
+  padding: 4px 8px;
+  border-radius: var(--ods-r-petit);
+  background-color: #303030;
+  color: #ffffff;
+  font-family: var(--ods-police);
+  font-size: var(--ods-petit);
+  line-height: var(--ods-petit-h);
+}
+
+.ods-toast {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 40px;
+  padding: 0 16px;
+  border-radius: var(--ods-r-controle);
+  background-color: #303030;
+  color: #ffffff;
+  font-family: var(--ods-police);
+  font-size: var(--ods-corps);
+}
+
+/* --- L etat vide (§8) ------------------------------------------------- */
+
+/*
+ * Il vit dans une carte, centre dans les deux sens.
+ *
+ * Quarante-huit pixels de padding : moins, et il se lit comme une erreur
+ * serree dans un coin ; c est une page qui attend, pas une panne.
+ */
+.ods-vide {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ods-marge);
+  padding: 48px;
+  text-align: center;
+}
+.ods-vide-disque {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 140px;
+  height: 140px;
+  flex: none;
+  border-radius: var(--ods-r-pilule);
+  background-color: var(--ods-fond);
+  color: var(--ods-encre-eteinte);
+}
+.ods-vide-titre {
+  margin: 0;
+  font-family: var(--ods-police);
+  font-size: var(--ods-titre-carte);
+  line-height: var(--ods-corps-h);
+  font-weight: var(--ods-gras);
+  color: var(--ods-encre);
+}
+.ods-vide-texte {
+  margin: 0;
+  max-width: 400px;
+  font-family: var(--ods-police);
+  font-size: var(--ods-corps);
+  line-height: var(--ods-corps-h);
+  color: var(--ods-encre-douce);
+}
+
+/* Sous 768 px, une modale prend l ecran (§16). */
+@media (max-width: 767px) {
+  .ods-voile {
+    padding: 0;
+  }
+  .ods-modale {
+    max-width: 100%;
+    max-height: 100vh;
+    height: 100vh;
+    border-radius: 0;
+  }
+}

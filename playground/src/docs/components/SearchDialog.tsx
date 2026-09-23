@@ -119,18 +119,20 @@ export function SearchDialog({ open, onClose }: SearchDialogProps): ReactElement
         if (event.target === dialogRef.current) onClose()
       }}
       id="o-recherche"
-      className="o-mt-28 o-w-full o-max-w-2xl o-overflow-hidden o-rounded-xl o-border-w-1 o-p-0 o-text-zinc-900 dark:o-text-zinc-50 o-backdrop-blur-xl o-animate-scale-in"
-      style={{ marginInline: 'auto' }}
+      className="ods-modale ods-modale-moyenne o-mt-24 o-animate-scale-in"
+      style={{ marginInline: 'auto', border: 0, padding: 0 }}
     >
-      <div className="o-relative o-flex o-items-center o-gap-3 o-px-5">
-        <span
-          aria-hidden="true"
-          className="rc-filet o-absolute o-inset-x-0 o-bottom-0 o-h-px"
-        />
+      {/*
+        L en-tete d une modale porte son titre ; celui d une recherche porte
+        son champ. Meme hauteur, meme surface, meme filet bas : ce qui change
+        est ce qu on y met, pas la forme.
+      */}
+      <div className="ods-modale-tete" style={{ paddingRight: 16 }}>
         <Icon
           icon={Search}
-          size={17}
-          className="o-shrink-0 o-text-brand-600 dark:o-text-brand-400"
+          size={16}
+          className="o-shrink-0"
+          style={{ color: 'var(--ods-encre-douce)' }}
         />
         <input
           type="text"
@@ -153,23 +155,43 @@ export function SearchDialog({ open, onClose }: SearchDialogProps): ReactElement
           }}
           placeholder="Rechercher une page, un composant, un utilitaire..."
           aria-label="Rechercher"
-          className="o-h-16 o-w-full o-bg-transparent o-text-base o-text-zinc-900 dark:o-text-zinc-50 o-outline-none"
+          className="o-w-full o-bg-transparent o-outline-none"
+          style={{
+            flex: 1,
+            fontSize: 'var(--ods-corps)',
+            lineHeight: 'var(--ods-corps-h)',
+            color: 'var(--ods-encre)',
+          }}
         />
-        <kbd className="o-shrink-0 rc-touche o-rounded-full o-border-w-1 o-px-2.5 o-py-1 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">
-          Echap
+        <kbd
+          className="o-shrink-0 o-rounded-sm o-px-1.5 o-py-0.5 o-font-mono o-text-xs"
+          style={{
+            background: 'var(--ods-neutre-fond)',
+            color: 'var(--ods-encre-douce)',
+          }}
+        >
+          Échap
         </kbd>
       </div>
 
       <div
-        className="o-overflow-y-auto o-scrollbar dark:o-scrollbar-dark"
-        style={{ maxHeight: '26rem' }}
+        className="ods-modale-corps ods-modale-corps-liste o-scrollbar dark:o-scrollbar-dark"
         role="listbox"
         aria-label="Résultats"
       >
         {results.length === 0 ? (
-          <p className="o-m-0 o-px-5 o-py-14 o-text-center o-text-sm o-text-zinc-500 dark:o-text-zinc-400">
-            Aucun résultat pour « {query} ».
-          </p>
+          /* Un etat vide, et non une phrase seule : une recherche sans
+             resultat est une page qui attend, pas une panne. */
+          <div className="ods-vide">
+            <span className="ods-vide-disque" aria-hidden="true">
+              <Icon icon={Search} size={44} strokeWidth={1.2} />
+            </span>
+            <p className="ods-vide-titre">Aucun résultat</p>
+            <p className="ods-vide-texte">
+              Rien ne répond à « {query} ». Essaie le nom d’un composant, d’un
+              utilitaire ou d’une commande.
+            </p>
+          </div>
         ) : (
           results.map((page, index) => {
             const tenu = index === activeIndex
@@ -181,28 +203,19 @@ export function SearchDialog({ open, onClose }: SearchDialogProps): ReactElement
                 aria-selected={tenu}
                 onMouseEnter={() => setActiveIndex(index)}
                 onClick={() => select(page.path)}
-                className={`o-relative o-flex o-w-full o-cursor-pointer o-items-center o-justify-between o-gap-4 o-py-3 o-pl-6 o-pr-5 o-text-left o-transition-colors ${
-                  tenu ? 'rc-tenu' : ''
-                }`}
+                data-tenu={tenu ? '' : undefined}
+                className="ods-option o-justify-between"
               >
-                {/* La tige : le filet au repos, le degrade d accent sur la
-                    ligne retenue. Un aplat plein ecrasait la description. */}
-                <span
-                  aria-hidden="true"
-                  className={`o-absolute o-left-3 o-w-px ${tenu ? 'rc-tige' : 'rc-filet'}`}
-                  style={{ top: 4, bottom: 4 }}
-                />
-                <span className="o-flex o-min-w-0 o-flex-col o-gap-0.5">
-                  <span
-                    className={`o-text-sm o-font-medium ${tenu ? 'o-text-brand-600 dark:o-text-brand-300' : 'o-text-zinc-900 dark:o-text-zinc-50'}`}
-                  >
-                    {page.title}
-                  </span>
-                  <span className="o-truncate o-text-xs o-leading-relaxed o-text-zinc-500 dark:o-text-zinc-400">
+                <span className="o-flex o-min-w-0 o-flex-col">
+                  <span className="ods-option-titre">{page.title}</span>
+                  <span className="ods-option-detail o-truncate">
                     {page.description}
                   </span>
                 </span>
-                <span className="o-shrink-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">
+                <span
+                  className="o-shrink-0 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+                  style={{ color: 'var(--ods-encre-eteinte)' }}
+                >
                   {page.section}
                 </span>
               </button>
@@ -211,15 +224,16 @@ export function SearchDialog({ open, onClose }: SearchDialogProps): ReactElement
         )}
       </div>
 
-      {/* Le pied : ce que font les touches, en mono, sur un filet. */}
-      <div className="o-relative o-flex o-items-center o-gap-5 o-px-5 o-py-3 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">
-        <span
-          aria-hidden="true"
-          className="rc-filet o-absolute o-inset-x-0 o-top-0 o-h-px"
-        />
+      {/* Le pied : ce que font les touches, et combien de lignes repondent. */}
+      <div
+        className="ods-modale-pied o-justify-start o-gap-5 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+        style={{ color: 'var(--ods-encre-douce)' }}
+      >
         <span>Haut / bas pour choisir</span>
         <span>Entrée pour ouvrir</span>
-        <span className="o-ml-auto o-tabular-nums">{results.length} résultats</span>
+        <span className="o-ml-auto o-tabular-nums">
+          {results.length} résultats
+        </span>
       </div>
     </dialog>
   )
