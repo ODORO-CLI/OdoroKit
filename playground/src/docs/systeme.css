@@ -1,0 +1,525 @@
+/*
+ * Le systeme de design du playground — les jetons.
+ *
+ * ## Pourquoi une feuille, et non des utilitaires
+ *
+ * Le generateur ne produit pas de classe a valeur arbitraire : `o-h-[32px]` ne
+ * correspond a aucune regle, et une classe absente ne casse rien — elle ne
+ * peint rien, en silence. Or la specification donne des mesures exactes : une
+ * barre de 48 px, une colonne de 240 px, un champ de 32 px, une carte arrondie
+ * a 12 px. Les ecrire en utilitaires demanderait d elargir l echelle du
+ * generateur pour tout le monde, pour des mesures qui n appartiennent qu a ce
+ * site.
+ *
+ * Elles vivent donc ici, en jetons, et les composants les lisent. Le jour ou
+ * une mesure change, elle change a un endroit.
+ *
+ * ## Les trois etats du theme
+ *
+ * Le visiteur en a trois, pas deux : un choix explicite pose `data-theme` sur
+ * la racine, et le reglage « systeme » — le cas le plus frequent — ne pose
+ * rien. La valeur claire est donc sur `:root` nu, et la sombre deux fois :
+ * sous l attribut, qui porte le choix, et sous la preference du systeme quand
+ * aucun choix n a ete fait.
+ *
+ * `.ods-sombre` accompagne le premier des deux. La page du systeme doit
+ * montrer chaque composant dans les deux themes en meme temps : sans une
+ * classe qui porte les memes valeurs, il faudrait deux visites, et personne ne
+ * verrait jamais les deux cote a cote.
+ *
+ * ## L accent
+ *
+ * La specification dit « la couleur principale de la landing ». C est la teinte
+ * de marque, et elle se lit dans la librairie : rien n est recopie ici, sinon
+ * un changement de marque laisserait ce fichier en arriere.
+ *
+ * Une precaution vient avec elle : le bleu clair ne porte pas le texte. La
+ * teinte pleine sert aux aplats, aux filets et aux traces ; le texte
+ * actionnable prend la nuance foncee sur fond clair, et la claire sur fond
+ * sombre. Deux jetons separes, pour qu on ne se trompe pas d usage.
+ */
+
+:root {
+  /* --- Surfaces (§4) ------------------------------------------------- */
+  --ods-colonne: #ebebeb;
+  --ods-barre: #ebebeb;
+  --ods-fond: #f1f1f1;
+  --ods-carte: #ffffff;
+  --ods-sous-bloc: #f7f7f7;
+
+  /* --- Filets --------------------------------------------------------- */
+  --ods-bordure: #e3e3e3;
+  --ods-separateur: #ebebeb;
+  --ods-bordure-champ: #8a8a8a;
+  --ods-bordure-champ-survol: #616161;
+  --ods-guide: #c9c9c9;
+
+  /* --- Encres --------------------------------------------------------- */
+  --ods-encre: #303030;
+  --ods-encre-douce: #616161;
+  --ods-encre-eteinte: #b5b5b5;
+  --ods-encre-inverse: #ffffff;
+
+  /* --- Accent, pris a la marque plutot que recopie -------------------- */
+  --ods-accent: var(--o-palette-brand-500);
+  --ods-accent-encre: var(--o-palette-brand-600);
+  --ods-accent-voile: color-mix(in oklab, var(--o-palette-brand-500) 8%, transparent);
+  --ods-accent-selection: color-mix(in oklab, var(--o-palette-brand-500) 6%, transparent);
+  --ods-accent-pale: color-mix(in oklab, var(--o-palette-brand-500) 40%, transparent);
+
+  /* --- Semantiques ---------------------------------------------------- */
+  --ods-succes-fond: #cdfee1;
+  --ods-succes-encre: #0c5132;
+  --ods-info-fond: #e0f0ff;
+  --ods-info-encre: #00527c;
+  --ods-attention-fond: #ffd79d;
+  --ods-attention-encre: #5e4200;
+  --ods-critique-fond: #fedad9;
+  --ods-critique-encre: #8e1f0b;
+  --ods-critique-plein: #e51c00;
+  --ods-neutre-fond: #e3e3e3;
+  --ods-neutre-encre: #303030;
+
+  /* --- Boutons -------------------------------------------------------- */
+  --ods-primaire-haut: #404040;
+  --ods-primaire-bas: #303030;
+  --ods-primaire-survol: #1a1a1a;
+  --ods-primaire-actif: #0a0a0a;
+  --ods-secondaire-survol: #f7f7f7;
+  --ods-tertiaire: #e3e3e3;
+  --ods-tertiaire-survol: #d4d4d4;
+
+  /* --- Formes (§6) ---------------------------------------------------- */
+  --ods-r-carte: 12px;
+  --ods-r-controle: 8px;
+  --ods-r-petit: 6px;
+  --ods-r-minuscule: 4px;
+  --ods-r-pilule: 999px;
+
+  /* --- Ombres --------------------------------------------------------- */
+  --ods-ombre-carte: 0 1px 0 rgb(0 0 0 / 0.05), 0 0 0 1px rgb(0 0 0 / 0.04);
+  --ods-ombre-bouton: 0 1px 0 rgb(0 0 0 / 0.05);
+  --ods-ombre-menu: 0 4px 12px rgb(0 0 0 / 0.15);
+  --ods-ombre-modale: 0 8px 24px rgb(0 0 0 / 0.2);
+  --ods-ombre-actif: 0 1px 0 rgb(0 0 0 / 0.05);
+  --ods-relief-haut: inset 0 1px 0 rgb(255 255 255 / 0.2);
+  --ods-relief-bas: inset 0 -1px 0 rgb(0 0 0 / 0.4);
+
+  /* --- Mesures (§1, §2, §3, §9, §10) ---------------------------------- */
+  --ods-barre-h: 48px;
+  --ods-colonne-l: 240px;
+  --ods-entete-h: 40px;
+  --ods-nav-h: 32px;
+  --ods-sous-nav-h: 28px;
+  --ods-champ-h: 32px;
+  --ods-ligne-h: 44px;
+  --ods-ligne-vignette-h: 52px;
+  --ods-entete-tableau-h: 36px;
+  --ods-outils-h: 48px;
+  --ods-gap: 16px;
+  --ods-marge: 16px;
+  --ods-marge-large: 24px;
+
+  /* --- Mouvement (§6) ------------------------------------------------- */
+  --ods-t-couleur: 150ms ease;
+  --ods-t-menu: 120ms ease;
+  --ods-t-modale: 200ms ease;
+
+  /* --- Typographie (§5) ----------------------------------------------- */
+  --ods-police: var(--o-font-sans, Inter, ui-sans-serif, system-ui, sans-serif);
+  --ods-corps: 13px;
+  --ods-corps-h: 20px;
+  --ods-petit: 12px;
+  --ods-petit-h: 16px;
+  --ods-titre-page: 20px;
+  --ods-titre-page-h: 24px;
+  --ods-titre-accueil: 24px;
+  --ods-titre-accueil-h: 32px;
+  --ods-titre-carte: 14px;
+  --ods-gras: 650;
+  --ods-demi: 500;
+}
+
+/*
+ * Le sombre : la meme hierarchie, pas une inversion.
+ *
+ * La specification demande de garder les ecarts — la colonne plus sombre que
+ * les cartes, les cartes plus claires que le fond, les bordures a dix pour
+ * cent de luminosite au-dessus. C est ce qui fait qu un bloc se detache sans
+ * ombre, et c est la seule chose qui doit survivre au changement de theme.
+ */
+:root[data-theme='dark'],
+.ods-sombre {
+  --ods-colonne: #171717;
+  --ods-barre: #171717;
+  --ods-fond: #0f0f0f;
+  --ods-carte: #1c1c1c;
+  --ods-sous-bloc: #232323;
+
+  --ods-bordure: #2e2e2e;
+  --ods-separateur: #262626;
+  --ods-bordure-champ: #6b6b6b;
+  --ods-bordure-champ-survol: #8a8a8a;
+  --ods-guide: #3a3a3a;
+
+  --ods-encre: #e6e6e6;
+  --ods-encre-douce: #a0a0a0;
+  --ods-encre-eteinte: #5e5e5e;
+  --ods-encre-inverse: #1a1a1a;
+
+  --ods-accent-encre: var(--o-palette-brand-400);
+
+  --ods-succes-fond: #0f2e1f;
+  --ods-succes-encre: #7ee2ae;
+  --ods-info-fond: #0d2637;
+  --ods-info-encre: #8dcbf0;
+  --ods-attention-fond: #3a2a06;
+  --ods-attention-encre: #f2c675;
+  --ods-critique-fond: #3a1512;
+  --ods-critique-encre: #f5a79b;
+  --ods-critique-plein: #e5442c;
+  --ods-neutre-fond: #2e2e2e;
+  --ods-neutre-encre: #e6e6e6;
+
+  /* Le primaire s inverse : clair sur sombre, sans relief a simuler. */
+  --ods-primaire-haut: #f5f5f5;
+  --ods-primaire-bas: #e6e6e6;
+  --ods-primaire-survol: #ffffff;
+  --ods-primaire-actif: #d4d4d4;
+  --ods-secondaire-survol: #232323;
+  --ods-tertiaire: #2e2e2e;
+  --ods-tertiaire-survol: #3a3a3a;
+
+  --ods-ombre-carte: 0 1px 0 rgb(0 0 0 / 0.4), 0 0 0 1px rgb(255 255 255 / 0.06);
+  --ods-ombre-bouton: 0 1px 0 rgb(0 0 0 / 0.4);
+  --ods-ombre-menu: 0 4px 12px rgb(0 0 0 / 0.5);
+  --ods-ombre-modale: 0 8px 24px rgb(0 0 0 / 0.6);
+  --ods-ombre-actif: 0 1px 0 rgb(0 0 0 / 0.4);
+  --ods-relief-haut: inset 0 1px 0 rgb(255 255 255 / 0.08);
+  --ods-relief-bas: inset 0 -1px 0 rgb(0 0 0 / 0.3);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --ods-colonne: #171717;
+    --ods-barre: #171717;
+    --ods-fond: #0f0f0f;
+    --ods-carte: #1c1c1c;
+    --ods-sous-bloc: #232323;
+
+    --ods-bordure: #2e2e2e;
+    --ods-separateur: #262626;
+    --ods-bordure-champ: #6b6b6b;
+    --ods-bordure-champ-survol: #8a8a8a;
+    --ods-guide: #3a3a3a;
+
+    --ods-encre: #e6e6e6;
+    --ods-encre-douce: #a0a0a0;
+    --ods-encre-eteinte: #5e5e5e;
+    --ods-encre-inverse: #1a1a1a;
+
+    --ods-accent-encre: var(--o-palette-brand-400);
+
+    --ods-succes-fond: #0f2e1f;
+    --ods-succes-encre: #7ee2ae;
+    --ods-info-fond: #0d2637;
+    --ods-info-encre: #8dcbf0;
+    --ods-attention-fond: #3a2a06;
+    --ods-attention-encre: #f2c675;
+    --ods-critique-fond: #3a1512;
+    --ods-critique-encre: #f5a79b;
+    --ods-critique-plein: #e5442c;
+    --ods-neutre-fond: #2e2e2e;
+    --ods-neutre-encre: #e6e6e6;
+
+    --ods-primaire-haut: #f5f5f5;
+    --ods-primaire-bas: #e6e6e6;
+    --ods-primaire-survol: #ffffff;
+    --ods-primaire-actif: #d4d4d4;
+    --ods-secondaire-survol: #232323;
+    --ods-tertiaire: #2e2e2e;
+    --ods-tertiaire-survol: #3a3a3a;
+
+    --ods-ombre-carte: 0 1px 0 rgb(0 0 0 / 0.4), 0 0 0 1px rgb(255 255 255 / 0.06);
+    --ods-ombre-bouton: 0 1px 0 rgb(0 0 0 / 0.4);
+    --ods-ombre-menu: 0 4px 12px rgb(0 0 0 / 0.5);
+    --ods-ombre-modale: 0 8px 24px rgb(0 0 0 / 0.6);
+    --ods-ombre-actif: 0 1px 0 rgb(0 0 0 / 0.4);
+    --ods-relief-haut: inset 0 1px 0 rgb(255 255 255 / 0.08);
+    --ods-relief-bas: inset 0 -1px 0 rgb(0 0 0 / 0.3);
+  }
+}
+
+/* ==================================================================== */
+/* Boutons (§4)                                                          */
+/* ==================================================================== */
+
+/*
+ * Le socle commun. Trente-deux pixels de haut, comme un champ : c est ce qui
+ * permet de poser un bouton a cote d une entree sans que la ligne boite.
+ */
+.ods-bouton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: var(--ods-champ-h);
+  padding: 0 12px;
+  border: 0;
+  border-radius: var(--ods-r-controle);
+  font-family: var(--ods-police);
+  font-size: var(--ods-corps);
+  line-height: var(--ods-corps-h);
+  font-weight: var(--ods-demi);
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color var(--ods-t-couleur),
+    box-shadow var(--ods-t-couleur),
+    color var(--ods-t-couleur);
+}
+
+.ods-bouton:focus-visible {
+  outline: 2px solid var(--ods-accent);
+  outline-offset: 1px;
+}
+
+.ods-bouton[disabled] {
+  cursor: default;
+  background: var(--ods-bordure);
+  color: var(--ods-encre-eteinte);
+  box-shadow: none;
+}
+
+.ods-bouton-primaire {
+  background-image: linear-gradient(
+    180deg,
+    var(--ods-primaire-haut),
+    var(--ods-primaire-bas)
+  );
+  color: var(--ods-encre-inverse);
+  box-shadow: var(--ods-relief-haut), var(--ods-relief-bas);
+}
+.ods-bouton-primaire:hover:not([disabled]) {
+  background-image: none;
+  background-color: var(--ods-primaire-survol);
+}
+.ods-bouton-primaire:active:not([disabled]) {
+  background-image: none;
+  background-color: var(--ods-primaire-actif);
+}
+
+.ods-bouton-secondaire {
+  background-color: var(--ods-carte);
+  border: 1px solid var(--ods-bordure);
+  color: var(--ods-encre);
+  box-shadow: var(--ods-ombre-bouton);
+}
+.ods-bouton-secondaire:hover:not([disabled]) {
+  background-color: var(--ods-secondaire-survol);
+}
+
+.ods-bouton-tertiaire {
+  background-color: var(--ods-tertiaire);
+  color: var(--ods-encre);
+}
+.ods-bouton-tertiaire:hover:not([disabled]) {
+  background-color: var(--ods-tertiaire-survol);
+}
+
+.ods-bouton-destructeur {
+  background-color: var(--ods-critique-plein);
+  color: #ffffff;
+}
+.ods-bouton-destructeur:hover:not([disabled]) {
+  filter: brightness(0.92);
+}
+
+/* Le lien : la nuance foncee de la marque, parce qu il porte du texte. */
+.ods-bouton-lien {
+  background: none;
+  padding: 0;
+  height: auto;
+  color: var(--ods-accent-encre);
+}
+.ods-bouton-lien:hover:not([disabled]) {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* Icone seule : carre de trente-deux, sans fond au repos. */
+.ods-bouton-icone {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background: none;
+  color: var(--ods-encre);
+}
+.ods-bouton-icone:hover:not([disabled]) {
+  background-color: var(--ods-bordure);
+}
+
+/* ==================================================================== */
+/* Badges (§11)                                                          */
+/* ==================================================================== */
+
+.ods-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 20px;
+  padding: 0 8px;
+  border-radius: var(--ods-r-controle);
+  font-family: var(--ods-police);
+  font-size: var(--ods-petit);
+  line-height: var(--ods-petit-h);
+  font-weight: var(--ods-demi);
+  white-space: nowrap;
+}
+
+.ods-badge::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: var(--ods-r-pilule);
+  background-color: currentColor;
+  flex: none;
+}
+.ods-badge-sans-point::before {
+  display: none;
+}
+
+.ods-badge-succes {
+  background-color: var(--ods-succes-fond);
+  color: var(--ods-succes-encre);
+}
+.ods-badge-info {
+  background-color: var(--ods-info-fond);
+  color: var(--ods-info-encre);
+}
+.ods-badge-attention {
+  background-color: var(--ods-attention-fond);
+  color: var(--ods-attention-encre);
+}
+.ods-badge-critique {
+  background-color: var(--ods-critique-fond);
+  color: var(--ods-critique-encre);
+}
+.ods-badge-neutre {
+  background-color: var(--ods-neutre-fond);
+  color: var(--ods-neutre-encre);
+}
+
+/* ==================================================================== */
+/* Champs (§10)                                                          */
+/* ==================================================================== */
+
+.ods-label {
+  display: block;
+  margin-bottom: 4px;
+  font-family: var(--ods-police);
+  font-size: var(--ods-corps);
+  line-height: var(--ods-corps-h);
+  font-weight: var(--ods-demi);
+  color: var(--ods-encre);
+}
+
+.ods-aide {
+  margin-top: 4px;
+  font-family: var(--ods-police);
+  font-size: var(--ods-petit);
+  line-height: var(--ods-petit-h);
+  color: var(--ods-encre-douce);
+}
+
+.ods-champ {
+  display: block;
+  width: 100%;
+  height: var(--ods-champ-h);
+  padding: 0 12px;
+  border: 1px solid var(--ods-bordure-champ);
+  border-radius: var(--ods-r-controle);
+  background-color: var(--ods-carte);
+  color: var(--ods-encre);
+  font-family: var(--ods-police);
+  font-size: var(--ods-corps);
+  line-height: var(--ods-corps-h);
+  transition:
+    border-color var(--ods-t-couleur),
+    box-shadow var(--ods-t-couleur);
+}
+
+.ods-champ::placeholder {
+  color: var(--ods-encre-eteinte);
+}
+.ods-champ:hover:not(:disabled) {
+  border-color: var(--ods-bordure-champ-survol);
+}
+.ods-champ:focus-visible {
+  outline: none;
+  border-color: var(--ods-accent);
+  box-shadow: 0 0 0 2px var(--ods-accent);
+}
+.ods-champ:disabled {
+  background-color: var(--ods-fond);
+  border-color: var(--ods-bordure);
+  color: var(--ods-encre-eteinte);
+}
+.ods-champ-erreur,
+.ods-champ-erreur:hover {
+  border-color: var(--ods-critique-plein);
+  background-color: color-mix(in oklab, var(--ods-critique-plein) 5%, var(--ods-carte));
+}
+
+/* La zone de texte ne suit pas la hauteur de trente-deux : elle a un plancher. */
+.ods-zone {
+  height: auto;
+  min-height: 80px;
+  padding: 6px 12px;
+  resize: vertical;
+}
+
+/* ==================================================================== */
+/* Cartes (§7)                                                           */
+/* ==================================================================== */
+
+.ods-carte {
+  background-color: var(--ods-carte);
+  border-radius: var(--ods-r-carte);
+  box-shadow: var(--ods-ombre-carte);
+  padding: var(--ods-marge);
+}
+
+.ods-carte-nue {
+  padding: 0;
+}
+
+.ods-carte-tete {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.ods-carte-titre {
+  margin: 0;
+  font-family: var(--ods-police);
+  font-size: var(--ods-titre-carte);
+  line-height: var(--ods-corps-h);
+  font-weight: var(--ods-gras);
+  color: var(--ods-encre);
+}
+
+.ods-separation {
+  height: 1px;
+  margin: var(--ods-marge) 0;
+  background-color: var(--ods-separateur);
+  border: 0;
+}
+
+.ods-sous-bloc {
+  background-color: var(--ods-sous-bloc);
+  border-radius: var(--ods-r-controle);
+  padding: 12px;
+}

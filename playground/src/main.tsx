@@ -19,6 +19,10 @@ import '@odoro-cli/libs/styles.css'
 // la librairie, dont elle repointe l echelle de marque.
 import './docs/marque.css'
 
+// Les jetons du systeme de design : mesures, surfaces, formes. Apres la
+// marque, dont ils lisent l accent.
+import './docs/systeme.css'
+
 // Polices du site, chargees par CDN — rien dans le bundle.
 loadGoogleFonts([
   { family: 'Inter', weights: [400, 500, 600, 700, 800] },

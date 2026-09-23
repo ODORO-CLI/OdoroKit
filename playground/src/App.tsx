@@ -15,6 +15,7 @@ import { Accueil } from './docs/pages/Accueil.jsx'
 import { Landing } from './docs/pages/Landing.jsx'
 import { Templates } from './docs/pages/Templates.jsx'
 import { ProjetRoute } from './docs/pages/ProjetRoute.jsx'
+import { SystemeDesign } from './docs/pages/SystemeDesign.jsx'
 import { VitrineRoute } from './docs/pages/VitrineRoute.jsx'
 import { Installation } from './docs/pages/Installation.jsx'
 import { StylesOverview } from './docs/pages/StylesOverview.jsx'
@@ -129,6 +130,7 @@ export function App(): ReactElement {
               <Route index element={<Landing />} />
               <Route path="docs" element={<Accueil />} />
               <Route path="templates" element={<Templates />} />
+              <Route path="design-system" element={<SystemeDesign />} />
               {/* Le projet passe avant la vitrine : `projet` serait sinon
                   pris pour un segment de vitrine, et la page annoncerait un
                   modele introuvable. */}
