@@ -129,19 +129,42 @@ describe('token', () => {
 })
 
 describe('loading of the SDK', () => {
-  it('explains what to install rather than failing', async () => {
-    // The package is deliberately absent from this repository: the
-    // communication between the two repositories goes through the published
-    // package, in a single direction. The degraded path is therefore the path
-    // under test.
+  it('loads the client that ships with the CLI', async () => {
+    // The package used to be absent on purpose, and this test guarded the
+    // degraded path. It ships with the CLI now — because during
+    // `npm create odoro` there is no project yet, so a separately installed
+    // package has nowhere to be resolved from, and the platform path could
+    // never run at the moment it is most wanted.
     const load = await loadSdk()
 
-    expect(load.ok).toBe(false)
-    if (!load.ok) {
-      expect(load.reason).toContain(SDK_PACKAGE)
-      expect(load.reason).toContain('npm install')
-      // And a reason, not only an instruction.
-      expect(load.reason).toContain('downloaded on every')
+    expect(load.ok).toBe(true)
+    if (load.ok) {
+      expect(typeof load.sdk.createClient).toBe('function')
     }
+  })
+
+  it('exposes the six groups the CLI declares, and reaches no network to do it', async () => {
+    // The local contract in `sdk.ts` names a sixth of the published surface.
+    // Nothing checks that the two still agree — a renamed group would be
+    // found on the first provisioning, by the person provisioning. This is
+    // where it gets found instead.
+    //
+    // Opening a client stays inert: the first request is what talks to the
+    // platform, so a fake token and an unreachable host are enough here.
+    const load = await loadSdk()
+    expect(load.ok).toBe(true)
+    if (!load.ok) return
+
+    const client = load.sdk.createClient({
+      baseUrl: 'https://db.invalid',
+      token: 'odk_test_not_a_real_token',
+    })
+
+    expect(typeof client.projects.list).toBe('function')
+    expect(typeof client.regions.list).toBe('function')
+    expect(typeof client.databases.list).toBe('function')
+    expect(typeof client.databases.createAndWait).toBe('function')
+    expect(typeof client.databases.branchAndWait).toBe('function')
+    expect(typeof client.credentials.rotate).toBe('function')
   })
 })

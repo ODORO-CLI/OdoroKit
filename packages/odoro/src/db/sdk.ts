@@ -1,22 +1,31 @@
 /**
  * Loading of the platform SDK.
  *
- * ## Why it is not a dependency
+ * ## Why it is a dependency now, when it was not
  *
- * This binary is downloaded on every `npm create odoro`. Every dependency added
- * to it is paid for by everyone who scaffolds a project, including those who
- * will never use the platform — that is, the majority.
+ * It was kept out on the grounds of weight: this binary is downloaded on every
+ * `npm create odoro`, and most projects bring their own database. The argument
+ * was right in the abstract and wrong in the measurement — the client and its
+ * contracts weigh 428 Ko, next to the compiler and the transformer this CLI
+ * already carries. Under three per cent, for the feature that decides whether
+ * `odoro create` can hand back a project with a working database.
  *
- * `@odoro-cli/cloud-sdk` is therefore imported **dynamically**, and only when a
- * `db:*` command is called. Its absence is not a failure: it is the normal
- * state of a project that uses its own database.
+ * It also had a cost nobody had counted: during `npm create odoro` there is no
+ * project yet, so there is nowhere for a separately installed package to be
+ * resolved from. Kept out, the platform path could never run at the one moment
+ * it is most wanted.
  *
- * ## What the absence must produce
+ * ## Why the load stays dynamic all the same
+ *
+ * Because it costs nothing and it keeps one property: a partial install, a
+ * pruned tree, a registry that refuses — none of these should take down
+ * `odoro dev`. A project that uses its own PostgreSQL never needs this module,
+ * and must never be stopped by it.
+ *
+ * ## What a failed load must produce
  *
  * Not a runtime trace about a module that cannot be found. A sentence saying
- * which package to install, and why the command needs it. That is the
- * difference between a command one can use and a command that fails on a
- * message nobody connects to a missing install.
+ * what state the install is in and what still works without it.
  *
  * @module
  */
@@ -37,33 +46,69 @@ export type SdkLoad =
  * between the two repositories goes through the published package, in a single
  * direction.
  */
-export interface CloudSdk {
-  createClient: (config: { baseUrl: string; token: string }) => {
-    databases: {
-      list: (input: { environmentId?: string }) => Promise<{
-        databases: readonly { id: string; state: string; region: string }[]
-      }>
-      createAndWait: (
-        input: { idempotencyKey: string; environmentId: string; region: string },
-        options?: { signal?: AbortSignal },
-      ) => Promise<{ subject?: string; result?: unknown }>
-      branchAndWait: (
-        input: {
-          idempotencyKey: string
-          parentEnvironmentId: string
-          name: string
-          anonymization: readonly { table: string; column: string; strategy: string }[]
-        },
-        options?: { signal?: AbortSignal },
-      ) => Promise<{ subject?: string; result?: unknown }>
-    }
-    credentials: {
-      rotate: (input: { databaseId: string }) => Promise<{
-        credentialId: string
-        connectionString: string
-      }>
-    }
+/** A live operation, as the platform reports it. */
+export interface OperationSnapshot {
+  readonly state: 'pending' | 'running' | 'succeeded' | 'failed'
+  /** The resource the operation acted on — the database id, for a creation. */
+  readonly subject?: string
+  readonly error?: string
+}
+
+/**
+ * The part of the client this CLI uses.
+ *
+ * The published package exposes a hundred and ten routes across thirty-four
+ * groups. Six of them are named here — what it takes to answer the installer's
+ * four questions and write one `DATABASE_URL`. Declaring the rest would tie
+ * this file to a surface it never calls, and each addition to the platform
+ * would then be a change here.
+ */
+export interface CloudClient {
+  readonly projects: {
+    readonly list: () => Promise<{
+      readonly projects: readonly {
+        readonly id: string
+        readonly name: string
+        readonly environments: readonly { readonly id: string; readonly name: string }[]
+      }[]
+    }>
   }
+  readonly regions: {
+    readonly list: () => Promise<{ readonly regions: readonly string[] }>
+  }
+  readonly databases: {
+    readonly list: (input: { environmentId?: string }) => Promise<{
+      readonly databases: readonly { id: string; state: string; region: string }[]
+    }>
+    readonly createAndWait: (
+      input: {
+        idempotencyKey: string
+        environmentId: string
+        name?: string
+        region?: string
+      },
+      options?: { signal?: AbortSignal },
+    ) => Promise<OperationSnapshot>
+    readonly branchAndWait: (
+      input: {
+        idempotencyKey: string
+        parentEnvironmentId: string
+        name: string
+        anonymization: readonly { table: string; column: string; strategy: string }[]
+      },
+      options?: { signal?: AbortSignal },
+    ) => Promise<OperationSnapshot>
+  }
+  readonly credentials: {
+    readonly rotate: (input: { databaseId: string }) => Promise<{
+      credentialId: string
+      connectionString: string
+    }>
+  }
+}
+
+export interface CloudSdk {
+  createClient: (config: { baseUrl: string; token: string }) => CloudClient
   isApiError: (value: unknown, kind?: string) => boolean
 }
 
@@ -88,13 +133,15 @@ export async function loadSdk(): Promise<SdkLoad> {
   } catch {
     return {
       ok: false,
-      reason:
-        `This command needs ${SDK_PACKAGE}, which is not installed.\n` +
-        `\n` +
-        `  npm install --save-dev ${SDK_PACKAGE}\n` +
-        `\n` +
-        `It does not ship with odoro: this binary is downloaded on every\n` +
-        `project creation, and most projects do not use the platform.`,
+      reason: [
+        `${SDK_PACKAGE} could not be loaded.`,
+        '',
+        'It ships with odoro, so this is usually a partial install:',
+        '',
+        '  npm install',
+        '',
+        'Until it loads, a project can still bring its own PostgreSQL URL.',
+      ].join('\n'),
     }
   }
 }

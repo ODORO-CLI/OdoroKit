@@ -25,6 +25,7 @@ import * as log from '../shared/logger.js'
 import { colors } from '../shared/logger.js'
 import { assertEnvIgnored, writeDatabaseUrl } from '../commands/database.js'
 import { findToken, storeToken } from '../config/user.js'
+import { cancelled, chooseEnvironment, chooseRegion } from './provision.js'
 import { loadSdk, SDK_PACKAGE } from './sdk.js'
 
 /**
@@ -46,6 +47,8 @@ export interface DbOptions {
   readonly apiUrl?: string
   /** Target environment. */
   readonly env?: string
+  /** Region, when a script already knows which one. */
+  readonly region?: string
   /** Asks no question. */
   readonly yes?: boolean
 }
@@ -156,15 +159,29 @@ export async function createCommand(options: DbOptions): Promise<number> {
   const connection = await connect(options)
   if (connection === undefined) return 1
 
-  const environmentId = options.env
+  const prompts = await import('@clack/prompts')
+
+  // `--env` names the environment for a script; without it the command asks,
+  // rather than refusing. Refusing taught the identifier before the menu that
+  // lists it — the wrong way round for someone running this for the first time.
+  let environmentId = options.env
   if (environmentId === undefined) {
-    log.error('Name the environment: `odoro db:create --env production`.')
-    return 1
+    const chosen = await chooseEnvironment(prompts, connection.client)
+    if (cancelled(chosen) || chosen === undefined) return 1
+    environmentId = chosen.id
   }
 
-  const prompts = await import('@clack/prompts')
+  // The region was written here in full. It decides which jurisdiction holds
+  // the data, so it is asked — unless a script already said which one.
+  let region = options.region
+  if (region === undefined) {
+    const chosen = await chooseRegion(prompts, connection.client)
+    if (cancelled(chosen)) return 1
+    region = chosen
+  }
+
   const spinner = prompts.spinner()
-  spinner.start('Provisioning')
+  spinner.start(`Provisioning in ${region ?? 'the default region'}`)
 
   // The signal allows giving up the wait without giving up the work: the
   // resource keeps being created, and `odoro db:status` will find it.
@@ -174,7 +191,11 @@ export async function createCommand(options: DbOptions): Promise<number> {
 
   try {
     const finished = await connection.client.databases.createAndWait(
-      { idempotencyKey: idempotencyKey(), environmentId, region: 'eu-central-1' },
+      {
+        idempotencyKey: idempotencyKey(),
+        environmentId,
+        ...(region === undefined ? {} : { region }),
+      },
       { signal: abort.signal },
     )
 
@@ -296,7 +317,8 @@ function describe(
 export const DB_HELP = [
   '  db:login              Record a platform token',
   '  db:status             List the databases of the project',
-  '  db:create --env <e>   Provision a database and write .env',
+  '  db:create             Provision a database and write .env',
+  '                        (--env and --region skip the questions)',
   '  db:branch --from <e> --name <n>',
   '                        Create a per-branch preview',
   `                        (requires ${SDK_PACKAGE})`,

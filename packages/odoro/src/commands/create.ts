@@ -64,6 +64,15 @@ import {
   type DatabaseChoice,
   type DatabaseOutcome,
 } from './database.js'
+import { loadSdk } from '../db/sdk.js'
+import {
+  DEFAULT_API_URL,
+  cancelled,
+  chooseEnvironment,
+  chooseRegion,
+  ensureToken,
+  provision,
+} from '../db/provision.js'
 
 /**
  * How many output lines to keep to explain a failure.
@@ -84,28 +93,91 @@ const TEMPLATE_LABELS: Readonly<Record<string, string>> = {
 }
 
 /**
+ * Provisions on the Odoro platform, asking the four things it needs.
+ *
+ * ## Why the questions are here and not after
+ *
+ * A database that arrives after the project is a database one configures
+ * twice: once in the head while creating, once in a `.env` days later. The
+ * four answers — token, environment, region, name — are all knowable at this
+ * moment, and three of them are one keystroke each.
+ *
+ * ## Why a failure is not a failure of the creation
+ *
+ * The platform can be unreachable, the token refused, the quota reached. None
+ * of that is a reason to abandon a project that is otherwise fine: the
+ * creation continues without a URL, and says what to run to finish. Losing a
+ * scaffold because a remote service had a bad minute would be the wrong trade.
+ */
+async function provisionOnPlatform(
+  projectName: string,
+): Promise<DatabaseOutcome | undefined> {
+  const load = await loadSdk()
+  if (!load.ok) {
+    prompts.log.warn(load.reason)
+    return undefined
+  }
+
+  const token = await ensureToken(prompts, DEFAULT_API_URL)
+  if (cancelled(token)) return undefined
+
+  const client = load.sdk.createClient({ baseUrl: DEFAULT_API_URL, token })
+
+  const environment = await chooseEnvironment(prompts, client)
+  if (cancelled(environment) || environment === undefined) return undefined
+
+  const region = await chooseRegion(prompts, client)
+  if (cancelled(region)) return undefined
+
+  const spinner = prompts.spinner()
+  spinner.start(`Provisioning in ${region ?? 'the default region'}`)
+  const result = await provision({
+    client,
+    environmentId: environment.id,
+    ...(region === undefined ? {} : { region }),
+    name: projectName,
+  })
+
+  if (!result.ok) {
+    spinner.stop('Provisioning did not finish')
+    prompts.log.warn(result.reason)
+    return undefined
+  }
+
+  spinner.stop(`Database ready in ${environment.label}`)
+
+  // The URL travels back through the outcome and is written into `.env` by the
+  // scaffolder, like a URL one pastes. It is never printed: a terminal keeps
+  // its history, and this one opens a database.
+  return {
+    choice: 'provider',
+    url: result.connectionString,
+    note: `Database provisioned on ${environment.label}. DATABASE_URL is in .env — do not commit it.`,
+  }
+}
+
+/**
  * Asks how the project gets its database.
  *
- * Three ways, two of which work today. The third — provisioning by the platform
- * — is waiting for `@odoro-cli/cloud-sdk`; it is offered and announced as such
- * rather than hidden, so that the path exists from now on in the mind of
- * whoever creates a project.
+ * Three ways, and all three work. Provisioning used to be announced as coming
+ * soon because the client that performs it was not published; it is, it ships
+ * with this CLI, and the option now does what it says.
  */
-async function askDatabase(): Promise<DatabaseOutcome> {
+async function askDatabase(projectName: string): Promise<DatabaseOutcome> {
   const choice = ensure(
     await prompts.select<DatabaseChoice>({
       message: 'Database',
-      initialValue: 'url',
+      initialValue: 'provider',
       options: [
         {
           value: 'provider',
           label: 'Odoro provider',
-          hint: 'automatic provisioning — coming soon',
+          hint: 'provisioned now, PostgreSQL, region of your choosing',
         },
         {
           value: 'url',
           label: 'Existing PostgreSQL URL',
-          hint: 'Neon, Supabase, RDS, your own',
+          hint: 'bring your own',
         },
         { value: 'later', label: 'Set up later', hint: '.env.example only' },
       ],
@@ -113,8 +185,11 @@ async function askDatabase(): Promise<DatabaseOutcome> {
   )
 
   if (choice === 'provider') {
-    prompts.log.warn(PROVIDER_PENDING)
-    return { choice, note: 'Run `odoro db:create` as soon as the platform is there.' }
+    const provisioned = await provisionOnPlatform(projectName)
+    if (provisioned !== undefined) return provisioned
+
+    // Everything above says what went wrong. The project still gets made.
+    return { choice, note: PROVIDER_PENDING }
   }
 
   if (choice === 'later') {
@@ -424,7 +499,7 @@ export async function createCommand(options: CreateOptions): Promise<number> {
   // The database is only asked about for a template that needs one.
   const database =
     template === 'react-ts-server' && options.yes !== true
-      ? await askDatabase()
+      ? await askDatabase(packageName)
       : undefined
 
   const withGit =

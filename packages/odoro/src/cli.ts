@@ -128,6 +128,7 @@ ${colors.bold('create options')}
 
 ${colors.bold('Database options')}
   --env <name>       Target environment (production, staging, preview-42)
+  --region <name>    Where the database lives; asked when absent
   --from <env>       Environment to branch from
   --name <name>      Name of the branch
   --api <url>        Root of the API, instead of the default one
@@ -307,6 +308,7 @@ export async function run(argv: readonly string[]): Promise<number> {
         root: typeof flags['root'] === 'string' ? flags['root'] : process.cwd(),
         ...(typeof flags['api'] === 'string' ? { apiUrl: flags['api'] } : {}),
         ...(typeof flags['env'] === 'string' ? { env: flags['env'] } : {}),
+        ...(typeof flags['region'] === 'string' ? { region: flags['region'] } : {}),
         yes: flags['yes'] === true,
       }
 
