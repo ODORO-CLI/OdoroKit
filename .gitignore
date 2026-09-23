@@ -72,6 +72,13 @@ packages/odoro/src/scaffold/family-versions.generated.ts
 # chaque generation. Les versionner ferait entrer dans le depot une seconde
 # copie de tout ce qu il contient deja, libre de diverger de la premiere.
 playground/public/exports/
+
+# Ce que `pnpm llms` publie pour les machines : l index, la prose et le code
+# des douze projets. Cinq megaoctets et demi regeneres depuis le depot, donc
+# versionnes nulle part — `pnpm llms` avant une construction, et ils sont la.
+playground/public/llms.txt
+playground/public/llms-full.txt
+playground/public/llms/
 playground/src/docs/exports.generated.ts
 
 # Les projets livres, prets a etre montres, produits par
