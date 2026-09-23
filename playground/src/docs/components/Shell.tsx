@@ -548,8 +548,7 @@ export function Shell({ children }: { children?: ReactNode }): ReactElement {
 
         <Link
           to="/"
-          className="o-inline-flex o-shrink-0 o-items-center o-gap-2 o-no-underline"
-          style={{ color: 'var(--ods-barre-encre-forte)' }}
+          className="ods-barre-sigle o-inline-flex o-shrink-0 o-items-center o-gap-2 o-no-underline"
         >
           <LogoMark className="o-size-5" style={{ color: 'var(--ods-accent)' }} />
           <span className="max-sm:o-hidden o-text-sm o-font-bold o-tracking-wide">

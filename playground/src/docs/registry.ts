@@ -389,7 +389,11 @@ export const DOC_SECTIONS: readonly DocSection[] = [
     title: 'Démarrage',
     pages: [
       {
-        path: '/',
+        // Elle pointait sur `/`, c est-a-dire la vitrine. Cliquer
+        // « Introduction » dans la colonne quittait donc la documentation pour
+        // la page de marque — et la colonne disparaissait avec elle, puisque
+        // la vitrine n en a pas. L accueil de la documentation est `/docs`.
+        path: '/docs',
         title: 'Introduction',
         description: 'Ce qu’est Odoro et ce que la librairie couvre.',
         keywords: ['accueil', 'presentation'],

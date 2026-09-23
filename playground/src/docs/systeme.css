@@ -969,6 +969,29 @@
   color: var(--ods-encre);
 }
 
+/*
+ * La barre a le meme probleme, et il s y voit davantage : elle est sombre dans
+ * les deux themes, donc un lien passe a la couleur de marque y reste bleu meme
+ * quand la page est claire. Les onglets, le sigle et les icones sont donc
+ * doubles eux aussi.
+ */
+.ods-onglet.ods-onglet {
+  color: var(--ods-barre-encre);
+}
+.ods-onglet.ods-onglet:hover,
+.ods-onglet.ods-onglet[data-actif] {
+  color: var(--ods-barre-encre-forte);
+}
+.ods-barre-icone.ods-barre-icone {
+  color: var(--ods-barre-encre);
+}
+.ods-barre-icone.ods-barre-icone:hover {
+  color: var(--ods-barre-encre-forte);
+}
+.ods-barre .ods-barre-sigle {
+  color: var(--ods-barre-encre-forte);
+}
+
 /* ==================================================================== */
 /* Modales, menus, infobulles (§12) et etats vides (§8)                  */
 /* ==================================================================== */
