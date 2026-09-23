@@ -31,7 +31,7 @@ export const fadeUpShort = {
  * Word gap for `TextEngine`, in `em`.
  *
  * The engine lays words out as flex items and defaults to `0.3em`, which is
- * wider than Google Sans Flex's own space (measured at `0.2245em`) and pushed
+ * wider than Inter's own space (measured at `0.2245em`) and pushed
  * two headings onto an extra line. Matching the real space width restores the
  * line breaks the Figma frame has.
  */

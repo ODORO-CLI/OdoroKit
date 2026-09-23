@@ -173,33 +173,49 @@ licence permet.
 | `orfevre`  | Libre Caslon Display   | Google Fonts  | SIL OFL 1.1        |
 | `helion`   | Lato                   | Google Fonts  | SIL OFL 1.1        |
 | `helion`   | Mulish (`@import`)     | Google Fonts  | SIL OFL 1.1        |
-| `helion`   | **Gilroy**             | Radomir Tinkov| **commerciale**    |
+| `helion`   | Jost (`<link>`)        | Google Fonts  | SIL OFL 1.1        |
 | `parfum`   | 3270                   | Ricardo Banffy| BSD 3-Clause       |
 | `parfum`   | Onest (`@import`)      | Google Fonts  | SIL OFL 1.1        |
-| `socle`    | **Google Sans Flex**   | Google        | **de marque**      |
+| `socle`    | Inter (`<link>`)       | Google Fonts  | SIL OFL 1.1        |
 | `gravity`  | Cormorant (`@import`)  | Google Fonts  | SIL OFL 1.1        |
 | `manoir`   | Space Grotesk, JetBrains Mono, Raleway, Instrument Serif (`@import`) | Google Fonts | SIL OFL 1.1 |
 
 Les familles marquees `@import` ne sont pas embarquees : la page les demande au
 service, et aucun fichier ne voyage avec le depot.
 
-### Les deux qui demandent une decision
+### Les deux qui demandaient une decision
 
-**Gilroy** (`helion`) se vend par graisse et par volume de pages vues ; sa
-licence n'autorise ni la redistribution des fichiers ni leur mise a disposition
-au telechargement. **Google Sans Flex** (`socle`) est la police de marque de
-Google : elle ne figure pas au catalogue Google Fonts et n'est pas publiee sous
-SIL OFL.
+Elle est prise. Deux familles non redistribuables ont ete remplacees par le
+dessin libre le plus proche :
 
-Les deux sont arrivees avec leur gabarit d'origine. Elles sont conservees parce
-que les retirer changerait la typographie du site, ce que la migration
-s'interdit. Mais leur presence dans un depot public, et leur inclusion dans
-l'archive telechargeable de la galerie, dependent d'une licence que rien dans
-ces dossiers n'atteste.
+| Gabarit  | Avant                | Apres | Pourquoi                              |
+|----------|----------------------|-------|---------------------------------------|
+| `helion` | **Gilroy**           | Jost  | Commerciale : se vend par graisse et par volume de pages vues, et sa licence n autorise ni la redistribution des fichiers ni leur mise a disposition au telechargement. |
+| `socle`  | **Google Sans Flex** | Inter | Police de marque de Google : absente du catalogue Google Fonts, non publiee sous SIL OFL, reservee a ses produits et a ses partenaires sous accord. |
 
+Les deux etaient arrivees avec leur gabarit d origine et avaient ete
+conservees, la migration s interdisant de changer la typographie. Mais leur
+presence dans un depot public, et leur inclusion dans l archive telechargeable
+de la galerie, dependaient d une licence que rien n attestait. Neuf cent seize
+kilo-octets de binaires sont partis avec elles.
+
+Le rendu bouge legerement. C etait le prix, et il est plus bas que celui d une
+redistribution non autorisee.
 `templates/helion/src/fonts/LICENCES.md` et
-`templates/socle/src/fonts/LICENCES.md` posent les trois issues possibles pour
-chacune, et indiquent ou se fait la substitution.
+`templates/socle/src/fonts/LICENCES.md` enregistrent chacun le detail de sa
+substitution.
+
+### Ce qui reste ouvert
+
+`templates/sections` ne porte toujours aucune licence, et **aucune ne peut lui
+etre donnee ici** : une licence est une autorisation accordee par qui detient
+les droits, et l ecrire a sa place la rendrait fausse plutot que manquante. Les
+vingt et une sections viennent du catalogue GetLayers, recuperees telles
+quelles, sans fichier de licence.
+
+`templates/sections/LICENCE.md` dit ce qu on sait, ce que cela implique, et les
+trois actions possibles — obtenir la licence, retirer le dossier de la
+distribution publique, ou reecrire les sections sans reprendre le code.
 
 ## Jeux d'icones
 

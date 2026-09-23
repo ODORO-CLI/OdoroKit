@@ -1,7 +1,7 @@
 # Les polices de ce projet
 
-Trois familles, et elles ne sont **pas** sous le même régime. Lire la troisième
-avant de redistribuer ce dossier.
+Trois familles, toutes sous licence libre. C'est une correction : la troisième
+ne l'était pas.
 
 ## Lato
 
@@ -20,27 +20,38 @@ Source : <https://fonts.google.com/specimen/Lato>
 Chargée depuis Google Fonts par un `@import` dans `src/styles.css`, sous **SIL
 Open Font License 1.1**. Aucun fichier n'est embarqué.
 
-## Gilroy — ⚠️ police commerciale
+## Jost
 
-`Gilroy-Regular`, `Gilroy-Medium` (`.woff`, `.woff2`)
+Chargée depuis Google Fonts par un `<link>` dans `index.html`, sous **SIL Open
+Font License 1.1**. Aucun fichier n'est embarqué.
 
-Dessinée par Radomir Tinkov. **Ce n'est pas une police libre.** Elle se vend au
-poids, par graisse et par volume de pages vues, et sa licence n'autorise ni la
-redistribution des fichiers ni leur mise à disposition au téléchargement.
+Dessinée par Owen Earl, d'après les proportions géométriques de la Futura.
 
-Ces fichiers sont arrivés avec le gabarit d'origine. Ils sont conservés ici
-parce que les retirer changerait la typographie du site, ce que la migration
-s'interdit — mais **leur présence dans un dépôt public, et leur inclusion dans
-l'archive téléchargeable de la galerie, dépassent ce que la licence permet**, à
-moins d'être couverts par une licence détenue par ailleurs.
+## Ce qui a changé, et pourquoi
 
-Trois issues, à trancher par qui publie :
+Le gabarit d'origine employait **Gilroy** pour les titres et le texte. C'est une
+police commerciale : elle se vend au poids, par graisse et par volume de pages
+vues, et sa licence n'autorise ni la redistribution des fichiers ni leur mise à
+disposition au téléchargement.
 
-1. produire la licence Gilroy correspondante, et la joindre ici ;
-2. remplacer Gilroy par une famille libre de dessin proche — la substitution est
-   contenue dans les quatre blocs `@font-face` en tête de `src/styles.css` et
-   dans la variable `--font-gilroy` ;
-3. retirer les fichiers du dépôt et les servir depuis une origine sous licence,
-   la variable restant inchangée.
+Les fichiers étaient arrivés avec le gabarit et avaient été conservés, la
+migration s'interdisant de changer la typographie. Mais leur présence dans un
+dépôt public, et leur inclusion dans l'archive téléchargeable de la galerie,
+dépassaient ce que la licence permet — quelle que soit la fidélité visuelle
+qu'on y gagnait.
 
-Source : <https://www.radomirtinkov.com/>
+Trois issues étaient possibles : produire la licence, substituer une famille
+libre, ou servir les fichiers depuis une origine sous licence. **La deuxième a
+été retenue**, et Jost est le dessin libre le plus proche : même squelette
+géométrique, même hauteur d'x à un cheveu près.
+
+La substitution tient en trois points, si quelqu'un veut la refaire autrement :
+
+1. les deux blocs `@font-face` de Gilroy ont été retirés de `src/styles.css` ;
+2. la variable `--font-gilroy` est devenue `--font-titre`, nommée par son rôle
+   plutôt que par un dessin — ce qui évite d'avoir à renommer à chaque
+   changement de police ;
+3. le `<link>` de `index.html` charge la famille depuis Google Fonts.
+
+Le rendu bouge légèrement. C'était le prix, et il est plus bas que celui d'une
+redistribution non autorisée.

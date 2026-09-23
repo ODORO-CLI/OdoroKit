@@ -17,27 +17,14 @@
 
 /* ---------------------------------------------------------------------------
    LES POLICES
-   Gilroy pour les titres et le texte, Lato pour les libelles de bouton, Mulish
-   pour la refonte du hero. Servies depuis notre propre origine.
+   Jost pour les titres et le texte, Lato pour les libelles de bouton, Mulish
+   pour la refonte du hero.
+
+   Jost remplace la police commerciale que la maquette employait : un gabarit
+   qu on telecharge ne peut pas en embarquer une. Meme squelette
+   geometrique, meme hauteur d x a un cheveu pres. Elle est servie par le
+   reseau de Google, donc rien a versionner.
    --------------------------------------------------------------------------- */
-@font-face {
-  font-family: 'Gilroy';
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url('./fonts/Gilroy-Regular.woff2') format('woff2'),
-    url('./fonts/Gilroy-Regular.woff') format('woff');
-}
-
-@font-face {
-  font-family: 'Gilroy';
-  font-style: normal;
-  font-weight: 500;
-  font-display: swap;
-  src: url('./fonts/Gilroy-Medium.woff2') format('woff2'),
-    url('./fonts/Gilroy-Medium.woff') format('woff');
-}
-
 @font-face {
   font-family: 'Lato';
   font-style: normal;
@@ -66,7 +53,7 @@
 }
 
 :root {
-  --font-gilroy: 'Gilroy';
+  --font-titre: 'Jost';
   --font-lato: 'Lato';
   --font-mulish: 'Mulish';
 }
@@ -253,6 +240,16 @@
    les sept ruptures, qui ne sont pas les habituelles.
    --------------------------------------------------------------------------- */
 :root {
+  /* Dix declarations ont ete retirees de ce bloc : elles se referencaient
+     elles-memes — `--font-titre: var(--font-titre)`. C est l idiome d un bloc
+     `@theme inline`, ou le generateur resout le nom contre la valeur concrete
+     definie plus haut. Converti en `:root` pendant le portage, l idiome
+     devient un cycle : la declaration est invalide, la variable vaut vide, et
+     la valeur concrete est perdue.
+
+     Rien ne le signalait. Les polices tombaient sur la pile systeme, les
+     rayons et les ombres sur rien du tout. Pour revenir en arriere : remettre
+     les lignes `--x: var(--x)` et la page reperd ses jetons. */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-surface-deep: var(--surface-deep);
@@ -275,21 +272,11 @@
   --color-brand-orange: var(--brand-orange);
   --color-brand-peach: var(--brand-peach);
 
-  /* Gilroy carries headings and body copy; Lato carries buttons — as originally. */
-  --font-sans: var(--font-gilroy);
-  --font-gilroy: var(--font-gilroy);
-  --font-lato: var(--font-lato);
+  /* Jost carries headings and body copy; Lato carries buttons — as originally. */
+  --font-sans: var(--font-titre);
   /* Mulish carries the whole hero redesign (masthead + chrome). */
-  --font-mulish: var(--font-mulish);
 
-  --radius-control: var(--radius-control);
-  --shadow-cta: var(--shadow-cta);
-  --shadow-cta-hover: var(--shadow-cta-hover);
-  --shadow-logo-mark: var(--shadow-logo-mark);
-  --shadow-logo-core: var(--shadow-logo-core);
-  --gradient-logo-disc: var(--gradient-logo-disc);
 
-  --container-max: var(--container-max);
   --spacing-container: var(--container-pad);
 
   /* Type scale, from the original px sizes at the 16px root. */
@@ -1027,5 +1014,5 @@ video {
 .hl-z-100.hl-z-100 { z-index: 100; }
 .hl-z-120.hl-z-120 { z-index: 120; }
 .hl-z-200.hl-z-200 { z-index: 200; }
-.hl-font-sans.hl-font-sans { font-family: var(--font-gilroy), ui-sans-serif, system-ui, sans-serif; }
+.hl-font-sans.hl-font-sans { font-family: var(--font-titre), ui-sans-serif, system-ui, sans-serif; }
 

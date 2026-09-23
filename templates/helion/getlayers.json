@@ -73,7 +73,7 @@
     "gl-line": "#2a2320",
     "gl-glow": "#ffcf7a",
     "gl-font-display": "'Mulish', ui-sans-serif, system-ui, sans-serif",
-    "gl-font-body": "'Gilroy', ui-sans-serif, system-ui, sans-serif"
+    "gl-font-body": "'Jost', ui-sans-serif, system-ui, sans-serif"
   },
   "tokenFiles": {
     "chrome2D": "src/app/globals.css",
@@ -156,7 +156,7 @@
     "devPortNote": "3000 est occupé par ~/ODORO (next 15.5). Lancer : npx next dev -p 3001",
     "disque": "Le disque était à 99 % (2,8 Go libres) pendant le build — premiers chargements des binaires natifs très lents (lightningcss ~10 s). À libérer."
   },
-  "notes": "Style engagé = helion-style (tokens, type Gilroy/Lato/Mulish, radius, springs) RE-TEINTÉ sur la palette GetLayers negantropy-palette (fond quasi-noir chaud, encre crème, accent braise) avec l'orange ODORO #f97316 comme accent DOM et GPU. Une seule famille chaude sur toute la page ; l'ancien rose « signal » devient la chaleur (#ffcf7a). Voir obsidian/meta/decisions-log.md ADR-0045 / ADR-0046 et obsidian/meta/changelog.md.",
+  "notes": "Style engagé = helion-style (tokens, type Jost/Lato/Mulish, radius, springs) RE-TEINTÉ sur la palette GetLayers negantropy-palette (fond quasi-noir chaud, encre crème, accent braise) avec l'orange ODORO #f97316 comme accent DOM et GPU. Une seule famille chaude sur toute la page ; l'ancien rose « signal » devient la chaleur (#ffcf7a). Voir obsidian/meta/decisions-log.md ADR-0045 / ADR-0046 et obsidian/meta/changelog.md.",
   "verification": {
     "date": "2026-09-11",
     "http": "GET / → 200 (première compilation Turbopack : 7,4 min, machine saturée)",

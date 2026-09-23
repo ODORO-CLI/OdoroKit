@@ -17,55 +17,15 @@
 /* ---------------------------------------------------------------------------
    LES POLICES
 
-   Google Sans Flex, telle que la maquette la pose. Quatre coupes statiques
+   Inter, telle que la maquette la pose. Quatre coupes statiques
    pour le corps, et la version variable pour ce qui est assez grand pour que
    la taille optique se voie — une coupe 24 pt epaissit ses traits pour tenir a
    24 pt, ce qui est juste pour du texte courant et faux pour un sigle de 801
    pixels.
    --------------------------------------------------------------------------- */
-@font-face {
-  font-family: 'Google Sans Flex';
-  font-style: normal;
-  font-weight: 100;
-  font-display: swap;
-  src: url('./fonts/GoogleSansFlex_24pt-Thin.ttf') format('truetype');
-}
-
-@font-face {
-  font-family: 'Google Sans Flex';
-  font-style: normal;
-  font-weight: 300;
-  font-display: swap;
-  src: url('./fonts/GoogleSansFlex_24pt-Light.ttf') format('truetype');
-}
-
-@font-face {
-  font-family: 'Google Sans Flex';
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url('./fonts/GoogleSansFlex_24pt-Regular.ttf') format('truetype');
-}
-
-@font-face {
-  font-family: 'Google Sans Flex';
-  font-style: normal;
-  font-weight: 500;
-  font-display: swap;
-  src: url('./fonts/GoogleSansFlex_24pt-Medium.ttf') format('truetype');
-}
-
-@font-face {
-  font-family: 'Google Sans Flex Display';
-  font-style: normal;
-  font-weight: 1 1000;
-  font-display: swap;
-  src: url('./fonts/GoogleSansFlex-Variable-latin.woff2') format('woff2');
-}
-
 :root {
-  --font-google-sans-flex: 'Google Sans Flex';
-  --font-google-sans-flex-display: 'Google Sans Flex Display';
+  --font-google-sans-flex: 'Inter';
+  --font-google-sans-flex-display: 'Inter';
 }
 
 /* ---------------------------------------------------------------------------
@@ -327,7 +287,7 @@ body {
    Chromium-only and — decisively — has no effect on a flex container, which is
    exactly what TextEngine renders. So the trim is done geometrically instead,
    with negative block margins that pull the box onto the ink. Measured from
-   Google Sans Flex (ascent .9625em, descent .2875em, cap height .725em):
+   Inter (ascent .9625em, descent .2875em, cap height .725em):
 
      block-start = (line-height − 1.25em) / 2 + .2375em
      block-end   = (line-height − 1.25em) / 2 + .2875em
