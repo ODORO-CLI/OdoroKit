@@ -631,23 +631,6 @@ export function Shell({ children }: { children?: ReactNode }): ReactElement {
         data-ouverte={menuOpen ? '' : undefined}
         aria-label="Navigation de la documentation"
       >
-        <Link to="/docs" className="ods-selecteur o-no-underline">
-          <span className="ods-selecteur-sigle">OD</span>
-          <span className="o-flex-1 o-truncate">Documentation</span>
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            aria-hidden="true"
-            focusable="false"
-          >
-            <path d="m6 9 6 6 6-6" />
-          </svg>
-        </Link>
 
         {/* La meme liste que la barre, et c est voulu : au-dessus de 1024 px
             la barre la porte et celle-ci disparait ; en dessous la barre la

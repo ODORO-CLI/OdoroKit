@@ -685,43 +685,6 @@
   border-right: 1px solid var(--ods-bordure);
 }
 
-/* Le selecteur, en tete de colonne. */
-.ods-selecteur {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
-  height: 40px;
-  padding: 0 8px;
-  margin-bottom: 12px;
-  border: 0;
-  border-radius: var(--ods-r-controle);
-  background: none;
-  color: var(--ods-encre);
-  font-family: var(--ods-police);
-  font-size: var(--ods-corps);
-  font-weight: var(--ods-demi);
-  cursor: pointer;
-  text-align: left;
-  transition: background-color var(--ods-t-couleur);
-}
-.ods-selecteur:hover {
-  background-color: var(--ods-bordure);
-}
-.ods-selecteur-sigle {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  flex: none;
-  border-radius: var(--ods-r-petit);
-  background-color: var(--ods-accent);
-  color: #ffffff;
-  font-size: var(--ods-petit);
-  font-weight: var(--ods-gras);
-}
-
 /*
  * Un element de navigation.
  *
@@ -981,9 +944,6 @@
 /* Un rang n est plus un sous-niveau : il porte la meme encre que le reste.
    Seule son icone reste en encre douce, jusqu a ce qu il soit ouvert. */
 .ods-sous-nav.ods-sous-nav {
-  color: var(--ods-encre);
-}
-.ods-selecteur.ods-selecteur {
   color: var(--ods-encre);
 }
 
