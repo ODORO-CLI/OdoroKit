@@ -1,5 +1,26 @@
 # @odoro-cli/libs
 
+## 2.1.0
+
+### Minor Changes
+
+- La teinte de marque passe au bleu clair du sigle.
+
+  `brand-500` va de `#3b82f6` a `#0ea5e9`, et les onze nuances avec. Tout ce qui
+  lit `--o-palette-brand-*` suit — c'est precisement la raison pour laquelle la
+  marque est une echelle a elle et non un alias vers une famille.
+
+  **Ce que ca change pour un projet.** Rien a renommer : les classes `o-*-brand-*`
+  existent toujours et rendent la nouvelle teinte. Un projet qui voulait l'ancien
+  bleu le retrouve en repointant les onze variables sur `--o-palette-blue-*`, ou
+  en employant `o-text-blue-600` directement — l'echelle brute est intacte.
+
+  **Une teinte claire ne porte pas le texte comme une foncee.** `#0ea5e9` plafonne
+  a 3,0:1 sur blanc : un filet, un aplat, un gros titre, mais pas un paragraphe.
+  Le texte sur fond clair prend `brand-600`, sur fond sombre `brand-400`. La
+  documentation du jeton le dit desormais, parce qu'eclaircir l'ancre sans garder
+  le bout sombre de l'echelle est ce qui rend une marque claire illisible.
+
 ## 2.0.0
 
 ### Major Changes

@@ -1,5 +1,41 @@
 # odoro
 
+## 2.1.0
+
+### Minor Changes
+
+- `odoro create` approvisionne la base Odoro au lieu de l'annoncer.
+
+  Le premier choix du selecteur de base — « fournisseur Odoro » — etait affiche « a
+  venir » et ne faisait rien. Il provisionne desormais, en posant les quatre
+  questions dont il a besoin : le jeton, l'environnement, la region, le nom.
+
+  Ce qui bloquait n'etait pas le plan de controle, qui repondait deja, mais le
+  client. `@odoro-cli/cloud-sdk` entre donc dans les dependances du CLI. Il en
+  etait tenu dehors pour son poids : le client et ses contrats pesent 428 Ko, a
+  cote du compilateur et du transformeur deja transportes — moins de trois pour
+  cent. Et surtout, pendant `npm create odoro` il n'existe aucun projet, donc
+  aucun endroit d'ou resoudre un paquet installe a part : tenu dehors, le chemin
+  de la plateforme ne pouvait pas s'executer au moment ou on le veut le plus.
+
+  Le chargement reste dynamique : une installation partielle ne doit pas emporter
+  `odoro dev`, et un projet qui apporte sa propre base PostgreSQL n'a jamais
+  besoin de ce module.
+
+  `odoro db:create` profite des memes questions :
+
+  - il refusait sans `--env`, il demande — et propose les environnements par leur
+    nom, `projet / environnement`, plutot que d'exiger un identifiant qu'il
+    faudrait d'abord avoir lu ailleurs ;
+  - il codait `eu-central-1` en dur, il propose les regions que la plateforme
+    declare. Laquelle est choisie dit dans quelle juridiction vivent les donnees.
+
+  `--env` et `--region` sautent les questions, pour les scripts.
+
+  La frontiere ne bouge pas : le projet recoit une chaine de connexion a portee
+  limitee, ecrite dans `.env` et jamais affichee ; les identifiants du fournisseur
+  restent dans le plan de controle.
+
 ## 2.0.0
 
 ### Major Changes
