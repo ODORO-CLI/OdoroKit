@@ -76,9 +76,17 @@ import {
 } from './generated/baseTokens.js'
 
 /**
- * Odoro brand hue: the blue of the logo (`#3b82f6`, `brand-500`), spread over
- * the same 11 shades as the rest of the palette so it stays interchangeable
- * with any other hue.
+ * Odoro brand hue: the light blue of the logo (`#0ea5e9`, `brand-500`), spread
+ * over the same 11 shades as the rest of the palette so it stays
+ * interchangeable with any other hue.
+ *
+ * ## Which shade for what
+ *
+ * A light blue does not carry text on a white ground: `brand-500` reaches
+ * 3.0:1, enough for a border, a fill or a large heading, and short of AA for a
+ * paragraph. Text on light therefore takes `brand-600`; text on dark takes
+ * `brand-400`. The scale is written so that both exist — lightening the anchor
+ * without keeping the dark end is what makes a light brand unreadable.
  *
  * ## Why the brand is a scale of its own, and not an alias
  *
@@ -91,17 +99,17 @@ import {
  * follows.
  */
 export const brand = {
-  'brand-50': 'oklch(97.0% 0.014 254.604)',
-  'brand-100': 'oklch(93.2% 0.032 255.585)',
-  'brand-200': 'oklch(88.2% 0.059 254.128)',
-  'brand-300': 'oklch(80.9% 0.105 251.813)',
-  'brand-400': 'oklch(70.7% 0.165 254.624)',
-  'brand-500': 'oklch(62.3% 0.214 259.815)',
-  'brand-600': 'oklch(54.6% 0.245 262.881)',
-  'brand-700': 'oklch(48.8% 0.243 264.376)',
-  'brand-800': 'oklch(42.4% 0.199 265.638)',
-  'brand-900': 'oklch(37.9% 0.146 265.522)',
-  'brand-950': 'oklch(28.2% 0.091 267.935)',
+  'brand-50': 'oklch(97.7% 0.013 236.62)',
+  'brand-100': 'oklch(95.1% 0.026 236.824)',
+  'brand-200': 'oklch(90.1% 0.058 230.902)',
+  'brand-300': 'oklch(82.8% 0.111 230.318)',
+  'brand-400': 'oklch(74.6% 0.16 232.661)',
+  'brand-500': 'oklch(68.5% 0.169 237.323)',
+  'brand-600': 'oklch(58.8% 0.158 241.966)',
+  'brand-700': 'oklch(50% 0.134 242.749)',
+  'brand-800': 'oklch(44.3% 0.11 240.79)',
+  'brand-900': 'oklch(39.1% 0.09 240.876)',
+  'brand-950': 'oklch(29.3% 0.066 243.157)',
 } as const
 
 /**
