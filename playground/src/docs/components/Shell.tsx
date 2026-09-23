@@ -144,9 +144,12 @@ function storedOpenSections(): Record<string, boolean> {
  */
 function ItemLink({
   page,
+  section,
   onNavigate,
 }: {
   page: DocPage
+  /** La rubrique qui la contient : c est d elle que vient son icone. */
+  section: string
   onNavigate?: () => void
 }): ReactElement {
   const { pathname } = useLocation()
@@ -160,6 +163,9 @@ function ItemLink({
       data-actif={active ? '' : undefined}
       className="ods-sous-nav"
     >
+      <span className="ods-sous-nav-icone" aria-hidden="true">
+        <SectionIcon title={section} />
+      </span>
       {page.title}
     </Link>
   )
@@ -188,10 +194,6 @@ function SectionBlock({
         onClick={onToggle}
         className="ods-rubrique o-cursor-pointer"
       >
-        <span className="o-inline-flex o-min-w-0 o-items-center o-gap-2">
-          <SectionIcon title={section.title} />
-          <span className="o-truncate">{section.title}</span>
-        </span>
         <svg
           width="14"
           height="14"
@@ -203,10 +205,11 @@ function SectionBlock({
           strokeLinejoin="round"
           aria-hidden="true"
           focusable="false"
-          className={`o-shrink-0 o-transition-transform ${open ? 'o-rotate-90' : ''}`}
+          className={`ods-rubrique-chevron ${open ? 'o-rotate-90' : ''}`}
         >
           <path d="m9 18 6-6-6-6" />
         </svg>
+        <span className="o-truncate">{section.title}</span>
       </button>
 
       {/* Repli anime par grille : 0fr -> 1fr interpole la hauteur reelle,
@@ -224,7 +227,12 @@ function SectionBlock({
         <div className="o-overflow-hidden" style={{ minHeight: 0 }}>
           <div className="ods-groupe o-flex o-flex-col o-pb-2 o-pt-1">
             {(section.pages ?? []).map((page) => (
-              <ItemLink key={page.path} page={page} onNavigate={onNavigate} />
+              <ItemLink
+                key={page.path}
+                page={page}
+                section={section.title}
+                onNavigate={onNavigate}
+              />
             ))}
 
             {(section.groups ?? []).map((group) => (
@@ -233,7 +241,12 @@ function SectionBlock({
                   <span className="o-truncate">{group.title}</span>
                 </p>
                 {group.pages.map((page) => (
-                  <ItemLink key={page.path} page={page} onNavigate={onNavigate} />
+                  <ItemLink
+                key={page.path}
+                page={page}
+                section={section.title}
+                onNavigate={onNavigate}
+              />
                 ))}
               </div>
             ))}

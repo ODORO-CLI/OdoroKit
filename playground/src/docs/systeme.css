@@ -759,19 +759,28 @@
 }
 
 /*
- * Une sous-page : plus basse, en encre douce, et reliee au groupe par un
- * trait vertical pose a vingt pixels du bord.
+ * Une page de la colonne.
+ *
+ * Elle etait plus basse que les autres, en encre douce, indentee de vingt-huit
+ * pixels et reliee a son groupe par un trait vertical. Cela dessinait une
+ * arborescence — un plan de site — la ou une console presente des
+ * destinations, toutes au meme rang, groupees par rubrique.
+ *
+ * Elle a donc la meme hauteur, la meme encre et le meme retrait que tout le
+ * reste. Ce qui la distingue est son icone, et rien d autre.
  */
 .ods-sous-nav {
-  position: relative;
-  display: block;
-  height: var(--ods-sous-nav-h);
-  line-height: var(--ods-sous-nav-h);
-  padding: 0 8px 0 28px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  height: 36px;
+  padding: 0 10px;
   border-radius: var(--ods-r-controle);
-  color: var(--ods-encre-douce);
+  color: var(--ods-encre);
   font-family: var(--ods-police);
   font-size: var(--ods-corps);
+  line-height: var(--ods-corps-h);
   text-decoration: none;
   transition:
     background-color var(--ods-t-couleur),
@@ -779,49 +788,60 @@
 }
 .ods-sous-nav:hover {
   background-color: var(--ods-bordure);
-  color: var(--ods-encre);
 }
 .ods-sous-nav[data-actif] {
   background-color: var(--ods-carte);
   box-shadow: var(--ods-ombre-actif);
-  color: var(--ods-encre);
   font-weight: var(--ods-demi);
 }
-
-/* Le trait de guidage, continu derriere toutes les sous-pages d un groupe. */
-.ods-groupe {
-  position: relative;
+.ods-sous-nav-icone {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  color: var(--ods-encre-douce);
 }
-.ods-groupe::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 20px;
-  width: 1px;
-  background-color: var(--ods-guide);
+.ods-sous-nav[data-actif] .ods-sous-nav-icone {
+  color: var(--ods-encre);
 }
 
-/* Le libelle d une rubrique, avec son chevron. */
+/*
+ * Le libelle d une rubrique.
+ *
+ * Le chevron passe a gauche, avant le mot : c est lui qu on vise pour replier,
+ * et le chercher au bout d une ligne de longueur variable demandait de viser
+ * une cible qui bouge d une rubrique a l autre.
+ *
+ * L icone qu il portait est descendue sur les rangs. Une rubrique n est pas
+ * une destination ; lui donner le meme ornement qu aux lignes qu elle groupe
+ * mettait les deux au meme rang.
+ */
 .ods-rubrique {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 8px;
+  gap: 6px;
   width: 100%;
-  margin-top: 20px;
-  padding: 0 8px;
+  margin-top: 18px;
+  margin-bottom: 2px;
+  padding: 0 10px;
   border: 0;
   background: none;
   color: var(--ods-encre-douce);
   font-family: var(--ods-police);
-  font-size: var(--ods-petit);
+  font-size: 11px;
   font-weight: var(--ods-demi);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   cursor: pointer;
   text-align: left;
 }
 .ods-rubrique:hover {
   color: var(--ods-encre);
+}
+.ods-rubrique-chevron {
+  display: inline-flex;
+  flex: none;
+  transition: transform var(--ods-t-couleur);
 }
 
 /* --- La zone de contenu --------------------------------------------- */
@@ -958,11 +978,9 @@
 .ods-nav.ods-nav {
   color: var(--ods-encre);
 }
+/* Un rang n est plus un sous-niveau : il porte la meme encre que le reste.
+   Seule son icone reste en encre douce, jusqu a ce qu il soit ouvert. */
 .ods-sous-nav.ods-sous-nav {
-  color: var(--ods-encre-douce);
-}
-.ods-sous-nav.ods-sous-nav:hover,
-.ods-sous-nav.ods-sous-nav[data-actif] {
   color: var(--ods-encre);
 }
 .ods-selecteur.ods-selecteur {
