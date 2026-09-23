@@ -557,6 +557,27 @@ export function Shell({ children }: { children?: ReactNode }): ReactElement {
           </span>
         </Link>
 
+        {/* Les six destinations, a gauche. Sous 1024 px elles sortent : la
+            barre n a plus la place, et c est la copie de la colonne — visible
+            dans le tiroir — qui prend le relais. */}
+        <nav
+          aria-label="Navigation principale"
+          className="max-lg:o-hidden o-flex o-shrink-0 o-items-center o-gap-0.5 o-pl-2"
+        >
+          {TOP_LINKS.map((link) => (
+            <Link
+              key={link.to}
+              to={link.to}
+              data-actif={
+                link.prefixes.some((prefix) => pathname.startsWith(prefix)) ? '' : undefined
+              }
+              className="ods-onglet"
+            >
+              {link.label}
+            </Link>
+          ))}
+        </nav>
+
         {/* Deux entretoises souples : c est ce qui tient la recherche au
             centre de l ecran, et non au centre de ce qui reste. */}
         <div className="o-flex-1" />
@@ -607,8 +628,10 @@ export function Shell({ children }: { children?: ReactNode }): ReactElement {
           </svg>
         </Link>
 
-        {/* Les destinations de premier niveau, descendues de la barre. */}
-        <nav aria-label="Sections" className="o-flex o-flex-col o-gap-0.5">
+        {/* La meme liste que la barre, et c est voulu : au-dessus de 1024 px
+            la barre la porte et celle-ci disparait ; en dessous la barre la
+            perd et le tiroir la reprend. Jamais les deux ensemble. */}
+        <nav aria-label="Sections" className="lg:o-hidden o-flex o-flex-col o-gap-0.5">
           {TOP_LINKS.map((link) => (
             <Link
               key={link.to}

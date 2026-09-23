@@ -48,11 +48,11 @@
    * application. Ses encres sont donc a elle — lire `--ods-encre` la rendrait
    * noire sur noire en clair.
    */
-  --ods-barre: #1a1a1a;
+  --ods-barre: #000000;
   --ods-barre-encre: #d8d8d8;
   --ods-barre-encre-forte: #ffffff;
   --ods-barre-filet: rgb(255 255 255 / 0.13);
-  --ods-barre-champ: rgb(255 255 255 / 0.09);
+  --ods-barre-champ: rgb(255 255 255 / 0.07);
   --ods-barre-actif: rgb(255 255 255 / 0.13);
 
   /* --- Surfaces (§4) ------------------------------------------------- */
@@ -120,7 +120,7 @@
   --ods-relief-bas: inset 0 -1px 0 rgb(0 0 0 / 0.4);
 
   /* --- Mesures (§1, §2, §3, §9, §10) ---------------------------------- */
-  --ods-barre-h: 48px;
+  --ods-barre-h: 56px;
   --ods-colonne-l: 240px;
   --ods-entete-h: 40px;
   --ods-nav-h: 32px;
@@ -613,6 +613,44 @@
   color: var(--ods-barre-encre-forte);
 }
 .ods-barre-icone:focus-visible {
+  outline: 2px solid var(--ods-accent);
+  outline-offset: 1px;
+}
+
+/*
+ * Les onglets de navigation, a gauche dans la barre.
+ *
+ * Ils vivent sur la barre, donc ils lisent ses encres et non celles du
+ * document. Sous 1024 px ils sortent de l ecran : la barre n a plus la place,
+ * et c est la copie de la colonne — visible dans le tiroir — qui prend le
+ * relais. A aucune largeur les deux ne sont montres ensemble.
+ */
+.ods-onglet {
+  display: inline-flex;
+  align-items: center;
+  height: var(--ods-nav-h);
+  padding: 0 10px;
+  border-radius: var(--ods-r-controle);
+  color: var(--ods-barre-encre);
+  font-family: var(--ods-police);
+  font-size: var(--ods-corps);
+  line-height: var(--ods-corps-h);
+  white-space: nowrap;
+  text-decoration: none;
+  transition:
+    background-color var(--ods-t-couleur),
+    color var(--ods-t-couleur);
+}
+.ods-onglet:hover {
+  background-color: var(--ods-barre-actif);
+  color: var(--ods-barre-encre-forte);
+}
+.ods-onglet[data-actif] {
+  background-color: var(--ods-barre-actif);
+  color: var(--ods-barre-encre-forte);
+  font-weight: var(--ods-demi);
+}
+.ods-onglet:focus-visible {
   outline: 2px solid var(--ods-accent);
   outline-offset: 1px;
 }
