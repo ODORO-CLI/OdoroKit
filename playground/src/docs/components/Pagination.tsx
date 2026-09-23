@@ -63,7 +63,7 @@ function Carte({
   return (
     <Link
       to={page.path}
-      className={`pg-carte o-flex o-min-w-0 o-flex-1 o-flex-col o-gap-2 o-rounded-2xl o-border-w-1 o-p-6 o-no-underline o-transition-colors ${
+      className={`pg-carte o-flex o-min-w-0 o-flex-1 o-flex-col o-gap-2 o-rounded-xl o-border-w-1 o-p-6 o-no-underline o-transition-colors ${
         versLaSuite ? 'o-items-end o-text-right' : 'o-items-start'
       }`}
     >

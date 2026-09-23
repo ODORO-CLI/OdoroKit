@@ -1968,7 +1968,7 @@ function BarreCommande(): ReactElement {
   return (
     <div
       id="installer"
-      className="o-flex o-flex-col o-gap-2 o-rounded-3xl o-border-w-1 ac-bord-fort o-p-2 o-backdrop-blur-md ac-barre sm:o-flex-row sm:o-items-center sm:o-gap-5 ac-gelule sm:o-py-0.5 sm:o-pl-8 sm:o-pr-0.5"
+      className="o-flex o-flex-col o-gap-2 o-rounded-xl o-border-w-1 ac-bord-fort o-p-2 o-backdrop-blur-md ac-barre sm:o-flex-row sm:o-items-center sm:o-gap-5 ac-gelule sm:o-py-0.5 sm:o-pl-8 sm:o-pr-0.5"
     >
       <code className="o-min-w-0 o-flex-1 o-truncate o-px-4 o-py-3 o-font-mono o-text-base ac-encre sm:o-px-0">
         <span aria-hidden="true" style={{ color: 'var(--o-accueil-accent)' }}>
@@ -2017,7 +2017,7 @@ function Demonstration({
   readonly children: ReactNode
 }): ReactElement {
   return (
-    <div className="o-flex o-min-w-0 o-flex-col o-gap-4 o-rounded-2xl o-border-w-1 ac-bord ac-carte o-p-6 o-backdrop-blur-md">
+    <div className="o-flex o-min-w-0 o-flex-col o-gap-4 o-rounded-xl o-border-w-1 ac-bord ac-carte o-p-6 o-backdrop-blur-md">
       <div className="o-flex o-min-h-24 o-items-center o-justify-center o-text-center">
         {children}
       </div>

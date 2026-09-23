@@ -18,7 +18,12 @@
  * @module
  */
 
-import { useEffect, type ReactElement, type ReactNode } from 'react'
+import {
+  useEffect,
+  type CSSProperties,
+  type ReactElement,
+  type ReactNode,
+} from 'react'
 
 import { CodeBlock } from './CodeBlock.jsx'
 
@@ -90,18 +95,26 @@ export function PageHeader({
 }): ReactElement {
   useFeuille()
   return (
-    <header className="o-mb-8 o-flex o-flex-col o-gap-3">
-      <Rubrique>{moduleName ?? 'Documentation'}</Rubrique>
-      {/* Le titre pesait jusqu a soixante-quatre pixels, en graisse legere :
-          c etait un titre d affiche, herite de la page d accueil. Une console
-          n affiche pas, elle annonce — un titre de page y tient en trente
-          pixels et en demi-gras, et les cent pixels de marge qui le suivaient
-          sont rendus a la lecture. */}
-      <h1 className="o-m-0 o-max-w-3xl o-text-balance o-text-3xl o-font-semibold o-tracking-tight">
-        {title}
-      </h1>
+    <header className="o-mb-4">
+      <p className="ods-entete-sous-titre o-mb-1">{moduleName ?? 'Documentation'}</p>
+      {/*
+        Vingt pixels, demi-gras. Le titre en pesait soixante-quatre en graisse
+        legere, puis trente : c etait encore un titre d affiche. Une console
+        n affiche pas, elle annonce — et le titre doit tenir sur la meme ligne
+        que les boutons qui l accompagnent.
+      */}
+      <div className="ods-entete">
+        <h1 className="ods-entete-titre o-text-balance">{title}</h1>
+      </div>
       {lead === undefined ? null : (
-        <p className="o-m-0 o-max-w-prose o-text-pretty o-text-base o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400">
+        <p
+          className="o-m-0 o-max-w-prose o-text-pretty"
+          style={{
+            fontSize: 'var(--ods-corps)',
+            lineHeight: 'var(--ods-corps-h)',
+            color: 'var(--ods-encre-douce)',
+          }}
+        >
           {lead}
         </p>
       )}
@@ -109,7 +122,14 @@ export function PageHeader({
   )
 }
 
-/** Section titree d une page, ouverte par un filet. */
+/**
+ * Une section de page.
+ *
+ * Elle etait ouverte par un filet et titree en trente pixels de graisse
+ * legere. Sur une console, ce qui se lit est pose sur une carte, et le gris
+ * autour n est pas un fond : c est ce qui fait exister la carte. Le titre
+ * descend donc a quatorze pixels demi-gras, la mesure d un titre de carte.
+ */
 export function Section({
   title,
   lead,
@@ -121,13 +141,17 @@ export function Section({
 }): ReactElement {
   useFeuille()
   return (
-    <section className="o-mb-20 o-flex o-flex-col o-gap-5">
-      <span aria-hidden="true" className="dc-filet o-h-px o-w-full" />
-      <h2 className="o-m-0 o-mt-3 o-text-balance o-text-3xl o-font-light o-tracking-tight">
-        {title}
-      </h2>
+    <section className="ods-carte o-mb-4 o-flex o-flex-col o-gap-3">
+      <h2 className="ods-carte-titre o-text-balance">{title}</h2>
       {lead === undefined ? null : (
-        <p className="o-m-0 o-max-w-prose o-text-pretty o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-300">
+        <p
+          className="o-m-0 o-max-w-prose o-text-pretty"
+          style={{
+            fontSize: 'var(--ods-corps)',
+            lineHeight: 'var(--ods-corps-h)',
+            color: 'var(--ods-encre-douce)',
+          }}
+        >
           {lead}
         </p>
       )}
@@ -136,7 +160,12 @@ export function Section({
   )
 }
 
-/** Apercu fige accompagne de son extrait. */
+/**
+ * Un apercu fige, et son extrait.
+ *
+ * La surface de l apercu est le sous-bloc gris du paragraphe 7 : elle dit
+ * « ceci est montre, pas dit » sans avoir besoin d un cadre de plus.
+ */
 export function DemoBlock({
   children,
   code,
@@ -150,11 +179,18 @@ export function DemoBlock({
 }): ReactElement {
   useFeuille()
   return (
-    <div className="dc-bord o-flex o-flex-col o-overflow-hidden o-rounded-2xl o-border-w-1">
+    <div
+      className="o-flex o-flex-col o-overflow-hidden"
+      style={{
+        borderRadius: 'var(--ods-r-carte)',
+        border: '1px solid var(--ods-bordure)',
+      }}
+    >
       <div
-        className={`dc-surface o-overflow-x-auto o-p-10 ${
+        className={`o-overflow-x-auto o-p-8 ${
           center ? 'o-flex o-items-center o-justify-center' : ''
         } ${className ?? ''}`}
+        style={{ background: 'var(--ods-sous-bloc)' }}
       >
         {children}
       </div>
@@ -176,45 +212,73 @@ export interface PropRow {
 /** Tableau des props d un composant : des filets, aucun aplat. */
 export function PropsTable({ rows }: { rows: readonly PropRow[] }): ReactElement {
   useFeuille()
-  const entete =
-    'o-px-4 o-py-3 o-text-left o-font-mono o-text-xs o-font-normal o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400'
+
+  // L en-tete : trente-six pixels, sur le gris des sous-blocs, en douze
+  // pixels d encre douce. Le corps : quarante-quatre pixels par ligne, et un
+  // separateur d un pixel qui n est pas la bordure de la carte.
+  const entete: CSSProperties = {
+    height: 'var(--ods-entete-tableau-h)',
+    padding: '0 12px',
+    textAlign: 'left',
+    background: 'var(--ods-sous-bloc)',
+    color: 'var(--ods-encre-douce)',
+    fontSize: 'var(--ods-petit)',
+    fontWeight: 500,
+  }
+  const cellule: CSSProperties = {
+    padding: '12px',
+    borderTop: '1px solid var(--ods-separateur)',
+    fontSize: 'var(--ods-corps)',
+    lineHeight: 'var(--ods-corps-h)',
+  }
 
   return (
-    <div className="dc-bord o-overflow-x-auto o-rounded-2xl o-border-w-1">
-      <table className="o-w-full o-text-sm">
+    <div
+      className="o-overflow-x-auto"
+      style={{
+        borderRadius: 'var(--ods-r-carte)',
+        border: '1px solid var(--ods-bordure)',
+      }}
+    >
+      <table className="o-w-full" style={{ borderCollapse: 'collapse' }}>
         <thead>
-          <tr className="dc-bord o-border-b">
-            <th scope="col" className={entete}>
+          <tr>
+            <th scope="col" style={entete}>
               Propriété
             </th>
-            <th scope="col" className={entete}>
+            <th scope="col" style={entete}>
               Type
             </th>
-            <th scope="col" className={entete}>
+            <th scope="col" style={entete}>
               Défaut
             </th>
-            <th scope="col" className={entete}>
+            <th scope="col" style={entete}>
               Description
             </th>
           </tr>
         </thead>
-        {/* Le dernier rang perd son filet : une derniere ligne soulignee juste
-            au-dessus de la bordure du cadre fait un trait double. */}
-        <tbody className="dc-rangs">
+        <tbody>
           {rows.map((row) => (
-            <tr key={row.name} className="dc-bord o-border-b">
-              <td className="o-whitespace-nowrap o-px-4 o-py-3 o-font-mono o-text-xs o-text-brand-600 dark:o-text-brand-300">
+            <tr key={row.name}>
+              <td
+                className="o-whitespace-nowrap o-font-mono"
+                style={{ ...cellule, color: 'var(--ods-accent-encre)' }}
+              >
                 {row.name}
               </td>
-              <td className="o-px-4 o-py-3 o-font-mono o-text-xs o-text-zinc-500 dark:o-text-zinc-400">
+              <td
+                className="o-font-mono"
+                style={{ ...cellule, color: 'var(--ods-encre-douce)' }}
+              >
                 {row.type}
               </td>
-              <td className="o-whitespace-nowrap o-px-4 o-py-3 o-font-mono o-text-xs o-text-zinc-500 dark:o-text-zinc-400">
+              <td
+                className="o-whitespace-nowrap o-font-mono"
+                style={{ ...cellule, color: 'var(--ods-encre-douce)' }}
+              >
                 {row.defaultValue ?? '—'}
               </td>
-              <td className="o-px-4 o-py-3 o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-300">
-                {row.description}
-              </td>
+              <td style={{ ...cellule, color: 'var(--ods-encre)' }}>{row.description}</td>
             </tr>
           ))}
         </tbody>
@@ -239,7 +303,7 @@ export function Callout({
 }): ReactElement {
   useFeuille()
   return (
-    <div className="dc-verre o-relative o-rounded-2xl o-border-w-1 o-py-5 o-pl-7 o-pr-6">
+    <div className="dc-verre o-relative o-rounded-xl o-border-w-1 o-py-5 o-pl-7 o-pr-6">
       <span
         aria-hidden="true"
         className={`o-absolute o-left-3 o-w-px ${tone === 'info' ? 'dc-tige' : 'dc-tige-alerte'}`}

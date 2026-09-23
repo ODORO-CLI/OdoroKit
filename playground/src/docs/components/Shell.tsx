@@ -38,11 +38,10 @@ import {
   Waves,
   Zap,
 } from '@odoro-cli/icons/outline'
-import { Github, Npm } from '@odoro-cli/icons/brands'
+import { Github } from '@odoro-cli/icons/brands'
 import { Link, useLocation } from '@odoro-cli/libs/router'
-import { useScrollProgress } from '@odoro-cli/libs/motion'
 
-import { DEPOT, NPM } from '../liens.js'
+import { DEPOT } from '../liens.js'
 import { DOC_SECTIONS, type DocPage, type DocSection, sectionPages } from '../registry.js'
 import { Pagination } from './Pagination.jsx'
 import { SearchDialog } from './SearchDialog.jsx'
@@ -159,16 +158,8 @@ function ItemLink({
       aria-current={active ? 'page' : undefined}
       onClick={onNavigate}
       data-actif={active ? '' : undefined}
-      className={`db-item o-block o-px-2.5 o-py-1.5 o-text-sm o-no-underline ${
-        active
-          ? 'o-text-zinc-950 dark:o-text-zinc-50'
-          : 'o-text-zinc-600 dark:o-text-zinc-400 hover:o-text-zinc-950 dark:hover:o-text-zinc-50'
-      }`}
+      className="ods-sous-nav"
     >
-      {/* La tige d accent a disparu avec les gelules : une ligne ouverte se
-          signale ici par un aplat, comme une entree de menu d application.
-          Un filet vertical plus un aplat, ce serait dire deux fois la meme
-          chose, et la seconde fois moins bien. */}
       {page.title}
     </Link>
   )
@@ -195,16 +186,12 @@ function SectionBlock({
         aria-expanded={open}
         aria-controls={regionId}
         onClick={onToggle}
-        className="o-flex o-w-full o-cursor-pointer o-items-center o-gap-3 o-py-2.5 o-text-left o-transition-opacity hover:o-opacity-70"
+        className="ods-rubrique o-cursor-pointer"
       >
-        <span className="o-inline-flex o-shrink-0 o-items-center o-justify-center o-text-brand-600 dark:o-text-brand-400">
+        <span className="o-inline-flex o-min-w-0 o-items-center o-gap-2">
           <SectionIcon title={section.title} />
+          <span className="o-truncate">{section.title}</span>
         </span>
-        <span className="o-truncate o-font-mono o-text-xs o-font-semibold o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">
-          {section.title}
-        </span>
-        {/* Le filet qui prolonge la rubrique jusqu au bord. */}
-        <span aria-hidden="true" className="db-filet o-h-px o-flex-1" />
         <svg
           width="14"
           height="14"
@@ -216,7 +203,7 @@ function SectionBlock({
           strokeLinejoin="round"
           aria-hidden="true"
           focusable="false"
-          className={`o-shrink-0 o-text-zinc-400 dark:o-text-zinc-600 o-transition-transform ${open ? 'o-rotate-90' : ''}`}
+          className={`o-shrink-0 o-transition-transform ${open ? 'o-rotate-90' : ''}`}
         >
           <path d="m9 18 6-6-6-6" />
         </svg>
@@ -235,19 +222,15 @@ function SectionBlock({
         }}
       >
         <div className="o-overflow-hidden" style={{ minHeight: 0 }}>
-          <div
-            className="o-flex o-flex-col o-pb-2 o-pt-1"
-            style={{ marginLeft: '0.45rem' }}
-          >
+          <div className="ods-groupe o-flex o-flex-col o-pb-2 o-pt-1">
             {(section.pages ?? []).map((page) => (
               <ItemLink key={page.path} page={page} onNavigate={onNavigate} />
             ))}
 
             {(section.groups ?? []).map((group) => (
               <div key={group.title} className="o-flex o-flex-col">
-                <p className="o-m-0 o-flex o-items-center o-gap-3 o-pb-2 o-pl-5 o-pt-5 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">
-                  {group.title}
-                  <span aria-hidden="true" className="db-filet o-h-px o-flex-1" />
+                <p className="ods-rubrique o-m-0" style={{ marginTop: '12px' }}>
+                  <span className="o-truncate">{group.title}</span>
                 </p>
                 {group.pages.map((page) => (
                   <ItemLink key={page.path} page={page} onNavigate={onNavigate} />
@@ -461,144 +444,6 @@ function useFeuilleBarre(): void {
   }, [])
 }
 
-/**
- * Le fond d une gelule de la barre.
- *
- * La barre elle-meme ne peint rien : ce sont les gelules qui portent la
- * surface, posees sur ce qu il y a derriere. Sur la page d accueil, c est la
- * scene ; ailleurs, la page. Les deux suivent desormais le theme du site, y
- * compris l accueil : la gelule n a donc plus de forme imposee.
- */
-const GELULE = 'db-barre-champ'
-
-/**
- * L encre ordinaire d une gelule, et celle du survol.
- *
- * Chaque couleur est redite en `dark:`. La feuille pose
- * `:root[data-theme="dark"] :where(a){color:brand}`, de specificite (0,2,0) :
- * une classe seule vaut (0,1,0) et perd, et tous les liens de la barre
- * viraient a la couleur de marque des que le theme passait en nuit.
- */
-const ENCRE_GELULE = ''
-
-/**
- * Les deux liens hors du site : le depot et le registre npm.
- *
- * ## Pourquoi ils flottent en bas a droite
- *
- * Dans la barre, ils disputaient la largeur a la recherche, qui se comprimait
- * au point de couper son raccourci en deux lignes. Ce sont par ailleurs des
- * liens de second plan : on les cherche une fois, on ne les longe pas en
- * lisant. Le coin bas droit les tient a portee sans les mettre sur le chemin.
- *
- * Ils passent **sous** le voile du menu mobile et sous le rideau de la page
- * d accueil, tous deux au niveau `overlay` : un lien qui affleurerait par
- * dessus un ecran de chargement se lirait comme une erreur d empilement.
- *
- * Leur trace est rendu en `currentColor`. Les chartes de marque interdisent
- * generalement de reteindre un logo, mais elles admettent le monochrome, qui
- * est l usage courant d une barre d actions.
- *
- * `rel="noreferrer"` accompagne `target="_blank"` : sans lui, la page ouverte
- * recoit une poignee sur celle-ci.
- */
-function LiensExternes(): ReactElement {
-  const gelule =
-    `o-inline-flex o-size-12 o-shrink-0 o-items-center o-justify-center o-rounded-full ` +
-    `o-border-w-1 o-shadow-lg o-no-underline o-transition-colors ${GELULE} ${ENCRE_GELULE}`
-  return (
-    <div className="o-fixed o-bottom-6 o-right-6 o-z-sticky o-flex o-items-center o-gap-3">
-      <a
-        href={DEPOT}
-        target="_blank"
-        rel="noreferrer"
-        aria-label="Le depot sur GitHub"
-        title="GitHub"
-        className={gelule}
-      >
-        <Icon icon={Github} size={18} />
-      </a>
-      <a
-        href={NPM}
-        target="_blank"
-        rel="noreferrer"
-        aria-label="Les paquets sur npm"
-        title="npm"
-        className={gelule}
-      >
-        <Icon icon={Npm} size={22} />
-      </a>
-    </div>
-  )
-}
-
-/** Marque : le sigle et le nom, dans leur propre gelule. */
-function Brand(): ReactElement {
-  return (
-    <Link
-      to="/"
-      className="db-barre-lien o-inline-flex o-h-8 o-shrink-0 o-items-center o-gap-2 o-px-2 o-no-underline"
-    >
-      <LogoMark className="o-size-5 o-text-brand-400" />
-      <span
-        className="o-text-sm o-font-bold o-tracking-wide"
-        style={{ color: 'var(--o-chrome-barre-encre-forte)' }}
-      >
-        ODORO
-      </span>
-    </Link>
-  )
-}
-
-/** Lien de premier niveau, actif des qu'un de ses prefixes couvre la route. */
-function TopLink({
-  label,
-  to,
-  prefixes,
-}: {
-  label: string
-  to: string
-  prefixes: readonly string[]
-}): ReactElement {
-  const { pathname } = useLocation()
-  const active = prefixes.some((prefix) => pathname.startsWith(prefix))
-
-  return (
-    <Link
-      to={to}
-      aria-current={active ? 'true' : undefined}
-      data-actif={active ? '' : undefined}
-      className={`db-barre-lien o-px-2.5 o-py-1.5 o-text-sm o-no-underline ${
-        active ? 'o-font-medium' : ''
-      }`}
-    >
-      {label}
-    </Link>
-  )
-}
-
-/** Fil de progression de lecture, au ras du bord inferieur de la barre. */
-function ReadingProgress(): ReactElement {
-  const progress = useScrollProgress()
-
-  return (
-    <span
-      aria-hidden="true"
-      className="o-absolute o-bottom-0 o-left-0 o-bg-gradient-to-r o-from-brand-700 o-to-brand-300 dark:o-from-brand-500 dark:o-to-brand-200"
-      style={{
-        height: '2px',
-        width: `${progress * 100}%`,
-        opacity: progress === 0 ? 0 : 1,
-        transition: 'opacity 200ms',
-      }}
-    />
-  )
-}
-
-/* -------------------------------------------------------------------------- */
-/* Coquille                                                                   */
-/* -------------------------------------------------------------------------- */
-
 /** Coquille commune a toutes les pages. */
 export function Shell({ children }: { children?: ReactNode }): ReactElement {
   useFeuilleBarre()
@@ -641,7 +486,7 @@ export function Shell({ children }: { children?: ReactNode }): ReactElement {
         type="button"
         onClick={() => setSearchOpen(true)}
         aria-label="Rechercher dans la documentation"
-        className={`o-inline-flex o-h-8 o-shrink-0 o-cursor-pointer o-items-center o-gap-2 o-rounded-lg o-px-3 o-text-sm lg:o-w-96 ${GELULE} ${ENCRE_GELULE}`}
+        className="ods-barre-recherche"
       >
         <svg
           width="14"
@@ -658,12 +503,12 @@ export function Shell({ children }: { children?: ReactNode }): ReactElement {
           <circle cx="11" cy="11" r="7" />
           <path d="m21 21-4.3-4.3" />
         </svg>
-        <span className="o-hidden lg:o-block lg:o-flex-1 lg:o-text-left">
+        <span className="o-flex-1 o-text-left o-truncate">
           Rechercher dans la documentation
         </span>
         <kbd
-          className="o-hidden lg:o-inline-block o-shrink-0 o-whitespace-nowrap o-rounded-sm o-px-1.5 o-py-0.5 o-font-mono o-text-xs"
-          style={{ backgroundColor: 'var(--o-chrome-barre-actif)' }}
+          className="max-sm:o-hidden o-shrink-0 o-whitespace-nowrap o-rounded-sm o-px-1.5 o-font-mono o-text-xs"
+          style={{ backgroundColor: 'var(--ods-barre-actif)' }}
         >
           Ctrl K
         </kbd>
@@ -673,146 +518,137 @@ export function Shell({ children }: { children?: ReactNode }): ReactElement {
   )
 
   return (
-    <div className="db-fond o-min-h-screen o-text-zinc-900 dark:o-text-zinc-50">
-      {/* La barre ne peint rien elle-meme : ce sont les gelules qui portent la
-          surface, posees sur ce qu il y a derriere — la scene sur la page
-          d accueil, la page ailleurs. C est ce qui la fait flotter. */}
-      {/* La barre porte sa propre surface, sombre dans les deux themes : c est
-          le chrome de l outil, pas une surface du document. Plus de fondu a
-          poser sous elle — une barre pleine n a rien a laisser transparaitre,
-          et c est precisement ce qu on lui demande. */}
-      <header className="db-barre o-fixed o-top-0 o-inset-x-0 o-z-sticky">
-        <div className="o-relative o-flex o-h-14 o-items-center o-gap-2 o-px-3 md:o-px-4">
-          <button
-            type="button"
-            aria-label={menuOpen ? 'Fermer la navigation' : 'Ouvrir la navigation'}
-            aria-expanded={menuOpen}
-            onClick={() => setMenuOpen((open) => !open)}
-            className="xl:o-hidden db-barre-lien o-inline-flex o-size-8 o-shrink-0 o-cursor-pointer o-items-center o-justify-center"
+    <div style={{ background: 'var(--ods-fond)' }}>
+      {/* La barre ne porte que trois choses : le sigle, la recherche, les
+          icones. La navigation de premier niveau qui y vivait est descendue
+          dans la colonne — deux etages pour un seul site demandaient au
+          visiteur de deviner lequel des deux repondait a sa question. */}
+      <header className="ods-barre">
+        <button
+          type="button"
+          aria-label={menuOpen ? 'Fermer la navigation' : 'Ouvrir la navigation'}
+          aria-expanded={menuOpen}
+          onClick={() => setMenuOpen((open) => !open)}
+          className="lg:o-hidden ods-barre-icone"
+        >
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            aria-hidden="true"
+            focusable="false"
           >
-            <svg
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              aria-hidden="true"
-              focusable="false"
-            >
-              {menuOpen ? (
-                <path d="M6 6l12 12M18 6L6 18" />
-              ) : (
-                <path d="M4 7h16M4 12h16M4 17h16" />
-              )}
-            </svg>
-          </button>
+            {menuOpen ? <path d="M6 6l12 12M18 6L6 18" /> : <path d="M4 7h16M4 12h16M4 17h16" />}
+          </svg>
+        </button>
 
-          <Brand />
+        <Link
+          to="/"
+          className="o-inline-flex o-shrink-0 o-items-center o-gap-2 o-no-underline"
+          style={{ color: 'var(--ods-barre-encre-forte)' }}
+        >
+          <LogoMark className="o-size-5" style={{ color: 'var(--ods-accent)' }} />
+          <span className="max-sm:o-hidden o-text-sm o-font-bold o-tracking-wide">
+            ODORO
+          </span>
+        </Link>
 
-          {/* La navigation n a plus de gelule : sur une barre pleine, un
-              contenant dans le contenant se lit comme un debut de hierarchie
-              qui n existe pas. Les liens portent leur propre etat. */}
-          <nav
-            aria-label="Navigation principale"
-            className="o-hidden xl:o-flex o-items-center o-gap-0.5"
-          >
-            {TOP_LINKS.map((link) => (
-              <TopLink key={link.to} {...link} />
-            ))}
-          </nav>
+        {/* Deux entretoises souples : c est ce qui tient la recherche au
+            centre de l ecran, et non au centre de ce qui reste. */}
+        <div className="o-flex-1" />
+        {searchButton}
+        <div className="o-flex-1" />
 
-          {/* La recherche au centre, comme dans une console : c est elle qu on
-              vise, pas les liens. Deux entretoises souples la tiennent la. */}
-          <div className="o-flex-1" />
-          {searchButton}
-          <div className="o-flex-1" />
-
-          <ThemeToggle />
-
-          <Link
-            to="/docs/installation"
-            className="max-sm:o-hidden o-inline-flex o-h-8 o-shrink-0 o-items-center o-rounded-lg o-px-3.5 o-text-sm o-font-medium o-no-underline focus:o-ring"
-            // La regle d ancre de la feuille et la variante `dark:` ont la
-            // meme specificite : c est l ordre du fichier qui tranche, et il
-            // ne joue pas en notre faveur. Le style en ligne, lui, est sur.
-            // La barre est sombre dans les deux themes : le bouton ne peut
-            // pas lire `--o-chrome-cta-*`, qui suit le theme du document et le
-            // rendrait noir sur noir en clair.
-            style={{ backgroundColor: '#ffffff', color: '#1a1a1a' }}
-          >
-            Démarrer
-          </Link>
-
-          <ReadingProgress />
-        </div>
+        <ThemeToggle />
+        <a
+          href={DEPOT}
+          target="_blank"
+          rel="noreferrer"
+          aria-label="Depot"
+          className="max-sm:o-hidden ods-barre-icone o-no-underline"
+        >
+          <Icon icon={Github} size={16} />
+        </a>
+        <span className="ods-avatar" aria-hidden="true">
+          OD
+        </span>
       </header>
 
-      {/* Les pages sans colonne prennent toute la largeur : leurs sections
-          posent elles-memes leurs marges, et un hero doit toucher les bords. */}
-      <div className="o-flex" style={{ paddingTop: HEADER_OFFSET }}>
-        {/* La colonne porte sa propre surface et sa limite a droite. Elle ne
-            flotte plus sur la page : elle la borde, comme la navigation d une
-            application borde sa zone de travail. */}
-        {!colonneCachee && (
-          <aside
-            className="db-colonne max-lg:o-hidden o-sticky o-w-60 o-shrink-0 o-overflow-y-auto o-scrollbar dark:o-scrollbar-dark o-px-3 o-py-4"
-            style={{ top: HEADER_OFFSET, height: `calc(100dvh - ${HEADER_OFFSET})` }}
+      {/* La colonne borde la zone de travail : elle porte sa surface, sa
+          limite a droite, et son propre defilement. */}
+      <aside
+        className="ods-colonne"
+        data-ouverte={menuOpen ? '' : undefined}
+        aria-label="Navigation de la documentation"
+      >
+        <Link to="/docs" className="ods-selecteur o-no-underline">
+          <span className="ods-selecteur-sigle">OD</span>
+          <span className="o-flex-1 o-truncate">Documentation</span>
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            aria-hidden="true"
+            focusable="false"
           >
-            <SideNav />
-          </aside>
-        )}
+            <path d="m6 9 6 6 6-6" />
+          </svg>
+        </Link>
 
-        {/* La couleur de bordure est posee sans condition d'ecran : elle est
-            sans effet tant que `lg:o-border-l` n'a pas donne d'epaisseur. */}
-        <main
-          className={[
-            'o-flex-1 o-min-w-0 o-view-transition-page',
-            // Hors vitrine, le contenu prend une mesure et se centre : une
-            // colonne de texte qui court d un bord a l autre d un grand ecran
-            // ne se lit pas, et une console ne le fait jamais.
-            large ? '' : 'o-mx-auto o-w-full o-max-w-6xl o-px-5 md:o-px-8',
-            // Une vitrine, comme la page d accueil, fait sa propre place :
-            // son en-tete doit toucher la barre.
-            pathname === '/' || pathname.startsWith('/templates/') ? 'o-py-0' : 'o-py-8',
-            // Le filet de separation n'a de sens qu'a cote de la colonne.
-            // Le filet de separation a disparu : la colonne est faite de
-            // gelules posees sur la page, et une ligne verticale la
-            // recloisonnait en tiroir.
-            colonneCachee || large ? '' : 'lg:o-px-10',
-          ].join(' ')}
-        >
-          {/* Sur une console, ce qui se lit est pose sur une carte, et le
-              gris autour n est pas un fond : c est ce qui fait exister la
-              carte. Les pages pleine largeur — vitrine, galerie, projet — y
-              echappent : elles posent elles-memes leurs surfaces. */}
+        {/* Les destinations de premier niveau, descendues de la barre. */}
+        <nav aria-label="Sections" className="o-flex o-flex-col o-gap-0.5">
+          {TOP_LINKS.map((link) => (
+            <Link
+              key={link.to}
+              to={link.to}
+              data-actif={
+                link.prefixes.some((prefix) => pathname.startsWith(prefix)) ? '' : undefined
+              }
+              className="ods-nav o-no-underline"
+              onClick={() => setMenuOpen(false)}
+            >
+              {link.label}
+            </Link>
+          ))}
+        </nav>
+
+        <SideNav onNavigate={() => setMenuOpen(false)} />
+      </aside>
+
+      <div className="ods-zone-contenu o-view-transition-page">
+        <div className={large || colonneCachee ? '' : 'ods-mesure-fiche'}>
+          {/* Sur une console, ce qui se lit est pose sur une carte, et le gris
+              autour n est pas un fond : c est ce qui fait exister la carte. Les
+              pages pleine largeur posent elles-memes leurs surfaces. */}
           {large || colonneCachee ? (
             children
           ) : (
-            <div className="db-carte o-px-6 o-py-8 md:o-px-10 md:o-py-10">{children}</div>
+            <div className="ods-carte" style={{ padding: '24px' }}>
+              {children}
+            </div>
           )}
           {colonneCachee ? null : <Pagination />}
-        </main>
+        </div>
       </div>
 
+      {/* Sous 1024 px la colonne sort de l ecran : le voile la rappelle, et
+          le clic dessus la referme. */}
       {menuOpen ? (
         <div
           className="lg:o-hidden o-fixed o-inset-0 o-z-overlay"
-          style={{ paddingTop: HEADER_OFFSET }}
-        >
-          <div
-            className="o-absolute o-inset-0 o-bg-black-45"
-            onClick={() => setMenuOpen(false)}
-            aria-hidden="true"
-          />
-          <div className="o-relative o-h-full o-w-72 o-max-w-full o-bg-white dark:o-bg-zinc-950 o-shadow-xl o-overflow-y-auto o-scrollbar dark:o-scrollbar-dark o-p-3 o-animate-slide-in-left o-animate-duration-fast">
-            <SideNav onNavigate={() => setMenuOpen(false)} />
-          </div>
-        </div>
+          onClick={() => setMenuOpen(false)}
+          aria-hidden="true"
+          style={{ background: 'rgb(0 0 0 / 0.5)' }}
+        />
       ) : null}
-
-      <LiensExternes />
 
       <SearchDialog open={searchOpen} onClose={() => setSearchOpen(false)} />
     </div>

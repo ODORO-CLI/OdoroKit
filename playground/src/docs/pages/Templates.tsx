@@ -302,7 +302,7 @@ function CarteVitrine({
       to={`/templates/${vitrine.slug}`}
       data-o-carte=""
       aria-label={`${vitrine.titre} — ${vitrine.metier}`}
-      className="tp-carte o-flex o-flex-col o-overflow-hidden o-rounded-2xl o-border-w-1 o-no-underline o-text-zinc-900 dark:o-text-zinc-50 o-transition-colors focus:o-ring"
+      className="tp-carte o-flex o-flex-col o-overflow-hidden o-rounded-xl o-border-w-1 o-no-underline o-text-zinc-900 dark:o-text-zinc-50 o-transition-colors focus:o-ring"
     >
       <Apercu vitrine={vitrine} />
       <div className="o-flex o-flex-1 o-flex-col o-gap-2 o-p-5">
@@ -377,7 +377,7 @@ function CarteProjet({
       to={`/templates/projet/${projet.name}`}
       data-o-carte=""
       aria-label={`${projet.title} — projet livré`}
-      className="tp-carte o-flex o-flex-col o-overflow-hidden o-rounded-2xl o-border-w-1 o-no-underline o-text-zinc-900 dark:o-text-zinc-50 o-transition-colors focus:o-ring"
+      className="tp-carte o-flex o-flex-col o-overflow-hidden o-rounded-xl o-border-w-1 o-no-underline o-text-zinc-900 dark:o-text-zinc-50 o-transition-colors focus:o-ring"
     >
       <div className="o-relative o-h-60 o-overflow-hidden" aria-hidden="true">
         <img
@@ -446,7 +446,7 @@ function CarteSocle({ template }: { readonly template: Template }): ReactElement
   return (
     <article
       className={[
-        'o-flex o-min-w-0 o-flex-col o-gap-3 o-rounded-2xl o-border-w-1 o-p-6',
+        'o-flex o-min-w-0 o-flex-col o-gap-3 o-rounded-xl o-border-w-1 o-p-6',
         livre
           ? 'o-border-zinc-200 dark:o-border-zinc-800 o-bg-white dark:o-bg-zinc-900'
           : 'o-border-dashed o-border-zinc-300 dark:o-border-zinc-700',
@@ -968,7 +968,7 @@ export function Templates(): ReactElement {
           </div>
 
           {visibles.length === 0 ? (
-            <div className="tp-verre o-rounded-2xl o-border-w-1 o-px-6 o-py-20 o-text-center">
+            <div className="tp-verre o-rounded-xl o-border-w-1 o-px-6 o-py-20 o-text-center">
               <p className="o-m-0 o-text-lg o-font-medium">
                 Rien ne répond a ces filtres.
               </p>

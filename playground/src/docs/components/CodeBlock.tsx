@@ -141,7 +141,7 @@ export function CodeBlock({
 
   return (
     <div
-      className={`dc-bord dc-surface o-overflow-hidden o-rounded-2xl o-border-w-1 ${className ?? ''}`}
+      className={`dc-bord dc-surface o-overflow-hidden o-rounded-xl o-border-w-1 ${className ?? ''}`}
     >
       <div className="dc-bord o-flex o-items-center o-justify-between o-border-b o-px-4 o-py-2">
         <span className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">

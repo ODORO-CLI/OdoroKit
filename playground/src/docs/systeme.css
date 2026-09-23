@@ -40,9 +40,23 @@
  */
 
 :root {
+  /*
+   * La barre, hors du theme.
+   *
+   * Elle n est pas une surface du document mais le chrome de l outil : elle
+   * garde sa couleur quand la page bascule, comme la barre de titre d une
+   * application. Ses encres sont donc a elle — lire `--ods-encre` la rendrait
+   * noire sur noire en clair.
+   */
+  --ods-barre: #1a1a1a;
+  --ods-barre-encre: #d8d8d8;
+  --ods-barre-encre-forte: #ffffff;
+  --ods-barre-filet: rgb(255 255 255 / 0.13);
+  --ods-barre-champ: rgb(255 255 255 / 0.09);
+  --ods-barre-actif: rgb(255 255 255 / 0.13);
+
   /* --- Surfaces (§4) ------------------------------------------------- */
   --ods-colonne: #ebebeb;
-  --ods-barre: #ebebeb;
   --ods-fond: #f1f1f1;
   --ods-carte: #ffffff;
   --ods-sous-bloc: #f7f7f7;
@@ -151,7 +165,6 @@
 :root[data-theme='dark'],
 .ods-sombre {
   --ods-colonne: #171717;
-  --ods-barre: #171717;
   --ods-fond: #0f0f0f;
   --ods-carte: #1c1c1c;
   --ods-sous-bloc: #232323;
@@ -202,8 +215,7 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
     --ods-colonne: #171717;
-    --ods-barre: #171717;
-    --ods-fond: #0f0f0f;
+      --ods-fond: #0f0f0f;
     --ods-carte: #1c1c1c;
     --ods-sous-bloc: #232323;
 
@@ -522,4 +534,376 @@
   background-color: var(--ods-sous-bloc);
   border-radius: var(--ods-r-controle);
   padding: 12px;
+}
+
+/* ==================================================================== */
+/* L ossature : barre, colonne, zone de contenu (§1, §2, §3)             */
+/* ==================================================================== */
+
+/*
+ * Deux zones cote a cote, et une barre fine au-dessus.
+ *
+ * La barre ne contient que trois choses : le sigle, la recherche, les icones.
+ * La navigation de premier niveau qui y vivait est descendue dans la colonne —
+ * deux etages de navigation pour un seul site demandaient au visiteur de
+ * deviner lequel des deux repondait a sa question.
+ */
+.ods-barre {
+  position: fixed;
+  top: 0;
+  inset-inline: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: var(--ods-barre-h);
+  padding-inline: 16px;
+  background-color: var(--ods-barre);
+  border-bottom: 1px solid var(--ods-barre-filet);
+  color: var(--ods-barre-encre);
+}
+
+/* La recherche au centre, bornee : au-dela de 480 px elle cesse d etre un
+   champ et devient une banderole. */
+.ods-barre-recherche {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  max-width: 480px;
+  height: var(--ods-champ-h);
+  padding: 0 12px;
+  border: 1px solid transparent;
+  border-radius: var(--ods-r-controle);
+  background-color: var(--ods-barre-champ);
+  color: var(--ods-barre-encre);
+  font-family: var(--ods-police);
+  font-size: var(--ods-corps);
+  cursor: pointer;
+  transition:
+    border-color var(--ods-t-couleur),
+    background-color var(--ods-t-couleur);
+}
+.ods-barre-recherche:hover {
+  border-color: var(--ods-barre-filet);
+}
+.ods-barre-recherche:focus-visible {
+  outline: 2px solid var(--ods-accent);
+  outline-offset: 1px;
+}
+
+.ods-barre-icone {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex: none;
+  border: 0;
+  border-radius: var(--ods-r-controle);
+  background: none;
+  color: var(--ods-barre-encre);
+  cursor: pointer;
+  transition:
+    background-color var(--ods-t-couleur),
+    color var(--ods-t-couleur);
+}
+.ods-barre-icone:hover {
+  background-color: var(--ods-barre-actif);
+  color: var(--ods-barre-encre-forte);
+}
+.ods-barre-icone:focus-visible {
+  outline: 2px solid var(--ods-accent);
+  outline-offset: 1px;
+}
+
+/* L avatar est un carre arrondi, jamais un rond (§6). */
+.ods-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  flex: none;
+  border-radius: var(--ods-r-controle);
+  background-color: var(--ods-accent);
+  color: #ffffff;
+  font-family: var(--ods-police);
+  font-size: var(--ods-petit);
+  font-weight: var(--ods-gras);
+}
+
+/* --- La colonne ----------------------------------------------------- */
+
+.ods-colonne {
+  position: fixed;
+  top: var(--ods-barre-h);
+  bottom: 0;
+  left: 0;
+  width: var(--ods-colonne-l);
+  overflow-y: auto;
+  padding: 12px 8px;
+  background-color: var(--ods-colonne);
+  border-right: 1px solid var(--ods-bordure);
+}
+
+/* Le selecteur, en tete de colonne. */
+.ods-selecteur {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  height: 40px;
+  padding: 0 8px;
+  margin-bottom: 12px;
+  border: 0;
+  border-radius: var(--ods-r-controle);
+  background: none;
+  color: var(--ods-encre);
+  font-family: var(--ods-police);
+  font-size: var(--ods-corps);
+  font-weight: var(--ods-demi);
+  cursor: pointer;
+  text-align: left;
+  transition: background-color var(--ods-t-couleur);
+}
+.ods-selecteur:hover {
+  background-color: var(--ods-bordure);
+}
+.ods-selecteur-sigle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  flex: none;
+  border-radius: var(--ods-r-petit);
+  background-color: var(--ods-accent);
+  color: #ffffff;
+  font-size: var(--ods-petit);
+  font-weight: var(--ods-gras);
+}
+
+/*
+ * Un element de navigation.
+ *
+ * L actif est une carte blanche posee sur le gris de la colonne, avec l ombre
+ * d un objet souleve. C est la seule fois ou le blanc sert a la navigation :
+ * partout ailleurs il designe du contenu, et c est justement ce qui rend la
+ * ligne ouverte lisible d un coup d oeil.
+ */
+.ods-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  height: var(--ods-nav-h);
+  padding: 0 8px;
+  border: 0;
+  border-radius: var(--ods-r-controle);
+  background: none;
+  color: var(--ods-encre);
+  font-family: var(--ods-police);
+  font-size: var(--ods-corps);
+  line-height: var(--ods-corps-h);
+  font-weight: var(--ods-demi);
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color var(--ods-t-couleur);
+}
+.ods-nav:hover {
+  background-color: var(--ods-bordure);
+}
+.ods-nav[data-actif] {
+  background-color: var(--ods-carte);
+  box-shadow: var(--ods-ombre-actif);
+}
+
+/*
+ * Une sous-page : plus basse, en encre douce, et reliee au groupe par un
+ * trait vertical pose a vingt pixels du bord.
+ */
+.ods-sous-nav {
+  position: relative;
+  display: block;
+  height: var(--ods-sous-nav-h);
+  line-height: var(--ods-sous-nav-h);
+  padding: 0 8px 0 28px;
+  border-radius: var(--ods-r-controle);
+  color: var(--ods-encre-douce);
+  font-family: var(--ods-police);
+  font-size: var(--ods-corps);
+  text-decoration: none;
+  transition:
+    background-color var(--ods-t-couleur),
+    color var(--ods-t-couleur);
+}
+.ods-sous-nav:hover {
+  background-color: var(--ods-bordure);
+  color: var(--ods-encre);
+}
+.ods-sous-nav[data-actif] {
+  background-color: var(--ods-carte);
+  box-shadow: var(--ods-ombre-actif);
+  color: var(--ods-encre);
+  font-weight: var(--ods-demi);
+}
+
+/* Le trait de guidage, continu derriere toutes les sous-pages d un groupe. */
+.ods-groupe {
+  position: relative;
+}
+.ods-groupe::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 20px;
+  width: 1px;
+  background-color: var(--ods-guide);
+}
+
+/* Le libelle d une rubrique, avec son chevron. */
+.ods-rubrique {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  margin-top: 20px;
+  padding: 0 8px;
+  border: 0;
+  background: none;
+  color: var(--ods-encre-douce);
+  font-family: var(--ods-police);
+  font-size: var(--ods-petit);
+  font-weight: var(--ods-demi);
+  cursor: pointer;
+  text-align: left;
+}
+.ods-rubrique:hover {
+  color: var(--ods-encre);
+}
+
+/* --- La zone de contenu --------------------------------------------- */
+
+.ods-zone-contenu {
+  min-height: 100vh;
+  margin-left: var(--ods-colonne-l);
+  padding-top: calc(var(--ods-barre-h) + var(--ods-marge));
+  padding-inline: var(--ods-marge);
+  padding-bottom: 48px;
+  background-color: var(--ods-fond);
+}
+
+/* Les mesures de contenu, selon le type de page (§1). */
+.ods-mesure-liste {
+  max-width: 100%;
+}
+.ods-mesure-tableau-bord {
+  max-width: 1000px;
+  margin-inline: auto;
+}
+.ods-mesure-fiche {
+  max-width: 960px;
+  margin-inline: auto;
+}
+.ods-mesure-simple {
+  max-width: 640px;
+  margin-inline: auto;
+}
+
+/* --- L en-tete de page (§3) ------------------------------------------ */
+
+.ods-entete {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: var(--ods-entete-h);
+  margin-bottom: var(--ods-marge);
+}
+.ods-entete-titre {
+  margin: 0;
+  font-family: var(--ods-police);
+  font-size: var(--ods-titre-page);
+  line-height: var(--ods-titre-page-h);
+  font-weight: var(--ods-gras);
+  color: var(--ods-encre);
+}
+.ods-entete-sous-titre {
+  margin: 0;
+  font-family: var(--ods-police);
+  font-size: var(--ods-petit);
+  line-height: var(--ods-petit-h);
+  color: var(--ods-encre-douce);
+}
+.ods-entete-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* --- Les paliers (§16) ----------------------------------------------- */
+
+@media (min-width: 1440px) {
+  .ods-zone-contenu {
+    padding-inline: var(--ods-marge-large);
+  }
+}
+
+@media (max-width: 1023px) {
+  .ods-colonne {
+    z-index: 45;
+    transform: translateX(-100%);
+    transition: transform var(--ods-t-modale);
+  }
+  .ods-colonne[data-ouverte] {
+    transform: none;
+  }
+  .ods-zone-contenu {
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 767px) {
+  .ods-zone-contenu {
+    padding-inline: 12px;
+  }
+  .ods-entete {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .ods-entete-actions > * {
+    flex: 1;
+  }
+}
+
+/* ==================================================================== */
+/* L encre de la colonne, contre la regle d ancre de la librairie        */
+/* ==================================================================== */
+
+/*
+ * La feuille de la librairie pose `:root[data-theme="dark"] :where(a)` en
+ * couleur de marque. `:where()` ne compte pour rien, mais l attribut sur la
+ * racine si : la regle vaut (0,2,0), une classe seule vaut (0,1,0), et tous
+ * les liens de la colonne viraient au bleu des que le theme passait en nuit.
+ *
+ * Le selecteur est donc double pour atteindre (0,2,0) a son tour. A egalite,
+ * c est l ordre des fichiers qui tranche — et cette feuille est chargee apres
+ * celle de la librairie.
+ */
+.ods-nav.ods-nav {
+  color: var(--ods-encre);
+}
+.ods-sous-nav.ods-sous-nav {
+  color: var(--ods-encre-douce);
+}
+.ods-sous-nav.ods-sous-nav:hover,
+.ods-sous-nav.ods-sous-nav[data-actif] {
+  color: var(--ods-encre);
+}
+.ods-selecteur.ods-selecteur {
+  color: var(--ods-encre);
 }

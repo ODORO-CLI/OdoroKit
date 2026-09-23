@@ -119,7 +119,7 @@ export function SearchDialog({ open, onClose }: SearchDialogProps): ReactElement
         if (event.target === dialogRef.current) onClose()
       }}
       id="o-recherche"
-      className="o-mt-28 o-w-full o-max-w-2xl o-overflow-hidden o-rounded-2xl o-border-w-1 o-p-0 o-text-zinc-900 dark:o-text-zinc-50 o-backdrop-blur-xl o-animate-scale-in"
+      className="o-mt-28 o-w-full o-max-w-2xl o-overflow-hidden o-rounded-xl o-border-w-1 o-p-0 o-text-zinc-900 dark:o-text-zinc-50 o-backdrop-blur-xl o-animate-scale-in"
       style={{ marginInline: 'auto' }}
     >
       <div className="o-relative o-flex o-items-center o-gap-3 o-px-5">

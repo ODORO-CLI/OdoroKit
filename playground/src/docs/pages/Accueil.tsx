@@ -36,7 +36,7 @@ function Feature({
   return (
     <Link
       to={to}
-      className="o-flex o-flex-col o-gap-2 o-rounded-2xl o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-bg-white dark:o-bg-zinc-900 o-p-6 o-no-underline o-transition-all hover:o-lift-sm hover:o-shadow-md"
+      className="o-flex o-flex-col o-gap-2 o-rounded-xl o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-bg-white dark:o-bg-zinc-900 o-p-6 o-no-underline o-transition-all hover:o-lift-sm hover:o-shadow-md"
     >
       <span className="o-inline-flex o-size-10 o-items-center o-justify-center o-rounded-full o-bg-brand-50 dark:o-bg-brand-950 o-text-brand-600 dark:o-text-brand-400">
         <Icon icon={icon} size={20} />
