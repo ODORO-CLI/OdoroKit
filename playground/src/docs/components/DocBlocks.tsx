@@ -90,18 +90,18 @@ export function PageHeader({
 }): ReactElement {
   useFeuille()
   return (
-    <header className="o-mb-16 o-flex o-flex-col o-gap-5 o-pb-10">
+    <header className="o-mb-8 o-flex o-flex-col o-gap-3">
       <Rubrique>{moduleName ?? 'Documentation'}</Rubrique>
-      {/* Le titre est en graisse legere, comme ceux de la page d accueil : un
-          gras de titre de documentation cassait la parente entre les deux. */}
-      <h1
-        className="o-m-0 o-max-w-3xl o-text-balance o-font-light o-tracking-tight"
-        style={{ fontSize: 'clamp(2.25rem, 5vw, 4rem)', lineHeight: 1.02 }}
-      >
+      {/* Le titre pesait jusqu a soixante-quatre pixels, en graisse legere :
+          c etait un titre d affiche, herite de la page d accueil. Une console
+          n affiche pas, elle annonce — un titre de page y tient en trente
+          pixels et en demi-gras, et les cent pixels de marge qui le suivaient
+          sont rendus a la lecture. */}
+      <h1 className="o-m-0 o-max-w-3xl o-text-balance o-text-3xl o-font-semibold o-tracking-tight">
         {title}
       </h1>
       {lead === undefined ? null : (
-        <p className="o-m-0 o-max-w-prose o-text-pretty o-text-lg o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-300">
+        <p className="o-m-0 o-max-w-prose o-text-pretty o-text-base o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400">
           {lead}
         </p>
       )}

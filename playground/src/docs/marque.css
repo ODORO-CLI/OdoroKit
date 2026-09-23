@@ -1,106 +1,109 @@
 /*
- * La couleur mere du site : le bleu du sigle.
- *
- * La librairie livre son echelle de marque en orange. Ce site-la est bleu —
- * c est la couleur du sigle, et celle dont la page d accueil se teinte. Plutot
- * que de reecrire `o-text-brand-*` en `o-text-blue-*` sur soixante pages, on
- * repointe l echelle : chaque utilitaire de marque lit `--o-palette-brand-N`,
- * donc redefinir les onze variables repeint la barre, la colonne, les cartes,
- * les tableaux de proprietes et les liens d un seul geste.
- *
- * L echelle brute de la librairie n est pas touchee : `o-text-orange-500` rend
- * toujours de l orange. Seul le role « marque » change de couleur.
- *
- * Les vitrines, elles, posent leur propre `--o-palette-brand-*` sur leur
- * racine (voir `vitrines/palettes.ts`) : elles gardent la teinte de leur
- * modele, et cette regle ne les atteint pas.
- */
-:root {
-  --o-palette-brand-50: var(--o-palette-blue-50);
-  --o-palette-brand-100: var(--o-palette-blue-100);
-  --o-palette-brand-200: var(--o-palette-blue-200);
-  --o-palette-brand-300: var(--o-palette-blue-300);
-  --o-palette-brand-400: var(--o-palette-blue-400);
-  --o-palette-brand-500: var(--o-palette-blue-500);
-  --o-palette-brand-600: var(--o-palette-blue-600);
-  --o-palette-brand-700: var(--o-palette-blue-700);
-  --o-palette-brand-800: var(--o-palette-blue-800);
-  --o-palette-brand-900: var(--o-palette-blue-900);
-  --o-palette-brand-950: var(--o-palette-blue-950);
-}
-
-/*
  * Les surfaces du chrome, qui suivent le theme du SITE.
+ *
+ * ## Ce que ce fichier ne fait plus
+ *
+ * Il repointait l echelle de marque vers le bleu, parce que la librairie
+ * livrait la sienne en orange. Elle livre desormais le bleu clair du sigle,
+ * et ces onze alias ne faisaient plus que recopier la valeur d en face. Une
+ * indirection qui ne change rien se lit comme si elle changeait quelque
+ * chose : elle est partie, et la teinte de marque a de nouveau une seule
+ * source, `packages/odoro-libs/src/styles/tokens.ts`.
+ *
+ * ## La grammaire a change
+ *
+ * Le site etait fait de gelules de verre posees sur la page : fond absent,
+ * flou d arriere-plan, angles pleinement arrondis. Il prend la grammaire d une
+ * console d administration, qui dit trois choses et les dit partout :
+ *
+ * - **un fond gris, des cartes blanches.** Ce n est pas une preference : c est
+ *   ce qui fait qu un bloc se detache sans avoir besoin d une ombre. Le
+ *   contraste entre `--o-chrome-fond` et `--o-chrome-carte` porte toute la
+ *   hierarchie, et les ombres redeviennent l exception.
+ * - **un filet d un pixel, jamais une ombre portee.** `--o-chrome-filet` est la
+ *   limite par defaut de tout ce qui est un objet.
+ * - **une barre sombre dans les deux themes.** Elle n est pas une surface du
+ *   document, c est le chrome de l outil : elle garde sa couleur quand la page
+ *   change de theme, comme la barre de titre d une application.
  *
  * ## Le defaut que ces variables corrigent
  *
- * Ces treize surfaces etaient ecrites en `light-dark()`. Cette fonction resout
- * contre le `color-scheme` calcule de l element — or la racine de ce site vaut
+ * Ces surfaces etaient ecrites en `light-dark()`. Cette fonction resout contre
+ * le `color-scheme` calcule de l element — or la racine de ce site vaut
  * « light dark » tant que le visiteur n a rien choisi, et la fonction suit
  * alors la preference du systeme. Un visiteur au systeme en nuit qui mettait
- * le site en clair gardait donc des gelules noires sur une page blanche, et
- * des blocs de code sans fond.
+ * le site en clair gardait donc des gelules noires sur une page blanche.
  *
  * La regle est la meme que pour les apercus de la galerie : la valeur claire
  * sur `:root` nu, la sombre deux fois — sous l attribut, qui porte le choix
  * explicite, et sous la preference du systeme quand aucun choix n a ete fait.
- *
- * Elles sont ici, et non dans les feuilles injectees, parce que la barre, la
- * colonne, la recherche, les blocs de documentation et la galerie peignent les
- * memes surfaces : une seule definition les tient accordees.
  */
+
+/* La barre : un seul jeu, hors du theme du document. */
 :root {
-  --o-chrome-filet: var(--o-palette-zinc-200);
-  --o-chrome-filet-doux: var(--o-palette-zinc-200);
-  --o-chrome-filet-net: var(--o-palette-zinc-200);
-  --o-chrome-filet-colonne: var(--o-palette-zinc-200);
-  --o-chrome-filet-survol: var(--o-palette-zinc-400);
-  --o-chrome-verre: rgb(255 255 255 / 0.6);
-  --o-chrome-fond: var(--o-palette-zinc-50);
-  --o-chrome-modale: rgb(255 255 255 / 0.86);
+  --o-chrome-barre: #1a1a1a;
+  --o-chrome-barre-encre: #d8d8d8;
+  --o-chrome-barre-encre-forte: #ffffff;
+  --o-chrome-barre-filet: rgb(255 255 255 / 0.13);
+  --o-chrome-barre-champ: rgb(255 255 255 / 0.09);
+  --o-chrome-barre-actif: rgb(255 255 255 / 0.13);
+}
+
+:root {
+  --o-chrome-filet: #e3e3e3;
+  --o-chrome-filet-doux: #ebebeb;
+  --o-chrome-filet-net: #d4d4d4;
+  --o-chrome-filet-colonne: #e3e3e3;
+  --o-chrome-filet-survol: #b5b5b5;
+  --o-chrome-verre: #ffffff;
+  --o-chrome-fond: #f1f1f1;
+  --o-chrome-colonne: #fafafa;
+  --o-chrome-modale: #ffffff;
   --o-chrome-tenu: rgb(0 0 0 / 0.04);
-  --o-chrome-gelule: rgb(255 255 255 / 0.7);
-  --o-chrome-actif: rgb(0 0 0 / 0.06);
-  --o-chrome-carte: var(--o-palette-white);
-  --o-chrome-carte-survol: var(--o-palette-white);
-  --o-chrome-cta-fond: var(--o-palette-zinc-950);
-  --o-chrome-cta-encre: var(--o-palette-zinc-50);
+  --o-chrome-gelule: #ffffff;
+  --o-chrome-actif: rgb(0 0 0 / 0.07);
+  --o-chrome-carte: #ffffff;
+  --o-chrome-carte-survol: #fafafa;
+  --o-chrome-cta-fond: #303030;
+  --o-chrome-cta-encre: #ffffff;
 }
 
 :root[data-theme='dark'] {
-  --o-chrome-filet: rgb(255 255 255 / 0.1);
-  --o-chrome-filet-doux: rgb(255 255 255 / 0.08);
-  --o-chrome-filet-net: rgb(255 255 255 / 0.12);
-  --o-chrome-filet-colonne: var(--o-palette-zinc-800);
-  --o-chrome-filet-survol: var(--o-palette-zinc-600);
-  --o-chrome-verre: rgb(255 255 255 / 0.03);
-  --o-chrome-fond: rgb(255 255 255 / 0.02);
-  --o-chrome-modale: rgb(9 9 11 / 0.82);
-  --o-chrome-tenu: rgb(255 255 255 / 0.06);
-  --o-chrome-gelule: rgb(0 0 0 / 0.7);
+  --o-chrome-filet: #2c2c2c;
+  --o-chrome-filet-doux: #242424;
+  --o-chrome-filet-net: #3b3b3b;
+  --o-chrome-filet-colonne: #2c2c2c;
+  --o-chrome-filet-survol: #4d4d4d;
+  --o-chrome-verre: #1a1a1a;
+  --o-chrome-fond: #0f0f0f;
+  --o-chrome-colonne: #161616;
+  --o-chrome-modale: #1a1a1a;
+  --o-chrome-tenu: rgb(255 255 255 / 0.05);
+  --o-chrome-gelule: #232323;
   --o-chrome-actif: rgb(255 255 255 / 0.1);
-  --o-chrome-carte: rgb(255 255 255 / 0.02);
-  --o-chrome-carte-survol: rgb(255 255 255 / 0.05);
-  --o-chrome-cta-fond: var(--o-palette-white);
-  --o-chrome-cta-encre: var(--o-palette-zinc-950);
+  --o-chrome-carte: #1a1a1a;
+  --o-chrome-carte-survol: #212121;
+  --o-chrome-cta-fond: #ffffff;
+  --o-chrome-cta-encre: #1a1a1a;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
-    --o-chrome-filet: rgb(255 255 255 / 0.1);
-    --o-chrome-filet-doux: rgb(255 255 255 / 0.08);
-    --o-chrome-filet-net: rgb(255 255 255 / 0.12);
-    --o-chrome-filet-colonne: var(--o-palette-zinc-800);
-    --o-chrome-filet-survol: var(--o-palette-zinc-600);
-    --o-chrome-verre: rgb(255 255 255 / 0.03);
-    --o-chrome-fond: rgb(255 255 255 / 0.02);
-    --o-chrome-modale: rgb(9 9 11 / 0.82);
-    --o-chrome-tenu: rgb(255 255 255 / 0.06);
-    --o-chrome-gelule: rgb(0 0 0 / 0.7);
+    --o-chrome-filet: #2c2c2c;
+    --o-chrome-filet-doux: #242424;
+    --o-chrome-filet-net: #3b3b3b;
+    --o-chrome-filet-colonne: #2c2c2c;
+    --o-chrome-filet-survol: #4d4d4d;
+    --o-chrome-verre: #1a1a1a;
+    --o-chrome-fond: #0f0f0f;
+    --o-chrome-colonne: #161616;
+    --o-chrome-modale: #1a1a1a;
+    --o-chrome-tenu: rgb(255 255 255 / 0.05);
+    --o-chrome-gelule: #232323;
     --o-chrome-actif: rgb(255 255 255 / 0.1);
-    --o-chrome-carte: rgb(255 255 255 / 0.02);
-    --o-chrome-carte-survol: rgb(255 255 255 / 0.05);
-    --o-chrome-cta-fond: var(--o-palette-white);
-    --o-chrome-cta-encre: var(--o-palette-zinc-950);
+    --o-chrome-carte: #1a1a1a;
+    --o-chrome-carte-survol: #212121;
+    --o-chrome-cta-fond: #ffffff;
+    --o-chrome-cta-encre: #1a1a1a;
   }
 }

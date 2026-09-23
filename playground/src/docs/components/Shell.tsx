@@ -48,14 +48,17 @@ import { Pagination } from './Pagination.jsx'
 import { SearchDialog } from './SearchDialog.jsx'
 import { ThemeToggle } from './ThemeToggle.jsx'
 
-/** Hauteur de la barre superieure : 4rem, partagee par les calages `top`. */
 /**
- * Hauteur de la barre fixe.
+ * Hauteur de la barre fixe : 3.5rem, la hauteur d une barre d outil.
  *
  * Exportee parce que tout ce qui colle en dessous doit partir de la : une barre
  * collee a zero passerait sous celle-ci et disparaitrait.
+ *
+ * Elle valait 5rem du temps des gelules, qui avaient besoin d air autour
+ * d elles. Une barre pleine n en a pas besoin : elle porte sa propre limite,
+ * et cinquante-six pixels suffisent a un champ et a des liens.
  */
-export const HEADER_OFFSET = '5rem'
+export const HEADER_OFFSET = '3.5rem'
 
 /** Cle de persistance de l'etat replie/deplie des categories. */
 const ASIDE_STORAGE_KEY = 'odoro-docs-aside'
@@ -136,9 +139,9 @@ function storedOpenSections(): Record<string, boolean> {
 /**
  * Une page de la colonne.
  *
- * La page courante n est pas remplie d un aplat : elle porte une tige
- * d accent et son encre prend la couleur de la marque. Un aplat sature
- * enfermait le titre dans une pastille et pesait plus que la page elle-meme.
+ * La page courante porte un aplat discret et son encre passe au noir plein.
+ * C est la convention d un menu d application : on lit la ligne ouverte a sa
+ * surface, pas a un signe pose a cote d elle.
  */
 function ItemLink({
   page,
@@ -155,18 +158,17 @@ function ItemLink({
       to={page.path}
       aria-current={active ? 'page' : undefined}
       onClick={onNavigate}
-      className={`db-item o-relative o-block o-py-1.5 o-pl-5 o-text-sm o-no-underline o-transition-colors ${
+      data-actif={active ? '' : undefined}
+      className={`db-item o-block o-px-2.5 o-py-1.5 o-text-sm o-no-underline ${
         active
-          ? 'o-font-medium o-text-brand-600 dark:o-text-brand-300'
-          : 'o-text-zinc-600 dark:o-text-zinc-300 hover:o-text-zinc-950 dark:hover:o-text-zinc-50'
+          ? 'o-text-zinc-950 dark:o-text-zinc-50'
+          : 'o-text-zinc-600 dark:o-text-zinc-400 hover:o-text-zinc-950 dark:hover:o-text-zinc-50'
       }`}
     >
-      {/* La tige : le filet au repos, le degrade d accent quand la page est
-          ouverte — le meme vocabulaire que les stations de la frise. */}
-      <span
-        aria-hidden="true"
-        className={`o-absolute o-inset-y-0 o-left-0 o-w-px ${active ? 'db-tige' : 'db-filet'}`}
-      />
+      {/* La tige d accent a disparu avec les gelules : une ligne ouverte se
+          signale ici par un aplat, comme une entree de menu d application.
+          Un filet vertical plus un aplat, ce serait dire deux fois la meme
+          chose, et la seconde fois moins bien. */}
       {page.title}
     </Link>
   )
@@ -411,16 +413,40 @@ export function LogoMark({
  * la barre garde un seul jeu de classes.
  */
 const FEUILLE_BARRE = [
-  '.db-gelule{',
-  'background-color:var(--o-chrome-gelule);',
+  /* La barre : une surface a elle, qui ne suit pas le theme du document. */
+  '.db-barre{background-color:var(--o-chrome-barre);',
+  'border-bottom:1px solid var(--o-chrome-barre-filet);',
+  'color:var(--o-chrome-barre-encre)}',
+  '.db-barre-lien{color:var(--o-chrome-barre-encre);border-radius:0.5rem;',
+  'transition:background-color 120ms,color 120ms}',
+  '.db-barre-lien:hover{background-color:var(--o-chrome-barre-actif);',
+  'color:var(--o-chrome-barre-encre-forte)}',
+  '.db-barre-lien[data-actif]{background-color:var(--o-chrome-barre-actif);',
+  'color:var(--o-chrome-barre-encre-forte)}',
+  '.db-barre-champ{background-color:var(--o-chrome-barre-champ);',
+  'border:1px solid transparent;color:var(--o-chrome-barre-encre);',
+  'transition:border-color 120ms,background-color 120ms}',
+  '.db-barre-champ:hover{border-color:var(--o-chrome-barre-filet)}',
+  '.db-barre-champ:focus-visible{outline:2px solid var(--o-palette-brand-400);',
+  'outline-offset:1px}',
+
+  /* La page : un fond gris sur lequel les cartes se detachent seules. */
+  '.db-fond{background-color:var(--o-chrome-fond)}',
+  '.db-carte{background-color:var(--o-chrome-carte);',
+  'border:1px solid var(--o-chrome-filet);border-radius:0.75rem}',
+
+  /* La colonne : des lignes denses, une limite a droite. */
+  '.db-colonne{border-right:1px solid var(--o-chrome-filet);',
+  'background-color:var(--o-chrome-colonne)}',
+  '.db-item{border-radius:0.5rem;transition:background-color 120ms,color 120ms}',
+  '.db-item:hover{background-color:var(--o-chrome-tenu)}',
+  '.db-item[data-actif]{background-color:var(--o-chrome-actif);font-weight:600}',
+
+  /* Ce que d autres feuilles continuent de nommer. */
+  '.db-gelule{background-color:var(--o-chrome-carte);',
   'border-color:var(--o-chrome-filet)}',
   '.db-actif{background-color:var(--o-chrome-actif)}',
   '.db-filet{background-color:var(--o-chrome-filet-colonne)}',
-  '.db-tige{background-image:linear-gradient(180deg,',
-  'color-mix(in oklab,var(--o-palette-brand-500) 15%,transparent),',
-  'var(--o-palette-brand-500) 48%,',
-  'color-mix(in oklab,var(--o-palette-brand-500) 15%,transparent))}',
-  '.db-item:hover .db-filet{background-color:var(--o-chrome-filet-survol)}',
 ].join('')
 
 /** Pose la feuille de la barre, une fois par document. */
@@ -443,7 +469,7 @@ function useFeuilleBarre(): void {
  * scene ; ailleurs, la page. Les deux suivent desormais le theme du site, y
  * compris l accueil : la gelule n a donc plus de forme imposee.
  */
-const GELULE = 'o-backdrop-blur-xl db-gelule'
+const GELULE = 'db-barre-champ'
 
 /**
  * L encre ordinaire d une gelule, et celle du survol.
@@ -453,8 +479,7 @@ const GELULE = 'o-backdrop-blur-xl db-gelule'
  * une classe seule vaut (0,1,0) et perd, et tous les liens de la barre
  * viraient a la couleur de marque des que le theme passait en nuit.
  */
-const ENCRE_GELULE =
-  'o-text-zinc-600 dark:o-text-zinc-300 hover:o-text-zinc-950 dark:hover:o-text-white'
+const ENCRE_GELULE = ''
 
 /**
  * Les deux liens hors du site : le depot et le registre npm.
@@ -512,10 +537,13 @@ function Brand(): ReactElement {
   return (
     <Link
       to="/"
-      className={`o-inline-flex o-h-14 o-shrink-0 o-items-center o-gap-2.5 o-rounded-full o-border-w-1 o-pl-5 o-pr-6 o-no-underline o-transition-colors ${GELULE}`}
+      className="db-barre-lien o-inline-flex o-h-8 o-shrink-0 o-items-center o-gap-2 o-px-2 o-no-underline"
     >
-      <LogoMark className="o-size-7 o-text-brand-500" />
-      <span className="o-text-lg o-font-bold o-tracking-wide o-text-zinc-950 dark:o-text-white">
+      <LogoMark className="o-size-5 o-text-brand-400" />
+      <span
+        className="o-text-sm o-font-bold o-tracking-wide"
+        style={{ color: 'var(--o-chrome-barre-encre-forte)' }}
+      >
         ODORO
       </span>
     </Link>
@@ -539,8 +567,9 @@ function TopLink({
     <Link
       to={to}
       aria-current={active ? 'true' : undefined}
-      className={`o-rounded-full o-px-4 o-py-2 o-text-base o-no-underline o-transition-colors ${
-        active ? 'db-actif o-font-medium o-text-zinc-950 dark:o-text-white' : ENCRE_GELULE
+      data-actif={active ? '' : undefined}
+      className={`db-barre-lien o-px-2.5 o-py-1.5 o-text-sm o-no-underline ${
+        active ? 'o-font-medium' : ''
       }`}
     >
       {label}
@@ -597,10 +626,6 @@ export function Shell({ children }: { children?: ReactNode }): ReactElement {
     window.scrollTo({ top: 0 })
   }, [pathname])
 
-  // Le fondu derriere la barre ne depend pas du theme mais de ce qui passe
-  // dessous : une scene n a rien a masquer, des lignes de texte si.
-  const surLaScene = pathname === '/'
-
   // La recherche se replie sur son icone sous 1536 px.
   //
   // La barre entiere — marque, navigation, recherche, theme, gelule pleine —
@@ -616,7 +641,7 @@ export function Shell({ children }: { children?: ReactNode }): ReactElement {
         type="button"
         onClick={() => setSearchOpen(true)}
         aria-label="Rechercher dans la documentation"
-        className={`o-inline-flex o-h-14 o-shrink-0 o-cursor-pointer o-items-center o-justify-center o-gap-2.5 o-rounded-full o-border-w-1 o-transition-colors o-px-4 2xl:o-w-64 2xl:o-px-5 o-text-base ${GELULE} ${ENCRE_GELULE}`}
+        className={`o-inline-flex o-h-8 o-shrink-0 o-cursor-pointer o-items-center o-gap-2 o-rounded-lg o-px-3 o-text-sm lg:o-w-96 ${GELULE} ${ENCRE_GELULE}`}
       >
         <svg
           width="14"
@@ -633,10 +658,13 @@ export function Shell({ children }: { children?: ReactNode }): ReactElement {
           <circle cx="11" cy="11" r="7" />
           <path d="m21 21-4.3-4.3" />
         </svg>
-        <span className="o-hidden 2xl:o-block 2xl:o-flex-1 2xl:o-text-left">
-          Rechercher...
+        <span className="o-hidden lg:o-block lg:o-flex-1 lg:o-text-left">
+          Rechercher dans la documentation
         </span>
-        <kbd className="o-hidden 2xl:o-inline-block o-shrink-0 o-whitespace-nowrap o-rounded-sm o-border-w-1 o-px-1.5 o-py-0.5 o-font-mono o-text-xs db-gelule o-text-zinc-500 dark:o-text-zinc-400">
+        <kbd
+          className="o-hidden lg:o-inline-block o-shrink-0 o-whitespace-nowrap o-rounded-sm o-px-1.5 o-py-0.5 o-font-mono o-text-xs"
+          style={{ backgroundColor: 'var(--o-chrome-barre-actif)' }}
+        >
           Ctrl K
         </kbd>
       </button>
@@ -645,33 +673,22 @@ export function Shell({ children }: { children?: ReactNode }): ReactElement {
   )
 
   return (
-    <div className="o-min-h-screen o-bg-white dark:o-bg-zinc-950 o-text-zinc-900 dark:o-text-zinc-50">
+    <div className="db-fond o-min-h-screen o-text-zinc-900 dark:o-text-zinc-50">
       {/* La barre ne peint rien elle-meme : ce sont les gelules qui portent la
           surface, posees sur ce qu il y a derriere — la scene sur la page
           d accueil, la page ailleurs. C est ce qui la fait flotter. */}
-      <header className="o-fixed o-top-0 o-inset-x-0 o-z-sticky">
-        {/* Un fondu, et seulement sur la documentation. Sur la page d accueil
-            ce qui passe derriere est la scene, qui n a rien a masquer. Sur une
-            page de texte, les lignes montaient entre les gelules et se
-            lisaient au travers. Un fondu les eteint sans poser de bande : la
-            barre reste sans fond au sens ou on la voit flotter. */}
-        {surLaScene ? null : (
-          <div
-            aria-hidden="true"
-            className="o-pointer-events-none o-absolute o-inset-0"
-            style={{
-              backgroundImage:
-                'linear-gradient(to bottom, var(--o-theme-bg) 0%, color-mix(in oklab, var(--o-theme-bg) 82%, transparent) 62%, transparent 100%)',
-            }}
-          />
-        )}
-        <div className="o-relative o-flex o-h-20 o-items-center o-gap-3 o-px-5 md:o-px-8">
+      {/* La barre porte sa propre surface, sombre dans les deux themes : c est
+          le chrome de l outil, pas une surface du document. Plus de fondu a
+          poser sous elle — une barre pleine n a rien a laisser transparaitre,
+          et c est precisement ce qu on lui demande. */}
+      <header className="db-barre o-fixed o-top-0 o-inset-x-0 o-z-sticky">
+        <div className="o-relative o-flex o-h-14 o-items-center o-gap-2 o-px-3 md:o-px-4">
           <button
             type="button"
             aria-label={menuOpen ? 'Fermer la navigation' : 'Ouvrir la navigation'}
             aria-expanded={menuOpen}
             onClick={() => setMenuOpen((open) => !open)}
-            className={`xl:o-hidden o-inline-flex o-size-14 o-cursor-pointer o-items-center o-justify-center o-rounded-full o-border-w-1 o-transition-colors ${GELULE} ${ENCRE_GELULE}`}
+            className="xl:o-hidden db-barre-lien o-inline-flex o-size-8 o-shrink-0 o-cursor-pointer o-items-center o-justify-center"
           >
             <svg
               width="18"
@@ -694,33 +711,36 @@ export function Shell({ children }: { children?: ReactNode }): ReactElement {
 
           <Brand />
 
-          {/* La navigation vit dans sa propre gelule, a cote de la marque. */}
+          {/* La navigation n a plus de gelule : sur une barre pleine, un
+              contenant dans le contenant se lit comme un debut de hierarchie
+              qui n existe pas. Les liens portent leur propre etat. */}
           <nav
             aria-label="Navigation principale"
-            className={`o-hidden xl:o-flex o-h-14 o-items-center o-gap-1 o-rounded-full o-border-w-1 o-px-3 ${GELULE}`}
+            className="o-hidden xl:o-flex o-items-center o-gap-0.5"
           >
             {TOP_LINKS.map((link) => (
               <TopLink key={link.to} {...link} />
             ))}
           </nav>
 
+          {/* La recherche au centre, comme dans une console : c est elle qu on
+              vise, pas les liens. Deux entretoises souples la tiennent la. */}
           <div className="o-flex-1" />
-
           {searchButton}
+          <div className="o-flex-1" />
 
           <ThemeToggle />
 
-          {/* La seule gelule pleine de la barre : celle par ou l on commence. */}
           <Link
             to="/docs/installation"
-            className="max-sm:o-hidden o-inline-flex o-h-14 o-shrink-0 o-items-center o-rounded-full o-px-7 o-text-base o-font-medium o-no-underline o-transition-transform hover:o-scale-105 focus:o-ring"
+            className="max-sm:o-hidden o-inline-flex o-h-8 o-shrink-0 o-items-center o-rounded-lg o-px-3.5 o-text-sm o-font-medium o-no-underline focus:o-ring"
             // La regle d ancre de la feuille et la variante `dark:` ont la
             // meme specificite : c est l ordre du fichier qui tranche, et il
             // ne joue pas en notre faveur. Le style en ligne, lui, est sur.
-            style={{
-              backgroundColor: 'var(--o-chrome-cta-fond)',
-              color: 'var(--o-chrome-cta-encre)',
-            }}
+            // La barre est sombre dans les deux themes : le bouton ne peut
+            // pas lire `--o-chrome-cta-*`, qui suit le theme du document et le
+            // rendrait noir sur noir en clair.
+            style={{ backgroundColor: '#ffffff', color: '#1a1a1a' }}
           >
             Démarrer
           </Link>
@@ -731,13 +751,13 @@ export function Shell({ children }: { children?: ReactNode }): ReactElement {
 
       {/* Les pages sans colonne prennent toute la largeur : leurs sections
           posent elles-memes leurs marges, et un hero doit toucher les bords. */}
-      <div
-        className={large ? 'o-flex' : 'o-flex o-px-5 md:o-px-8'}
-        style={{ paddingTop: HEADER_OFFSET }}
-      >
+      <div className="o-flex" style={{ paddingTop: HEADER_OFFSET }}>
+        {/* La colonne porte sa propre surface et sa limite a droite. Elle ne
+            flotte plus sur la page : elle la borde, comme la navigation d une
+            application borde sa zone de travail. */}
         {!colonneCachee && (
           <aside
-            className="max-lg:o-hidden o-sticky o-w-64 o-shrink-0 o-overflow-y-auto o-scrollbar dark:o-scrollbar-dark o-py-8 o-pr-6"
+            className="db-colonne max-lg:o-hidden o-sticky o-w-60 o-shrink-0 o-overflow-y-auto o-scrollbar dark:o-scrollbar-dark o-px-3 o-py-4"
             style={{ top: HEADER_OFFSET, height: `calc(100dvh - ${HEADER_OFFSET})` }}
           >
             <SideNav />
@@ -749,19 +769,29 @@ export function Shell({ children }: { children?: ReactNode }): ReactElement {
         <main
           className={[
             'o-flex-1 o-min-w-0 o-view-transition-page',
+            // Hors vitrine, le contenu prend une mesure et se centre : une
+            // colonne de texte qui court d un bord a l autre d un grand ecran
+            // ne se lit pas, et une console ne le fait jamais.
+            large ? '' : 'o-mx-auto o-w-full o-max-w-6xl o-px-5 md:o-px-8',
             // Une vitrine, comme la page d accueil, fait sa propre place :
             // son en-tete doit toucher la barre.
-            pathname === '/' || pathname.startsWith('/templates/') ? 'o-py-0' : 'o-py-12',
+            pathname === '/' || pathname.startsWith('/templates/') ? 'o-py-0' : 'o-py-8',
             // Le filet de separation n'a de sens qu'a cote de la colonne.
             // Le filet de separation a disparu : la colonne est faite de
             // gelules posees sur la page, et une ligne verticale la
             // recloisonnait en tiroir.
-            colonneCachee ? '' : 'lg:o-pl-12',
+            colonneCachee || large ? '' : 'lg:o-px-10',
           ].join(' ')}
         >
-          {children}
-          {/* La suite de la documentation : les deux voisines, et le passage
-              au defilement. Ni la vitrine ni la galerie n en font partie. */}
+          {/* Sur une console, ce qui se lit est pose sur une carte, et le
+              gris autour n est pas un fond : c est ce qui fait exister la
+              carte. Les pages pleine largeur — vitrine, galerie, projet — y
+              echappent : elles posent elles-memes leurs surfaces. */}
+          {large || colonneCachee ? (
+            children
+          ) : (
+            <div className="db-carte o-px-6 o-py-8 md:o-px-10 md:o-py-10">{children}</div>
+          )}
           {colonneCachee ? null : <Pagination />}
         </main>
       </div>

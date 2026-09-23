@@ -69,7 +69,7 @@ export function ThemeToggle(): ReactElement {
       onClick={() => setTheme(next)}
       aria-label={`${LABELS[theme]} — basculer`}
       title={LABELS[theme]}
-      className="o-inline-flex o-size-14 o-shrink-0 o-cursor-pointer o-items-center o-justify-center o-rounded-full o-border-w-1 o-backdrop-blur-xl o-transition-colors db-gelule o-text-zinc-600 dark:o-text-zinc-300 hover:o-text-zinc-950 dark:hover:o-text-white"
+      className="db-barre-lien o-inline-flex o-size-8 o-shrink-0 o-cursor-pointer o-items-center o-justify-center"
     >
       <Icon icon={ICONS[theme]} size={18} />
     </button>
