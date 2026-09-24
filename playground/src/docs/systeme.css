@@ -1005,6 +1005,22 @@
  * Le retrait est maintenant un jeton, et la hauteur en est calculee. Les deux
  * ne peuvent plus diverger.
  */
+/*
+ * Un dialogue ferme ne prend pas de place.
+ *
+ * Le navigateur pose `dialog:not([open]) { display: none }`. La classe
+ * declarait `display: flex` sans condition et l emportait : le dialogue
+ * ferme gardait sa hauteur — sept cent quarante pixels — au bas du document.
+ * La page etait donc plus longue que son contenu, et defiler jusqu en bas
+ * menait a une bande vide que rien n expliquait.
+ *
+ * La regle est rendue au navigateur, et la classe ne decrit plus que le
+ * dialogue ouvert.
+ */
+dialog.ods-modale:not([open]) {
+  display: none;
+}
+
 .ods-modale {
   display: flex;
   flex-direction: column;
