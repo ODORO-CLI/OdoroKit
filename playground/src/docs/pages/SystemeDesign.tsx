@@ -22,6 +22,8 @@
 import { type ReactElement, type ReactNode } from 'react'
 
 import { PageHeader } from '../components/DocBlocks.jsx'
+import { DemoBandeaux } from '../systeme/Bandeaux.jsx'
+import { DemoControles } from '../systeme/Controles.jsx'
 
 /* ============================ Le cadre ================================= */
 
@@ -151,6 +153,129 @@ function Jetons(): ReactElement {
             {role} · {jeton}
           </span>
         ))}
+      </div>
+    </div>
+  )
+}
+
+/* ============================ Le tableau =============================== */
+
+/**
+ * Un tableau de demonstration, avec ses quatre cas particuliers.
+ *
+ * Les quatre lignes ne sont pas quatre exemples du meme etat : la troisieme
+ * porte une vignette — donc la ligne monte a cinquante-deux pixels — et la
+ * quatrieme est choisie. Les voir sur la meme grille est le seul moyen de
+ * verifier que la hauteur varie sans decaler les colonnes, et que le fond de
+ * selection reste lisible a cote du gris de survol.
+ *
+ * La colonne du stock est numerique : c est elle qui montre a quoi servent
+ * l alignement a droite et les chiffres de largeur fixe — un zero et un
+ * nombre a trois chiffres finissent sur le meme bord.
+ */
+function Tableau(): ReactElement {
+  return (
+    <div className="ods-tableau-cadre">
+      <div className="ods-tableau-outils">
+        <button type="button" className="ods-vue" data-actif="">
+          Tous les produits
+        </button>
+        <button type="button" className="ods-vue">
+          Ruptures
+        </button>
+        <button
+          type="button"
+          className="ods-vue ods-vue-ajout"
+          aria-label="Ajouter une vue"
+        >
+          +
+        </button>
+      </div>
+
+      <div className="ods-tableau-defile">
+        <table className="ods-tableau">
+          <thead>
+            <tr>
+              <th scope="col" className="ods-col-case">
+                <input type="checkbox" aria-label="Tout sélectionner" />
+              </th>
+              <th scope="col">Produit</th>
+              <th scope="col">Statut</th>
+              <th scope="col" className="ods-col-nombre">
+                Stock
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td className="ods-col-case">
+                <input type="checkbox" aria-label="Choisir Bougie Cèdre 220 g" />
+              </td>
+              <td>Bougie Cèdre 220 g</td>
+              <td>
+                <span className="ods-badge ods-badge-succes">Actif</span>
+              </td>
+              <td className="ods-col-nombre">128</td>
+            </tr>
+
+            <tr>
+              <td className="ods-col-case">
+                <input type="checkbox" aria-label="Choisir Diffuseur Figue" />
+              </td>
+              <td>Diffuseur Figue</td>
+              <td>
+                <span className="ods-badge ods-badge-info">Brouillon</span>
+              </td>
+              <td className="ods-col-nombre">42</td>
+            </tr>
+
+            <tr>
+              <td className="ods-col-case">
+                <input type="checkbox" aria-label="Choisir Coffret Découverte" />
+              </td>
+              <td>
+                <span className="o-flex o-items-center o-gap-3">
+                  <span className="ods-vignette" aria-hidden="true" />
+                  Coffret Découverte
+                </span>
+              </td>
+              <td>
+                <span className="ods-badge ods-badge-succes">Actif</span>
+              </td>
+              <td className="ods-col-nombre">7</td>
+            </tr>
+
+            <tr data-choisi="">
+              <td className="ods-col-case">
+                <input
+                  type="checkbox"
+                  defaultChecked
+                  aria-label="Choisir Recharge Néroli"
+                />
+              </td>
+              <td>Recharge Néroli</td>
+              <td>
+                <span className="ods-badge ods-badge-critique">Rupture</span>
+              </td>
+              <td className="ods-col-nombre">0</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div className="ods-tableau-pied">
+        <button
+          type="button"
+          className="ods-tableau-fleche"
+          aria-label="Page précédente"
+          disabled
+        >
+          ‹
+        </button>
+        <button type="button" className="ods-tableau-fleche" aria-label="Page suivante">
+          ›
+        </button>
+        <span className="ods-tableau-compteur">1–4 sur 36</span>
       </div>
     </div>
   )
@@ -312,6 +437,18 @@ export function SystemeDesign(): ReactElement {
           </div>
         </div>
       </Paire>
+
+      <Paire titre="Tableaux" reference="§9">
+        <Tableau />
+      </Paire>
+      <Paire titre="Contrôles" reference="§10">
+        <DemoControles />
+      </Paire>
+
+      <Paire titre="Bandeaux" reference="§11">
+        <DemoBandeaux />
+      </Paire>
+
     </>
   )
 }

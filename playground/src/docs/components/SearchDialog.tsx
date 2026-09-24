@@ -20,6 +20,7 @@ import {
 import { useNavigate } from '@odoro-cli/libs/router'
 
 import { ALL_PAGES } from '../registry.js'
+import { useT } from '../i18n/index.jsx'
 
 /**
  * Ce que les utilitaires ne savent pas ecrire.
@@ -83,6 +84,7 @@ export function SearchDialog({ open, onClose }: SearchDialogProps): ReactElement
   useFeuille()
   const dialogRef = useRef<HTMLDialogElement | null>(null)
   const navigate = useNavigate()
+  const t = useT()
   const [query, setQuery] = useState('')
   const [activeIndex, setActiveIndex] = useState(0)
 
@@ -139,7 +141,7 @@ export function SearchDialog({ open, onClose }: SearchDialogProps): ReactElement
   return (
     <dialog
       ref={dialogRef}
-      aria-label="Rechercher dans la documentation"
+      aria-label={t('barre.rechercher')}
       onCancel={(event) => {
         event.preventDefault()
         onClose()
@@ -182,8 +184,8 @@ export function SearchDialog({ open, onClose }: SearchDialogProps): ReactElement
               if (active !== undefined) select(active.path)
             }
           }}
-          placeholder="Rechercher une page, un composant, un utilitaire..."
-          aria-label="Rechercher"
+          placeholder={t('recherche.placeholder')}
+          aria-label={t('recherche.etiquette')}
           className="o-w-full o-bg-transparent o-outline-none"
           style={{
             flex: 1,
@@ -199,14 +201,14 @@ export function SearchDialog({ open, onClose }: SearchDialogProps): ReactElement
             color: 'var(--ods-encre-douce)',
           }}
         >
-          Échap
+          {t('recherche.echap')}
         </kbd>
       </div>
 
       <div
         className="ods-modale-corps ods-modale-corps-liste o-scrollbar dark:o-scrollbar-dark"
         role="listbox"
-        aria-label="Résultats"
+        aria-label={t('recherche.resultats')}
       >
         {results.length === 0 ? (
           /* Un etat vide, et non une phrase seule : une recherche sans
@@ -215,11 +217,8 @@ export function SearchDialog({ open, onClose }: SearchDialogProps): ReactElement
             <span className="ods-vide-disque" aria-hidden="true">
               <Icon icon={Search} size={44} strokeWidth={1.2} />
             </span>
-            <p className="ods-vide-titre">Aucun résultat</p>
-            <p className="ods-vide-texte">
-              Rien ne répond à « {query} ». Essaie le nom d’un composant, d’un
-              utilitaire ou d’une commande.
-            </p>
+            <p className="ods-vide-titre">{t('recherche.vide.titre')}</p>
+            <p className="ods-vide-texte">{t('recherche.vide.texte')}</p>
           </div>
         ) : (
           results.map((page, index) => {
@@ -258,10 +257,10 @@ export function SearchDialog({ open, onClose }: SearchDialogProps): ReactElement
         className="ods-modale-pied o-justify-start o-gap-5 o-font-mono o-text-xs o-uppercase o-tracking-widest"
         style={{ color: 'var(--ods-encre-douce)' }}
       >
-        <span>Haut / bas pour choisir</span>
-        <span>Entrée pour ouvrir</span>
+        <span>{t('recherche.aide.choisir')}</span>
+        <span>{t('recherche.aide.ouvrir')}</span>
         <span className="o-ml-auto o-tabular-nums">
-          {results.length} résultats
+          {results.length} {t('recherche.compte')}
         </span>
       </div>
     </dialog>

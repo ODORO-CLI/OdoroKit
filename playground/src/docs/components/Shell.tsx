@@ -46,6 +46,8 @@ import { DOC_SECTIONS, type DocPage, type DocSection, sectionPages } from '../re
 import { Pagination } from './Pagination.jsx'
 import { SearchDialog } from './SearchDialog.jsx'
 import { ThemeToggle } from './ThemeToggle.jsx'
+import { SelecteurDeLangue } from '../i18n/SelecteurDeLangue.jsx'
+import { useT } from '../i18n/index.jsx'
 
 /**
  * Hauteur de la barre fixe : 3.5rem, la hauteur d une barre d outil.
@@ -356,17 +358,17 @@ function pleineLargeur(pathname: string): boolean {
  * « Templates » reste tel quel : c est le nom de cette section partout sur le
  * site, et le mot est entre dans le francais du metier.
  */
-const TOP_LINKS: readonly { label: string; to: string; prefixes: readonly string[] }[] = [
+const TOP_LINKS: readonly { cle: string; label: string; to: string; prefixes: readonly string[] }[] = [
   {
-    label: 'Documentation',
+    cle: 'nav.documentation', label: 'Documentation',
     to: '/docs/installation',
     prefixes: ['/docs/installation', '/docs/styles', '/docs/router'],
   },
-  { label: 'Composants', to: '/docs/components/button', prefixes: ['/docs/components'] },
-  { label: 'Animations', to: '/docs/motion', prefixes: ['/docs/motion'] },
-  { label: 'Moteur', to: '/docs/engine', prefixes: ['/docs/engine'] },
-  { label: 'Registre', to: '/docs/registry', prefixes: ['/docs/registry'] },
-  { label: 'Templates', to: '/templates', prefixes: ['/templates'] },
+  { cle: 'nav.composants', label: 'Composants', to: '/docs/components/button', prefixes: ['/docs/components'] },
+  { cle: 'nav.animations', label: 'Animations', to: '/docs/motion', prefixes: ['/docs/motion'] },
+  { cle: 'nav.moteur', label: 'Moteur', to: '/docs/engine', prefixes: ['/docs/engine'] },
+  { cle: 'nav.registre', label: 'Registre', to: '/docs/registry', prefixes: ['/docs/registry'] },
+  { cle: 'nav.templates', label: 'Templates', to: '/templates', prefixes: ['/templates'] },
 ]
 
 /**
@@ -460,6 +462,7 @@ function useFeuilleBarre(): void {
 /** Coquille commune a toutes les pages. */
 export function Shell({ children }: { children?: ReactNode }): ReactElement {
   useFeuilleBarre()
+  const t = useT()
   const [searchOpen, setSearchOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const { pathname } = useLocation()
@@ -498,7 +501,7 @@ export function Shell({ children }: { children?: ReactNode }): ReactElement {
       <button
         type="button"
         onClick={() => setSearchOpen(true)}
-        aria-label="Rechercher dans la documentation"
+        aria-label={t('barre.rechercher')}
         className="ods-barre-recherche"
       >
         <svg
@@ -517,17 +520,18 @@ export function Shell({ children }: { children?: ReactNode }): ReactElement {
           <path d="m21 21-4.3-4.3" />
         </svg>
         <span className="o-flex-1 o-text-left o-truncate">
-          Rechercher dans la documentation
+          {t('barre.rechercher')}
         </span>
         <kbd
           className="max-sm:o-hidden o-shrink-0 o-whitespace-nowrap o-rounded-sm o-px-1.5 o-font-mono o-text-xs"
           style={{ backgroundColor: 'var(--ods-barre-actif)' }}
         >
-          Ctrl K
+          {t('barre.recherche.raccourci')}
         </kbd>
       </button>
     ),
-    [],
+    // Le libelle vient du dictionnaire : il change avec la langue.
+    [t],
   )
 
   return (
@@ -539,7 +543,7 @@ export function Shell({ children }: { children?: ReactNode }): ReactElement {
       <header className="ods-barre">
         <button
           type="button"
-          aria-label={menuOpen ? 'Fermer la navigation' : 'Ouvrir la navigation'}
+          aria-label={menuOpen ? t('barre.menu.fermer') : t('barre.menu.ouvrir')}
           aria-expanded={menuOpen}
           onClick={() => setMenuOpen((open) => !open)}
           className="lg:o-hidden ods-barre-icone"
@@ -573,7 +577,7 @@ export function Shell({ children }: { children?: ReactNode }): ReactElement {
             barre n a plus la place, et c est la copie de la colonne — visible
             dans le tiroir — qui prend le relais. */}
         <nav
-          aria-label="Navigation principale"
+          aria-label={t('barre.navigation')}
           className="max-lg:o-hidden o-flex o-shrink-0 o-items-center o-gap-0.5 o-pl-2"
         >
           {TOP_LINKS.map((link) => (
@@ -585,7 +589,7 @@ export function Shell({ children }: { children?: ReactNode }): ReactElement {
               }
               className="ods-onglet"
             >
-              {link.label}
+              {t(link.cle, link.label)}
             </Link>
           ))}
         </nav>
@@ -596,6 +600,7 @@ export function Shell({ children }: { children?: ReactNode }): ReactElement {
         {searchButton}
         <div className="o-flex-1" />
 
+        <SelecteurDeLangue />
         <ThemeToggle />
         {/* Les deux sorties du projet, cote a cote : le depot et le paquet
             publie. Elles se cherchent une fois, pas a chaque page — d ou
@@ -604,7 +609,7 @@ export function Shell({ children }: { children?: ReactNode }): ReactElement {
           href={DEPOT}
           target="_blank"
           rel="noreferrer"
-          aria-label="Depot"
+          aria-label={t('barre.depot')}
           className="max-sm:o-hidden ods-barre-icone o-no-underline"
         >
           <Icon icon={Github} size={16} />
@@ -613,7 +618,7 @@ export function Shell({ children }: { children?: ReactNode }): ReactElement {
           href={NPM}
           target="_blank"
           rel="noreferrer"
-          aria-label="Paquet npm"
+          aria-label={t('barre.npm')}
           className="max-sm:o-hidden ods-barre-icone o-no-underline"
         >
           <Icon icon={Npm} size={16} />
@@ -629,13 +634,13 @@ export function Shell({ children }: { children?: ReactNode }): ReactElement {
       <aside
         className="ods-colonne"
         data-ouverte={menuOpen ? '' : undefined}
-        aria-label="Navigation de la documentation"
+        aria-label={t('colonne.titre')}
       >
 
         {/* La meme liste que la barre, et c est voulu : au-dessus de 1024 px
             la barre la porte et celle-ci disparait ; en dessous la barre la
             perd et le tiroir la reprend. Jamais les deux ensemble. */}
-        <nav aria-label="Sections" className="lg:o-hidden o-flex o-flex-col o-gap-0.5">
+        <nav aria-label={t('colonne.sections')} className="lg:o-hidden o-flex o-flex-col o-gap-0.5">
           {TOP_LINKS.map((link) => (
             <Link
               key={link.to}

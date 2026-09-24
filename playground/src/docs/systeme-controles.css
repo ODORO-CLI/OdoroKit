@@ -1,0 +1,902 @@
+/*
+ * Les controles du §10 — ce qui se coche, se bascule, se depose.
+ *
+ * ## Pourquoi un second fichier
+ *
+ * `systeme.css` porte les jetons et les pieces deja ecrites : boutons, badges,
+ * champs, cartes, ossature. Les controles s y ajoutent sans rien y changer, et
+ * ils sont assez nombreux pour qu un fichier a part se lise mieux qu une
+ * rallonge. Aucun jeton n est redefini ici : tout se lit dans `systeme.css`,
+ * donc un changement de mesure ou de teinte se propage sans detour.
+ *
+ * L ordre de chargement des deux feuilles n a aucune importance, et ce n est
+ * pas un hasard : les quelques regles qui reprennent une piece de `systeme.css`
+ * — le champ dans une boite a affixe, les boutons de la barre de sauvegarde —
+ * l emportent par leur specificite et non par leur rang. La feuille peut donc
+ * etre importee au demarrage ou par le composant qui s en sert, sans que le
+ * rendu change.
+ *
+ * ## Les mesures ne sont pas des utilitaires
+ *
+ * Le generateur ne produit pas de classe a valeur arbitraire. `o-h-[18px]` ne
+ * correspond a aucune regle, et une classe absente ne casse rien — elle ne
+ * peint rien, en silence. Les dix-huit pixels d une case, les vingt-deux d un
+ * interrupteur, les vingt-huit d un segment vivent donc ici, en CSS, et le
+ * composant de demonstration ne fait que poser des noms de classe.
+ *
+ * ## L arrondi
+ *
+ * La regle du §6 tient en une phrase : rien ne depasse douze pixels. Les
+ * controles s y plient tous, a une exception assumee — l interrupteur, dont la
+ * forme *est* la pilule : un interrupteur a coins droits ne se lit plus comme
+ * un interrupteur. C est le seul endroit du systeme ou `--ods-r-pilule` sert a
+ * autre chose qu un point de six pixels.
+ *
+ * Le radio, lui, est bien un cercle, mais il prend `50%` et non la pilule :
+ * dix-huit pixels de cote donnent neuf pixels d arrondi, ce qui reste sous la
+ * barre. Ecrire `999px` la ou `50%` suffit rendrait l exception moins lisible.
+ *
+ * ## Le blanc, dans un theme qui s inverse
+ *
+ * La specification dit « coche blanche » et « curseur blanc ». Le blanc y est
+ * la couleur *du dessus de l aplat*, pas une valeur : l aplat est
+ * `--ods-primaire-bas`, qui vaut #303030 en clair et #e6e6e6 en sombre. Une
+ * coche ecrite #ffffff disparaitrait donc la nuit. Elle prend
+ * `--ods-encre-inverse`, qui est blanc quand l aplat est noir et sombre quand
+ * l aplat est clair — c est deja ce que fait le bouton primaire.
+ */
+
+/* ==================================================================== */
+/* Le controle segmente (§10)                                            */
+/* ==================================================================== */
+
+/*
+ * Deux a quatre choix exclusifs, cote a cote dans une seule boite.
+ *
+ * Le padding de deux pixels n est pas decoratif : sans lui, le segment actif
+ * toucherait la bordure de la boite et les deux arrondis se superposeraient en
+ * un angle sale. Avec lui, l aplat flotte dans son cadre.
+ */
+.ods-segmente {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid var(--ods-bordure);
+  border-radius: var(--ods-r-controle);
+  background-color: var(--ods-carte);
+}
+
+.ods-segmente-choix {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 12px;
+  border: 0;
+  /* Six pixels a l interieur de huit : l arrondi du dedans doit etre plus
+     serre que celui du dehors, sinon le segment parait deborder du cadre. */
+  border-radius: var(--ods-r-petit);
+  background-color: var(--ods-carte);
+  color: var(--ods-encre-douce);
+  font-family: var(--ods-police);
+  font-size: var(--ods-corps);
+  line-height: var(--ods-corps-h);
+  font-weight: var(--ods-demi);
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color var(--ods-t-couleur),
+    color var(--ods-t-couleur);
+}
+.ods-segmente-choix:hover:not([disabled]):not([data-actif]) {
+  color: var(--ods-encre);
+}
+.ods-segmente-choix[data-actif] {
+  background-color: var(--ods-neutre-fond);
+  color: var(--ods-encre);
+}
+.ods-segmente-choix[disabled] {
+  color: var(--ods-encre-eteinte);
+  cursor: default;
+}
+.ods-segmente-choix:focus-visible {
+  outline: 2px solid var(--ods-accent);
+  outline-offset: -1px;
+}
+
+/* La boite entiere peut etre hors service : elle perd alors son fond de carte,
+   pour que le groupe se lise comme inerte avant qu on ait vise un segment. */
+.ods-segmente[data-desactive] {
+  background-color: var(--ods-fond);
+}
+.ods-segmente[data-desactive] .ods-segmente-choix {
+  background-color: transparent;
+  color: var(--ods-encre-eteinte);
+  cursor: default;
+}
+.ods-segmente[data-desactive] .ods-segmente-choix[data-actif] {
+  background-color: var(--ods-bordure);
+}
+
+/* ==================================================================== */
+/* Radio et case a cocher (§10)                                          */
+/* ==================================================================== */
+
+/*
+ * Le socle des deux.
+ *
+ * `appearance: none` efface le controle du systeme d exploitation — sans quoi
+ * aucune des deux formes ne serait la notre. Dix-huit pixels : c est la plus
+ * petite cible qu on vise sans la manquer, et la seule taille du systeme.
+ */
+.ods-radio,
+.ods-case {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  border: 1px solid var(--ods-bordure-champ);
+  background-color: var(--ods-carte);
+  cursor: pointer;
+  transition:
+    background-color var(--ods-t-couleur),
+    border-color var(--ods-t-couleur),
+    box-shadow var(--ods-t-couleur);
+}
+.ods-radio:hover:not(:disabled),
+.ods-case:hover:not(:disabled) {
+  border-color: var(--ods-bordure-champ-survol);
+}
+.ods-radio:focus-visible,
+.ods-case:focus-visible {
+  outline: 2px solid var(--ods-accent);
+  outline-offset: 1px;
+}
+.ods-radio:disabled,
+.ods-case:disabled {
+  background-color: var(--ods-fond);
+  border-color: var(--ods-bordure);
+  cursor: default;
+}
+
+/* --- Le radio -------------------------------------------------------- */
+
+/* `50%` et non `--ods-r-pilule` : voir l en-tete de ce fichier. */
+.ods-radio {
+  border-radius: 50%;
+}
+
+/*
+ * L anneau plutot qu un point centre.
+ *
+ * Un `::after` de six pixels demanderait au navigateur de rendre un
+ * pseudo-element sur un `input` — ce qui marche, mais n est garanti que depuis
+ * que `appearance: none` retire l element de la famille des remplaces. Une
+ * ombre interieure de cinq pixels ne demande rien de tel : elle mange le
+ * dedans du cadre et laisse un disque de six pixels au centre, qui est
+ * exactement le point qu on voulait.
+ */
+.ods-radio:checked {
+  border-color: var(--ods-primaire-bas);
+  box-shadow: inset 0 0 0 5px var(--ods-primaire-bas);
+}
+.ods-radio:checked:disabled {
+  border-color: var(--ods-encre-eteinte);
+  box-shadow: inset 0 0 0 5px var(--ods-encre-eteinte);
+}
+
+/* --- La case --------------------------------------------------------- */
+
+.ods-case {
+  border-radius: var(--ods-r-minuscule);
+}
+.ods-case:checked,
+.ods-case:indeterminate {
+  background-color: var(--ods-primaire-bas);
+  border-color: var(--ods-primaire-bas);
+}
+.ods-case:checked:disabled,
+.ods-case:indeterminate:disabled {
+  background-color: var(--ods-encre-eteinte);
+  border-color: var(--ods-encre-eteinte);
+}
+
+/*
+ * La coche, tracee avec deux bordures.
+ *
+ * Un fichier SVG en `background-image` ne se reteinte pas : sa couleur est
+ * ecrite dans la donnee, et il faudrait donc deux images — une par theme — que
+ * personne ne penserait a garder d accord. Deux bordures tournees a
+ * quarante-cinq degres donnent le meme trace et lisent un jeton.
+ */
+.ods-case:checked::after {
+  content: '';
+  width: 5px;
+  height: 9px;
+  /* Le trace penche : sans ce releve, la coche parait tomber dans le coin. */
+  margin-top: -2px;
+  border: solid var(--ods-encre-inverse);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+/* L etat partiel d un groupe : un trait, pas une coche — il dit « certains »,
+   et une coche a moitie effacee dirait « peut-etre ». */
+.ods-case:indeterminate::after {
+  content: '';
+  width: 9px;
+  height: 2px;
+  background-color: var(--ods-encre-inverse);
+}
+
+/* L erreur porte sur le cadre, jamais sur l aplat : une case cochee en rouge
+   se lirait comme un avertissement valide, ce qui est le contraire. */
+.ods-radio-erreur,
+.ods-radio-erreur:hover,
+.ods-case-erreur,
+.ods-case-erreur:hover {
+  border-color: var(--ods-critique-plein);
+}
+
+/* ==================================================================== */
+/* L interrupteur (§10)                                                  */
+/* ==================================================================== */
+
+/*
+ * Quarante par vingt-deux, en pilule.
+ *
+ * C est le seul arrondi du systeme qui depasse douze pixels, et c est voulu :
+ * la forme porte le sens. Un interrupteur a coins droits se confond avec un
+ * segment, et le curseur qui glisse dedans n aurait plus de rail.
+ */
+.ods-interrupteur {
+  appearance: none;
+  position: relative;
+  display: inline-block;
+  flex: none;
+  width: 40px;
+  height: 22px;
+  margin: 0;
+  border: 0;
+  border-radius: var(--ods-r-pilule);
+  background-color: var(--ods-bordure);
+  cursor: pointer;
+  transition: background-color var(--ods-t-couleur);
+}
+
+/*
+ * Le curseur : dix-huit pixels, deux de jeu tout autour.
+ *
+ * Sa course vaut 40 - 18 - 2 - 2 = 18. Elle est ecrite ainsi plutot qu en dur,
+ * pour que changer la largeur du rail ne laisse pas le curseur a mi-chemin.
+ */
+.ods-interrupteur::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: var(--ods-r-pilule);
+  background-color: var(--ods-carte);
+  box-shadow: var(--ods-ombre-bouton);
+  transition:
+    transform var(--ods-t-couleur),
+    background-color var(--ods-t-couleur);
+}
+.ods-interrupteur:checked {
+  background-color: var(--ods-primaire-bas);
+}
+.ods-interrupteur:checked::after {
+  background-color: var(--ods-encre-inverse);
+  transform: translateX(18px);
+}
+.ods-interrupteur:hover:not(:disabled) {
+  background-color: var(--ods-guide);
+}
+.ods-interrupteur:checked:hover:not(:disabled) {
+  background-color: var(--ods-primaire-survol);
+}
+.ods-interrupteur:focus-visible {
+  outline: 2px solid var(--ods-accent);
+  outline-offset: 2px;
+}
+.ods-interrupteur:disabled {
+  background-color: var(--ods-bordure);
+  cursor: default;
+}
+.ods-interrupteur:disabled::after {
+  background-color: var(--ods-fond);
+  box-shadow: none;
+}
+.ods-interrupteur:checked:disabled {
+  background-color: var(--ods-encre-eteinte);
+}
+
+/* ==================================================================== */
+/* Le groupe de choix (§10)                                              */
+/* ==================================================================== */
+
+/*
+ * Ce qui entoure un radio, une case ou un interrupteur : son libelle, son
+ * aide, et la distance aux voisins.
+ *
+ * Douze pixels entre deux lignes. Huit suffiraient si chaque ligne tenait sur
+ * un rang, mais des qu une porte une aide, le texte de l une se retrouve plus
+ * pres du controle de la suivante que du sien — et le lecteur rattache la
+ * phrase au mauvais choix.
+ */
+.ods-groupe-choix {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ods-choix {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* Le controle et son libelle sur la meme ligne. Huit pixels de gouttiere :
+   c est la valeur dont depend le retrait de l aide, plus bas. */
+.ods-choix-tete {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ods-choix-libelle {
+  font-family: var(--ods-police);
+  font-size: var(--ods-corps);
+  line-height: var(--ods-corps-h);
+  color: var(--ods-encre);
+  cursor: pointer;
+}
+
+/*
+ * L aide, alignee sous le libelle et non sous le controle.
+ *
+ * Vingt-six pixels : dix-huit de controle et huit de gouttiere. Le retrait
+ * n est donc pas un chiffre choisi mais la somme des deux mesures au-dessus —
+ * et le premier caractere de l aide tombe exactement sous le premier du
+ * libelle.
+ */
+.ods-choix-aide {
+  margin: 0 0 0 26px;
+  font-family: var(--ods-police);
+  font-size: var(--ods-petit);
+  line-height: var(--ods-petit-h);
+  color: var(--ods-encre-douce);
+}
+
+/* Un choix hors service eteint son texte aussi. Le controle grise seul, avec
+   un libelle en pleine encre, se lit comme actif mais casse. */
+.ods-choix:has(:disabled) .ods-choix-libelle {
+  color: var(--ods-encre-eteinte);
+  cursor: default;
+}
+.ods-choix:has(:disabled) .ods-choix-aide {
+  color: var(--ods-encre-eteinte);
+}
+
+/* L aide devient le message d erreur, au meme endroit : deplacer le texte
+   ferait sauter la ligne au moment ou la validation echoue. */
+.ods-choix-aide-erreur {
+  color: var(--ods-critique-encre);
+}
+
+/* ==================================================================== */
+/* Les balises (§10)                                                     */
+/* ==================================================================== */
+
+/*
+ * Un champ qui contient des pastilles plutot que du texte.
+ *
+ * `min-height` et non `height` : les balises passent a la ligne quand elles ne
+ * tiennent plus, et une hauteur fixe les ferait deborder du cadre. Au repos,
+ * sur un seul rang, la boite mesure bien trente-deux pixels — trois de
+ * padding, vingt-quatre de pastille, trois de padding, deux de bordure.
+ */
+.ods-balises {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  min-height: var(--ods-champ-h);
+  padding: 3px 4px;
+  border: 1px solid var(--ods-bordure-champ);
+  border-radius: var(--ods-r-controle);
+  background-color: var(--ods-carte);
+  transition:
+    border-color var(--ods-t-couleur),
+    box-shadow var(--ods-t-couleur);
+}
+.ods-balises:hover:not([data-desactive]) {
+  border-color: var(--ods-bordure-champ-survol);
+}
+.ods-balises:focus-within {
+  border-color: var(--ods-accent);
+  box-shadow: 0 0 0 2px var(--ods-accent);
+}
+.ods-balises[data-desactive] {
+  background-color: var(--ods-fond);
+  border-color: var(--ods-bordure);
+}
+.ods-balises-erreur,
+.ods-balises-erreur:hover {
+  border-color: var(--ods-critique-plein);
+  background-color: color-mix(in oklab, var(--ods-critique-plein) 5%, var(--ods-carte));
+}
+
+/*
+ * Une pastille.
+ *
+ * Padding asymetrique — huit a gauche, deux a droite — parce que la croix
+ * apporte son propre air. Huit de chaque cote donnerait un blanc deux fois
+ * plus large a droite qu a gauche.
+ */
+.ods-balise {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  height: 24px;
+  padding: 0 2px 0 8px;
+  border: 0;
+  border-radius: var(--ods-r-petit);
+  background-color: var(--ods-neutre-fond);
+  color: var(--ods-neutre-encre);
+  font-family: var(--ods-police);
+  font-size: var(--ods-petit);
+  line-height: var(--ods-petit-h);
+  font-weight: var(--ods-demi);
+  white-space: nowrap;
+}
+
+/* Sans croix, la pastille n a plus de raison d etre echancree a droite. */
+.ods-balise-fixe {
+  padding: 0 8px;
+}
+
+.ods-balise-croix {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--ods-r-minuscule);
+  background: none;
+  color: var(--ods-encre-douce);
+  font-family: var(--ods-police);
+  font-size: var(--ods-petit);
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    background-color var(--ods-t-couleur),
+    color var(--ods-t-couleur);
+}
+.ods-balise-croix:hover:not([disabled]) {
+  background-color: var(--ods-bordure);
+  color: var(--ods-encre);
+}
+.ods-balise-croix:focus-visible {
+  outline: 2px solid var(--ods-accent);
+  outline-offset: 1px;
+}
+.ods-balise-croix[disabled] {
+  color: var(--ods-encre-eteinte);
+  cursor: default;
+}
+
+/*
+ * La pastille d ajout.
+ *
+ * Elle est plus foncee que les autres — `--ods-bordure` contre
+ * `--ods-neutre-fond` — pour la raison inverse de ce qu on attend : elle ne
+ * porte pas de donnee, donc elle ne doit pas ressembler a une balise qu on
+ * pourrait retirer. Le decalage de teinte la sort de la liste.
+ */
+.ods-balise-ajout {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 24px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: var(--ods-r-petit);
+  background-color: var(--ods-bordure);
+  color: var(--ods-encre);
+  font-family: var(--ods-police);
+  font-size: var(--ods-petit);
+  line-height: var(--ods-petit-h);
+  font-weight: var(--ods-demi);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color var(--ods-t-couleur);
+}
+.ods-balise-ajout:hover:not([disabled]) {
+  background-color: var(--ods-guide);
+}
+.ods-balise-ajout:focus-visible {
+  outline: 2px solid var(--ods-accent);
+  outline-offset: 1px;
+}
+.ods-balise-ajout[disabled] {
+  background-color: var(--ods-bordure);
+  color: var(--ods-encre-eteinte);
+  cursor: default;
+}
+
+/* La saisie libre, entre les pastilles : elle n a ni cadre ni fond, c est la
+   boite qui les porte. Une largeur de base courte, et elle grandit avec le
+   reste de la place. */
+.ods-balises-saisie {
+  flex: 1;
+  min-width: 60px;
+  height: 24px;
+  padding: 0 4px;
+  border: 0;
+  background: none;
+  color: var(--ods-encre);
+  font-family: var(--ods-police);
+  font-size: var(--ods-corps);
+  line-height: var(--ods-corps-h);
+}
+.ods-balises-saisie::placeholder {
+  color: var(--ods-encre-eteinte);
+}
+.ods-balises-saisie:focus {
+  outline: none;
+}
+
+/* ==================================================================== */
+/* La zone de depot (§10)                                               */
+/* ==================================================================== */
+
+/*
+ * Un rectangle pointille ou l on lache un fichier.
+ *
+ * Le pointille est le seul filet du systeme qui ne soit pas plein, et c est ce
+ * qui dit « rien n est encore ici ». Un cadre plein se lirait comme une boite
+ * remplie, ou comme un champ.
+ */
+.ods-depot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: var(--ods-marge-large);
+  border: 1px dotted var(--ods-bordure-champ);
+  border-radius: var(--ods-r-controle);
+  background-color: var(--ods-carte);
+  text-align: center;
+  transition:
+    border-color var(--ods-t-couleur),
+    background-color var(--ods-t-couleur);
+}
+
+.ods-depot-titre {
+  margin: 0;
+  font-family: var(--ods-police);
+  font-size: var(--ods-corps);
+  line-height: var(--ods-corps-h);
+  font-weight: var(--ods-demi);
+  color: var(--ods-encre);
+}
+.ods-depot-aide {
+  margin: 0;
+  font-family: var(--ods-police);
+  font-size: var(--ods-petit);
+  line-height: var(--ods-petit-h);
+  color: var(--ods-encre-douce);
+}
+
+/*
+ * Le fichier survole la zone.
+ *
+ * L etat est un attribut et non `:hover` : le navigateur ne declenche pas
+ * `:hover` pendant un glisser-deposer, et un cadre qui ne bouge pas a
+ * l approche du fichier laisse croire que la cible est ailleurs.
+ */
+.ods-depot[data-survol] {
+  border-color: var(--ods-accent);
+  background-color: var(--ods-accent-voile);
+}
+.ods-depot-erreur {
+  border-color: var(--ods-critique-plein);
+  background-color: color-mix(in oklab, var(--ods-critique-plein) 5%, var(--ods-carte));
+}
+.ods-depot[data-desactive] {
+  border-color: var(--ods-bordure);
+  background-color: var(--ods-fond);
+}
+.ods-depot[data-desactive] .ods-depot-titre,
+.ods-depot[data-desactive] .ods-depot-aide {
+  color: var(--ods-encre-eteinte);
+}
+
+/* ==================================================================== */
+/* Prefixe et suffixe (§10)                                             */
+/* ==================================================================== */
+
+/*
+ * Le cadre passe du champ a la boite qui l entoure.
+ *
+ * L autre solution serait de poser l affixe en absolu par-dessus le champ, et
+ * de decaler le padding de celui-ci pour lui faire place. Mais ce decalage
+ * depend de la largeur du texte de l affixe — « € » et « par mois » n occupent
+ * pas la meme place — donc il faudrait le mesurer, ou l ecrire au cas par cas.
+ * En rendant le cadre a la boite, le champ n est plus qu une cellule de flex,
+ * et la mise en place se fait toute seule.
+ */
+.ods-affixe {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+  height: var(--ods-champ-h);
+  overflow: hidden;
+  border: 1px solid var(--ods-bordure-champ);
+  border-radius: var(--ods-r-controle);
+  background-color: var(--ods-carte);
+  transition:
+    border-color var(--ods-t-couleur),
+    box-shadow var(--ods-t-couleur);
+}
+.ods-affixe:hover:not([data-desactive]) {
+  border-color: var(--ods-bordure-champ-survol);
+}
+/* `focus-within` et non `focus-visible` : c est le champ qui recoit le foyer,
+   et c est la boite qui doit le montrer. */
+.ods-affixe:focus-within {
+  border-color: var(--ods-accent);
+  box-shadow: 0 0 0 2px var(--ods-accent);
+}
+.ods-affixe[data-desactive] {
+  background-color: var(--ods-fond);
+  border-color: var(--ods-bordure);
+}
+.ods-affixe-erreur,
+.ods-affixe-erreur:hover {
+  border-color: var(--ods-critique-plein);
+  background-color: color-mix(in oklab, var(--ods-critique-plein) 5%, var(--ods-carte));
+}
+
+/* L affixe colle au bord interieur : douze pixels du cote du cadre, zero du
+   cote du texte saisi — c est le champ qui pose les quatre pixels qui les
+   separent. */
+.ods-affixe-prefixe,
+.ods-affixe-suffixe {
+  display: flex;
+  align-items: center;
+  flex: none;
+  font-family: var(--ods-police);
+  font-size: var(--ods-corps);
+  line-height: var(--ods-corps-h);
+  color: var(--ods-encre-douce);
+  /* Il n est pas une cible : viser « € » doit poser le curseur dans le champ,
+     pas selectionner le symbole. */
+  user-select: none;
+  pointer-events: none;
+}
+.ods-affixe-prefixe {
+  padding-left: 12px;
+}
+.ods-affixe-suffixe {
+  padding-right: 12px;
+}
+
+/* Le champ, une fois dans la boite, perd tout ce que la boite porte deja. */
+.ods-affixe .ods-champ {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  border: 0;
+  border-radius: 0;
+  background: none;
+}
+.ods-affixe .ods-champ:hover,
+.ods-affixe .ods-champ:focus-visible {
+  border-color: transparent;
+  box-shadow: none;
+  outline: none;
+}
+.ods-affixe .ods-champ:disabled {
+  background: none;
+}
+.ods-affixe-prefixe + .ods-champ {
+  padding-left: 4px;
+}
+.ods-champ:has(+ .ods-affixe-suffixe) {
+  padding-right: 4px;
+}
+
+/* ==================================================================== */
+/* Le champ numerique (§10)                                             */
+/* ==================================================================== */
+
+/*
+ * Deux fleches empilees, dans la gouttiere droite du champ.
+ *
+ * Les fleches du navigateur sont retirees : elles mesurent treize pixels de
+ * large, changent de dessin d un moteur a l autre et n apparaissent qu au
+ * survol. Celles du systeme sont toujours la, a la meme place, et empruntent les
+ * jetons du systeme.
+ */
+.ods-nombre {
+  position: relative;
+  display: block;
+  width: 100%;
+}
+
+/* Vingt-huit pixels de reserve a droite : vingt de colonne et huit d air, sans
+   quoi le dernier chiffre passe sous les fleches. */
+.ods-nombre .ods-champ {
+  padding-right: 28px;
+}
+.ods-nombre .ods-champ::-webkit-outer-spin-button,
+.ods-nombre .ods-champ::-webkit-inner-spin-button {
+  appearance: none;
+  margin: 0;
+}
+.ods-nombre .ods-champ[type='number'] {
+  appearance: textfield;
+}
+
+/*
+ * La colonne de fleches, posee *dans* le cadre.
+ *
+ * Un pixel d ecart sur les trois cotes : c est l epaisseur de la bordure du
+ * champ. Sans ce retrait, les fleches la recouvriraient et le cadre
+ * paraitrait interrompu sur sa droite.
+ */
+.ods-nombre-fleches {
+  position: absolute;
+  top: 1px;
+  right: 1px;
+  bottom: 1px;
+  display: flex;
+  flex-direction: column;
+  width: 20px;
+  overflow: hidden;
+  /* Sept pixels : l arrondi du champ moins sa bordure. Le cadre exterieur
+     mesure huit, et une colonne arrondie a huit depasserait d un pixel. */
+  border-radius: 0 7px 7px 0;
+  border-left: 1px solid var(--ods-bordure);
+}
+
+.ods-nombre-fleche {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  background-color: var(--ods-sous-bloc);
+  color: var(--ods-encre-douce);
+  font-family: var(--ods-police);
+  font-size: 9px;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    background-color var(--ods-t-couleur),
+    color var(--ods-t-couleur);
+}
+.ods-nombre-fleche + .ods-nombre-fleche {
+  border-top: 1px solid var(--ods-bordure);
+}
+.ods-nombre-fleche:hover:not([disabled]) {
+  background-color: var(--ods-bordure);
+  color: var(--ods-encre);
+}
+.ods-nombre-fleche:focus-visible {
+  outline: 2px solid var(--ods-accent);
+  outline-offset: -2px;
+}
+.ods-nombre-fleche[disabled] {
+  background-color: var(--ods-fond);
+  color: var(--ods-encre-eteinte);
+  cursor: default;
+}
+
+/* ==================================================================== */
+/* La barre de sauvegarde (§10)                                         */
+/* ==================================================================== */
+
+/*
+ * Elle apparait des qu un formulaire est modifie, et ne repart qu enregistre.
+ *
+ * Son fond est ecrit en dur, comme celui de l infobulle et du toast : elle
+ * n est pas une surface du document mais une annonce posee dessus, et elle
+ * garde la meme couleur dans les deux themes. Une barre qui blanchit la nuit
+ * se confondrait avec la carte qu elle surplombe.
+ *
+ * Huit pixels de marge de tous les cotes : elle flotte, elle ne colle pas. Et
+ * douze d arrondi, la mesure des cartes — c est un bloc, pas un controle.
+ */
+.ods-barre-sauvegarde {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  height: var(--ods-outils-h);
+  margin: 8px;
+  padding: 0 8px 0 16px;
+  border-radius: var(--ods-r-carte);
+  background-color: #1a1a1a;
+  color: #ffffff;
+  font-family: var(--ods-police);
+  font-size: var(--ods-corps);
+  line-height: var(--ods-corps-h);
+}
+
+.ods-barre-sauvegarde-texte {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.ods-barre-sauvegarde-actions {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 8px;
+}
+
+/*
+ * Les boutons qu elle porte lisent ses encres, pas celles du document.
+ *
+ * Meme probleme que la barre du haut : un secondaire qui lirait `--ods-carte`
+ * serait blanc sur noir en clair, et un primaire qui lirait
+ * `--ods-primaire-bas` serait noir sur noir. Les deux sont donc refaits ici,
+ * une fois, pour les deux themes a la fois.
+ */
+.ods-barre-sauvegarde .ods-bouton-secondaire {
+  background-color: var(--ods-barre-champ);
+  border-color: var(--ods-barre-filet);
+  color: var(--ods-barre-encre-forte);
+  box-shadow: none;
+}
+.ods-barre-sauvegarde .ods-bouton-secondaire:hover:not([disabled]) {
+  background-color: var(--ods-barre-actif);
+}
+.ods-barre-sauvegarde .ods-bouton-primaire {
+  background-image: none;
+  background-color: #ffffff;
+  color: #1a1a1a;
+  box-shadow: none;
+}
+.ods-barre-sauvegarde .ods-bouton-primaire:hover:not([disabled]) {
+  background-color: #e6e6e6;
+}
+.ods-barre-sauvegarde .ods-bouton[disabled] {
+  background-color: var(--ods-barre-champ);
+  border-color: transparent;
+  color: var(--ods-barre-encre);
+  box-shadow: none;
+}
+
+/* Sous 768 px, le texte passe au-dessus des boutons : garder les trois pieces
+   sur un rang forcerait le message a se reduire a deux mots (§16). */
+@media (max-width: 767px) {
+  .ods-barre-sauvegarde {
+    height: auto;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    padding: 12px;
+  }
+  .ods-barre-sauvegarde-actions > .ods-bouton {
+    flex: 1;
+  }
+}

@@ -1241,3 +1241,250 @@ dialog.ods-modale:not([open]) {
     border-radius: 0;
   }
 }
+
+/* ==================================================================== */
+/* Tableaux (§9)                                                         */
+/* ==================================================================== */
+
+/*
+ * Le cadre du tableau.
+ *
+ * Une carte sans padding : un tableau qui flotte a seize pixels de son cadre
+ * perd l alignement de ses colonnes avec la barre d outils et le pied, et la
+ * premiere colonne cesse d etre sur le meme axe que le titre de la page. Il
+ * touche donc les bords, et c est `overflow: hidden` qui rend les angles au
+ * cadre — sinon la premiere cellule d en-tete, opaque, viendrait carrer le
+ * coin arrondi.
+ */
+.ods-tableau-cadre {
+  overflow: hidden;
+  border: 1px solid var(--ods-bordure);
+  border-radius: var(--ods-r-carte);
+  background-color: var(--ods-carte);
+}
+
+/* La barre d outils : quarante-huit pixels, de quoi loger un controle de
+   trente-deux avec huit de garde en haut et en bas. */
+.ods-tableau-outils {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: var(--ods-outils-h);
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--ods-separateur);
+}
+
+/*
+ * Un onglet de vue.
+ *
+ * Ce n est pas l onglet de la barre du haut : celui-la vit sur du noir et lit
+ * les encres du chrome, celui-ci vit dans une carte et lit celles du
+ * document. Deux classes, parce qu une seule aurait du choisir un fond, et
+ * l aurait eu faux dans la moitie des cas.
+ *
+ * L actif prend le neutre plutot que l accent : plusieurs vues sont des
+ * destinations equivalentes, pas un etat a signaler.
+ */
+.ods-vue {
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: var(--ods-r-controle);
+  background-color: transparent;
+  color: var(--ods-encre);
+  font-family: var(--ods-police);
+  font-size: var(--ods-corps);
+  line-height: var(--ods-corps-h);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color var(--ods-t-couleur);
+}
+.ods-vue:hover {
+  background-color: var(--ods-sous-bloc);
+}
+.ods-vue[data-actif] {
+  background-color: var(--ods-neutre-fond);
+  font-weight: var(--ods-demi);
+}
+.ods-vue:focus-visible {
+  outline: 2px solid var(--ods-accent);
+  outline-offset: 1px;
+}
+
+/* Le « + » qui ouvre une vue : carre, pour qu il ne se lise pas comme une
+   vue de plus dont le nom serait un signe. */
+.ods-vue-ajout {
+  justify-content: center;
+  width: 28px;
+  padding: 0;
+  color: var(--ods-encre-douce);
+}
+
+/*
+ * La grille.
+ *
+ * `border-collapse: collapse` est une necessite, pas un gout : en mode
+ * separe, chaque cellule porterait son propre filet et le separateur d une
+ * ligne ferait deux pixels la ou les cellules se touchent.
+ */
+.ods-tableau {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--ods-police);
+}
+
+/* L en-tete est un repere, pas du contenu : fond de sous-bloc, encre douce,
+   et le plus petit corps du systeme. Il doit se lire une fois, pas a chaque
+   parcours de la colonne. */
+.ods-tableau th {
+  height: var(--ods-entete-tableau-h);
+  padding: 0 12px;
+  background-color: var(--ods-sous-bloc);
+  color: var(--ods-encre-douce);
+  font-size: var(--ods-petit);
+  line-height: var(--ods-petit-h);
+  font-weight: var(--ods-demi);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.ods-tableau td {
+  height: var(--ods-ligne-h);
+  padding: 0 12px;
+  border-bottom: 1px solid var(--ods-separateur);
+  color: var(--ods-encre);
+  font-size: var(--ods-corps);
+  line-height: var(--ods-corps-h);
+}
+
+/* Le pied et la derniere ligne posent chacun un filet au meme endroit : sans
+   cette regle, le trait au-dessus de la pagination serait deux fois plus
+   epais que tous les autres. */
+.ods-tableau tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.ods-tableau tr:hover td {
+  background-color: var(--ods-sous-bloc);
+}
+
+/* Le choix vient apres le survol, et donc l emporte : une ligne cochee qui
+   redevenait grise sous la souris laissait croire qu on venait de la
+   decocher. */
+.ods-tableau tr[data-choisi] td {
+  background-color: var(--ods-accent-selection);
+}
+
+/* La colonne des cases : quarante pixels, la largeur d une case plus ses
+   gardes. Fixee, sinon elle s elargit au gre du contenu des voisines et les
+   cases de deux tableaux cote a cote ne sont plus sur le meme axe. */
+.ods-col-case {
+  width: 40px;
+}
+
+/* Les nombres se comparent verticalement : alignes a droite, et en chiffres
+   de largeur fixe pour que les unites tombent les unes sous les autres meme
+   quand la police en donne de plus etroites au « 1 ». */
+.ods-col-nombre {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* La vignette porte une bordure parce qu une image claire sur une carte
+   blanche n a pas de bord visible, et son cadre disparaitrait. */
+.ods-vignette {
+  display: block;
+  width: 40px;
+  height: 40px;
+  flex: none;
+  border: 1px solid var(--ods-bordure);
+  border-radius: var(--ods-r-petit);
+  background-color: var(--ods-sous-bloc);
+  object-fit: cover;
+}
+
+/* Une vignette de quarante dans une ligne de quarante-quatre ne laisse que
+   deux pixels de garde : la ligne qui en contient une passe a cinquante-deux
+   d elle-meme, plutot que d attendre une classe qu on oublierait de poser. */
+.ods-tableau tr:has(.ods-vignette) td {
+  height: var(--ods-ligne-vignette-h);
+}
+
+/*
+ * La barre d actions groupees.
+ *
+ * Elle remplace l en-tete au lieu de s ajouter au-dessus : ajoutee, elle
+ * pousserait toutes les lignes de trente-six pixels au moment ou l on coche
+ * une case, et la ligne visee glisserait sous le curseur. Elle prend donc sa
+ * place exacte, et le fond de carte la distingue du gris de l en-tete.
+ */
+.ods-tableau-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: var(--ods-entete-tableau-h);
+  padding: 0 12px;
+  background-color: var(--ods-carte);
+  border-bottom: 1px solid var(--ods-separateur);
+}
+
+/* Le pied : la pagination a gauche, sous la premiere colonne, parce que c est
+   la que l oeil revient apres avoir lu les lignes de haut en bas. */
+.ods-tableau-pied {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: var(--ods-outils-h);
+  padding: 0 12px;
+  border-top: 1px solid var(--ods-separateur);
+}
+
+.ods-tableau-fleche {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  flex: none;
+  padding: 0;
+  border: 1px solid var(--ods-bordure);
+  border-radius: var(--ods-r-controle);
+  background-color: var(--ods-carte);
+  color: var(--ods-encre);
+  cursor: pointer;
+  transition: background-color var(--ods-t-couleur);
+}
+.ods-tableau-fleche:hover:not([disabled]) {
+  background-color: var(--ods-secondaire-survol);
+}
+.ods-tableau-fleche[disabled] {
+  color: var(--ods-encre-eteinte);
+  cursor: default;
+}
+.ods-tableau-fleche:focus-visible {
+  outline: 2px solid var(--ods-accent);
+  outline-offset: 1px;
+}
+
+/* Le compteur accompagne les fleches : il dit ou l on est, donc il reste en
+   encre douce — c est un reperage, pas une donnee du tableau. */
+.ods-tableau-compteur {
+  font-family: var(--ods-police);
+  font-size: var(--ods-corps);
+  line-height: var(--ods-corps-h);
+  color: var(--ods-encre-douce);
+}
+
+/*
+ * Le defilement horizontal appartient au tableau, jamais a la page.
+ *
+ * Une colonne de trop et c est la fenetre entiere qui glisse : la barre du
+ * haut, la colonne de gauche et l en-tete de page partent avec elle, pour un
+ * depassement qui n en concerne aucun. Le cadre garde donc son debordement
+ * chez lui, et les bords arrondis restent en place.
+ */
+.ods-tableau-defile {
+  overflow-x: auto;
+}

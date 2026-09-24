@@ -1,0 +1,136 @@
+/*
+ * Le selecteur de langue.
+ *
+ * Il vit sur la barre, donc il lit les encres de la barre et non celles du
+ * document : la barre est sombre dans les deux themes, et `--ods-encre` l y
+ * rendrait noire sur noire en clair.
+ *
+ * Le menu, lui, retombe dans le document : il flotte au-dessus de la page, pas
+ * de la barre, et une liste sombre sur une page claire se lirait comme une
+ * erreur.
+ */
+
+.ods-langue {
+  position: relative;
+  flex: none;
+}
+
+.ods-langue-bouton {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: var(--ods-nav-h);
+  padding: 0 10px;
+  border: 0;
+  border-radius: var(--ods-r-controle);
+  background: none;
+  color: var(--ods-barre-encre);
+  font-family: var(--ods-police);
+  font-size: var(--ods-corps);
+  line-height: var(--ods-corps-h);
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color var(--ods-t-couleur),
+    color var(--ods-t-couleur);
+}
+.ods-langue-bouton:hover {
+  background-color: var(--ods-barre-actif);
+  color: var(--ods-barre-encre-forte);
+}
+.ods-langue-bouton:focus-visible {
+  outline: 2px solid var(--ods-accent);
+  outline-offset: 1px;
+}
+
+/*
+ * Le menu.
+ *
+ * Trente-deux entrees ne tiennent pas a l ecran : il defile, borne a la moitie
+ * de la fenetre. Sans cette borne il depasserait par le bas, et les dernieres
+ * langues seraient hors de portee sans que rien ne l indique.
+ */
+.ods-langue-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 60;
+  width: 264px;
+  max-height: 50vh;
+  overflow-y: auto;
+  margin: 0;
+  padding: 4px;
+  list-style: none;
+  border-radius: var(--ods-r-controle);
+  background-color: var(--ods-carte);
+  box-shadow: var(--ods-ombre-menu);
+}
+
+.ods-langue-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 7px 8px;
+  border: 0;
+  border-radius: var(--ods-r-petit);
+  background: none;
+  color: var(--ods-encre);
+  font-family: var(--ods-police);
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--ods-t-menu);
+}
+.ods-langue-option:hover,
+.ods-langue-option[data-tenu] {
+  background-color: var(--ods-fond);
+}
+.ods-langue-option:focus-visible {
+  outline: 2px solid var(--ods-accent);
+  outline-offset: -2px;
+}
+
+/*
+ * Le drapeau, dans un cadre a lui.
+ *
+ * Les emojis de drapeaux n ont pas la meme largeur d une plateforme a l autre,
+ * et certains rendent deux lettres quand la police manque. Une boite de
+ * largeur fixe garde la colonne des noms alignee quoi qu il arrive.
+ */
+.ods-langue-drapeau {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.ods-langue-nom {
+  font-size: var(--ods-corps);
+  line-height: var(--ods-corps-h);
+}
+
+/* La mention de traduction automatique : dite, sans crier. */
+.ods-langue-auto {
+  font-size: var(--ods-petit);
+  line-height: var(--ods-petit-h);
+  color: var(--ods-encre-douce);
+}
+
+.ods-langue-coche {
+  flex: none;
+  margin-left: auto;
+  color: var(--ods-accent-encre);
+}
+
+/* De droite a gauche, le menu s aligne sur l autre bord. */
+:root[dir='rtl'] .ods-langue-menu {
+  right: auto;
+  left: 0;
+}
+:root[dir='rtl'] .ods-langue-coche {
+  margin-left: 0;
+  margin-right: auto;
+}

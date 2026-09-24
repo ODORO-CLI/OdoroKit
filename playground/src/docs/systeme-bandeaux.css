@@ -1,0 +1,369 @@
+/*
+ * §11 — Bandeaux, pastilles et bandes de pastilles.
+ *
+ * ## Pourquoi un fichier a part
+ *
+ * Les badges vivent dans `systeme.css`, au milieu des jetons qu ils lisent.
+ * Les bandeaux ne les prolongent pas : un badge qualifie une ligne de tableau,
+ * un bandeau interrompt la lecture pour dire quelque chose qui ne tient pas
+ * dans un mot. Ils ont donc leurs propres mesures, et les mettre a la suite
+ * aurait allonge un fichier que plusieurs mains modifient en meme temps.
+ *
+ * Aucune valeur n est ecrite ici qui existe deja en jeton : les quatre tons
+ * reprennent exactement les couples fond / encre des badges, et les rayons
+ * viennent de `--ods-r-carte` et `--ods-r-controle`. Le jour ou le ton
+ * critique change, il change pour le badge et pour le bandeau d un seul coup.
+ *
+ * ## Pourquoi les tons sont des classes nues
+ *
+ * `.ods-bandeau-info` ne pose qu un fond et une encre, et ne demande pas
+ * `.ods-bandeau` pour s appliquer. C est ce qui permet a la variante a
+ * en-tete colore de peindre sa seule bande de titre avec la meme classe :
+ * sans cela il aurait fallu quatre selecteurs de plus, qui auraient fini par
+ * diverger des quatre premiers.
+ */
+
+/* ==================================================================== */
+/* Le bandeau plein                                                      */
+/* ==================================================================== */
+
+/*
+ * Un bandeau tient sur une ligne ou sur cinq, et son icone reste en haut.
+ *
+ * `align-items: flex-start` plutot que `center` : centre, l icone descend au
+ * milieu du paragraphe des que le texte passe a la seconde ligne, et cesse de
+ * designer le titre qu elle annonce. Comme sa hauteur vaut exactement une
+ * ligne de corps — vingt pixels des deux cotes — elle s aligne d elle-meme sur
+ * le premier mot.
+ */
+.ods-bandeau {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: var(--ods-r-carte);
+  font-family: var(--ods-police);
+  font-size: var(--ods-corps);
+  line-height: var(--ods-corps-h);
+}
+
+/* L icone ne se comprime pas : un texte long la reduirait a un trait. */
+.ods-bandeau-icone {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+}
+
+/*
+ * `min-width: 0` sur le corps.
+ *
+ * Sans lui, un mot insecable — une URL, un identifiant de construction —
+ * impose sa largeur a la colonne, et le bandeau deborde de la carte qui le
+ * contient au lieu de couper le mot.
+ */
+.ods-bandeau-corps {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.ods-bandeau-titre {
+  margin: 0;
+  font-family: var(--ods-police);
+  font-size: var(--ods-corps);
+  line-height: var(--ods-corps-h);
+  font-weight: var(--ods-gras);
+  color: inherit;
+}
+
+/* Le texte herite de l encre du ton : il n a pas de nuance douce a lui, parce
+   qu un gris pose sur un fond colore ne se lit plus. */
+.ods-bandeau-texte {
+  margin: 0;
+  color: inherit;
+}
+
+/*
+ * L action passe dessous, jamais a droite du texte.
+ *
+ * A droite, elle se serre contre la croix et les deux cibles se confondent ;
+ * dessous, elle garde sa largeur quelle que soit la longueur du message.
+ */
+.ods-bandeau-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+/*
+ * La croix.
+ *
+ * Elle prend l encre du ton par `currentColor` : une croix grise sur un fond
+ * critique serait la seule piece du bandeau a ne pas appartenir au ton, et
+ * c est justement celle qu on cherche en premier.
+ */
+.ods-bandeau-fermer {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  margin-inline-start: auto;
+  padding: 0;
+  border: 0;
+  border-radius: var(--ods-r-minuscule);
+  background: none;
+  color: currentColor;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity var(--ods-t-couleur);
+}
+.ods-bandeau-fermer:hover {
+  opacity: 1;
+}
+.ods-bandeau-fermer:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 1px;
+}
+
+/* --- Les quatre tons -------------------------------------------------- */
+
+.ods-bandeau-info {
+  background-color: var(--ods-info-fond);
+  color: var(--ods-info-encre);
+}
+.ods-bandeau-attention {
+  background-color: var(--ods-attention-fond);
+  color: var(--ods-attention-encre);
+}
+.ods-bandeau-critique {
+  background-color: var(--ods-critique-fond);
+  color: var(--ods-critique-encre);
+}
+.ods-bandeau-succes {
+  background-color: var(--ods-succes-fond);
+  color: var(--ods-succes-encre);
+}
+
+/* ==================================================================== */
+/* Le bandeau a en-tete colore                                           */
+/* ==================================================================== */
+
+/*
+ * Quand le message est long, la couleur recule au titre.
+ *
+ * Un paragraphe de six lignes sur un aplat colore fatigue et fait passer une
+ * information pour une alerte. La bande garde le ton — c est elle qui dit de
+ * quoi il s agit — et le corps revient sur la surface d une carte, ou du texte
+ * se lit.
+ *
+ * `overflow: hidden` accompagne le rayon de la bande : sans lui, le coin de
+ * l aplat depasserait d un pixel a l arrondi, et ce filet colore reviendrait a
+ * chaque changement de rayon.
+ */
+.ods-bandeau-tete {
+  overflow: hidden;
+  border-radius: var(--ods-r-carte);
+  background-color: var(--ods-carte);
+  box-shadow: 0 0 0 1px var(--ods-separateur);
+  font-family: var(--ods-police);
+  font-size: var(--ods-corps);
+  line-height: var(--ods-corps-h);
+}
+
+/* La bande porte son rayon en haut seulement : elle n est pas une carte posee
+   sur une carte, elle en est le premier etage. */
+.ods-bandeau-tete-bande {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: var(--ods-r-carte) var(--ods-r-carte) 0 0;
+}
+
+.ods-bandeau-tete-corps {
+  padding: 12px 16px;
+  color: var(--ods-encre);
+}
+
+/* ==================================================================== */
+/* La pastille de suggestion                                             */
+/* ==================================================================== */
+
+/*
+ * Ce que l outil propose, et non ce qu il constate.
+ *
+ * Elle prend le voile de la marque plutot qu un des quatre tons semantiques :
+ * une suggestion n est ni un succes ni une alerte, et lui donner du bleu
+ * d information l aurait rangee parmi les faits. Le texte prend la nuance
+ * foncee de l accent — la teinte pleine ne porte pas de texte.
+ *
+ * Quarante pixels de haut : une seule ligne, tenue. Si le message ne tient pas
+ * sur une ligne, ce n est pas une pastille mais un bandeau.
+ */
+.ods-pastille-ia {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 12px;
+  border-radius: var(--ods-r-controle);
+  background-color: var(--ods-accent-voile);
+  color: var(--ods-accent-encre);
+  font-family: var(--ods-police);
+  font-size: var(--ods-corps);
+  line-height: var(--ods-corps-h);
+}
+
+.ods-pastille-ia-icone {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+}
+
+/* Le texte se coupe au lieu de pousser la croix hors de la pastille. */
+.ods-pastille-ia-texte {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* ==================================================================== */
+/* La pastille de valeur                                                 */
+/* ==================================================================== */
+
+/*
+ * Un filtre replie.
+ *
+ * Vingt-huit pixels : quatre de moins qu un champ, ce qui suffit pour qu une
+ * rangee de pastilles ne se lise pas comme une rangee de boutons. Elle est un
+ * bouton quand meme — on la deplie — mais elle ne le crie pas.
+ *
+ * La valeur est a droite, dans un mini-badge : le libelle dit sur quoi on
+ * filtre, la valeur dit comment, et les deux au meme rang obligeraient a lire
+ * la ligne entiere pour distinguer l un de l autre.
+ */
+.ods-pastille {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 28px;
+  max-width: 100%;
+  padding: 0 8px;
+  border: 0;
+  border-radius: var(--ods-r-controle);
+  background-color: var(--ods-neutre-fond);
+  color: var(--ods-neutre-encre);
+  font-family: var(--ods-police);
+  font-size: var(--ods-corps);
+  line-height: var(--ods-corps-h);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color var(--ods-t-couleur);
+}
+.ods-pastille:hover {
+  background-color: var(--ods-bordure);
+}
+.ods-pastille:focus-visible {
+  outline: 2px solid var(--ods-accent);
+  outline-offset: 1px;
+}
+
+.ods-pastille-libelle {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/*
+ * Le mini-badge de valeur.
+ *
+ * Il emprunte la surface de la carte plutot qu un ton : la pastille est grise,
+ * et la seule chose a faire ressortir est la valeur — un creux clair y suffit,
+ * la ou une couleur aurait fait croire a un etat.
+ */
+.ods-pastille-valeur {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: var(--ods-r-petit);
+  background-color: var(--ods-carte);
+  color: var(--ods-encre);
+  font-size: var(--ods-petit);
+  line-height: var(--ods-petit-h);
+  font-weight: var(--ods-demi);
+}
+
+/* Le chevron dit qu elle se deplie ; il reste en encre douce pour ne pas
+   entrer en concurrence avec la valeur. */
+.ods-pastille-chevron {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  color: var(--ods-encre-douce);
+}
+
+/* ==================================================================== */
+/* La bande de pastilles                                                 */
+/* ==================================================================== */
+
+/*
+ * Collee au bas d une carte, elle en fait partie.
+ *
+ * Elle n a donc pas de marge, ni de rayon en haut : le filet superieur est la
+ * seule chose qui la separe du contenu, et son rayon bas est celui de la
+ * carte, sinon un coin blanc apparaitrait sous le gris.
+ *
+ * Le chevron est a l extreme droite, apres une marge automatique : la bande
+ * peut porter deux pastilles ou huit, et une position calculee sur leur nombre
+ * deplacerait la cible d une carte a l autre.
+ */
+.ods-bande-pastilles {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 8px 16px;
+  border-top: 1px solid var(--ods-separateur);
+  border-radius: 0 0 var(--ods-r-carte) var(--ods-r-carte);
+  background-color: var(--ods-sous-bloc);
+  font-family: var(--ods-police);
+  font-size: var(--ods-corps);
+  line-height: var(--ods-corps-h);
+}
+
+.ods-bande-pastilles-chevron {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  margin-inline-start: auto;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ods-encre-douce);
+  cursor: pointer;
+  transition: color var(--ods-t-couleur);
+}
+.ods-bande-pastilles-chevron:hover {
+  color: var(--ods-encre);
+}
+.ods-bande-pastilles-chevron:focus-visible {
+  outline: 2px solid var(--ods-accent);
+  outline-offset: 1px;
+}

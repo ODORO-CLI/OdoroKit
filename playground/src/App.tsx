@@ -14,6 +14,7 @@ import { Shell } from './docs/components/Shell.jsx'
 import { Accueil } from './docs/pages/Accueil.jsx'
 import { Landing } from './docs/pages/Landing.jsx'
 import { Templates } from './docs/pages/Templates.jsx'
+import { FournisseurDeLangue } from './docs/i18n/index.jsx'
 import { ProjetRoute } from './docs/pages/ProjetRoute.jsx'
 import { SystemeDesign } from './docs/pages/SystemeDesign.jsx'
 import { VitrineRoute } from './docs/pages/VitrineRoute.jsx'
@@ -116,6 +117,9 @@ export function App(): ReactElement {
     // Le moteur enveloppe le site entier : les pages qui le documentent
     // s'abonnent a la boucle reelle plutot qu'a une simulation.
     <OdoroEngine quality="auto" reducedMotion="respect" maxSurfaces={2}>
+      {/* La langue enveloppe le routeur : un changement de langue ne doit pas
+          demonter les pages, seulement le texte qu elles portent. */}
+      <FournisseurDeLangue>
       <Router>
         <ToastProvider>
           <Cadre>
@@ -263,6 +267,7 @@ export function App(): ReactElement {
           {isDebugRequested() ? <OdoroDebugPanel /> : null}
         </ToastProvider>
       </Router>
+      </FournisseurDeLangue>
     </OdoroEngine>
   )
 }

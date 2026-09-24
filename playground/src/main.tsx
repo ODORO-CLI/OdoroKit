@@ -23,6 +23,14 @@ import './docs/marque.css'
 // marque, dont ils lisent l accent.
 import './docs/systeme.css'
 
+// Le selecteur de langue, qui vit sur la barre et deroule sur la page.
+import './docs/systeme-langue.css'
+
+// Les deux lots de la specification : les controles du paragraphe 10 et
+// les bandeaux du paragraphe 11, apres le systeme dont ils lisent les jetons.
+import './docs/systeme-controles.css'
+import './docs/systeme-bandeaux.css'
+
 // Polices du site, chargees par CDN — rien dans le bundle.
 loadGoogleFonts([
   { family: 'Inter', weights: [400, 500, 600, 700, 800] },
