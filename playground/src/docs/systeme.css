@@ -132,6 +132,10 @@
   --ods-outils-h: 48px;
   --ods-gap: 16px;
   --ods-marge: 16px;
+  /* Le retrait d une modale par rapport au haut de la fenetre. La hauteur
+     maximale s en deduit : les deux ne peuvent pas etre choisis separement
+     sans que leur somme finisse par depasser l ecran. */
+  --ods-modale-retrait: 5rem;
   --ods-marge-large: 24px;
 
   /* --- Mouvement (§6) ------------------------------------------------- */
@@ -990,11 +994,23 @@
   background: rgb(0 0 0 / 0.5);
 }
 
+/*
+ * La hauteur se deduit du retrait, elle ne se choisit pas.
+ *
+ * Elle valait 90vh, posee a cote d une marge haute de 96 px : 810 + 96 = 906
+ * dans une fenetre de 900. La modale depassait, le navigateur la remontait
+ * pour la garder visible, et le premier rang de la liste finissait sous
+ * l en-tete — coupe en deux, sans que rien ne dise pourquoi.
+ *
+ * Le retrait est maintenant un jeton, et la hauteur en est calculee. Les deux
+ * ne peuvent plus diverger.
+ */
 .ods-modale {
   display: flex;
   flex-direction: column;
   width: 100%;
-  max-height: 90vh;
+  margin-block: var(--ods-modale-retrait);
+  max-height: calc(100vh - 2 * var(--ods-modale-retrait));
   overflow: hidden;
   border-radius: var(--ods-r-carte);
   background-color: var(--ods-carte);

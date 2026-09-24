@@ -119,7 +119,7 @@ export function SearchDialog({ open, onClose }: SearchDialogProps): ReactElement
         if (event.target === dialogRef.current) onClose()
       }}
       id="o-recherche"
-      className="ods-modale ods-modale-moyenne o-mt-24 o-animate-scale-in"
+      className="ods-modale ods-modale-moyenne o-animate-scale-in"
       style={{ marginInline: 'auto', border: 0, padding: 0 }}
     >
       {/*
