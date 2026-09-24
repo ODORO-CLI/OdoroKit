@@ -88,15 +88,44 @@ export function SearchDialog({ open, onClose }: SearchDialogProps): ReactElement
 
   const results = useMemo(() => search(query).slice(0, 12), [query])
 
+  /*
+   * L ouverture, et le verrou de defilement qui va avec.
+   *
+   * `showModal()` rend le reste de la page inerte — plus de clic, plus de
+   * tabulation — mais **il ne bloque pas le defilement**. La molette continuait
+   * donc de faire glisser la page derriere le voile, et la modale finissait
+   * posee sur une zone vide : elle avait l air detachee de tout, alors que
+   * c est la page qui etait partie.
+   *
+   * La barre de defilement disparait avec `overflow: hidden`, ce qui elargit
+   * la page de sa largeur et fait sauter tout le contenu. On rend cette
+   * largeur en marge pour que rien ne bouge.
+   */
   useEffect(() => {
     const dialog = dialogRef.current
     if (dialog === null) return
+
     if (open && !dialog.open && typeof dialog.showModal === 'function') {
       setQuery('')
       setActiveIndex(0)
       dialog.showModal()
     }
     if (!open && dialog.open) dialog.close()
+
+    if (!open) return
+
+    const corps = document.body
+    const defilementAvant = corps.style.overflow
+    const margeAvant = corps.style.paddingRight
+    const largeurBarre = window.innerWidth - document.documentElement.clientWidth
+
+    corps.style.overflow = 'hidden'
+    if (largeurBarre > 0) corps.style.paddingRight = `${String(largeurBarre)}px`
+
+    return () => {
+      corps.style.overflow = defilementAvant
+      corps.style.paddingRight = margeAvant
+    }
   }, [open])
 
   const select = useCallback(
