@@ -1,7 +1,6 @@
 {
   "name": "@odoro-cli/server-commerce",
   "version": "0.1.0",
-  "private": true,
   "type": "module",
   "license": "UNLICENSED",
   "author": "BouBouw",
@@ -50,5 +49,8 @@
     "type": "git",
     "url": "git+https://github.com/ODORO-CLI/OdoroKit.git",
     "directory": "packages/odoro-server-commerce"
+  },
+  "bugs": {
+    "url": "https://github.com/ODORO-CLI/OdoroKit/issues"
   }
 }
