@@ -176,3 +176,55 @@ describe('prices', () => {
     expect(formatPrice(Number.NaN)).toBe('')
   })
 })
+
+describe('adding a product by its id', () => {
+  const fiche = (variantes: { id: string; disponible: boolean }[]) =>
+    json({ fiche: { id: 'p1', variantes } })
+
+  it('🔴 adds its only variant, and refuses to choose among several', async () => {
+    let variantes = [{ id: 'v-only', disponible: true }]
+    const { fetcher, seen } = fakeFetch((url) =>
+      url.pathname === '/api/storefront/cart' ? json(cart('t', 1)) : fiche(variantes),
+    )
+    const client = createStorefront({
+      base: 'https://shop.test',
+      host: 'shop.test',
+      fetch: fetcher,
+    })
+    expect((await client.addProduct('p1')).ok).toBe(true)
+    expect(JSON.parse(String(seen[1]!.init.body))).toMatchObject({ variante: 'v-only' })
+
+    variantes = [
+      { id: 'v-s', disponible: true },
+      { id: 'v-m', disponible: true },
+    ]
+    expect(await client.addProduct('p1')).toMatchObject({
+      ok: false,
+      error: 'Choose an option.',
+    })
+
+    variantes = [
+      { id: 'v-s', disponible: false },
+      { id: 'v-m', disponible: true },
+    ]
+    expect((await client.addProduct('p1')).ok).toBe(true)
+    variantes = [{ id: 'v-s', disponible: false }]
+    expect(await client.addProduct('p1')).toMatchObject({ ok: false, status: 409 })
+  })
+})
+
+describe('the client survives being destructured', () => {
+  it('addProduct does not depend on how it is called', async () => {
+    const { fetcher } = fakeFetch((url) =>
+      url.pathname === '/api/storefront/cart'
+        ? json(cart('t', 1))
+        : json({ fiche: { id: 'p1', variantes: [{ id: 'v', disponible: true }] } }),
+    )
+    const { addProduct } = createStorefront({
+      base: 'https://shop.test',
+      host: 'shop.test',
+      fetch: fetcher,
+    })
+    expect((await addProduct('p1')).ok).toBe(true)
+  })
+})

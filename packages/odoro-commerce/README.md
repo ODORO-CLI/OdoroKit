@@ -38,7 +38,7 @@ function Shop() {
         compareAtCents: p.prixBarreCentimes,
         available: p.disponible,
       }))}
-      onAdd={(id) => void cart.add(id)}
+      onAdd={(id) => void cart.addProduct(id)}
     />
   )
 }
@@ -53,9 +53,11 @@ export function App() {
 ```
 
 `useCart()` is shared: every component inside one `CommerceProvider` reads the
-same cart, so the header counter and the drawer always agree. `cart.add` takes
-a **variant** id; a product without options has exactly one, which
-`useProduct(id)` returns.
+same cart, so the header counter and the drawer always agree.
+`cart.addProduct(productId)` adds a product's only variant — or its only one
+still for sale — and refuses a product with several choices (`Choose an
+option.`): pick the variant on the product page with `useProduct(id)`, then
+`cart.add(variantId)`.
 
 ## Without React
 

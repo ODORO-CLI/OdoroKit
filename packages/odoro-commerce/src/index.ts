@@ -21,6 +21,8 @@ export {
 } from './contract.js'
 
 export {
+  CHOOSE_AN_OPTION,
+  NO_LONGER_FOR_SALE,
   OFFLINE,
   PREVIEW_CLOSED,
   createStorefront,

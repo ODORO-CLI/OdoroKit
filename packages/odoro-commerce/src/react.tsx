@@ -135,6 +135,8 @@ export interface CartState extends Loaded<PanierEnVitrine | null> {
   /** True while a gesture is on its way. */
   busy: boolean
   add(variantId: string, quantity?: number): Promise<boolean>
+  /** Adds a product by its id: see {@link Storefront.addProduct}. */
+  addProduct(productId: string, quantity?: number): Promise<boolean>
   setQuantity(variantId: string, quantity: number): Promise<boolean>
   /** Where to pay, or `null` offline and in preview (see {@link PREVIEW_CLOSED}). */
   checkoutUrl: string | null
@@ -189,6 +191,8 @@ function useCartState(client: Storefront, enabled: boolean): CartState {
     count: state.data?.combien ?? 0,
     busy,
     add: (variantId, quantity = 1) => apply(() => client.addToCart(variantId, quantity)),
+    addProduct: (productId, quantity = 1) =>
+      apply(() => client.addProduct(productId, quantity)),
     setQuantity: (variantId, quantity) =>
       apply(() => client.setQuantity(variantId, quantity)),
     checkoutUrl,

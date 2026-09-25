@@ -49,6 +49,8 @@ export type Result<T> =
 
 /** The reason a call did not reach the storefront, readable by a person. */
 export const OFFLINE = 'The shop opens when the site goes live.'
+export const CHOOSE_AN_OPTION = 'Choose an option.'
+export const NO_LONGER_FOR_SALE = 'This item is no longer for sale.'
 export const PREVIEW_CLOSED =
   'Preview: checkout and customer accounts open once the site is live.'
 
@@ -77,6 +79,12 @@ export interface Storefront {
   imageUrl(productId: string): string
   cart(): Promise<Result<PanierEnVitrine>>
   addToCart(variantId: string, quantity?: number): Promise<Result<PanierEnVitrine>>
+  /**
+   * Adds a PRODUCT: its only variant, or its only one still for sale. A
+   * product with several choices refuses (`CHOOSE_AN_OPTION`): nobody picks a
+   * size for someone else.
+   */
+  addProduct(productId: string, quantity?: number): Promise<Result<PanierEnVitrine>>
   setQuantity(variantId: string, quantity: number): Promise<Result<PanierEnVitrine>>
   /**
    * Where checkout happens: the storefront's own checkout page, on the site's
@@ -172,7 +180,7 @@ export function createStorefront(options: StorefrontOptions): Storefront {
       : String(Math.max(0, Math.trunc(value)))
   }
 
-  return {
+  const api: Storefront = {
     online,
     preview: preview !== '',
     async catalogue(q = {}) {
@@ -213,6 +221,18 @@ export function createStorefront(options: StorefrontOptions): Storefront {
     async cart() {
       return keepCart(await call<{ panier: PanierEnVitrine }>('/api/storefront/cart', {}))
     },
+    async addProduct(productId, quantity = 1) {
+      const product = await api.product(productId)
+      if (!product.ok) return product
+      const variants = product.data.variantes ?? []
+      const forSale = variants.filter((v) => v.disponible)
+      if (forSale.length === 0)
+        return { ok: false, status: 409, error: NO_LONGER_FOR_SALE }
+      if (variants.length > 1 && forSale.length > 1) {
+        return { ok: false, status: 400, error: CHOOSE_AN_OPTION }
+      }
+      return api.addToCart(forSale[0]!.id, quantity)
+    },
     async addToCart(variantId, quantity = 1) {
       return keepCart(
         await call<{ panier: PanierEnVitrine }>(
@@ -245,6 +265,7 @@ export function createStorefront(options: StorefrontOptions): Storefront {
       )
     },
   }
+  return api
 }
 
 /**
