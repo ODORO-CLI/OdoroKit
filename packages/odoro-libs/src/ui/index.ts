@@ -76,3 +76,17 @@ export {
   type ToastProviderProps,
   type ToastTone,
 } from './Toast.jsx'
+
+// Shop: presentational cards, grid and cart drawer. The data layer is
+// `@odoro-cli/commerce`.
+export {
+  CartDrawer,
+  ProductCard,
+  ProductGrid,
+  formatPrice,
+  type CartDrawerProps,
+  type CartLine,
+  type ProductCardProduct,
+  type ProductCardProps,
+  type ProductGridProps,
+} from './Commerce.jsx'
