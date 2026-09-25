@@ -1,5 +1,11 @@
 # @odoro-cli/server
 
+## 1.2.0
+
+### Minor Changes
+
+- eb412fd: `cookies.get(name)` reads a request cookie in a handler, next to `set` and `clear`. Refusals carry extension members (RFC 9457): `new ConflictError(message, { extensions: { erreur } })` adds fields to the problem document; the standard members always win.
+
 ## 1.1.0
 
 ### Minor Changes
