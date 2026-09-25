@@ -34,6 +34,7 @@ import request from 'supertest'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
 import {
+  baseFromPool,
   createCommerceModule,
   signCallback,
   type Base,
@@ -44,28 +45,6 @@ const adminUrl = process.env['COMMERCE_TEST_URL']
 const gated = adminUrl === undefined || adminUrl === '' ? describe.skip : describe
 const HERE = dirname(fileURLToPath(import.meta.url))
 const SECRET = 'un-secret-de-rappel-assez-long-pour-l-essai'
-
-function asBase(pool: pg.Pool): Base {
-  return {
-    query: async (text, values) => await pool.query(text, values as unknown[]),
-    transaction: async (work) => {
-      const client = await pool.connect()
-      try {
-        await client.query('BEGIN')
-        const result = await work({
-          query: async (t, v) => await client.query(t, v as unknown[]),
-        })
-        await client.query('COMMIT')
-        return result
-      } catch (cause) {
-        await client.query('ROLLBACK')
-        throw cause
-      } finally {
-        client.release()
-      }
-    },
-  } as Base
-}
 
 async function database(withShop: boolean) {
   const name = `commerce_${randomUUID().replaceAll('-', '').slice(0, 12)}`
@@ -147,7 +126,7 @@ gated('the storefront contract, served from the shop database', () => {
     // The pen is tracked: three in stock — a double decrement of two would show.
     await q('UPDATE shop.product_variants SET stock = 3 WHERE id = $1', [ids['vStylo']])
 
-    server = app(asBase(shop.pool), {
+    server = app(baseFromPool(shop.pool), {
       open: async (input) => {
         opened.push({ orderId: input.orderId, totalCents: input.totalCents })
         return await Promise.resolve({
@@ -368,7 +347,7 @@ gated('before the capability is installed', () => {
   it('🔴 serves nothing, and says why', async () => {
     const vide = await database(false)
     try {
-      const server = app(asBase(vide.pool), {
+      const server = app(baseFromPool(vide.pool), {
         open: async () => await Promise.reject(new Error('jamais')),
       })
       const r = await request(server).get('/api/storefront')
@@ -376,6 +355,29 @@ gated('before the capability is installed', () => {
       expect(r.body.erreur).toBe("La boutique de ce site n'est pas encore installée.")
     } finally {
       await vide.drop()
+    }
+  }, 60_000)
+})
+
+gated('baseFromPool', () => {
+  it('🔴 a transaction that fails leaves nothing behind — its queries ran on ONE connection', async () => {
+    const shop = await database(true)
+    try {
+      const base = baseFromPool(shop.pool)
+      await expect(
+        base.transaction(async (tx) => {
+          await tx.query(
+            `INSERT INTO shop.products (name, price_cents, published) VALUES ('Fantome', 100, true)`,
+          )
+          throw new Error('interrompue')
+        }),
+      ).rejects.toThrow('interrompue')
+      const { rows } = await base.query<{ n: number }>(
+        `SELECT count(*)::integer AS n FROM shop.products WHERE name = 'Fantome'`,
+      )
+      expect(rows[0]?.n).toBe(0)
+    } finally {
+      await shop.drop()
     }
   }, 60_000)
 })

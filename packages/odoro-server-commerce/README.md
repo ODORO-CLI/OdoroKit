@@ -6,15 +6,16 @@ The V4 storefront script and `@odoro-cli/commerce` talk to it exactly as they ta
 
 ```ts
 import { createApp } from '@odoro-cli/server'
-import { createCommerceModule } from '@odoro-cli/server-commerce'
+import { baseFromPool, createCommerceModule, odoroPayment } from '@odoro-cli/server-commerce'
+import pg from 'pg'
 
 createApp({
   // …
   modules: [
     createCommerceModule({
-      db, // the shop database: query + transaction
-      payment, // PaymentPort: opens the payment at Odoro, returns its address
-      callbackSecret: process.env.ODORO_PAYMENT_CALLBACK_SECRET ?? '',
+      db: baseFromPool(new pg.Pool({ connectionString: process.env.DATABASE_URL })),
+      payment: odoroPayment({ origin: 'https://odoro.ai', site, secret }),
+      callbackSecret: secret, // the same site secret signs Odoro's callbacks
     }),
   ],
 })
