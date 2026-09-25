@@ -391,3 +391,52 @@ describe('inventory', () => {
     await Promise.resolve()
   })
 })
+
+describe('cookies', () => {
+  it('reads back what the request carries, decoded, and nothing more', async () => {
+    const lu: (string | undefined)[] = []
+    const app = build([
+      route({
+        name: 'test.cookie',
+        method: 'GET',
+        path: '/cookie',
+        auth: 'public',
+        handler: ({ cookies }) => {
+          lu.push(cookies.get('panier'), cookies.get('absent'), cookies.get('casse'))
+        },
+      }),
+    ])
+
+    await request(app.express)
+      .get('/cookie')
+      .set('Cookie', 'autre=1; panier=vitrine%2Dabc; casse=%E0%A4%A')
+    expect(lu).toEqual(['vitrine-abc', undefined, undefined])
+  })
+})
+
+describe('problem extensions', () => {
+  it('carries the extension members, and never lets them rewrite the standard ones', async () => {
+    const app = build([
+      route({
+        name: 'test.extension',
+        method: 'GET',
+        path: '/extension',
+        auth: 'public',
+        handler: () => {
+          throw new ConflictError('Cet article n est plus en vente.', {
+            extensions: {
+              erreur: 'Cet article n est plus en vente.',
+              status: 200,
+              type: 'mensonge',
+            },
+          })
+        },
+      }),
+    ])
+    const response = await request(app.express).get('/extension')
+    expect(response.status).toBe(409)
+    expect(response.body.erreur).toBe('Cet article n est plus en vente.')
+    expect(response.body.status).toBe(409)
+    expect(response.body.type).not.toBe('mensonge')
+  })
+})

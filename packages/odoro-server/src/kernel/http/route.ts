@@ -108,6 +108,13 @@ export interface CookieOptions {
  * an intent; it does not drive the transport.
  */
 export interface Cookies {
+  /**
+   * Reads a cookie the request carries, or `undefined`.
+   *
+   * A cart, a preference: some state lives in a cookie the handler itself set
+   * earlier. Reading it through the raw request would tie handlers to Express.
+   */
+  get(name: string): string | undefined
   /** Writes a cookie. */
   set(name: string, value: string, options?: CookieOptions): void
   /** Deletes a cookie, by expiring it. */

@@ -115,6 +115,14 @@ export class ApiError extends Error {
       readonly retryAfter?: number
       /** Original cause, logged, never passed on. */
       readonly cause?: unknown
+      /**
+       * Extension members of the problem document (RFC 9457, section 3.2).
+       *
+       * For a module that speaks an existing contract — Odoro's storefront
+       * answers `{ erreur }`, and its clients read that field. The standard
+       * members always win: an extension cannot rewrite `status` or `type`.
+       */
+      readonly extensions?: Readonly<Record<string, unknown>>
     } = {},
   ) {
     super(message, options.cause === undefined ? {} : { cause: options.cause })
@@ -150,22 +158,31 @@ export class UnauthorizedError extends ApiError {
  * a sign-out on every forbidden screen.
  */
 export class ForbiddenError extends ApiError {
-  constructor(message = 'Action not allowed.') {
-    super('FORBIDDEN', message)
+  constructor(
+    message = 'Action not allowed.',
+    options: Pick<ApiError['options'], 'extensions'> = {},
+  ) {
+    super('FORBIDDEN', message, options)
   }
 }
 
 /** Missing resource. */
 export class NotFoundError extends ApiError {
-  constructor(message = 'Resource not found.') {
-    super('NOT_FOUND', message)
+  constructor(
+    message = 'Resource not found.',
+    options: Pick<ApiError['options'], 'extensions'> = {},
+  ) {
+    super('NOT_FOUND', message, options)
   }
 }
 
 /** Incompatible state: address already taken, stale version. */
 export class ConflictError extends ApiError {
-  constructor(message = 'Conflict with the current state.') {
-    super('CONFLICT', message)
+  constructor(
+    message = 'Conflict with the current state.',
+    options: Pick<ApiError['options'], 'extensions'> = {},
+  ) {
+    super('CONFLICT', message, options)
   }
 }
 
@@ -188,8 +205,16 @@ export class RateLimitError extends ApiError {
  * It is also what `/ready` gives as long as something is missing.
  */
 export class ServiceUnavailableError extends ApiError {
-  constructor(message = 'Service momentarily unavailable.', retryAfter?: number) {
-    super('UNAVAILABLE', message, retryAfter === undefined ? {} : { retryAfter })
+  constructor(
+    message = 'Service momentarily unavailable.',
+    retryAfter?: number,
+    options: Pick<ApiError['options'], 'extensions'> = {},
+  ) {
+    super(
+      'UNAVAILABLE',
+      message,
+      retryAfter === undefined ? options : { ...options, retryAfter },
+    )
   }
 }
 
@@ -269,6 +294,7 @@ export function createErrorHandler(options: ErrorHandlerOptions) {
 /** Translates an expected error. */
 function describe(error: ApiError, correlationId: string): ProblemDocument {
   return {
+    ...(error.options.extensions ?? {}),
     type: error.type,
     title: TITLES[error.kind],
     status: error.status,

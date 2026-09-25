@@ -180,6 +180,7 @@ function mount(app: Express, definition: RouteDefinition, context: MountContext)
         input,
         user,
         cookies: {
+          get: (name: string) => readCookie(request.headers.cookie, name),
           set: (name: string, value: string, options: CookieOptions = {}) => {
             response.cookie(name, value, {
               httpOnly: options.httpOnly ?? true,
@@ -218,6 +219,26 @@ function mount(app: Express, definition: RouteDefinition, context: MountContext)
 }
 
 /** Applies the guard of a route. */
+/**
+ * One cookie out of a `Cookie` header, decoded. `undefined` when absent or
+ * undecodable: a malformed value is treated as no value, never as an error
+ * that would fail the whole request.
+ */
+export function readCookie(header: string | undefined, name: string): string | undefined {
+  if (header === undefined || header === '') return undefined
+  for (const part of header.split(';')) {
+    const index = part.indexOf('=')
+    if (index === -1) continue
+    if (part.slice(0, index).trim() !== name) continue
+    try {
+      return decodeURIComponent(part.slice(index + 1).trim())
+    } catch {
+      return undefined
+    }
+  }
+  return undefined
+}
+
 async function resolveIdentity(
   definition: RouteDefinition,
   request: Request,
