@@ -1,4 +1,4 @@
--- La capacite shop 1.0.0 d odoro-cloud, telle que le gestionnaire l installe.
+-- La capacite shop 1.1.0 d odoro-cloud, telle que le gestionnaire l installe.
 
 -- GENERE depuis packages/manager/src/features/shop.ts (odoro-cloud) : ne pas editer a la main.
 
@@ -178,8 +178,42 @@ CREATE TABLE IF NOT EXISTS shop.order_lines (
 );
 CREATE INDEX IF NOT EXISTS lignes_de_la_commande ON shop.order_lines (order_id);
 
+-- 0005-gestes-de-la-commande : Les expeditions et les remboursements d une commande, et ce qui en a ete rendu.
+ALTER TABLE shop.orders ADD COLUMN IF NOT EXISTS refunded_cents integer NOT NULL DEFAULT 0
+  CHECK (refunded_cents >= 0);
+
+DO $$
+BEGIN
+  -- On ne rend jamais plus que ce qui a ete paye. Pose a part : une contrainte
+  -- de colonne ne doit pas lire une autre colonne.
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'rendu_borne_par_le_total') THEN
+    ALTER TABLE shop.orders ADD CONSTRAINT rendu_borne_par_le_total CHECK (refunded_cents <= total_cents);
+  END IF;
+END $$;
+
+CREATE TABLE IF NOT EXISTS shop.fulfillments (
+  id              uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  order_id        uuid NOT NULL REFERENCES shop.orders (id) ON DELETE CASCADE,
+  carrier         text NOT NULL DEFAULT '' CHECK (length(carrier) <= 80),
+  tracking_number text NOT NULL DEFAULT '' CHECK (length(tracking_number) <= 120),
+  tracking_url    text NOT NULL DEFAULT '' CHECK (length(tracking_url) <= 500),
+  shipped_at      timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS expeditions_de_la_commande ON shop.fulfillments (order_id);
+
+CREATE TABLE IF NOT EXISTS shop.refunds (
+  id           uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  order_id     uuid NOT NULL REFERENCES shop.orders (id) ON DELETE CASCADE,
+  amount_cents integer NOT NULL CHECK (amount_cents > 0),
+  reason       text NOT NULL DEFAULT '' CHECK (length(reason) <= 500),
+  -- La reference du remboursement chez ODORO : elle ecrit une fois, pas deux.
+  refund_ref   text NOT NULL UNIQUE,
+  created_at   timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS remboursements_de_la_commande ON shop.refunds (order_id);
+
 CREATE SCHEMA IF NOT EXISTS odoro;
 
 CREATE TABLE IF NOT EXISTS odoro.features (name text PRIMARY KEY, version text NOT NULL, schema_name text NOT NULL, active boolean NOT NULL DEFAULT true, enabled_at timestamptz NOT NULL DEFAULT now(), updated_at timestamptz NOT NULL DEFAULT now());
 
-INSERT INTO odoro.features (name, version, schema_name) VALUES ('shop', '1.0.0', 'shop') ON CONFLICT (name) DO NOTHING;
+INSERT INTO odoro.features (name, version, schema_name) VALUES ('shop', '1.1.0', 'shop') ON CONFLICT (name) DO NOTHING;

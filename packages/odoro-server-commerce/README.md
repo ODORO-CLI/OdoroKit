@@ -34,4 +34,4 @@ Customer accounts (503, said by name) and discount codes (any code is refused by
 
 ## Tests
 
-`COMMERCE_TEST_URL=postgres://user@host:port/postgres pnpm test` — each run creates a database, loads `test/fixtures/shop-1.0.0.sql`, and drops it.
+`COMMERCE_TEST_URL=postgres://user@host:port/postgres pnpm test` — each run creates a database, loads `test/fixtures/shop-1.1.0.sql`, and drops it.
