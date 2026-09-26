@@ -1,5 +1,11 @@
 # @odoro-cli/server-commerce
 
+## 0.6.0
+
+### Minor Changes
+
+- e39a784: `customerOf` est exporté : l'app sait qui est connecté (la session du compte client), pour le donner à `@odoro-cli/server-access`.
+
 ## 0.5.0
 
 ### Minor Changes
