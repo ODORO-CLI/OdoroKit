@@ -1,0 +1,53 @@
+{
+  "name": "@odoro-cli/server-accounts",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "license": "UNLICENSED",
+  "author": "BouBouw",
+  "description": "Visitor accounts for an @odoro-cli/server app: sign-up by password or link, e-mail verification, sessions, password reset and deletion, in the site's accounts database.",
+  "engines": {
+    "node": ">=22"
+  },
+  "sideEffects": false,
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "zod": "^4.5.1"
+  },
+  "peerDependencies": {
+    "@odoro-cli/server": ">=1.2.0"
+  },
+  "devDependencies": {
+    "@odoro-cli/server": "workspace:*",
+    "@types/express": "^5.0.3",
+    "@types/node": "^22.18.8",
+    "@types/pg": "^8.15.6",
+    "@types/supertest": "^6.0.2",
+    "express": "^5.1.0",
+    "pg": "^8.16.3",
+    "supertest": "^7.1.1",
+    "tsup": "^8.5.0",
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.4"
+  },
+  "homepage": "https://odoro.dev",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ODORO-CLI/OdoroKit.git",
+    "directory": "packages/odoro-server-accounts"
+  }
+}
