@@ -4,8 +4,6 @@ Billing for the teams of an `@odoro-cli/server` app: plans, seats, trials and
 usage metering, stored in the site's own database (the `billing` capability of
 odoro-cloud, which needs `teams`, which needs `accounts`).
 
-**Private.** Not published until Odoro's founder says so.
-
 - **Plans** are written by Odoro, from the site's canvas. This module reads them.
 - **A team's subscription** (plan, seats, trial end, current period, status) is
   written by Odoro ONLY, when the money arrives. The site's database role
