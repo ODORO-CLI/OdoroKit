@@ -12,8 +12,10 @@
  *
  *   · `ouvrir`  — reprices the cart at today's prices (and says what changed),
  *     checks and reserves the stock for thirty minutes, writes the order;
- *   · `chiffrer` — the total. Discount codes are not served by this module
- *     yet: a code is refused by name, never silently ignored;
+ *   · `chiffrer` — the total, with the discount code the visitor typed. The
+ *     code is priced HERE, from the shop's own `discount_codes` (shop 1.2.0,
+ *     copied from Odoro): the browser only names it. An unknown code is
+ *     refused by name, never silently ignored;
  *   · `payer`   — the payment page, from the port.
  *
  * @module
@@ -77,7 +79,26 @@ interface OrderRow {
   shipping_cents: number
   tax_cents: number
   total_cents: number
+  /** Absent on a shop still in 1.1.0 — see `codesInstalled`. */
+  discount_code?: string | null
+  discount_cents?: number
   payment_ref: string | null
+}
+
+/**
+ * Are the discount codes installed (shop 1.2.0)? A shop still in 1.1.0 keeps
+ * selling: a code is refused by name there, as before this module served
+ * them, and nothing reads a column the shop does not have.
+ */
+export async function codesInstalled(db: Query): Promise<boolean> {
+  try {
+    const { rows } = await db.query<{ present: boolean }>(
+      `SELECT to_regclass('shop.discount_codes') IS NOT NULL AS present`,
+    )
+    return rows[0]?.present === true
+  } catch {
+    return false
+  }
 }
 
 export async function quote(db: Query, orderId: string) {
@@ -111,11 +132,21 @@ export async function quote(db: Query, orderId: string) {
       sousTotalCentimes: Number(l.unit_price_cents) * Number(l.quantity),
       taxable: true,
     })),
-    remises: [],
+    remises:
+      (order.discount_code ?? null) === null
+        ? []
+        : [
+            {
+              remiseId: null,
+              code: order.discount_code ?? '',
+              libelle: order.discount_code ?? '',
+              montantCentimes: Number(order.discount_cents ?? 0),
+            },
+          ],
     carteCadeau: null,
     methodeDeLivraison: null,
     sousTotalCentimes: Number(order.subtotal_cents),
-    remiseCentimes: 0,
+    remiseCentimes: Number(order.discount_cents ?? 0),
     portCentimes: Number(order.shipping_cents),
     taxeCentimes: Number(order.tax_cents),
     carteCadeauCentimes: 0,
@@ -251,11 +282,103 @@ export async function openCheckout(
   })
 }
 
-/** The quote with a code. Codes are not served here yet: refused by name. */
+/**
+ * What a code takes off a subtotal. Rounded DOWN: a rounding never gives the
+ * buyer a cent the seller did not offer. Never more than the subtotal.
+ *
+ * A percentage is counted in thousandths of a percent (10000 = 10 %), as Odoro
+ * counts it — the codes are copied from there unchanged.
+ */
+export function discountFor(
+  kind: 'pourcentage' | 'montant',
+  value: number,
+  subtotalCents: number,
+): number {
+  const raw =
+    kind === 'pourcentage' ? Math.floor((subtotalCents * value) / 100_000) : value
+  return Math.max(0, Math.min(raw, subtotalCents))
+}
+
+function euros(cents: number, currency: string): string {
+  return new Intl.NumberFormat('fr', { style: 'currency', currency }).format(cents / 100)
+}
+
+/**
+ * The quote with the code the visitor typed — or without, when the field is
+ * empty: every `chiffrer` and every `payer` names the code, and the order
+ * carries exactly that one.
+ *
+ * Once the payment is open, the total is frozen: Odoro refuses a payment
+ * whose amount changed under the same order. Naming the same code again is
+ * fine; another one asks to reopen the checkout.
+ */
 export async function applyCode(db: Query, orderId: string, code: string | undefined) {
-  if ((code ?? '').trim() !== '') {
-    throw new CheckoutError(409, "Ce code n'est pas reconnu par cette boutique.")
+  const wanted = (code ?? '').trim()
+  if (!(await codesInstalled(db))) {
+    if (wanted !== '')
+      throw new CheckoutError(409, "Ce code n'est pas reconnu par cette boutique.")
+    return await quote(db, orderId)
   }
+  const { rows } = await db.query<OrderRow>('SELECT * FROM shop.orders WHERE id = $1', [
+    orderId,
+  ])
+  const order = rows[0]
+  if (order === undefined) throw new CheckoutError(404, "Cette caisse n'existe pas.")
+  if (order.state !== 'ouverte' || order.payment_ref !== null) {
+    if (wanted.toUpperCase() === (order.discount_code ?? '').toUpperCase())
+      return await quote(db, orderId)
+    throw new CheckoutError(
+      409,
+      'Le paiement de cette commande est déjà ouvert : rouvrez la caisse pour changer de code.',
+    )
+  }
+
+  const subtotal = Number(order.subtotal_cents)
+  let discount = 0
+  let applied: string | null = null
+  if (wanted !== '') {
+    const { rows: found } = await db.query<{
+      id: string
+      code: string
+      kind: 'pourcentage' | 'montant'
+      value: number
+      min_subtotal_cents: number
+      max_uses: number | null
+      used: number
+    }>(
+      `SELECT c.id, c.code, c.kind, c.value, c.min_subtotal_cents, c.max_uses,
+              (SELECT count(*) FROM shop.discount_uses u WHERE u.discount_id = c.id)::integer AS used
+         FROM shop.discount_codes c
+        WHERE upper(c.code) = upper($1) AND c.active
+          AND (c.starts_at IS NULL OR c.starts_at <= now())
+          AND (c.ends_at IS NULL OR c.ends_at > now())`,
+      [wanted],
+    )
+    const found0 = found[0]
+    if (found0 === undefined)
+      throw new CheckoutError(409, "Ce code n'est pas reconnu par cette boutique.")
+    if (found0.max_uses !== null && Number(found0.used) >= Number(found0.max_uses))
+      throw new CheckoutError(409, 'Ce code a déjà servi autant de fois que prévu.')
+    if (subtotal < Number(found0.min_subtotal_cents))
+      throw new CheckoutError(
+        409,
+        `Ce code demande un panier d'au moins ${euros(Number(found0.min_subtotal_cents), order.currency)}.`,
+      )
+    discount = discountFor(found0.kind, Number(found0.value), subtotal)
+    // Nothing is free here: a payment of zero cannot be opened, and a code
+    // that erased the whole order would leave the visitor at a dead end.
+    if (subtotal - discount + Number(order.shipping_cents) + Number(order.tax_cents) <= 0)
+      throw new CheckoutError(409, 'Ce code ne peut pas rendre la commande gratuite.')
+    applied = found0.code
+  }
+
+  await db.query(
+    `UPDATE shop.orders
+        SET discount_code = $2, discount_cents = $3,
+            total_cents = subtotal_cents - $3 + shipping_cents + tax_cents
+      WHERE id = $1 AND state = 'ouverte' AND payment_ref IS NULL`,
+    [orderId, applied, discount],
+  )
   return await quote(db, orderId)
 }
 
@@ -362,6 +485,16 @@ export async function confirmPayment(
       `UPDATE shop.orders SET state = 'payee', paid_at = now() WHERE id = $1`,
       [order.id],
     )
+    // A code counts once it is PAID for: an abandoned checkout uses nothing.
+    if (await codesInstalled(tx))
+      await tx.query(
+        `INSERT INTO shop.discount_uses (order_id, discount_id)
+         SELECT o.id, c.id FROM shop.orders o
+           JOIN shop.discount_codes c ON upper(c.code) = upper(o.discount_code)
+          WHERE o.id = $1
+         ON CONFLICT (order_id) DO NOTHING`,
+        [order.id],
+      )
     // The stock leaves when the money arrives, not before.
     await tx.query(
       `UPDATE shop.product_variants v

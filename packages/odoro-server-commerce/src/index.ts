@@ -8,6 +8,8 @@
 export { SHOP_MAJOR, shopInstalled, type Base, type Query } from './base.js'
 export { CART_COOKIE } from './cart.js'
 export {
+  codesInstalled,
+  discountFor,
   signCallback,
   verifyCallback,
   type CheckoutInput,

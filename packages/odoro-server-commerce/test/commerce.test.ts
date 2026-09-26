@@ -1,7 +1,7 @@
 /**
  * The storefront contract, served by a real `@odoro-cli/server` app from a real
  * `shop` database — the capability `shop` 1.0.0 of odoro-cloud, loaded from
- * `fixtures/shop-1.1.0.sql`.
+ * `fixtures/shop-1.2.0.sql`.
  *
  * Runs when `COMMERCE_TEST_URL` names a PostgreSQL server where databases can
  * be created (`postgres://user@host:port/postgres`); silent otherwise.
@@ -36,6 +36,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import {
   baseFromPool,
   createCommerceModule,
+  discountFor,
   signCallback,
   type Base,
   type PaymentPort,
@@ -56,7 +57,7 @@ async function database(withShop: boolean) {
   url.pathname = `/${name}`
   const pool = new pg.Pool({ connectionString: url.toString(), max: 4 })
   if (withShop)
-    await pool.query(readFileSync(join(HERE, 'fixtures', 'shop-1.1.0.sql'), 'utf8'))
+    await pool.query(readFileSync(join(HERE, 'fixtures', 'shop-1.2.0.sql'), 'utf8'))
   return {
     pool,
     drop: async () => {
@@ -331,6 +332,98 @@ gated('the storefront contract, served from the shop database', () => {
     expect(suivi.body.commande).toMatchObject({ etat: 'payee', totalCentimes: 11800 })
   })
 
+  it('🔴 a code is priced by the shop, counted once paid, and frozen once the payment is open', async () => {
+    await shop.pool.query(
+      `INSERT INTO shop.discount_codes (code, kind, value, min_subtotal_cents, max_uses, starts_at) VALUES
+         ('DIX', 'pourcentage', 10000, 0, NULL, NULL),
+         ('CINQ', 'montant', 500, 0, 1, NULL),
+         ('FUTUR', 'montant', 500, 0, NULL, now() + interval '1 day'),
+         ('GROS', 'montant', 500, 100000, NULL, NULL),
+         ('TOUT', 'montant', 999999, 0, NULL, NULL)`,
+    )
+    await shop.pool.query(
+      `INSERT INTO shop.discount_codes (code, kind, value, ends_at, active) VALUES
+         ('PASSE', 'montant', 500, now() - interval '1 day', true),
+         ('ETEINT', 'montant', 500, NULL, false)`,
+    )
+    const chiffrer = async (caisse: string, code: string) =>
+      await request(server)
+        .post('/api/storefront/checkout')
+        .send({ geste: 'chiffrer', caisse, code })
+
+    const panier = await cartWith(ids['vCarnet']!, 1)
+    const caisse = (
+      await request(server)
+        .post('/api/storefront/checkout')
+        .set('Cookie', panier)
+        .send({ geste: 'ouvrir', ...address })
+    ).body.caisse as string
+
+    // Typed in lower case, priced by the shop: 10 % of 24,00.
+    const dix = await chiffrer(caisse, 'dix')
+    expect(dix.status).toBe(200)
+    expect(dix.body.total).toMatchObject({ remiseCentimes: 240, totalCentimes: 2160 })
+    expect(dix.body.total.remises).toEqual([
+      { remiseId: null, code: 'DIX', libelle: 'DIX', montantCentimes: 240 },
+    ])
+
+    expect((await chiffrer(caisse, 'FUTUR')).body.erreur).toBe(
+      "Ce code n'est pas reconnu par cette boutique.",
+    )
+    for (const mort of ['PASSE', 'ETEINT'])
+      expect((await chiffrer(caisse, mort)).body.erreur).toBe(
+        "Ce code n'est pas reconnu par cette boutique.",
+      )
+    expect((await chiffrer(caisse, 'GROS')).body.erreur).toMatch(
+      /demande un panier d'au moins/,
+    )
+    expect((await chiffrer(caisse, 'TOUT')).body.erreur).toBe(
+      'Ce code ne peut pas rendre la commande gratuite.',
+    )
+    // An empty field takes the code off.
+    expect((await chiffrer(caisse, '')).body.total).toMatchObject({
+      remiseCentimes: 0,
+      totalCentimes: 2400,
+    })
+
+    const paye = await request(server)
+      .post('/api/storefront/checkout')
+      .send({ geste: 'payer', caisse, code: 'CINQ' })
+    expect(paye.status).toBe(200)
+    expect(opened.at(-1)).toEqual({ orderId: caisse, totalCents: 1900 })
+
+    // The payment is open: the same code is fine, another one is refused.
+    expect((await chiffrer(caisse, 'cinq')).status).toBe(200)
+    expect((await chiffrer(caisse, 'DIX')).body.erreur).toMatch(/déjà ouvert/)
+
+    const reference = `whop-${caisse}`
+    const maintenant = Math.floor(Date.now() / 1000)
+    await request(server)
+      .post('/api/storefront/payment-callback')
+      .send({
+        reference,
+        etat: 'payee',
+        horodatage: maintenant,
+        signature: signCallback(SECRET, reference, 'payee', maintenant),
+      })
+    const usages = await shop.pool.query(
+      `SELECT count(*)::int AS n FROM shop.discount_uses u JOIN shop.discount_codes c ON c.id = u.discount_id WHERE c.code = 'CINQ'`,
+    )
+    expect(usages.rows[0].n).toBe(1)
+
+    // CINQ served once, as planned.
+    const autre = await cartWith(ids['vCarnet']!, 1)
+    const seconde = (
+      await request(server)
+        .post('/api/storefront/checkout')
+        .set('Cookie', autre)
+        .send({ geste: 'ouvrir', ...address })
+    ).body.caisse as string
+    expect((await chiffrer(seconde, 'CINQ')).body.erreur).toBe(
+      'Ce code a déjà servi autant de fois que prévu.',
+    )
+  })
+
   it('what is not served yet says so', async () => {
     const compte = await request(server)
       .post('/api/storefront/account')
@@ -340,6 +433,106 @@ gated('the storefront contract, served from the shop database', () => {
     expect((await request(server).get('/api/storefront/account')).body).toEqual({
       connecte: false,
     })
+  })
+})
+
+gated('a shop still in 1.1.0', () => {
+  it('🔴 sells as before: a code is refused by name, and the payment is confirmed', async () => {
+    const shop = await database(true)
+    try {
+      // What 1.2.0 added, taken away: the shop as the first ones were installed.
+      await shop.pool.query(
+        `DROP TABLE shop.discount_uses; DROP TABLE shop.discount_codes;
+         ALTER TABLE shop.orders DROP COLUMN discount_code, DROP COLUMN discount_cents`,
+      )
+      const produit = (
+        await shop.pool.query(
+          `INSERT INTO shop.products (name, price_cents, published) VALUES ('Carnet', 2400, true) RETURNING id`,
+        )
+      ).rows[0].id
+      const variante = (
+        await shop.pool.query(
+          'SELECT id FROM shop.product_variants WHERE product_id = $1',
+          [produit],
+        )
+      ).rows[0].id
+      const opened: number[] = []
+      const server = app(baseFromPool(shop.pool), {
+        open: async (input) => {
+          opened.push(input.totalCents)
+          return await Promise.resolve({
+            reference: `whop-${input.orderId}`,
+            paymentUrl: 'https://p.test',
+          })
+        },
+      })
+      const cookie = String(
+        (
+          await request(server)
+            .post('/api/storefront/cart')
+            .send({ variante, quantite: 1 })
+        ).headers['set-cookie'],
+      ).split(';')[0]!
+      const caisse = (
+        await request(server)
+          .post('/api/storefront/checkout')
+          .set('Cookie', cookie)
+          .send({
+            geste: 'ouvrir',
+            courriel: 'claire@exemple.fr',
+            nom: 'Claire',
+            ligne1: '3 rue des Lilas',
+            code_postal: '69003',
+            ville: 'Lyon',
+            pays: 'FR',
+          })
+      ).body.caisse as string
+      const code = await request(server)
+        .post('/api/storefront/checkout')
+        .send({ geste: 'chiffrer', caisse, code: 'DIX' })
+      expect(code.body.erreur).toBe("Ce code n'est pas reconnu par cette boutique.")
+      const sans = await request(server)
+        .post('/api/storefront/checkout')
+        .send({ geste: 'chiffrer', caisse })
+      expect(sans.body.total).toMatchObject({
+        remises: [],
+        remiseCentimes: 0,
+        totalCentimes: 2400,
+      })
+      expect(
+        (
+          await request(server)
+            .post('/api/storefront/checkout')
+            .send({ geste: 'payer', caisse })
+        ).status,
+      ).toBe(200)
+
+      const reference = `whop-${caisse}`
+      const maintenant = Math.floor(Date.now() / 1000)
+      const rappel = await request(server)
+        .post('/api/storefront/payment-callback')
+        .send({
+          reference,
+          etat: 'payee',
+          horodatage: maintenant,
+          signature: signCallback(SECRET, reference, 'payee', maintenant),
+        })
+      expect(rappel.status).toBe(200)
+      const etat = await shop.pool.query('SELECT state FROM shop.orders WHERE id = $1', [
+        caisse,
+      ])
+      expect(etat.rows[0].state).toBe('payee')
+    } finally {
+      await shop.drop()
+    }
+  }, 60_000)
+})
+
+describe('what a code takes off', () => {
+  it('🔴 rounded down, never more than the basket', () => {
+    // 15 % of 9,99 is 1,4985: the buyer gets 1,49, not 1,50.
+    expect(discountFor('pourcentage', 15_000, 999)).toBe(149)
+    expect(discountFor('montant', 5000, 2400)).toBe(2400)
   })
 })
 

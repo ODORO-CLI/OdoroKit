@@ -1,4 +1,4 @@
--- La capacite shop 1.1.0 d odoro-cloud, telle que le gestionnaire l installe.
+-- La capacite shop 1.2.0 d odoro-cloud, telle que le gestionnaire l installe.
 
 -- GENERE depuis packages/manager/src/features/shop.ts (odoro-cloud) : ne pas editer a la main.
 
@@ -212,8 +212,52 @@ CREATE TABLE IF NOT EXISTS shop.refunds (
 );
 CREATE INDEX IF NOT EXISTS remboursements_de_la_commande ON shop.refunds (order_id);
 
+-- 0006-codes-de-remise : Les codes de remise d une boutique, la remise portee par la commande, et chaque usage.
+CREATE TABLE IF NOT EXISTS shop.discount_codes (
+  id                 uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  code               text NOT NULL CHECK (code ~ '^[A-Za-z0-9_-]{1,40}$'),
+  kind               text NOT NULL CHECK (kind IN ('pourcentage', 'montant')),
+  -- Un pourcentage en milliemes de pour cent (10000 = 10 %), comme ODORO le
+  -- compte ; un montant en centimes.
+  value              integer NOT NULL CHECK (value > 0),
+  min_subtotal_cents integer NOT NULL DEFAULT 0 CHECK (min_subtotal_cents >= 0),
+  max_uses           integer CHECK (max_uses > 0),
+  starts_at          timestamptz,
+  ends_at            timestamptz,
+  active             boolean NOT NULL DEFAULT true,
+  -- La remise d'ODORO dont celle-ci est la copie : la recopie suivante la
+  -- met a jour au lieu d'en creer une seconde.
+  source_ref         text UNIQUE,
+  created_at         timestamptz NOT NULL DEFAULT now(),
+  CHECK (kind <> 'pourcentage' OR value <= 100000),
+  CHECK (ends_at IS NULL OR starts_at IS NULL OR ends_at > starts_at)
+);
+-- Un code se tape sans se soucier des majuscules : deux codes qui ne
+-- different que par elles seraient le meme pour la personne qui le tape.
+CREATE UNIQUE INDEX IF NOT EXISTS un_code_par_boutique ON shop.discount_codes (upper(code));
+
+ALTER TABLE shop.orders ADD COLUMN IF NOT EXISTS discount_code text;
+ALTER TABLE shop.orders ADD COLUMN IF NOT EXISTS discount_cents integer NOT NULL DEFAULT 0
+  CHECK (discount_cents >= 0);
+
+DO $$
+BEGIN
+  -- Une remise ne depasse jamais le panier qu'elle reduit.
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'remise_bornee_par_le_panier') THEN
+    ALTER TABLE shop.orders ADD CONSTRAINT remise_bornee_par_le_panier CHECK (discount_cents <= subtotal_cents);
+  END IF;
+END $$;
+
+-- Un usage par commande payee : c'est ce qui compte un code limite.
+CREATE TABLE IF NOT EXISTS shop.discount_uses (
+  order_id    uuid PRIMARY KEY REFERENCES shop.orders (id) ON DELETE CASCADE,
+  discount_id uuid NOT NULL REFERENCES shop.discount_codes (id) ON DELETE CASCADE,
+  used_at     timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS usages_du_code ON shop.discount_uses (discount_id);
+
 CREATE SCHEMA IF NOT EXISTS odoro;
 
 CREATE TABLE IF NOT EXISTS odoro.features (name text PRIMARY KEY, version text NOT NULL, schema_name text NOT NULL, active boolean NOT NULL DEFAULT true, enabled_at timestamptz NOT NULL DEFAULT now(), updated_at timestamptz NOT NULL DEFAULT now());
 
-INSERT INTO odoro.features (name, version, schema_name) VALUES ('shop', '1.1.0', 'shop') ON CONFLICT (name) DO NOTHING;
+INSERT INTO odoro.features (name, version, schema_name) VALUES ('shop', '1.2.0', 'shop') ON CONFLICT (name) DO NOTHING;
