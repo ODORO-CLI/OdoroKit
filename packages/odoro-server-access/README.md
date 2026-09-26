@@ -1,6 +1,6 @@
 # @odoro-cli/server-access
 
-Gated content for an `@odoro-cli/server` app — **private until its publication is approved.**
+Gated content for an `@odoro-cli/server` app.
 
 Entitlements are written by Odoro in the site's `access` database (a purchase, a renewal, a refund, a gift from the seller's dashboard). This package only reads them:
 

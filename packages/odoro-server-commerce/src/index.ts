@@ -21,7 +21,9 @@ export {
   LINKS_PER_HOUR,
   SESSION_MAX_AGE,
   accountsInstalled,
+  customerOf,
   openSession,
+  type Customer,
   type MailPort,
 } from './account.js'
 export { ODORO_MAIL_PATH, odoroMail, type OdoroMailOptions } from './odoro-mail.js'
