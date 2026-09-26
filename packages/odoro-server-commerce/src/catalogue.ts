@@ -9,9 +9,9 @@
  * unexpired reservations of carts being paid. An expired reservation holds
  * nothing: an abandoned checkout must not take an item off sale forever.
  *
- * Images: the capability keeps an opaque storage key, not the file. Until a
- * storage adapter serves them, `visuel` is `null` — the site shows the image it
- * was built with, as it does for a product without a photo.
+ * Images: `shop.product_images` names objects of the site's `storage`
+ * capability (see `images.ts`). They come inline, base64, as in Odoro's
+ * central storefront. A database without `storage` keeps `visuel: null`.
  *
  * @module
  */
@@ -25,6 +25,7 @@ import type {
 } from '@odoro-cli/commerce'
 
 import type { Query } from './base.js'
+import { SQL_IMAGES, storageInstalled } from './images.js'
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
@@ -51,6 +52,16 @@ interface ProductRow {
   price_cents: number
   compare_at_cents: number | null
   available: boolean
+  /** The first image, when the database has `storage`. */
+  visuel?: { contenu: string; type: string; texte: string } | null
+}
+
+/** The first image of each product, as a SELECT column — or a plain null. */
+function colonneDuVisuel(avecStockage: boolean): string {
+  return avecStockage
+    ? `(SELECT json_build_object('contenu', im.contenu, 'type', im.type, 'texte', im.texte)
+          FROM (${SQL_IMAGES} LIMIT 1) im) AS visuel`
+    : 'NULL::json AS visuel'
 }
 
 function toProduct(r: ProductRow): ProduitEnVitrine {
@@ -62,7 +73,7 @@ function toProduct(r: ProductRow): ProduitEnVitrine {
     prixCentimes: Number(r.price_cents),
     prixBarreCentimes: r.compare_at_cents === null ? null : Number(r.compare_at_cents),
     disponible: r.available === true,
-    visuel: null,
+    visuel: r.visuel ?? null,
     etiquettes: [],
     prixUnitaire: null,
   }
@@ -99,9 +110,11 @@ export async function readCatalogue(
   const limit = Math.min(Math.max(q.combien ?? 24, 1), 60)
   const offset = Math.max(q.depuis ?? 0, 0)
 
+  const avecStockage = await storageInstalled(db)
   const { rows } = await db.query<ProductRow>(
     `SELECT p.id, p.name, p.description, p.kind, p.price_cents, p.compare_at_cents,
-            EXISTS (SELECT 1 FROM shop.product_variants v WHERE v.product_id = p.id AND ${SQL_AVAILABLE}) AS available
+            EXISTS (SELECT 1 FROM shop.product_variants v WHERE v.product_id = p.id AND ${SQL_AVAILABLE}) AS available,
+            ${colonneDuVisuel(avecStockage)}
        ${where}
       ORDER BY ${order}
       LIMIT $7 OFFSET $8`,
@@ -116,9 +129,11 @@ export async function readCatalogue(
 
 export async function readProduct(db: Query, id: string): Promise<FicheProduit | null> {
   if (!UUID.test(id)) return null
+  const avecStockage = await storageInstalled(db)
   const { rows } = await db.query<ProductRow>(
     `SELECT p.id, p.name, p.description, p.kind, p.price_cents, p.compare_at_cents,
-            EXISTS (SELECT 1 FROM shop.product_variants v WHERE v.product_id = p.id AND ${SQL_AVAILABLE}) AS available
+            EXISTS (SELECT 1 FROM shop.product_variants v WHERE v.product_id = p.id AND ${SQL_AVAILABLE}) AS available,
+            ${colonneDuVisuel(avecStockage)}
        FROM shop.products p
       WHERE p.id = $1 AND p.published AND p.deleted_at IS NULL`,
     [id],
@@ -159,6 +174,18 @@ export async function readProduct(db: Query, id: string): Promise<FicheProduit |
       ORDER BY v.position, v.created_at`,
     [id],
   )
+  // Every image of the product, in order, for the product page.
+  const visuels = avecStockage
+    ? (
+        await db.query<{ contenu: string; type: string; texte: string }>(
+          `SELECT im.contenu, im.type, im.texte FROM (${SQL_IMAGES}) im`.replace(
+            'p.id',
+            '$1',
+          ),
+          [id],
+        )
+      ).rows.map((v) => ({ contenu: v.contenu, type: v.type, texte: v.texte }))
+    : []
   const product = toProduct(row)
   const variantes: VarianteEnVitrine[] = variants.map((v) => {
     const choix = v.choices ?? []
@@ -184,7 +211,7 @@ export async function readProduct(db: Query, id: string): Promise<FicheProduit |
     ...product,
     seoTitre: row.name,
     seoResume: row.description,
-    visuels: [],
+    visuels,
     options: options.map((o) => ({ id: o.id, nom: o.name, valeurs: o.values ?? [] })),
     variantes,
   }

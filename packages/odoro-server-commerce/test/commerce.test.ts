@@ -381,3 +381,75 @@ gated('baseFromPool', () => {
     }
   }, 60_000)
 })
+
+gated('product images, from the site storage', () => {
+  it('🔴 come inline in the catalogue and the product page, and as bytes — for a product for sale only', async () => {
+    const shop = await database(true)
+    try {
+      await shop.pool.query(
+        readFileSync(join(HERE, 'fixtures', 'storage-1.0.0.sql'), 'utf8'),
+      )
+      const q = async (text: string, values: unknown[] = []) =>
+        (await shop.pool.query(text, values)).rows
+      const vendu = (
+        await q(
+          `INSERT INTO shop.products (name, price_cents, published) VALUES ('Bol', 2800, true) RETURNING id`,
+        )
+      )[0].id
+      const brouillon = (
+        await q(
+          `INSERT INTO shop.products (name, price_cents) VALUES ('Brouillon', 100) RETURNING id`,
+        )
+      )[0].id
+      const octets = Buffer.from('une-photo-webp')
+      const empreinte = (await import('node:crypto'))
+        .createHash('sha256')
+        .update(octets)
+        .digest('hex')
+      for (const [produit, cle] of [
+        [vendu, `products/${vendu}/1.webp`],
+        [brouillon, `products/${brouillon}/1.webp`],
+      ] as const) {
+        await q(
+          `INSERT INTO storage.objects (key, mime_type, size_bytes, sha256, bytes) VALUES ($1, 'image/webp', $2, $3, $4)`,
+          [cle, octets.length, empreinte, octets],
+        )
+        await q(
+          `INSERT INTO shop.product_images (product_id, storage_key, mime_type, alt_text) VALUES ($1, $2, 'image/webp', 'Un bol')`,
+          [produit, cle],
+        )
+      }
+      const { productImage, readCatalogue, readProduct } =
+        await import('../src/index.js').then(async (m) => ({
+          ...m,
+          ...(await import('../src/catalogue.js')),
+        }))
+      const base = baseFromPool(shop.pool)
+      const catalogue = await readCatalogue(base, {})
+      expect(catalogue.produits[0]!.visuel).toEqual({
+        contenu: octets.toString('base64'),
+        type: 'image/webp',
+        texte: 'Un bol',
+      })
+      expect((await readProduct(base, vendu))!.visuels).toHaveLength(1)
+      expect((await productImage(base, vendu))!.bytes.equals(octets)).toBe(true)
+      expect(await productImage(base, brouillon)).toBeNull()
+    } finally {
+      await shop.drop()
+    }
+  }, 60_000)
+
+  it('🔴 a database without storage keeps working, with no image', async () => {
+    const shop = await database(true)
+    try {
+      await shop.pool.query(
+        `INSERT INTO shop.products (name, price_cents, published) VALUES ('Bol', 2800, true)`,
+      )
+      const { readCatalogue } = await import('../src/catalogue.js')
+      const catalogue = await readCatalogue(baseFromPool(shop.pool), {})
+      expect(catalogue.produits[0]!.visuel).toBeNull()
+    } finally {
+      await shop.drop()
+    }
+  }, 60_000)
+})

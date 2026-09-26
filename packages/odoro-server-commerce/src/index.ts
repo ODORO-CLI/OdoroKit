@@ -21,3 +21,4 @@ export {
   type OdoroPaymentOptions,
 } from './odoro-payment.js'
 export { baseFromPool, type PgClientLike, type PgPoolLike } from './pg.js'
+export { productImage, storageInstalled, type StoredImage } from './images.js'
