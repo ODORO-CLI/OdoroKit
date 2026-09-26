@@ -1,7 +1,5 @@
 # @odoro-cli/server-accounts
 
-> **Private for now.** This package is not published; it will be once Odoro gives the go.
-
 Visitor accounts for an `@odoro-cli/server` app, stored in the site's own
 database (the `accounts` capability of odoro-cloud).
 
