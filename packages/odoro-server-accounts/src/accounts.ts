@@ -199,6 +199,30 @@ export async function signUp(
     await issueLink(db, mail, { id: known[0].id, email }, 'lien')
 }
 
+/**
+ * Opens a session for an address that ANOTHER link has just proven — an
+ * invitation to a team, opened from its e-mail. The account is created when
+ * the address has none, and marked verified: only its owner could open the
+ * link.
+ *
+ * Never call it with an address the visitor typed: that would sign anyone in
+ * as anyone. The caller's own single-use link is the proof.
+ */
+export async function signInWithProvenAddress(
+  db: Query,
+  rawEmail: unknown,
+): Promise<{ session: string; account: Account }> {
+  const email = address(rawEmail)
+  const { rows } = await db.query<{ id: string }>(
+    `INSERT INTO accounts.users (email, verified_at) VALUES ($1, now())
+     ON CONFLICT (email) DO UPDATE SET verified_at = coalesce(accounts.users.verified_at, now())
+     RETURNING id`,
+    [email],
+  )
+  const id = rows[0]!.id
+  return { session: await openSession(db, id), account: { id, email, verified: true } }
+}
+
 /** The link from the verification e-mail. */
 export async function verifyEmail(db: Query, token: unknown): Promise<boolean> {
   const userId = await consume(db, token, 'verification')

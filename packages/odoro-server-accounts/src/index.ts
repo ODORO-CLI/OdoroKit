@@ -22,6 +22,7 @@ export {
   requestReset,
   resetPassword,
   signIn,
+  signInWithProvenAddress,
   signOut,
   signUp,
   verifyEmail,

@@ -27,6 +27,8 @@ import {
   acceptablePassword,
   createAccountsModule,
   hashPassword,
+  signInWithProvenAddress,
+  accountOf,
   verifyPassword,
   whoIsSignedIn,
   type AccountMail,
@@ -264,6 +266,14 @@ gated('visitor accounts', () => {
     expect(
       (await post('/api/accounts/reset', { token, password: 'encore un autre' })).status,
     ).toBe(422)
+  })
+
+  it('an address proven by another link signs in, verified, creating the account when needed', async () => {
+    const { session, account } = await signInWithProvenAddress(pool, 'Invitee@Exemple.fr')
+    expect(account).toMatchObject({ email: 'invitee@exemple.fr', verified: true })
+    expect((await accountOf(pool, session))?.email).toBe('invitee@exemple.fr')
+    const again = await signInWithProvenAddress(pool, 'invitee@exemple.fr')
+    expect(again.account.id).toBe(account.id)
   })
 
   it('whoIsSignedIn gives other modules the same person', async () => {
