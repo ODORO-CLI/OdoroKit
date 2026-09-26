@@ -17,6 +17,15 @@ export {
 } from './checkout.js'
 export { createCommerceModule, type CommerceOptions } from './module.js'
 export {
+  CUSTOMER_COOKIE,
+  LINKS_PER_HOUR,
+  SESSION_MAX_AGE,
+  accountsInstalled,
+  openSession,
+  type MailPort,
+} from './account.js'
+export { ODORO_MAIL_PATH, odoroMail, type OdoroMailOptions } from './odoro-mail.js'
+export {
   ODORO_PAYMENT_PATH,
   odoroPayment,
   signRequest,

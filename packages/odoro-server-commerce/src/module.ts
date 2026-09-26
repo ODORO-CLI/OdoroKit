@@ -8,11 +8,12 @@
  *
  * ## What it serves, and what it does not yet
  *
- * The catalogue, product pages, collections, the cart, checkout (open, quote,
- * pay through Odoro) and order tracking. Customer accounts and discount codes
- * are not served here yet: they answer so, by name — an account request says
- * the account is not available, a code says it is not recognised. A gesture
- * that silently does nothing is worse than one that says no.
+ * The catalogue, product pages, collections, the cart, checkout (open, quote
+ * with the shop's discount codes, pay through Odoro), order tracking, and the
+ * customer's account (shop 1.3.0, with a `mail` port). What a shop cannot
+ * serve answers so, by name — an account on a shop without accounts says the
+ * account is not available, an unknown code says it is not recognised. A
+ * gesture that silently does nothing is worse than one that says no.
  *
  * ## Errors speak the contract
  *
@@ -33,6 +34,17 @@ import {
 } from '@odoro-cli/server'
 import { z } from 'zod'
 
+import {
+  CUSTOMER_COOKIE,
+  accountsInstalled,
+  closeSession,
+  customerOf,
+  profile,
+  requestLink,
+  subscribe,
+  updateProfile,
+  type MailPort,
+} from './account.js'
 import { type Base, shopInstalled } from './base.js'
 import {
   CART_COOKIE,
@@ -66,8 +78,13 @@ export interface CommerceOptions {
   readonly callbackSecret: string
   /** The shop's currency. @defaultValue 'EUR' */
   readonly currency?: string
-  /** Mark the cart cookie `Secure`. @defaultValue true */
+  /** Mark the cart and session cookies `Secure`. @defaultValue true */
   readonly secureCookie?: boolean
+  /**
+   * Where the sign-in links leave: Odoro sends them. Without it, the account
+   * says it is not available — by name.
+   */
+  readonly mail?: MailPort
 }
 
 function refusal(
@@ -325,25 +342,75 @@ export function createCommerceModule(options: CommerceOptions) {
     },
   })
 
-  /** Not served by this module yet — said by name, never a dead button. */
+  // The account serves only where it can: a shop in 1.3.0, with a way to
+  // send the link. Anywhere else it says it is not available — by name,
+  // never a dead button.
   const accountRead = route({
     name: 'storefront.account.read',
     method: 'GET',
     path: '/api/storefront/account',
     auth: 'public',
-    handler: () => ({ connecte: false }),
+    handler: async ({ cookies }) => {
+      if (options.mail === undefined || !(await accountsInstalled(db)))
+        return { connecte: false }
+      const customer = await customerOf(db, cookies.get(CUSTOMER_COOKIE))
+      if (customer === null) return { connecte: false }
+      return { connecte: true, profil: await profile(db, customer) }
+    },
   })
   const accountWrite = route({
     name: 'storefront.account.write',
     method: 'POST',
     path: '/api/storefront/account',
     auth: 'public',
-    handler: () => {
-      throw refusal(
-        'UNAVAILABLE',
-        "Le compte client n'est pas encore disponible sur cette boutique.",
-      )
-    },
+    input: z.object({
+      geste: z.enum(['lien', 'lettre', 'profil', 'deconnexion']).optional(),
+      email: z.string().max(254).optional(),
+      offres: z.boolean().optional(),
+      nom: z.string().max(120).optional(),
+    }),
+    handler: async ({ input, cookies }) =>
+      await speaking(async () => {
+        const mail = options.mail
+        if (mail === undefined || !(await accountsInstalled(db))) {
+          throw refusal(
+            'UNAVAILABLE',
+            "Le compte client n'est pas encore disponible sur cette boutique.",
+          )
+        }
+        const geste = input.geste ?? 'lien'
+        const who = {
+          email: input.email,
+          ...(input.nom === undefined ? {} : { name: input.nom }),
+          ...(input.offres === undefined ? {} : { consent: input.offres }),
+        }
+        if (geste === 'lien') {
+          await requestLink(db, mail, who)
+          return { ok: true }
+        }
+        if (geste === 'lettre') {
+          await subscribe(db, who)
+          return { ok: true }
+        }
+        const session = cookies.get(CUSTOMER_COOKIE)
+        if (geste === 'deconnexion') {
+          await closeSession(db, session)
+          cookies.clear(CUSTOMER_COOKIE)
+          return { ok: true }
+        }
+        const customer = await customerOf(db, session)
+        if (customer === null) {
+          const message =
+            'Ce lien de connexion est périmé ou a déjà servi. Demandez-en un nouveau.'
+          throw new ApiError('UNAUTHORIZED', message, { extensions: { erreur: message } })
+        }
+        await updateProfile(db, customer, {
+          ...(input.nom === undefined ? {} : { name: input.nom }),
+          ...(input.offres === undefined ? {} : { consent: input.offres }),
+        })
+        const after = (await customerOf(db, session)) ?? customer
+        return { ok: true, profil: await profile(db, after) }
+      }),
   })
 
   return defineModule({

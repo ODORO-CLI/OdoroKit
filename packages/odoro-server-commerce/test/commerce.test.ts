@@ -1,7 +1,7 @@
 /**
  * The storefront contract, served by a real `@odoro-cli/server` app from a real
  * `shop` database — the capability `shop` 1.0.0 of odoro-cloud, loaded from
- * `fixtures/shop-1.2.0.sql`.
+ * `fixtures/shop-1.3.0.sql`.
  *
  * Runs when `COMMERCE_TEST_URL` names a PostgreSQL server where databases can
  * be created (`postgres://user@host:port/postgres`); silent otherwise.
@@ -57,7 +57,7 @@ async function database(withShop: boolean) {
   url.pathname = `/${name}`
   const pool = new pg.Pool({ connectionString: url.toString(), max: 4 })
   if (withShop)
-    await pool.query(readFileSync(join(HERE, 'fixtures', 'shop-1.2.0.sql'), 'utf8'))
+    await pool.query(readFileSync(join(HERE, 'fixtures', 'shop-1.3.0.sql'), 'utf8'))
   return {
     pool,
     drop: async () => {

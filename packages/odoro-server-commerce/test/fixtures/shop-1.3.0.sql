@@ -1,4 +1,4 @@
--- La capacite shop 1.2.0 d odoro-cloud, telle que le gestionnaire l installe.
+-- La capacite shop 1.3.0 d odoro-cloud, telle que le gestionnaire l installe.
 
 -- GENERE depuis packages/manager/src/features/shop.ts (odoro-cloud) : ne pas editer a la main.
 
@@ -256,8 +256,49 @@ CREATE TABLE IF NOT EXISTS shop.discount_uses (
 );
 CREATE INDEX IF NOT EXISTS usages_du_code ON shop.discount_uses (discount_id);
 
+-- 0007-comptes-clients : Le compte du client, ses liens de connexion et ses sessions, et le panier qui le suit.
+CREATE TABLE IF NOT EXISTS shop.customers (
+  id                uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  -- En minuscules : deux comptes pour la meme boite a lettres, ce serait
+  -- deux historiques de commandes pour une seule personne.
+  email             text NOT NULL CHECK (email = lower(email) AND position('@' in email) > 1 AND length(email) <= 254),
+  name              text NOT NULL DEFAULT '' CHECK (length(name) <= 120),
+  -- L'accord pour recevoir les offres, et d'ou il vient. Pas de case
+  -- cochee, pas d'accord : la date prouve qu'il a ete donne.
+  marketing_consent boolean NOT NULL DEFAULT false,
+  consent_source    text CHECK (consent_source IN ('compte', 'lettre')),
+  consent_at        timestamptz,
+  created_at        timestamptz NOT NULL DEFAULT now(),
+  -- La derniere venue : c'est d'elle que court la conservation, pas de la
+  -- creation — un client fidele depuis quatre ans n'est pas un compte oublie.
+  last_seen_at      timestamptz NOT NULL DEFAULT now(),
+  CHECK (marketing_consent <= (consent_at IS NOT NULL))
+);
+CREATE UNIQUE INDEX IF NOT EXISTS un_compte_par_courriel ON shop.customers (email);
+
+CREATE TABLE IF NOT EXISTS shop.customer_links (
+  id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  customer_id uuid NOT NULL REFERENCES shop.customers (id) ON DELETE CASCADE,
+  fingerprint text NOT NULL UNIQUE CHECK (fingerprint ~ '^[0-9a-f]{64}$'),
+  expires_at  timestamptz NOT NULL,
+  used_at     timestamptz,
+  created_at  timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS liens_du_client ON shop.customer_links (customer_id, created_at);
+
+CREATE TABLE IF NOT EXISTS shop.customer_sessions (
+  id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  customer_id uuid NOT NULL REFERENCES shop.customers (id) ON DELETE CASCADE,
+  fingerprint text NOT NULL UNIQUE CHECK (fingerprint ~ '^[0-9a-f]{64}$'),
+  expires_at  timestamptz NOT NULL,
+  created_at  timestamptz NOT NULL DEFAULT now()
+);
+
+ALTER TABLE shop.carts ADD COLUMN IF NOT EXISTS customer_id uuid
+  REFERENCES shop.customers (id) ON DELETE SET NULL;
+
 CREATE SCHEMA IF NOT EXISTS odoro;
 
 CREATE TABLE IF NOT EXISTS odoro.features (name text PRIMARY KEY, version text NOT NULL, schema_name text NOT NULL, active boolean NOT NULL DEFAULT true, enabled_at timestamptz NOT NULL DEFAULT now(), updated_at timestamptz NOT NULL DEFAULT now());
 
-INSERT INTO odoro.features (name, version, schema_name) VALUES ('shop', '1.2.0', 'shop') ON CONFLICT (name) DO NOTHING;
+INSERT INTO odoro.features (name, version, schema_name) VALUES ('shop', '1.3.0', 'shop') ON CONFLICT (name) DO NOTHING;
