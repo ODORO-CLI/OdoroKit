@@ -38,6 +38,7 @@ import {
   entitled,
   limitOf,
   recordUsage,
+  seatsAllowMember,
   seatsOf,
   type OdoroBillingPort,
 } from '../src/index.js'
@@ -67,7 +68,12 @@ gated('billing', () => {
       asked.push({ kind: 'seats', teamId, seats })
       return await Promise.resolve({ seats })
     },
+    cancel: async ({ teamId }) => {
+      asked.push({ kind: 'cancel', teamId })
+      return await Promise.resolve({ endsAt: '2026-10-27T00:00:00.000Z' })
+    },
   }
+  const invitations: { email: string; token: string }[] = []
 
   beforeAll(async () => {
     const admin = new pg.Client({ connectionString: adminUrl })
@@ -77,7 +83,7 @@ gated('billing', () => {
     const url = new URL(adminUrl as string)
     url.pathname = `/${name}`
     owner = new pg.Pool({ connectionString: url.toString(), max: 3 })
-    for (const f of ['accounts-1.0.0.sql', 'teams-1.0.0.sql', 'billing-1.0.0.sql']) {
+    for (const f of ['accounts-1.0.0.sql', 'teams-1.0.0.sql', 'billing-1.1.0.sql']) {
       await owner.query(fixture(f))
     }
 
@@ -133,8 +139,15 @@ gated('billing', () => {
         }) as never,
         createTeamsModule({
           db: app,
-          mail: { send: async () => {} },
+          mail: {
+            send: async ({ email, token }) => {
+              invitations.push({ email, token })
+              await Promise.resolve()
+            },
+          },
           secureCookie: false,
+          // As a site that bills its teams wires it: the seats bound the team.
+          canAddMember: seatsAllowMember(app),
         }) as never,
         createBillingModule({ db: app, odoro }) as never,
       ],
@@ -459,5 +472,119 @@ gated('billing', () => {
     expect((await get('/api/billing/entitled?fonction=api', hugo)).body).toEqual({
       droit: true,
     })
+  })
+
+  it('🔴 a refunded invoice says so, with what was refunded, and is not paid again', async () => {
+    const whole = randomUUID()
+    const part = randomUUID()
+    await owner.query(
+      `INSERT INTO billing.invoices (id, team_id, kind, amount_cents, currency, status, payment_url, refunded_cents, refunded_at)
+       VALUES ($1, $3, 'seats', 600, 'EUR', 'refunded', 'https://paiement.test/rendue', 600, now()),
+              ($2, $3, 'period', 914, 'EUR', 'paid', null, 300, now())`,
+      [whole, part, team],
+    )
+    const res = await get('/api/billing', claire)
+    const byId = Object.fromEntries(
+      res.body.factures.map((f: { id: string }) => [f.id, f]),
+    )
+    expect(byId[whole]).toMatchObject({
+      etat: 'refunded',
+      rembourseCentimes: 600,
+      adresse: null,
+    })
+    expect(byId[part]).toMatchObject({
+      etat: 'paid',
+      rembourseCentimes: 300,
+      montantCentimes: 914,
+    })
+  })
+
+  it('🔴 only the owner cancels, at Odoro; the team keeps its plan until the end of the period', async () => {
+    expect((await post('/api/billing/cancel', {}, hugo)).status).toBe(403)
+    expect(asked.filter((a) => a.kind === 'cancel')).toEqual([])
+    const res = await post('/api/billing/cancel', {}, claire)
+    expect(res.body).toEqual({ jusqua: '2026-10-27T00:00:00.000Z' })
+    expect(asked.at(-1)).toEqual({ kind: 'cancel', teamId: team })
+    // Nothing is written by the site: Odoro writes the cancellation.
+    expect((await get('/api/billing', claire)).body.resiliee).toBe(false)
+    await expect(
+      app.query('UPDATE billing.subscriptions SET cancel_at_period_end = true'),
+    ).rejects.toThrow(/permission denied/)
+    await owner.query(
+      'UPDATE billing.subscriptions SET cancel_at_period_end = true WHERE team_id = $1',
+      [team],
+    )
+    const after = (await get('/api/billing', claire)).body
+    expect(after).toMatchObject({ resiliee: true, actif: true, etat: 'active' })
+    expect(await entitled(app, team, 'export')).toBe(true)
+  })
+
+  it('🔴 the seats bound the team: no invitation, no acceptance beyond them', async () => {
+    await odoroWrites({
+      status: 'active',
+      seats: 3,
+      periodStart: hoursFromNow(-1),
+      periodEnd: hoursFromNow(700),
+    })
+    expect(await seatsOf(app, team)).toMatchObject({ used: 2, paid: 3 })
+    expect(
+      (
+        await post(
+          '/api/teams/invite',
+          { equipe: team, email: 'ines@exemple.fr' },
+          claire,
+        )
+      ).status,
+    ).toBe(200)
+    expect(
+      (await post('/api/teams/invite', { equipe: team, email: 'zoe@exemple.fr' }, claire))
+        .status,
+    ).toBe(200)
+    const tokenOf = (email: string) => invitations.find((i) => i.email === email)!.token
+    expect(
+      (await post('/api/teams/join', { jeton: tokenOf('ines@exemple.fr') })).status,
+    ).toBe(200)
+    expect(await seatsOf(app, team)).toMatchObject({ used: 3, paid: 3, available: 0 })
+
+    // The last seat is taken: Zoé's invitation waits, a new one does not leave.
+    const zoe = await post('/api/teams/join', { jeton: tokenOf('zoe@exemple.fr') })
+    expect(zoe.status).toBe(409)
+    expect(zoe.body.erreur).toBe(
+      'Les sièges payés de cette équipe sont tous occupés : son propriétaire peut en ajouter.',
+    )
+    const refused = await post(
+      '/api/teams/invite',
+      { equipe: team, email: 'leo@exemple.fr' },
+      claire,
+    )
+    expect(refused.status).toBe(409)
+    expect(invitations.map((i) => i.email)).not.toContain('leo@exemple.fr')
+    expect((await seatsOf(app, team)).used).toBe(3)
+
+    // A plan that is no longer live pays for no seat.
+    await odoroWrites({
+      status: 'past_due',
+      seats: 3,
+      periodStart: hoursFromNow(-1),
+      periodEnd: hoursFromNow(700),
+    })
+    expect(
+      (await post('/api/teams/invite', { equipe: team, email: 'leo@exemple.fr' }, claire))
+        .body.erreur,
+    ).toBe(
+      "Cette équipe n'a pas de formule en cours : son propriétaire en choisit une avant d'inviter.",
+    )
+
+    // A seat bought, Zoé's invitation still serves.
+    await odoroWrites({
+      status: 'active',
+      seats: 4,
+      periodStart: hoursFromNow(-1),
+      periodEnd: hoursFromNow(700),
+    })
+    expect(
+      (await post('/api/teams/join', { jeton: tokenOf('zoe@exemple.fr') })).status,
+    ).toBe(200)
+    expect(await seatsOf(app, team)).toMatchObject({ used: 4, paid: 4, available: 0 })
   })
 })

@@ -9,10 +9,12 @@
  *   POST /api/billing/checkout  { formule } { adresse }                   the owner
  *   POST /api/billing/trial     { formule } { jusqua }                    the owner
  *   POST /api/billing/seats     { sieges }  { adresse } | { sieges }      the owner
+ *   POST /api/billing/cancel    {}          { jusqua }                    the owner
  *
- * Only a team's OWNER (`proprietaire`) commits it to paying. Nothing here
- * writes a subscription: checkout, trial and seats are asked of Odoro, which
- * writes them in the site's database when — and only when — it may.
+ * Only a team's OWNER (`proprietaire`) commits it to paying, or stops it.
+ * Nothing here writes a subscription: checkout, trial, seats and cancellation
+ * are asked of Odoro, which writes them in the site's database when — and
+ * only when — it may.
  *
  * @module
  */
@@ -141,6 +143,8 @@ export function createBillingModule(options: BillingOptions) {
             formule: plan === null ? null : shown(plan),
             sieges: { utilises: seats.used, payes: seats.paid },
             essaiJusqua: iso(subscription?.trialEndsAt ?? null),
+            // Cancelled: the plan holds until the end of the period, then stops.
+            resiliee: subscription?.cancelAtPeriodEnd ?? false,
             periode:
               subscription?.periodStart && subscription.periodEnd
                 ? {
@@ -160,6 +164,7 @@ export function createBillingModule(options: BillingOptions) {
               montantCentimes: i.amountCents,
               devise: i.currency,
               etat: i.status,
+              rembourseCentimes: i.refundedCents,
               adresse: i.paymentUrl,
               debut: iso(i.periodStart),
               fin: iso(i.periodEnd),
@@ -238,6 +243,18 @@ export function createBillingModule(options: BillingOptions) {
           return 'paymentUrl' in done
             ? { adresse: done.paymentUrl }
             : { sieges: done.seats }
+        }),
+    }),
+    route({
+      name: 'billing.cancel',
+      method: 'POST',
+      path: '/api/billing/cancel',
+      auth: 'public',
+      handler: async ({ cookies }) =>
+        await answer(async () => {
+          const { team } = await owner(cookies)
+          const { endsAt } = await odoro.cancel({ teamId: team.id })
+          return { jusqua: endsAt }
         }),
     }),
   ]

@@ -1,4 +1,4 @@
--- La capacite billing 1.0.0 d odoro-cloud, telle que le gestionnaire l installe.
+-- La capacite billing 1.1.0 d odoro-cloud, telle que le gestionnaire l installe.
 
 -- GENERE depuis packages/manager/src/features/billing.ts (odoro-cloud) : ne pas editer a la main.
 
@@ -77,3 +77,28 @@ CREATE TABLE IF NOT EXISTS billing.usage_events (
 CREATE UNIQUE INDEX IF NOT EXISTS usage_idempotent
   ON billing.usage_events (team_id, idempotency_key) WHERE idempotency_key IS NOT NULL;
 CREATE INDEX IF NOT EXISTS usage_par_periode ON billing.usage_events (team_id, metric, occurred_at);
+
+-- 0002-resiliation-et-remboursement : La resiliation a la fin de la periode, et ce qui a ete rendu d'une facture.
+-- Vrai quand l'abonnement ne se renouvellera pas : l'equipe garde sa formule
+-- jusqu'a la fin de la periode payee, puis ODORO l ecrit canceled.
+ALTER TABLE billing.subscriptions ADD COLUMN IF NOT EXISTS cancel_at_period_end boolean NOT NULL DEFAULT false;
+
+-- Ce qui a ete rendu d'une facture, en centimes ; refunded quand tout
+-- l a ete. Jamais plus que la facture.
+ALTER TABLE billing.invoices ADD COLUMN IF NOT EXISTS refunded_cents integer NOT NULL DEFAULT 0
+  CHECK (refunded_cents >= 0);
+ALTER TABLE billing.invoices ADD COLUMN IF NOT EXISTS refunded_at timestamptz;
+
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'facture_rendue_bornee') THEN
+    ALTER TABLE billing.invoices ADD CONSTRAINT facture_rendue_bornee CHECK (refunded_cents <= amount_cents);
+  END IF;
+  -- L'etat d'une facture gagne refunded. La contrainte de 1.0.0 porte le
+  -- nom que PostgreSQL lui a donne ; elle est remplacee par une nommee.
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'etat_de_la_facture') THEN
+    ALTER TABLE billing.invoices DROP CONSTRAINT IF EXISTS invoices_status_check;
+    ALTER TABLE billing.invoices ADD CONSTRAINT etat_de_la_facture
+      CHECK (status IN ('open', 'paid', 'void', 'refunded'));
+  END IF;
+END $$;

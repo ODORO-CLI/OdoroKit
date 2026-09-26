@@ -53,6 +53,12 @@ export interface Subscription {
   readonly trialEndsAt: Date | null
   readonly periodStart: Date | null
   readonly periodEnd: Date | null
+  /**
+   * The team has cancelled: it keeps its plan until the end of the paid
+   * period, then Odoro writes it `canceled`. Always false on a database
+   * whose `billing` capability predates 1.1.0.
+   */
+  readonly cancelAtPeriodEnd: boolean
 }
 
 export interface Invoice {
@@ -60,7 +66,10 @@ export interface Invoice {
   readonly kind: 'seats' | 'period'
   readonly amountCents: number
   readonly currency: string
-  readonly status: 'open' | 'paid' | 'void'
+  /** `refunded` when all of it was refunded; a partial refund keeps `paid`. */
+  readonly status: 'open' | 'paid' | 'void' | 'refunded'
+  /** What was refunded, in cents, as Odoro saw it at the payment provider. */
+  readonly refundedCents: number
   readonly paymentUrl: string | null
   readonly periodStart: Date | null
   readonly periodEnd: Date | null
@@ -205,9 +214,13 @@ export async function subscriptionOf(
     trial_ends_at: Date | null
     current_period_start: Date | null
     current_period_end: Date | null
+    cancel_at_period_end: boolean | null
   }>(
-    `SELECT team_id, plan_id, status, seats, trial_ends_at, current_period_start, current_period_end
-       FROM billing.subscriptions WHERE team_id = $1`,
+    // Read through the row as JSON: a database still in billing 1.0.0 has no
+    // cancel_at_period_end, and reads it as absent rather than failing.
+    `SELECT s.team_id, s.plan_id, s.status, s.seats, s.trial_ends_at, s.current_period_start,
+            s.current_period_end, (to_jsonb(s) ->> 'cancel_at_period_end')::boolean AS cancel_at_period_end
+       FROM billing.subscriptions s WHERE s.team_id = $1`,
     [teamId],
   )
   const r = rows[0]
@@ -221,6 +234,7 @@ export async function subscriptionOf(
     trialEndsAt: date(r.trial_ends_at),
     periodStart: date(r.current_period_start),
     periodEnd: date(r.current_period_end),
+    cancelAtPeriodEnd: r.cancel_at_period_end === true,
   }
 }
 
@@ -298,6 +312,23 @@ export async function seatsOf(
   const used = Number(rows[0]?.n ?? 0)
   const paid = live && subscription !== null ? subscription.seats : 0
   return { used, paid, available: Math.max(0, paid - used) }
+}
+
+/**
+ * Whether a team has a seat left for one more member — what
+ * `@odoro-cli/server-teams` asks before inviting and before an invitation is
+ * accepted (`canAddMember`). A team without a live plan pays for no seat: it
+ * takes nobody more until its owner chooses a plan.
+ */
+export function seatsAllowMember(db: Query, now: () => Date = () => new Date()) {
+  return async (teamId: string): Promise<true | string> => {
+    const { paid, available } = await seatsOf(db, teamId, now())
+    if (available > 0) return true
+    if (paid === 0) {
+      return "Cette équipe n'a pas de formule en cours : son propriétaire en choisit une avant d'inviter."
+    }
+    return 'Les sièges payés de cette équipe sont tous occupés : son propriétaire peut en ajouter.'
+  }
 }
 
 /**
@@ -414,15 +445,18 @@ export async function invoicesOf(db: Query, teamId: string): Promise<Invoice[]> 
     kind: 'seats' | 'period'
     amount_cents: number
     currency: string
-    status: 'open' | 'paid' | 'void'
+    status: 'open' | 'paid' | 'void' | 'refunded'
+    refunded_cents: string | null
     payment_url: string | null
     period_start: Date | null
     period_end: Date | null
     lines: unknown[]
     created_at: Date
   }>(
-    `SELECT id, kind, amount_cents, currency, status, payment_url, period_start, period_end, lines, created_at
-       FROM billing.invoices WHERE team_id = $1 ORDER BY created_at DESC LIMIT 50`,
+    // refunded_cents arrived with billing 1.1.0: read through the row as JSON.
+    `SELECT i.id, i.kind, i.amount_cents, i.currency, i.status, i.payment_url, i.period_start,
+            i.period_end, i.lines, i.created_at, to_jsonb(i) ->> 'refunded_cents' AS refunded_cents
+       FROM billing.invoices i WHERE i.team_id = $1 ORDER BY i.created_at DESC LIMIT 50`,
     [teamId],
   )
   return rows.map((r) => ({
@@ -431,7 +465,8 @@ export async function invoicesOf(db: Query, teamId: string): Promise<Invoice[]> 
     amountCents: Number(r.amount_cents),
     currency: r.currency,
     status: r.status,
-    // An invoice already paid or voided is not paid again.
+    refundedCents: Number(r.refunded_cents ?? 0),
+    // An invoice already paid, voided or refunded is not paid again.
     paymentUrl: r.status === 'open' ? r.payment_url : null,
     periodStart: r.period_start === null ? null : new Date(r.period_start),
     periodEnd: r.period_end === null ? null : new Date(r.period_end),

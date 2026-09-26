@@ -6,7 +6,7 @@
  *   POST /api/teams                    { nom }                 create; I am its owner
  *   POST /api/teams/current            { equipe }              work in this team
  *   GET  /api/teams/members?equipe=    { membres, invitations }
- *   POST /api/teams/invite             { equipe, email, role }
+ *   POST /api/teams/invite             { equipe, email, role }  when the team has room
  *   POST /api/teams/join               { jeton }               accept: signs in, joins
  *   POST /api/teams/role               { equipe, membre, role }
  *   POST /api/teams/remove             { equipe, membre }      or leave (membre = me)
@@ -25,7 +25,6 @@ import {
   AccountError,
   SESSION_MAX_AGE,
   accountOf,
-  signInWithProvenAddress,
   type Account,
   type Query,
 } from '@odoro-cli/server-accounts'
@@ -33,8 +32,7 @@ import { z } from 'zod'
 
 import {
   TeamError,
-  addMember,
-  consumeInvitation,
+  acceptInvitation,
   createTeam,
   currentTeam,
   deleteTeam,
@@ -43,6 +41,7 @@ import {
   removeMember,
   setRole,
   teamsOf,
+  type CanAddMember,
   type Team,
   type TeamMail,
 } from './teams.js'
@@ -57,6 +56,11 @@ export interface TeamsOptions {
   readonly mail: TeamMail
   /** `false` only in tests over plain HTTP. */
   readonly secureCookie?: boolean
+  /**
+   * Asked before inviting someone and before an invitation is accepted — the
+   * seats a team has paid for, for instance. Absent, a team takes anyone.
+   */
+  readonly canAddMember?: CanAddMember
 }
 
 /** The team this request works in, for other modules — null without a session or a team. */
@@ -93,7 +97,7 @@ async function answer<T>(work: () => Promise<T>): Promise<T> {
 }
 
 export function createTeamsModule(options: TeamsOptions) {
-  const { db, mail } = options
+  const { db, mail, canAddMember } = options
   const cookie = {
     httpOnly: true,
     sameSite: 'lax' as const,
@@ -196,6 +200,7 @@ export function createTeamsModule(options: TeamsOptions) {
             byUserId: account.id,
             email: input.email,
             role: input.role ?? 'membre',
+            ...(canAddMember === undefined ? {} : { canAddMember }),
           })
           return { ok: true }
         }),
@@ -208,14 +213,17 @@ export function createTeamsModule(options: TeamsOptions) {
       input: z.object({ jeton: z.string().max(200) }),
       handler: async ({ input, cookies }) =>
         await answer(async () => {
-          const opened = await consumeInvitation(db, input.jeton)
+          // The link came to this address: opening it proves the address. A
+          // team without room refuses, and the invitation stays.
+          const opened = await acceptInvitation(
+            db,
+            input.jeton,
+            canAddMember === undefined ? {} : { canAddMember },
+          )
           if (opened === null) {
             throw new TeamError(422, 'Cette invitation est périmée ou a déjà servi.')
           }
-          // The link came to this address: opening it proves the address.
-          const { session, account } = await signInWithProvenAddress(db, opened.email)
-          await addMember(db, opened.teamId, account.id, opened.role)
-          cookies.set(ACCOUNT_COOKIE, session, cookie)
+          cookies.set(ACCOUNT_COOKIE, opened.session, cookie)
           cookies.set(TEAM_COOKIE, opened.teamId, cookie)
           return { equipe: opened.teamId }
         }),

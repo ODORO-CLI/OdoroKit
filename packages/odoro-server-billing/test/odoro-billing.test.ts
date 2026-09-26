@@ -108,6 +108,25 @@ describe('odoroBilling', () => {
     })
   })
 
+  it('🔴 asks for a cancellation, signed, naming the team only — and reads the end of the period', async () => {
+    const { sent, fake } = replying(200, { jusqua: '2026-10-27T00:00:00.000Z' })
+    expect(await port(fake).cancel({ teamId: TEAM })).toEqual({
+      endsAt: '2026-10-27T00:00:00.000Z',
+    })
+    const body = String(sent[0]!.init.body)
+    expect(JSON.parse(body)).toEqual({
+      site: 'site-1',
+      genre: 'resiliation',
+      equipe: TEAM,
+    })
+    const headers = sent[0]!.init.headers as Record<string, string>
+    expect(headers['x-odoro-signature']).toBe(signRequest('un-secret', 1758800000, body))
+    const silent = replying(200, {})
+    await expect(port(silent.fake).cancel({ teamId: TEAM })).rejects.toBeInstanceOf(
+      BillingError,
+    )
+  })
+
   it("passes Odoro's refusal on as it is, and hides a failure", async () => {
     const refused = replying(409, {
       erreur: "L'abonnement n'est pas encore disponible sur ce site.",

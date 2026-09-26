@@ -29,8 +29,24 @@ if (await entitled(pool, team.id, 'export')) {
 ```
 
 Routes: `GET /api/billing/plans`, `GET /api/billing`, `GET /api/billing/entitled`,
-`POST /api/billing/checkout`, `POST /api/billing/trial`, `POST /api/billing/seats`.
-Only a team's owner (`proprietaire`) commits it to paying.
+`POST /api/billing/checkout`, `POST /api/billing/trial`, `POST /api/billing/seats`,
+`POST /api/billing/cancel`. Only a team's owner (`proprietaire`) commits it to
+paying, or cancels: the team keeps its plan until the end of the paid period,
+and Odoro writes the cancellation once the payment provider has it.
+
+**Seats bound the team.** Give `seatsAllowMember(pool)` to
+`@odoro-cli/server-teams` as `canAddMember`: an invitation neither leaves nor
+is accepted beyond the seats paid for, and a team without a live plan takes
+nobody more.
+
+```ts
+createTeamsModule({ db: pool, mail, canAddMember: seatsAllowMember(pool) })
+```
+
+An invoice refunded at the payment provider reads `refunded` (all of it) or
+keeps `paid` with its `refundedCents` (part of it). Both columns, and
+`cancelAtPeriodEnd`, arrived with the `billing` capability 1.1.0; an older
+database reads them as nothing refunded, nothing cancelled.
 
 Amounts are integer cents. A metered metric is billed by block: `unitPriceCents`
 per `unitSize` units beyond `included`, rounded up to whole blocks. Seats added

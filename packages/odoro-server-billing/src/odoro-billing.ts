@@ -34,7 +34,7 @@ export interface OdoroBillingOptions {
   readonly now?: () => number
 }
 
-/** Where Odoro opens a team's subscription, trial or seats. */
+/** Where Odoro opens a team's subscription, trial or seats — and cancels it. */
 export const ODORO_BILLING_PATH = '/api/payment/site-subscription'
 
 export function signRequest(secret: string, timestamp: number, body: string): string {
@@ -62,6 +62,11 @@ export interface OdoroBillingPort {
     readonly seats: number
     readonly email: string
   }): Promise<{ paymentUrl: string } | { seats: number }>
+  /**
+   * Cancels the team's subscription at the end of its paid period: the team
+   * keeps its plan until then, and nothing is refunded. Returns that end.
+   */
+  cancel(input: { readonly teamId: string }): Promise<{ endsAt: string }>
 }
 
 const UNAVAILABLE = "Le paiement n'a pas pu s'ouvrir. Réessayez dans un instant."
@@ -136,6 +141,11 @@ export function odoroBilling(options: OdoroBillingOptions): OdoroBillingPort {
       if (typeof payload['adresse'] === 'string') return { paymentUrl: url(payload) }
       if (typeof payload['sieges'] === 'number') return { seats: payload['sieges'] }
       throw new BillingError(409, UNAVAILABLE)
+    },
+    cancel: async ({ teamId }) => {
+      const payload = await ask({ genre: 'resiliation', equipe: teamId })
+      if (typeof payload['jusqua'] !== 'string') throw new BillingError(409, UNAVAILABLE)
+      return { endsAt: payload['jusqua'] }
     },
   }
 }

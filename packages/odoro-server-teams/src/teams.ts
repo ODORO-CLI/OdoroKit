@@ -22,7 +22,12 @@
 
 import { createHash, randomBytes } from 'node:crypto'
 
-import { address, type Query } from '@odoro-cli/server-accounts'
+import {
+  address,
+  signInWithProvenAddress,
+  type Account,
+  type Query,
+} from '@odoro-cli/server-accounts'
 
 export type Role = 'proprietaire' | 'admin' | 'membre'
 export const ROLES: readonly Role[] = ['proprietaire', 'admin', 'membre']
@@ -42,6 +47,21 @@ export interface TeamMail {
     readonly team: string
   }): Promise<void>
 }
+
+/**
+ * Asked before a person joins a team — when they are invited, and again when
+ * they accept. `true` lets them in; `false` refuses with {@link TEAM_FULL}; a
+ * string refuses with that sentence, written for the visitor. A person who is
+ * already a member is never asked about: an invitation never adds a seat.
+ *
+ * It is how a site bounds its teams without this module knowing why — the
+ * seats a team has paid for, for instance (`@odoro-cli/server-billing`).
+ */
+export type CanAddMember = (teamId: string) => Promise<boolean | string>
+
+/** The refusal of a full team, when the site gives none of its own. */
+export const TEAM_FULL =
+  "Cette équipe n'a plus de place libre : son propriétaire peut en ajouter."
 
 /** How long an invitation stays valid, in days. */
 export const INVITATION_DAYS = 7
@@ -164,6 +184,28 @@ async function requireRole(
   return role
 }
 
+/** Refuses when the site says this team takes nobody more; a member already in never counts. */
+async function mayJoin(
+  db: Query,
+  teamId: string,
+  email: string,
+  canAddMember: CanAddMember | undefined,
+): Promise<void> {
+  if (canAddMember === undefined) return
+  const { rows } = await db.query(
+    `SELECT 1 FROM teams.members m JOIN accounts.users u ON u.id = m.user_id
+      WHERE m.team_id = $1 AND u.email = $2`,
+    [teamId, email],
+  )
+  if (rows.length > 0) return
+  const verdict = await canAddMember(teamId)
+  if (verdict === true) return
+  throw new TeamError(
+    409,
+    typeof verdict === 'string' && verdict.trim() !== '' ? verdict : TEAM_FULL,
+  )
+}
+
 /** The members of a team, and — for its owners and admins — the pending invitations. */
 export async function membersOf(
   db: Query,
@@ -201,15 +243,22 @@ export async function membersOf(
   }
 }
 
-/** Invites an address into a team (owners and admins). */
+/** Invites an address into a team (owners and admins), when the team has room for it. */
 export async function invite(
   db: Query,
   mail: TeamMail,
-  input: { teamId: unknown; byUserId: string; email: unknown; role?: unknown },
+  input: {
+    teamId: unknown
+    byUserId: string
+    email: unknown
+    role?: unknown
+    canAddMember?: CanAddMember
+  },
 ): Promise<void> {
   const team = id(input.teamId)
   await requireRole(db, team, input.byUserId, ['proprietaire', 'admin'])
   const email = address(input.email)
+  await mayJoin(db, team, email, input.canAddMember)
   const role: Role = input.role === 'admin' ? 'admin' : 'membre'
   const { rows } = await db.query<{ n: number; name: string }>(
     `SELECT (SELECT count(*)::integer FROM teams.invitations
@@ -252,6 +301,36 @@ export async function consumeInvitation(
   return row === undefined
     ? null
     : { email: row.email, teamId: row.team_id, role: row.role }
+}
+
+/**
+ * Accepts an invitation: asks the site whether the team has room, THEN
+ * consumes the invitation, signs the invitee in (opening the link proves the
+ * address) and makes them a member. A team without room refuses, and the
+ * invitation stays — it serves once a place frees up, until it expires.
+ *
+ * Two people accepting the last place in the same instant may both be let
+ * in: the site is asked, it does not lock.
+ */
+export async function acceptInvitation(
+  db: Query,
+  token: unknown,
+  options: { canAddMember?: CanAddMember } = {},
+): Promise<{ session: string; account: Account; teamId: string; role: Role } | null> {
+  if (typeof token !== 'string' || !TOKEN.test(token)) return null
+  const { rows } = await db.query<{ email: string; team_id: string }>(
+    `SELECT email, team_id FROM teams.invitations
+      WHERE fingerprint = $1 AND accepted_at IS NULL AND expires_at > now()`,
+    [fingerprint(token)],
+  )
+  const pending = rows[0]
+  if (pending === undefined) return null
+  await mayJoin(db, pending.team_id, pending.email, options.canAddMember)
+  const opened = await consumeInvitation(db, token)
+  if (opened === null) return null
+  const { session, account } = await signInWithProvenAddress(db, opened.email)
+  await addMember(db, opened.teamId, account.id, opened.role)
+  return { session, account, teamId: opened.teamId, role: opened.role }
 }
 
 /** Makes an account a member. An existing member keeps its role: an invitation never demotes. */

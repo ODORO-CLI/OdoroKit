@@ -23,3 +23,22 @@ import { createTeamsModule, whichTeam } from '@odoro-cli/server-teams'
 const teams = createTeamsModule({ db: pool, mail })
 const team = await whichTeam(pool)(cookies) // { id, name, role } | null
 ```
+
+## A team with room, or without
+
+A site may bound its teams — the seats a team has paid for, for instance.
+`canAddMember(teamId)` is asked before an invitation leaves and again before
+one is accepted: `true` lets the person in, `false` refuses with `TEAM_FULL`,
+a string refuses with that sentence. A refused acceptance keeps its
+invitation, which serves once a place frees up. A person already in the team
+is never asked about.
+
+```ts
+import { seatsAllowMember } from '@odoro-cli/server-billing'
+
+createTeamsModule({ db: pool, mail, canAddMember: seatsAllowMember(pool) })
+```
+
+A site that serves the invitation link itself calls
+`acceptInvitation(db, token, { canAddMember })`: it asks, consumes the
+invitation, signs the person in and makes them a member.

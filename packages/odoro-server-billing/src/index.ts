@@ -29,6 +29,7 @@ export {
   listPlans,
   planById,
   recordUsage,
+  seatsAllowMember,
   seatsOf,
   standingOf,
   subscriptionOf,
