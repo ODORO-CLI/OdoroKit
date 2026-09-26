@@ -6,7 +6,11 @@ The V4 storefront script and `@odoro-cli/commerce` talk to it exactly as they ta
 
 ```ts
 import { createApp } from '@odoro-cli/server'
-import { baseFromPool, createCommerceModule, odoroPayment } from '@odoro-cli/server-commerce'
+import {
+  baseFromPool,
+  createCommerceModule,
+  odoroPayment,
+} from '@odoro-cli/server-commerce'
 import pg from 'pg'
 
 createApp({
